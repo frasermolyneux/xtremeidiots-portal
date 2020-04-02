@@ -30,7 +30,7 @@ stages:
     - task: VSBuild@1
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:Publish /p:PackageLocation="$(build.artifactStagingDirectory)/webapp-publish"'
+        msbuildArgs: '/t:Publish /p:OutputPath="$(build.artifactStagingDirectory)/webapp-publish"'
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)' 
 

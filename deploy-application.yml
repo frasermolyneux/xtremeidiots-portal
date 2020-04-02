@@ -78,3 +78,4 @@ stages:
               appType: 'webApp'
               deployToSlotOrASE: true
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
+              ResourceGroupName: 'XI-Portal-Web-$(environment)'

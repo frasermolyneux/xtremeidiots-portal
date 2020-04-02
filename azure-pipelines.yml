@@ -43,3 +43,28 @@ stages:
     - publish: '$(Build.artifactStagingDirectory)/XI.Portal.Web.zip'
       displayName: 'Publish website source artifact'
       artifact: webapp
+
+- stage: pre_deploy
+  jobs:
+  - job: create_terraform_backend
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    variables:
+      AzTerraformRegion: 'uksouth'
+      AzTerraformResourceGroup: 'XI-Portal-Web-Terraform'
+      AzTerraformStorageAccount: 'xiportal'
+
+    steps:
+    - checkout: none
+      displayName: 'Skip checking out source'
+
+    - task: AzureCLI@1
+      displayName: 'Create terraform backend in Azure storage'
+      inputs:
+        azureSubscription: 'XI-Pay-As-You-Go'
+        scriptLocation: inlineScript
+        inlineScript: |
+          call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
+          call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
+          call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"

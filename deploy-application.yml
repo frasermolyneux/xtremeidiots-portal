@@ -70,9 +70,11 @@ stages:
             displayName: 'Download webapp artifact'
             artifact: webapp
          
-          - task: AzureWebApp@1
+          - task: AzureRmWebAppDeployment@4
             displayName: 'Azure App Service Deploy: XI-Portal-WebApp-$(environment)'
             inputs:
               azureSubscription: 'XI-Pay-As-You-Go'
-              appName: 'XI-Portal-WebApp-$(environment)'
-              package: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
+              WebAppName: 'XI-Portal-WebApp-$(environment)'
+              appType: 'webApp'
+              deployToSlotOrASE: true
+              packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'

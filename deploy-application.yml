@@ -1,0 +1,58 @@
+parameters:
+- name: environment
+  default: 'dev'
+
+stages:
+- stage: ${{ parameters.environment }}_deploy
+
+  variables:
+  - group: 'xi-portal-${{ parameters.environment }}'
+  - name: 'environment'
+    value: ${{ parameters.environment }}
+
+  jobs:
+  - deployment: terraform_deploy
+
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    environment: 'xi-portal-${{ parameters.environment }}'
+
+    strategy:
+     runOnce:
+       deploy:
+        steps:
+          - download: current
+            displayName: 'Download terraform source artifact'
+            artifact: terraform
+
+          - task: TerraformInstaller@0
+            displayName: 'Install terraform'
+            inputs:
+              terraformVersion: '0.12.24'
+
+          - task: TerraformTaskV1@0
+            displayName: 'Terraform: azurerm init'
+            inputs:
+              workingDirectory: '$(Pipeline.Workspace)/terraform'
+              backendServiceArm: 'XI-Pay-As-You-Go'
+              backendAzureRmResourceGroupName: '$(AzTerraformResourceGroup)'
+              backendAzureRmStorageAccountName: '$(AzTerraformStorageAccount)'
+              backendAzureRmContainerName: terraform
+              backendAzureRmKey: '${{ parameters.environment }}-terraform.tfstate'
+
+          - task: TerraformTaskV1@0
+            displayName: 'Terraform : azurerm plan'
+            inputs:
+              command: plan
+              workingDirectory: '$(Pipeline.Workspace)/terraform'
+              commandOptions: '-var="environment=$(environment)"'
+              environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+
+          - task: TerraformTaskV1@0
+            displayName: 'Terraform : azurerm validate and apply'
+            inputs:
+              command: apply
+              workingDirectory: '$(Pipeline.Workspace)/terraform'
+              commandOptions: '-var="environment=$(Environment)"'
+              environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'

@@ -3,6 +3,11 @@ trigger:
     include:
     - '*'
 
+variables:
+  AzTerraformRegion: 'uksouth'
+  AzTerraformResourceGroup: 'XI-Portal-Web-Terraform'
+  AzTerraformStorageAccount: 'xiportal'
+
 stages:
 - stage: build
   jobs:
@@ -50,11 +55,6 @@ stages:
     pool:
       vmImage: 'windows-latest'
 
-    variables:
-      AzTerraformRegion: 'uksouth'
-      AzTerraformResourceGroup: 'XI-Portal-Web-Terraform'
-      AzTerraformStorageAccount: 'xiportal'
-
     steps:
     - checkout: none
       displayName: 'Skip checking out source'
@@ -68,3 +68,8 @@ stages:
           call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
           call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
           call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
+
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
+  - template: deploy-application.yml
+    parameters:
+      environment: 'hera'

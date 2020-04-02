@@ -29,6 +29,6 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
-    - publish: $(Build.artifactStagingDirectory)
+    - publish: '$(Build.artifactStagingDirectory)/XI.Portal.Web.zip'
       displayName: 'Publish website source artifact'
       artifact: webapp

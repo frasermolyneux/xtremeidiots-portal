@@ -30,9 +30,16 @@ stages:
     - task: VSBuild@1
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
+        msbuildArgs: '/p:Publish /p:PackageLocation="$(build.artifactStagingDirectory)/webapp-publish"'
         platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
+        configuration: '$(buildConfiguration)' 
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/webapp-publish/*'
+        archiveType: 'zip'
+        archiveFile: '$(Build.artifactStagingDirectory)/webapp/$(Build.BuildId).zip'
+        replaceExistingArchive: true
 
     - task: CopyFiles@2
       displayName: 'Copy terraform folder into staging directory'

@@ -29,6 +29,17 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
+    - task: CopyFiles@2
+      displayName: 'Copy terraform folder into staging directory'
+      inputs: 
+        SourceFolder: '$(Build.sourcesDirectory)/terraform'
+        Contents: '**'
+        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
+
+    - publish: $(Build.artifactStagingDirectory)/terraform
+      displayName: Publish terraform artifact
+      artifact: terraform
+
     - publish: '$(Build.artifactStagingDirectory)/XI.Portal.Web.zip'
       displayName: 'Publish website source artifact'
       artifact: webapp

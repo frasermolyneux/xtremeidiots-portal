@@ -75,4 +75,4 @@ stages:
             inputs:
               azureSubscription: 'XI-Pay-As-You-Go'
               appName: 'XI-Portal-WebApp-$(environment)'
-              package: '$(Pipeline.Workspace)/webapp/$(Build.BuildId).zip'
+              package: '$(Pipeline.Workspace)/webapp/'

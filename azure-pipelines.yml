@@ -48,7 +48,7 @@ stages:
   jobs:
   - job: create_terraform_backend
     pool:
-      vmImage: 'ubuntu-latest'
+      vmImage: 'windows-latest'
 
     variables:
       AzTerraformRegion: 'uksouth'

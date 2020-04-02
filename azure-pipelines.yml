@@ -30,7 +30,7 @@ stages:
     - task: VSBuild@1
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
@@ -45,7 +45,7 @@ stages:
       displayName: Publish terraform artifact
       artifact: terraform
 
-    - publish: '$(Build.artifactStagingDirectory)/XI.Portal.Web.zip'
+    - publish: '$(Build.artifactStagingDirectory)/webapp'
       displayName: 'Publish website source artifact'
       artifact: webapp
 

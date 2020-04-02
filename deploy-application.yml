@@ -54,5 +54,27 @@ stages:
             inputs:
               command: apply
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              commandOptions: '-var="environment=$(Environment)"'
+              commandOptions: '-var="environment=$(environment)"'
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+
+  - deployment: 'webapp_deploy'
+    dependsOn: 'terraform_deploy'
+    pool: 
+      vmImage: 'ubuntu-latest'
+    environment: 'xi-portal-${{ parameters.environment }}'
+    strategy:
+     runOnce:
+       deploy:
+         steps:
+          - download: current
+            displayName: 'Download webapp artifact'
+            artifact: webapp
+         
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Azure App Service Deploy: XI-Portal-WebApp-$(environment)'
+            inputs:
+              azureSubscription: 'XI-Pay-As-You-Go'
+              WebAppName: 'XI-Portal-WebApp-$(environment)'
+              deployToSlotOrASE: true
+              ResourceGroupName: 'XI-Portal-Web-$(environment)'
+              packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'

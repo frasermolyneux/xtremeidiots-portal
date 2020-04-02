@@ -77,4 +77,4 @@ stages:
               WebAppName: 'XI-Portal-WebApp-$(environment)'
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
-              packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
+              packageForLinux: '$(Pipeline.Workspace)/webapp/'

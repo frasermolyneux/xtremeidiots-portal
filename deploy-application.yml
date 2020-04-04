@@ -76,6 +76,8 @@ stages:
           - download: current
             displayName: 'Download webapp artifact'
             artifact: webapp
+
+          - script: echo $(identity_storage_connection)
          
           - task: AzureRmWebAppDeployment@4
             displayName: 'Azure App Service Deploy: XI-Portal-WebApp-$(environment)'

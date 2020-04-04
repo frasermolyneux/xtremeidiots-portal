@@ -88,9 +88,6 @@ stages:
             name: terraform_output
             displayName: 'Read terraform output vars'
 
-          - script: "echo $(terraform_output.identity_storage_connection)"
-            name: echovar
-
   - deployment: 'webapp_deploy'
     dependsOn: 'terraform_deploy'
     pool: 

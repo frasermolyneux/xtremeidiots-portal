@@ -67,14 +67,7 @@ namespace XI.Portal.Web
                     options.TokenEndpoint = "https://www.xtremeidiots.com/oauth/token/";
                     options.UserInformationEndpoint = "https://www.xtremeidiots.com/api/core/me";
 
-                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-
-                    options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.UserTitle, XtremeIdiotsClaimTypes.UserTitle);
-                    options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.PrimaryGroupId, "primaryGroup.id");
-                    options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.PrimaryGroupFormattedName,
-                        "primaryGroup.formattedName");
+                    options.ClaimActions.MapAll();
 
                     options.Scope.Add("profile");
 

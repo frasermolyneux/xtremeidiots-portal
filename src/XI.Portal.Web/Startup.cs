@@ -70,8 +70,6 @@ namespace XI.Portal.Web
                     options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
                     options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
 
-                    options.ClaimActions.MapAll();
-
                     options.Scope.Add("profile");
 
                     options.Events = new OAuthEvents

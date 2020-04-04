@@ -47,12 +47,12 @@ namespace XI.Portal.Web.Controllers
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
 
-            _logger.LogInformation("User {Username} has successfully authenticated against the {Provider} service", username, info.ProviderKey);
+            _logger.LogInformation("User {Username} has successfully authenticated", username);
 
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
             var signInResult = result.ToString();
 
-            _logger.LogInformation("User {Username} had a {SignInResult} sign in result from the {Provider} service", username, signInResult, info.ProviderKey);
+            _logger.LogInformation("User {Username} had a {SignInResult} sign in result", username, signInResult);
 
             switch (signInResult)
             {
@@ -73,7 +73,7 @@ namespace XI.Portal.Web.Controllers
                         if (addLoginResult.Succeeded)
                         {
                             await _signInManager.SignInAsync(user, false);
-                            _logger.LogInformation("User {Username} created a new account with {Email} email from {Provider} service.", username, email, info.ProviderKey);
+                            _logger.LogInformation("User {Username} created a new account with {Email} email", username, email);
                             return RedirectToLocal(returnUrl);
                         }
                     }

@@ -98,6 +98,8 @@ stages:
     variables:
     - name: identity_storage_connection
       value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.identity_storage_connection'] ]
+    - name: logs_storage_connection
+      value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.logs_storage_connection'] ]
 
     strategy:
      runOnce:
@@ -115,4 +117,4 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)"'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -AzureTableLogger:ConnectionString "$(logs_storage_connection)"'

@@ -60,7 +60,7 @@ stages:
   - deployment: 'webapp_deploy'
     dependsOn: 'terraform_deploy'
     pool: 
-      vmImage: 'ubuntu-latest'
+      vmImage: 'windows-latest'
     environment: 'xi-portal-${{ parameters.environment }}'
     strategy:
      runOnce:

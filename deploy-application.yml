@@ -50,6 +50,7 @@ stages:
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
 
           - task: TerraformTaskV1@0
+            name: terraform-validate-and-apply
             displayName: 'Terraform : azurerm validate and apply'
             inputs:
               command: apply
@@ -78,3 +79,4 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$[ dependencies.terraform_deploy.outputs['terraform-validate-and-apply.identity_storage_connection'] ]"'

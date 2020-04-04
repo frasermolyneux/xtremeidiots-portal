@@ -13,6 +13,7 @@ resource "azurerm_storage_account" "identity-storage" {
 
 output "identity_storage_connection" {
   value = azurerm_storage_account.identity-storage.primary_connection_string
+  sensitive = true
 }
 
 resource "azurerm_app_service_plan" "app-service-plan" {

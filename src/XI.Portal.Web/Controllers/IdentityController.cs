@@ -4,15 +4,18 @@ using System.Threading.Tasks;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace XI.Portal.Web.Controllers
 {
     public class IdentityController : Controller
     {
+        private readonly ILogger<IdentityController> _logger;
         private readonly Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> _signInManager;
 
-        public IdentityController(Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> signInManager)
+        public IdentityController(ILogger<IdentityController> logger, Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> signInManager)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
 
@@ -31,66 +34,88 @@ namespace XI.Portal.Web.Controllers
         {
             if (remoteError != null)
             {
-                //ModelState.AddModelError(string.Empty, $"Error from external provider: {remoteError}");
-                //return View(nameof(Login));
+                _logger.LogError(remoteError);
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
 
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
-                //return RedirectToAction(nameof(Login));
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
+
+            var username = info.Principal.FindFirstValue(ClaimTypes.Name);
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+
+            _logger.LogInformation("User {Username} has successfully authenticated against the {Provider} service", username, info.ProviderKey);
 
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
-            if (result.Succeeded)
-            {
-                //_logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
-                //return RedirectToLocal(returnUrl);
-            }
+            var signInResult = result.ToString();
 
-            if (result.RequiresTwoFactor)
-            {
-                //return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl });
-            }
+            _logger.LogInformation("User {Username} had a {SignInResult} sign in result from the {Provider} service", username, signInResult, info.ProviderKey);
 
-            if (result.IsLockedOut)
+            switch (signInResult)
             {
-                //return View("Lockout");
-            }
-            else
-            {
-                var name = info.Principal.FindFirstValue(ClaimTypes.Name);
-                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-
-                var user = new IdentityUser {UserName = name, Email = email};
-                var createUserResult = await _signInManager.UserManager.CreateAsync(user);
-                if (createUserResult.Succeeded)
-                {
-                    var addLoginResult = await _signInManager.UserManager.AddLoginAsync(user, info);
-                    if (addLoginResult.Succeeded)
+                case "Lockedout":
+                    return IdentityError("Your account is currently locked");
+                case "NotAllowed":
+                    return IdentityError("There is an issue with your account");
+                case "RequiresTwoFactor":
+                    return IdentityError("This is currently not implemented");
+                case "Succeeded":
+                    return RedirectToLocal(returnUrl);
+                case "Failed":
+                    var user = new IdentityUser { UserName = username, Email = email };
+                    var createUserResult = await _signInManager.UserManager.CreateAsync(user);
+                    if (createUserResult.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, false);
-                        //_logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
-
-                        if (returnUrl != null)
-                            return LocalRedirect(returnUrl);
-                        return RedirectToAction("Index", "Home");
+                        var addLoginResult = await _signInManager.UserManager.AddLoginAsync(user, info);
+                        if (addLoginResult.Succeeded)
+                        {
+                            await _signInManager.SignInAsync(user, false);
+                            _logger.LogInformation("User {Username} created a new account with {Email} email from {Provider} service.", username, email, info.ProviderKey);
+                            return RedirectToLocal(returnUrl);
+                        }
                     }
-                }
+
+                    break;
+                default:
+                    return RedirectToLocal(returnUrl);
             }
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult IdentityError(string message)
+        {
+            return View(message);
         }
 
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
+            _logger.LogInformation("User {User} logged out", User.Identity.Name);
+
             await _signInManager.SignOutAsync();
 
             if (returnUrl != null)
                 return LocalRedirect(returnUrl);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
+
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
     }
 }

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using XI.Portal.AzureTableLogging;
 using XI.Portal.Web.Constants;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -37,10 +39,7 @@ namespace XI.Portal.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
-                {
-                    options.User.RequireUniqueEmail = true;
-                })
+            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.User.RequireUniqueEmail = true; })
                 .AddAzureTableStores<ApplicationAuthDbContext>(() =>
                 {
                     var config = new IdentityConfiguration
@@ -74,7 +73,8 @@ namespace XI.Portal.Web
 
                     options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.UserTitle, XtremeIdiotsClaimTypes.UserTitle);
                     options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.PrimaryGroupId, "primaryGroup.id");
-                    options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.PrimaryGroupFormattedName, "primaryGroup.formattedName");
+                    options.ClaimActions.MapJsonKey(XtremeIdiotsClaimTypes.PrimaryGroupFormattedName,
+                        "primaryGroup.formattedName");
 
                     options.Scope.Add("profile");
 
@@ -98,6 +98,19 @@ namespace XI.Portal.Web
                             context.RunClaimActions(user.RootElement);
                         }
                     };
+                });
+
+            services.AddLogging(
+                logging =>
+                {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                    logging.AddAzureTableLogger(options =>
+                    {
+                        options.CreateTableIfNotExists = true;
+                        options.LogTableName = Configuration["Logging:AzureTableLogger:LogTableName"];
+                        options.ConnectionString = Configuration["Logging:AzureTableLogger:ConnectionString"];
+                    });
                 });
 
             services.AddControllersWithViews();

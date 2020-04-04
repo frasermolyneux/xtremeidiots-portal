@@ -1,5 +1,6 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authentication;
@@ -65,6 +66,10 @@ namespace XI.Portal.Web
                     options.TokenEndpoint = "https://www.xtremeidiots.com/oauth/token/";
                     options.UserInformationEndpoint = "https://www.xtremeidiots.com/api/core/me";
 
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
+
                     options.ClaimActions.MapAll();
 
                     options.Scope.Add("profile");
@@ -127,6 +132,8 @@ namespace XI.Portal.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseCookiePolicy();
 
             app.UseEndpoints(endpoints =>
             {

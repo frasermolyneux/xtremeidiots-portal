@@ -82,7 +82,7 @@ stages:
               commandOptions: '-var="environment=$(environment)"'
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
 
-          - script: echo $(terraform_validate_and_apply.identity_storage_connection)
+          - script: "echo $(terraform_validate_and_apply.identity_storage_connection)"
             name: echovar
 
   - deployment: 'webapp_deploy'

@@ -66,7 +66,7 @@ stages:
     environment: 'xi-portal-${{ parameters.environment }}'
 
     variables:
-    - name: identity-connection-string
+    - name: identity_storage_connection
       value: $[ dependencies.terraform_deploy.outputs['terraform_validate_and_apply.identity_storage_connection'] ]
 
     strategy:
@@ -85,4 +85,4 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity-connection-string)"'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)"'

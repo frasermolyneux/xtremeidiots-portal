@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\XI.AzureTableLogging\XI.AzureTableLogging.csproj" />
+    <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
   </ItemGroup>
 
 </Project>

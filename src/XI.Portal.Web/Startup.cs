@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging;
+using XI.Forums;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
@@ -105,6 +106,12 @@ namespace XI.Portal.Web
                         options.ConnectionString = Configuration["Logging:AzureTableLogger:ConnectionString"];
                     });
                 });
+
+            services.AddForumsClient(options =>
+            {
+                options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
+                options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
+            });
 
             services.AddControllersWithViews();
             services.AddRazorPages();

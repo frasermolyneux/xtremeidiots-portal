@@ -50,7 +50,7 @@ stages:
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
 
           - task: TerraformTaskV1@0
-            name: terraform-validate-and-apply
+            name: terraform_validate_and_apply
             displayName: 'Terraform : azurerm validate and apply'
             inputs:
               command: apply
@@ -67,7 +67,7 @@ stages:
 
     variables:
     - name: identity-connection-string
-      value: $[ dependencies.terraform_deploy.outputs['terraform-validate-and-apply.identity_storage_connection'] ]
+      value: $[ dependencies.terraform_deploy.outputs['terraform_validate_and_apply.identity_storage_connection'] ]
 
     strategy:
      runOnce:

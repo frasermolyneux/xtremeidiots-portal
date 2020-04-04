@@ -67,7 +67,7 @@ stages:
 
     variables:
     - name: identity_storage_connection
-      value: $[ dependencies.terraform_deploy.outputs['${{ parameters.environment }}_deploy.terraform_deploy.terraform_validate_and_apply.identity_storage_connection'] ]
+      value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_validate_and_apply.identity_storage_connection'] ]
 
     strategy:
      runOnce:
@@ -77,8 +77,6 @@ stages:
             displayName: 'Download webapp artifact'
             artifact: webapp
 
-          - script: echo $(identity_storage_connection)
-         
           - task: AzureRmWebAppDeployment@4
             displayName: 'Azure App Service Deploy: XI-Portal-WebApp-$(environment)'
             inputs:

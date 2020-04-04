@@ -30,9 +30,9 @@ stages:
     - task: VSBuild@1
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/t:Publish /p:OutputPath="$(build.artifactStagingDirectory)/webapp"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
         platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)' 
+        configuration: '$(buildConfiguration)'
 
     - task: CopyFiles@2
       displayName: 'Copy terraform folder into staging directory'

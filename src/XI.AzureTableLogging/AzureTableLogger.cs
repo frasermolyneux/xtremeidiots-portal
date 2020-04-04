@@ -2,7 +2,7 @@
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 
-namespace XI.Portal.AzureTableLogging
+namespace XI.AzureTableLogging
 {
     public class AzureTableLogger : ILogger
     {

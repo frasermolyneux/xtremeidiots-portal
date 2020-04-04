@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.AzureTableLogging
+namespace XI.AzureTableLogging
 {
     public class AzureTableLoggerOptions
     {

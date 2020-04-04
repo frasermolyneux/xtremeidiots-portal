@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace XI.Portal.AzureTableLogging
+namespace XI.AzureTableLogging
 {
     public static class AzureTableLoggerExtensions
     {

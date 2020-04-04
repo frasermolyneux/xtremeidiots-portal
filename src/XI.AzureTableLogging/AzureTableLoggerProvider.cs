@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 
-namespace XI.Portal.AzureTableLogging
+namespace XI.AzureTableLogging
 {
     public class AzureTableLoggerProvider : ILoggerProvider
     {

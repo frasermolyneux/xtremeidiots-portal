@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace XI.Portal.AzureTableLogging
+namespace XI.AzureTableLogging
 {
     public class LogEntity : TableEntity
     {

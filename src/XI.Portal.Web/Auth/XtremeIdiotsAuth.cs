@@ -118,6 +118,7 @@ namespace XI.Portal.Web.Auth
             var claims = new List<Claim>
             {
                 new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
+                new Claim(ClaimTypes.Email, member.Email),
                 new Claim(XtremeIdiotsClaimTypes.Group, primaryGroup)
             };
 

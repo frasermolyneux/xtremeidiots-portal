@@ -13,14 +13,6 @@ using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Auth
 {
-    public interface IXtremeIdiotsAuth
-    {
-        AuthenticationProperties ConfigureExternalAuthenticationProperties(string redirectUrl);
-        Task<ExternalLoginInfo> GetExternalLoginInfoAsync();
-        Task<XtremeIdiotsAuthResult> ProcessExternalLogin(ExternalLoginInfo info);
-        Task SignOutAsync();
-    }
-
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {
         private readonly IForumsClient _forumsClient;

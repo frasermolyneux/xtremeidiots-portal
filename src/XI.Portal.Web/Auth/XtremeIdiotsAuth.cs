@@ -82,12 +82,11 @@ namespace XI.Portal.Web.Auth
             var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var member = await _forumsClient.GetMember(id);
 
-            var foo = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-            var fooClaims = await _userManager.GetClaimsAsync(foo);
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            var userClaims = await _userManager.GetClaimsAsync(user);
 
-            await _userManager.RemoveClaimsAsync(foo,
-                fooClaims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Group));
-            await AddClaims(foo, member);
+            await _userManager.RemoveClaimsAsync(user, userClaims);
+            await AddClaims(user, member);
         }
 
         private async Task RegisterNewUser(ExternalLoginInfo info)
@@ -114,16 +113,29 @@ namespace XI.Portal.Web.Auth
 
         private async Task AddClaims(IdentityUser identityUser, Member member)
         {
+            var claims = GetClaimsForMember(member);
+            await _userManager.AddClaimsAsync(identityUser, claims);
+        }
+
+        private static IEnumerable<Claim> GetClaimsForMember(Member member)
+        {
+            var primaryGroup = member.PrimaryGroup.Name.Replace("+", "").Trim();
+
             var claims = new List<Claim>
             {
                 new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
-                new Claim(XtremeIdiotsClaimTypes.Group, member.PrimaryGroup.Name)
+                new Claim(XtremeIdiotsClaimTypes.Group, primaryGroup)
             };
 
-            claims.AddRange(
-                member.SecondaryGroups.Select(group => new Claim(XtremeIdiotsClaimTypes.Group, group.Name)));
+            foreach (var group in member.SecondaryGroups)
+            {
+                var groupName = group.Name.Replace("+", "").Trim();
 
-            await _userManager.AddClaimsAsync(identityUser, claims);
+                if (!claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.Group && claim.Value == groupName))
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Group, groupName));
+            }
+
+            return claims;
         }
     }
 }

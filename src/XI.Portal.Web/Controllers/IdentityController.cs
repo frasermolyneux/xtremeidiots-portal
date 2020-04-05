@@ -35,7 +35,7 @@ namespace XI.Portal.Web.Controllers
             if (remoteError != null)
             {
                 _logger.LogError(remoteError);
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return IdentityError("There has been an issue logging you in with the xtremeidiots provider");
             }
 
             var info = await _xtremeIdiotsAuth.GetExternalLoginInfoAsync();
@@ -74,9 +74,7 @@ namespace XI.Portal.Web.Controllers
 
             await _xtremeIdiotsAuth.SignOutAsync();
 
-            if (returnUrl != null)
-                return LocalRedirect(returnUrl);
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToLocal(returnUrl);
         }
 
         private IActionResult RedirectToLocal(string returnUrl)

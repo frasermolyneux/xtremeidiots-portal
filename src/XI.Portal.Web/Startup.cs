@@ -117,7 +117,6 @@ namespace XI.Portal.Web
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
             services.AddControllersWithViews();
-            services.AddRazorPages();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -147,7 +146,6 @@ namespace XI.Portal.Web
                 endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
             });
         }
     }

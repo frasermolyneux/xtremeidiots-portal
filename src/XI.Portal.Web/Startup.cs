@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging;
 using XI.Forums;
+using XI.Portal.Web.Auth;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
@@ -112,6 +113,8 @@ namespace XI.Portal.Web
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
+
+            services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();

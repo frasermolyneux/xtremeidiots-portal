@@ -1,30 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using XI.Forums;
-using XI.Forums.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Web.Auth;
 
 namespace XI.Portal.Web.Controllers
 {
     public class IdentityController : Controller
     {
-        private readonly IForumsClient _forumsClient;
         private readonly ILogger<IdentityController> _logger;
-        private readonly Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> _signInManager;
+        private readonly IXtremeIdiotsAuth _xtremeIdiotsAuth;
 
-        public IdentityController(ILogger<IdentityController> logger,
-            Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> signInManager, IForumsClient forumsClient)
+        public IdentityController(ILogger<IdentityController> logger, IXtremeIdiotsAuth xtremeIdiotsAuth)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
+            _xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
         }
 
         [AllowAnonymous]
@@ -32,7 +24,7 @@ namespace XI.Portal.Web.Controllers
         public IActionResult LoginWithXtremeIdiots(string returnUrl = null)
         {
             var redirectUrl = Url.Action("ExternalLoginCallback", "Identity", new {ReturnUrl = returnUrl});
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("XtremeIdiots", redirectUrl);
+            var properties = _xtremeIdiotsAuth.ConfigureExternalAuthenticationProperties(redirectUrl);
             return new ChallengeResult("XtremeIdiots", properties);
         }
 
@@ -46,77 +38,25 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
 
-            var info = await _signInManager.GetExternalLoginInfoAsync();
+            var info = await _xtremeIdiotsAuth.GetExternalLoginInfoAsync();
             if (info == null) return RedirectToAction(nameof(HomeController.Index), "Home");
 
-            var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
 
             _logger.LogInformation("User {Username} has successfully authenticated", username);
 
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
-            var signInResult = result.ToString();
+            var result = await _xtremeIdiotsAuth.ProcessExternalLogin(info);
 
-            _logger.LogInformation("User {Username} had a {SignInResult} sign in result", username, signInResult);
-
-            var member = await _forumsClient.GetMember(id);
-
-            switch (signInResult)
+            switch (result)
             {
-                case "Lockedout":
+                case XtremeIdiotsAuthResult.Success:
+                    return RedirectToLocal(returnUrl);
+                case XtremeIdiotsAuthResult.Locked:
                     return IdentityError("Your account is currently locked");
-                case "NotAllowed":
-                    return IdentityError("There is an issue with your account");
-                case "RequiresTwoFactor":
-                    return IdentityError("This is currently not implemented");
-                case "Succeeded":
-
-                    var foo = await _signInManager.UserManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-                    var fooClaims = await _signInManager.UserManager.GetClaimsAsync(foo);
-
-                    await _signInManager.UserManager.RemoveClaimsAsync(foo,
-                        fooClaims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Group));
-                    await AddClaims(foo, member);
-
-                    return RedirectToLocal(returnUrl);
-                case "Failed":
-                    var user = new IdentityUser {UserName = username, Email = email};
-                    var createUserResult = await _signInManager.UserManager.CreateAsync(user);
-                    if (createUserResult.Succeeded)
-                    {
-                        var addLoginResult = await _signInManager.UserManager.AddLoginAsync(user, info);
-                        if (addLoginResult.Succeeded)
-                        {
-                            await AddClaims(user, member);
-
-                            await _signInManager.SignInAsync(user, true);
-                            _logger.LogInformation("User {Username} created a new account with {Email} email", username,
-                                email);
-                            return RedirectToLocal(returnUrl);
-                        }
-                    }
-
-                    break;
+                case XtremeIdiotsAuthResult.Failed:
                 default:
-                    return RedirectToLocal(returnUrl);
+                    return IdentityError("There has been an issue logging you in");
             }
-
-            return RedirectToAction(nameof(HomeController.Index), "Home");
-        }
-
-        private async Task AddClaims(IdentityUser identityUser, Member member)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
-                new Claim(XtremeIdiotsClaimTypes.Group, member.PrimaryGroup.Name)
-            };
-
-            claims.AddRange(
-                member.SecondaryGroups.Select(group => new Claim(XtremeIdiotsClaimTypes.Group, group.Name)));
-
-            await _signInManager.UserManager.AddClaimsAsync(identityUser, claims);
         }
 
         [AllowAnonymous]
@@ -132,7 +72,7 @@ namespace XI.Portal.Web.Controllers
         {
             _logger.LogInformation("User {User} logged out", User.Identity.Name);
 
-            await _signInManager.SignOutAsync();
+            await _xtremeIdiotsAuth.SignOutAsync();
 
             if (returnUrl != null)
                 return LocalRedirect(returnUrl);

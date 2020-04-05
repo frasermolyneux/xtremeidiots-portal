@@ -116,6 +116,8 @@ namespace XI.Portal.Web
 
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
+            services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
+
             services.AddControllersWithViews();
         }
 

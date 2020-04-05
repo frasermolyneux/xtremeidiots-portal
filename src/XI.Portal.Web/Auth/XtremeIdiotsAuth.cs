@@ -78,7 +78,9 @@ namespace XI.Portal.Web.Auth
             var userClaims = await _userManager.GetClaimsAsync(user);
 
             await _userManager.RemoveClaimsAsync(user, userClaims);
-            await AddClaims(user, member);
+            await AddXtremeIdiotsClaims(user, member);
+
+            await _signInManager.SignInAsync(user, true);
         }
 
         private async Task RegisterNewUser(ExternalLoginInfo info)
@@ -96,14 +98,14 @@ namespace XI.Portal.Web.Auth
                 var addLoginResult = await _userManager.AddLoginAsync(user, info);
                 if (addLoginResult.Succeeded)
                 {
-                    await AddClaims(user, member);
+                    await AddXtremeIdiotsClaims(user, member);
                     await _signInManager.SignInAsync(user, true);
                     _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
                 }
             }
         }
 
-        private async Task AddClaims(IdentityUser identityUser, Member member)
+        private async Task AddXtremeIdiotsClaims(IdentityUser identityUser, Member member)
         {
             var claims = GetClaimsForMember(member);
             await _userManager.AddClaimsAsync(identityUser, claims);

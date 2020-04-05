@@ -2,10 +2,10 @@
 {
     public static class XtremeIdiotsPolicy
     {
-        public const string SeniorAdmin = "SeniorAdmin";
-        public const string HeadAdmin = "HeadAdmin";
-        public const string HeadAdminX = "HeadAdminX";
-        public const string Admin = "Admin";
-        public const string AdminX = "AdminX";
+        public const string SeniorAdmin = nameof(SeniorAdmin);
+        public const string HeadAdmin = nameof(HeadAdmin);
+        public const string HeadAdminX = nameof(HeadAdminX);
+        public const string Admin = nameof(Admin);
+        public const string AdminX = nameof(AdminX);
     }
 }

@@ -119,6 +119,7 @@ namespace XI.Portal.Web.Auth
             {
                 new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
                 new Claim(ClaimTypes.Email, member.Email),
+                new Claim(XtremeIdiotsClaimTypes.PhotoUrl, member.PhotoUrl),
                 new Claim(XtremeIdiotsClaimTypes.Group, primaryGroup)
             };
 

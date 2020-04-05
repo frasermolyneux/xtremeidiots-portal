@@ -19,5 +19,10 @@ namespace XI.Portal.Web.Extensions
         {
             return claimsPrincipal.FindFirstValue(XtremeIdiotsClaimTypes.XtremeIdiotsId);
         }
+
+        public static string PhotoUrl(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirstValue(XtremeIdiotsClaimTypes.PhotoUrl);
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult LoginWithXtremeIdiots(string returnUrl = null)
         {
@@ -67,6 +68,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [Authorize]
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> Logout(string returnUrl = null)
         {

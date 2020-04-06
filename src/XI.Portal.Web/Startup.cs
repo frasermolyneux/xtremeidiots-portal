@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -55,6 +56,11 @@ namespace XI.Portal.Web
                 })
                 .AddDefaultTokenProviders()
                 .CreateAzureTablesIfNotExists<ApplicationAuthDbContext>();
+
+            services.Configure<SecurityStampValidatorOptions>(options =>
+            {
+                options.ValidationInterval = TimeSpan.FromMinutes(15);
+            });
 
             services.AddAuthentication(options => options.DefaultChallengeScheme = "XtremeIdiots")
                 .AddOAuth("XtremeIdiots", options =>

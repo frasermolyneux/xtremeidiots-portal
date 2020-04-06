@@ -12,7 +12,7 @@
             <div class="dropdown-menu" aria-labelledby="navProfileDropdown">
                 <a class="dropdown-item" asp-controller="Profile" asp-action="Manage">Manage Profile</a>
                 <div class="dropdown-divider"></div>
-                <form class="form-inline" asp-controller="Identity" asp-action="Logout">
+                <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
                     <button class="dropdown-item" type="submit">Logout</button>
                 </form>
             </div>
@@ -21,7 +21,7 @@
     else
     {
         <li class="nav-item">
-            <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots">
+            <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots" method="post">
                 <button type="submit" class="nav-link btn btn-link text-dark">XtremeIdiots Login</button>
             </form>
         </li>

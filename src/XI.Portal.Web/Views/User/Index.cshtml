@@ -1,0 +1,32 @@
+﻿@model List<ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            Users
+        </div>
+        <div class="card card-body">
+            <table class="table table-responsive">
+                <thead>
+                <tr>
+                    <td>Username</td>
+                    <td>Email</td>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.UserName</td>
+                        <td>@user.Email</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</row>

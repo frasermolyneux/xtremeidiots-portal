@@ -7,9 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Web", "XI.Portal.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Forums", "XI.Forums\XI.Forums.csproj", "{D9CA2F1D-291F-4848-8D92-08C52066039B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Forums", "XI.Forums\XI.Forums.csproj", "{D9CA2F1D-291F-4848-8D92-08C52066039B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.AzureTableLogging", "XI.AzureTableLogging\XI.AzureTableLogging.csproj", "{CC74FBA2-0915-4968-B70F-BDD8677658F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.AzureTableLogging", "XI.AzureTableLogging\XI.AzureTableLogging.csproj", "{CC74FBA2-0915-4968-B70F-BDD8677658F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{1C99FCC6-8CE9-4F86-A285-61417CE4A3AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Data.Legacy", "XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj", "{12D1D019-6B35-4004-9B81-CE99B2947950}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,10 @@ Global
 		{CC74FBA2-0915-4968-B70F-BDD8677658F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC74FBA2-0915-4968-B70F-BDD8677658F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC74FBA2-0915-4968-B70F-BDD8677658F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12D1D019-6B35-4004-9B81-CE99B2947950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12D1D019-6B35-4004-9B81-CE99B2947950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12D1D019-6B35-4004-9B81-CE99B2947950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12D1D019-6B35-4004-9B81-CE99B2947950}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +44,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D9CA2F1D-291F-4848-8D92-08C52066039B} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{CC74FBA2-0915-4968-B70F-BDD8677658F5} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
+		{12D1D019-6B35-4004-9B81-CE99B2947950} = {1C99FCC6-8CE9-4F86-A285-61417CE4A3AD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

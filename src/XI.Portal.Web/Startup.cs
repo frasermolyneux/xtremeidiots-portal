@@ -10,12 +10,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging;
 using XI.Forums;
+using XI.Portal.Data.Legacy;
 using XI.Portal.Web.Auth;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -119,6 +121,9 @@ namespace XI.Portal.Web
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
+
+            services.AddDbContext<LegacyPortalContext>(options =>
+                options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));
 
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 

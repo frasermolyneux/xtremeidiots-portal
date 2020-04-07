@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -15,10 +17,12 @@ namespace XI.Portal.Web.Controllers
     public class BanFileMonitorsController : Controller
     {
         private readonly LegacyPortalContext _legacyContext;
+        private readonly ILogger<BanFileMonitorsController> _logger;
 
-        public BanFileMonitorsController(LegacyPortalContext legacyContext)
+        public BanFileMonitorsController(LegacyPortalContext legacyContext, ILogger<BanFileMonitorsController> logger)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
@@ -66,6 +70,8 @@ namespace XI.Portal.Web.Controllers
 
                 await _legacyContext.SaveChangesAsync();
 
+                _logger.LogInformation(EventIds.Management, "User {User} has created a new ban file monitor with Id {Id}", User.Username(), model.BanFileMonitorId);
+
                 TempData["Success"] = "A new Ban File Monitor has been successfully created";
                 return RedirectToAction(nameof(Index));
             }
@@ -110,6 +116,11 @@ namespace XI.Portal.Web.Controllers
 
                     _legacyContext.Update(storedModel);
                     await _legacyContext.SaveChangesAsync();
+
+                    _logger.LogInformation(EventIds.Management, "User {User} has modified a ban file monitor with Id {Id}", User.Username(), id);
+
+                    TempData["Success"] = "The Ban File Monitor has been successfully updated";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -117,9 +128,6 @@ namespace XI.Portal.Web.Controllers
                         return NotFound();
                     throw;
                 }
-
-                TempData["Success"] = "The Ban File Monitor has been successfully updated";
-                return RedirectToAction(nameof(Index));
             }
 
             ViewData["GameServerServerId"] = new SelectList(
@@ -151,6 +159,8 @@ namespace XI.Portal.Web.Controllers
             var model = await _legacyContext.BanFileMonitors.FindAsync(id);
             _legacyContext.BanFileMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted a ban file monitor with Id {Id}", User.Username(), id);
 
             TempData["Success"] = "The Ban File Monitor has been successfully deleted";
             return RedirectToAction(nameof(Index));

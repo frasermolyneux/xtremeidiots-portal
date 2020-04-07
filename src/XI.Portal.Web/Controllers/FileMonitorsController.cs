@@ -5,145 +5,166 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class FileMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _context;
+        private readonly LegacyPortalContext _legacyContext;
+        private readonly ILogger<FileMonitorsController> _logger;
 
-        public FileMonitorsController(LegacyPortalContext context)
+        public FileMonitorsController(LegacyPortalContext legacyContext, ILogger<FileMonitorsController> logger)
         {
-            _context = context;
+            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: FileMonitors
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var legacyPortalContext = _context.FileMonitors.Include(f => f.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition); ;
-            return View(await legacyPortalContext.ToListAsync());
+            var models = _legacyContext.FileMonitors
+                .Include(f => f.GameServerServer)
+                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
+            ;
+
+            return View(await models.ToListAsync());
         }
 
-        // GET: FileMonitors/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var fileMonitors = await _context.FileMonitors
+            var model = await _legacyContext.FileMonitors
                 .Include(f => f.GameServerServer)
                 .FirstOrDefaultAsync(m => m.FileMonitorId == id);
-            if (fileMonitors == null) return NotFound();
 
-            return View(fileMonitors);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // GET: FileMonitors/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId");
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
             return View();
         }
 
-        // POST: FileMonitors/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("FileMonitorId,FilePath,BytesRead,LastRead,LastError,GameServerServerId")]
-            FileMonitors fileMonitors)
+            [Bind("FilePath,GameServerServerId")] FileMonitors model)
         {
             if (ModelState.IsValid)
             {
-                fileMonitors.FileMonitorId = Guid.NewGuid();
-                _context.Add(fileMonitors);
-                await _context.SaveChangesAsync();
+                model.FileMonitorId = Guid.NewGuid();
+                model.LastRead = DateTime.UtcNow;
+
+                _legacyContext.Add(model);
+
+                await _legacyContext.SaveChangesAsync();
+
+                _logger.LogInformation(EventIds.Management, "User {User} has created a new file monitor with Id {Id}", User.Username(), model.FileMonitorId);
+
+                TempData["Success"] = "A new File Monitor has been successfully created";
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                fileMonitors.GameServerServerId);
-            return View(fileMonitors);
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // GET: FileMonitors/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var fileMonitors = await _context.FileMonitors.FindAsync(id);
-            if (fileMonitors == null) return NotFound();
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                fileMonitors.GameServerServerId);
-            return View(fileMonitors);
+            var model = await _legacyContext.FileMonitors.FindAsync(id);
+
+            if (model == null) return NotFound();
+
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // POST: FileMonitors/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id,
-            [Bind("FileMonitorId,FilePath,BytesRead,LastRead,LastError,GameServerServerId")]
-            FileMonitors fileMonitors)
+            [Bind("FileMonitorId,FilePath,GameServerServerId")]
+            FileMonitors model)
         {
-            if (id != fileMonitors.FileMonitorId) return NotFound();
+            if (id != model.FileMonitorId) return NotFound();
 
             if (ModelState.IsValid)
-            {
                 try
                 {
-                    _context.Update(fileMonitors);
-                    await _context.SaveChangesAsync();
+                    var storedModel = await _legacyContext.FileMonitors.FindAsync(id);
+                    storedModel.FilePath = model.FilePath;
+
+                    _legacyContext.Update(storedModel);
+                    await _legacyContext.SaveChangesAsync();
+
+                    _logger.LogInformation(EventIds.Management, "User {User} has modified a file monitor with Id {Id}", User.Username(), id);
+
+                    TempData["Success"] = "The File Monitor has been successfully updated";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FileMonitorsExists(fileMonitors.FileMonitorId))
+                    if (!FileMonitorsExists(model.FileMonitorId))
                         return NotFound();
                     throw;
                 }
 
-                return RedirectToAction(nameof(Index));
-            }
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                fileMonitors.GameServerServerId);
-            return View(fileMonitors);
+            return View(model);
         }
 
-        // GET: FileMonitors/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var fileMonitors = await _context.FileMonitors
+            var model = await _legacyContext.FileMonitors
                 .Include(f => f.GameServerServer)
                 .FirstOrDefaultAsync(m => m.FileMonitorId == id);
-            if (fileMonitors == null) return NotFound();
 
-            return View(fileMonitors);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // POST: FileMonitors/Delete/5
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var fileMonitors = await _context.FileMonitors.FindAsync(id);
-            _context.FileMonitors.Remove(fileMonitors);
-            await _context.SaveChangesAsync();
+            var fileMonitors = await _legacyContext.FileMonitors.FindAsync(id);
+            _legacyContext.FileMonitors.Remove(fileMonitors);
+            await _legacyContext.SaveChangesAsync();
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted a file monitor with Id {Id}", User.Username(), id);
+
+            TempData["Success"] = "The File Monitor has been successfully deleted";
             return RedirectToAction(nameof(Index));
         }
 
         private bool FileMonitorsExists(Guid id)
         {
-            return _context.FileMonitors.Any(e => e.FileMonitorId == id);
+            return _legacyContext.FileMonitors.Any(e => e.FileMonitorId == id);
         }
     }
 }

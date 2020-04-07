@@ -93,4 +93,4 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -Logging:AzureTableLogger:ConnectionString "$(logs_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)"'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -Logging:AzureTableLogger:ConnectionString "$(logs_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"'

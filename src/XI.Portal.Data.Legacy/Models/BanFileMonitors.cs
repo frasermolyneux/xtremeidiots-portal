@@ -12,6 +12,7 @@ namespace XI.Portal.Data.Legacy.Models
         [DisplayName("Last Read")]
         public DateTime LastSync { get; set; }
         public string LastError { get; set; }
+        [DisplayName("Server")]
         public Guid? GameServerServerId { get; set; }
 
         [DisplayName("Server")]

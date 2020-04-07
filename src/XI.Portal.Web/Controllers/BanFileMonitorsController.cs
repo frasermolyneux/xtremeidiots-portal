@@ -45,7 +45,9 @@ namespace XI.Portal.Web.Controllers
         // GET: BanFileMonitors/Create
         public IActionResult Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId");
+            ViewData["GameServerServerId"] =
+                new SelectList(_context.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId",
+                    "Title");
             return View();
         }
 

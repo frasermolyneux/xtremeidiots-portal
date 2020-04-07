@@ -1,4 +1,5 @@
-﻿@model XI.Portal.Data.Legacy.Models.RconMonitors
+﻿@using XI.Portal.Web.Extensions
+@model XI.Portal.Data.Legacy.Models.RconMonitors
 
 @{
     ViewData["Title"] = "Rcon Monitor Details";
@@ -12,22 +13,16 @@
         <div class="card card-body">
             <dl class="row">
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LastUpdated)
+                    @Html.DisplayNameFor(model => model.GameServerServer)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LastUpdated)
+                    @Html.ServerName(Model.GameServerServer.Title, Model.GameServerServer.LiveTitle)
                 </dd>
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.MonitorMapRotation)
                 </dt>
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.MonitorMapRotation)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.MapRotationLastUpdated)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.MapRotationLastUpdated)
                 </dd>
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.MonitorPlayers)
@@ -42,22 +37,24 @@
                     @Html.DisplayFor(model => model.MonitorPlayerIps)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LastError)
+                    @Html.DisplayNameFor(model => model.LastUpdated)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LastError)
+                    @Html.DisplayFor(model => model.LastUpdated)
                 </dd>
                 <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.GameServerServer)
+                    @Html.DisplayNameFor(model => model.MapRotationLastUpdated)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.GameServerServer.ServerId)
+                    @Html.DisplayFor(model => model.MapRotationLastUpdated)
                 </dd>
             </dl>
         </div>
         <div class="card card-footer">
-            <a asp-action="Edit" asp-route-id="@Model.RconMonitorId">Edit</a> |
-            <a asp-action="Index">Back to List</a>
+            <span>
+                <a asp-action="Edit" asp-route-id="@Model.RconMonitorId">Edit</a> |
+                <a asp-action="Index">Back to List</a>
+            </span>
         </div>
     </div>
 </row>

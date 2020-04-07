@@ -5,147 +5,169 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class RconMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _context;
+        private readonly LegacyPortalContext _legacyContext;
+        private readonly ILogger<RconMonitorsController> _logger;
 
-        public RconMonitorsController(LegacyPortalContext context)
+        public RconMonitorsController(LegacyPortalContext legacyContext, ILogger<RconMonitorsController> logger)
         {
-            _context = context;
+            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        // GET: RconMonitors
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var legacyPortalContext = _context.RconMonitors.Include(r => r.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition); ;
-            return View(await legacyPortalContext.ToListAsync());
+            var models = _legacyContext.RconMonitors
+                .Include(r => r.GameServerServer)
+                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
+
+            return View(await models.ToListAsync());
         }
 
-        // GET: RconMonitors/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var rconMonitors = await _context.RconMonitors
+            var model = await _legacyContext.RconMonitors
                 .Include(r => r.GameServerServer)
                 .FirstOrDefaultAsync(m => m.RconMonitorId == id);
-            if (rconMonitors == null) return NotFound();
 
-            return View(rconMonitors);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // GET: RconMonitors/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId");
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
             return View();
         }
 
-        // POST: RconMonitors/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind(
-                "RconMonitorId,LastUpdated,MonitorMapRotation,MapRotationLastUpdated,MonitorPlayers,MonitorPlayerIps,LastError,GameServerServerId")]
-            RconMonitors rconMonitors)
+            [Bind("MonitorMapRotation,MonitorPlayers,MonitorPlayerIps,GameServerServerId")]
+            RconMonitors model)
         {
             if (ModelState.IsValid)
             {
-                rconMonitors.RconMonitorId = Guid.NewGuid();
-                _context.Add(rconMonitors);
-                await _context.SaveChangesAsync();
+                model.RconMonitorId = Guid.NewGuid();
+                model.LastUpdated = DateTime.UtcNow;
+                model.MapRotationLastUpdated = DateTime.UtcNow;
+
+                _legacyContext.Add(model);
+
+                await _legacyContext.SaveChangesAsync();
+
+                _logger.LogInformation(EventIds.Management, "User {User} has created a new rcon monitor with Id {Id}", User.Username(), model.RconMonitorId);
+
+                TempData["Success"] = "A new Rcon Monitor has been successfully created";
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                rconMonitors.GameServerServerId);
-            return View(rconMonitors);
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // GET: RconMonitors/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var rconMonitors = await _context.RconMonitors.FindAsync(id);
-            if (rconMonitors == null) return NotFound();
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                rconMonitors.GameServerServerId);
-            return View(rconMonitors);
+            var model = await _legacyContext.RconMonitors.FindAsync(id);
+
+            if (model == null) return NotFound();
+
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // POST: RconMonitors/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id,
-            [Bind(
-                "RconMonitorId,LastUpdated,MonitorMapRotation,MapRotationLastUpdated,MonitorPlayers,MonitorPlayerIps,LastError,GameServerServerId")]
-            RconMonitors rconMonitors)
+            [Bind("RconMonitorId,MonitorMapRotation,MonitorPlayers,MonitorPlayerIps,GameServerServerId")]
+            RconMonitors model)
         {
-            if (id != rconMonitors.RconMonitorId) return NotFound();
+            if (id != model.RconMonitorId) return NotFound();
 
             if (ModelState.IsValid)
-            {
                 try
                 {
-                    _context.Update(rconMonitors);
-                    await _context.SaveChangesAsync();
+                    var storedModel = await _legacyContext.RconMonitors.FindAsync(id);
+                    storedModel.MonitorMapRotation = model.MonitorMapRotation;
+                    storedModel.MonitorPlayers = model.MonitorPlayers;
+                    storedModel.MonitorPlayerIps = model.MonitorPlayerIps;
+
+                    _legacyContext.Update(storedModel);
+                    await _legacyContext.SaveChangesAsync();
+
+                    _logger.LogInformation(EventIds.Management, "User {User} has modified a rcon monitor with Id {Id}", User.Username(), id);
+
+                    TempData["Success"] = "The Rcon Monitor has been successfully updated";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RconMonitorsExists(rconMonitors.RconMonitorId))
+                    if (!RconMonitorsExists(model.RconMonitorId))
                         return NotFound();
                     throw;
                 }
 
-                return RedirectToAction(nameof(Index));
-            }
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                rconMonitors.GameServerServerId);
-            return View(rconMonitors);
+            return View(model);
         }
 
-        // GET: RconMonitors/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var rconMonitors = await _context.RconMonitors
+            var rconMonitors = await _legacyContext.RconMonitors
                 .Include(r => r.GameServerServer)
                 .FirstOrDefaultAsync(m => m.RconMonitorId == id);
+
             if (rconMonitors == null) return NotFound();
 
             return View(rconMonitors);
         }
 
-        // POST: RconMonitors/Delete/5
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var rconMonitors = await _context.RconMonitors.FindAsync(id);
-            _context.RconMonitors.Remove(rconMonitors);
-            await _context.SaveChangesAsync();
+            var rconMonitors = await _legacyContext.RconMonitors.FindAsync(id);
+            _legacyContext.RconMonitors.Remove(rconMonitors);
+            await _legacyContext.SaveChangesAsync();
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted a rcon monitor with Id {Id}", User.Username(), id);
+
+            TempData["Success"] = "The Rcon Monitor has been successfully deleted";
             return RedirectToAction(nameof(Index));
         }
 
         private bool RconMonitorsExists(Guid id)
         {
-            return _context.RconMonitors.Any(e => e.RconMonitorId == id);
+            return _legacyContext.RconMonitors.Any(e => e.RconMonitorId == id);
         }
     }
 }

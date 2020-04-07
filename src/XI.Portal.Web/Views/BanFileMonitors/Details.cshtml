@@ -1,4 +1,5 @@
-﻿@model XI.Portal.Data.Legacy.Models.BanFileMonitors
+﻿@using XI.Portal.Web.Extensions
+@model XI.Portal.Data.Legacy.Models.BanFileMonitors
 
 @{
     ViewData["Title"] = "Ban File Monitor Details";
@@ -12,10 +13,16 @@
         <div class="card card-body">
             <dl class="row">
                 <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.GameServerServer)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.ServerName(Model.GameServerServer.Title, Model.GameServerServer.LiveTitle)
+                </dd>
+                <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.FilePath)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FilePath)
+                    @Html.MonitorFtpPath(Model.GameServerServer.FtpHostname, Model.FilePath)
                 </dd>
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.RemoteFileSize)
@@ -29,23 +36,13 @@
                 <dd class="col-sm-10">
                     @Html.DisplayFor(model => model.LastSync)
                 </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LastError)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LastError)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.GameServerServer)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.GameServerServer.ServerId)
-                </dd>
             </dl>
         </div>
         <div class="card card-footer">
-            <a asp-action="Edit" asp-route-id="@Model.BanFileMonitorId">Edit</a> |
-            <a asp-action="Index">Back to List</a>
+            <span>
+                <a asp-action="Edit" asp-route-id="@Model.BanFileMonitorId">Edit</a> |
+                <a asp-action="Index">Back to List</a>
+            </span>
         </div>
     </div>
 </row>

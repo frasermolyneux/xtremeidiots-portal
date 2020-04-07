@@ -14,98 +14,102 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class BanFileMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _context;
+        private readonly LegacyPortalContext _legacyContext;
 
-        public BanFileMonitorsController(LegacyPortalContext context)
+        public BanFileMonitorsController(LegacyPortalContext legacyContext)
         {
-            _context = context;
+            _legacyContext = legacyContext;
         }
 
-        // GET: BanFileMonitors
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var legacyPortalContext = _context.BanFileMonitors.Include(b => b.GameServerServer)
+            var models = _legacyContext.BanFileMonitors
+                .Include(b => b.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
-            return View(await legacyPortalContext.ToListAsync());
+
+            return View(await models.ToListAsync());
         }
 
-        // GET: BanFileMonitors/Details/5
+        [HttpGet]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var banFileMonitors = await _context.BanFileMonitors
+            var model = await _legacyContext.BanFileMonitors
                 .Include(b => b.GameServerServer)
                 .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
-            if (banFileMonitors == null) return NotFound();
 
-            return View(banFileMonitors);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // GET: BanFileMonitors/Create
+        [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameServerServerId"] =
-                new SelectList(_context.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId",
-                    "Title");
+            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
             return View();
         }
 
-        // POST: BanFileMonitors/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-            [Bind("BanFileMonitorId,FilePath,RemoteFileSize,LastSync,LastError,GameServerServerId")]
-            BanFileMonitors banFileMonitors)
+            [Bind("FilePath,GameServerServerId")] BanFileMonitors model)
         {
             if (ModelState.IsValid)
             {
-                banFileMonitors.BanFileMonitorId = Guid.NewGuid();
-                _context.Add(banFileMonitors);
-                await _context.SaveChangesAsync();
+                model.BanFileMonitorId = Guid.NewGuid();
+                model.LastSync = DateTime.UtcNow;
+                _legacyContext.Add(model);
+                await _legacyContext.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                banFileMonitors.GameServerServerId);
-            return View(banFileMonitors);
+            ViewData["GameServerServerId"] = new SelectList(
+                _legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // GET: BanFileMonitors/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var banFileMonitors = await _context.BanFileMonitors.FindAsync(id);
-            if (banFileMonitors == null) return NotFound();
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                banFileMonitors.GameServerServerId);
-            return View(banFileMonitors);
+            var model = await _legacyContext.BanFileMonitors.FindAsync(id);
+
+            if (model == null) return NotFound();
+
+            ViewData["GameServerServerId"] = new SelectList(
+                _legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // POST: BanFileMonitors/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id,
-            [Bind("BanFileMonitorId,FilePath,RemoteFileSize,LastSync,LastError,GameServerServerId")]
-            BanFileMonitors banFileMonitors)
+            [Bind("BanFileMonitorId,FilePath,GameServerServerId")]
+            BanFileMonitors model)
         {
-            if (id != banFileMonitors.BanFileMonitorId) return NotFound();
+            if (id != model.BanFileMonitorId) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(banFileMonitors);
-                    await _context.SaveChangesAsync();
+                    var storedModel = await _legacyContext.BanFileMonitors.FindAsync(id);
+                    storedModel.FilePath = model.FilePath;
+
+                    _legacyContext.Update(storedModel);
+                    await _legacyContext.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BanFileMonitorsExists(banFileMonitors.BanFileMonitorId))
+                    if (!BanFileMonitorsExists(model.BanFileMonitorId))
                         return NotFound();
                     throw;
                 }
@@ -113,39 +117,41 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_context.GameServers, "ServerId", "ServerId",
-                banFileMonitors.GameServerServerId);
-            return View(banFileMonitors);
+            ViewData["GameServerServerId"] = new SelectList(
+                _legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                model.GameServerServerId);
+
+            return View(model);
         }
 
-        // GET: BanFileMonitors/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var banFileMonitors = await _context.BanFileMonitors
+            var model = await _legacyContext.BanFileMonitors
                 .Include(b => b.GameServerServer)
                 .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
-            if (banFileMonitors == null) return NotFound();
 
-            return View(banFileMonitors);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // POST: BanFileMonitors/Delete/5
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var banFileMonitors = await _context.BanFileMonitors.FindAsync(id);
-            _context.BanFileMonitors.Remove(banFileMonitors);
-            await _context.SaveChangesAsync();
+            var model = await _legacyContext.BanFileMonitors.FindAsync(id);
+            _legacyContext.BanFileMonitors.Remove(model);
+            await _legacyContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BanFileMonitorsExists(Guid id)
         {
-            return _context.BanFileMonitors.Any(e => e.BanFileMonitorId == id);
+            return _legacyContext.BanFileMonitors.Any(e => e.BanFileMonitorId == id);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace XI.Portal.Web.Controllers
 
         public BanFileMonitorsController(LegacyPortalContext legacyContext)
         {
-            _legacyContext = legacyContext;
+            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
         }
 
         [HttpGet]
@@ -61,8 +61,12 @@ namespace XI.Portal.Web.Controllers
             {
                 model.BanFileMonitorId = Guid.NewGuid();
                 model.LastSync = DateTime.UtcNow;
+
                 _legacyContext.Add(model);
+
                 await _legacyContext.SaveChangesAsync();
+
+                TempData["Success"] = "A new Ban File Monitor has been successfully created";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -114,6 +118,7 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
+                TempData["Success"] = "The Ban File Monitor has been successfully updated";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -146,6 +151,8 @@ namespace XI.Portal.Web.Controllers
             var model = await _legacyContext.BanFileMonitors.FindAsync(id);
             _legacyContext.BanFileMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();
+
+            TempData["Success"] = "The Ban File Monitor has been successfully deleted";
             return RedirectToAction(nameof(Index));
         }
 

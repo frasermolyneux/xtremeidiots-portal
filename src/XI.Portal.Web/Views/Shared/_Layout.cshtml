@@ -56,6 +56,18 @@
     </main>
 </div>
 
+<div style="bottom: 0; position: fixed; width: 100%;">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style=" margin-left: 40px; margin-right: 40px; margin-bottom: 25px">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+</div>
+
 <footer class="border-top footer text-muted">
     <div class="container">
         &copy; 2020 - Fraser Molyneux

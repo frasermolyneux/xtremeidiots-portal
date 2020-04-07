@@ -1,0 +1,68 @@
+﻿@model XI.Portal.Data.Legacy.Models.RconMonitors
+
+@{
+    ViewData["Title"] = "Delete Rcon Monitor";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <h3>Are you sure you want to delete this?</h3>
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.LastUpdated)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.LastUpdated)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.MonitorMapRotation)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.MonitorMapRotation)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.MapRotationLastUpdated)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.MapRotationLastUpdated)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.MonitorPlayers)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.MonitorPlayers)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.MonitorPlayerIps)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.MonitorPlayerIps)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.LastError)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.LastError)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.GameServerServer)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.GameServerServer.ServerId)
+                </dd>
+            </dl>
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="RconMonitorId"/>
+                <input type="submit" value="Delete" class="btn btn-danger"/> |
+                <a asp-action="Index">Back to List</a>
+            </form>
+        </div>
+        <div class="card card-footer">
+
+        </div>
+    </div>
+</row>

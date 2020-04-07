@@ -11,7 +11,7 @@
 <body>
 <header>
     <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">XI Portal</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -32,13 +32,25 @@
                         </div>
                     </li>
 
+                    <li policy="@XtremeIdiotsPolicy.Management" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarServersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Management
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarServersDropDown">
+                            <a class="dropdown-item" asp-controller="GameServers" asp-action="Index">Game Servers</a>
+                            <a class="dropdown-item" asp-controller="RconMonitors" asp-action="Index">Rcon Monitors</a>
+                            <a class="dropdown-item" asp-controller="FileMonitors" asp-action="Index">File Monitors</a>
+                            <a class="dropdown-item" asp-controller="BanFileMonitors" asp-action="Index">Ban File Monitors</a>
+                        </div>
+                    </li>
+
                 </ul>
 
             </div>
         </div>
     </nav>
 </header>
-<div class="container">
+<div class="container-wider">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>

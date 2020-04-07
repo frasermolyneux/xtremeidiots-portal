@@ -1,0 +1,54 @@
+﻿@model XI.Portal.Data.Legacy.Models.BanFileMonitors
+
+@{
+    ViewData["Title"] = "Edit Ban File Monitor";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="BanFileMonitorId"/>
+                <div class="form-group">
+                    <label asp-for="FilePath" class="control-label"></label>
+                    <input asp-for="FilePath" class="form-control"/>
+                    <span asp-validation-for="FilePath" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="RemoteFileSize" class="control-label"></label>
+                    <input asp-for="RemoteFileSize" class="form-control"/>
+                    <span asp-validation-for="RemoteFileSize" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastSync" class="control-label"></label>
+                    <input asp-for="LastSync" class="form-control"/>
+                    <span asp-validation-for="LastSync" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastError" class="control-label"></label>
+                    <input asp-for="LastError" class="form-control"/>
+                    <span asp-validation-for="LastError" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="GameServerServerId" class="control-label"></label>
+                    <select asp-for="GameServerServerId" class="form-control" asp-items="ViewBag.GameServerServerId"></select>
+                    <span asp-validation-for="GameServerServerId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                </div>
+            </form>
+        </div>
+        <div class="card card-footer">
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</row>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

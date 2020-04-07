@@ -1,0 +1,51 @@
+﻿@model XI.Portal.Data.Legacy.Models.BanFileMonitors
+
+@{
+    ViewData["Title"] = "Ban File Monitor Details";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.FilePath)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.FilePath)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.RemoteFileSize)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.RemoteFileSize)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.LastSync)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.LastSync)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.LastError)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.LastError)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.GameServerServer)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.GameServerServer.ServerId)
+                </dd>
+            </dl>
+        </div>
+        <div class="card card-footer">
+            <a asp-action="Edit" asp-route-id="@Model.BanFileMonitorId">Edit</a> |
+            <a asp-action="Index">Back to List</a>
+        </div>
+    </div>
+</row>

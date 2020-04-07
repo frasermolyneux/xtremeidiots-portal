@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {
@@ -19,7 +22,8 @@ namespace XI.Portal.Data.Legacy.Models
 
         public Guid ServerId { get; set; }
         public string Title { get; set; }
-        public int GameType { get; set; }
+        [DisplayName("Game")]
+        public GameType GameType { get; set; }
         public string Hostname { get; set; }
         public int QueryPort { get; set; }
         public string FtpHostname { get; set; }
@@ -32,10 +36,14 @@ namespace XI.Portal.Data.Legacy.Models
         public int LiveMaxPlayers { get; set; }
         public int LiveCurrentPlayers { get; set; }
         public DateTime LiveLastUpdated { get; set; }
+        [DisplayName("Banner Server List")]
         public bool ShowOnBannerServerList { get; set; }
+        [DisplayName("Position")]
         public int BannerServerListPosition { get; set; }
         public string HtmlBanner { get; set; }
+        [DisplayName("Portal Server List")]
         public bool ShowOnPortalServerList { get; set; }
+        [DisplayName("Chat Log")]
         public bool ShowChatLog { get; set; }
 
         public virtual ICollection<BanFileMonitors> BanFileMonitors { get; set; }

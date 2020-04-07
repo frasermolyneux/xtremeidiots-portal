@@ -1,0 +1,57 @@
+﻿@using XI.Portal.Web.Extensions
+@model IEnumerable<XI.Portal.Data.Legacy.Models.FileMonitors>
+
+@{
+    ViewData["Title"] = "File Monitor Index";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <table class="table table-responsive">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.GameServerServer)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.FilePath)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.LastRead)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.GameTypeIcon(item.GameServerServer.GameType)
+                            @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
+                        </td>
+                        <td>
+                            @Html.MonitorFtpPath(item.GameServerServer.FtpHostname, item.FilePath)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LastRead)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.FileMonitorId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.FileMonitorId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.FileMonitorId">Delete</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <div class="card card-footer">
+            <a asp-action="Create">Create New</a>
+        </div>
+    </div>
+</row>

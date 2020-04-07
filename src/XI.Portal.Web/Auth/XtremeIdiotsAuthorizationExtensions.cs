@@ -35,11 +35,18 @@ namespace XI.Portal.Web.Auth
             );
 
             options.AddPolicy(XtremeIdiotsPolicy.Admin, policy =>
-                policy.RequireClaim(XtremeIdiotsClaimTypes.Group, SeniorAdminGroups.Concat(HeadAdminGroups).Concat(AdminGroups))
+                policy.RequireClaim(XtremeIdiotsClaimTypes.Group,
+                    SeniorAdminGroups.Concat(HeadAdminGroups).Concat(AdminGroups))
             );
 
             options.AddPolicy(XtremeIdiotsPolicy.AdminX, policy =>
                 policy.RequireClaim(XtremeIdiotsClaimTypes.Group, AdminGroups)
+            );
+
+            options.AddPolicy(XtremeIdiotsPolicy.Management, policy =>
+                policy.RequireAssertion(context => context.User.HasClaim(claim =>
+                    claim.Type == XtremeIdiotsClaimTypes.Group &&
+                    (SeniorAdminGroups.Contains(claim.Value) || HeadAdminGroups.Contains(claim.Value))))
             );
         }
     }

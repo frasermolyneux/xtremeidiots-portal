@@ -7,5 +7,6 @@
         public const string HeadAdminX = nameof(HeadAdminX);
         public const string Admin = nameof(Admin);
         public const string AdminX = nameof(AdminX);
+        public const string Management = nameof(Management);
     }
 }

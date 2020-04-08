@@ -37,13 +37,15 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var models = await _legacyContext.GameServers
+            var model = await _legacyContext.GameServers
                 .ApplyAuthPolicies(User)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
 
-            if (models == null) return NotFound();
+            if (model == null) return NotFound();
 
-            return View(models);
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
+
+            return View(model);
         }
 
         [HttpGet]
@@ -89,9 +91,9 @@ namespace XI.Portal.Web.Controllers
 
             var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
 
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
-
             if (model == null) return NotFound();
+
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
 
@@ -156,9 +158,9 @@ namespace XI.Portal.Web.Controllers
             var model = await _legacyContext.GameServers.ApplyAuthPolicies(User)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
 
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
-
             if (model == null) return NotFound();
+
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             return View(model);
         }

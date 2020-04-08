@@ -1,4 +1,7 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Web.Constants;
 
@@ -29,6 +32,16 @@ namespace XI.Portal.Web.Extensions
         public static bool HasGameTypeClaim(this ClaimsPrincipal claimsPrincipal, GameType gameType)
         {
             return claimsPrincipal.HasClaim(XtremeIdiotsClaimTypes.Game, gameType.ToString());
+        }
+
+        public static IEnumerable<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal)
+        {
+            var gameClaims = claimsPrincipal.Claims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Game);
+            var gameTitles = gameClaims.Select(claim => claim.Value).ToList();
+
+            var gameTypes = gameTitles.Select(Enum.Parse<GameType>);
+
+            return gameTypes.ToList();
         }
     }
 }

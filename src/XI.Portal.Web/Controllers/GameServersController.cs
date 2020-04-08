@@ -49,7 +49,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)));
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes());
             return View();
         }
 
@@ -77,7 +77,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)));
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes());
 
             return View(model);
         }
@@ -91,7 +91,7 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(), model.GameType);
 
             return View(model);
         }
@@ -138,7 +138,7 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
-            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(), model.GameType);
 
             return View(model);
         }

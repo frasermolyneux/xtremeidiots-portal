@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Web.Constants;
 
 namespace XI.Portal.Web.Extensions
@@ -23,6 +24,11 @@ namespace XI.Portal.Web.Extensions
         public static string PhotoUrl(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirstValue(XtremeIdiotsClaimTypes.PhotoUrl);
+        }
+
+        public static bool HasGameTypeClaim(this ClaimsPrincipal claimsPrincipal, GameType gameType)
+        {
+            return claimsPrincipal.HasClaim(XtremeIdiotsClaimTypes.Game, gameType.ToString());
         }
     }
 }

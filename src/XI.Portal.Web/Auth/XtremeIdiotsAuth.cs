@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using XI.Forums;
 using XI.Forums.Models;
+using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Web.Constants;
+using XI.Portal.Web.Extensions;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Auth
@@ -17,13 +19,11 @@ namespace XI.Portal.Web.Auth
     {
         private readonly IForumsClient _forumsClient;
         private readonly ILogger<XtremeIdiotsAuth> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> _signInManager;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
 
         public XtremeIdiotsAuth(
-            ILogger<XtremeIdiotsAuth> logger,
-            SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
+            ILogger<XtremeIdiotsAuth> logger, Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> signInManager, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
             IForumsClient forumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -129,6 +129,31 @@ namespace XI.Portal.Web.Auth
 
                 if (!claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.Group && claim.Value == groupName))
                     claims.Add(new Claim(XtremeIdiotsClaimTypes.Group, groupName));
+            }
+
+            var gameClaims = GetGameClaims(claims);
+            claims = claims.Concat(gameClaims).ToList();
+
+            return claims;
+        }
+
+        private static IEnumerable<Claim> GetGameClaims(IEnumerable<Claim> existingClaims)
+        {
+            var claims = new List<Claim>();
+
+            foreach (var claim in existingClaims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Group))
+            {
+                if (claim.Value == "Senior Admin")
+                    foreach (GameType gameType in Enum.GetValues(typeof(GameType)))
+                        claims.AddGameClaimIfNotExists(gameType);
+
+                if (claim.Value.Contains("COD2")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty2);
+
+                if (claim.Value.Contains("COD4")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty4);
+
+                if (claim.Value.Contains("COD5")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty5);
+
+                if (claim.Value.Contains("Insurgency")) claims.AddGameClaimIfNotExists(GameType.Insurgency);
             }
 
             return claims;

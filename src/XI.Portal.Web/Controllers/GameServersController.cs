@@ -29,7 +29,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition).ToListAsync());
+            return View(await _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition).ToListAsync());
         }
 
         [HttpGet]
@@ -38,6 +38,7 @@ namespace XI.Portal.Web.Controllers
             if (id == null) return NotFound();
 
             var models = await _legacyContext.GameServers
+                .ApplyAuthPolicies(User)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
 
             if (models == null) return NotFound();
@@ -59,6 +60,8 @@ namespace XI.Portal.Web.Controllers
                 "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
             GameServers model)
         {
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
+
             if (ModelState.IsValid)
             {
                 model.ServerId = Guid.NewGuid();
@@ -84,7 +87,9 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.GameServers.FindAsync(id);
+            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
+
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             if (model == null) return NotFound();
 
@@ -102,10 +107,12 @@ namespace XI.Portal.Web.Controllers
         {
             if (id != model.ServerId) return NotFound();
 
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
+
             if (ModelState.IsValid)
                 try
                 {
-                    var storedModel = await _legacyContext.GameServers.FindAsync(id);
+                    var storedModel = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
                     storedModel.Title = model.Title;
                     storedModel.Hostname = model.Hostname;
                     storedModel.QueryPort = model.QueryPort;
@@ -146,8 +153,10 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.GameServers
+            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
+
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             if (model == null) return NotFound();
 
@@ -160,7 +169,10 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var model = await _legacyContext.GameServers.FindAsync(id);
+            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
+
+            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
+
             _legacyContext.GameServers.Remove(model);
             await _legacyContext.SaveChangesAsync();
 
@@ -172,7 +184,7 @@ namespace XI.Portal.Web.Controllers
 
         private bool GameServersExists(Guid id)
         {
-            return _legacyContext.GameServers.Any(e => e.ServerId == id);
+            return _legacyContext.GameServers.ApplyAuthPolicies(User).Any(e => e.ServerId == id);
         }
     }
 }

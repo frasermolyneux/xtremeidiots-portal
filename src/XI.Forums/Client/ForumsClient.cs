@@ -4,9 +4,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using XI.Forums.Configuration;
 using XI.Forums.Models;
 
-namespace XI.Forums
+namespace XI.Forums.Client
 {
     public class ForumsClient : IForumsClient
     {

@@ -1,12 +1,14 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using XI.AzureTableLogging.Configuration;
+using XI.AzureTableLogging.Logger;
 
-namespace XI.AzureTableLogging
+namespace XI.AzureTableLogging.Extensions
 {
     public static class AzureTableLoggerExtensions
     {
-        public static ILoggingBuilder AddAzureTableLogger(this ILoggingBuilder loggingBuilder, Action<AzureTableLoggerOptions> configureOptions)
+        public static ILoggingBuilder AddAzureTableLogger(this ILoggingBuilder loggingBuilder, Action<IAzureTableLoggerOptions> configureOptions)
         {
             if (configureOptions == null)
             {

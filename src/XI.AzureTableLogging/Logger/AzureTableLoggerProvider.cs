@@ -1,13 +1,14 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
+using XI.AzureTableLogging.Configuration;
 
-namespace XI.AzureTableLogging
+namespace XI.AzureTableLogging.Logger
 {
     public class AzureTableLoggerProvider : ILoggerProvider
     {
-        private readonly Action<AzureTableLoggerOptions> _configureOptions;
+        private readonly Action<IAzureTableLoggerOptions> _configureOptions;
 
-        public AzureTableLoggerProvider(Action<AzureTableLoggerOptions> configureOptions)
+        public AzureTableLoggerProvider(Action<IAzureTableLoggerOptions> configureOptions)
         {
             _configureOptions = configureOptions;
         }

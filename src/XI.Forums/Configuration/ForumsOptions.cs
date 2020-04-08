@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace XI.Forums
+namespace XI.Forums.Configuration
 {
-    public class ForumsOptions : IForumsOptions
+    internal class ForumsOptions : IForumsOptions
     {
         public string BaseUrl { get; set; }
         public string ApiKey { get; set; }

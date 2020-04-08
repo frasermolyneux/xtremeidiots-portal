@@ -1,14 +1,16 @@
 ﻿using System;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
+using XI.AzureTableLogging.Configuration;
+using XI.AzureTableLogging.Models;
 
-namespace XI.AzureTableLogging
+namespace XI.AzureTableLogging.Logger
 {
     public class AzureTableLogger : ILogger
     {
         private readonly CloudTable _loggingTable;
 
-        public AzureTableLogger(AzureTableLoggerOptions options)
+        public AzureTableLogger(IAzureTableLoggerOptions options)
         {
             var storageAccount = CloudStorageAccount.Parse(options.ConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();

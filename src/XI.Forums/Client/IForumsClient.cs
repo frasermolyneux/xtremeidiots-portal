@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using XI.Forums.Models;
 
-namespace XI.Forums
+namespace XI.Forums.Client
 {
     public interface IForumsClient
     {

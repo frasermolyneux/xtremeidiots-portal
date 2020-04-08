@@ -1,12 +1,14 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
+using XI.Forums.Client;
+using XI.Forums.Configuration;
 
-namespace XI.Forums
+namespace XI.Forums.Extensions
 {
-    public static class ForumsClientExtensions
+    public static class ServiceCollectionExtensions
     {
         public static void AddForumsClient(this IServiceCollection serviceCollection,
-            Action<ForumsOptions> configureOptions)
+            Action<IForumsOptions> configureOptions)
         {
             if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 

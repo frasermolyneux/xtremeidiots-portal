@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace XI.AzureTableLogging
+namespace XI.AzureTableLogging.Configuration
 {
-    public class AzureTableLoggerOptions
+    internal class AzureTableLoggerOptions : IAzureTableLoggerOptions
     {
         public string ConnectionString { get; set; }
         public string LogTableName { get; set; }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Web.Auth;
+using XI.Portal.Web.Constants;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -35,7 +36,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (remoteError != null)
             {
-                _logger.LogError(remoteError);
+                _logger.LogError(EventIds.User, remoteError);
                 return IdentityError("There has been an issue logging you in with the xtremeidiots provider");
             }
 
@@ -44,7 +45,7 @@ namespace XI.Portal.Web.Controllers
 
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
 
-            _logger.LogInformation("User {Username} has successfully authenticated", username);
+            _logger.LogInformation(EventIds.User, "User {Username} has successfully authenticated", username);
 
             var result = await _xtremeIdiotsAuth.ProcessExternalLogin(info);
 
@@ -72,7 +73,7 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout(string returnUrl = null)
         {
-            _logger.LogInformation("User {User} logged out", User.Identity.Name);
+            _logger.LogInformation(EventIds.User, "User {User} logged out", User.Identity.Name);
 
             await _xtremeIdiotsAuth.SignOutAsync();
 

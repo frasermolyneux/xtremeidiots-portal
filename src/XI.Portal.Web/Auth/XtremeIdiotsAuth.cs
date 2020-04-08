@@ -47,7 +47,7 @@ namespace XI.Portal.Web.Auth
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
 
-            _logger.LogDebug("User {Username} had a {SignInResult} sign in result", username, result.ToString());
+            _logger.LogDebug(EventIds.User, "User {Username} had a {SignInResult} sign in result", username, result.ToString());
 
             switch (result.ToString())
             {
@@ -100,7 +100,7 @@ namespace XI.Portal.Web.Auth
                 {
                     await AddXtremeIdiotsClaims(user, member);
                     await _signInManager.SignInAsync(user, true);
-                    _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
+                    _logger.LogDebug(EventIds.User, "User {Username} created a new account with {Email} email", username, email);
                 }
             }
         }

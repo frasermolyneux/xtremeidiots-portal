@@ -141,6 +141,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
@@ -156,6 +157,7 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var model = await _legacyContext.GameServers.FindAsync(id);

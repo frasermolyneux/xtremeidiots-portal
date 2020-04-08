@@ -1,4 +1,5 @@
-﻿@using XI.Portal.Web.Extensions
+﻿@using XI.Portal.Web.Constants
+@using XI.Portal.Web.Extensions
 @model IEnumerable<XI.Portal.Data.Legacy.Models.GameServers>
 
 @{
@@ -66,7 +67,7 @@
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a> |
                             <a asp-action="Details" asp-route-id="@item.ServerId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
+                            <a policy="@XtremeIdiotsPolicy.SeniorAdmin" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
                         </td>
                     </tr>
                 }

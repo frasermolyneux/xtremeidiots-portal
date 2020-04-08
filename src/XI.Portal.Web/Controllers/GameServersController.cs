@@ -43,8 +43,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
-
             return View(model);
         }
 
@@ -93,8 +91,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
-
             ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
 
             return View(model);
@@ -108,8 +104,6 @@ namespace XI.Portal.Web.Controllers
             GameServers model)
         {
             if (id != model.ServerId) return NotFound();
-
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             if (ModelState.IsValid)
                 try
@@ -160,8 +154,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
-
             return View(model);
         }
 
@@ -172,8 +164,6 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
-
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
 
             _legacyContext.GameServers.Remove(model);
             await _legacyContext.SaveChangesAsync();

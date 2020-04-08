@@ -48,8 +48,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
-
             return View(model);
         }
 
@@ -99,8 +97,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
-
             ViewData["GameServerServerId"] = new SelectList(
                 _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
                 model.GameServerServerId);
@@ -115,8 +111,6 @@ namespace XI.Portal.Web.Controllers
             BanFileMonitors model)
         {
             if (id != model.BanFileMonitorId) return NotFound();
-
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
 
             if (ModelState.IsValid)
                 try
@@ -158,8 +152,6 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
-
             return View(model);
         }
 
@@ -169,8 +161,6 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var model = await _legacyContext.BanFileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.BanFileMonitorId == id);
-
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
 
             _legacyContext.BanFileMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();

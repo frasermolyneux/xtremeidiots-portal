@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {
@@ -15,11 +17,15 @@ namespace XI.Portal.Data.Legacy.Models
         }
 
         public Guid MapId { get; set; }
-        public int GameType { get; set; }
-        public string MapName { get; set; }
 
-        public virtual ICollection<MapFiles> MapFiles { get; set; }
-        public virtual ICollection<MapRotations> MapRotations { get; set; }
-        public virtual ICollection<MapVotes> MapVotes { get; set; }
+        [DisplayName("Game")] public GameType GameType { get; set; }
+
+        [DisplayName("Map Name")] public string MapName { get; set; }
+
+        [DisplayName("Map File")] public virtual ICollection<MapFiles> MapFiles { get; set; }
+
+        [DisplayName("Map Rotations")] public virtual ICollection<MapRotations> MapRotations { get; set; }
+
+        [DisplayName("Map Votes")] public virtual ICollection<MapVotes> MapVotes { get; set; }
     }
 }

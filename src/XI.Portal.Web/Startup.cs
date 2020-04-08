@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging;
 using XI.Forums;
 using XI.Portal.Data.Legacy;
+using XI.Portal.Maps.Extensions;
 using XI.Portal.Web.Auth;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -60,10 +61,7 @@ namespace XI.Portal.Web
                 .AddDefaultTokenProviders()
                 .CreateAzureTablesIfNotExists<ApplicationAuthDbContext>();
 
-            services.Configure<SecurityStampValidatorOptions>(options =>
-            {
-                options.ValidationInterval = TimeSpan.FromMinutes(15);
-            });
+            services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });
 
             services.AddAuthentication(options => options.DefaultChallengeScheme = "XtremeIdiots")
                 .AddOAuth("XtremeIdiots", options =>
@@ -123,6 +121,8 @@ namespace XI.Portal.Web
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
 
+            services.AddMapsRepository(options => { options.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));
 
@@ -132,9 +132,7 @@ namespace XI.Portal.Web
 
             services.AddControllersWithViews();
 
-            services.Configure<CookieTempDataProviderOptions>(options => {
-                options.Cookie.IsEssential = true;
-            });
+            services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

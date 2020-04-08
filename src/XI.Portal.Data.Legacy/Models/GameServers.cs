@@ -41,13 +41,13 @@ namespace XI.Portal.Data.Legacy.Models
         public int LiveCurrentPlayers { get; set; }
         public DateTime LiveLastUpdated { get; set; }
 
-        [DataType(DataType.MultilineText)]
-        [DisplayName("Banner Server List")]
-        public bool ShowOnBannerServerList { get; set; }
+        [DisplayName("Banner Server List")] public bool ShowOnBannerServerList { get; set; }
 
         [DisplayName("Position")] public int BannerServerListPosition { get; set; }
 
-        [DisplayName("HTML Banner")] public string HtmlBanner { get; set; }
+        [DataType(DataType.MultilineText)]
+        [DisplayName("HTML Banner")]
+        public string HtmlBanner { get; set; }
 
         [DisplayName("Portal Server List")] public bool ShowOnPortalServerList { get; set; }
 

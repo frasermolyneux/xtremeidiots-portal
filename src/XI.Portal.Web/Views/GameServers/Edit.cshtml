@@ -4,35 +4,45 @@
     ViewData["Title"] = "Edit Game Server";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
-        </div>
-        <div class="card card-body">
-            <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="ServerId"/>
-                <div class="form-group">
-                    <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" class="form-control"/>
-                    <span asp-validation-for="Title" class="text-danger"></span>
-                </div>
+<form asp-action="Edit">
+    <input type="hidden" asp-for="ServerId"/>
+
+    <row class="row">
+        <div class="container-fluid">
+            <div class="card card-header">
+                General
+            </div>
+            <div class="card card-body">
                 <div class="form-group">
                     <label asp-for="GameType" class="control-label"></label>
-                    <input asp-for="GameType" class="form-control"/>
+                    <select asp-for="GameType" class="form-control" asp-items="ViewBag.GameType" disabled="disabled"></select>
                     <span asp-validation-for="GameType" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label asp-for="Title" class="control-label"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                     <label asp-for="Hostname" class="control-label"></label>
-                    <input asp-for="Hostname" class="form-control"/>
+                    <input asp-for="Hostname" class="form-control" />
                     <span asp-validation-for="Hostname" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="QueryPort" class="control-label"></label>
-                    <input asp-for="QueryPort" class="form-control"/>
+                    <input asp-for="QueryPort" class="form-control" />
                     <span asp-validation-for="QueryPort" class="text-danger"></span>
                 </div>
+            </div>
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="container-fluid" style="padding-top: 40px">
+            <div class="card card-header">
+                Credentials
+            </div>
+            <div class="card card-body">
                 <div class="form-group">
                     <label asp-for="FtpHostname" class="control-label"></label>
                     <input asp-for="FtpHostname" class="form-control"/>
@@ -53,71 +63,64 @@
                     <input asp-for="RconPassword" class="form-control"/>
                     <span asp-validation-for="RconPassword" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="LiveTitle" class="control-label"></label>
-                    <input asp-for="LiveTitle" class="form-control"/>
-                    <span asp-validation-for="LiveTitle" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="LiveMap" class="control-label"></label>
-                    <input asp-for="LiveMap" class="form-control"/>
-                    <span asp-validation-for="LiveMap" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="LiveMod" class="control-label"></label>
-                    <input asp-for="LiveMod" class="form-control"/>
-                    <span asp-validation-for="LiveMod" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="LiveMaxPlayers" class="control-label"></label>
-                    <input asp-for="LiveMaxPlayers" class="form-control"/>
-                    <span asp-validation-for="LiveMaxPlayers" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="LiveCurrentPlayers" class="control-label"></label>
-                    <input asp-for="LiveCurrentPlayers" class="form-control"/>
-                    <span asp-validation-for="LiveCurrentPlayers" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="LiveLastUpdated" class="control-label"></label>
-                    <input asp-for="LiveLastUpdated" class="form-control"/>
-                    <span asp-validation-for="LiveLastUpdated" class="text-danger"></span>
-                </div>
+            </div>
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="container-fluid" style="padding-top: 40px">
+            <div class="card card-header">
+                Display Options
+            </div>
+            <div class="card card-body">
                 <div class="form-group form-check">
                     <label class="form-check-label">
-                        <input class="form-check-input" asp-for="ShowOnBannerServerList"/> @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                        <input class="form-check-input" asp-for="ShowOnBannerServerList" /> @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
                     </label>
                 </div>
                 <div class="form-group">
                     <label asp-for="BannerServerListPosition" class="control-label"></label>
-                    <input asp-for="BannerServerListPosition" class="form-control"/>
+                    <input asp-for="BannerServerListPosition" class="form-control" />
                     <span asp-validation-for="BannerServerListPosition" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="HtmlBanner" class="control-label"></label>
-                    <input asp-for="HtmlBanner" class="form-control"/>
+                    <input asp-for="HtmlBanner" class="form-control" />
                     <span asp-validation-for="HtmlBanner" class="text-danger"></span>
                 </div>
+                <hr />
                 <div class="form-group form-check">
                     <label class="form-check-label">
-                        <input class="form-check-input" asp-for="ShowOnPortalServerList"/> @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                        <input class="form-check-input" asp-for="ShowOnPortalServerList" /> @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
                     </label>
                 </div>
                 <div class="form-group form-check">
                     <label class="form-check-label">
-                        <input class="form-check-input" asp-for="ShowChatLog"/> @Html.DisplayNameFor(model => model.ShowChatLog)
+                        <input class="form-check-input" asp-for="ShowChatLog" /> @Html.DisplayNameFor(model => model.ShowChatLog)
                     </label>
                 </div>
+            </div>
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="container-fluid" style="padding-top: 40px">
+            <div class="card card-header">
+                @ViewData["Title"]
+            </div>
+            <div class="card card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
                     <input type="submit" value="Save" class="btn btn-primary"/>
                 </div>
-            </form>
+            </div>
+            <div class="card card-footer">
+                <a asp-action="Index">Back to List</a>
+            </div>
         </div>
-        <div class="card card-footer">
-            <a asp-action="Index">Back to List</a>
-        </div>
-    </div>
-</row>
+    </row>
+
+</form>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }

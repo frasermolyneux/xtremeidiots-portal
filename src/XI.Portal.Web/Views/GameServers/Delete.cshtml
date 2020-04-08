@@ -1,4 +1,5 @@
-﻿@model XI.Portal.Data.Legacy.Models.GameServers
+﻿@using XI.Portal.Web.Extensions
+@model XI.Portal.Data.Legacy.Models.GameServers
 
 @{
     ViewData["Title"] = "Delete Game Server";
@@ -16,7 +17,7 @@
                     @Html.DisplayNameFor(model => model.Title)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Title)
+                    @Html.ServerName(Model.Title, Model.LiveTitle)
                 </dd>
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.GameType)
@@ -28,114 +29,16 @@
                     @Html.DisplayNameFor(model => model.Hostname)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Hostname)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.QueryPort)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.QueryPort)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpHostname)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpHostname)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpUsername)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpUsername)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpPassword)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpPassword)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.RconPassword)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.RconPassword)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveTitle)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveTitle)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveMap)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveMap)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveMod)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveMod)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveMaxPlayers)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveMaxPlayers)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveCurrentPlayers)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.LiveLastUpdated)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.LiveLastUpdated)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowOnBannerServerList)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.BannerServerListPosition)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.BannerServerListPosition)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.HtmlBanner)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.HtmlBanner)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowOnPortalServerList)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowChatLog)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowChatLog)
+                    @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
                 </dd>
             </dl>
-            <hr/>
+        </div>
+        <div class="card card-footer">
             <form asp-action="Delete">
                 <input type="hidden" asp-for="ServerId"/>
                 <input type="submit" value="Delete" class="btn btn-danger"/> |
                 <a asp-action="Index">Back to List</a>
             </form>
-        </div>
-        <div class="card card-footer">
-
         </div>
     </div>
 </row>

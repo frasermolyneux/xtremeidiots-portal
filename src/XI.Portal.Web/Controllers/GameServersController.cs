@@ -3,41 +3,52 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
+using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class GameServersController : Controller
     {
-        private readonly LegacyPortalContext _context;
+        private readonly LegacyPortalContext _legacyContext;
+        private readonly ILogger<GameServersController> _logger;
 
-        public GameServersController(LegacyPortalContext context)
+        public GameServersController(LegacyPortalContext legacyContext, ILogger<GameServersController> logger)
         {
-            _context = context;
+            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.GameServers.OrderBy(server => server.BannerServerListPosition).ToListAsync());
+            return View(await _legacyContext.GameServers.OrderBy(server => server.BannerServerListPosition).ToListAsync());
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var gameServers = await _context.GameServers
+            var models = await _legacyContext.GameServers
                 .FirstOrDefaultAsync(m => m.ServerId == id);
-            if (gameServers == null) return NotFound();
 
-            return View(gameServers);
+            if (models == null) return NotFound();
+
+            return View(models);
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
+            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)));
             return View();
         }
 
@@ -45,89 +56,121 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind(
-                "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,LiveTitle,LiveMap,LiveMod,LiveMaxPlayers,LiveCurrentPlayers,LiveLastUpdated,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServers gameServers)
+                "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
+            GameServers model)
         {
             if (ModelState.IsValid)
             {
-                gameServers.ServerId = Guid.NewGuid();
-                _context.Add(gameServers);
-                await _context.SaveChangesAsync();
+                model.ServerId = Guid.NewGuid();
+                model.LiveLastUpdated = DateTime.UtcNow;
+
+                _legacyContext.Add(model);
+
+                await _legacyContext.SaveChangesAsync();
+
+                _logger.LogInformation(EventIds.Management, "User {User} has created a new game server with Id {Id}", User.Username(), model.ServerId);
+
+                TempData["Success"] = "A new Game Server has been successfully created";
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(gameServers);
+            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)));
+
+            return View(model);
         }
 
-        // GET: GameServers/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var gameServers = await _context.GameServers.FindAsync(id);
-            if (gameServers == null) return NotFound();
-            return View(gameServers);
+            var model = await _legacyContext.GameServers.FindAsync(id);
+
+            if (model == null) return NotFound();
+
+            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
+
+            return View(model);
         }
 
-        // POST: GameServers/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id,
             [Bind(
-                "ServerId,Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,LiveTitle,LiveMap,LiveMod,LiveMaxPlayers,LiveCurrentPlayers,LiveLastUpdated,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServers gameServers)
+                "ServerId,Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
+            GameServers model)
         {
-            if (id != gameServers.ServerId) return NotFound();
+            if (id != model.ServerId) return NotFound();
 
             if (ModelState.IsValid)
-            {
                 try
                 {
-                    _context.Update(gameServers);
-                    await _context.SaveChangesAsync();
+                    var storedModel = await _legacyContext.GameServers.FindAsync(id);
+                    storedModel.Title = model.Title;
+                    storedModel.Hostname = model.Hostname;
+                    storedModel.QueryPort = model.QueryPort;
+                    storedModel.FtpHostname = model.FtpHostname;
+                    storedModel.FtpUsername = model.FtpUsername;
+                    storedModel.FtpPassword = model.FtpPassword;
+                    storedModel.RconPassword = model.RconPassword;
+                    storedModel.ShowOnBannerServerList = model.ShowOnBannerServerList;
+                    storedModel.BannerServerListPosition = model.BannerServerListPosition;
+                    storedModel.HtmlBanner = model.HtmlBanner;
+                    storedModel.ShowOnPortalServerList = model.ShowOnPortalServerList;
+                    storedModel.ShowChatLog = model.ShowChatLog;
+
+                    _legacyContext.Update(storedModel);
+
+                    await _legacyContext.SaveChangesAsync();
+
+                    _logger.LogInformation(EventIds.Management, "User {User} has modified a game server with Id {Id}", User.Username(), id);
+
+                    TempData["Success"] = "The Game Server has been successfully updated";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GameServersExists(gameServers.ServerId))
+                    if (!GameServersExists(model.ServerId))
                         return NotFound();
                     throw;
                 }
 
-                return RedirectToAction(nameof(Index));
-            }
+            ViewData["GameType"] = new SelectList(Enum.GetValues(typeof(GameType)), model.GameType);
 
-            return View(gameServers);
+            return View(model);
         }
 
-        // GET: GameServers/Delete/5
+        [HttpGet]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var gameServers = await _context.GameServers
+            var model = await _legacyContext.GameServers
                 .FirstOrDefaultAsync(m => m.ServerId == id);
-            if (gameServers == null) return NotFound();
 
-            return View(gameServers);
+            if (model == null) return NotFound();
+
+            return View(model);
         }
 
-        // POST: GameServers/Delete/5
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var gameServers = await _context.GameServers.FindAsync(id);
-            _context.GameServers.Remove(gameServers);
-            await _context.SaveChangesAsync();
+            var model = await _legacyContext.GameServers.FindAsync(id);
+            _legacyContext.GameServers.Remove(model);
+            await _legacyContext.SaveChangesAsync();
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted a game server with Id {Id}", User.Username(), id);
+
+            TempData["Success"] = "The Game Server has been successfully deleted";
             return RedirectToAction(nameof(Index));
         }
 
         private bool GameServersExists(Guid id)
         {
-            return _context.GameServers.Any(e => e.ServerId == id);
+            return _legacyContext.GameServers.Any(e => e.ServerId == id);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace XI.Portal.Data.Legacy.Models
 {
@@ -7,7 +8,7 @@ namespace XI.Portal.Data.Legacy.Models
     {
         public Guid FileMonitorId { get; set; }
 
-        [DisplayName("File Path")] public string FilePath { get; set; }
+        [Required] [DisplayName("File Path")] public string FilePath { get; set; }
 
         [DisplayName("Bytes Read")] public long BytesRead { get; set; }
 

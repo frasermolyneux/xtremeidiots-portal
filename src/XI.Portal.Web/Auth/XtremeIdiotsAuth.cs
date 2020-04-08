@@ -154,6 +154,17 @@ namespace XI.Portal.Web.Auth
                 if (claim.Value.Contains("COD5")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty5);
 
                 if (claim.Value.Contains("Insurgency")) claims.AddGameClaimIfNotExists(GameType.Insurgency);
+
+                if (claim.Value.Contains("ARMA"))
+                {
+                    claims.AddGameClaimIfNotExists(GameType.ARMA);
+                    claims.AddGameClaimIfNotExists(GameType.ARMA2);
+                    claims.AddGameClaimIfNotExists(GameType.ARMA3);
+                }
+
+                if (claim.Value.Contains("Minecraft")) claims.AddGameClaimIfNotExists(GameType.Minecraft);
+
+                if (claim.Value.Contains("Rust")) claims.AddGameClaimIfNotExists(GameType.Rust);
             }
 
             return claims;

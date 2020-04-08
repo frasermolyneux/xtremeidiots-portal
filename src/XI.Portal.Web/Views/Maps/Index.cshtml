@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Maps Index";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-body">
+            <table id="mapList">
+                <thead>
+                <tr>
+                    <td>Game</td>
+                    <td>Name</td>
+                    <td>Map Files</td>
+                    <td>Popularity</td>
+                    <td></td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</row>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#mapList').DataTable({
+                "processing": true,
+                "serverSide": true,
+                ajax: {
+                    url: '/Maps/GetGlobalMapListAjax',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'gameType',
+                        name: 'gameType',
+                        sortable: true,
+                        render: function(data, type, row) {
+                            return "<img src='/images/game-icons/" +
+                                data +
+                                ".png' alt='" +
+                                data +
+                                "' width='16' height='16' />";
+                        }
+                    },
+                    {
+                        data: 'mapName',
+                        name: 'mapName',
+                        sortable: true
+                    },
+                    {
+                        data: 'mapFiles',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            if (data === undefined || data === null || data.length === 0) {
+                                return "No Map Files";
+                            }
+
+                            var outputText = "";
+                            for (var key in data) {
+                                outputText += "<li><a href='" + data[key] + "'>" + key + "</a></li>";
+                            }
+
+                            return outputText;
+                        }
+                    },
+                    {
+                        name: 'popularity',
+                        sortable: true,
+                        render: function(data, type, row) {
+                            return "<div class=\"progress\" id=\"progress-" +
+                                row['mapName'] +
+                                "\"> <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: " +
+                                row['likePercentage'] +
+                                "%\" aria-valuenow=\"" +
+                                row['totalLikes'] +
+                                "\" aria-valuemin=\"0\" aria-valuemax=\"" +
+                                row['totalVotes'] +
+                                "\"></div>" +
+                                "<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: " +
+                                row['dislikePercentage'] +
+                                "%\" aria-valuenow=\"" +
+                                row['totalDislikes'] +
+                                "\" aria-valuemin=\"0\" aria-valuemax=\"" +
+                                row['totalVotes'] +
+                                "\"></div>" +
+                                "</div>" +
+                                "<div class=\"m-t-sm\">" +
+                                row['totalLikes'] +
+                                " likes and " +
+                                row['totalDislikes'] +
+                                " dislikes out of " +
+                                row['totalVotes'] +
+                                "</div>";
+                        }
+                    },
+                    {
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/Maps/MapImage?gameType=" +
+                                row['gameType'] +
+                                "&mapName=" +
+                                row['mapName'] +
+                                "\" alt=\"" +
+                                row['mapName'] +
+                                "\" />";
+                        }
+                    }
+                ]
+            });
+        });
+
+    </script>
+}

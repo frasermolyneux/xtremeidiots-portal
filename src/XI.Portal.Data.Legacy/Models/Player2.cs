@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {
@@ -17,7 +18,7 @@ namespace XI.Portal.Data.Legacy.Models
         }
 
         public Guid PlayerId { get; set; }
-        public int GameType { get; set; }
+        public GameType GameType { get; set; }
         public string Username { get; set; }
         public string Guid { get; set; }
         public string IpAddress { get; set; }

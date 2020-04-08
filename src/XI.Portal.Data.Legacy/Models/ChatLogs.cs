@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {
@@ -6,7 +7,7 @@ namespace XI.Portal.Data.Legacy.Models
     {
         public Guid ChatLogId { get; set; }
         public string Username { get; set; }
-        public int ChatType { get; set; }
+        public ChatType ChatType { get; set; }
         public string Message { get; set; }
         public DateTime Timestamp { get; set; }
         public Guid? GameServerServerId { get; set; }

@@ -22,7 +22,7 @@ namespace XI.Forums.Models
 
         [JsonProperty("email")] public string Email { get; set; }
 
-        [JsonProperty("joined")] public DateTimeOffset Joined { get; set; }
+        [JsonProperty("joined")] public DateTimeOffset? Joined { get; set; }
 
         [JsonProperty("registrationIpAddress")]
         public string RegistrationIpAddress { get; set; }
@@ -43,11 +43,11 @@ namespace XI.Forums.Models
 
         [JsonProperty("posts")] public long Posts { get; set; }
 
-        [JsonProperty("lastActivity")] public DateTimeOffset LastActivity { get; set; }
+        [JsonProperty("lastActivity")] public DateTimeOffset? LastActivity { get; set; }
 
-        [JsonProperty("lastVisit")] public DateTimeOffset LastVisit { get; set; }
+        [JsonProperty("lastVisit")] public DateTimeOffset? LastVisit { get; set; }
 
-        [JsonProperty("lastPost")] public DateTimeOffset LastPost { get; set; }
+        [JsonProperty("lastPost")] public DateTimeOffset? LastPost { get; set; }
 
         [JsonProperty("profileViews")] public long ProfileViews { get; set; }
 

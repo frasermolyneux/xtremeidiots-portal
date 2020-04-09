@@ -91,7 +91,7 @@ namespace XI.Portal.Web.Auth
 
             var member = await _forumsClient.GetMember(id);
 
-            var user = new IdentityUser {UserName = username, Email = email};
+            var user = new IdentityUser {Id = id, UserName = username, Email = email};
             var createUserResult = await _userManager.CreateAsync(user);
             if (createUserResult.Succeeded)
             {

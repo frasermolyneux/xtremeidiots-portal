@@ -44,7 +44,11 @@ namespace XI.Portal.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options => { options.User.RequireUniqueEmail = true; })
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+                {
+                    options.User.RequireUniqueEmail = true;
+                    options.User.AllowedUserNameCharacters = string.Empty;
+                })
                 .AddAzureTableStores<ApplicationAuthDbContext>(() =>
                 {
                     var config = new IdentityConfiguration

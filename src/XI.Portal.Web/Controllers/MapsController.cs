@@ -16,10 +16,14 @@ namespace XI.Portal.Web.Controllers
     public class MapsController : Controller
     {
         private readonly IMapsRepository _mapsRepository;
+        private readonly IMapImageRepository _mapImageRepository;
+        private readonly IMapFileRepository _mapFileRepository;
 
-        public MapsController(IMapsRepository mapsRepository)
+        public MapsController(IMapsRepository mapsRepository, IMapImageRepository mapImageRepository, IMapFileRepository mapFileRepository)
         {
             _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
+            _mapImageRepository = mapImageRepository ?? throw new ArgumentNullException(nameof(mapImageRepository));
+            _mapFileRepository = mapFileRepository ?? throw new ArgumentNullException(nameof(mapFileRepository));
         }
 
         public ActionResult Index()
@@ -87,7 +91,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var fullRotationArchive = await _mapsRepository.GetFullRotationArchive((Guid) id);
+            var fullRotationArchive = await _mapFileRepository.GetFullRotationArchive((Guid) id);
 
             return File(fullRotationArchive, "application/zip");
         }
@@ -98,9 +102,9 @@ namespace XI.Portal.Web.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-            var mapImage = await _mapsRepository.GetMapImage(gameType, mapName);
+            var mapImage = await _mapImageRepository.GetMapImage(gameType, mapName);
 
-            return File(mapImage, "image/jpeg");
+            return Redirect(mapImage.ToString());
         }
     }
 }

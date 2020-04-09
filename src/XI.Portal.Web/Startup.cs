@@ -16,9 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging;
 using XI.AzureTableLogging.Extensions;
-using XI.Forums;
 using XI.Forums.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Extensions;
@@ -123,7 +121,24 @@ namespace XI.Portal.Web
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
 
-            services.AddMapsRepository(options => { options.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+            services.AddMapsModule(options =>
+            {
+                options.UseMapFileRepository(repositoryOptions =>
+                {
+                    repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"];
+                });
+
+                options.UseMapImageRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["StorageContainer:ConnectionString"];
+                    repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
+                });
+
+                options.UseMapsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"];
+                });
+            });
 
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));

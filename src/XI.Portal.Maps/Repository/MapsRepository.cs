@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Models;
-using XI.Portal.Maps.Properties;
 
 namespace XI.Portal.Maps.Repository
 {
     public class MapsRepository : IMapsRepository
     {
         private readonly LegacyPortalContext _legacyContext;
-        private readonly IMapsOptions _options;
+        private readonly IMapsRepositoryOptions _options;
 
-        public MapsRepository(IMapsOptions options, LegacyPortalContext legacyContext)
+        public MapsRepository(IMapsRepositoryOptions options, LegacyPortalContext legacyContext)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
@@ -73,70 +68,6 @@ namespace XI.Portal.Maps.Repository
             }
 
             return mapsResult;
-        }
-
-        public async Task<byte[]> GetFullRotationArchive(Guid id)
-        {
-            var gameServer = await _legacyContext.GameServers
-                .SingleOrDefaultAsync(server => server.ServerId == id);
-
-            var mapRotation = await _legacyContext.MapRotations
-                .Include(m => m.MapMap)
-                .Include(m => m.MapMap.MapFiles)
-                .Include(m => m.MapMap.MapVotes)
-                .Where(m => m.GameServerServer.ServerId == gameServer.ServerId).ToListAsync();
-
-            var tempDirectory = GetTemporaryDirectory();
-
-            using (var client = new WebClient())
-            {
-                foreach (var mapEntry in mapRotation)
-                foreach (var mapFile in mapEntry.MapMap.MapFiles)
-                {
-                    var dir = Path.Combine(tempDirectory, mapEntry.MapMap.MapName);
-
-                    Directory.CreateDirectory(dir);
-
-                    client.DownloadFile(new Uri($"{_options.MapRedirectBaseUrl}/redirect/{mapEntry.MapMap.GameType.ToRedirectShortName()}/usermaps/{mapEntry.MapMap.MapName}/{mapFile.FileName}"),
-                        Path.Combine(dir, mapFile.FileName));
-                }
-            }
-
-            var zippedMapPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-
-            ZipFile.CreateFromDirectory(tempDirectory, zippedMapPath);
-
-            return File.ReadAllBytes(zippedMapPath);
-        }
-
-        public async Task<byte[]> GetMapImage(GameType gameType, string mapName)
-        {
-            try
-            {
-                var mapFilePath = Path.Combine(GetTemporaryDirectory(), $"{gameType}_{mapName}.jpg");
-                var gameTrackerImageUrl = $"https://image.gametracker.com/images/maps/160x120/{gameType.ToGameTrackerShortName()}/{mapName}.jpg";
-
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-                using (var client = new WebClient())
-                {
-                    client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
-                    client.DownloadFile(new Uri(gameTrackerImageUrl), mapFilePath);
-                }
-
-                return File.ReadAllBytes(mapFilePath);
-            }
-            catch
-            {
-                return Resources.noimage;
-            }
-        }
-
-        private string GetTemporaryDirectory()
-        {
-            var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempDirectory);
-            return tempDirectory;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace XI.Portal.Maps.Configuration
 {
-    internal class MapsOptions : IMapsOptions
+    internal class MapsRepositoryOptions : IMapsRepositoryOptions
     {
         public string MapRedirectBaseUrl { get; set; }
 

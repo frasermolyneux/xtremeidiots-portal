@@ -15,7 +15,7 @@ namespace XI.AzureTableLogging.Logger
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
-            _loggingTable = cloudTableClient.GetTableReference(options.StorageContainerName);
+            _loggingTable = cloudTableClient.GetTableReference(options.StorageTableName);
 
             if (options.CreateTableIfNotExists)
                 _loggingTable.CreateIfNotExists();

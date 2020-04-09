@@ -3,7 +3,7 @@
     public interface IAzureTableLoggerOptions
     {
         string StorageConnectionString { get; set; }
-        string StorageContainerName { get; set; }
+        string StorageTableName { get; set; }
         bool CreateTableIfNotExists { get; set; }
 
         void Validate();

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
 using XI.Portal.Data.Legacy;
+using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Web.Auth;
 using XI.Portal.Web.Data;
@@ -114,7 +115,7 @@ namespace XI.Portal.Web
                     logging.AddAzureTableLogger(options =>
                     {
                         options.CreateTableIfNotExists = true;
-                        options.StorageContainerName = Configuration["Logging:AzureTableLogger:StorageContainerName"];
+                        options.StorageTableName = Configuration["Logging:AzureTableLogger:StorageTableName"];
                         options.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     });
                 });
@@ -127,15 +128,31 @@ namespace XI.Portal.Web
 
             services.AddMapsModule(options =>
             {
-                options.UseMapFileRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+                options.ConfigureMapFileRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
 
-                options.UseMapImageRepository(repositoryOptions =>
+                options.ConfigureMapImageRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
                 });
 
-                options.UseMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+                options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+            });
+
+            services.AddDemosModule(options =>
+            {
+                options.ConfigureDemosRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageContainerName = Configuration["DemosRepository:StorageContainerName"];
+                    repositoryOptions.StorageTableName = Configuration["DemosRepository:StorageTableName"];
+                });
+
+                options.ConfigureDemoAuthRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["DemoAuthRepository:StorageTableName"];
+                });
             });
 
             services.AddDbContext<LegacyPortalContext>(options =>

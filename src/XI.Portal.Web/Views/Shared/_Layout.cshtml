@@ -23,15 +23,8 @@
 
                 <ul class="navbar-nav flex-grow-1">
 
-                    <li policy="@XtremeIdiotsPolicy.SeniorAdmin" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Users
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarUsersDropDown">
-                            <a class="dropdown-item" asp-controller="User" asp-action="Index">Manage Users</a>
-                            <a class="dropdown-item" asp-controller="User" asp-action="LegacyIndex">Legacy Users</a>
-                            <a class="dropdown-item" asp-controller="User" asp-action="MigrateUsers">Migrate Legacy Users</a>
-                        </div>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Maps" asp-action="Index">Maps</a>
                     </li>
 
                     <li policy="@XtremeIdiotsPolicy.Management" class="nav-item dropdown">
@@ -46,8 +39,23 @@
                         </div>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Maps" asp-action="Index">Maps</a>
+                    <li policy="@XtremeIdiotsPolicy.SeniorAdmin" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Users
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarUsersDropDown">
+                            <a class="dropdown-item" asp-controller="User" asp-action="Index">Manage Users</a>
+                            <a class="dropdown-item" asp-controller="User" asp-action="LegacyIndex">Legacy Users</a>
+                        </div>
+                    </li>
+
+                    <li policy="@XtremeIdiotsPolicy.SeniorAdmin" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarMigrationDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Migration
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarMigrationDropDown">
+                            <a class="dropdown-item" asp-controller="Migration" asp-action="MigrateUsers">Migrate Legacy Users</a>
+                        </div>
                     </li>
 
                 </ul>

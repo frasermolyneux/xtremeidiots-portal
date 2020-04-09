@@ -10,10 +10,7 @@ namespace XI.AzureTableLogging.Extensions
     {
         public static ILoggingBuilder AddAzureTableLogger(this ILoggingBuilder loggingBuilder, Action<IAzureTableLoggerOptions> configureOptions)
         {
-            if (configureOptions == null)
-            {
-                throw new ArgumentNullException(nameof(configureOptions));
-            }
+            if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
             loggingBuilder.Services.AddLogging(builder =>
                 builder.AddProvider(new AzureTableLoggerProvider(configureOptions)));

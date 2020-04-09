@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using XI.Forums;
 using XI.Forums.Client;
 using XI.Forums.Models;
 using XI.Portal.Data.Legacy.CommonTypes;

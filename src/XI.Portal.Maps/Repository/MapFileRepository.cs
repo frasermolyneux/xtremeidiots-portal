@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
@@ -15,8 +13,8 @@ namespace XI.Portal.Maps.Repository
 {
     public class MapFileRepository : IMapFileRepository
     {
-        private readonly IMapFileRepositoryOptions _options;
         private readonly LegacyPortalContext _legacyContext;
+        private readonly IMapFileRepositoryOptions _options;
 
         public MapFileRepository(IMapFileRepositoryOptions options, LegacyPortalContext legacyContext)
         {

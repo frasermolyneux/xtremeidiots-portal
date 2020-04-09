@@ -42,10 +42,7 @@ namespace XI.Portal.Data.Legacy
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                throw new Exception("LegacyPortalContext has not had options configured!");
-            }
+            if (!optionsBuilder.IsConfigured) throw new Exception("LegacyPortalContext has not had options configured!");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

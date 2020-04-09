@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
 using XI.Portal.Web.Extensions;

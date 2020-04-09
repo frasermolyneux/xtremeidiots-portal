@@ -123,10 +123,7 @@ namespace XI.Portal.Web
 
             services.AddMapsModule(options =>
             {
-                options.UseMapFileRepository(repositoryOptions =>
-                {
-                    repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"];
-                });
+                options.UseMapFileRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
 
                 options.UseMapImageRepository(repositoryOptions =>
                 {
@@ -134,10 +131,7 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
                 });
 
-                options.UseMapsRepository(repositoryOptions =>
-                {
-                    repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"];
-                });
+                options.UseMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
             });
 
             services.AddDbContext<LegacyPortalContext>(options =>

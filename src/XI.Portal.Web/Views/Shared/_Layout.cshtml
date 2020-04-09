@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - XI Portal</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css"/>
 </head>
 <body>
 <header>
@@ -64,7 +64,7 @@
 <div style="bottom: 0; position: fixed; width: 100%;">
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style=" margin-left: 40px; margin-right: 40px; margin-bottom: 25px">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 25px; margin-left: 40px; margin-right: 40px;">
             @TempData["Success"]
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

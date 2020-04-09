@@ -15,9 +15,9 @@ namespace XI.Portal.Web.Controllers
     [AllowAnonymous]
     public class MapsController : Controller
     {
-        private readonly IMapsRepository _mapsRepository;
-        private readonly IMapImageRepository _mapImageRepository;
         private readonly IMapFileRepository _mapFileRepository;
+        private readonly IMapImageRepository _mapImageRepository;
+        private readonly IMapsRepository _mapsRepository;
 
         public MapsController(IMapsRepository mapsRepository, IMapImageRepository mapImageRepository, IMapFileRepository mapFileRepository)
         {

@@ -15,7 +15,7 @@ namespace XI.AzureTableLogging.Logger
 
         public ILogger CreateLogger(string categoryName)
         {
-            var options = new AzureTableLoggerOptions();
+            IAzureTableLoggerOptions options = new AzureTableLoggerOptions();
             _configureOptions.Invoke(options);
 
             options.Validate();

@@ -12,13 +12,13 @@ namespace XI.AzureTableLogging.Logger
 
         public AzureTableLogger(IAzureTableLoggerOptions options)
         {
-            var storageAccount = CloudStorageAccount.Parse(options.ConnectionString);
+            var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
-            _loggingTable = cloudTableClient.GetTableReference(options.LogTableName);
+            _loggingTable = cloudTableClient.GetTableReference(options.StorageContainerName);
 
             if (options.CreateTableIfNotExists)
-                _loggingTable.CreateIfNotExistsAsync();
+                _loggingTable.CreateIfNotExists();
         }
 
         public IDisposable BeginScope<TState>(TState state)

@@ -110,8 +110,8 @@ namespace XI.Portal.Web
                     logging.AddAzureTableLogger(options =>
                     {
                         options.CreateTableIfNotExists = true;
-                        options.LogTableName = Configuration["Logging:AzureTableLogger:LogTableName"];
-                        options.ConnectionString = Configuration["Logging:AzureTableLogger:ConnectionString"];
+                        options.StorageContainerName = Configuration["Logging:AzureTableLogger:StorageContainerName"];
+                        options.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     });
                 });
 
@@ -130,7 +130,7 @@ namespace XI.Portal.Web
 
                 options.UseMapImageRepository(repositoryOptions =>
                 {
-                    repositoryOptions.StorageConnectionString = Configuration["StorageContainer:ConnectionString"];
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
                 });
 

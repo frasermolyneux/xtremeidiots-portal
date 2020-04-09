@@ -2,9 +2,10 @@
 {
     public interface IAzureTableLoggerOptions
     {
-        string ConnectionString { get; set; }
-        string LogTableName { get; set; }
+        string StorageConnectionString { get; set; }
+        string StorageContainerName { get; set; }
         bool CreateTableIfNotExists { get; set; }
+
         void Validate();
     }
 }

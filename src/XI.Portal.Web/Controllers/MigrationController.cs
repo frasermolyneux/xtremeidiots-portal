@@ -10,8 +10,6 @@ using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Models;
 using XI.Portal.Demos.Repository;
-using XI.Portal.Maps.Models;
-using XI.Portal.Maps.Repository;
 using XI.Portal.Web.Constants;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
@@ -23,19 +21,16 @@ namespace XI.Portal.Web.Controllers
         private readonly IDemoAuthRepository _demoAuthRepository;
         private readonly IDemosRepository _demosRepository;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly IMapsRepository _mapsRepository;
         private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
 
         public MigrationController(LegacyPortalContext legacyContext, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
             IDemoAuthRepository demoAuthRepository,
-            IDemosRepository demosRepository,
-            IMapsRepository mapsRepository)
+            IDemosRepository demosRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _demoAuthRepository = demoAuthRepository ?? throw new ArgumentNullException(nameof(demoAuthRepository));
             _demosRepository = demosRepository ?? throw new ArgumentNullException(nameof(demosRepository));
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
         }
 
         [HttpGet]
@@ -175,55 +170,6 @@ namespace XI.Portal.Web.Controllers
                     else
                     {
                         log.AppendLine("   Demo already exists - doing nothing");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.AppendLine($"   {ex.Message}");
-                }
-            }
-
-            return Json(new
-            {
-                progress = progress + take,
-                log = log.ToString()
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> MigrateMaps()
-        {
-            ViewData["TotalEntries"] = await _legacyContext.Maps.CountAsync();
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ProcessMigrateMaps(int progress, int take)
-        {
-            var log = new StringBuilder();
-            var maps = await _legacyContext.Maps.Include(map => map.MapFiles).Skip(progress).Take(take).ToListAsync();
-            log.AppendLine($"{maps.Count} records retrieved from the database, progress {progress}, take {take}");
-
-            foreach (var map in maps)
-            {
-                log.AppendLine($"Processing map {map.MapName} for {map.GameType}");
-                try
-                {
-                    var existingMap = await _mapsRepository.GetGameMap(map.GameType, map.MapName);
-
-                    if (existingMap == null)
-                    {
-                        await _mapsRepository.UpdateMap(new MapDto
-                        {
-                            RowKey = map.MapName,
-                            GameType = map.GameType
-                        });
-
-                        log.AppendLine("   Created new map");
-                    }
-                    else
-                    {
-                        log.AppendLine("   Map already exists - doing nothing");
                     }
                 }
                 catch (Exception ex)

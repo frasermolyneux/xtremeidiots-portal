@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
@@ -15,39 +13,12 @@ namespace XI.Portal.Maps.Repository
     public class MapsRepository : IMapsRepository
     {
         private readonly LegacyPortalContext _legacyContext;
-        private readonly CloudTable _mapsTable;
         private readonly IMapsRepositoryOptions _options;
 
         public MapsRepository(IMapsRepositoryOptions options, LegacyPortalContext legacyContext)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
-
-            var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
-            var cloudTableClient = storageAccount.CreateCloudTableClient();
-
-            _mapsTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _mapsTable.CreateIfNotExists();
-        }
-
-        public async Task<IMapDto> GetGameMap(GameType gameType, string mapName)
-        {
-            var tableOperation = TableOperation.Retrieve<MapEntity>(gameType.ToString(), mapName);
-            var result = await _mapsTable.ExecuteAsync(tableOperation);
-
-            if (result.HttpStatusCode == 404)
-                return null;
-
-            var mapDto = (IMapDto)result.Result;
-            return mapDto;
-        }
-
-        public async Task UpdateMap(IMapDto mapDto)
-        {
-            var mapEntity = new MapEntity {RowKey = mapDto.RowKey, GameType = mapDto.GameType, PartitionKey = mapDto.GameType.ToString()};
-
-            var operation = TableOperation.InsertOrMerge(mapEntity);
-            await _mapsTable.ExecuteAsync(operation);
         }
 
         public async Task<int> GetMapListCount(MapsFilterModel filterModel)

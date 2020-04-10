@@ -21,6 +21,7 @@ using XI.Forums.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
+using XI.Portal.Players.Extensions;
 using XI.Portal.Web.Auth;
 using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -154,6 +155,8 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageTableName = Configuration["DemoAuthRepository:StorageTableName"];
                 });
             });
+
+            services.AddPlayersModule(options => { options.ConfigurePlayersRepository(repositoryOptions => { }); });
 
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));

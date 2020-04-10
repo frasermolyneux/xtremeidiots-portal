@@ -23,6 +23,7 @@
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Demos\XI.Portal.Demos.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />
+    <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
   </ItemGroup>
 
 

@@ -1,11 +1,11 @@
 ﻿using System;
-using Microsoft.Azure.Cosmos.Table;
 using XI.Demos.Constants;
 
 namespace XI.Portal.Demos.Models
 {
-    internal class DemoEntity : TableEntity, IDemoDto
+    public class DemoDto : IDemoDto
     {
+        public string RowKey { get; set; }
         public string UserId { get; set; }
         public GameType Game { get; set; }
         public string Name { get; set; }

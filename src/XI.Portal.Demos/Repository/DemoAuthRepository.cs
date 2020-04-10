@@ -9,8 +9,8 @@ namespace XI.Portal.Demos.Repository
 {
     public class DemoAuthRepository : IDemoAuthRepository
     {
-        private readonly IDemoAuthRepositoryOptions _options;
         private readonly CloudTable _demoAuthTable;
+        private readonly IDemoAuthRepositoryOptions _options;
 
         public DemoAuthRepository(IDemoAuthRepositoryOptions options)
         {

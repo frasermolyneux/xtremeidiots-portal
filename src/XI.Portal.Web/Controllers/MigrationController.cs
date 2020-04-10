@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using XI.Demos.Constants;
 using XI.Portal.Data.Legacy;
+using XI.Portal.Demos.Models;
 using XI.Portal.Demos.Repository;
 using XI.Portal.Web.Constants;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
@@ -17,14 +19,16 @@ namespace XI.Portal.Web.Controllers
     public class MigrationController : Controller
     {
         private readonly IDemoAuthRepository _demoAuthRepository;
+        private readonly IDemosRepository _demosRepository;
         private readonly LegacyPortalContext _legacyContext;
         private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
 
-        public MigrationController(LegacyPortalContext legacyContext, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager, IDemoAuthRepository demoAuthRepository)
+        public MigrationController(LegacyPortalContext legacyContext, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager, IDemoAuthRepository demoAuthRepository, IDemosRepository demosRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _demoAuthRepository = demoAuthRepository ?? throw new ArgumentNullException(nameof(demoAuthRepository));
+            _demosRepository = demosRepository ?? throw new ArgumentNullException(nameof(demosRepository));
         }
 
         [HttpGet]
@@ -108,6 +112,62 @@ namespace XI.Portal.Web.Controllers
                     else
                     {
                         log.AppendLine("   Demo auth key already exists for user");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.AppendLine($"   {ex.Message}");
+                }
+            }
+
+            return Json(new
+            {
+                progress = progress + take,
+                log = log.ToString()
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MigrateDemos()
+        {
+            ViewData["TotalEntries"] = await _legacyContext.Demoes.CountAsync();
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ProcessMigrateDemos(int progress, int take)
+        {
+            var log = new StringBuilder();
+            var demos = await _legacyContext.Demoes.Include(demo => demo.User).Skip(progress).Take(take).ToListAsync();
+            log.AppendLine($"{demos.Count} records retrieved from the database, progress {progress}, take {take}");
+
+            foreach (var demo in demos)
+            {
+                log.AppendLine($"Processing demo {demo.Name} for {demo.User.UserName}");
+                try
+                {
+                    var existingDemo = await _demosRepository.GetUserDemo(demo.User.XtremeIdiotsId, demo.DemoId.ToString());
+
+                    if (existingDemo == null)
+                    {
+                        await _demosRepository.UpdateDemo(new DemoDto()
+                        {
+                            RowKey = demo.DemoId.ToString(),
+                            UserId = demo.User.XtremeIdiotsId,
+                            Game = (GameType)demo.Game,
+                            Name = demo.Name,
+                            Created = demo.Date, 
+                            Map = demo.Map,
+                            Mod = demo.Mod,
+                            Server = demo.Server,
+                            Size = demo.Size
+                        });
+
+                        log.AppendLine("   Created new demo");
+                    }
+                    else
+                    {
+                        log.AppendLine("   Demo already exists - doing nothing");
                     }
                 }
                 catch (Exception ex)

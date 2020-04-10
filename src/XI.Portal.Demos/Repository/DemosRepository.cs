@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using XI.Portal.Demos.Configuration;
@@ -31,31 +30,31 @@ namespace XI.Portal.Demos.Repository
             if (result.HttpStatusCode == 404)
                 return null;
 
-            var demoAuthEntity = (IDemoDto) result.Result;
-            return demoAuthEntity;
+            var demoDto = (IDemoDto) result.Result;
+            return demoDto;
         }
 
-        public async Task UpdateDemo(IDemoDto demo)
+        public async Task UpdateDemo(IDemoDto demoDto)
         {
             var demoEntity = new DemoEntity
             {
-                RowKey = demo.RowKey,
-                UserId = demo.UserId,
-                Game = demo.Game,
-                Name = demo.Name, 
-                Created = demo.Created,
-                Map = demo.Map,
-                Mod = demo.Mod,
-                Server = demo.Server,
-                Size = demo.Size
+                RowKey = demoDto.RowKey,
+                UserId = demoDto.UserId,
+                Game = demoDto.Game,
+                Name = demoDto.Name,
+                Created = demoDto.Created,
+                Map = demoDto.Map,
+                Mod = demoDto.Mod,
+                Server = demoDto.Server,
+                Size = demoDto.Size
             };
 
             if (string.IsNullOrWhiteSpace(demoEntity.RowKey)) demoEntity.RowKey = Guid.NewGuid().ToString();
 
-            demoEntity.PartitionKey = demo.UserId;
+            demoEntity.PartitionKey = demoDto.UserId;
 
-            var insertOp = TableOperation.InsertOrMerge(demoEntity);
-            await _demosTable.ExecuteAsync(insertOp);
+            var operation = TableOperation.InsertOrMerge(demoEntity);
+            await _demosTable.ExecuteAsync(operation);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using XI.Demos.Constants;
+using XI.CommonTypes;
 
 namespace XI.Demos.Models
 {

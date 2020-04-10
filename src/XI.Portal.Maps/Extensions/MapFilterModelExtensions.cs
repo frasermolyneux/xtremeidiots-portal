@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Maps.Models;
 
 namespace XI.Portal.Maps.Extensions

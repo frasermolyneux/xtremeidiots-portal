@@ -136,7 +136,12 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
                 });
 
-                options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
+                options.ConfigureMapsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; 
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["MapsRepository:StorageTableName"];
+                });
             });
 
             services.AddDemosModule(options =>

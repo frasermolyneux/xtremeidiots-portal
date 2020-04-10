@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 using XI.Portal.Web.Constants;
 
 namespace XI.Portal.Web.Extensions

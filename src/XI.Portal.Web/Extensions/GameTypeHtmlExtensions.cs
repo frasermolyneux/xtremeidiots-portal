@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 
 namespace XI.Portal.Web.Extensions
 {

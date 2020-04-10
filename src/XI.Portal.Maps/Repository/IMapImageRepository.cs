@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 
 namespace XI.Portal.Maps.Repository
 {

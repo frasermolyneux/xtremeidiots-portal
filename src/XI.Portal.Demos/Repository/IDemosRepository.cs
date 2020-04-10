@@ -6,6 +6,6 @@ namespace XI.Portal.Demos.Repository
     public interface IDemosRepository
     {
         Task<IDemoDto> GetUserDemo(string userId, string demoId);
-        Task UpdateDemo(IDemoDto demo);
+        Task UpdateDemo(IDemoDto demoDto);
     }
 }

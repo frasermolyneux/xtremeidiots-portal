@@ -5,7 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Properties;

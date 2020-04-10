@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {

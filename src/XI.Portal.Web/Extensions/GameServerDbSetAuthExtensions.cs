@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Web.Constants;
 

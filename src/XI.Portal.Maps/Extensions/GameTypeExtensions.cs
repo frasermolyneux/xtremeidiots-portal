@@ -1,4 +1,4 @@
-﻿using XI.Portal.Data.Legacy.CommonTypes;
+﻿using XI.CommonTypes;
 
 namespace XI.Portal.Maps.Extensions
 {
@@ -69,7 +69,6 @@ namespace XI.Portal.Maps.Extensions
                     return "codww";
                 case GameType.Insurgency:
                     return "ins";
-                    break;
                 case GameType.ArkSurvivalEvolved:
                     break;
                 case GameType.Battlefield1:
@@ -86,7 +85,6 @@ namespace XI.Portal.Maps.Extensions
                     break;
                 case GameType.Left4Dead2:
                     return "left4dead2";
-                    break;
                 case GameType.Minecraft:
                     break;
                 case GameType.PlayerUnknownsBattleground:
@@ -95,7 +93,6 @@ namespace XI.Portal.Maps.Extensions
                     break;
                 case GameType.Rust:
                     return "rust";
-                    break;
                 case GameType.WarThunder:
                     break;
                 case GameType.WorldOfWarships:

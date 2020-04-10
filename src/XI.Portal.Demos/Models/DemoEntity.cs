@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Azure.Cosmos.Table;
-using XI.Demos.Constants;
+using XI.CommonTypes;
 
 namespace XI.Portal.Demos.Models
 {

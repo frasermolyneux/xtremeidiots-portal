@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Newtonsoft.Json;
-using XI.Demos.Constants;
+using XI.CommonTypes;
 
 namespace XI.Demos.Models
 {

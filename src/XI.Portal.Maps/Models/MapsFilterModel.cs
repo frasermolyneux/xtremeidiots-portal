@@ -1,4 +1,4 @@
-﻿using XI.Portal.Data.Legacy.CommonTypes;
+﻿using XI.CommonTypes;
 
 namespace XI.Portal.Maps.Models
 {

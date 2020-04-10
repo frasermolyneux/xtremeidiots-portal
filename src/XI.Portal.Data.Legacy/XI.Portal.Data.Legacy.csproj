@@ -13,4 +13,8 @@
     <Folder Include="CommonTypes\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\XI.CommonTypes\XI.CommonTypes.csproj" />
+  </ItemGroup>
+
 </Project>

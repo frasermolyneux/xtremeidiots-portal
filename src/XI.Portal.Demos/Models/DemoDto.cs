@@ -1,13 +1,13 @@
 ﻿using System;
-using XI.Demos.Constants;
+using XI.CommonTypes;
 
 namespace XI.Portal.Demos.Models
 {
     public class DemoDto : IDemoDto
     {
+        public GameType Game { get; set; }
         public string RowKey { get; set; }
         public string UserId { get; set; }
-        public GameType Game { get; set; }
         public string Name { get; set; }
         public DateTime Created { get; set; }
         public string Map { get; set; }

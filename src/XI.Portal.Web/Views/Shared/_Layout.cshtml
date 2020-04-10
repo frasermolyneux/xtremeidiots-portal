@@ -27,6 +27,15 @@
                         <a class="nav-link" asp-controller="Maps" asp-action="Index">Maps</a>
                     </li>
 
+                    <li policy="@XtremeIdiotsPolicy.Admin" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarPlayersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Players
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarPlayersDropDown">
+                            <a class="dropdown-item" asp-controller="Players" asp-action="GlobalPlayers">Global Players Index</a>
+                        </div>
+                    </li>
+
                     <li policy="@XtremeIdiotsPolicy.Management" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarServersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Management

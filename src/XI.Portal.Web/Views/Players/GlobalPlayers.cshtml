@@ -1,0 +1,80 @@
+﻿@{
+    ViewData["Title"] = "Global Players Index";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-body">
+            <table id="dataTable">
+                <thead>
+                <tr>
+                    <td>Game</td>
+                    <td>Name</td>
+                    <td>Guid</td>
+                    <td>First Seen</td>
+                    <td>Last Seen</td>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</row>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [[4, "desc"]],
+                ajax: {
+                    url: '/Players/GetGlobalPlayersListAjax',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'gameType',
+                        name: 'gameType',
+                        sortable: true,
+                        render: function(data, type, row) {
+                            return "<img src='/images/game-icons/" +
+                                data +
+                                ".png' alt='" +
+                                data +
+                                "' width='16' height='16' />";
+                        }
+                    },
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: true
+                    },
+                    {
+                        data: 'guid',
+                        name: 'guid',
+                        sortable: false
+                    },
+                    {
+                        data: 'firstSeen',
+                        name: 'firstSeen',
+                        sortable: true
+                    },
+                    {
+                        data: 'lastSeen',
+                        name: 'lastSeen',
+                        sortable: true
+                    }
+                ]
+            });
+        });
+
+    </script>
+}

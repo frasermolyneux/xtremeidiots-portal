@@ -42,18 +42,18 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var mapsFilterModel = new MapsFilterModel();
-            var recordsTotal = await _mapsRepository.GetMapListCount(mapsFilterModel);
+            var filterModel = new MapsFilterModel();
+            var recordsTotal = await _mapsRepository.GetMapListCount(filterModel);
 
-            mapsFilterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _mapsRepository.GetMapListCount(mapsFilterModel);
+            filterModel.FilterString = model.Search?.Value;
+            var recordsFiltered = await _mapsRepository.GetMapListCount(filterModel);
 
-            mapsFilterModel.TakeEntries = model.Length;
-            mapsFilterModel.SkipEntries = model.Start;
+            filterModel.TakeEntries = model.Length;
+            filterModel.SkipEntries = model.Start;
 
             if (model.Order == null)
             {
-                mapsFilterModel.Order = MapsFilterModel.OrderBy.MapNameAsc;
+                filterModel.Order = MapsFilterModel.OrderBy.MapNameAsc;
             }
             else
             {
@@ -63,18 +63,18 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "mapName":
-                        mapsFilterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.MapNameAsc : MapsFilterModel.OrderBy.MapNameDesc;
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.MapNameAsc : MapsFilterModel.OrderBy.MapNameDesc;
                         break;
                     case "popularity":
-                        mapsFilterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.LikeDislikeAsc : MapsFilterModel.OrderBy.LikeDislikeDesc;
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.LikeDislikeAsc : MapsFilterModel.OrderBy.LikeDislikeDesc;
                         break;
                     case "gameType":
-                        mapsFilterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.GameTypeAsc : MapsFilterModel.OrderBy.GameTypeDesc;
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.GameTypeAsc : MapsFilterModel.OrderBy.GameTypeDesc;
                         break;
                 }
             }
 
-            var mapListEntries = await _mapsRepository.GetMapList(mapsFilterModel);
+            var mapListEntries = await _mapsRepository.GetMapList(filterModel);
 
             return Json(new
             {

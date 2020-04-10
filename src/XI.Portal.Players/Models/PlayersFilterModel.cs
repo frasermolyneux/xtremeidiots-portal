@@ -18,14 +18,16 @@ namespace XI.Portal.Players.Models
             FirstSeenAsc,
             FirstSeenDesc,
             LastSeenAsc,
-            LastSeenDesc
+            LastSeenDesc,
+            GameTypeAsc,
+            GameTypeDesc
         }
 
         public GameType GameType { get; set; }
         public FilterType Filter { get; set; } = FilterType.None;
         public OrderBy Order { get; set; } = OrderBy.LastSeenDesc;
         public string FilterString { get; set; }
-        public int SkipPlayers { get; set; } = 0;
-        public int TakePlayers { get; set; } = 0;
+        public int SkipEntries { get; set; } = 0;
+        public int TakeEntries { get; set; } = 0;
     }
 }

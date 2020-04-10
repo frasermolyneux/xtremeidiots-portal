@@ -29,6 +29,7 @@
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
+                searchDelay: 1000,
                 order: [[4, "desc"]],
                 ajax: {
                     url: '/Players/GetGlobalPlayersListAjax',

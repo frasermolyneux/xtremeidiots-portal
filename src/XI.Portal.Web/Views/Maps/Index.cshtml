@@ -28,6 +28,7 @@
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
+                searchDelay: 1000,
                 order: [[1, "asc"]],
                 ajax: {
                     url: '/Maps/GetGlobalMapListAjax',

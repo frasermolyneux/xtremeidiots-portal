@@ -30,6 +30,7 @@
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
+                searchDelay: 1000,
                 order: [[5, "desc"]],
                 ajax: {
                     url: '/Players/GetIpSearchListAjax',

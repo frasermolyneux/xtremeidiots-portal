@@ -1,0 +1,68 @@
+﻿@{
+    ViewData["Title"] = ViewData["GameType"] + " Players Index";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-body">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Guid</td>
+                        <td>First Seen</td>
+                        <td>Last Seen</td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</row>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searchDelay: 1000,
+                order: [[3, "desc"]],
+                ajax: {
+                    url: '/Players/GetGamePlayersPlayersListAjax?id=@ViewData["GameType"]',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: true
+                    },
+                    {
+                        data: 'guid',
+                        name: 'guid',
+                        sortable: false
+                    },
+                    {
+                        data: 'firstSeen',
+                        name: 'firstSeen',
+                        sortable: true
+                    },
+                    {
+                        data: 'lastSeen',
+                        name: 'lastSeen',
+                        sortable: true
+                    }
+                ]
+            });
+        });
+
+    </script>
+}

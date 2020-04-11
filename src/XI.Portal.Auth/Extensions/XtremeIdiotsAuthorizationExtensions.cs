@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using XI.Portal.Auth.Contract.Constants;
 
-namespace XI.Portal.Auth.XtremeIdiots
+namespace XI.Portal.Auth.Extensions
 {
     public static class XtremeIdiotsAuthorizationExtensions
     {
@@ -47,6 +47,16 @@ namespace XI.Portal.Auth.XtremeIdiots
                 policy.RequireAssertion(context => context.User.HasClaim(claim =>
                     claim.Type == XtremeIdiotsClaimTypes.Group &&
                     (SeniorAdminGroups.Contains(claim.Value) || HeadAdminGroups.Contains(claim.Value))))
+            );
+
+            options.AddPolicy(XtremeIdiotsPolicy.Credentials, policy =>
+                policy.RequireAssertion(context => context.User.HasClaim(
+                        claim =>
+                            claim.Type == XtremeIdiotsClaimTypes.Group && (SeniorAdminGroups.Contains(claim.Value) || HeadAdminGroups.Contains(claim.Value) || AdminGroups.Contains(claim.Value)) || 
+                            claim.Type == PortalClaimTypes.FtpCredentials || 
+                            claim.Type == PortalClaimTypes.RconCredentials
+                    )
+                )
             );
         }
     }

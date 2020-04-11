@@ -8,5 +8,6 @@
         public const string Admin = nameof(Admin);
         public const string AdminX = nameof(AdminX);
         public const string Management = nameof(Management);
+        public const string Credentials = nameof(Credentials);
     }
 }

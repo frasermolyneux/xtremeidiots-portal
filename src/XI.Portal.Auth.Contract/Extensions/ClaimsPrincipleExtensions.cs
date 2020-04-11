@@ -43,5 +43,15 @@ namespace XI.Portal.Auth.Contract.Extensions
 
             return gameTypes.ToList();
         }
+
+        public static IEnumerable<Guid> ClaimedServers(this ClaimsPrincipal claimsPrincipal)
+        {
+            var serverClaims = claimsPrincipal.Claims.Where(claim => claim.Type == PortalClaimTypes.FtpCredentials || claim.Type == PortalClaimTypes.RconCredentials);
+            var serverIds = serverClaims.Select(claim => claim.Value).ToList();
+
+            var serverGuids = serverIds.Select(Guid.Parse).ToList();
+
+            return serverGuids.ToList();
+        }
     }
 }

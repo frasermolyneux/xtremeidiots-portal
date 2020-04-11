@@ -77,5 +77,10 @@ namespace XI.Portal.Servers.Repository
             _legacyContext.GameServers.Remove(model);
             await _legacyContext.SaveChangesAsync();
         }
+
+        public async Task<List<GameServers>> GetGameServersForCredentials(ClaimsPrincipal user)
+        {
+            return await _legacyContext.GameServers.ApplyCredentialAuthPolicies(user).OrderBy(server => server.BannerServerListPosition).ToListAsync();
+        }
     }
 }

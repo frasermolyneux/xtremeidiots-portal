@@ -14,5 +14,6 @@ namespace XI.Portal.Servers.Repository
         Task UpdateGameServer(Guid? id, GameServers model, ClaimsPrincipal user);
         Task<bool> GameServerExists(Guid id, ClaimsPrincipal user);
         Task RemoveGameServer(Guid id, ClaimsPrincipal user);
+        Task<List<GameServers>> GetGameServersForCredentials(ClaimsPrincipal user);
     }
 }

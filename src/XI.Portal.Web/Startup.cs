@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
+using XI.Portal.Auth.Extensions;
 using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;

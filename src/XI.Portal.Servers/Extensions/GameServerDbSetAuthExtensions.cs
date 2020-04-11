@@ -11,7 +11,16 @@ namespace XI.Portal.Servers.Extensions
         public static IQueryable<GameServers> ApplyAuthPolicies(this DbSet<GameServers> gameServers, ClaimsPrincipal claimsPrincipal)
         {
             var gameTypes = claimsPrincipal.ClaimedGameTypes();
+
             return gameServers.Where(server => gameTypes.Contains(server.GameType)).AsQueryable();
+        }
+
+        public static IQueryable<GameServers> ApplyCredentialAuthPolicies(this DbSet<GameServers> gameServers, ClaimsPrincipal claimsPrincipal)
+        {
+            var gameTypes = claimsPrincipal.ClaimedGameTypes();
+            var serverIds = claimsPrincipal.ClaimedServers();
+
+            return gameServers.Where(server => gameTypes.Contains(server.GameType) || serverIds.Contains(server.ServerId)).AsQueryable();
         }
     }
 }

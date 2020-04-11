@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
-using XI.Portal.Web.Auth;
+using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Web.Controllers
 {

@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
+using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Models;
-using XI.Portal.Data.Auth;
-using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Users.Repository;
 
 namespace XI.Portal.Web.Controllers

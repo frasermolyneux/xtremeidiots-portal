@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Web.Auth
+﻿namespace XI.Portal.Auth.XtremeIdiots
 {
     public enum XtremeIdiotsAuthResult
     {

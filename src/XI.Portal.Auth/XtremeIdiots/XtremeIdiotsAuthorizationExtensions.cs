@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Data.Auth;
+using XI.Portal.Auth.Contract.Constants;
 
-namespace XI.Portal.Web.Auth
+namespace XI.Portal.Auth.XtremeIdiots
 {
     public static class XtremeIdiotsAuthorizationExtensions
     {

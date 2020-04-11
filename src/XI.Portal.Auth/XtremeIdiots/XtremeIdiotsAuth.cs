@@ -9,11 +9,11 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Forums.Client;
 using XI.Forums.Models;
+using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Models;
-using XI.Portal.Data.Auth;
-using XI.Portal.Web.Extensions;
 
-namespace XI.Portal.Web.Auth
+namespace XI.Portal.Auth.XtremeIdiots
 {
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {

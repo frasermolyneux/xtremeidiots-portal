@@ -21,7 +21,6 @@
     <ProjectReference Include="..\XI.AzureTableLogging\XI.AzureTableLogging.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth\XI.Portal.Auth.csproj" />
-    <ProjectReference Include="..\XI.Portal.Data.Auth\XI.Portal.Data.Auth.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Demos\XI.Portal.Demos.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />

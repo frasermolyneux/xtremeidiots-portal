@@ -18,15 +18,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
+using XI.Portal.Auth.Data;
 using XI.Portal.Auth.Models;
-using XI.Portal.Data.Auth;
+using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Extensions;
-using XI.Portal.Web.Auth;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 
 namespace XI.Portal.Web
@@ -162,6 +162,9 @@ namespace XI.Portal.Web
 
             services.AddUsersModule(options => { options.ConfigureUsersRepository(repositoryOptions => { }); });
 
+            services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
+            services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
+
             services.AddServersModule(options =>
             {
                 options.ConfigureGameServersRepository(repositoryOptions => { });
@@ -172,10 +175,6 @@ namespace XI.Portal.Web
 
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));
-
-            services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
-
-            services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
 
             services.AddControllersWithViews();
 

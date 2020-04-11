@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Security.Claims;
 using XI.CommonTypes;
-using XI.Portal.Data.Auth;
+using XI.Portal.Auth.Contract.Constants;
 
-namespace XI.Portal.Web.Extensions
+namespace XI.Portal.Auth.Contract.Extensions
 {
     public static class ListClaimsGameExtensions
     {

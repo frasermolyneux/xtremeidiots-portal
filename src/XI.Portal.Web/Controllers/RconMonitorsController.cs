@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
-using XI.Portal.Data.Auth;
-using XI.Portal.Data.Auth.Extensions;
+using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Repository;
 

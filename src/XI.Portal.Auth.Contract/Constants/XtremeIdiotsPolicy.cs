@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Data.Auth
+﻿namespace XI.Portal.Auth.Contract.Constants
 {
     public static class XtremeIdiotsPolicy
     {

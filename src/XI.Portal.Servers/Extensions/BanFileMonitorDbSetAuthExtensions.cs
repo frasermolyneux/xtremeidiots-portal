@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Data.Auth.Extensions;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
 
 namespace XI.Portal.Servers.Extensions

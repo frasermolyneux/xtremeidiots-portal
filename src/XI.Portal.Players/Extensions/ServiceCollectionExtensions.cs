@@ -19,12 +19,12 @@ namespace XI.Portal.Players.Extensions
 
             if (options.PlayersRepositoryOptions != null)
             {
-                IPlayersRepositoryOptions playersRepositoryOptions = new PlayersRepositoryOptions();
-                options.PlayersRepositoryOptions.Invoke(playersRepositoryOptions);
+                IPlayersRepositoryOptions subOptions = new PlayersRepositoryOptions();
+                options.PlayersRepositoryOptions.Invoke(subOptions);
 
-                playersRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(playersRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             }
         }

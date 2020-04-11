@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.CommonTypes;
+using XI.Portal.Data.Auth;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Servers.Repository;
 using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
@@ -16,25 +17,22 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class FileMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _legacyContext;
+        private readonly IFileMonitorsRepository _fileMonitorsRepository;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<FileMonitorsController> _logger;
 
-        public FileMonitorsController(LegacyPortalContext legacyContext, ILogger<FileMonitorsController> logger)
+        public FileMonitorsController(IFileMonitorsRepository fileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<FileMonitorsController> logger)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
+            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = _legacyContext.FileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(f => f.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
-            ;
-
-            return View(await models.ToListAsync());
+            var models = await _fileMonitorsRepository.GetFileMonitors(User);
+            return View(models);
         }
 
         [HttpGet]
@@ -42,10 +40,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.FileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(f => f.GameServerServer)
-                .FirstOrDefaultAsync(m => m.FileMonitorId == id);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -53,10 +48,9 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
             return View();
         }
 
@@ -69,12 +63,7 @@ namespace XI.Portal.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model.FileMonitorId = Guid.NewGuid();
-                model.LastRead = DateTime.UtcNow;
-
-                _legacyContext.Add(model);
-
-                await _legacyContext.SaveChangesAsync();
+                await _fileMonitorsRepository.CreateFileMonitor(model);
 
                 _logger.LogInformation(EventIds.Management, "User {User} has created a new file monitor with Id {Id}", User.Username(), model.FileMonitorId);
 
@@ -82,8 +71,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -94,12 +82,11 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.FileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.FileMonitorId == id);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -116,11 +103,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    var storedModel = await _legacyContext.FileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.FileMonitorId == id);
-                    storedModel.FilePath = model.FilePath;
-
-                    _legacyContext.Update(storedModel);
-                    await _legacyContext.SaveChangesAsync();
+                    await _fileMonitorsRepository.UpdateFileMonitor(id, model, User);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a file monitor with Id {Id}", User.Username(), id);
 
@@ -129,13 +112,12 @@ namespace XI.Portal.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!FileMonitorsExists(model.FileMonitorId))
+                    if (!await FileMonitorsExists(model.FileMonitorId))
                         return NotFound();
                     throw;
                 }
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -146,10 +128,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.FileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(f => f.GameServerServer)
-                .FirstOrDefaultAsync(m => m.FileMonitorId == id);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -161,10 +140,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var model = await _legacyContext.FileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.FileMonitorId == id);
-
-            _legacyContext.FileMonitors.Remove(model);
-            await _legacyContext.SaveChangesAsync();
+            await _fileMonitorsRepository.RemoveFileMonitor(id, User);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a file monitor with Id {Id}", User.Username(), id);
 
@@ -172,9 +148,9 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FileMonitorsExists(Guid id)
+        private async Task<bool> FileMonitorsExists(Guid id)
         {
-            return _legacyContext.FileMonitors.ApplyAuthPolicies(User).Any(e => e.FileMonitorId == id);
+            return await _fileMonitorsRepository.FileMonitorExists(id, User);
         }
     }
 }

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using XI.CommonTypes;
-using XI.Portal.Web.Constants;
 
-namespace XI.Portal.Web.Extensions
+namespace XI.Portal.Data.Auth.Extensions
 {
     public static class ClaimsPrincipleExtensions
     {
@@ -39,7 +38,7 @@ namespace XI.Portal.Web.Extensions
             var gameClaims = claimsPrincipal.Claims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Game);
             var gameTitles = gameClaims.Select(claim => claim.Value).ToList();
 
-            var gameTypes = gameTitles.Select(Enum.Parse<GameType>);
+            var gameTypes = gameTitles.Select(title => (GameType)Enum.Parse(typeof(GameType), title)).ToList();
 
             return gameTypes.ToList();
         }

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Web.Constants;
+using XI.Portal.Data.Auth;
 
 namespace XI.Portal.Web.Auth
 {

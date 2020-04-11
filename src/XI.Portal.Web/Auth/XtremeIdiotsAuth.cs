@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Forums.Client;
 using XI.Forums.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Data.Auth;
 using XI.Portal.Web.Extensions;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 

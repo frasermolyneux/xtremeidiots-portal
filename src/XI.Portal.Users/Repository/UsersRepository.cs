@@ -6,6 +6,7 @@ using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Data.Auth;
+using XI.Portal.Users.Configuration;
 using XI.Portal.Users.Models;
 
 namespace XI.Portal.Users.Repository
@@ -13,9 +14,11 @@ namespace XI.Portal.Users.Repository
     public class UsersRepository : IUsersRepository
     {
         private readonly ApplicationAuthDbContext _authContext;
+        private readonly IUsersRepositoryOptions _options;
 
-        public UsersRepository(ApplicationAuthDbContext authContext)
+        public UsersRepository(IUsersRepositoryOptions options, ApplicationAuthDbContext authContext)
         {
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _authContext = authContext ?? throw new ArgumentNullException(nameof(authContext));
         }
 

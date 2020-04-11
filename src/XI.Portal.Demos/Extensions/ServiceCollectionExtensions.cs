@@ -19,23 +19,23 @@ namespace XI.Portal.Demos.Extensions
 
             if (options.DemoAuthRepositoryOptions != null)
             {
-                IDemoAuthRepositoryOptions demoAuthRepositoryOptions = new DemoAuthRepositoryOptions();
-                options.DemoAuthRepositoryOptions.Invoke(demoAuthRepositoryOptions);
+                IDemoAuthRepositoryOptions subOptions = new DemoAuthRepositoryOptions();
+                options.DemoAuthRepositoryOptions.Invoke(subOptions);
 
-                demoAuthRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(demoAuthRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IDemoAuthRepository, DemoAuthRepository>();
             }
 
             if (options.DemosRepositoryOptions != null)
             {
-                IDemosRepositoryOptions demosRepositoryOptions = new DemosRepositoryOptions();
-                options.DemosRepositoryOptions.Invoke(demosRepositoryOptions);
+                IDemosRepositoryOptions subOptions = new DemosRepositoryOptions();
+                options.DemosRepositoryOptions.Invoke(subOptions);
 
-                demosRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(demosRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IDemosRepository, DemosRepository>();
             }
         }

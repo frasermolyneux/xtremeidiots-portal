@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
+using XI.Portal.Data.Auth;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Models;
 using XI.Portal.Demos.Repository;
-using XI.Portal.Web.Constants;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Controllers

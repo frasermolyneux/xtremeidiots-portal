@@ -19,12 +19,12 @@ namespace XI.Portal.Users.Extensions
 
             if (options.UsersRepositoryOptions != null)
             {
-                IUsersRepositoryOptions playersRepositoryOptions = new UsersRepositoryOptions();
-                options.UsersRepositoryOptions.Invoke(playersRepositoryOptions);
+                IUsersRepositoryOptions subOptions = new UsersRepositoryOptions();
+                options.UsersRepositoryOptions.Invoke(subOptions);
 
-                playersRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(playersRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IUsersRepository, UsersRepository>();
             }
         }

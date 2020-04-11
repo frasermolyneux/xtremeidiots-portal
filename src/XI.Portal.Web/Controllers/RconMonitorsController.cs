@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.CommonTypes;
+using XI.Portal.Data.Auth;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Servers.Repository;
 using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
@@ -16,24 +17,23 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class RconMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _legacyContext;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<RconMonitorsController> _logger;
+        private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
-        public RconMonitorsController(LegacyPortalContext legacyContext, ILogger<RconMonitorsController> logger)
+        public RconMonitorsController(IRconMonitorsRepository rconMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<RconMonitorsController> logger)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _rconMonitorsRepository = rconMonitorsRepository ?? throw new ArgumentNullException(nameof(rconMonitorsRepository));
+            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = _legacyContext.RconMonitors
-                .ApplyAuthPolicies(User)
-                .Include(r => r.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
+            var models = await _rconMonitorsRepository.GetRconMonitors(User);
 
-            return View(await models.ToListAsync());
+            return View(models);
         }
 
         [HttpGet]
@@ -41,10 +41,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(User)
-                .Include(r => r.GameServerServer)
-                .FirstOrDefaultAsync(m => m.RconMonitorId == id);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -52,10 +49,9 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
             return View();
         }
 
@@ -69,13 +65,7 @@ namespace XI.Portal.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model.RconMonitorId = Guid.NewGuid();
-                model.LastUpdated = DateTime.UtcNow;
-                model.MapRotationLastUpdated = DateTime.UtcNow;
-
-                _legacyContext.Add(model);
-
-                await _legacyContext.SaveChangesAsync();
+                await _rconMonitorsRepository.CreateRconMonitor(model);
 
                 _logger.LogInformation(EventIds.Management, "User {User} has created a new rcon monitor with Id {Id}", User.Username(), model.RconMonitorId);
 
@@ -83,8 +73,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -95,12 +84,11 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.RconMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.RconMonitorId == id);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
 
             if (model == null) return NotFound();
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -117,13 +105,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    var storedModel = await _legacyContext.RconMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.RconMonitorId == id);
-                    storedModel.MonitorMapRotation = model.MonitorMapRotation;
-                    storedModel.MonitorPlayers = model.MonitorPlayers;
-                    storedModel.MonitorPlayerIps = model.MonitorPlayerIps;
-
-                    _legacyContext.Update(storedModel);
-                    await _legacyContext.SaveChangesAsync();
+                    await _rconMonitorsRepository.UpdateRconMonitor(id, model, User);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a rcon monitor with Id {Id}", User.Username(), id);
 
@@ -132,13 +114,12 @@ namespace XI.Portal.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!RconMonitorsExists(model.RconMonitorId))
+                    if (!await RconMonitorsExists(model.RconMonitorId))
                         return NotFound();
                     throw;
                 }
 
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                    .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -149,10 +130,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(User)
-                .Include(r => r.GameServerServer)
-                .FirstOrDefaultAsync(m => m.RconMonitorId == id);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -164,10 +142,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var model = await _legacyContext.RconMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.RconMonitorId == id);
-
-            _legacyContext.RconMonitors.Remove(model);
-            await _legacyContext.SaveChangesAsync();
+            await _rconMonitorsRepository.RemoveRconMonitor(id, User);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a rcon monitor with Id {Id}", User.Username(), id);
 
@@ -175,9 +150,9 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool RconMonitorsExists(Guid id)
+        private async Task<bool> RconMonitorsExists(Guid id)
         {
-            return _legacyContext.RconMonitors.ApplyAuthPolicies(User).Any(e => e.RconMonitorId == id);
+            return await _rconMonitorsRepository.RconMonitorExists(id, User);
         }
     }
 }

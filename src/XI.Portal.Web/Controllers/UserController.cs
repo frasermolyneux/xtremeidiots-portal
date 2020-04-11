@@ -4,8 +4,10 @@ using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
+using XI.Portal.Data.Auth;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Users.Repository;
-using XI.Portal.Web.Constants;
 using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers

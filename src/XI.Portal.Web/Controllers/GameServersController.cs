@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.CommonTypes;
+using XI.Portal.Data.Auth;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Servers.Repository;
 using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
@@ -16,19 +17,20 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class GameServersController : Controller
     {
-        private readonly LegacyPortalContext _legacyContext;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<GameServersController> _logger;
 
-        public GameServersController(LegacyPortalContext legacyContext, ILogger<GameServersController> logger)
+        public GameServersController(IGameServersRepository gameServersRepository, ILogger<GameServersController> logger)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            return View(await _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition).ToListAsync());
+            var servers = await _gameServersRepository.GetGameServers(User);
+            return View(servers);
         }
 
         [HttpGet]
@@ -36,9 +38,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.GameServers
-                .ApplyAuthPolicies(User)
-                .FirstOrDefaultAsync(m => m.ServerId == id);
+            var model = await _gameServersRepository.GetGameServer(id, User);
 
             if (model == null) return NotFound();
 
@@ -63,12 +63,7 @@ namespace XI.Portal.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model.ServerId = Guid.NewGuid();
-                model.LiveLastUpdated = DateTime.UtcNow;
-
-                _legacyContext.Add(model);
-
-                await _legacyContext.SaveChangesAsync();
+                await _gameServersRepository.CreateGameServer(model);
 
                 _logger.LogInformation(EventIds.Management, "User {User} has created a new game server with Id {Id}", User.Username(), model.ServerId);
 
@@ -86,7 +81,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
+            var model = await _gameServersRepository.GetGameServer(id, User);
 
             if (model == null) return NotFound();
 
@@ -107,23 +102,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    var storedModel = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
-                    storedModel.Title = model.Title;
-                    storedModel.Hostname = model.Hostname;
-                    storedModel.QueryPort = model.QueryPort;
-                    storedModel.FtpHostname = model.FtpHostname;
-                    storedModel.FtpUsername = model.FtpUsername;
-                    storedModel.FtpPassword = model.FtpPassword;
-                    storedModel.RconPassword = model.RconPassword;
-                    storedModel.ShowOnBannerServerList = model.ShowOnBannerServerList;
-                    storedModel.BannerServerListPosition = model.BannerServerListPosition;
-                    storedModel.HtmlBanner = model.HtmlBanner;
-                    storedModel.ShowOnPortalServerList = model.ShowOnPortalServerList;
-                    storedModel.ShowChatLog = model.ShowChatLog;
-
-                    _legacyContext.Update(storedModel);
-
-                    await _legacyContext.SaveChangesAsync();
+                    await _gameServersRepository.UpdateGameServer(id, model, User);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a game server with Id {Id}", User.Username(), id);
 
@@ -132,7 +111,7 @@ namespace XI.Portal.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GameServersExists(model.ServerId))
+                    if (!await GameServersExists(model.ServerId))
                         return NotFound();
                     throw;
                 }
@@ -148,8 +127,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User)
-                .FirstOrDefaultAsync(m => m.ServerId == id);
+            var model = await _gameServersRepository.GetGameServer(id, User);
 
             if (model == null) return NotFound();
 
@@ -162,10 +140,7 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var model = await _legacyContext.GameServers.ApplyAuthPolicies(User).FirstOrDefaultAsync(server => server.ServerId == id);
-
-            _legacyContext.GameServers.Remove(model);
-            await _legacyContext.SaveChangesAsync();
+            await _gameServersRepository.RemoveGameServer(id, User);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a game server with Id {Id}", User.Username(), id);
 
@@ -173,9 +148,9 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GameServersExists(Guid id)
+        private async Task<bool> GameServersExists(Guid id)
         {
-            return _legacyContext.GameServers.ApplyAuthPolicies(User).Any(e => e.ServerId == id);
+            return await _gameServersRepository.GameServerExists(id, User);
         }
     }
 }

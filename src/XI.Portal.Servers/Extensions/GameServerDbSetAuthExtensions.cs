@@ -1,22 +1,16 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Web.Constants;
 
-namespace XI.Portal.Web.Extensions
+namespace XI.Portal.Servers.Extensions
 {
     public static class GameServerDbSetAuthExtensions
     {
         public static IQueryable<GameServers> ApplyAuthPolicies(this DbSet<GameServers> gameServers, ClaimsPrincipal claimsPrincipal)
         {
-            var gameClaims = claimsPrincipal.Claims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Game);
-            var gameTitles = gameClaims.Select(claim => claim.Value).ToList();
-
-            var gameTypes = gameTitles.Select(Enum.Parse<GameType>);
-
+            var gameTypes = claimsPrincipal.ClaimedGameTypes();
             return gameServers.Where(server => gameTypes.Contains(server.GameType)).AsQueryable();
         }
     }

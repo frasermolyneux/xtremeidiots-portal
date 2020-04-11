@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Claims;
 using XI.CommonTypes;
-using XI.Portal.Web.Constants;
+using XI.Portal.Data.Auth;
 
 namespace XI.Portal.Web.Extensions
 {

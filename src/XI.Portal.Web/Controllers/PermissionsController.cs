@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XI.Portal.Web.Constants;
+using XI.Portal.Data.Auth;
 
 namespace XI.Portal.Web.Controllers
 {

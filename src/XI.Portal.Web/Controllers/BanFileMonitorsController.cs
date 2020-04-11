@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.CommonTypes;
+using XI.Portal.Data.Auth;
+using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Web.Constants;
+using XI.Portal.Servers.Repository;
 using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
@@ -16,24 +17,23 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.Management)]
     public class BanFileMonitorsController : Controller
     {
-        private readonly LegacyPortalContext _legacyContext;
+        private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<BanFileMonitorsController> _logger;
 
-        public BanFileMonitorsController(LegacyPortalContext legacyContext, ILogger<BanFileMonitorsController> logger)
+        public BanFileMonitorsController(IBanFileMonitorsRepository banFileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<BanFileMonitorsController> logger)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
+            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(b => b.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition);
+            var models = await _banFileMonitorsRepository.GetBanFileMonitors(User);
 
-            return View(await models.ToListAsync());
+            return View(models);
         }
 
         [HttpGet]
@@ -41,10 +41,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(b => b.GameServerServer)
-                .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -52,10 +49,9 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(_legacyContext.GameServers
-                .ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
             return View();
         }
 
@@ -68,12 +64,7 @@ namespace XI.Portal.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                model.BanFileMonitorId = Guid.NewGuid();
-                model.LastSync = DateTime.UtcNow;
-
-                _legacyContext.Add(model);
-
-                await _legacyContext.SaveChangesAsync();
+                await _banFileMonitorsRepository.CreateBanFileMonitor(model);
 
                 _logger.LogInformation(EventIds.Management, "User {User} has created a new ban file monitor with Id {Id}", User.Username(), model.BanFileMonitorId);
 
@@ -81,8 +72,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(
-                _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -93,12 +83,12 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.BanFileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.BanFileMonitorId == id);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
             ViewData["GameServerServerId"] = new SelectList(
-                _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -115,11 +105,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    var storedModel = await _legacyContext.BanFileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.BanFileMonitorId == id);
-                    storedModel.FilePath = model.FilePath;
-
-                    _legacyContext.Update(storedModel);
-                    await _legacyContext.SaveChangesAsync();
+                    await _banFileMonitorsRepository.UpdateBanFileMonitor(id, model, User);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a ban file monitor with Id {Id}", User.Username(), id);
 
@@ -128,13 +114,13 @@ namespace XI.Portal.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BanFileMonitorsExists(model.BanFileMonitorId))
+                    if (!await BanFileMonitorsExists(model.BanFileMonitorId))
                         return NotFound();
                     throw;
                 }
 
             ViewData["GameServerServerId"] = new SelectList(
-                _legacyContext.GameServers.ApplyAuthPolicies(User).OrderBy(server => server.BannerServerListPosition), "ServerId", "Title",
+                await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -145,10 +131,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(User)
-                .Include(b => b.GameServerServer)
-                .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
 
             if (model == null) return NotFound();
 
@@ -160,10 +143,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var model = await _legacyContext.BanFileMonitors.ApplyAuthPolicies(User).FirstOrDefaultAsync(monitor => monitor.BanFileMonitorId == id);
-
-            _legacyContext.BanFileMonitors.Remove(model);
-            await _legacyContext.SaveChangesAsync();
+            await _banFileMonitorsRepository.RemoveBanFileMonitor(id, User);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a ban file monitor with Id {Id}", User.Username(), id);
 
@@ -171,9 +151,9 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BanFileMonitorsExists(Guid id)
+        private async Task<bool> BanFileMonitorsExists(Guid id)
         {
-            return _legacyContext.BanFileMonitors.ApplyAuthPolicies(User).Any(e => e.BanFileMonitorId == id);
+            return await _banFileMonitorsRepository.BanFileMonitorExists(id, User);
         }
     }
 }

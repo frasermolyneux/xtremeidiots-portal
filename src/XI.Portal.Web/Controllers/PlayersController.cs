@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
+using XI.Portal.Data.Auth;
 using XI.Portal.Players.Models;
 using XI.Portal.Players.Repository;
-using XI.Portal.Web.Constants;
 using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers

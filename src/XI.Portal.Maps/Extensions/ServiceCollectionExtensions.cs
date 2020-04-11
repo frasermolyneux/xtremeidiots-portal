@@ -19,34 +19,34 @@ namespace XI.Portal.Maps.Extensions
 
             if (options.MapFileRepositoryOptions != null)
             {
-                IMapFileRepositoryOptions mapFileRepositoryOptions = new MapFileRepositoryOptions();
-                options.MapFileRepositoryOptions.Invoke(mapFileRepositoryOptions);
+                IMapFileRepositoryOptions supOptions = new MapFileRepositoryOptions();
+                options.MapFileRepositoryOptions.Invoke(supOptions);
 
-                mapFileRepositoryOptions.Validate();
+                supOptions.Validate();
 
-                serviceCollection.AddSingleton(mapFileRepositoryOptions);
+                serviceCollection.AddSingleton(supOptions);
                 serviceCollection.AddScoped<IMapFileRepository, MapFileRepository>();
             }
 
             if (options.MapImageRepositoryOptions != null)
             {
-                IMapImageRepositoryOptions mapImageRepositoryOptions = new MapImageRepositoryOptions();
-                options.MapImageRepositoryOptions.Invoke(mapImageRepositoryOptions);
+                IMapImageRepositoryOptions subOptions = new MapImageRepositoryOptions();
+                options.MapImageRepositoryOptions.Invoke(subOptions);
 
-                mapImageRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(mapImageRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IMapImageRepository, MapImageRepository>();
             }
 
             if (options.MapsRepositoryOptions != null)
             {
-                IMapsRepositoryOptions mapsRepositoryOptions = new MapsRepositoryOptions();
-                options.MapsRepositoryOptions.Invoke(mapsRepositoryOptions);
+                IMapsRepositoryOptions subOptions = new MapsRepositoryOptions();
+                options.MapsRepositoryOptions.Invoke(subOptions);
 
-                mapsRepositoryOptions.Validate();
+                subOptions.Validate();
 
-                serviceCollection.AddSingleton(mapsRepositoryOptions);
+                serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IMapsRepository, MapsRepository>();
             }
         }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace XI.Portal.Web.Constants
+namespace XI.CommonTypes
 {
     public static class EventIds
     {

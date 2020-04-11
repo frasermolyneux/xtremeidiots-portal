@@ -23,6 +23,7 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
+using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Extensions;
 using XI.Portal.Web.Auth;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -160,6 +161,14 @@ namespace XI.Portal.Web
             services.AddPlayersModule(options => { options.ConfigurePlayersRepository(repositoryOptions => { }); });
 
             services.AddUsersModule(options => { options.ConfigureUsersRepository(repositoryOptions => { }); });
+
+            services.AddServersModule(options =>
+            {
+                options.ConfigureGameServersRepository(repositoryOptions => { });
+                options.ConfigureBanFileMonitorsRepository(repositoryOptions => { });
+                options.ConfigureFileMonitorsRepository(repositoryOptions => { });
+                options.ConfigureRconMonitorsRepository(repositoryOptions => { });
+            });
 
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));

@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Forums.Client;
 using XI.Forums.Models;
+using XI.Portal.Auth.Models;
 using XI.Portal.Data.Auth;
 using XI.Portal.Web.Extensions;
-using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Auth
 {
@@ -19,11 +19,11 @@ namespace XI.Portal.Web.Auth
     {
         private readonly IForumsClient _forumsClient;
         private readonly ILogger<XtremeIdiotsAuth> _logger;
-        private readonly Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> _signInManager;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
+        private readonly SignInManager<PortalIdentityUser> _signInManager;
+        private readonly UserManager<PortalIdentityUser> _userManager;
 
         public XtremeIdiotsAuth(
-            ILogger<XtremeIdiotsAuth> logger, Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> signInManager, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
+            ILogger<XtremeIdiotsAuth> logger, SignInManager<PortalIdentityUser> signInManager, UserManager<PortalIdentityUser> userManager,
             IForumsClient forumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -91,7 +91,7 @@ namespace XI.Portal.Web.Auth
 
             var member = await _forumsClient.GetMember(id);
 
-            var user = new IdentityUser {Id = id, UserName = username, Email = email};
+            var user = new PortalIdentityUser {Id = id, UserName = username, Email = email};
             var createUserResult = await _userManager.CreateAsync(user);
             if (createUserResult.Succeeded)
             {
@@ -105,7 +105,7 @@ namespace XI.Portal.Web.Auth
             }
         }
 
-        private async Task AddXtremeIdiotsClaims(IdentityUser identityUser, Member member)
+        private async Task AddXtremeIdiotsClaims(PortalIdentityUser identityUser, Member member)
         {
             var claims = GetClaimsForMember(member);
             await _userManager.AddClaimsAsync(identityUser, claims);

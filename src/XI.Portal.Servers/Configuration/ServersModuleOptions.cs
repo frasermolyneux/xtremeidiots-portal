@@ -8,9 +8,10 @@ namespace XI.Portal.Servers.Configuration
         public Action<IBanFileMonitorsRepositoryOptions> BanFileMonitorsRepositoryOptions { get; set; }
         public Action<IFileMonitorsRepositoryOptions> FileMonitorsRepositoryOptions { get; set; }
         public Action<IRconMonitorsRepositoryOptions> RconMonitorsRepositoryOptions { get; set; }
+
         public void Validate()
         {
-            if (GameServersRepositoryOptions == null) 
+            if (GameServersRepositoryOptions == null)
                 throw new NullReferenceException(nameof(GameServersRepositoryOptions));
 
             if (BanFileMonitorsRepositoryOptions == null)

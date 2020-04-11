@@ -1,6 +1,7 @@
-﻿@using ElCamino.AspNetCore.Identity.AzureTable.Model
-@inject Microsoft.AspNetCore.Identity.SignInManager<IdentityUser> SignInManager
-@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> UserManager
+﻿@using Microsoft.AspNetCore.Identity
+@using XI.Portal.Auth.Models
+@inject SignInManager<PortalIdentityUser> SignInManager
+@inject UserManager<PortalIdentityUser> UserManager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))

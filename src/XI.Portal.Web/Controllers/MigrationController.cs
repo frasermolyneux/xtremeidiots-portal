@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
+using XI.Portal.Auth.Models;
 using XI.Portal.Data.Auth;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Models;
 using XI.Portal.Demos.Repository;
-using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -21,9 +21,9 @@ namespace XI.Portal.Web.Controllers
         private readonly IDemoAuthRepository _demoAuthRepository;
         private readonly IDemosRepository _demosRepository;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PortalIdentityUser> _userManager;
 
-        public MigrationController(LegacyPortalContext legacyContext, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
+        public MigrationController(LegacyPortalContext legacyContext, UserManager<PortalIdentityUser> userManager,
             IDemoAuthRepository demoAuthRepository,
             IDemosRepository demosRepository)
         {
@@ -58,7 +58,7 @@ namespace XI.Portal.Web.Controllers
                     {
                         log.AppendLine("   Legacy user has not been migrated");
 
-                        var identityUser = new IdentityUser {Id = legacyUser.XtremeIdiotsId, UserName = legacyUser.UserName, Email = legacyUser.Email};
+                        var identityUser = new PortalIdentityUser {Id = legacyUser.XtremeIdiotsId, UserName = legacyUser.UserName, Email = legacyUser.Email};
                         var createUserResult = await _userManager.CreateAsync(identityUser);
 
                         if (createUserResult.Succeeded)

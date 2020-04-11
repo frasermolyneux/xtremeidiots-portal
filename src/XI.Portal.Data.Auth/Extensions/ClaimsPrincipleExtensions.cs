@@ -38,7 +38,7 @@ namespace XI.Portal.Data.Auth.Extensions
             var gameClaims = claimsPrincipal.Claims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Game);
             var gameTitles = gameClaims.Select(claim => claim.Value).ToList();
 
-            var gameTypes = gameTitles.Select(title => (GameType)Enum.Parse(typeof(GameType), title)).ToList();
+            var gameTypes = gameTitles.Select(title => (GameType) Enum.Parse(typeof(GameType), title)).ToList();
 
             return gameTypes.ToList();
         }

@@ -10,7 +10,6 @@ using XI.Portal.Data.Auth;
 using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Repository;
-using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {

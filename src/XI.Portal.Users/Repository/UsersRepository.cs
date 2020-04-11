@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
+using XI.Portal.Auth.Models;
 using XI.Portal.Data.Auth;
 using XI.Portal.Users.Configuration;
 using XI.Portal.Users.Models;
@@ -24,7 +24,7 @@ namespace XI.Portal.Users.Repository
 
         public async Task<List<UserListEntryViewModel>> GetUsers()
         {
-            var query = (from user in _authContext.UserTable.CreateQuery<IdentityUser>()
+            var query = (from user in _authContext.UserTable.CreateQuery<PortalIdentityUser>()
                 where user.Email != ""
                 select user).AsTableQuery();
 

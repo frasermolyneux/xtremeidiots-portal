@@ -36,6 +36,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Data.Auth", "XI.P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Servers", "XI.Portal.Servers\XI.Portal.Servers.csproj", "{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Auth", "XI.Portal.Auth\XI.Portal.Auth.csproj", "{6BAC34A9-967D-4604-9045-5070D14835AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BAC34A9-967D-4604-9045-5070D14835AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BAC34A9-967D-4604-9045-5070D14835AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BAC34A9-967D-4604-9045-5070D14835AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BAC34A9-967D-4604-9045-5070D14835AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{9227051E-5F33-43BD-919C-415AD3ECE1E2} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{874BB9E5-C217-451F-96EB-706138254691} = {1C99FCC6-8CE9-4F86-A285-61417CE4A3AD}
 		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
+		{6BAC34A9-967D-4604-9045-5070D14835AD} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

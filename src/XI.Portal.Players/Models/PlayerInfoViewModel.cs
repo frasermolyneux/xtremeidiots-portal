@@ -6,6 +6,7 @@ namespace XI.Portal.Players.Models
     public class PlayerInfoViewModel
     {
         public Player2 Player { get; set; }
+
         //public LookupAddressResponse LookupAddressResponse { get; set; }
         public List<PlayerAlias> Aliases { get; set; }
         public List<PlayerIpAddresses> IpAddresses { get; set; }

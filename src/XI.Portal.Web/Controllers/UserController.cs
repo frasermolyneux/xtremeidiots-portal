@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
+using XI.Portal.Auth.Models;
 using XI.Portal.Data.Auth;
 using XI.Portal.Data.Auth.Extensions;
 using XI.Portal.Users.Repository;
-using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -16,12 +16,12 @@ namespace XI.Portal.Web.Controllers
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
+        private readonly UserManager<PortalIdentityUser> _userManager;
         private readonly IUsersRepository _usersRepository;
 
 
         public UserController(
-            IUsersRepository usersRepository, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
+            IUsersRepository usersRepository, UserManager<PortalIdentityUser> userManager,
             ILogger<UserController> logger)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));

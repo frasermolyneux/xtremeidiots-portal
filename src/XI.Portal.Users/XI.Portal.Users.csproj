@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XI.Portal.Auth\XI.Portal.Auth.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Auth\XI.Portal.Data.Auth.csproj" />
   </ItemGroup>
 

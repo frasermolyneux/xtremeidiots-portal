@@ -18,6 +18,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
+using XI.Portal.Auth.Models;
 using XI.Portal.Data.Auth;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
@@ -27,7 +28,6 @@ using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Extensions;
 using XI.Portal.Web.Auth;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
-using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web
 {
@@ -48,7 +48,7 @@ namespace XI.Portal.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<PortalIdentityUser, IdentityRole>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
                     options.User.AllowedUserNameCharacters = string.Empty;

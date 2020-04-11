@@ -1,40 +1,66 @@
-﻿@model List<ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser>
-
-@{
+﻿@{
     ViewData["Title"] = "Users";
 }
 
 <row class="row">
     <div class="container-fluid">
-        <div class="card card-header">
-            Users
-        </div>
         <div class="card card-body">
-            <table class="table table-responsive">
+            <table id="dataTable">
                 <thead>
                 <tr>
+                    <td>Id</td>
                     <td>Username</td>
                     <td>Email</td>
                     <td></td>
                 </tr>
                 </thead>
-                <tbody>
-                @foreach (var user in Model)
-                {
-                    <tr>
-                        <td>@user.UserName</td>
-                        <td>@user.Email</td>
-
-                        <td>
-                            <form class="form-inline" asp-controller="User" asp-action="LogUserOut" method="post">
-                                <input id="id" name="id" type="hidden" value="@user.Id"/>
-                                <button class="btn btn-link" type="submit">Logout User</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
-                </tbody>
             </table>
         </div>
     </div>
 </row>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                processing: true,
+                //order: [[5, "desc"]],
+                ajax: {
+                    url: '/User/GetUsersAjax',
+                    dataSrc: 'data'
+                },
+                columns: [
+                    {
+                        data: 'id',
+                        name: 'id',
+                        sortable: true
+                    },
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: true
+                    },
+                    {
+                        data: 'email',
+                        name: 'email',
+                        sortable: true
+                    },
+                    {
+                        render: function(data, type, row) {
+                            return '<form class="form-inline" method="post" action="/User/LogUserOut" method="post">' +
+                                '<input id="id" name="id" type="hidden" value="' +
+                                row['id'] +
+                                '\"/>' +
+                                '<button class="btn btn-link" type="submit">Logout User</button>' +
+                                '@Html.AntiForgeryToken()' +
+                                '</form>';
+                        }
+                    }
+                ]
+            });
+        });
+
+    </script>
+}

@@ -18,12 +18,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
+using XI.Portal.Data.Auth;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
+using XI.Portal.Users.Extensions;
 using XI.Portal.Web.Auth;
-using XI.Portal.Web.Data;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
@@ -157,6 +158,8 @@ namespace XI.Portal.Web
             });
 
             services.AddPlayersModule(options => { options.ConfigurePlayersRepository(repositoryOptions => { }); });
+
+            services.AddUsersModule(options => { options.ConfigureUsersRepository(repositoryOptions => { }); });
 
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));

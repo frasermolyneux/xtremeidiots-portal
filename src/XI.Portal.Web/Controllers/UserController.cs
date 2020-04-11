@@ -1,36 +1,28 @@
 ﻿using System;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.Portal.Users.Repository;
 using XI.Portal.Web.Constants;
-using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
-using IdentityUser = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityUser;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
     public class UserController : Controller
     {
-        private readonly ApplicationAuthDbContext _authContext;
-        private readonly LegacyPortalContext _legacyContext;
         private readonly ILogger<UserController> _logger;
         private readonly Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager;
+        private readonly IUsersRepository _usersRepository;
 
 
         public UserController(
-            ApplicationAuthDbContext authContext,
-            LegacyPortalContext legacyContext, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
+            IUsersRepository usersRepository, Microsoft.AspNetCore.Identity.UserManager<IdentityUser> userManager,
             ILogger<UserController> logger)
         {
-            _authContext = authContext ?? throw new ArgumentNullException(nameof(authContext));
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -38,20 +30,17 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var query = from user in _authContext.UserTable.CreateQuery<IdentityUser>()
-                where user.Email != ""
-                select user;
-            var users = query.ToList();
-
-            return View(users);
+            return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> LegacyIndex()
+        public async Task<IActionResult> GetUsersAjax()
         {
-            var users = await _legacyContext.AspNetUsers.ToListAsync();
-
-            return View(users);
+            var users = await _usersRepository.GetUsers();
+            return Json(new
+            {
+                data = users
+            });
         }
 
         [HttpPost]
@@ -63,11 +52,10 @@ namespace XI.Portal.Web.Controllers
             var user = await _userManager.FindByIdAsync(id);
             await _userManager.UpdateSecurityStampAsync(user);
 
+            TempData["Success"] = $"User {user.UserName} has been force logged out (this may take up to 15 minutes)";
             _logger.LogInformation(EventIds.Management, "User {User} have force logged out {TargetUser}", User.Username(), user.UserName);
 
             return RedirectToAction(nameof(Index));
         }
-
-
     }
 }

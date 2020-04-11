@@ -7,7 +7,7 @@ namespace XI.Portal.Users.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddPlayersModule(this IServiceCollection serviceCollection,
+        public static void AddUsersModule(this IServiceCollection serviceCollection,
             Action<IUsersModuleOptions> configureOptions)
         {
             if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));

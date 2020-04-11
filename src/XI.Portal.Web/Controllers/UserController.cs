@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Auth.Models;
+using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Servers.Repository;
 using XI.Portal.Users.Models;
 using XI.Portal.Users.Repository;

@@ -18,14 +18,14 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
-using XI.Portal.Auth.Data;
-using XI.Portal.Auth.Models;
+using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
+using XI.Portal.Users.Data;
 using XI.Portal.Users.Extensions;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 

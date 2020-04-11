@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Models;
+using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Models;
 using XI.Portal.Demos.Repository;

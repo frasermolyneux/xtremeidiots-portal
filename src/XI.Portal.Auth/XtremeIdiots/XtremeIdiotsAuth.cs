@@ -11,7 +11,8 @@ using XI.Forums.Client;
 using XI.Forums.Models;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Auth.Models;
+using XI.Portal.Auth.Contract.Models;
+using XI.Portal.Users.Repository;
 
 namespace XI.Portal.Auth.XtremeIdiots
 {
@@ -21,14 +22,19 @@ namespace XI.Portal.Auth.XtremeIdiots
         private readonly ILogger<XtremeIdiotsAuth> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
         private readonly UserManager<PortalIdentityUser> _userManager;
+        private readonly IUsersRepository _usersRepository;
 
         public XtremeIdiotsAuth(
-            ILogger<XtremeIdiotsAuth> logger, SignInManager<PortalIdentityUser> signInManager, UserManager<PortalIdentityUser> userManager,
+            ILogger<XtremeIdiotsAuth> logger,
+            SignInManager<PortalIdentityUser> signInManager,
+            UserManager<PortalIdentityUser> userManager,
+            IUsersRepository usersRepository,
             IForumsClient forumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
         }
 
@@ -79,6 +85,7 @@ namespace XI.Portal.Auth.XtremeIdiots
 
             await _userManager.RemoveClaimsAsync(user, userClaims);
             await AddXtremeIdiotsClaims(user, member);
+            await AddPortalClaims(user);
 
             await _signInManager.SignInAsync(user, true);
         }
@@ -103,6 +110,16 @@ namespace XI.Portal.Auth.XtremeIdiots
                     _logger.LogDebug(EventIds.User, "User {Username} created a new account with {Email} email", username, email);
                 }
             }
+        }
+
+        private async Task AddPortalClaims(PortalIdentityUser identityUser)
+        {
+            var portalClaims = await _usersRepository.GetUserClaims(identityUser.Id);
+            var claims = new List<Claim>();
+
+            foreach (var claim in portalClaims) claims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
+
+            await _userManager.AddClaimsAsync(identityUser, claims);
         }
 
         private async Task AddXtremeIdiotsClaims(PortalIdentityUser identityUser, Member member)

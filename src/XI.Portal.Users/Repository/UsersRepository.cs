@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
-using XI.Portal.Auth.Data;
-using XI.Portal.Auth.Models;
+using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Configuration;
+using XI.Portal.Users.Data;
 using XI.Portal.Users.Models;
 
 namespace XI.Portal.Users.Repository

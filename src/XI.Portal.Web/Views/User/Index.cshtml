@@ -11,6 +11,8 @@
                     <td>Id</td>
                     <td>Username</td>
                     <td>Email</td>
+                    <td>Portal Claims</td>
+                    <td></td>
                     <td></td>
                 </tr>
                 </thead>
@@ -26,7 +28,7 @@
         $(document).ready(function() {
             $('#dataTable').DataTable({
                 processing: true,
-                //order: [[5, "desc"]],
+                order: [[1, "asc"]],
                 ajax: {
                     url: '/User/GetUsersAjax',
                     dataSrc: 'data'
@@ -48,6 +50,21 @@
                         sortable: true
                     },
                     {
+                        data: 'portalClaims',
+                        name: 'portalClaims',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            var claims = "";
+
+                            for (let i = 0; i < row['portalClaims'].length; i++) {
+                                claims = claims + "[" + row['portalClaims'][i].claimType + "],";
+                            }
+
+                            return claims.substring(0, claims.length - 1);
+                        }
+                    },
+                    {
+                        sortable: false,
                         render: function(data, type, row) {
                             return '<form class="form-inline" method="post" action="/User/LogUserOut" method="post">' +
                                 '<input id="id" name="id" type="hidden" value="' +
@@ -56,6 +73,12 @@
                                 '<button class="btn btn-link" type="submit">Logout User</button>' +
                                 '@Html.AntiForgeryToken()' +
                                 '</form>';
+                        }
+                    },
+                    {
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return '<a href="/User/ManagePortalClaims/' + row['id'] + '">Manage Claims</a>';
                         }
                     }
                 ]

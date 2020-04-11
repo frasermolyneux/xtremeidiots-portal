@@ -160,7 +160,14 @@ namespace XI.Portal.Web
 
             services.AddPlayersModule(options => { options.ConfigurePlayersRepository(repositoryOptions => { }); });
 
-            services.AddUsersModule(options => { options.ConfigureUsersRepository(repositoryOptions => { }); });
+            services.AddUsersModule(options =>
+            {
+                options.ConfigureUsersRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["ApplicationAuthDbContext:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["ApplicationAuthDbContext:PortalClaimsStorageTableName"];
+                });
+            });
 
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
             services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });

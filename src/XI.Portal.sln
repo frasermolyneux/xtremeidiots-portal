@@ -21,14 +21,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Demos", "XI.Porta
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Demos", "XI.Demos\XI.Demos.csproj", "{4C30A8CD-F729-4814-B858-82EA9C64CCB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.CommonTypes", "XI.CommonTypes\XI.CommonTypes.csproj", "{50EDB992-1774-46A5-9945-3CA3F01ED4F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.CommonTypes", "XI.CommonTypes\XI.CommonTypes.csproj", "{50EDB992-1774-46A5-9945-3CA3F01ED4F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Players", "XI.Portal.Players\XI.Portal.Players.csproj", "{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Players", "XI.Portal.Players\XI.Portal.Players.csproj", "{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EE009C4-309F-4281-AD5D-45F8E7F524A2}"
 	ProjectSection(SolutionItems) = preProject
 		nuget.config = nuget.config
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Portal.Users", "XI.Portal.Users\XI.Portal.Users.csproj", "{9227051E-5F33-43BD-919C-415AD3ECE1E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -72,6 +74,10 @@ Global
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9227051E-5F33-43BD-919C-415AD3ECE1E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9227051E-5F33-43BD-919C-415AD3ECE1E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9227051E-5F33-43BD-919C-415AD3ECE1E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9227051E-5F33-43BD-919C-415AD3ECE1E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +91,7 @@ Global
 		{4C30A8CD-F729-4814-B858-82EA9C64CCB8} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{50EDB992-1774-46A5-9945-3CA3F01ED4F0} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
+		{9227051E-5F33-43BD-919C-415AD3ECE1E2} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

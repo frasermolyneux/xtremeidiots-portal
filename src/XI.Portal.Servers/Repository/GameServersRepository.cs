@@ -10,15 +10,14 @@ using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
-using XI.Servers;
 using XI.Servers.Factories;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServersRepository : IGameServersRepository
     {
-        private readonly LegacyPortalContext _legacyContext;
         private readonly IGameServerClientFactory _gameServerClientFactory;
+        private readonly LegacyPortalContext _legacyContext;
         private readonly IGameServersRepositoryOptions _options;
 
         public GameServersRepository(IGameServersRepositoryOptions options, LegacyPortalContext legacyContext, IGameServerClientFactory gameServerClientFactory)

@@ -12,8 +12,8 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
-        private readonly IRconMonitorsRepository _rconMonitorsRepository;
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 

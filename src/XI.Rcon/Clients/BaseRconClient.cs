@@ -11,7 +11,7 @@ namespace XI.Rcon.Clients
 
         public BaseRconClient(ILogger logger)
         {
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public string ServerName { get; set; }

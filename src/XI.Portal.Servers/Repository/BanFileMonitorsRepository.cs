@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
@@ -18,9 +17,9 @@ namespace XI.Portal.Servers.Repository
 {
     public class BanFileMonitorsRepository : IBanFileMonitorsRepository
     {
-        private readonly LegacyPortalContext _legacyContext;
-        private readonly IFtpHelper _ftpHelper;
         private readonly IAdminActionsRepository _adminActionsRepository;
+        private readonly IFtpHelper _ftpHelper;
+        private readonly LegacyPortalContext _legacyContext;
         private readonly IBanFileMonitorsRepositoryOptions _options;
 
         public BanFileMonitorsRepository(IBanFileMonitorsRepositoryOptions options, LegacyPortalContext legacyContext, IFtpHelper ftpHelper, IAdminActionsRepository adminActionsRepository)

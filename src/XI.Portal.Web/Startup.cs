@@ -161,9 +161,8 @@ namespace XI.Portal.Web
 
             services.AddPlayersModule(options =>
             {
-                options.ConfigurePlayersRepository(repositoryOptions => { }); 
-                options.ConfigureAdminActionsRepository(repositoryOptions => { }); 
-
+                options.ConfigurePlayersRepository(repositoryOptions => { });
+                options.ConfigureAdminActionsRepository(repositoryOptions => { });
             });
 
             services.AddUsersModule(options =>

@@ -13,7 +13,7 @@ namespace XI.Rcon.Factories
 
         public RconClientFactory(ILogger<RconClientFactory> logger)
         {
-            this._logger = logger;
+            _logger = logger;
         }
 
         public IRconClient CreateInstance(GameType gameType, string serverName, string hostname, int queryPort, string rconPassword)

@@ -1,4 +1,6 @@
-﻿@using XI.Portal.Auth.Contract.Constants
+﻿@using XI.CommonTypes
+@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Web.Extensions
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,10 +36,26 @@
                         <div class="dropdown-menu" aria-labelledby="navbarPlayersDropDown">
                             <a class="dropdown-item" asp-controller="Players" asp-action="GlobalPlayers">Global Players Index</a>
                             <a class="dropdown-item" asp-controller="Players" asp-action="IpSearch">IP Search</a>
-                            <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">Call of Duty 2</a>
-                            <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">Call of Duty 4</a>
-                            <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">Call of Duty 5</a>
-                            <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">Insurgency</a>
+
+                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
+                            {
+                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) Call of Duty 2</a>
+                            }
+
+                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
+                            {
+                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) Call of Duty 4</a>
+                            }
+
+                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
+                            {
+                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) Call of Duty 5</a>
+                            }
+
+                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.Insurgency.ToString()))
+                            {
+                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">@Html.GameTypeIcon(GameType.Insurgency) Insurgency</a>
+                            }
                         </div>
                     </li>
 

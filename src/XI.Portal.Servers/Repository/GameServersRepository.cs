@@ -4,10 +4,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
+using XI.Portal.Servers.Models;
+using XI.Servers;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -76,6 +79,51 @@ namespace XI.Portal.Servers.Repository
 
             _legacyContext.GameServers.Remove(model);
             await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task<List<GameServerStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims)
+        {
+            var results = new List<GameServerStatusViewModel>();
+
+            var serverMonitors = (await GetGameServers(user, requiredClaims)).Where(server => server.ShowOnBannerServerList && server.GameType != GameType.Unknown);
+
+            foreach (var serverMonitor in serverMonitors)
+                try
+                {
+                    var gameServerInfo = new GameServerInfo(
+                        serverMonitor.Hostname,
+                        serverMonitor.QueryPort,
+                        serverMonitor.GameType);
+
+                    gameServerInfo.QueryServer();
+
+                    var errorMessage = string.Empty;
+
+                    if (serverMonitor.LiveLastUpdated < DateTime.UtcNow.AddMinutes(-15))
+                        errorMessage = "ERROR - The server has not been directly queried for more than 15 minutes";
+
+                    if (string.IsNullOrWhiteSpace(gameServerInfo.Map))
+                        errorMessage = "ERROR - The current map could not be retrieved from the direct query";
+
+                    results.Add(new GameServerStatusViewModel
+                    {
+                        GameServer = serverMonitor,
+                        ErrorMessage = errorMessage,
+                        Map = gameServerInfo.Map,
+                        Mod = gameServerInfo.Mod,
+                        PlayerCount = gameServerInfo.NumPlayers
+                    });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new GameServerStatusViewModel
+                    {
+                        GameServer = serverMonitor,
+                        ErrorMessage = ex.Message
+                    });
+                }
+
+            return results;
         }
     }
 }

@@ -14,6 +14,7 @@
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Rcon\XI.Rcon.csproj" />
+    <ProjectReference Include="..\XI.Servers\XI.Servers.csproj" />
   </ItemGroup>
 
 </Project>

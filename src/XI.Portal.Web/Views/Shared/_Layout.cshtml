@@ -91,6 +91,15 @@
                         </div>
                     </li>
 
+                    <li policy="@XtremeIdiotsPolicy.ViewServiceStatus" class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarStatusDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Service Status
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarStatusDropDown">
+                            <a class="dropdown-item" asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
+                        </div>
+                    </li>
+
                     <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="nav-item">
                         <a class="nav-link" asp-controller="Credentials" asp-action="Index">Credentials</a>
                     </li>

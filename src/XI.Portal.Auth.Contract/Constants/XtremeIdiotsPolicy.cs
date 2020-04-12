@@ -6,5 +6,6 @@
         public const string ServersManagement = nameof(ServersManagement);
         public const string PlayersManagement = nameof(PlayersManagement);
         public const string UserHasCredentials = nameof(UserHasCredentials);
+        public const string ViewServiceStatus = nameof(ViewServiceStatus);
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -14,5 +15,6 @@ namespace XI.Portal.Servers.Repository
         Task UpdateBanFileMonitor(Guid? id, BanFileMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task<bool> BanFileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task RemoveBanFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
+        Task<List<BanFileMonitorStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims);
     }
 }

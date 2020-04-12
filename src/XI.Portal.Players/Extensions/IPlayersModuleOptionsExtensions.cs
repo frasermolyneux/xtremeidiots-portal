@@ -9,5 +9,10 @@ namespace XI.Portal.Players.Extensions
         {
             options.PlayersRepositoryOptions = repositoryOptions;
         }
+
+        public static void ConfigureAdminActionsRepository(this IPlayersModuleOptions options, Action<IAdminActionsRepositoryOptions> repositoryOptions)
+        {
+            options.AdminActionsRepositoryOptions = repositoryOptions;
+        }
     }
 }

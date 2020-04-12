@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Servers.Configuration;
+using XI.Portal.Servers.Helpers;
 using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Servers.Extensions
@@ -60,6 +61,8 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IRconMonitorsRepository, RconMonitorsRepository>();
             }
+
+            serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
         }
     }
 }

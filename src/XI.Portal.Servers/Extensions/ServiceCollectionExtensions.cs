@@ -5,6 +5,7 @@ using XI.Portal.Servers.Helpers;
 using XI.Portal.Servers.Repository;
 using XI.Rcon.Factories;
 using XI.Rcon.Interfaces;
+using XI.Servers.Factories;
 
 namespace XI.Portal.Servers.Extensions
 {
@@ -66,6 +67,7 @@ namespace XI.Portal.Servers.Extensions
 
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddScoped<IRconClientFactory, RconClientFactory>();
+            serviceCollection.AddScoped<IGameServerClientFactory, GameServerClientFactory>();
         }
     }
 }

@@ -11,18 +11,21 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
 using XI.Servers;
+using XI.Servers.Factories;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServersRepository : IGameServersRepository
     {
         private readonly LegacyPortalContext _legacyContext;
+        private readonly IGameServerClientFactory _gameServerClientFactory;
         private readonly IGameServersRepositoryOptions _options;
 
-        public GameServersRepository(IGameServersRepositoryOptions options, LegacyPortalContext legacyContext)
+        public GameServersRepository(IGameServersRepositoryOptions options, LegacyPortalContext legacyContext, IGameServerClientFactory gameServerClientFactory)
         {
-            _options = options;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
         }
 
         public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
@@ -90,28 +93,24 @@ namespace XI.Portal.Servers.Repository
             foreach (var serverMonitor in serverMonitors)
                 try
                 {
-                    var gameServerInfo = new GameServerInfo(
-                        serverMonitor.Hostname,
-                        serverMonitor.QueryPort,
-                        serverMonitor.GameType);
-
-                    gameServerInfo.QueryServer();
+                    var gameServerClient = _gameServerClientFactory.CreateInstance(serverMonitor.GameType, serverMonitor.Hostname, serverMonitor.QueryPort);
+                    var serverStatus = await gameServerClient.GetServerStatus();
 
                     var errorMessage = string.Empty;
 
                     if (serverMonitor.LiveLastUpdated < DateTime.UtcNow.AddMinutes(-15))
                         errorMessage = "ERROR - The server has not been directly queried for more than 15 minutes";
 
-                    if (string.IsNullOrWhiteSpace(gameServerInfo.Map))
+                    if (string.IsNullOrWhiteSpace(serverStatus.Map))
                         errorMessage = "ERROR - The current map could not be retrieved from the direct query";
 
                     results.Add(new GameServerStatusViewModel
                     {
                         GameServer = serverMonitor,
                         ErrorMessage = errorMessage,
-                        Map = gameServerInfo.Map,
-                        Mod = gameServerInfo.Mod,
-                        PlayerCount = gameServerInfo.NumPlayers
+                        Map = serverStatus.Map,
+                        Mod = serverStatus.Mod,
+                        PlayerCount = serverStatus.PlayerCount
                     });
                 }
                 catch (Exception ex)

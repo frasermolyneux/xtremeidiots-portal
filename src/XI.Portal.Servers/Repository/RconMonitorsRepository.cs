@@ -8,6 +8,8 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
+using XI.Portal.Servers.Models;
+using XI.Rcon.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -15,11 +17,13 @@ namespace XI.Portal.Servers.Repository
     {
         private readonly LegacyPortalContext _legacyContext;
         private readonly IRconMonitorsRepositoryOptions _options;
+        private readonly IRconClientFactory _rconClientFactory;
 
-        public RconMonitorsRepository(IRconMonitorsRepositoryOptions options, LegacyPortalContext legacyContext)
+        public RconMonitorsRepository(IRconMonitorsRepositoryOptions options, LegacyPortalContext legacyContext, IRconClientFactory rconClientFactory)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
         public async Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
@@ -71,6 +75,61 @@ namespace XI.Portal.Servers.Repository
 
             _legacyContext.RconMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task<List<RconMonitorStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims)
+        {
+            var results = new List<RconMonitorStatusViewModel>();
+
+            var rconMonitors = await GetRconMonitors(user, requiredClaims);
+
+            foreach (var rconMonitor in rconMonitors)
+                try
+                {
+                    var rconClient = _rconClientFactory.CreateInstance(
+                        rconMonitor.GameServerServer.GameType,
+                        rconMonitor.GameServerServer.Title,
+                        rconMonitor.GameServerServer.Hostname,
+                        rconMonitor.GameServerServer.QueryPort,
+                        rconMonitor.GameServerServer.RconPassword,
+                        new List<TimeSpan>
+                        {
+                            TimeSpan.FromSeconds(1)
+                        }
+                    );
+
+                    var commandResult = rconClient.PlayerStatus();
+
+                    var errorMessage = string.Empty;
+
+                    if (rconMonitor.LastUpdated < DateTime.UtcNow.AddMinutes(-15))
+                        errorMessage = "ERROR - The rcon status has not been updated in the past 15 minutes";
+
+                    if (string.IsNullOrWhiteSpace(commandResult))
+                        errorMessage = "ERROR - The rcon command result is empty";
+
+                    if (commandResult.Contains("Invalid password"))
+                        errorMessage = "ERROR - Invalid rcon password";
+
+                    results.Add(new RconMonitorStatusViewModel
+                    {
+                        RconMonitor = rconMonitor,
+                        GameServer = rconMonitor.GameServerServer,
+                        RconStatusResult = commandResult,
+                        ErrorMessage = errorMessage
+                    });
+                }
+                catch (Exception ex)
+                {
+                    results.Add(new RconMonitorStatusViewModel
+                    {
+                        RconMonitor = rconMonitor,
+                        GameServer = rconMonitor.GameServerServer,
+                        ErrorMessage = ex.Message
+                    });
+                }
+
+            return results;
         }
     }
 }

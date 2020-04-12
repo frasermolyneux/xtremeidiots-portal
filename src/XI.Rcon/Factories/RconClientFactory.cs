@@ -9,9 +9,9 @@ namespace XI.Rcon.Factories
 {
     public class RconClientFactory : IRconClientFactory
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<RconClientFactory> _logger;
 
-        public RconClientFactory(ILogger logger)
+        public RconClientFactory(ILogger<RconClientFactory> logger)
         {
             this._logger = logger;
         }

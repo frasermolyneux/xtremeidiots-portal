@@ -12,13 +12,15 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
+        private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 
-        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, IFileMonitorsRepository fileMonitorsRepository)
+        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, IFileMonitorsRepository fileMonitorsRepository, IRconMonitorsRepository rconMonitorsRepository)
         {
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
+            _rconMonitorsRepository = rconMonitorsRepository ?? throw new ArgumentNullException(nameof(rconMonitorsRepository));
         }
 
         public async Task<IActionResult> BanFileStatus()
@@ -30,6 +32,12 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> LogFileStatus()
         {
             var statusModel = await _fileMonitorsRepository.GetStatusModel(User, _requiredClaims);
+            return View(statusModel);
+        }
+
+        public async Task<IActionResult> RconStatus()
+        {
+            var statusModel = await _rconMonitorsRepository.GetStatusModel(User, _requiredClaims);
             return View(statusModel);
         }
     }

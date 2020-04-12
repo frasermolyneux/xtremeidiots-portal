@@ -13,12 +13,14 @@ using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Management)]
+    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
     public class BanFileMonitorsController : Controller
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<BanFileMonitorsController> _logger;
+
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
 
         public BanFileMonitorsController(IBanFileMonitorsRepository banFileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<BanFileMonitorsController> logger)
         {
@@ -30,7 +32,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = await _banFileMonitorsRepository.GetBanFileMonitors(User);
+            var models = await _banFileMonitorsRepository.GetBanFileMonitors(User, _requiredClaims);
 
             return View(models);
         }
@@ -40,7 +42,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -50,7 +52,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title");
             return View();
         }
 
@@ -59,7 +61,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(
             [Bind("FilePath,GameServerServerId")] BanFileMonitors model)
         {
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
+            if (!User.HasGameClaim(model.GameServerServer.GameType, _requiredClaims)) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -71,7 +73,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -82,12 +84,12 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
             ViewData["GameServerServerId"] = new SelectList(
-                await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+                await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -104,7 +106,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    await _banFileMonitorsRepository.UpdateBanFileMonitor(id, model, User);
+                    await _banFileMonitorsRepository.UpdateBanFileMonitor(id, model, User, _requiredClaims);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a ban file monitor with Id {Id}", User.Username(), id);
 
@@ -119,7 +121,7 @@ namespace XI.Portal.Web.Controllers
                 }
 
             ViewData["GameServerServerId"] = new SelectList(
-                await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+                await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -130,7 +132,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User);
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -142,7 +144,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _banFileMonitorsRepository.RemoveBanFileMonitor(id, User);
+            await _banFileMonitorsRepository.RemoveBanFileMonitor(id, User, _requiredClaims);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a ban file monitor with Id {Id}", User.Username(), id);
 
@@ -152,7 +154,7 @@ namespace XI.Portal.Web.Controllers
 
         private async Task<bool> BanFileMonitorsExists(Guid id)
         {
-            return await _banFileMonitorsRepository.BanFileMonitorExists(id, User);
+            return await _banFileMonitorsRepository.BanFileMonitorExists(id, User, _requiredClaims);
         }
     }
 }

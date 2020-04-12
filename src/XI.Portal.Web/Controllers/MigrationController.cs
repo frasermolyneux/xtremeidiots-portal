@@ -15,7 +15,7 @@ using XI.Portal.Demos.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
+    [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
     public class MigrationController : Controller
     {
         private readonly IDemoAuthRepository _demoAuthRepository;

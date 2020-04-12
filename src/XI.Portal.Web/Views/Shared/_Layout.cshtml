@@ -27,7 +27,7 @@
                         <a class="nav-link" asp-controller="Maps" asp-action="Index">Maps</a>
                     </li>
 
-                    <li policy="@XtremeIdiotsPolicy.Admin" class="nav-item dropdown">
+                    <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarPlayersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Players
                         </a>
@@ -41,7 +41,7 @@
                         </div>
                     </li>
 
-                    <li policy="@XtremeIdiotsPolicy.Management" class="nav-item dropdown">
+                    <li policy="@XtremeIdiotsPolicy.ServersManagement" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarServersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Management
                         </a>
@@ -53,7 +53,7 @@
                         </div>
                     </li>
 
-                    <li policy="@XtremeIdiotsPolicy.SeniorAdmin" class="nav-item dropdown">
+                    <li policy="@XtremeIdiotsPolicy.RootPolicy" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Users
                         </a>
@@ -62,7 +62,7 @@
                         </div>
                     </li>
 
-                    <li policy="@XtremeIdiotsPolicy.SeniorAdmin" class="nav-item dropdown">
+                    <li policy="@XtremeIdiotsPolicy.RootPolicy" class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarMigrationDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Migration
                         </a>
@@ -73,7 +73,7 @@
                         </div>
                     </li>
 
-                    <li policy="@XtremeIdiotsPolicy.Credentials" class="nav-item">
+                    <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="nav-item">
                         <a class="nav-link" asp-controller="Credentials" asp-action="Index">Credentials</a>
                     </li>
 

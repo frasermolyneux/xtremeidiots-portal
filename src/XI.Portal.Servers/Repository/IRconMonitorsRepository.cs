@@ -8,11 +8,11 @@ namespace XI.Portal.Servers.Repository
 {
     public interface IRconMonitorsRepository
     {
-        Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user);
-        Task<RconMonitors> GetRconMonitor(Guid? id, ClaimsPrincipal user);
+        Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims);
+        Task<RconMonitors> GetRconMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task CreateRconMonitor(RconMonitors model);
-        Task UpdateRconMonitor(Guid? id, RconMonitors model, ClaimsPrincipal user);
-        Task<bool> RconMonitorExists(Guid id, ClaimsPrincipal user);
-        Task RemoveRconMonitor(Guid id, ClaimsPrincipal user);
+        Task UpdateRconMonitor(Guid? id, RconMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
+        Task<bool> RconMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
+        Task RemoveRconMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
     }
 }

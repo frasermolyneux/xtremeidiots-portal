@@ -2,12 +2,9 @@
 {
     public static class XtremeIdiotsPolicy
     {
-        public const string SeniorAdmin = nameof(SeniorAdmin);
-        public const string HeadAdmin = nameof(HeadAdmin);
-        public const string HeadAdminX = nameof(HeadAdminX);
-        public const string Admin = nameof(Admin);
-        public const string AdminX = nameof(AdminX);
-        public const string Management = nameof(Management);
-        public const string Credentials = nameof(Credentials);
+        public const string RootPolicy = nameof(RootPolicy);
+        public const string ServersManagement = nameof(ServersManagement);
+        public const string PlayersManagement = nameof(PlayersManagement);
+        public const string UserHasCredentials = nameof(UserHasCredentials);
     }
 }

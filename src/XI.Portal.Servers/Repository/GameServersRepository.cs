@@ -22,15 +22,15 @@ namespace XI.Portal.Servers.Repository
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
         }
 
-        public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user)
+        public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers.ApplyAuthPolicies(user).OrderBy(server => server.BannerServerListPosition).ToListAsync();
+            return await _legacyContext.GameServers.ApplyAuthPolicies(user, requiredClaims).OrderBy(server => server.BannerServerListPosition).ToListAsync();
         }
 
-        public async Task<GameServers> GetGameServer(Guid? id, ClaimsPrincipal user)
+        public async Task<GameServers> GetGameServer(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.GameServers
-                .ApplyAuthPolicies(user)
+                .ApplyAuthPolicies(user, requiredClaims)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
         }
 
@@ -44,9 +44,9 @@ namespace XI.Portal.Servers.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateGameServer(Guid? id, GameServers model, ClaimsPrincipal user)
+        public async Task UpdateGameServer(Guid? id, GameServers model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var storedModel = await GetGameServer(id, user);
+            var storedModel = await GetGameServer(id, user, requiredClaims);
             storedModel.Title = model.Title;
             storedModel.Hostname = model.Hostname;
             storedModel.QueryPort = model.QueryPort;
@@ -65,22 +65,17 @@ namespace XI.Portal.Servers.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task<bool> GameServerExists(Guid id, ClaimsPrincipal user)
+        public async Task<bool> GameServerExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers.ApplyAuthPolicies(user).AnyAsync(e => e.ServerId == id);
+            return await _legacyContext.GameServers.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.ServerId == id);
         }
 
-        public async Task RemoveGameServer(Guid id, ClaimsPrincipal user)
+        public async Task RemoveGameServer(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var model = await GetGameServer(id, user);
+            var model = await GetGameServer(id, user, requiredClaims);
 
             _legacyContext.GameServers.Remove(model);
             await _legacyContext.SaveChangesAsync();
-        }
-
-        public async Task<List<GameServers>> GetGameServersForCredentials(ClaimsPrincipal user)
-        {
-            return await _legacyContext.GameServers.ApplyCredentialAuthPolicies(user).OrderBy(server => server.BannerServerListPosition).ToListAsync();
         }
     }
 }

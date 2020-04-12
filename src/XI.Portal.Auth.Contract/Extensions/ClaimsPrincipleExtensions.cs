@@ -29,29 +29,46 @@ namespace XI.Portal.Auth.Contract.Extensions
             return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.PhotoUrl).Value;
         }
 
-        public static bool HasGameTypeClaim(this ClaimsPrincipal claimsPrincipal, GameType gameType)
+        public static Tuple<IEnumerable<GameType>, IEnumerable<Guid>> ClaimedGamesAndServers(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            return claimsPrincipal.HasClaim(XtremeIdiotsClaimTypes.Game, gameType.ToString());
+            var gameTypes = new List<GameType>();
+            var servers = new List<Guid>();
+
+            if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
+
+            var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
+
+            foreach (var claim in claims)
+            {
+                if (Enum.TryParse(claim.Value, out GameType gameType)) gameTypes.Add(gameType);
+
+                if (Guid.TryParse(claim.Value, out var guid)) servers.Add(guid);
+            }
+
+            return new Tuple<IEnumerable<GameType>, IEnumerable<Guid>>(gameTypes, servers);
         }
 
-        public static IEnumerable<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal)
+
+        public static bool HasGameClaim(this ClaimsPrincipal claimsPrincipal, GameType gameType, IEnumerable<string> requiredClaims)
         {
-            var gameClaims = claimsPrincipal.Claims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Game);
-            var gameTitles = gameClaims.Select(claim => claim.Value).ToList();
-
-            var gameTypes = gameTitles.Select(title => (GameType) Enum.Parse(typeof(GameType), title)).ToList();
-
-            return gameTypes.ToList();
+            return claimsPrincipal.Claims.Any(claim => requiredClaims.Contains(claim.Type) && claim.Value == gameType.ToString());
         }
 
-        public static IEnumerable<Guid> ClaimedServers(this ClaimsPrincipal claimsPrincipal)
+        public static IEnumerable<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            var serverClaims = claimsPrincipal.Claims.Where(claim => claim.Type == PortalClaimTypes.FtpCredentials || claim.Type == PortalClaimTypes.RconCredentials);
-            var serverIds = serverClaims.Select(claim => claim.Value).ToList();
+            var gameTypes = new List<GameType>();
 
-            var serverGuids = serverIds.Select(Guid.Parse).ToList();
+            if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
 
-            return serverGuids.ToList();
+            var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
+
+            foreach (var claim in claims)
+                if (Enum.TryParse(claim.Value, out GameType gameType))
+                    gameTypes.Add(gameType);
+
+            return gameTypes;
         }
     }
 }

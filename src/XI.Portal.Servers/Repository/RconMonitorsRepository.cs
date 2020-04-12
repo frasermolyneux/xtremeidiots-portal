@@ -22,18 +22,18 @@ namespace XI.Portal.Servers.Repository
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
         }
 
-        public async Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user)
+        public async Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(user)
+                .ApplyAuthPolicies(user, requiredClaims)
                 .Include(r => r.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
         }
 
-        public async Task<RconMonitors> GetRconMonitor(Guid? id, ClaimsPrincipal user)
+        public async Task<RconMonitors> GetRconMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(user)
+                .ApplyAuthPolicies(user, requiredClaims)
                 .Include(r => r.GameServerServer)
                 .FirstOrDefaultAsync(m => m.RconMonitorId == id);
         }
@@ -49,9 +49,9 @@ namespace XI.Portal.Servers.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateRconMonitor(Guid? id, RconMonitors model, ClaimsPrincipal user)
+        public async Task UpdateRconMonitor(Guid? id, RconMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var storedModel = await GetRconMonitor(id, user);
+            var storedModel = await GetRconMonitor(id, user, requiredClaims);
             storedModel.MonitorMapRotation = model.MonitorMapRotation;
             storedModel.MonitorPlayers = model.MonitorPlayers;
             storedModel.MonitorPlayerIps = model.MonitorPlayerIps;
@@ -60,14 +60,14 @@ namespace XI.Portal.Servers.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task<bool> RconMonitorExists(Guid id, ClaimsPrincipal user)
+        public async Task<bool> RconMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.RconMonitors.ApplyAuthPolicies(user).AnyAsync(e => e.RconMonitorId == id);
+            return await _legacyContext.RconMonitors.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.RconMonitorId == id);
         }
 
-        public async Task RemoveRconMonitor(Guid id, ClaimsPrincipal user)
+        public async Task RemoveRconMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var model = await GetRconMonitor(id, user);
+            var model = await GetRconMonitor(id, user, requiredClaims);
 
             _legacyContext.RconMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();

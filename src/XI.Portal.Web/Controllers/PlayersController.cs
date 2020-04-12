@@ -13,7 +13,7 @@ using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Admin)]
+    [Authorize(Policy = XtremeIdiotsPolicy.PlayersManagement)]
     public class PlayersController : Controller
     {
         private readonly IPlayersRepository _playersRepository;

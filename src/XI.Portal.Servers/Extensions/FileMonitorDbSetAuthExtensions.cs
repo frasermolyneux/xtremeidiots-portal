@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Auth.Contract.Extensions;
@@ -8,9 +10,9 @@ namespace XI.Portal.Servers.Extensions
 {
     public static class FileMonitorDbSetAuthExtensions
     {
-        public static IQueryable<FileMonitors> ApplyAuthPolicies(this DbSet<FileMonitors> fileMonitors, ClaimsPrincipal claimsPrincipal)
+        public static IQueryable<FileMonitors> ApplyAuthPolicies(this DbSet<FileMonitors> fileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            var gameTypes = claimsPrincipal.ClaimedGameTypes();
+            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
             var query = fileMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
 
             return query.Where(server => gameTypes.Contains(server.GameServerServer.GameType)).AsQueryable();

@@ -13,12 +13,14 @@ using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Management)]
+    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
     public class FileMonitorsController : Controller
     {
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<FileMonitorsController> _logger;
+
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
 
         public FileMonitorsController(IFileMonitorsRepository fileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<FileMonitorsController> logger)
         {
@@ -30,7 +32,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = await _fileMonitorsRepository.GetFileMonitors(User);
+            var models = await _fileMonitorsRepository.GetFileMonitors(User, _requiredClaims);
             return View(models);
         }
 
@@ -39,7 +41,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -49,7 +51,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title");
             return View();
         }
 
@@ -58,7 +60,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(
             [Bind("FilePath,GameServerServerId")] FileMonitors model)
         {
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
+            if (!User.HasGameClaim(model.GameServerServer.GameType, _requiredClaims)) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -70,7 +72,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -81,11 +83,11 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -102,7 +104,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    await _fileMonitorsRepository.UpdateFileMonitor(id, model, User);
+                    await _fileMonitorsRepository.UpdateFileMonitor(id, model, User, _requiredClaims);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a file monitor with Id {Id}", User.Username(), id);
 
@@ -116,7 +118,7 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -127,7 +129,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User);
+            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -139,7 +141,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _fileMonitorsRepository.RemoveFileMonitor(id, User);
+            await _fileMonitorsRepository.RemoveFileMonitor(id, User, _requiredClaims);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a file monitor with Id {Id}", User.Username(), id);
 
@@ -149,7 +151,7 @@ namespace XI.Portal.Web.Controllers
 
         private async Task<bool> FileMonitorsExists(Guid id)
         {
-            return await _fileMonitorsRepository.FileMonitorExists(id, User);
+            return await _fileMonitorsRepository.FileMonitorExists(id, User, _requiredClaims);
         }
     }
 }

@@ -16,7 +16,7 @@ using XI.Portal.Users.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
+    [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
     public class UserController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
@@ -47,7 +47,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ManagePortalClaims(string id)
         {
             var user = await _usersRepository.GetUser(id);
-            var gameServers = await _gameServersRepository.GetGameServers(User);
+            var gameServers = await _gameServersRepository.GetGameServers(User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
 
             ViewData["GameServers"] = gameServers;
             ViewData["GameServerServerId"] = new SelectList(gameServers, "ServerId", "Title");

@@ -3,8 +3,10 @@
     public static class XtremeIdiotsClaimTypes
     {
         public static string XtremeIdiotsId => nameof(XtremeIdiotsId);
-        public static string Group => nameof(Group);
         public static string PhotoUrl => nameof(PhotoUrl);
-        public static string Game => nameof(Game);
+        public static string SeniorAdmin => nameof(SeniorAdmin);
+        public static string HeadAdmin => nameof(HeadAdmin);
+        public static string GameAdmin => nameof(GameAdmin);
+        public static string Moderator => nameof(Moderator);
     }
 }

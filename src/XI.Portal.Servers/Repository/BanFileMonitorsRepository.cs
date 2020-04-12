@@ -22,18 +22,18 @@ namespace XI.Portal.Servers.Repository
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
         }
 
-        public async Task<List<BanFileMonitors>> GetBanFileMonitors(ClaimsPrincipal user)
+        public async Task<List<BanFileMonitors>> GetBanFileMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(user)
+                .ApplyAuthPolicies(user, requiredClaims)
                 .Include(b => b.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
         }
 
-        public async Task<BanFileMonitors> GetBanFileMonitor(Guid? id, ClaimsPrincipal user)
+        public async Task<BanFileMonitors> GetBanFileMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(user)
+                .ApplyAuthPolicies(user, requiredClaims)
                 .Include(b => b.GameServerServer)
                 .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
         }
@@ -48,23 +48,23 @@ namespace XI.Portal.Servers.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateBanFileMonitor(Guid? id, BanFileMonitors model, ClaimsPrincipal user)
+        public async Task UpdateBanFileMonitor(Guid? id, BanFileMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var storedModel = await GetBanFileMonitor(id, user);
+            var storedModel = await GetBanFileMonitor(id, user, requiredClaims);
             storedModel.FilePath = model.FilePath;
 
             _legacyContext.Update(storedModel);
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task<bool> BanFileMonitorExists(Guid id, ClaimsPrincipal user)
+        public async Task<bool> BanFileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.BanFileMonitors.ApplyAuthPolicies(user).AnyAsync(e => e.BanFileMonitorId == id);
+            return await _legacyContext.BanFileMonitors.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.BanFileMonitorId == id);
         }
 
-        public async Task RemoveBanFileMonitor(Guid id, ClaimsPrincipal user)
+        public async Task RemoveBanFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var model = await GetBanFileMonitor(id, user);
+            var model = await GetBanFileMonitor(id, user, requiredClaims);
 
             _legacyContext.BanFileMonitors.Remove(model);
             await _legacyContext.SaveChangesAsync();

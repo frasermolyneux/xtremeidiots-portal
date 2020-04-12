@@ -13,11 +13,13 @@ using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Management)]
+    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
     public class GameServersController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<GameServersController> _logger;
+
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
 
         public GameServersController(IGameServersRepository gameServersRepository, ILogger<GameServersController> logger)
         {
@@ -28,7 +30,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = await _gameServersRepository.GetGameServers(User);
+            var servers = await _gameServersRepository.GetGameServers(User, _requiredClaims);
             return View(servers);
         }
 
@@ -37,7 +39,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User);
+            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -47,7 +49,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes());
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
             return View();
         }
 
@@ -58,7 +60,7 @@ namespace XI.Portal.Web.Controllers
                 "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
             GameServers model)
         {
-            if (!User.HasGameTypeClaim(model.GameType)) return Unauthorized();
+            if (!User.HasGameClaim(model.GameType, _requiredClaims)) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -70,7 +72,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes());
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
 
             return View(model);
         }
@@ -80,11 +82,11 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User);
+            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(), model.GameType);
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
 
             return View(model);
         }
@@ -101,7 +103,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    await _gameServersRepository.UpdateGameServer(id, model, User);
+                    await _gameServersRepository.UpdateGameServer(id, model, User, _requiredClaims);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a game server with Id {Id}", User.Username(), id);
 
@@ -115,18 +117,18 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(), model.GameType);
+            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
 
             return View(model);
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
+        [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User);
+            var model = await _gameServersRepository.GetGameServer(id, User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
 
             if (model == null) return NotFound();
 
@@ -136,10 +138,10 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = XtremeIdiotsPolicy.SeniorAdmin)]
+        [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _gameServersRepository.RemoveGameServer(id, User);
+            await _gameServersRepository.RemoveGameServer(id, User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a game server with Id {Id}", User.Username(), id);
 
@@ -149,7 +151,7 @@ namespace XI.Portal.Web.Controllers
 
         private async Task<bool> GameServersExists(Guid id)
         {
-            return await _gameServersRepository.GameServerExists(id, User);
+            return await _gameServersRepository.GameServerExists(id, User, _requiredClaims);
         }
     }
 }

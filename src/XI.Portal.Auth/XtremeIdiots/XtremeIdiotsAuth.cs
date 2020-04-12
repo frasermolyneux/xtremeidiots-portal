@@ -10,7 +10,6 @@ using XI.CommonTypes;
 using XI.Forums.Client;
 using XI.Forums.Models;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Repository;
 
@@ -136,52 +135,121 @@ namespace XI.Portal.Auth.XtremeIdiots
             {
                 new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
                 new Claim(ClaimTypes.Email, member.Email),
-                new Claim(XtremeIdiotsClaimTypes.PhotoUrl, member.PhotoUrl),
-                new Claim(XtremeIdiotsClaimTypes.Group, primaryGroup)
+                new Claim(XtremeIdiotsClaimTypes.PhotoUrl, member.PhotoUrl)
             };
 
-            foreach (var group in member.SecondaryGroups)
-            {
-                var groupName = group.Name.Replace("+", "").Trim();
-
-                if (!claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.Group && claim.Value == groupName))
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Group, groupName));
-            }
-
-            var gameClaims = GetGameClaims(claims);
-            claims = claims.Concat(gameClaims).ToList();
+            claims = claims.Concat(GetClaimsForGroup(member.PrimaryGroup)).ToList();
+            claims = member.SecondaryGroups.Aggregate(claims, (current, group) => current.Concat(GetClaimsForGroup(group)).ToList());
 
             return claims;
         }
 
-        private static IEnumerable<Claim> GetGameClaims(IEnumerable<Claim> existingClaims)
+        private static IEnumerable<Claim> GetClaimsForGroup(Group group)
         {
             var claims = new List<Claim>();
 
-            foreach (var claim in existingClaims.Where(claim => claim.Type == XtremeIdiotsClaimTypes.Group))
+            var groupName = group.Name.Replace("+", "").Trim();
+            switch (groupName)
             {
-                if (claim.Value == "Senior Admin")
-                    foreach (GameType gameType in Enum.GetValues(typeof(GameType)))
-                        claims.AddGameClaimIfNotExists(gameType);
+                // Senior Admin
+                case "Senior Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.SeniorAdmin, GameType.Unknown.ToString()));
+                    break;
 
-                if (claim.Value.Contains("COD2")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty2);
+                // COD2
+                case "COD2 Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty2.ToString()));
+                    break;
+                case "COD2 Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty2.ToString()));
+                    break;
+                case "COD2 Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty2.ToString()));
+                    break;
 
-                if (claim.Value.Contains("COD4")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty4);
+                //COD4
+                case "COD4 Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty4.ToString()));
+                    break;
+                case "COD4 Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty4.ToString()));
+                    break;
+                case "COD4 Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty4.ToString()));
+                    break;
 
-                if (claim.Value.Contains("COD5")) claims.AddGameClaimIfNotExists(GameType.CallOfDuty5);
+                //COD5
+                case "COD5 Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty5.ToString()));
+                    break;
+                case "COD5 Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty5.ToString()));
+                    break;
+                case "COD5 Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty5.ToString()));
+                    break;
 
-                if (claim.Value.Contains("Insurgency")) claims.AddGameClaimIfNotExists(GameType.Insurgency);
+                //Insurgency
+                case "Insurgency Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Insurgency.ToString()));
+                    break;
+                case "Insurgency Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Insurgency.ToString()));
+                    break;
+                case "Insurgency Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Insurgency.ToString()));
+                    break;
 
-                if (claim.Value.Contains("ARMA"))
-                {
-                    claims.AddGameClaimIfNotExists(GameType.ARMA);
-                    claims.AddGameClaimIfNotExists(GameType.ARMA2);
-                    claims.AddGameClaimIfNotExists(GameType.ARMA3);
-                }
+                //Minecraft
+                case "Minecraft Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Minecraft.ToString()));
+                    break;
+                case "Minecraft Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Minecraft.ToString()));
+                    break;
+                case "Minecraft Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Minecraft.ToString()));
+                    break;
 
-                if (claim.Value.Contains("Minecraft")) claims.AddGameClaimIfNotExists(GameType.Minecraft);
+                //ARMA
+                case "ARMA Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA3.ToString()));
+                    break;
+                case "ARMA Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA3.ToString()));
+                    break;
+                case "ARMA Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA3.ToString()));
+                    break;
 
-                if (claim.Value.Contains("Rust")) claims.AddGameClaimIfNotExists(GameType.Rust);
+                //Battlefield
+                case "Battlefield Head Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield1.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield4.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield5.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.BattlefieldBadCompany2.ToString()));
+                    break;
+                case "Battlefield Admin":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield1.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield4.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield5.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.BattlefieldBadCompany2.ToString()));
+                    break;
+                case "Battlefield Moderator":
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield1.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield4.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield5.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.BattlefieldBadCompany2.ToString()));
+                    break;
             }
 
             return claims;

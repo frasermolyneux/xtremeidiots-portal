@@ -13,12 +13,14 @@ using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Management)]
+    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
     public class RconMonitorsController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<RconMonitorsController> _logger;
         private readonly IRconMonitorsRepository _rconMonitorsRepository;
+
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
 
         public RconMonitorsController(IRconMonitorsRepository rconMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<RconMonitorsController> logger)
         {
@@ -30,7 +32,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = await _rconMonitorsRepository.GetRconMonitors(User);
+            var models = await _rconMonitorsRepository.GetRconMonitors(User, _requiredClaims);
 
             return View(models);
         }
@@ -40,7 +42,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -50,7 +52,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title");
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title");
             return View();
         }
 
@@ -60,7 +62,7 @@ namespace XI.Portal.Web.Controllers
             [Bind("MonitorMapRotation,MonitorPlayers,MonitorPlayerIps,GameServerServerId")]
             RconMonitors model)
         {
-            if (!User.HasGameTypeClaim(model.GameServerServer.GameType)) return Unauthorized();
+            if (!User.HasGameClaim(model.GameServerServer.GameType, _requiredClaims)) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -72,7 +74,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -83,11 +85,11 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -104,7 +106,7 @@ namespace XI.Portal.Web.Controllers
             if (ModelState.IsValid)
                 try
                 {
-                    await _rconMonitorsRepository.UpdateRconMonitor(id, model, User);
+                    await _rconMonitorsRepository.UpdateRconMonitor(id, model, User, _requiredClaims);
 
                     _logger.LogInformation(EventIds.Management, "User {User} has modified a rcon monitor with Id {Id}", User.Username(), id);
 
@@ -118,7 +120,7 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User), "ServerId", "Title",
+            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
                 model.GameServerServerId);
 
             return View(model);
@@ -129,7 +131,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _rconMonitorsRepository.GetRconMonitor(id, User);
+            var model = await _rconMonitorsRepository.GetRconMonitor(id, User, _requiredClaims);
 
             if (model == null) return NotFound();
 
@@ -141,7 +143,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _rconMonitorsRepository.RemoveRconMonitor(id, User);
+            await _rconMonitorsRepository.RemoveRconMonitor(id, User, _requiredClaims);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a rcon monitor with Id {Id}", User.Username(), id);
 
@@ -151,7 +153,7 @@ namespace XI.Portal.Web.Controllers
 
         private async Task<bool> RconMonitorsExists(Guid id)
         {
-            return await _rconMonitorsRepository.RconMonitorExists(id, User);
+            return await _rconMonitorsRepository.RconMonitorExists(id, User, _requiredClaims);
         }
     }
 }

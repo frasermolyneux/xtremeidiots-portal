@@ -7,7 +7,7 @@ using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.Credentials)]
+    [Authorize(Policy = XtremeIdiotsPolicy.UserHasCredentials)]
     public class CredentialsController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
@@ -19,7 +19,7 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var servers = await _gameServersRepository.GetGameServersForCredentials(User);
+            var servers = await _gameServersRepository.GetGameServers(User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.FtpCredentials, PortalClaimTypes.RconCredentials});
             return View(servers);
         }
     }

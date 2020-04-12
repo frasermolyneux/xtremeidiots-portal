@@ -67,8 +67,8 @@
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a> |
                             <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
-                            <span policy="@XtremeIdiotsPolicy.SeniorAdmin">|</span>
-                            <a policy="@XtremeIdiotsPolicy.SeniorAdmin" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
+                            <span policy="@XtremeIdiotsPolicy.RootPolicy">|</span>
+                            <a policy="@XtremeIdiotsPolicy.RootPolicy" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
                         </td>
                     </tr>
                 }

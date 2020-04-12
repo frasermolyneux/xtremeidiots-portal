@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -14,5 +15,6 @@ namespace XI.Portal.Servers.Repository
         Task UpdateFileMonitor(Guid? id, FileMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task<bool> FileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task RemoveFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
+        Task<List<FileMonitorStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims);
     }
 }

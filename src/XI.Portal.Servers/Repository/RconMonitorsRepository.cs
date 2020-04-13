@@ -9,7 +9,7 @@ using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
-using XI.Rcon.Interfaces;
+using XI.Servers.Rcon.Factories;
 
 namespace XI.Portal.Servers.Repository
 {

@@ -44,6 +44,14 @@ namespace XI.Portal.Auth.Extensions
                     )
                 )
             );
+
+            options.AddPolicy(XtremeIdiotsPolicy.CanAccessLiveRcon, policy =>
+                policy.RequireAssertion(context => context.User.HasClaim(
+                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
+                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
+                             claim.Type == XtremeIdiotsClaimTypes.Moderator
+                )));
         }
     }
 }

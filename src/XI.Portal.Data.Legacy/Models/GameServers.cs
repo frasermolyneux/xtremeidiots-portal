@@ -35,10 +35,10 @@ namespace XI.Portal.Data.Legacy.Models
         [DisplayName("Ftp Password")] public string FtpPassword { get; set; }
         [DisplayName("Rcon Password")] public string RconPassword { get; set; }
         public string LiveTitle { get; set; }
-        public string LiveMap { get; set; }
-        public string LiveMod { get; set; }
+        [DisplayName("Map")] public string LiveMap { get; set; }
+        [DisplayName("Mod")] public string LiveMod { get; set; }
         public int LiveMaxPlayers { get; set; }
-        public int LiveCurrentPlayers { get; set; }
+        [DisplayName("Players")] public int LiveCurrentPlayers { get; set; }
         public DateTime LiveLastUpdated { get; set; }
 
         [DisplayName("Banner Server List")] public bool ShowOnBannerServerList { get; set; }

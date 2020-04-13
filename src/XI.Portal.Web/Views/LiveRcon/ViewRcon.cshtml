@@ -1,0 +1,125 @@
+﻿@using XI.Portal.Web.Extensions
+@model XI.Portal.Data.Legacy.Models.GameServers
+
+@{
+    ViewData["Title"] = "Live Rcon - " + @Html.ServerName(Model.Title, Model.LiveTitle);
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>
+                            #
+                        </th>
+                        <th>
+                            Username
+                        </th>
+                        <th>
+                            Guid
+                        </th>
+                        <th>
+                            Ip Address
+                        </th>
+                        <th>
+                            Score
+                        </th>
+                        <th>
+                            Rate
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</row>
+
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            function handleAjaxError( xhr, textStatus, error ) {
+                console.log(textStatus);
+            }
+
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            $('#dataTable').DataTable({
+                processing: true,
+                pageLength: 50,
+                order: [[0, "asc"]],
+                ajax: {
+                    url: '/LiveRcon/GetRconPlayers/@Model.ServerId',
+                    dataSrc: 'data',
+                    error: handleAjaxError
+                },
+                columns: [
+                    {
+                        data: 'num',
+                        name: 'num',
+                        sortable: true
+                    },
+                    {
+                        data: 'name',
+                        name: 'name',
+                        sortable: true,
+                        render: function (data, type, row) {
+                            console.log(row['name']);
+                            return escapeHtml(row['name']);
+                        }
+                    },
+                    {
+                        data: 'guid',
+                        name: 'guid',
+                        sortable: false
+                    },
+                    {
+                        data: 'ipAddress',
+                        name: 'ipAddress',
+                        sortable: false
+                    },
+                    {
+                        data: 'score',
+                        name: 'score',
+                        sortable: true
+                    },
+                    {
+                        data: 'rate',
+                        name: 'rate',
+                        sortable: false
+                    },
+                    {
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return '<a href="/LiveRcon/KickPlayer/' + row['num'] + '">Kick Player</a> | <a href="/LiveRcon/BanPlayer/' + row['num'] + '">Ban Player</a>';
+                        }
+                    }
+                ]
+            });
+        });
+
+        //setInterval( function () {
+        //    $('#dataTable').DataTable().ajax.reload();
+        //}, 10000 );
+
+    </script>
+}

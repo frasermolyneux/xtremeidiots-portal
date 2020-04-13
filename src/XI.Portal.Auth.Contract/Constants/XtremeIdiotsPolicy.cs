@@ -7,5 +7,6 @@
         public const string PlayersManagement = nameof(PlayersManagement);
         public const string UserHasCredentials = nameof(UserHasCredentials);
         public const string ViewServiceStatus = nameof(ViewServiceStatus);
+        public const string CanAccessLiveRcon = nameof(CanAccessLiveRcon);
     }
 }

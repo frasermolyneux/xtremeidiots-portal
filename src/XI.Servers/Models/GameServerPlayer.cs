@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using XI.Servers.Query.Models;
 using XI.Servers.Rcon.Models;
 
@@ -32,6 +33,19 @@ namespace XI.Servers.Models
 
                 var toReturn = Name.ToUpper();
                 toReturn = toRemove.Aggregate(toReturn, (current, val) => current.Replace(val, ""));
+
+                if (toReturn.StartsWith("["))
+                {
+                    var regex = new Regex("^(\\[.*\\])");
+                    var match = regex.Match(toReturn);
+
+                    if (match.Success)
+                    {
+                        var matchedTag = match.Groups[1];
+                        toReturn = toReturn.Replace(matchedTag.ToString(), "");
+                    }
+                }
+
                 toReturn = toReturn.Trim();
                 return toReturn;
             }

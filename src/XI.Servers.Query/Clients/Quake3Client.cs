@@ -122,7 +122,7 @@ namespace XI.Servers.Query.Clients
                     datagrams.Add(datagramText);
 
                     if (udpClient.Available == 0)
-                        Thread.Sleep(1000);
+                        Thread.Sleep(500);
                 } while (udpClient.Available > 0);
 
                 var responseText = new StringBuilder();

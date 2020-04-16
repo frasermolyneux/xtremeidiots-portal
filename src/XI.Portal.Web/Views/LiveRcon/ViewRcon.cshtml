@@ -110,7 +110,7 @@
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return '<a href="/LiveRcon/KickPlayer/' + row['num'] + '">Kick Player</a> | <a href="/LiveRcon/BanPlayer/' + row['num'] + '">Ban Player</a>';
+                            return '<a href="/LiveRcon/KickPlayer/' + @Model.ServerId + '?num=' + row['num'] + '">Kick Player</a> | <a href="/LiveRcon/BanPlayer/' + row['num'] + '">Ban Player</a>';
                         }
                     }
                 ]

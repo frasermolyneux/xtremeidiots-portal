@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace XI.Servers.Rcon.Models
+﻿namespace XI.Servers.Rcon.Models
 {
     public interface IRconPlayer
     {

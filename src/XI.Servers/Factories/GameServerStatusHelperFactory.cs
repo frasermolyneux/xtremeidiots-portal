@@ -10,11 +10,10 @@ namespace XI.Servers.Factories
 {
     public class GameServerStatusHelperFactory : IGameServerStatusHelperFactory
     {
+        private readonly Dictionary<string, IGameServerStatusHelper> _instances = new Dictionary<string, IGameServerStatusHelper>();
         private readonly ILogger<GameServerStatusHelperFactory> _logger;
         private readonly IQueryClientFactory _queryClientFactory;
         private readonly IRconClientFactory _rconClientFactory;
-
-        private readonly Dictionary<string, IGameServerStatusHelper> _instances = new Dictionary<string, IGameServerStatusHelper>();
 
         public GameServerStatusHelperFactory(ILogger<GameServerStatusHelperFactory> logger, IQueryClientFactory queryClientFactory, IRconClientFactory rconClientFactory)
         {

@@ -15,7 +15,7 @@ namespace XI.Portal.Web.Controllers
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<LiveRconController> _logger;
 
-        readonly string[] _requiredClaims = { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin };
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
         public LiveRconController(ILogger<LiveRconController> logger,
             IGameServersRepository gameServersRepository)
@@ -26,8 +26,6 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-           
-
             var servers = (await _gameServersRepository.GetGameServers(User, _requiredClaims))
                 .Where(server => !string.IsNullOrWhiteSpace(server.RconPassword));
 

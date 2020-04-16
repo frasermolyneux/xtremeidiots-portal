@@ -20,6 +20,16 @@ namespace XI.Servers.Rcon.Clients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        private byte[] ExecuteCommandPacket(string rconPassword, string command)
+        {
+            //ÿÿÿÿrcon {rconPassword} {command}
+            var prefix = new byte[] {0xFF, 0xFF, 0xFF, 0xFF};
+            var commandText = $"rcon {rconPassword} {command}";
+            var commandBytes = Encoding.Default.GetBytes(commandText);
+
+            return prefix.Concat(commandBytes).ToArray();
+        }
+
         public override List<IRconPlayer> GetPlayers()
         {
             var players = new List<IRconPlayer>();
@@ -112,58 +122,49 @@ namespace XI.Servers.Rcon.Clients
         {
             _logger.LogInformation("[{serverName}] Executing {command} command against server", ServerName, rconCommand);
 
+            UdpClient udpClient = null;
+
             try
             {
-                var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                {
-                    SendTimeout = 15000,
-                    ReceiveTimeout = 15000
-                };
-                client.Connect(IPAddress.Parse(Hostname), QueryPort);
+                var commandBytes = ExecuteCommandPacket(RconPassword, rconCommand);
+                var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                var command = $"rcon {RconPassword} {rconCommand}";
-                var bufferTemp = Encoding.ASCII.GetBytes(command);
-                var bufferSend = new byte[bufferTemp.Length + 4];
+                udpClient = new UdpClient(QueryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient.Connect(Hostname, QueryPort);
+                udpClient.Send(commandBytes, commandBytes.Length);
 
-                bufferSend[0] = 0xFF;
-                bufferSend[1] = 0xFF;
-                bufferSend[2] = 0xFF;
-                bufferSend[3] = 0xFF;
-
-                var j = 4;
-                foreach (var commandBytes in bufferTemp)
-                {
-                    bufferSend[j] = commandBytes;
-                    j++;
-                }
-
-                client.Send(bufferSend, SocketFlags.None);
-
-                Thread.Sleep(1000);
-
-                var response = new StringBuilder();
-
+                var datagrams = new List<string>();
                 do
                 {
-                    _logger.LogInformation($"A - Client available is {client.Available}");
-                    var receiveBuffer = new byte[65536];
-                    var bytesReceived = client.Receive(receiveBuffer);
-                    var data = Encoding.ASCII.GetString(receiveBuffer, 0, bytesReceived);
+                    var datagramBytes = udpClient.Receive(ref remoteIpEndPoint);
+                    var datagramText = Encoding.Default.GetString(datagramBytes);
 
-                    if (data.IndexOf("print", StringComparison.Ordinal) == 4) data = data.Substring(10);
+                    datagrams.Add(datagramText);
 
-                    response.Append(data);
+                    if (udpClient.Available == 0)
+                        Thread.Sleep(1000);
+                } while (udpClient.Available > 0);
 
-                    _logger.LogInformation($"B - Client available is {client.Available}");
-                    Thread.Sleep(1000);
-                } while (client.Available > 0);
+                var responseText = new StringBuilder();
 
-                return response.ToString().Replace("\0", "");
+                foreach (var datagram in datagrams)
+                {
+                    var text = datagram;
+                    if (text.IndexOf("print", StringComparison.Ordinal) == 4) text = text.Substring(10);
+
+                    responseText.Append(text);
+                }
+
+                return responseText.ToString();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[{serverName}] Failed to execute rcon command", ServerName);
                 throw;
+            }
+            finally
+            {
+                udpClient?.Dispose();
             }
         }
     }

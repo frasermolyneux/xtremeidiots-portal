@@ -2,7 +2,7 @@
 @model XI.Portal.Data.Legacy.Models.GameServers
 
 @{
-    ViewData["Title"] = "Live Rcon - " + @Html.ServerName(Model.Title, Model.LiveTitle);
+    ViewData["Title"] = "Live Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
 }
 
 <row class="row">
@@ -13,27 +13,27 @@
         <div class="card card-body">
             <table id="dataTable">
                 <thead>
-                    <tr>
-                        <th>
-                            #
-                        </th>
-                        <th>
-                            Username
-                        </th>
-                        <th>
-                            Guid
-                        </th>
-                        <th>
-                            Ip Address
-                        </th>
-                        <th>
-                            Score
-                        </th>
-                        <th>
-                            Rate
-                        </th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>
+                        #
+                    </th>
+                    <th>
+                        Username
+                    </th>
+                    <th>
+                        Guid
+                    </th>
+                    <th>
+                        Ip Address
+                    </th>
+                    <th>
+                        Score
+                    </th>
+                    <th>
+                        Rate
+                    </th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
 
@@ -48,9 +48,9 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function () {
+        $(document).ready(function() {
 
-            function handleAjaxError( xhr, textStatus, error ) {
+            function handleAjaxError(xhr, textStatus, error) {
                 console.log(textStatus);
             }
 
@@ -82,7 +82,7 @@
                         data: 'name',
                         name: 'name',
                         sortable: true,
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             console.log(row['name']);
                             return escapeHtml(row['name']);
                         }
@@ -117,9 +117,10 @@
             });
         });
 
-        //setInterval( function () {
-        //    $('#dataTable').DataTable().ajax.reload();
-        //}, 10000 );
+        setInterval(function() {
+                $('#dataTable').DataTable().ajax.reload();
+            },
+            10000);
 
     </script>
 }

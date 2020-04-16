@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using XI.Servers.Rcon.Models;
 using XI.Servers.Rcon.Models.Source;
@@ -14,13 +13,34 @@ namespace XI.Servers.Rcon.Clients
     public class SourceRconClient : BaseRconClient
     {
         private readonly ILogger _logger;
-        private int _packetCount;
+        private int _sequenceId = 1;
 
-        private Socket _socket;
+        private TcpClient _tcpClient;
 
         public SourceRconClient(ILogger logger) : base(logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        private string Result { get; set; }
+        private bool Connected { get; set; }
+
+        public override Regex PlayerRegex { get; set; } = new Regex(
+            "^\\#\\s([0-9]+)\\s([0-9]+)\\s\\\"(.+)\\\"\\s([STEAM0-9:_]+)\\s+([0-9:]+)\\s([0-9]+)\\s([0-9]+)\\s([a-z]+)\\s([0-9]+)\\s((?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])):?(-?[0-9]{1,5})");
+
+        private SourceRconPacket AuthPacket(string authPassword)
+        {
+            return new SourceRconPacket(_sequenceId++, 3, authPassword);
+        }
+
+        private SourceRconPacket ExecuteCommandPacket(string command)
+        {
+            return new SourceRconPacket(_sequenceId++, 2, command);
+        }
+
+        private SourceRconPacket EmptyResponsePacket()
+        {
+            return new SourceRconPacket(_sequenceId++, 0, string.Empty);
         }
 
         public override List<IRconPlayer> GetPlayers()
@@ -58,180 +78,134 @@ namespace XI.Servers.Rcon.Clients
             return players;
         }
 
-        private string Result { get; set; }
-        private bool Connected { get; set; }
-
-        public override Regex PlayerRegex { get; set; } = new Regex(
-            "^\\#\\s([0-9]+)\\s([0-9]+)\\s\\\"(.+)\\\"\\s([STEAM0-9:_]+)\\s+([0-9:]+)\\s([0-9]+)\\s([0-9]+)\\s([a-z]+)\\s([0-9]+)\\s((?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])):?(-?[0-9]{1,5})");
-
         public override string PlayerStatus()
         {
-            return ExecuteCommand("status");
+            CreateConnection();
+
+            var statusPackets = GetCommandPackets("status");
+
+            var response = new StringBuilder();
+            foreach (var packet in statusPackets) response.Append(packet.Body.Trim());
+
+            return response.ToString();
         }
 
-        private string ExecuteCommand(string rconCommand)
-        {
-            _logger.LogInformation("[{serverName}] Executing {command} command against server", ServerName, rconCommand);
-
-            try
-            {
-                if (!Connected)
-                {
-                    _logger.LogDebug("[{serverName}] RconClient is not connected, connecting to {hostname}:{queryPort}", ServerName, Hostname, QueryPort);
-                    Connected = Connect(new IPEndPoint(IPAddress.Parse(Hostname), QueryPort), RconPassword);
-                    _logger.LogDebug("[{serverName}] The RconClient state is now {state}", ServerName, Connected);
-                }
-
-                var packetToSend = new RconPacket
-                {
-                    RequestId = 2,
-                    ServerDataSent = RconPacket.SERVERDATA_sent.SERVERDATA_EXECCOMMAND,
-                    String1 = rconCommand
-                };
-
-                SendRconPacket(packetToSend);
-
-                var timeout = DateTime.UtcNow;
-                while (string.IsNullOrWhiteSpace(Result) && timeout < DateTime.UtcNow.AddSeconds(10)) Thread.Sleep(100);
-
-                return Result;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to execute {command} against server", rconCommand);
-                return string.Empty;
-            }
-        }
-
-        public bool Connect(IPEndPoint server, string password)
+        public void CreateConnection()
         {
             try
             {
-                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                _socket.Connect(server);
+                if (_tcpClient != null && _tcpClient.Connected)
+                    return;
+
+                _tcpClient = new TcpClient(Hostname, QueryPort) {ReceiveTimeout = 5000};
+
+                var authPackets = GetAuthPackets(RconPassword);
+                var authResultPacket = authPackets.SingleOrDefault(packet => packet.Type == 2);
+
+                if (authResultPacket == null)
+                    throw new Exception("Could not create authenticated session with server");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{serverName}] Failed to connect to server", ServerName);
-                return false;
+                Console.WriteLine(ex);
+                throw;
             }
+        }
 
-            var serverAuth = new RconPacket
+        private IEnumerable<SourceRconPacket> GetAuthPackets(string rconPassword)
+        {
+            var endpoint = _tcpClient.Client.RemoteEndPoint;
+
+            var authPacket = AuthPacket(rconPassword);
+            _tcpClient.Client.Send(authPacket.PacketBytes);
+
+            var responsePackets = new List<SourceRconPacket>();
+            byte[] leftoverBytes = null;
+            do
             {
-                RequestId = 1,
-                String1 = password,
-                ServerDataSent = RconPacket.SERVERDATA_sent.SERVERDATA_AUTH
-            };
+                var tempBuffer = new byte[8192];
+                var bytesRead = _tcpClient.Client.ReceiveFrom(tempBuffer, SocketFlags.None, ref endpoint);
 
-            SendRconPacket(serverAuth);
-            StartGetNewPacket();
+                var bytesToProcess = tempBuffer.Take(bytesRead).ToArray();
 
-            return true;
+                if (leftoverBytes != null) bytesToProcess = leftoverBytes.Concat(bytesToProcess).ToArray();
+
+                var (packets, leftover) = BytesIntoPackets(bytesToProcess);
+                responsePackets.AddRange(packets);
+
+                leftoverBytes = leftover;
+            } while (responsePackets.Count != 2);
+
+            return responsePackets;
         }
 
-        private void SendRconPacket(RconPacket p)
+        private IEnumerable<SourceRconPacket> GetCommandPackets(string command)
         {
-            var packet = p.OutputAsBytes();
-            _socket.BeginSend(packet, 0, packet.Length, SocketFlags.None, SendCallback, this);
-        }
+            var endpoint = _tcpClient.Client.RemoteEndPoint;
 
-        private void SendCallback(IAsyncResult ar)
-        {
-            _socket.EndSend(ar);
-        }
+            var executeCommandPacket = ExecuteCommandPacket(command);
+            _tcpClient.Client.Send(executeCommandPacket.PacketBytes);
+            var emptyResponsePacket = EmptyResponsePacket();
+            _tcpClient.Client.Send(emptyResponsePacket.PacketBytes);
 
-        private void StartGetNewPacket()
-        {
-            var state = new RecState
+            var responsePackets = new List<SourceRconPacket>();
+            byte[] leftoverBytes = null;
+            do
             {
-                IsPacketLength = true,
-                Data = new byte[4],
-                PacketCount = _packetCount
-            };
+                var tempBuffer = new byte[8192];
+                var bytesRead = _tcpClient.Client.ReceiveFrom(tempBuffer, SocketFlags.None, ref endpoint);
 
-            _packetCount++;
+                var bytesToProcess = tempBuffer.Take(bytesRead).ToArray();
 
-            _socket.BeginReceive(state.Data, 0, 4, SocketFlags.None, ReceiveCallback, state);
+                if (leftoverBytes != null) bytesToProcess = leftoverBytes.Concat(bytesToProcess).ToArray();
+
+                var (packets, leftover) = BytesIntoPackets(bytesToProcess);
+                responsePackets.AddRange(packets);
+
+                leftoverBytes = leftover;
+            } while (responsePackets.All(packet => packet.Id != emptyResponsePacket.Id));
+
+            return responsePackets.Where(packet => packet.Id == executeCommandPacket.Id).ToList();
         }
 
-        private void ReceiveCallback(IAsyncResult ar)
+        private Tuple<List<SourceRconPacket>, byte[]> BytesIntoPackets(byte[] bytes)
         {
+            var packets = new List<SourceRconPacket>();
+            var offset = 0;
+
             try
             {
-                var bytesgotten = _socket.EndReceive(ar);
-                var state = (RecState) ar.AsyncState;
-                state.BytesSoFar += bytesgotten;
-
-                ProcessIncomingData(state);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[{serverName}] Failed receiving data from the server", ServerName);
-                Result = ex.Message;
-                //throw;
-            }
-        }
-
-        private void ProcessIncomingData(RecState state)
-        {
-            if (state.IsPacketLength)
-            {
-                // First 4 bytes of a new packet are the total packet length
-                state.PacketLength = BitConverter.ToInt32(state.Data, 0);
-
-                state.IsPacketLength = false;
-                state.BytesSoFar = 0;
-                state.Data = new byte[state.PacketLength];
-                _socket.BeginReceive(state.Data, 0, state.PacketLength, SocketFlags.None, ReceiveCallback, state);
-            }
-            else
-            {
-                if (state.BytesSoFar < state.PacketLength)
+                do
                 {
-                    _socket.BeginReceive(state.Data, state.BytesSoFar, state.PacketLength - state.BytesSoFar, SocketFlags.None, ReceiveCallback, state);
-                }
-                else
-                {
-                    var returnPacket = new RconPacket();
-                    returnPacket.ParseFromBytes(state.Data, this);
+                    if (offset + 4 > bytes.Length)
+                        break;
 
-                    ProcessResponse(returnPacket);
+                    var size = BitConverter.ToInt32(bytes, offset);
 
-                    StartGetNewPacket();
-                }
+                    if (size == 0)
+                        break;
+
+                    if (offset + size > bytes.Length)
+                        break;
+
+                    var id = BitConverter.ToInt32(bytes, offset + 4);
+                    var type = BitConverter.ToInt32(bytes, offset + 8);
+                    var body = Encoding.ASCII.GetString(bytes.Skip(offset + 12).Take(size - 6).ToArray()).Trim();
+
+                    offset += 4 + size;
+
+                    var packet = new SourceRconPacket(id, type, body);
+                    packets.Add(packet);
+                } while (true);
             }
-        }
-
-        private void ProcessResponse(RconPacket packet)
-        {
-            _logger.LogDebug("[{serverName}] Packet ServerDataReceived {ServerDataReceived} has been received from server", ServerName, packet.ServerDataReceived);
-            _logger.LogDebug("[{serverName}] Packet ServerDataSent {ServerDataSent} has been received from server", ServerName, packet.ServerDataSent);
-            _logger.LogDebug("[{serverName}] Packet String1 {String1} has been received from server", ServerName, packet.String1);
-            _logger.LogDebug("[{serverName}] Packet String2 {String2} has been received from server", ServerName, packet.String2);
-
-            switch (packet.ServerDataReceived)
+            catch (Exception e)
             {
-                case RconPacket.SERVERDATA_rec.SERVERDATA_AUTH_RESPONSE:
-                    if (packet.RequestId != -1)
-                    {
-                        // Connected.
-                        Connected = true;
-                        _logger.LogInformation("[{serverName}] Successfully connected to server", ServerName);
-                    }
-                    else
-                    {
-                        _logger.LogError("[{serverName}] Failed to connect to server", ServerName);
-                    }
-
-                    break;
-                case RconPacket.SERVERDATA_rec.SERVERDATA_RESPONSE_VALUE:
-                    //Result = Encoding.UTF8.GetString(packet.OutputAsBytes());
-                    Result = packet.String1;
-                    break;
-                default:
-                    _logger.LogError("[{serverName}] Unknown response from server", ServerName);
-                    break;
+                Console.WriteLine(e);
+                throw;
             }
+
+            var leftover = offset == bytes.Length ? null : bytes.Skip(offset).Take(bytes.Length - offset).ToArray();
+            return new Tuple<List<SourceRconPacket>, byte[]>(packets, leftover);
         }
     }
 }

@@ -13,24 +13,24 @@
         <div class="card card-body">
             <table class="table table-responsive">
                 <thead>
-                    <tr>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Title)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.Hostname)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.LiveMap)
-                        </th>
-                        <th>
-                            @Html.DisplayNameFor(model => model.LiveMod)
-                        </th>
-                        <th></th>
-                    </tr>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Title)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Hostname)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.LiveMap)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.LiveMod)
+                    </th>
+                    <th></th>
+                </tr>
                 </thead>
                 <tbody>
                 @foreach (var item in Model)
@@ -44,7 +44,7 @@
                         </td>
                         <td>
                             @{
-                                var percentage = item.LiveCurrentPlayers / (double)item.LiveMaxPlayers * 100;
+                                var percentage = item.LiveCurrentPlayers / (double) item.LiveMaxPlayers * 100;
                             }
 
                             <div class="progress" style="margin-right: 20px">

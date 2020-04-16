@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -24,8 +23,6 @@ namespace XI.Servers.Query.Clients
         private string Hostname { get; set; }
         private int QueryPort { get; set; }
 
-        private bool _queryInProgress = false;
-
         public void Configure(string hostname, int queryPort)
         {
             if (string.IsNullOrWhiteSpace(hostname))
@@ -40,23 +37,33 @@ namespace XI.Servers.Query.Clients
 
         public Task<IQueryResponse> GetServerStatus()
         {
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
             var (infoQuery, infoQueryBytes) = Query(A2S_INFO());
-            var a = watch.Elapsed;
             var serverParams = GetParams(infoQueryBytes);
-            var b = watch.Elapsed;
 
             var (playersPreQuery, playersPreQueryBytes) = Query(A2S_PLAYERS_PRE());
-            var c = watch.Elapsed;
             var challengeResponse = playersPreQueryBytes.Skip(5).ToArray();
-            var d = watch.Elapsed;
             var (playersQuery, playersQueryBytes) = Query(A2S_PLAYERS(challengeResponse));
-            var e = watch.Elapsed;
 
             var players = ParsePlayers(playersQueryBytes);
 
             return Task.FromResult((IQueryResponse) new SourceQueryResponse(serverParams, players));
+        }
+
+        private byte[] A2S_INFO()
+        {
+            //ÿÿÿÿTSource Engine Query
+            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00};
+        }
+
+        private byte[] A2S_PLAYERS_PRE()
+        {
+            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF};
+        }
+
+        private byte[] A2S_PLAYERS(byte[] challengeResponse)
+        {
+            var start = new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55};
+            return start.Concat(challengeResponse).ToArray();
         }
 
         private static List<IQueryPlayer> ParsePlayers(byte[] responseBytes)
@@ -139,122 +146,53 @@ namespace XI.Servers.Query.Clients
             return temp;
         }
 
-        private byte[] A2S_INFO()
+
+        private Tuple<string, byte[]> Query(byte[] commandBytes)
         {
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00};
-        }
+            _logger.LogInformation("Executing command against server");
 
-        private byte[] A2S_PLAYERS_PRE()
-        {
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF};
-        }
-
-        private byte[] A2S_PLAYERS(byte[] challengeResponse)
-        {
-            var start = new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55};
-            return start.Concat(challengeResponse).ToArray();
-        }
-
-        private byte[] A2S_RULES_PRE()
-        {
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x56, 0xFF, 0xFF, 0xFF, 0xFF};
-        }
-
-        private byte[] A2S_RULES(byte[] challengeResponse)
-        {
-            var start = new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x56};
-            return start.Concat(challengeResponse).ToArray();
-        }
-
-        private Tuple<string, byte[]> Query(byte[] command)
-        {
-            if (_queryInProgress)
-                throw new Exception("There is already a query in progress");
-
-            _queryInProgress = true;
-
-            var commandHex = BitConverter.ToString(command);
-            var commandString = Encoding.UTF8.GetString(command);
-
-            _logger.LogInformation("Executing {CommandString} ({CommandHex}) command against server", commandString, commandHex);
+            UdpClient udpClient = null;
 
             try
             {
-                var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                {
-                    //SendTimeout = 5000,
-                    //ReceiveTimeout = 5000
-                };
+                var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                client.Connect(IPAddress.Parse(Hostname), QueryPort);
-                client.Send(command, SocketFlags.None);
+                udpClient = new UdpClient(QueryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient.Connect(Hostname, QueryPort);
+                udpClient.Send(commandBytes, commandBytes.Length);
 
-                int read;
-                var bufferOffset = 0;
-                var packages = 0;
-
-                var response = new byte[100 * 1024];
-                var remoteEndPoint = client.RemoteEndPoint;
-
+                var datagrams = new List<byte[]>();
                 do
                 {
-                    read = 0;
-                    try
-                    {
-                        if (packages > 0)
-                        {
-                            var tempBuffer = new byte[100 * 1024];
-                            read = client.ReceiveFrom(tempBuffer, ref remoteEndPoint);
+                    var datagramBytes = udpClient.Receive(ref remoteIpEndPoint);
+                    datagrams.Add(datagramBytes);
 
-                            var packets = tempBuffer[8] & 15;
-                            var packetNr = (tempBuffer[8] >> 4) + 1;
+                    if (udpClient.Available == 0)
+                        Thread.Sleep(1000);
+                } while (udpClient.Available > 0);
 
-                            if (packetNr < packets)
-                            {
-                                Array.Copy(response, 9, tempBuffer, read, bufferOffset);
-                                response = tempBuffer;
-                            }
-                            else
-                            {
-                                Array.Copy(tempBuffer, 9, response, bufferOffset, read);
-                            }
-                        }
-                        else
-                        {
-                            read = client.ReceiveFrom(response, ref remoteEndPoint);
-                        }
+                var responseText = new StringBuilder();
+                byte[] responseBytes = null;
 
-                        bufferOffset += read;
-                        packages++;
-                    }
-                    catch (SocketException ex)
-                    {
-                        _logger.LogError(ex, "Socket error {EX} executing {Command} against server", ex.Message, commandHex);
-                        break;
-                    }
-                } while (read > 0);
-
-                if (bufferOffset > 0 && bufferOffset < response.Length)
+                foreach (var datagram in datagrams)
                 {
-                    var temp = new byte[bufferOffset];
-                    for (var i = 0; i < temp.Length; i++) temp[i] = response[i];
-                    response = temp;
-                }
-                else
-                {
-                    _logger.LogError("Server response is either zero-length or exceeds buffer length");
+                    var datagramBytes = datagram;
+                    var datagramText = Encoding.Default.GetString(datagram);
+
+                    responseBytes = responseBytes == null ? datagramBytes : responseBytes.Concat(datagramBytes).ToArray();
+                    responseText.Append(datagramText);
                 }
 
-                return new Tuple<string, byte[]>(Encoding.Default.GetString(response), response);
+                return new Tuple<string, byte[]>(responseText.ToString(), responseBytes);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to execute command - {EX}", ex.Message);
+                _logger.LogError(ex, "Failed to execute command");
                 throw;
             }
             finally
             {
-                _queryInProgress = false;
+                udpClient?.Dispose();
             }
         }
     }

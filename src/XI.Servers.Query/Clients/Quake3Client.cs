@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using XI.Servers.Query.Models;
@@ -38,7 +39,7 @@ namespace XI.Servers.Query.Clients
 
         public Task<IQueryResponse> GetServerStatus()
         {
-            var queryResult = Query("getstatus");
+            var queryResult = Query(GetStatusPacket());
 
             var lines = queryResult.Substring(3).Split('\n');
             if (lines.Length < 2) return null;
@@ -56,6 +57,12 @@ namespace XI.Servers.Query.Clients
             }
 
             return Task.FromResult((IQueryResponse) new Quake3QueryResponse(serverParams, players));
+        }
+
+        private byte[] GetStatusPacket()
+        {
+            //ÿÿÿÿgetstatus
+            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x67, 0x65, 0x74, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73};
         }
 
         private static IQueryPlayer ParsePlayer(string playerInfo)
@@ -92,53 +99,52 @@ namespace XI.Servers.Query.Clients
             return serverParams;
         }
 
-        private string Query(string command)
+        private string Query(byte[] commandBytes)
         {
-            _logger.LogInformation("Executing {command} command against server", command);
+            _logger.LogInformation("Executing {command} command against server");
+
+            UdpClient udpClient = null;
 
             try
             {
-                var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp)
-                {
-                    SendTimeout = 5000,
-                    ReceiveTimeout = 5000
-                };
-                client.Connect(IPAddress.Parse(Hostname), QueryPort);
+                var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                var bufferTemp = Encoding.ASCII.GetBytes(command);
-                var bufferSend = new byte[bufferTemp.Length + 4];
+                udpClient = new UdpClient(QueryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient.Connect(Hostname, QueryPort);
+                udpClient.Send(commandBytes, commandBytes.Length);
 
-                bufferSend[0] = 0xFF;
-                bufferSend[1] = 0xFF;
-                bufferSend[2] = 0xFF;
-                bufferSend[3] = 0xFF;
-
-                var j = 4;
-                foreach (var commandBytes in bufferTemp)
-                {
-                    bufferSend[j] = commandBytes;
-                    j++;
-                }
-
-                client.Send(bufferSend, SocketFlags.None);
-
-                var response = new StringBuilder();
-
+                var datagrams = new List<string>();
                 do
                 {
-                    var recieveBuffer = new byte[65536];
-                    var bytesReceived = client.Receive(recieveBuffer);
-                    var data = Encoding.ASCII.GetString(recieveBuffer, 0, bytesReceived);
+                    var datagramBytes = udpClient.Receive(ref remoteIpEndPoint);
+                    var datagramText = Encoding.Default.GetString(datagramBytes);
 
-                    response.Append(data);
-                } while (client.Available > 0);
+                    datagrams.Add(datagramText);
 
-                return response.ToString().Replace("\0", "");
+                    if (udpClient.Available == 0)
+                        Thread.Sleep(1000);
+                } while (udpClient.Available > 0);
+
+                var responseText = new StringBuilder();
+
+                foreach (var datagram in datagrams)
+                {
+                    var text = datagram;
+                    if (text.IndexOf("print", StringComparison.Ordinal) == 4) text = text.Substring(10);
+
+                    responseText.Append(text);
+                }
+
+                return responseText.ToString();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to execute command");
                 throw;
+            }
+            finally
+            {
+                udpClient?.Dispose();
             }
         }
     }

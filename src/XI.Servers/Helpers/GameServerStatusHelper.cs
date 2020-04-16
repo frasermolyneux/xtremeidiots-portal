@@ -73,8 +73,8 @@ namespace XI.Servers.Helpers
 
             if (needsRconSync)
             {
-                //var rconPlayers = RconClient.GetPlayers();
-                //RefreshWithRconPlayers(rconPlayers);
+                var rconPlayers = RconClient.GetPlayers();
+                RefreshWithRconPlayers(rconPlayers);
                 _lastRconUpdate = DateTime.UtcNow;
             }
 

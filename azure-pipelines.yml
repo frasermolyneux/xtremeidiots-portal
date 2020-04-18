@@ -55,8 +55,8 @@ stages:
 
     - publish: $(Build.artifactStagingDirectory)/XI.Portal.FuncApp.zip
       displayName: Publish XI.Portal.FuncApp artifact
-      artifact: XI.Portal.FuncApp
-
+      artifact: funcapp
+      
     - publish: $(Build.artifactStagingDirectory)/terraform
       displayName: Publish terraform artifact
       artifact: terraform

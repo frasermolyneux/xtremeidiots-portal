@@ -213,11 +213,5 @@ namespace XI.Portal.Web.Controllers
                 data = playersListEntries
             });
         }
-
-        [HttpGet]
-        public async Task<IActionResult> Details(string id)
-        {
-            return null;
-        }
     }
 }

@@ -3,10 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Repository;
-using XI.Servers.Helpers;
 using XI.Servers.Rcon.Factories;
 
 namespace XI.Portal.Web.Controllers
@@ -15,17 +13,13 @@ namespace XI.Portal.Web.Controllers
     public class LiveRconController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
-        private readonly IGameServerStatusHelper _gameServerStatusHelper;
-        private readonly ILogger<LiveRconController> _logger;
         private readonly IRconClientFactory _rconClientFactory;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
-        public LiveRconController(ILogger<LiveRconController> logger,
-            IGameServersRepository gameServersRepository,
+        public LiveRconController(IGameServersRepository gameServersRepository,
             IRconClientFactory rconClientFactory)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }

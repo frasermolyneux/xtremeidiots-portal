@@ -47,7 +47,7 @@ stages:
     - task: ArchiveFiles@2
       displayName: "Package XI.Portal.FuncApp to artifact staging directory"
       inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/netcoreapp3.0/'
+        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/netcoreapp3.1/'
         includeRootFolder: false
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/XI.Portal.FuncApp.zip'

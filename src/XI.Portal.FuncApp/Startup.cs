@@ -17,8 +17,10 @@ namespace XI.Portal.FuncApp
     {
         public override void Configure(IFunctionsHostBuilder builder)
         {
+            var basePath = IsDevelopmentEnvironment() ? Environment.GetEnvironmentVariable("AzureWebJobsScriptRoot") : $"{Environment.GetEnvironmentVariable("HOME")}\\site\\wwwroot";
+
             var config = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
+                .SetBasePath(basePath)
                 .AddJsonFile("appsettings.json", false, false)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")}.json", true, false)
                 .AddJsonFile("local.settings.json", true, false)
@@ -49,6 +51,11 @@ namespace XI.Portal.FuncApp
                         options.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     });
                 });
+        }
+
+        private bool IsDevelopmentEnvironment()
+        {
+            return "Development".Equals(Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT"), StringComparison.OrdinalIgnoreCase);
         }
     }
 }

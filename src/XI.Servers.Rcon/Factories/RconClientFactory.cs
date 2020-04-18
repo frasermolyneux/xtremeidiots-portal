@@ -36,6 +36,8 @@ namespace XI.Servers.Rcon.Factories
                     rconClient = new Cod5RconClient(_logger);
                     break;
                 case GameType.Insurgency:
+                case GameType.Rust:
+                case GameType.Left4Dead2:
                     rconClient = new SourceRconClient(_logger);
                     break;
                 default:

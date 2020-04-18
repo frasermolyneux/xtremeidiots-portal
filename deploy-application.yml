@@ -94,3 +94,33 @@ stages:
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
               AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"'
+
+  - deployment: 'funcapp_deploy'
+    dependsOn: 'terraform_deploy'
+    pool: 
+      vmImage: 'windows-latest'
+
+    environment: 'xi-portal-${{ parameters.environment }}'
+
+    variables:
+    - name: appdata_storage_connection
+      value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.appdata_storage_connection'] ]
+
+    strategy:
+     runOnce:
+       deploy:
+         steps:
+          - download: current
+            displayName: 'Download funcapp artifact'
+            artifact: funcapp
+
+          - task: AzureFunctionApp@1
+            displayName: 'Azure Function App Deploy: XI-Portal-FuncApp-$(Environment)'
+            inputs:
+              azureSubscription: 'XI-Pay-As-You-Go'
+              appType: functionAppLinux
+              appName: 'XI-Portal-FuncApp-$(environment)'
+              deployToSlotOrASE: true
+              resourceGroupName: 'XI-Portal-Web-$(environment)'
+              package: '$(Pipeline.Workspace)/funcapp/XI.Portal.FuncApp.zip'
+              runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'

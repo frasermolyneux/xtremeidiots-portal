@@ -20,7 +20,7 @@ namespace XI.Portal.FuncApp
             var config = new ConfigurationBuilder()
                 .SetBasePath(Environment.CurrentDirectory)
                 .AddJsonFile("appsettings.json", false, false)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")}.json", false, false)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")}.json", true, false)
                 .AddJsonFile("local.settings.json", true, false)
                 .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
                 .AddEnvironmentVariables()

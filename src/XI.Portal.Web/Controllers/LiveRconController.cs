@@ -13,14 +13,17 @@ namespace XI.Portal.Web.Controllers
     public class LiveRconController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRconClientFactory _rconClientFactory;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
         public LiveRconController(IGameServersRepository gameServersRepository,
+            IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
@@ -45,7 +48,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var model = await _gameServersRepository.GetServerStatus(id, User, _requiredClaims);
+            var model = await _gameServerStatusRepository.GetStatus((Guid) id, User, _requiredClaims, TimeSpan.FromSeconds(15));
 
             return Json(new
             {
@@ -62,7 +65,7 @@ namespace XI.Portal.Web.Controllers
 
             var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
 
-            var rconClient = _rconClientFactory.CreateInstance(model.GameType, model.Title, model.Hostname, model.QueryPort, model.RconPassword);
+            var rconClient = _rconClientFactory.CreateInstance(model.GameType, model.ServerId, model.Hostname, model.QueryPort, model.RconPassword);
 
             rconClient.KickPlayer(num);
 

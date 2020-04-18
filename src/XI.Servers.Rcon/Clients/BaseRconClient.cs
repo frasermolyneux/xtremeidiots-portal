@@ -15,16 +15,16 @@ namespace XI.Servers.Rcon.Clients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public string ServerName { get; set; }
+        public Guid ServerId { get; set; }
         public string Hostname { get; private set; }
         public int QueryPort { get; private set; }
         public string RconPassword { get; private set; }
         public List<TimeSpan> RetryOverride { get; set; }
         public virtual Regex PlayerRegex { get; set; }
 
-        public void Configure(string serverName, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride)
+        public void Configure(Guid serverId, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride)
         {
-            ServerName = serverName;
+            ServerId = serverId;
             Hostname = hostname;
             QueryPort = queryPort;
             RconPassword = rconPassword;
@@ -33,55 +33,55 @@ namespace XI.Servers.Rcon.Clients
 
         public virtual List<IRconPlayer> GetPlayers()
         {
-            _logger.LogWarning("[{serverName}] GetPlayers not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] GetPlayers not currently implemented", ServerId);
             return new List<IRconPlayer>();
         }
 
         public virtual string PlayerStatus()
         {
-            _logger.LogWarning("[{serverName}] PlayerStatus not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] PlayerStatus not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string KickPlayer(string targetPlayerNum)
         {
-            _logger.LogWarning("[{serverName}] KickPlayer not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] KickPlayer not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string BanPlayer(string targetPlayerNum)
         {
-            _logger.LogWarning("[{serverName}] BanPlayer not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] BanPlayer not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string RestartServer()
         {
-            _logger.LogWarning("[{serverName}] RestartServer not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] RestartServer not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string RestartMap()
         {
-            _logger.LogWarning("[{serverName}] RestartMap not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] RestartMap not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string NextMap()
         {
-            _logger.LogWarning("[{serverName}] NextMap not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] NextMap not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string MapRotation()
         {
-            _logger.LogWarning("[{serverName}] MapRotation not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] MapRotation not currently implemented", ServerId);
             return string.Empty;
         }
 
         public virtual string Say(string message)
         {
-            _logger.LogWarning("[{serverName}] Say not currently implemented", ServerName);
+            _logger.LogWarning("[{serverId}] Say not currently implemented", ServerId);
             return string.Empty;
         }
 

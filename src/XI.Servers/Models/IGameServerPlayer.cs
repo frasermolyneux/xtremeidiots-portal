@@ -1,6 +1,6 @@
 ﻿namespace XI.Servers.Models
 {
-    public interface IGameServerPlayer
+    internal interface IGameServerPlayer
     {
         string Num { get; }
         string Guid { get; }

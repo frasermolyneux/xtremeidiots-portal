@@ -88,7 +88,7 @@ namespace XI.Portal.Servers.Repository
                 {
                     var rconClient = _rconClientFactory.CreateInstance(
                         rconMonitor.GameServerServer.GameType,
-                        rconMonitor.GameServerServer.Title,
+                        rconMonitor.GameServerServer.ServerId,
                         rconMonitor.GameServerServer.Hostname,
                         rconMonitor.GameServerServer.QueryPort,
                         rconMonitor.GameServerServer.RconPassword,

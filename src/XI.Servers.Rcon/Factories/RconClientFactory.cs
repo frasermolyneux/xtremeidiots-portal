@@ -15,12 +15,12 @@ namespace XI.Servers.Rcon.Factories
             _logger = logger;
         }
 
-        public IRconClient CreateInstance(GameType gameType, string serverName, string hostname, int queryPort, string rconPassword)
+        public IRconClient CreateInstance(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
         {
-            return CreateInstance(gameType, serverName, hostname, queryPort, rconPassword, null);
+            return CreateInstance(gameType, serverId, hostname, queryPort, rconPassword, null);
         }
 
-        public IRconClient CreateInstance(GameType gameType, string serverName, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride)
+        public IRconClient CreateInstance(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride)
         {
             IRconClient rconClient;
 
@@ -42,7 +42,7 @@ namespace XI.Servers.Rcon.Factories
                     throw new Exception("Unsupported game type");
             }
 
-            rconClient.Configure(serverName, hostname, queryPort, rconPassword, retryOverride);
+            rconClient.Configure(serverId, hostname, queryPort, rconPassword, retryOverride);
             return rconClient;
         }
     }

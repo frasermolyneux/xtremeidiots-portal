@@ -24,5 +24,10 @@ namespace XI.Portal.Servers.Extensions
         {
             options.RconMonitorsRepositoryOptions = repositoryOptions;
         }
+
+        public static void ConfigureGameServerStatusRepository(this IServersModuleOptions options, Action<IGameServerStatusRepositoryOptions> repositoryOptions)
+        {
+            options.GameServerStatusRepositoryOptions = repositoryOptions;
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace XI.Servers.Factories
 {
     public class GameServerStatusHelperFactory : IGameServerStatusHelperFactory
     {
-        private readonly Dictionary<string, IGameServerStatusHelper> _instances = new Dictionary<string, IGameServerStatusHelper>();
+        private readonly Dictionary<Guid, IGameServerStatusHelper> _instances = new Dictionary<Guid, IGameServerStatusHelper>();
         private readonly ILogger<GameServerStatusHelperFactory> _logger;
         private readonly IQueryClientFactory _queryClientFactory;
         private readonly IRconClientFactory _rconClientFactory;
@@ -22,14 +22,14 @@ namespace XI.Servers.Factories
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public IGameServerStatusHelper GetGameServerStatusHelper(GameType gameType, string serverName, string hostname, int queryPort, string rconPassword)
+        public IGameServerStatusHelper GetGameServerStatusHelper(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
         {
-            if (_instances.ContainsKey(serverName)) return _instances[serverName];
+            if (_instances.ContainsKey(serverId)) return _instances[serverId];
 
             IGameServerStatusHelper gameServerStatusHelper = new GameServerStatusHelper(_logger, _queryClientFactory, _rconClientFactory);
-            gameServerStatusHelper.Configure(gameType, serverName, hostname, queryPort, rconPassword);
+            gameServerStatusHelper.Configure(gameType, serverId, hostname, queryPort, rconPassword);
 
-            _instances.Add(serverName, gameServerStatusHelper);
+            _instances.Add(serverId, gameServerStatusHelper);
 
             return gameServerStatusHelper;
         }

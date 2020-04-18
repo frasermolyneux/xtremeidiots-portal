@@ -1,38 +1,41 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
-using XI.Servers.Factories;
+using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.FuncApp
 {
     public class UpdateGameServerStatus
     {
-        private readonly IGameServerStatusHelperFactory _gameServerStatusHelperFactory;
+        private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly LegacyPortalContext _legacyContext;
 
-        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusHelperFactory gameServerStatusHelperFactory)
+        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusRepository gameServerStatusRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
-            _gameServerStatusHelperFactory = gameServerStatusHelperFactory ?? throw new ArgumentNullException(nameof(gameServerStatusHelperFactory));
+            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
         }
 
         [FunctionName("UpdateGameServerStatus")]
-        public async void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            foreach (var server in _legacyContext.GameServers.Where(server => server.ShowOnPortalServerList))
+            var servers = await _legacyContext.GameServers.Where(server => server.ShowOnPortalServerList).ToListAsync();
+
+            foreach (var server in servers)
             {
                 log.LogInformation("Updating game server status for {Title}", server.Title);
 
                 try
                 {
-                    var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(server.GameType, server.Title, server.Hostname, server.QueryPort, server.RconPassword);
-                    var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
+                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-15));
 
-                    log.LogInformation($"{gameServerStatus.ServerName} is online running {gameServerStatus.Map} with {gameServerStatus.PlayerCount} players connected");
+                    log.LogInformation($"{model.ServerName} is online running {model.Map} with {model.PlayerCount} players connected");
                 }
                 catch (Exception ex)
                 {

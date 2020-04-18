@@ -6,7 +6,7 @@ namespace XI.Servers.Rcon.Clients
 {
     public interface IRconClient
     {
-        void Configure(string serverName, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride);
+        void Configure(Guid serverId, string hostname, int queryPort, string rconPassword, List<TimeSpan> retryOverride);
         List<IRconPlayer> GetPlayers();
         string PlayerStatus();
         string KickPlayer(string targetPlayerNum);

@@ -12,6 +12,9 @@ namespace XI.Portal.Servers.Extensions
     {
         public static IQueryable<GameServers> ApplyAuthPolicies(this DbSet<GameServers> gameServers, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
+            if (claimsPrincipal == null || requiredClaims == null)
+                return gameServers.AsQueryable();
+
             var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
             return gameServers.Where(server => gameTypes.Contains(server.GameType) || serverIds.Contains(server.ServerId)).AsQueryable();
         }

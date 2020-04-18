@@ -12,6 +12,9 @@ namespace XI.Portal.Servers.Extensions
     {
         public static IQueryable<BanFileMonitors> ApplyAuthPolicies(this DbSet<BanFileMonitors> banFileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
+            if (claimsPrincipal == null || requiredClaims == null)
+                return banFileMonitors.AsQueryable();
+
             var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
             var query = banFileMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
 

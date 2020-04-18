@@ -7,7 +7,7 @@ using XI.Servers.Rcon.Models;
 
 namespace XI.Servers.Models
 {
-    internal class GameServerPlayer : IGameServerPlayer
+    public class GameServerPlayer : IGameServerPlayer
     {
         private readonly IQueryPlayer _queryPlayer;
 

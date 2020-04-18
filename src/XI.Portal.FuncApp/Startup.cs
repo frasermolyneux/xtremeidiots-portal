@@ -39,6 +39,11 @@ namespace XI.Portal.FuncApp
                 options.ConfigureBanFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureRconMonitorsRepository(repositoryOptions => { });
+                options.ConfigureGameServerStatusRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["GameServerStatusRepository:StorageTableName"];
+                });
             });
 
             builder.Services.AddLogging(

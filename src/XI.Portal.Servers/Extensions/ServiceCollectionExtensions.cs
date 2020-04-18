@@ -65,6 +65,17 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddScoped<IRconMonitorsRepository, RconMonitorsRepository>();
             }
 
+            if (options.GameServerStatusRepositoryOptions != null)
+            {
+                IGameServerStatusRepositoryOptions subOptions = new GameServerStatusRepositoryOptions();
+                options.GameServerStatusRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IGameServerStatusRepository, GameServerStatusRepository>();
+            }
+
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();
             serviceCollection.AddSingleton<IRconClientFactory, RconClientFactory>();

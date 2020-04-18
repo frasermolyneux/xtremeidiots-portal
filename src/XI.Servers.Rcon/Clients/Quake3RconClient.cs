@@ -112,7 +112,7 @@ namespace XI.Servers.Rcon.Clients
         private string ExecuteCommand(string rconCommand)
         {
             var commandResult = Policy.Handle<Exception>()
-                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", ServerName, retryCount); })
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", ServerId, retryCount); })
                 .Execute(() => ExecuteCommandInternal(rconCommand));
 
             return commandResult;
@@ -120,7 +120,7 @@ namespace XI.Servers.Rcon.Clients
 
         private string ExecuteCommandInternal(string rconCommand)
         {
-            _logger.LogInformation("[{serverName}] Executing {command} command against server", ServerName, rconCommand);
+            _logger.LogInformation("[{serverName}] Executing {command} command against server", ServerId, rconCommand);
 
             UdpClient udpClient = null;
 
@@ -159,7 +159,7 @@ namespace XI.Servers.Rcon.Clients
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{serverName}] Failed to execute rcon command", ServerName);
+                _logger.LogError(ex, "[{serverName}] Failed to execute rcon command", ServerId);
                 throw;
             }
             finally

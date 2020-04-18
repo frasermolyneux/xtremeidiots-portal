@@ -12,7 +12,6 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
 using XI.Servers.Factories;
-using XI.Servers.Models;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -100,7 +99,7 @@ namespace XI.Portal.Servers.Repository
             foreach (var serverMonitor in serverMonitors)
                 try
                 {
-                    var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(serverMonitor.GameType, serverMonitor.Title, serverMonitor.Hostname, serverMonitor.QueryPort, serverMonitor.RconPassword);
+                    var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(serverMonitor.GameType, serverMonitor.ServerId, serverMonitor.Hostname, serverMonitor.QueryPort, serverMonitor.RconPassword);
                     var result = await gameServerStatusHelper.GetServerStatus();
 
                     var errorMessage = string.Empty;
@@ -130,14 +129,6 @@ namespace XI.Portal.Servers.Repository
                 }
 
             return results;
-        }
-
-        public async Task<IGameServerStatus> GetServerStatus(Guid? id, ClaimsPrincipal user, string[] requiredClaims)
-        {
-            var model = await GetGameServer(id, user, requiredClaims);
-
-            var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(model.GameType, model.Title, model.Hostname, model.QueryPort, model.RconPassword);
-            return await gameServerStatusHelper.GetServerStatus();
         }
     }
 }

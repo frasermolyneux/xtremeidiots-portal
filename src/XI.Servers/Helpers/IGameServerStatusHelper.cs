@@ -1,12 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using XI.CommonTypes;
-using XI.Servers.Models;
+using XI.Servers.Dto;
 
 namespace XI.Servers.Helpers
 {
     public interface IGameServerStatusHelper
     {
-        void Configure(GameType gameType, string serverName, string hostname, int queryPort, string rconPassword);
-        Task<IGameServerStatus> GetServerStatus();
+        void Configure(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword);
+        Task<GameServerStatusDto> GetServerStatus();
     }
 }

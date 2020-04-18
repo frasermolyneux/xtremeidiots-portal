@@ -8,6 +8,7 @@ namespace XI.Portal.Servers.Configuration
         Action<IBanFileMonitorsRepositoryOptions> BanFileMonitorsRepositoryOptions { get; set; }
         Action<IFileMonitorsRepositoryOptions> FileMonitorsRepositoryOptions { get; set; }
         Action<IRconMonitorsRepositoryOptions> RconMonitorsRepositoryOptions { get; set; }
+        Action<IGameServerStatusRepositoryOptions> GameServerStatusRepositoryOptions { get; set; }
 
         void Validate();
     }

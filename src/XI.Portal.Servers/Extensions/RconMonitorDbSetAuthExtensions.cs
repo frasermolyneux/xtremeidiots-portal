@@ -10,10 +10,13 @@ namespace XI.Portal.Servers.Extensions
 {
     public static class RconMonitorDbSetAuthExtensions
     {
-        public static IQueryable<RconMonitors> ApplyAuthPolicies(this DbSet<RconMonitors> banFileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<RconMonitors> ApplyAuthPolicies(this DbSet<RconMonitors> rconMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
+            if (claimsPrincipal == null || requiredClaims == null)
+                return rconMonitors.AsQueryable();
+
             var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
-            var query = banFileMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
+            var query = rconMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
 
             return query.Where(server => gameTypes.Contains(server.GameServerServer.GameType)).AsQueryable();
         }

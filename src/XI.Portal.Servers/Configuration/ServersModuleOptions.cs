@@ -8,6 +8,7 @@ namespace XI.Portal.Servers.Configuration
         public Action<IBanFileMonitorsRepositoryOptions> BanFileMonitorsRepositoryOptions { get; set; }
         public Action<IFileMonitorsRepositoryOptions> FileMonitorsRepositoryOptions { get; set; }
         public Action<IRconMonitorsRepositoryOptions> RconMonitorsRepositoryOptions { get; set; }
+        public Action<IGameServerStatusRepositoryOptions> GameServerStatusRepositoryOptions { get; set; }
 
         public void Validate()
         {
@@ -22,6 +23,9 @@ namespace XI.Portal.Servers.Configuration
 
             if (RconMonitorsRepositoryOptions == null)
                 throw new NullReferenceException(nameof(RconMonitorsRepositoryOptions));
+
+            if (GameServerStatusRepositoryOptions == null)
+                throw new NullReferenceException(nameof(GameServerStatusRepositoryOptions));
         }
     }
 }

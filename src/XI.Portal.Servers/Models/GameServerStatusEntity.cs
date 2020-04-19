@@ -34,12 +34,15 @@ namespace XI.Portal.Servers.Models
 
         [EntityJsonPropertyConverter] public IList<GameServerPlayerDto> Players { get; set; }
         public Guid ServerId { get; set; }
+
+        [EntityEnumPropertyConverter]
         public GameType GameType { get; set; }
 
         public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
         {
             var results = base.WriteEntity(operationContext);
             EntityJsonPropertyConverter.Serialize(this, results);
+            EntityEnumPropertyConverter.Serialize(this, results);
             return results;
         }
 
@@ -48,6 +51,7 @@ namespace XI.Portal.Servers.Models
         {
             base.ReadEntity(properties, operationContext);
             EntityJsonPropertyConverter.Deserialize(this, properties);
+            EntityEnumPropertyConverter.Deserialize(this, properties);
         }
     }
 }

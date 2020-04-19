@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using XI.Servers.Dto;
 
-namespace XI.Portal.Servers.Repository
+namespace XI.Portal.Servers.Interfaces
 {
     public interface IGameServerStatusRepository
     {

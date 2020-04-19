@@ -9,6 +9,7 @@ using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Helpers;
+using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Repository

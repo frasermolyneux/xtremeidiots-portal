@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Models;
 
-namespace XI.Portal.Servers.Repository
+namespace XI.Portal.Servers.Interfaces
 {
     public interface IGameServersRepository
     {

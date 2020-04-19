@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Helpers;
+using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Repository;
 using XI.Servers.Factories;
 using XI.Servers.Interfaces;

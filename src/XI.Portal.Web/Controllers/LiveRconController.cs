@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Repository;
 using XI.Servers.Interfaces;
 

@@ -1,159 +1,82 @@
-﻿@using XI.CommonTypes
-@using XI.Portal.Auth.Contract.Constants
-@using XI.Portal.Web.Extensions
+﻿@using XI.Portal.Web.Extensions
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - XI Portal</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css"/>
-    <link rel="stylesheet" href="~/css/site.css"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    @if (IsSectionDefined("Styles"))
+    {
+        @RenderSection("Styles", false)
+    }
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css"/>
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css"/>
+        <link rel="stylesheet" href="~/css/animate.css"/>
+        <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.css"/>
+        <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true"/>
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css"/>
+        <link rel="stylesheet" href="~/css/animate.css"/>
+        <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css"/>
+        <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true"/>
+    </environment>
+
+
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">XI Portal</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                <partial name="_LoginPartial"/>
 
-                <ul class="navbar-nav flex-grow-1">
 
-                    <li class="nav-item">
-                        <a class="nav-link" asp-controller="Maps" asp-action="Index">Maps</a>
-                    </li>
+<!-- Wrapper-->
+<div id="wrapper" class="@Html.PageClass()">
 
-                    <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarPlayersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Players
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarPlayersDropDown">
-                            <a class="dropdown-item" asp-controller="Players" asp-action="GlobalPlayers">Global Players Index</a>
-                            <a class="dropdown-item" asp-controller="Players" asp-action="IpSearch">IP Search</a>
+    <!-- Navigation -->
+    <partial name="_Navigation"/>
 
-                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
-                            {
-                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) Call of Duty 2</a>
-                            }
+    <!-- Page wrapper -->
+    <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
 
-                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
-                            {
-                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) Call of Duty 4</a>
-                            }
+        <!-- Top Navbar -->
+        <partial name="_TopNavbar"/>
 
-                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
-                            {
-                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) Call of Duty 5</a>
-                            }
-
-                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.Insurgency.ToString()))
-                            {
-                                <a class="dropdown-item" asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">@Html.GameTypeIcon(GameType.Insurgency) Insurgency</a>
-                            }
-                        </div>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.ServersManagement" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarServersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Management
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarServersDropDown">
-                            <a class="dropdown-item" asp-controller="GameServers" asp-action="Index">Game Servers</a>
-                            <a class="dropdown-item" asp-controller="RconMonitors" asp-action="Index">Rcon Monitors</a>
-                            <a class="dropdown-item" asp-controller="FileMonitors" asp-action="Index">File Monitors</a>
-                            <a class="dropdown-item" asp-controller="BanFileMonitors" asp-action="Index">Ban File Monitors</a>
-                        </div>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.RootPolicy" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarUsersDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Users
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarUsersDropDown">
-                            <a class="dropdown-item" asp-controller="User" asp-action="Index">Manage Users</a>
-                        </div>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.RootPolicy" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarMigrationDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Migration
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarMigrationDropDown">
-                            <a class="dropdown-item" asp-controller="Migration" asp-action="MigrateUsers">Migrate Legacy Users</a>
-                            <a class="dropdown-item" asp-controller="Migration" asp-action="MigrateDemoAuthKeys">Migrate Demo Auth Keys</a>
-                            <a class="dropdown-item" asp-controller="Migration" asp-action="MigrateDemos">Migrate Demos</a>
-                        </div>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.ViewServiceStatus" class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarStatusDropDown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Service Status
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarStatusDropDown">
-                            <a class="dropdown-item" asp-controller="Status" asp-action="GameServerStatus">Game Server Status</a>
-                            <a class="dropdown-item" asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
-                            <a class="dropdown-item" asp-controller="Status" asp-action="LogFileStatus">Log File Status</a>
-                            <a class="dropdown-item" asp-controller="Status" asp-action="RconStatus">Rcon Status</a>
-                        </div>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="nav-item">
-                        <a class="nav-link" asp-controller="Credentials" asp-action="Index">Credentials</a>
-                    </li>
-
-                    <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="nav-item">
-                        <a class="nav-link" asp-controller="LiveRcon" asp-action="Index">Live Rcon</a>
-                    </li>
-
-                </ul>
-
-            </div>
-        </div>
-    </nav>
-</header>
-<div class="container-wider">
-    <main role="main" class="pb-3">
+        <!-- Main view  -->
         @RenderBody()
-    </main>
-</div>
 
-<div style="bottom: 0; position: fixed; width: 100%;">
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-bottom: 25px; margin-left: 40px; margin-right: 40px;">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
+        <!-- Footer -->
+        <partial name="_Footer"/>
 
-    @if (TempData["Info"] != null)
-    {
-        <div class="alert alert-info alert-dismissible fade show" role="alert" style="margin-bottom: 25px; margin-left: 40px; margin-right: 40px;">
-            @TempData["Info"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-</div>
-
-<footer class="border-top footer text-muted">
-    <div class="container">
-        &copy; 2020 - Fraser Molyneux
     </div>
-</footer>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@RenderSection("Scripts", false)
+    <!-- End page wrapper-->
+
+</div>
+<!-- End wrapper-->
+
+<environment names="Development">
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/Popper/popper.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+    <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
+    <script src="~/lib/pace/pace.js"></script>
+    <script src="~/lib/datatables/js/jquery.dataTables.js"></script>
+    <script src="~/js/inspinia.js" asp-append-version="true"></script>
+</environment>
+<environment names="Staging,Production">
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/Popper/popper.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+    <script src="~/lib/pace/pace.min.js"></script>
+    <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
+    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/js/inspinia.js" asp-append-version="true"></script>
+</environment>
+
+@RenderSection("scripts", false)
 </body>
 </html>

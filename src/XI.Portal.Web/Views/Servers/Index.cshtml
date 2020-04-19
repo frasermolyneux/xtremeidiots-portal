@@ -1,0 +1,89 @@
+﻿@using XI.Portal.Web.Extensions
+@model System.Collections.Generic.List<XI.Servers.Dto.GameServerStatusDto>
+
+@{
+    ViewData["Title"] = "Game Servers";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-header">
+            @ViewData["Title"]
+        </div>
+        <div class="card card-body">
+            <table class="table table-responsive w-100 d-block d-md-table">
+                <thead>
+                    <tr>
+                        <th>
+                        </th>
+                        <th>
+                            @Html.Label("Title")
+                        </th>
+                        <th>
+                            @Html.Label("Hostname")
+                        </th>
+                        <th></th>
+                        <th>
+                            @Html.Label("Players")
+                        </th>
+                        <th>
+                            @Html.Label("Map")
+                        </th>
+                        <th>
+                            @Html.Label("Mod")
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.GameTypeIcon(item.GameType)
+                            </td>
+                            <td>
+                                @Html.ServerName(null, item.ServerName)
+                            </td>
+                            <td>
+                                @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+
+                            </td>
+                            <td>
+                                @Html.GameTrackerIcon(item.Hostname, item.QueryPort)
+                                @Html.SteamIcon(item.GameType, item.Hostname, item.QueryPort)
+                                @Html.HlswIcon(item.GameType, item.Hostname, item.QueryPort)
+                            </td>
+                            <td>
+                                @{
+                                    var percentage = (double)item.PlayerCount / item.MaxPlayers * 100;
+                                }
+
+                                <div class="progress" style="margin-right: 20px">
+                                    <div style="width: @percentage%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="@percentage" role="progressbar" class="progress-bar">
+                                        <span class="sr-only">@percentage% Slots Filled</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Map)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Mod)
+                            </td>
+                            <td>
+                                @*@Html.ActionLink("Server Info", "ServerInfo", new { id = item.ServerId })
+
+                                    @if (User.Identity.IsInAdminOrModeratorRole() && item.ShowChatLog)
+                                    {
+                                        @Html.Raw("| ")
+                                        @Html.ActionLink("Chat Log", "ChatLog", new { id = item.ServerId })
+                                    }*@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</row>

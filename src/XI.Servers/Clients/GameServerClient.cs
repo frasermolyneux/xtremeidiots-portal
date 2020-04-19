@@ -19,7 +19,10 @@ namespace XI.Servers.Clients
 
         private GameType _gameType;
 
+        private string _hostname;
+
         private DateTime _lastRconUpdate = DateTime.UtcNow;
+        private int _queryPort;
         private Guid _serverIdentifier;
 
         public GameServerClient(ILogger logger, IQueryClientFactory queryClientFactory, IRconClientFactory rconClientFactory)
@@ -43,6 +46,8 @@ namespace XI.Servers.Clients
 
             _gameType = gameType;
             _serverIdentifier = serverId;
+            _hostname = hostname;
+            _queryPort = queryPort;
         }
 
         public async Task<GameServerStatusDto> GetServerStatus()
@@ -87,10 +92,13 @@ namespace XI.Servers.Clients
             {
                 ServerId = _serverIdentifier,
                 GameType = _gameType,
+                Hostname = _hostname,
+                QueryPort = _queryPort,
                 ServerName = queryResponse.ServerName,
                 Map = queryResponse.Map,
                 Mod = queryResponse.Mod,
                 PlayerCount = queryResponse.PlayerCount,
+                MaxPlayers = queryResponse.MaxPlayers,
                 Players = Players.Select(player => new GameServerPlayerDto
                 {
                     Num = player.Num,

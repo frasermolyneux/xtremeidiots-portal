@@ -52,7 +52,7 @@
     </a>
 </li>
 
-@*<li class="@Html.IsSelected("Servers")">
+<li class="@Html.IsSelected("Servers")">
     <a asp-controller="Servers">
         <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
     </a>
@@ -61,7 +61,7 @@
             <a asp-controller="Servers" asp-action="Index">Our Servers</a>
         </li>
     </ul>
-</li>*@
+</li>
 
 <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="@Html.IsSelected("Credentials", "Index")">
     <a asp-controller="Credentials" asp-action="Index">

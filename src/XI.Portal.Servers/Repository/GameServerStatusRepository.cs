@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Interfaces;
@@ -32,7 +33,7 @@ namespace XI.Portal.Servers.Repository
             _statusTable.CreateIfNotExists();
         }
 
-        public async Task<GameServerStatusDto> GetStatus(Guid serverId, ClaimsPrincipal user, IEnumerable<string> requiredClaims, TimeSpan cacheCutoff)
+        public async Task<GameServerStatusDto> GetStatus(Guid serverId, ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff)
         {
             var tableOperation = TableOperation.Retrieve<GameServerStatusEntity>("status", serverId.ToString());
             var result = await _statusTable.ExecuteAsync(tableOperation);
@@ -57,10 +58,13 @@ namespace XI.Portal.Servers.Repository
             {
                 ServerId = storedGameServerStatus.ServerId,
                 GameType = storedGameServerStatus.GameType,
+                Hostname = storedGameServerStatus.Hostname,
+                QueryPort = storedGameServerStatus.QueryPort,
                 ServerName = storedGameServerStatus.ServerName,
                 Map = storedGameServerStatus.Map,
                 Mod = storedGameServerStatus.Mod,
                 PlayerCount = storedGameServerStatus.PlayerCount,
+                MaxPlayers = storedGameServerStatus.MaxPlayers,
                 Players = storedGameServerStatus.Players
             };
 
@@ -75,6 +79,52 @@ namespace XI.Portal.Servers.Repository
             await _statusTable.ExecuteAsync(operation);
         }
 
+        public async Task<List<GameServerStatusDto>> GetAllStatusModels(ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff)
+        {
+            var query = new TableQuery<GameServerStatusEntity>().AsTableQuery();
+
+            var results = new List<GameServerStatusDto>();
+
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResult = await _statusTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                foreach (var entity in queryResult)
+                {
+                    if (entity.Timestamp < DateTime.UtcNow + cacheCutoff)
+                    {
+                        var refreshedGameServerStatusDto = await RefreshGameServerStatus(entity.ServerId);
+
+                        if (UserHasRequiredPermission(user, requiredClaims, refreshedGameServerStatusDto))
+                            results.Add(refreshedGameServerStatusDto);
+
+                        continue;
+                    }
+
+                    var gameServerStatusDto = new GameServerStatusDto
+                    {
+                        ServerId = entity.ServerId,
+                        GameType = entity.GameType,
+                        ServerName = entity.ServerName,
+                        Hostname = entity.Hostname,
+                        QueryPort = entity.QueryPort,
+                        Map = entity.Map,
+                        Mod = entity.Mod,
+                        PlayerCount = entity.PlayerCount,
+                        MaxPlayers = entity.MaxPlayers,
+                        Players = entity.Players
+                    };
+
+                    if (UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto))
+                        results.Add(gameServerStatusDto);
+                }
+
+                continuationToken = queryResult.ContinuationToken;
+            } while (continuationToken != null);
+
+            return results;
+        }
+
         private async Task<GameServerStatusDto> RefreshGameServerStatus(Guid serverId)
         {
             var server = await _gameServersRepository.GetGameServer(serverId, null, null);
@@ -86,7 +136,7 @@ namespace XI.Portal.Servers.Repository
             return gameServerStatus;
         }
 
-        private bool UserHasRequiredPermission(ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims, GameServerStatusDto gameServerStatusDto)
+        private bool UserHasRequiredPermission(ClaimsPrincipal claimsPrincipal, string[] requiredClaims, GameServerStatusDto gameServerStatusDto)
         {
             if (claimsPrincipal == null && requiredClaims == null) return true;
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 
@@ -16,6 +17,7 @@ namespace XI.Servers.Models
 
         public string Map => ServerParams.ContainsKey("mapname") ? ServerParams["mapname"] : null;
         public string Mod => ServerParams.ContainsKey("modname") ? ServerParams["modname"] : null;
+        public int MaxPlayers => ServerParams.ContainsKey("maxplayers") ? Convert.ToInt32(ServerParams["maxplayers"]) : 0;
 
         public int PlayerCount => Players.Count;
 

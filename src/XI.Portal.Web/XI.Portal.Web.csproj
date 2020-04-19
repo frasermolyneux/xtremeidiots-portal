@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\game-icons\" />
+    <Folder Include="wwwroot\images\service-icons\" />
   </ItemGroup>
 
 </Project>

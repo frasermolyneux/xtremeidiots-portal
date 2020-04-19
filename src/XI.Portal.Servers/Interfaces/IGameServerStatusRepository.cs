@@ -8,7 +8,8 @@ namespace XI.Portal.Servers.Interfaces
 {
     public interface IGameServerStatusRepository
     {
-        Task<GameServerStatusDto> GetStatus(Guid serverId, ClaimsPrincipal user, IEnumerable<string> requiredClaims, TimeSpan cacheCutoff);
+        Task<GameServerStatusDto> GetStatus(Guid serverId, ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff);
         Task UpdateStatus(Guid id, GameServerStatusDto model);
+        Task<List<GameServerStatusDto>> GetAllStatusModels(ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff);
     }
 }

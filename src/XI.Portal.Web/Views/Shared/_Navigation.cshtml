@@ -1,192 +1,215 @@
-﻿@using XI.CommonTypes
+﻿@using Microsoft.AspNetCore.Identity
+@using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Auth.Contract.Extensions
+@using XI.Portal.Auth.Contract.Models
 @using XI.Portal.Web.Extensions
+@inject SignInManager<PortalIdentityUser> SignInManager
 <nav class="navbar-default navbar-static-side" role="navigation">
-    <div class="sidebar-collapse">
-        <ul class="nav metismenu" id="side-menu">
-            <li class="nav-header">
-                <div class="dropdown profile-element">
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                        <span class="block m-t-xs font-bold">Username</span>
-                        <span class="text-muted text-xs block">Title <b class="caret"></b></span>
-                    </a>
-                    <ul class="dropdown-menu animated fadeInRight m-t-xs" style="left: 0px; position: absolute; top: 91px; will-change: top, left;">
-                        <li>
-                            <a class="dropdown-item" href="#">Logout</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="logo-element">
-                    IN+
-                </div>
-            </li>
+<div class="sidebar-collapse">
+<ul class="nav metismenu" id="side-menu">
+<li class="nav-header">
 
-            <li>
-                <hr/>
-            </li>
 
-            <li class="@Html.IsSelected("Home", "Index")">
-                <a asp-controller="Home" asp-action="Index">
-                    <i class="fa fa-home"></i> <span class="nav-label">Home</span>
-                </a>
-            </li>
 
-            <li class="@Html.IsSelected("Servers")">
-                <a asp-controller="Servers">
-                    <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Servers", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "Index")">
-                        <a asp-controller="Servers" asp-action="Index">Our Servers</a>
-                    </li>
-                </ul>
-            </li>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <div class="dropdown profile-element">
+            <img src="@(User.PhotoUrl())" alt="Avatar" style="border-radius: 50%; max-height: 180px; max-width: 180px">
+            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                <span class="block m-t-xs font-bold">
+                    @User.Identity.Name <b class="caret"></b>
+                </span>
+            </a>
+            <ul class="dropdown-menu m-t-xs" style="left: 0px; position: absolute; top: 91px; will-change: top, left;">
+                <li>
+                    <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
+                        <button class="dropdown-item" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="dropdown profile-element">
+            <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots" method="post">
+                <button type="submit" class="btn btn-primary">XtremeIdiots Login</button>
+            </form>
+        </div>
+    }
 
-            <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="@Html.IsSelected("Credentials", "Index")">
-                <a asp-controller="Credentials" asp-action="Index">
-                    <i class="fa fa-key"></i> <span class="nav-label">Credentials</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("LiveRcon", "Index")">
-                <a asp-controller="LiveRcon" asp-action="Index">
-                    <i class="fa fa-terminal"></i> <span class="nav-label">Live Rcon</span>
-                </a>
-            </li>
-
-            <li class="@Html.IsSelected("Demo", "Index")">
-                <a asp-controller="Demo" asp-action="Index">
-                    <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
-                </a>
-            </li>
-
-            <li class="@Html.IsSelected("Maps", "Index")">
-                <a asp-controller="Maps" asp-action="Index">
-                    <i class="fa fa-map"></i> <span class="nav-label">Maps</span>
-                </a>
-            </li>
-
-            <li class="@Html.IsSelected("Analytics")">
-                <a asp-controller="Analytics">
-                    <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "Index")">
-                        <a asp-controller="Analytics" asp-action="Index">High-Level</a>
-                    </li>
-                </ul>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
-                <a asp-controller="Players">
-                    <i class="fa fa-users"></i> <span class="nav-label">Players</span> <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Players", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "GlobalPlayers")">
-                        <a asp-controller="Players" asp-action="GlobalPlayers">Global Player Index</a>
-                    </li>
-
-                    <li class="@Html.IsSelected(action: "IpSearch")">
-                        <a asp-controller="Players" asp-action="IpSearch">IP Search</a>
-                    </li>
-
-                    @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
-                    {
-                        <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty2")">
-                            <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) Call of Duty 2</a>
-                        </li>
-                    }
-
-                    @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
-                    {
-                        <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty4")">
-                            <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) Call of Duty 4</a>
-                        </li>
-                    }
-
-                    @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
-                    {
-                        <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty5")">
-                            <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) Call of Duty 5</a>
-                        </li>
-                    }
-
-                    @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.Insurgency.ToString()))
-                    {
-                        <li class="@Html.IsSelected(action: "GamePlayers", id: "Insurgency")">
-                            <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">@Html.GameTypeIcon(GameType.Insurgency) Insurgency</a>
-                        </li>
-                    }
-
-                </ul>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.ViewServiceStatus" class="@Html.IsSelected("Status")">
-                <a asp-controller="Status">
-                    <i class="fa fa-desktop"></i> <span class="nav-label">Status</span><span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Status", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "GameServerStatus")">
-                        <a asp-controller="Status" asp-action="GameServerStatus">Game Server Status</a>
-                    </li>
-                    <li class="@Html.IsSelected(action: "BanFileStatus")">
-                        <a asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
-                    </li>
-                    <li class="@Html.IsSelected(action: "LogFileStatus")">
-                        <a asp-controller="Status" asp-action="LogFileStatus">Log File Status</a>
-                    </li>
-                    <li class="@Html.IsSelected(action: "RconStatus")">
-                        <a asp-controller="Status" asp-action="RconStatus">Rcon Status</a>
-                    </li>
-                </ul>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("GameServers", "Index")">
-                <a asp-controller="GameServers" asp-action="Index">
-                    <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("RconMonitors", "Index")">
-                <a asp-controller="RconMonitors" asp-action="Index">
-                    <i class="fa fa-cog"></i> <span class="nav-label">Rcon Monitors</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("FileMonitors", "Index")">
-                <a asp-controller="FileMonitors" asp-action="Index">
-                    <i class="fa fa-cog"></i> <span class="nav-label">File Monitors</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("BanFileMonitors", "Index")">
-                <a asp-controller="BanFileMonitors" asp-action="Index">
-                    <i class="fa fa-cog"></i> <span class="nav-label">Ban File Monitors</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Users", "Index")">
-                <a asp-controller="User" asp-action="Index">
-                    <i class="fa fa-user"></i> <span class="nav-label">Manage Users</span>
-                </a>
-            </li>
-
-            <li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Migration")">
-                <a asp-controller="Migration">
-                    <i class="fa fa-arrow-right"></i> <span class="nav-label">Migration</span> <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Migration", cssClass: "in")">
-                    <li class="@Html.IsSelected(action: "GameServerStatus")">
-                        <a asp-controller="Migration" asp-action="MigrateUsers">Migrate Legacy Users</a>
-                    </li>
-                    <li class="@Html.IsSelected(action: "BanFileStatus")">
-                        <a asp-controller="Migration" asp-action="MigrateDemoAuthKeys">Migrate Demo Auth Keys</a>
-                    </li>
-                    <li class="@Html.IsSelected(action: "LogFileStatus")">
-                        <a asp-controller="Migration" asp-action="MigrateDemos">Migrate Demos</a>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+    <div class="logo-element">
+        &gt;XI&lt;
     </div>
+</li>
+
+@*<li>
+    <hr/>
+</li>*@
+
+<li class="@Html.IsSelected("Home", "Index")">
+    <a asp-controller="Home" asp-action="Index">
+        <i class="fa fa-home"></i> <span class="nav-label">Home</span>
+    </a>
+</li>
+
+<li class="@Html.IsSelected("Servers")">
+    <a asp-controller="Servers">
+        <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Servers", cssClass: "in")">
+        <li class="@Html.IsSelected(action: "Index")">
+            <a asp-controller="Servers" asp-action="Index">Our Servers</a>
+        </li>
+    </ul>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="@Html.IsSelected("Credentials", "Index")">
+    <a asp-controller="Credentials" asp-action="Index">
+        <i class="fa fa-key"></i> <span class="nav-label">Credentials</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("LiveRcon", "Index")">
+    <a asp-controller="LiveRcon" asp-action="Index">
+        <i class="fa fa-terminal"></i> <span class="nav-label">Live Rcon</span>
+    </a>
+</li>
+
+<li class="@Html.IsSelected("Demo", "Index")">
+    <a asp-controller="Demo" asp-action="Index">
+        <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
+    </a>
+</li>
+
+<li class="@Html.IsSelected("Maps", "Index")">
+    <a asp-controller="Maps" asp-action="Index">
+        <i class="fa fa-map"></i> <span class="nav-label">Maps</span>
+    </a>
+</li>
+
+<li class="@Html.IsSelected("Analytics")">
+    <a asp-controller="Analytics">
+        <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
+        <li class="@Html.IsSelected(action: "Index")">
+            <a asp-controller="Analytics" asp-action="Index">High-Level</a>
+        </li>
+    </ul>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
+    <a asp-controller="Players">
+        <i class="fa fa-users"></i> <span class="nav-label">Players</span> <span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Players", cssClass: "in")">
+        <li class="@Html.IsSelected(action: "GlobalPlayers")">
+            <a asp-controller="Players" asp-action="GlobalPlayers">Global Player Index</a>
+        </li>
+
+        <li class="@Html.IsSelected(action: "IpSearch")">
+            <a asp-controller="Players" asp-action="IpSearch">IP Search</a>
+        </li>
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty2")">
+                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) Call of Duty 2</a>
+            </li>
+        }
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty4")">
+                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) Call of Duty 4</a>
+            </li>
+        }
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty5")">
+                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) Call of Duty 5</a>
+            </li>
+        }
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.Insurgency.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "GamePlayers", id: "Insurgency")">
+                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">@Html.GameTypeIcon(GameType.Insurgency) Insurgency</a>
+            </li>
+        }
+
+    </ul>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.ViewServiceStatus" class="@Html.IsSelected("Status")">
+    <a asp-controller="Status">
+        <i class="fa fa-desktop"></i> <span class="nav-label">Status</span><span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Status", cssClass: "in")">
+        <li class="@Html.IsSelected(action: "GameServerStatus")">
+            <a asp-controller="Status" asp-action="GameServerStatus">Game Server Status</a>
+        </li>
+        <li class="@Html.IsSelected(action: "BanFileStatus")">
+            <a asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
+        </li>
+        <li class="@Html.IsSelected(action: "LogFileStatus")">
+            <a asp-controller="Status" asp-action="LogFileStatus">Log File Status</a>
+        </li>
+        <li class="@Html.IsSelected(action: "RconStatus")">
+            <a asp-controller="Status" asp-action="RconStatus">Rcon Status</a>
+        </li>
+    </ul>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("GameServers", "Index")">
+    <a asp-controller="GameServers" asp-action="Index">
+        <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("RconMonitors", "Index")">
+    <a asp-controller="RconMonitors" asp-action="Index">
+        <i class="fa fa-cog"></i> <span class="nav-label">Rcon Monitors</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("FileMonitors", "Index")">
+    <a asp-controller="FileMonitors" asp-action="Index">
+        <i class="fa fa-cog"></i> <span class="nav-label">File Monitors</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.ServersManagement" class="@Html.IsSelected("BanFileMonitors", "Index")">
+    <a asp-controller="BanFileMonitors" asp-action="Index">
+        <i class="fa fa-cog"></i> <span class="nav-label">Ban File Monitors</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Users", "Index")">
+    <a asp-controller="User" asp-action="Index">
+        <i class="fa fa-user"></i> <span class="nav-label">Manage Users</span>
+    </a>
+</li>
+
+<li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Migration")">
+    <a asp-controller="Migration">
+        <i class="fa fa-arrow-right"></i> <span class="nav-label">Migration</span> <span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Migration", cssClass: "in")">
+        <li class="@Html.IsSelected(action: "GameServerStatus")">
+            <a asp-controller="Migration" asp-action="MigrateUsers">Migrate Legacy Users</a>
+        </li>
+        <li class="@Html.IsSelected(action: "BanFileStatus")">
+            <a asp-controller="Migration" asp-action="MigrateDemoAuthKeys">Migrate Demo Auth Keys</a>
+        </li>
+        <li class="@Html.IsSelected(action: "LogFileStatus")">
+            <a asp-controller="Migration" asp-action="MigrateDemos">Migrate Demos</a>
+        </li>
+    </ul>
+</li>
+</ul>
+</div>
 </nav>

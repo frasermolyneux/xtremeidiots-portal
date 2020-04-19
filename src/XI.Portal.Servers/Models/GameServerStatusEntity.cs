@@ -18,6 +18,8 @@ namespace XI.Portal.Servers.Models
             RowKey = serverId.ToString();
             PartitionKey = "status";
 
+            ServerId = gameServerStatus.ServerId;
+            GameType = gameServerStatus.GameType;
             ServerName = gameServerStatus.ServerName;
             Map = gameServerStatus.Map;
             Mod = gameServerStatus.Mod;

@@ -4,8 +4,7 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Helpers;
 using XI.Portal.Servers.Repository;
 using XI.Servers.Factories;
-using XI.Servers.Query.Factories;
-using XI.Servers.Rcon.Factories;
+using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Extensions
 {
@@ -79,7 +78,7 @@ namespace XI.Portal.Servers.Extensions
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();
             serviceCollection.AddSingleton<IRconClientFactory, RconClientFactory>();
-            serviceCollection.AddSingleton<IGameServerStatusHelperFactory, GameServerStatusHelperFactory>();
+            serviceCollection.AddSingleton<IGameServerClientFactory, GameServerClientFactory>();
         }
     }
 }

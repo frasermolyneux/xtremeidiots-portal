@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Repository;
-using XI.Servers.Rcon.Factories;
+using XI.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -67,7 +67,7 @@ namespace XI.Portal.Web.Controllers
 
             var rconClient = _rconClientFactory.CreateInstance(model.GameType, model.ServerId, model.Hostname, model.QueryPort, model.RconPassword);
 
-            rconClient.KickPlayer(num);
+            //rconClient.KickPlayer(num);
 
             TempData["Success"] = $"Player in slot {num} has been kicked";
             return RedirectToAction(nameof(ViewRcon), new {id});

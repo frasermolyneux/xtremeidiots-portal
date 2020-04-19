@@ -1,16 +1,17 @@
 ﻿using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 
-namespace XI.Servers.Dto
+namespace XI.Servers.Models
 {
-    public class GameServerPlayerDto : IGameServerPlayer
+    internal class SourceRconPlayer : IRconPlayer
     {
+        public string Ping { get; set; }
         public string Num { get; set; }
         public string Guid { get; set; }
         public string Name { get; set; }
         public string IpAddress { get; set; }
-        public int Score { get; set; }
         public string Rate { get; set; }
-        public string NormalizedName { get; set; }
+
+        public string NormalizedName => Name.ToUpper().Trim();
     }
 }

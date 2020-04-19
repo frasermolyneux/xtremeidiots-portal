@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using XI.Servers.Interfaces;
@@ -7,23 +6,16 @@ using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models
 {
-    public class GameServerPlayer : IGameServerPlayer
+    internal class Quake3RconPlayer : IRconPlayer
     {
-        private readonly IQueryPlayer _queryPlayer;
-
-        public GameServerPlayer(IQueryPlayer queryPlayer)
-        {
-            _queryPlayer = queryPlayer ?? throw new ArgumentNullException(nameof(queryPlayer));
-        }
-
-        public IRconPlayer RconPlayer { get; set; }
-
-        public string Num => RconPlayer != null ? RconPlayer.Num : "";
-        public string Guid => RconPlayer != null ? RconPlayer.Guid : "";
-        public string Name => _queryPlayer != null ? _queryPlayer.Name : "";
-        public string IpAddress => RconPlayer != null ? RconPlayer.IpAddress : "";
-        public int Score => _queryPlayer?.Score ?? 0;
-        public string Rate => RconPlayer != null ? RconPlayer.Rate : "";
+        public string Score { get; set; }
+        public string Ping { get; set; }
+        public string QPort { get; set; }
+        public string Num { get; set; }
+        public string Guid { get; set; }
+        public string Name { get; set; }
+        public string IpAddress { get; set; }
+        public string Rate { get; set; }
 
         public string NormalizedName
         {

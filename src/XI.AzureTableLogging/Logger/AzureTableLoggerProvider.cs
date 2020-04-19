@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Configuration;
+using XI.AzureTableLogging.Interfaces;
 
 namespace XI.AzureTableLogging.Logger
 {

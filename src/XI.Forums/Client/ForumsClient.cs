@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using XI.Forums.Configuration;
+using XI.Forums.Interfaces;
 using XI.Forums.Models;
 
 namespace XI.Forums.Client

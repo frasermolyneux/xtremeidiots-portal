@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using XI.CommonTypes;
-using XI.Servers.Models;
+using XI.Servers.Interfaces;
+using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Dto
 {

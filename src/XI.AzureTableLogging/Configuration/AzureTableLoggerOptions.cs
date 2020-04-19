@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.AzureTableLogging.Interfaces;
 
 namespace XI.AzureTableLogging.Configuration
 {

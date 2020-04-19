@@ -9,21 +9,22 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Models;
 using XI.Servers.Dto;
 using XI.Servers.Factories;
+using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServerStatusRepository : IGameServerStatusRepository
     {
         private readonly IGameServersRepository _gameServersRepository;
-        private readonly IGameServerStatusHelperFactory _gameServerStatusHelperFactory;
+        private readonly IGameServerClientFactory _gameServerClientFactory;
         private readonly CloudTable _statusTable;
 
         public GameServerStatusRepository(IGameServerStatusRepositoryOptions options,
             IGameServersRepository gameServersRepository,
-            IGameServerStatusHelperFactory gameServerStatusHelperFactory)
+            IGameServerClientFactory gameServerClientFactory)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
-            _gameServerStatusHelperFactory = gameServerStatusHelperFactory ?? throw new ArgumentNullException(nameof(gameServerStatusHelperFactory));
+            _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
@@ -67,7 +68,7 @@ namespace XI.Portal.Servers.Repository
         private async Task<GameServerStatusDto> RefreshGameServerStatus(Guid serverId)
         {
             var server = await _gameServersRepository.GetGameServer(serverId, null, null);
-            var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
+            var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
 
             var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
 

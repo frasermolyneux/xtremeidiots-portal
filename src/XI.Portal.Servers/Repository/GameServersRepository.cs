@@ -12,12 +12,13 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
 using XI.Servers.Factories;
+using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServersRepository : IGameServersRepository
     {
-        private readonly IGameServerStatusHelperFactory _gameServerStatusHelperFactory;
+        private readonly IGameServerClientFactory _gameServerClientFactory;
         private readonly LegacyPortalContext _legacyContext;
         private readonly ILogger<GameServersRepository> _logger;
         private readonly IGameServersRepositoryOptions _options;
@@ -26,12 +27,12 @@ namespace XI.Portal.Servers.Repository
             ILogger<GameServersRepository> logger,
             IGameServersRepositoryOptions options,
             LegacyPortalContext legacyContext,
-            IGameServerStatusHelperFactory gameServerStatusHelperFactory)
+            IGameServerClientFactory gameServerClientFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
-            _gameServerStatusHelperFactory = gameServerStatusHelperFactory ?? throw new ArgumentNullException(nameof(gameServerStatusHelperFactory));
+            _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
         }
 
         public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
@@ -99,7 +100,7 @@ namespace XI.Portal.Servers.Repository
             foreach (var serverMonitor in serverMonitors)
                 try
                 {
-                    var gameServerStatusHelper = _gameServerStatusHelperFactory.GetGameServerStatusHelper(serverMonitor.GameType, serverMonitor.ServerId, serverMonitor.Hostname, serverMonitor.QueryPort, serverMonitor.RconPassword);
+                    var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(serverMonitor.GameType, serverMonitor.ServerId, serverMonitor.Hostname, serverMonitor.QueryPort, serverMonitor.RconPassword);
                     var result = await gameServerStatusHelper.GetServerStatus();
 
                     var errorMessage = string.Empty;

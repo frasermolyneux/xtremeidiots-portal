@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Forums.Client;
+using XI.Forums.Interfaces;
 using XI.Forums.Models;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Models;

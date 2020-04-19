@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Forums.Client;
 using XI.Forums.Configuration;
+using XI.Forums.Interfaces;
 
 namespace XI.Forums.Extensions
 {

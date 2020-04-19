@@ -9,7 +9,7 @@ using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Models;
-using XI.Servers.Rcon.Factories;
+using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -91,31 +91,22 @@ namespace XI.Portal.Servers.Repository
                         rconMonitor.GameServerServer.ServerId,
                         rconMonitor.GameServerServer.Hostname,
                         rconMonitor.GameServerServer.QueryPort,
-                        rconMonitor.GameServerServer.RconPassword,
-                        new List<TimeSpan>
-                        {
-                            TimeSpan.FromSeconds(1)
-                        }
+                        rconMonitor.GameServerServer.RconPassword
                     );
 
-                    var commandResult = rconClient.PlayerStatus();
+                    var commandResult = rconClient.GetPlayers();
 
                     var errorMessage = string.Empty;
 
                     if (rconMonitor.LastUpdated < DateTime.UtcNow.AddMinutes(-15))
                         errorMessage = "ERROR - The rcon status has not been updated in the past 15 minutes";
 
-                    if (string.IsNullOrWhiteSpace(commandResult))
-                        errorMessage = "ERROR - The rcon command result is empty";
-
-                    if (commandResult.Contains("Invalid password"))
-                        errorMessage = "ERROR - Invalid rcon password";
 
                     results.Add(new RconMonitorStatusViewModel
                     {
                         RconMonitor = rconMonitor,
                         GameServer = rconMonitor.GameServerServer,
-                        RconStatusResult = commandResult,
+                        RconStatusResult = $"Total players: {commandResult.Count}",
                         ErrorMessage = errorMessage
                     });
                 }

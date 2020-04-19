@@ -54,7 +54,7 @@
     </a>
 </li>
 
-<li class="@Html.IsSelected("Servers")">
+@*<li class="@Html.IsSelected("Servers")">
     <a asp-controller="Servers">
         <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
     </a>
@@ -63,7 +63,7 @@
             <a asp-controller="Servers" asp-action="Index">Our Servers</a>
         </li>
     </ul>
-</li>
+</li>*@
 
 <li policy="@XtremeIdiotsPolicy.UserHasCredentials" class="@Html.IsSelected("Credentials", "Index")">
     <a asp-controller="Credentials" asp-action="Index">
@@ -77,11 +77,11 @@
     </a>
 </li>
 
-<li class="@Html.IsSelected("Demo", "Index")">
+@*<li class="@Html.IsSelected("Demo", "Index")">
     <a asp-controller="Demo" asp-action="Index">
         <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
     </a>
-</li>
+</li>*@
 
 <li class="@Html.IsSelected("Maps", "Index")">
     <a asp-controller="Maps" asp-action="Index">
@@ -89,7 +89,7 @@
     </a>
 </li>
 
-<li class="@Html.IsSelected("Analytics")">
+@*<li class="@Html.IsSelected("Analytics")">
     <a asp-controller="Analytics">
         <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
     </a>
@@ -98,7 +98,7 @@
             <a asp-controller="Analytics" asp-action="Index">High-Level</a>
         </li>
     </ul>
-</li>
+</li>*@
 
 <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
     <a asp-controller="Players">

@@ -12,7 +12,6 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
-using XI.Servers.Factories;
 using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
@@ -131,6 +130,15 @@ namespace XI.Portal.Servers.Repository
                 }
 
             return results;
+        }
+
+        public async Task<List<string>> GetGameServerBanners()
+        {
+            return await _legacyContext.GameServers
+                .OrderBy(server => server.BannerServerListPosition)
+                .Where(server => server.ShowOnBannerServerList)
+                .Select(server => server.HtmlBanner)
+                .ToListAsync();
         }
     }
 }

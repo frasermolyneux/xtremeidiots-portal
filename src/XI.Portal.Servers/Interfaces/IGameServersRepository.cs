@@ -17,5 +17,6 @@ namespace XI.Portal.Servers.Interfaces
 
         Task RemoveGameServer(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims);
         Task<List<GameServerStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims);
+        Task<List<string>> GetGameServerBanners();
     }
 }

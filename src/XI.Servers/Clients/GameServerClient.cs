@@ -37,7 +37,9 @@ namespace XI.Servers.Clients
         public void Configure(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
         {
             QueryClient = _queryClientFactory.CreateInstance(gameType, hostname, queryPort);
-            RconClient = _rconClientFactory.CreateInstance(gameType, serverId, hostname, queryPort, rconPassword);
+
+            if (!string.IsNullOrWhiteSpace(rconPassword))
+                RconClient = _rconClientFactory.CreateInstance(gameType, serverId, hostname, queryPort, rconPassword);
 
             _gameType = gameType;
             _serverIdentifier = serverId;
@@ -74,7 +76,7 @@ namespace XI.Servers.Clients
 
             if (needsQuerySync) RefreshWithGameServerStatus(queryResponse);
 
-            if (needsRconSync)
+            if (needsRconSync && RconClient != null)
             {
                 var rconPlayers = RconClient.GetPlayers();
                 RefreshWithRconPlayers(rconPlayers);

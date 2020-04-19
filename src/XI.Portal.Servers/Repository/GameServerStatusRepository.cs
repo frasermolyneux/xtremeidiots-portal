@@ -9,15 +9,14 @@ using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Servers.Dto;
-using XI.Servers.Factories;
 using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServerStatusRepository : IGameServerStatusRepository
     {
-        private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerClientFactory _gameServerClientFactory;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly CloudTable _statusTable;
 
         public GameServerStatusRepository(IGameServerStatusRepositoryOptions options,
@@ -39,14 +38,22 @@ namespace XI.Portal.Servers.Repository
             var result = await _statusTable.ExecuteAsync(tableOperation);
 
             if (result.HttpStatusCode == 404)
-                return await RefreshGameServerStatus(serverId);
+            {
+                var gameServerDto = await RefreshGameServerStatus(serverId);
+
+                return !UserHasRequiredPermission(user, requiredClaims, gameServerDto) ? null : gameServerDto;
+            }
 
             var storedGameServerStatus = (GameServerStatusEntity) result.Result;
 
             if (storedGameServerStatus.Timestamp < DateTime.UtcNow + cacheCutoff)
-                return await RefreshGameServerStatus(serverId);
+            {
+                var gameServerDto = await RefreshGameServerStatus(serverId);
 
-            return new GameServerStatusDto
+                return !UserHasRequiredPermission(user, requiredClaims, gameServerDto) ? null : gameServerDto;
+            }
+
+            var gameServerStatusDto = new GameServerStatusDto
             {
                 ServerId = storedGameServerStatus.ServerId,
                 GameType = storedGameServerStatus.GameType,
@@ -56,6 +63,8 @@ namespace XI.Portal.Servers.Repository
                 PlayerCount = storedGameServerStatus.PlayerCount,
                 Players = storedGameServerStatus.Players
             };
+
+            return !UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto) ? null : gameServerStatusDto;
         }
 
         public async Task UpdateStatus(Guid id, GameServerStatusDto model)

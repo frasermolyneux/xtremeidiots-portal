@@ -1,0 +1,177 @@
+﻿@using XI.Portal.Web.Extensions
+@model XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel
+
+@{
+    ViewData["Title"] = "Server Info";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-3">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServerStatus?.ServerName)</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
+
+                    @if (Model.Map != null)
+                    {
+                        <hr/>
+
+                        <h5>@Model.Map.MapName Files:</h5>
+                        <ul>
+                            @foreach (var mapFile in Model.Map.MapFiles)
+                            {
+                                <li>
+                                    <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                                </li>
+                            }
+                        </ul>
+
+                        <hr/>
+
+                        <h5>Download Full Rotation:</h5>
+                        <ul>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li>
+                                    <a asp-controller="Maps" asp-action="DownloadFullRotation" asp-route-id="@Model.GameServer.ServerId">Full Rotation</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li>
+                                    You must sign in to be able to download the full rotation.
+                                </li>
+                            }
+                        </ul>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-sm-9">
+
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    @if (Model.GameServerStatus == null || Model.GameServerStatus?.Players.Count == 0)
+                    {
+                        <h2 style="text-align: center">There are currently no connected players</h2>
+                    }
+                    else
+                    {
+                        <table class="table">
+                            <tr>
+                                <th>
+                                    @Html.Label("Num")
+                                </th>
+                                <th>
+                                    @Html.Label("Name")
+                                </th>
+                                <th>
+                                    @Html.Label("Score")
+                                </th>
+                            </tr>
+
+                            @foreach (var item in Model.GameServerStatus.Players)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(model => item.Num)
+                                    </td>
+                                    <td>
+                                        @Html.PlayerName(item.Name)
+
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(model => item.Score)
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </table>
+                    }
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    @if (Model.MapRotation.Any())
+    {
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="ibox">
+                    <div class="ibox-title">
+                        <h5>Current Map Rotation</h5>
+                    </div>
+
+                    <div class="ibox-content">
+
+                        <table class="table">
+                            <tr>
+                                <th>
+                                    @Html.Label("Name")
+                                </th>
+                                <th>
+                                    @Html.Label("Game Mode")
+                                </th>
+                                <th>
+                                    @Html.Label("Files")
+                                </th>
+                                <th>
+                                    @Html.Label("Popularity")
+                                </th>
+                                <th>
+                                </th>
+                            </tr>
+
+                            @foreach (var item in Model.MapRotation)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Map.MapName)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GameMode)
+                                    </td>
+                                    <td>
+                                        @foreach (var mapFile in item.Map.MapFiles)
+                                        {
+                                            <li>
+                                                <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                                            </li>
+                                        }
+                                    </td>
+                                    <td>
+                                        @Html.MapPopularity(item.Map.MapName, item.Map.LikePercentage, item.Map.DislikePercentage, item.Map.TotalLikes, item.Map.TotalDislikes, item.Map.TotalVotes)
+                                    </td>
+                                    <td>
+                                        @Html.MapImage(Model.GameServer.GameType, item.Map.MapName)
+                                    </td>
+                                </tr>
+                            }
+
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    }
+
+
+</div>

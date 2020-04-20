@@ -72,7 +72,11 @@
                                 @Html.DisplayFor(modelItem => item.Mod)
                             </td>
                             <td>
+                                <a asp-controller="Servers" asp-action="ServerInfo" asp-route-id="@item.ServerId">Server Info</a>
+                                
+
                                 @*@Html.ActionLink("Server Info", "ServerInfo", new { id = item.ServerId })
+                                    
 
                                     @if (User.Identity.IsInAdminOrModeratorRole() && item.ShowChatLog)
                                     {

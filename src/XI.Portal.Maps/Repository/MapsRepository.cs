@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Configuration;
+using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Models;
 
@@ -68,6 +70,92 @@ namespace XI.Portal.Maps.Repository
             }
 
             return mapsResult;
+        }
+
+        public async Task<MapDto> GetMap(GameType gameType, string mapName)
+        {
+            var map = await _legacyContext.Maps
+                .Include(m => m.MapFiles)
+                .Include(m => m.MapVotes)
+                .SingleOrDefaultAsync(m => m.MapName == mapName && m.GameType == gameType);
+
+            if (map == null) return null;
+
+            var mapDto = new MapDto
+            {
+                MapId = map.MapId,
+                GameType = map.GameType,
+                MapName = map.MapName,
+                MapFiles = map.MapFiles.Select(mf => new MapFileDto
+                {
+                    FileName = mf.FileName,
+                    FileUrl = $"{_options.MapRedirectBaseUrl}/redirect/{map.GameType.ToRedirectShortName()}/usermaps/{map.MapName}/{mf.FileName}"
+                }).ToList(),
+                MapVotes = map.MapVotes.Select(mv => new MapVoteDto
+                {
+                    Like = mv.Like
+                }).ToList()
+            };
+
+            return mapDto;
+        }
+
+        public async Task<List<MapRotationDto>> GetMapRotation(Guid serverId)
+        {
+            var mapRotations = await _legacyContext.MapRotations
+                .Include(m => m.MapMap)
+                .Include(m => m.MapMap.MapFiles)
+                .Include(m => m.MapMap.MapVotes)
+                .Where(m => m.GameServerServer.ServerId == serverId).ToListAsync();
+
+            var results = new List<MapRotationDto>();
+
+            foreach (var mapRotation in mapRotations)
+            {
+                double totalLikes = mapRotation.MapMap.MapVotes.Count(mv => mv.Like);
+                double totalDislikes = mapRotation.MapMap.MapVotes.Count(mv => !mv.Like);
+                int totalVotes = mapRotation.MapMap.MapVotes.Count();
+                double likePercentage = 0;
+                double dislikePercentage = 0;
+
+                if (totalVotes > 0)
+                {
+                    likePercentage = (totalLikes / totalVotes) * 100;
+                    dislikePercentage = (totalDislikes / totalVotes) * 100;
+                }
+
+                var mapDto = new MapDto
+                {
+                    MapId = mapRotation.MapMap.MapId,
+                    GameType = mapRotation.MapMap.GameType,
+                    MapName = mapRotation.MapMap.MapName,
+                    MapFiles = mapRotation.MapMap.MapFiles.Select(mf => new MapFileDto
+                    {
+                        FileName = mf.FileName,
+                        FileUrl = $"{_options.MapRedirectBaseUrl}/redirect/{mapRotation.MapMap.GameType.ToRedirectShortName()}/usermaps/{mapRotation.MapMap.MapName}/{mf.FileName}"
+                    }).ToList(),
+                    MapVotes = mapRotation.MapMap.MapVotes.Select(mv => new MapVoteDto
+                    {
+                        Like = mv.Like
+                    }).ToList(),
+
+                    LikePercentage = likePercentage,
+                    DislikePercentage = dislikePercentage,
+                    TotalLikes = totalLikes,
+                    TotalDislikes = totalDislikes,
+                    TotalVotes = totalVotes
+                };
+
+                var mapRotationDto = new MapRotationDto
+                {
+                    GameMode = mapRotation.GameMode,
+                    Map = mapDto
+                };
+
+                results.Add(mapRotationDto);
+            }
+
+            return results;
         }
     }
 }

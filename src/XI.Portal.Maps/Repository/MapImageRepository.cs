@@ -8,6 +8,7 @@ using Azure.Storage.Blobs.Models;
 using XI.CommonTypes;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
+using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Properties;
 
 namespace XI.Portal.Maps.Repository

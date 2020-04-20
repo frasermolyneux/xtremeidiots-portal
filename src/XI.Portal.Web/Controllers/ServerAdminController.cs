@@ -1,10 +1,14 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
+using XI.Portal.Web.Models;
 using XI.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
@@ -12,6 +16,7 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.CanAccessServerAdmin)]
     public class ServerAdminController : Controller
     {
+        private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRconClientFactory _rconClientFactory;
@@ -20,13 +25,16 @@ namespace XI.Portal.Web.Controllers
 
         public ServerAdminController(IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
-            IRconClientFactory rconClientFactory)
+            IRconClientFactory rconClientFactory,
+            IChatLogsRepository chatLogsRepository)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
+            _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
         }
 
+        [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> ServersIndex()
         {
@@ -36,6 +44,7 @@ namespace XI.Portal.Web.Controllers
             return View(servers);
         }
 
+        [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> ViewRcon(Guid? id)
         {
@@ -46,6 +55,7 @@ namespace XI.Portal.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> GetRconPlayers(Guid? id)
         {
@@ -59,6 +69,7 @@ namespace XI.Portal.Web.Controllers
             });
         }
 
+        [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> KickPlayer(Guid? id, string num)
         {
@@ -75,6 +86,62 @@ namespace XI.Portal.Web.Controllers
 
             TempData["Success"] = $"Player in slot {num} has been kicked";
             return RedirectToAction(nameof(ViewRcon), new {id});
+        }
+
+        [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        public IActionResult GlobalChatLogIndex()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        public async Task<ActionResult> GetGlobalChatLogAjax()
+        {
+            var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync();
+
+            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+            if (model == null)
+                return BadRequest();
+
+            var filterModel = new ChatLogFilterModel();
+            var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+            filterModel.FilterString = model.Search?.Value;
+            var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+            filterModel.TakeEntries = model.Length;
+            filterModel.SkipEntries = model.Start;
+
+            if (model.Order == null)
+            {
+                filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
+            }
+            else
+            {
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var searchOrder = model.Order.First().Dir;
+
+                switch (orderColumn)
+                {
+                    case "timestamp":
+                        filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+                        break;
+                }
+            }
+
+            var mapListEntries = await _chatLogsRepository.GetChatLog(filterModel);
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal,
+                recordsFiltered,
+                data = mapListEntries
+            });
         }
     }
 }

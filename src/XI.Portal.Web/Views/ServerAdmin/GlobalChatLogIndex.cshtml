@@ -1,0 +1,76 @@
+﻿@{
+    ViewData["Title"] = "Global ChatLog";
+}
+
+<row class="row">
+    <div class="container-fluid">
+        <div class="card card-body">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <td>Timestamp</td>
+                        <td>Username</td>
+                        <td>Type</td>
+                        <td>Message</td>
+                        <td>Link</td>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</row>
+
+@section Scripts {
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searchDelay: 1000,
+                order: [[1, "asc"]],
+                ajax: {
+                    url: '/ServerAdmin/GetGlobalChatLogAjax',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'timestamp',
+                        name: 'timestamp',
+                        sortable: true
+                    },
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username']);
+                        }
+                    },
+                    {
+                        data: 'chatType',
+                        name: 'chatType',
+                        sortable: false
+                    },
+                    {
+                        data: 'message',
+                        name: 'message',
+                        sortable: false
+                    },
+                    {
+                        data: 'chatLogId',
+                        name: 'chatLogId',
+                        sortable: false
+                    }
+                ]
+            });
+        });
+
+    </script>
+}

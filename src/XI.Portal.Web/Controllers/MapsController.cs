@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
+using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
 using XI.Portal.Maps.Repository;
 using XI.Portal.Web.Models;

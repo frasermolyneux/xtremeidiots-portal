@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Servers.Configuration
+﻿namespace XI.Portal.Servers.Interfaces
 {
     public interface IGameServersRepositoryOptions
     {

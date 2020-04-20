@@ -76,6 +76,17 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddScoped<IGameServerStatusRepository, GameServerStatusRepository>();
             }
 
+            if (options.ChatLogsRepositoryOptions != null)
+            {
+                IChatLogsRepositoryOptions subOptions = new ChatLogsRepositoryOptions();
+                options.ChatLogsRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IChatLogsRepository, ChatLogsRepository>();
+            }
+
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();
             serviceCollection.AddSingleton<IRconClientFactory, RconClientFactory>();

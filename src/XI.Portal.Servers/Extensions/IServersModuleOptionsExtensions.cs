@@ -1,5 +1,5 @@
 ﻿using System;
-using XI.Portal.Servers.Configuration;
+using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Extensions
 {
@@ -28,6 +28,11 @@ namespace XI.Portal.Servers.Extensions
         public static void ConfigureGameServerStatusRepository(this IServersModuleOptions options, Action<IGameServerStatusRepositoryOptions> repositoryOptions)
         {
             options.GameServerStatusRepositoryOptions = repositoryOptions;
+        }
+
+        public static void ConfigureChatLogsRepository(this IServersModuleOptions options, Action<IChatLogsRepositoryOptions> repositoryOptions)
+        {
+            options.ChatLogsRepositoryOptions = repositoryOptions;
         }
     }
 }

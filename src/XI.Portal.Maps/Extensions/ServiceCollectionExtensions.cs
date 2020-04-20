@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Maps.Configuration;
+using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Repository;
 
 namespace XI.Portal.Maps.Extensions

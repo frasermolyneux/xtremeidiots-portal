@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
+using XI.Portal.Maps.Interfaces;
 
 namespace XI.Portal.Maps.Repository
 {

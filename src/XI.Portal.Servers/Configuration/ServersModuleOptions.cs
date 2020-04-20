@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Configuration
 {
@@ -9,6 +10,7 @@ namespace XI.Portal.Servers.Configuration
         public Action<IFileMonitorsRepositoryOptions> FileMonitorsRepositoryOptions { get; set; }
         public Action<IRconMonitorsRepositoryOptions> RconMonitorsRepositoryOptions { get; set; }
         public Action<IGameServerStatusRepositoryOptions> GameServerStatusRepositoryOptions { get; set; }
+        public Action<IChatLogsRepositoryOptions> ChatLogsRepositoryOptions { get; set; }
 
         public void Validate()
         {
@@ -26,6 +28,9 @@ namespace XI.Portal.Servers.Configuration
 
             if (GameServerStatusRepositoryOptions == null)
                 throw new NullReferenceException(nameof(GameServerStatusRepositoryOptions));
+
+            if (ChatLogsRepositoryOptions == null)
+                throw new NullReferenceException(nameof(ChatLogsRepositoryOptions));
         }
     }
 }

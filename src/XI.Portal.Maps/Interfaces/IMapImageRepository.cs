@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using XI.CommonTypes;
 
-namespace XI.Portal.Maps.Repository
+namespace XI.Portal.Maps.Interfaces
 {
     public interface IMapImageRepository
     {

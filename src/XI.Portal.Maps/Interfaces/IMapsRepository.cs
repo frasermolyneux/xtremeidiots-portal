@@ -5,7 +5,7 @@ using XI.CommonTypes;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Models;
 
-namespace XI.Portal.Maps.Repository
+namespace XI.Portal.Maps.Interfaces
 {
     public interface IMapsRepository
     {

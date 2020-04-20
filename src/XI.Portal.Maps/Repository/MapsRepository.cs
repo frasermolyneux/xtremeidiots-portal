@@ -8,6 +8,7 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Extensions;
+using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
 
 namespace XI.Portal.Maps.Repository

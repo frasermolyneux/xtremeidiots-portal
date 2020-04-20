@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace XI.Portal.Maps.Repository
+namespace XI.Portal.Maps.Interfaces
 {
     public interface IMapFileRepository
     {

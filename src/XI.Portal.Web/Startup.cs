@@ -188,6 +188,7 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusRepository:StorageTableName"];
                 });
+                options.ConfigureChatLogsRepository(repositoryOptions => { });
             });
 
             services.AddDbContext<LegacyPortalContext>(options =>

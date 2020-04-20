@@ -2,23 +2,34 @@
     ViewData["Title"] = ViewData["GameType"] + " Players Index";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-body">
-            <table id="dataTable">
-                <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Guid</td>
-                    <td>First Seen</td>
-                    <td>Last Seen</td>
-                </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
-</row>
+<div class="wrapper wrapper-content animated fadeInRight">
 
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table id="dataTable">
+                            <thead>
+                            <tr>
+                                <td>Name</td>
+                                <td>Guid</td>
+                                <td>First Seen</td>
+                                <td>Last Seen</td>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
 
@@ -44,7 +55,7 @@
                         data: 'username',
                         name: 'username',
                         sortable: true,
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return renderPlayerName(row['gameType'], row['username']);
                         }
                     },

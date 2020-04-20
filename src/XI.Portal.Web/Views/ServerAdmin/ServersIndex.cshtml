@@ -5,67 +5,74 @@
     ViewData["Title"] = "Live Rcon";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
-        </div>
-        <div class="card card-body">
-            <table class="table table-responsive w-100 d-block d-md-table">
-                <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Title)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Hostname)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.LiveMap)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.LiveMod)
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.GameTypeIcon(item.GameType) @Html.DisplayFor(modelItem => item.Title)
-                        </td>
-                        <td>
-                            @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
-                        </td>
-                        <td>
-                            @{
-                                var percentage = item.LiveCurrentPlayers / (double) item.LiveMaxPlayers * 100;
-                            }
+<div class="wrapper wrapper-content animated fadeInRight">
 
-                            <div class="progress" style="margin-right: 20px">
-                                <div style="width: @percentage%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="@percentage" role="progressbar" class="progress-bar">
-                                    <span class="sr-only">@percentage% Slots Filled</span>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LiveMap)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LiveMod)
-                        </td>
-                        <td>
-                            <a asp-action="ViewRcon" asp-route-id="@item.ServerId">View Rcon</a>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Title)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Hostname)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.LiveMap)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.LiveMod)
+                                </th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.GameTypeIcon(item.GameType) @Html.DisplayFor(modelItem => item.Title)
+                                    </td>
+                                    <td>
+                                        @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+                                    </td>
+                                    <td>
+                                        @{
+                                            var percentage = item.LiveCurrentPlayers / (double) item.LiveMaxPlayers * 100;
+                                        }
+
+                                        <div class="progress" style="margin-right: 20px">
+                                            <div style="width: @percentage%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="@percentage" role="progressbar" class="progress-bar">
+                                                <span class="sr-only">@percentage% Slots Filled</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LiveMap)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LiveMod)
+                                    </td>
+                                    <td>
+                                        <a asp-action="ViewRcon" asp-route-id="@item.ServerId">View Rcon</a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-</row>
+    </row>
+
+</div>

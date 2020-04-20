@@ -2,23 +2,35 @@
     ViewData["Title"] = "Maps Index";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-body">
-            <table id="dataTable">
-                <thead>
-                <tr>
-                    <td>Game</td>
-                    <td>Name</td>
-                    <td>Map Files</td>
-                    <td>Popularity</td>
-                    <td></td>
-                </tr>
-                </thead>
-            </table>
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table id="dataTable">
+                            <thead>
+                            <tr>
+                                <td>Game</td>
+                                <td>Name</td>
+                                <td>Map Files</td>
+                                <td>Popularity</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
-    </div>
-</row>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
 

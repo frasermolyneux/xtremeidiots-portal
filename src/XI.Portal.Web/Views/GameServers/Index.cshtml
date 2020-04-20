@@ -6,77 +6,84 @@
     ViewData["Title"] = "Game Servers";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.BannerServerListPosition)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GameType)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Title)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Hostname)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.ShowChatLog)
+                                </th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.BannerServerListPosition)
+                                    </td>
+                                    <td>
+                                        @Html.GameTypeIcon(item.GameType)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Title)
+                                    </td>
+                                    <td>
+                                        @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ShowOnPortalServerList)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ShowOnBannerServerList)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ShowChatLog)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
+                                        <span policy="@XtremeIdiotsPolicy.RootPolicy">|</span>
+                                        <a policy="@XtremeIdiotsPolicy.RootPolicy" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="ibox-footer">
+                        <a asp-action="Create">Create New</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="card card-body">
-            <table class="table table-responsive w-100 d-block d-md-table">
-                <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.BannerServerListPosition)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.GameType)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Title)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Hostname)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ShowChatLog)
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.BannerServerListPosition)
-                        </td>
-                        <td>
-                            @Html.GameTypeIcon(item.GameType)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Title)
-                        </td>
-                        <td>
-                            @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ShowOnPortalServerList)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ShowOnBannerServerList)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ShowChatLog)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
-                            <span policy="@XtremeIdiotsPolicy.RootPolicy">|</span>
-                            <a policy="@XtremeIdiotsPolicy.RootPolicy" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="card card-footer">
-            <a asp-action="Create">Create New</a>
-        </div>
-    </div>
-</row>
+    </row>
+
+</div>

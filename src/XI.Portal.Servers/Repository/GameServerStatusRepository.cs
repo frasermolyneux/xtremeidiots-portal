@@ -122,18 +122,25 @@ namespace XI.Portal.Servers.Repository
                 continuationToken = queryResult.ContinuationToken;
             } while (continuationToken != null);
 
-            return results;
+            return results.Where(server => server != null).ToList();
         }
 
         private async Task<GameServerStatusDto> RefreshGameServerStatus(Guid serverId)
         {
-            var server = await _gameServersRepository.GetGameServer(serverId, null, null);
-            var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
+            try
+            {
+                var server = await _gameServersRepository.GetGameServer(serverId, null, null);
+                var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
 
-            var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
+                var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
 
-            await UpdateStatus(serverId, gameServerStatus);
-            return gameServerStatus;
+                await UpdateStatus(serverId, gameServerStatus);
+                return gameServerStatus;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private bool UserHasRequiredPermission(ClaimsPrincipal claimsPrincipal, string[] requiredClaims, GameServerStatusDto gameServerStatusDto)

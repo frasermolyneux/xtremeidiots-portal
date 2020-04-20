@@ -5,65 +5,72 @@
     ViewData["Title"] = "Rcon Monitor Index";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.GameServerServer)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.MonitorMapRotation)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.MonitorPlayers)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.MonitorPlayerIps)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.LastUpdated)
+                                </th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.GameTypeIcon(item.GameServerServer.GameType)
+                                        @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MonitorMapRotation)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MonitorPlayers)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MonitorPlayerIps)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.LastUpdated)
+                                    </td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.RconMonitorId">Edit</a> |
+                                        <a asp-action="Details" asp-route-id="@item.RconMonitorId">Details</a> |
+                                        <a asp-action="Delete" asp-route-id="@item.RconMonitorId">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="ibox-footer">
+                        <a asp-action="Create">Create New</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="card card-body">
-            <table class="table table-responsive w-100 d-block d-md-table">
-                <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.GameServerServer)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.MonitorMapRotation)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.MonitorPlayers)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.MonitorPlayerIps)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.LastUpdated)
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.GameTypeIcon(item.GameServerServer.GameType)
-                            @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MonitorMapRotation)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MonitorPlayers)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.MonitorPlayerIps)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.LastUpdated)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.RconMonitorId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.RconMonitorId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.RconMonitorId">Delete</a>
-                        </td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
-        <div class="card card-footer">
-            <a asp-action="Create">Create New</a>
-        </div>
-    </div>
-</row>
+    </row>
+
+</div>

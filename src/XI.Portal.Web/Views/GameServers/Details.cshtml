@@ -5,92 +5,102 @@
     ViewData["Title"] = "Game Server Details";
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Title)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Title)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameType)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameType)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Hostname)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.FtpHostname)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.FtpHostname)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.FtpUsername)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.FtpUsername)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.FtpPassword)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.FtpPassword)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.RconPassword)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.RconPassword)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.ShowOnBannerServerList)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.BannerServerListPosition)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.BannerServerListPosition)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.HtmlBanner)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.Raw(Model.HtmlBanner)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.ShowOnPortalServerList)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.ShowChatLog)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.ShowChatLog)
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="ibox-footer">
+                        <span>
+                            <a asp-action="Edit" asp-route-id="@Model.ServerId">Edit</a> |
+                            <a asp-action="Index">Back to List</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
         </div>
-        <div class="card card-body">
-            <dl class="row">
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Title)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Title)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.GameType)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.GameType)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Hostname)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpHostname)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpHostname)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpUsername)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpUsername)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.FtpPassword)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.FtpPassword)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.RconPassword)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.RconPassword)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowOnBannerServerList)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.BannerServerListPosition)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.BannerServerListPosition)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.HtmlBanner)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.Raw(Model.HtmlBanner)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowOnPortalServerList)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.ShowChatLog)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.ShowChatLog)
-                </dd>
-            </dl>
-        </div>
-        <div class="card card-footer">
-            <span>
-                <a asp-action="Edit" asp-route-id="@Model.ServerId">Edit</a> |
-                <a asp-action="Index">Back to List</a>
-            </span>
-        </div>
-    </div>
-</row>
+    </row>
+
+</div>

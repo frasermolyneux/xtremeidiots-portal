@@ -6,76 +6,91 @@
     ViewData["Title"] = "Game Server Status";
 }
 
-<row class="row">
-    <div class="container-fluid" style="padding-top: 40px">
-        <div class="card card-header">
-            @ViewData["Title"]
-        </div>
-        <div class="card card-body">
-            A server will be considered out of sync if:
-            <ul>
-                <li>The server has not been directly queries within the past 15 minutes</li>
-                <li>The current map cannot be retrieved from the query</li>
-            </ul>
-        </div>
-    </div>
-</row>
+<div class="wrapper wrapper-content animated fadeInRight">
 
-
-@foreach (var item in Model)
-{
     <row class="row">
-        <div class="container-fluid" style="padding-top: 40px">
-            <div class="card card-header">
-                <span>
-                    @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
-                </span>
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        A server will be considered out of sync if:
+                        <ul>
+                            <li>The server has not been directly queries within the past 15 minutes</li>
+                            <li>The current map cannot be retrieved from the query</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="card card-body">
-                <p>
-                    <text>
-                        <strong>Server Hostname: </strong>@item.GameServer.Hostname</text><br/>
-                    <text>
-                        <strong>Last Queried: </strong>@item.GameServer.LiveLastUpdated</text><br/>
-                    <text>
-                        <strong>Mod: </strong>@item.GameServer.LiveMod</text><br/>
-                    <text>
-                        <strong>Map: </strong>@item.GameServer.LiveMap</text><br/>
-                    <text>
-                        <strong>Player Count: </strong>@item.GameServer.LiveCurrentPlayers</text><br/>
 
-                    @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
-                    {
-                        <div class="alert alert-danger">@item.ErrorMessage</div>
-                    }
-
-                    @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
-                    {
-                        <div class="alert alert-warning">@item.WarningMessage</div>
-                    }
-
-                    @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
-                    {
-                        <div class="alert alert-success">@item.SuccessMessage</div>
-                    }
-
-                    @{
-                        var canEditConfig = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                     claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameServer.GameType.ToString());
-                    }
-
-                    @if (canEditConfig)
-                    {
-                        <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
-                            <svg class="bi bi-pencil" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 011.414 0l2 2a1 1 0 010 1.414l-9 9a1 1 0 01-.39.242l-3 1a1 1 0 01-1.266-1.265l1-3a1 1 0 01.242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z" clip-rule="evenodd"/>
-                                <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 00.5.5H4v.5a.5.5 0 00.5.5H5v.5a.5.5 0 00.5.5H6v-1.5a.5.5 0 00-.5-.5H5v-.5a.5.5 0 00-.5-.5H3z" clip-rule="evenodd"/>
-                            </svg>
-                            Edit Game Server
-                        </a>
-                    }
-                </p>
-            </div>
         </div>
     </row>
-}
+
+    @foreach (var item in Model)
+    {
+        <row class="row">
+            <div class="col-12">
+
+                <div class="container-fluid">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <span>
+                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                            </span>
+                        </div>
+                        <div class="ibox-content">
+                            <p>
+                                <text>
+                                    <strong>Server Hostname: </strong>@item.GameServer.Hostname
+                                </text><br/>
+                                <text>
+                                    <strong>Last Queried: </strong>@item.GameServer.LiveLastUpdated
+                                </text><br/>
+                                <text>
+                                    <strong>Mod: </strong>@item.GameServer.LiveMod
+                                </text><br/>
+                                <text>
+                                    <strong>Map: </strong>@item.GameServer.LiveMap
+                                </text><br/>
+                                <text>
+                                    <strong>Player Count: </strong>@item.GameServer.LiveCurrentPlayers
+                                </text><br/>
+
+                                @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                                {
+                                    <div class="alert alert-danger">@item.ErrorMessage</div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
+                                {
+                                    <div class="alert alert-warning">@item.WarningMessage</div>
+                                }
+
+                                @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
+                                {
+                                    <div class="alert alert-success">@item.SuccessMessage</div>
+                                }
+
+                                @{
+                                    var canEditConfig = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameServer.GameType.ToString());
+                                }
+
+                                @if (canEditConfig)
+                                {
+                                    <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
+                                        <i class="fa fa-edit"></i> Edit Game Server
+                                    </a>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </row>
+    }
+</div>

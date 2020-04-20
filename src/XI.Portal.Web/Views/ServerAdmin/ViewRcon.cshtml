@@ -2,47 +2,57 @@
 @model XI.Portal.Data.Legacy.Models.GameServers
 
 @{
-    ViewData["Title"] = "Live Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
+    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
 }
 
-<row class="row">
-    <div class="container-fluid">
-        <div class="card card-header">
-            @ViewData["Title"]
-        </div>
-        <div class="card card-body">
-            <table id="dataTable">
-                <thead>
-                <tr>
-                    <th>
-                        #
-                    </th>
-                    <th>
-                        Username
-                    </th>
-                    <th>
-                        Guid
-                    </th>
-                    <th>
-                        Ip Address
-                    </th>
-                    <th>
-                        Score
-                    </th>
-                    <th>
-                        Rate
-                    </th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
+<div class="wrapper wrapper-content animated fadeInRight">
 
-                </tbody>
-            </table>
-        </div>
-    </div>
-</row>
+    <row class="row">
+        <div class="col-12">
 
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <table id="dataTable">
+                            <thead>
+                            <tr>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Guid
+                                </th>
+                                <th>
+                                    Ip Address
+                                </th>
+                                <th>
+                                    Score
+                                </th>
+                                <th>
+                                    Rate
+                                </th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
 

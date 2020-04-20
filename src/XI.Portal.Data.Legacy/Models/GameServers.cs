@@ -34,11 +34,26 @@ namespace XI.Portal.Data.Legacy.Models
         [DisplayName("Ftp Username")] public string FtpUsername { get; set; }
         [DisplayName("Ftp Password")] public string FtpPassword { get; set; }
         [DisplayName("Rcon Password")] public string RconPassword { get; set; }
+
+        [Obsolete("This should no longer be used")]
         public string LiveTitle { get; set; }
-        [DisplayName("Map")] public string LiveMap { get; set; }
-        [DisplayName("Mod")] public string LiveMod { get; set; }
+
+        [Obsolete("This should no longer be used")]
+        [DisplayName("Map")]
+        public string LiveMap { get; set; }
+
+        [Obsolete("This should no longer be used")]
+        [DisplayName("Mod")]
+        public string LiveMod { get; set; }
+
+        [Obsolete("This should no longer be used")]
         public int LiveMaxPlayers { get; set; }
-        [DisplayName("Players")] public int LiveCurrentPlayers { get; set; }
+
+        [Obsolete("This should no longer be used")]
+        [DisplayName("Players")]
+        public int LiveCurrentPlayers { get; set; }
+
+        [Obsolete("This should no longer be used")]
         public DateTime LiveLastUpdated { get; set; }
 
         [DisplayName("Banner Server List")] public bool ShowOnBannerServerList { get; set; }

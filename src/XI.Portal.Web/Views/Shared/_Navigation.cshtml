@@ -43,8 +43,8 @@
 </li>
 
 @*<li>
-    <hr/>
-</li>*@
+            <hr/>
+        </li>*@
 
 <li class="@Html.IsSelected("Home", "Index")">
     <a asp-controller="Home" asp-action="Index">
@@ -69,17 +69,26 @@
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("LiveRcon", "Index")">
-    <a asp-controller="LiveRcon" asp-action="Index">
-        <i class="fa fa-terminal"></i> <span class="nav-label">Live Rcon</span>
+<li policy="@XtremeIdiotsPolicy.CanAccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
+    <a asp-controller="ServerAdmin">
+        <i class="fa fa-terminal"></i> <span class="nav-label">Server Admin</span> <span class="fa arrow"></span>
     </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "in")">
+        <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "ServersIndex")">
+            <a asp-controller="ServerAdmin" asp-action="ServersIndex">Servers</a>
+        </li>
+        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "GlobalChatLogIndex")">
+            <a asp-controller="ServerAdmin" asp-action="GlobalChatLogIndex">Global ChatLog</a>
+        </li>
+    </ul>
 </li>
 
+
 @*<li class="@Html.IsSelected("Demo", "Index")">
-    <a asp-controller="Demo" asp-action="Index">
-        <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
-    </a>
-</li>*@
+            <a asp-controller="Demo" asp-action="Index">
+                <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
+            </a>
+        </li>*@
 
 <li class="@Html.IsSelected("Maps", "Index")">
     <a asp-controller="Maps" asp-action="Index">
@@ -88,15 +97,15 @@
 </li>
 
 @*<li class="@Html.IsSelected("Analytics")">
-    <a asp-controller="Analytics">
-        <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
-    </a>
-    <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
-        <li class="@Html.IsSelected(action: "Index")">
-            <a asp-controller="Analytics" asp-action="Index">High-Level</a>
-        </li>
-    </ul>
-</li>*@
+            <a asp-controller="Analytics">
+                <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
+            </a>
+            <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
+                <li class="@Html.IsSelected(action: "Index")">
+                    <a asp-controller="Analytics" asp-action="Index">High-Level</a>
+                </li>
+            </ul>
+        </li>*@
 
 <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
     <a asp-controller="Players">

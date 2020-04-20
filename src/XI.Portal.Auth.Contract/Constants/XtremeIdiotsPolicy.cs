@@ -8,5 +8,8 @@
         public const string UserHasCredentials = nameof(UserHasCredentials);
         public const string ViewServiceStatus = nameof(ViewServiceStatus);
         public const string CanAccessLiveRcon = nameof(CanAccessLiveRcon);
+        public const string CanAccessServerAdmin = nameof(CanAccessServerAdmin);
+        public const string CanAccessGlobalChatLog = nameof(CanAccessGlobalChatLog);
+    
     }
 }

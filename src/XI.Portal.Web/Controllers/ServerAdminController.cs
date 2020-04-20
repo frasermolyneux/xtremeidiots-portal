@@ -5,13 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Repository;
 using XI.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
-    public class LiveRconController : Controller
+    [Authorize(Policy = XtremeIdiotsPolicy.CanAccessServerAdmin)]
+    public class ServerAdminController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
@@ -19,7 +18,7 @@ namespace XI.Portal.Web.Controllers
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
-        public LiveRconController(IGameServersRepository gameServersRepository,
+        public ServerAdminController(IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory)
         {
@@ -28,7 +27,8 @@ namespace XI.Portal.Web.Controllers
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public async Task<IActionResult> Index()
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
+        public async Task<IActionResult> ServersIndex()
         {
             var servers = (await _gameServersRepository.GetGameServers(User, _requiredClaims))
                 .Where(server => !string.IsNullOrWhiteSpace(server.RconPassword));
@@ -36,6 +36,7 @@ namespace XI.Portal.Web.Controllers
             return View(servers);
         }
 
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> ViewRcon(Guid? id)
         {
             if (id == null) return NotFound();
@@ -45,6 +46,7 @@ namespace XI.Portal.Web.Controllers
             return View(model);
         }
 
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> GetRconPlayers(Guid? id)
         {
             if (id == null) return NotFound();
@@ -57,6 +59,7 @@ namespace XI.Portal.Web.Controllers
             });
         }
 
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> KickPlayer(Guid? id, string num)
         {
             if (id == null) return NotFound();

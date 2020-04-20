@@ -8,7 +8,6 @@
             <table id="dataTable">
                 <thead>
                 <tr>
-                    <td>Game</td>
                     <td>Name</td>
                     <td>Guid</td>
                     <td>First Seen</td>
@@ -25,12 +24,13 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
+
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
-                order: [[4, "desc"]],
+                order: [[3, "desc"]],
                 ajax: {
                     url: '/Players/GetGlobalPlayersListAjax',
                     dataSrc: 'data',
@@ -42,21 +42,12 @@
                 },
                 columns: [
                     {
-                        data: 'gameType',
-                        name: 'gameType',
-                        sortable: true,
-                        render: function(data, type, row) {
-                            return "<img src='/images/game-icons/" +
-                                data +
-                                ".png' alt='" +
-                                data +
-                                "' width='16' height='16' />";
-                        }
-                    },
-                    {
                         data: 'username',
                         name: 'username',
-                        sortable: true
+                        sortable: true,
+                        render: function (data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username']);
+                        }
                     },
                     {
                         data: 'guid',
@@ -75,6 +66,7 @@
                     }
                 ]
             });
+
         });
 
     </script>

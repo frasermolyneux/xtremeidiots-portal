@@ -8,7 +8,6 @@
             <table id="dataTable">
                 <thead>
                 <tr>
-                    <td>Game</td>
                     <td>Name</td>
                     <td>Guid</td>
                     <td>Ip Address</td>
@@ -31,7 +30,7 @@
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
-                order: [[5, "desc"]],
+                order: [[4, "desc"]],
                 ajax: {
                     url: '/Players/GetIpSearchListAjax',
                     dataSrc: 'data',
@@ -43,21 +42,12 @@
                 },
                 columns: [
                     {
-                        data: 'gameType',
-                        name: 'gameType',
-                        sortable: true,
-                        render: function(data, type, row) {
-                            return "<img src='/images/game-icons/" +
-                                data +
-                                ".png' alt='" +
-                                data +
-                                "' width='16' height='16' />";
-                        }
-                    },
-                    {
                         data: 'username',
                         name: 'username',
-                        sortable: false
+                        sortable: false,
+                        render: function (data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username']);
+                        }
                     },
                     {
                         data: 'guid',

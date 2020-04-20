@@ -1,4 +1,22 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-// Write your JavaScript code.
+function handleAjaxError(xhr, textStatus, error) {
+    console.log(textStatus);
+}
+
+function renderPlayerName (gameType, username) {
+    var safeUsername = escapeHtml(username);
+
+    return "<img src='/images/game-icons/" +
+        gameType +
+        ".png' alt='" +
+        gameType +
+        "' width='16' height='16' /> " + safeUsername;
+}

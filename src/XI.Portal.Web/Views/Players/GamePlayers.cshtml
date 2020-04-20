@@ -43,7 +43,10 @@
                     {
                         data: 'username',
                         name: 'username',
-                        sortable: true
+                        sortable: true,
+                        render: function (data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username']);
+                        }
                     },
                     {
                         data: 'guid',

@@ -1,5 +1,7 @@
-﻿@{
-    ViewData["Title"] = ViewData["GameType"] + " ChatLog";
+﻿@model XI.Portal.Data.Legacy.Models.GameServers
+
+@{
+    ViewData["Title"] = Model.Title + " ChatLog";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -15,15 +17,18 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                                <tr>
-                                    <td>Timestamp</td>
-                                    <td>Username</td>
-                                    <td>Type</td>
-                                    <td>Message</td>
-                                    <td>Link</td>
-                                </tr>
+                            <tr>
+                                <td>Timestamp</td>
+                                <td>Username</td>
+                                <td>Type</td>
+                                <td>Message</td>
+                                <td>Link</td>
+                            </tr>
                             </thead>
                         </table>
+                    </div>
+                    <div class="ibox-footer">
+                        <a asp-action="ServersIndex">Back to List</a>
                     </div>
                 </div>
             </div>
@@ -46,7 +51,7 @@
                 searchDelay: 1000,
                 order: [[1, "desc"]],
                 ajax: {
-                    url: '/ServerAdmin/GetGameChatLogAjax/@ViewData["GameType"]',
+                    url: '/ServerAdmin/GetServerChatLogAjax/@ViewData["ServerId"]',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",

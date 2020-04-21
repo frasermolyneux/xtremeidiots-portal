@@ -1,4 +1,6 @@
-﻿@using XI.Portal.Web.Extensions
+﻿@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Servers.Constants
+@using XI.Portal.Web.Extensions
 @model IEnumerable<XI.Portal.Data.Legacy.Models.GameServers>
 
 @{
@@ -63,6 +65,12 @@
                                     </td>
                                     <td>
                                         <a asp-action="ViewRcon" asp-route-id="@item.ServerId">View Rcon</a>
+                                        
+                                        @if (ChatLogSupportedGames.Games.Contains(item.GameType))
+                                        {
+                                            <span policy="@XtremeIdiotsPolicy.CanAccessGameChatLog">|</span>
+                                            <a asp-action="ServerChatLog" asp-route-id="@item.ServerId">View ChatLog</a>
+                                        }
                                     </td>
                                 </tr>
                             }

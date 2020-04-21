@@ -26,7 +26,7 @@ namespace XI.Portal.Servers.Repository
             return await filterModel.ApplyFilter(_legacyContext).CountAsync();
         }
 
-        public async Task<List<ChatLogDto>> GetChatLog(ChatLogFilterModel filterModel)
+        public async Task<List<ChatLogDto>> GetChatLogs(ChatLogFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new ChatLogFilterModel();
 
@@ -47,6 +47,22 @@ namespace XI.Portal.Servers.Repository
                 });
 
             return results;
+        }
+
+        public async Task<ChatLogDto> GetChatLog(Guid id)
+        {
+            var chatLog = await _legacyContext.ChatLogs.Include(cl => cl.GameServerServer).SingleAsync(cl => cl.ChatLogId == id);
+
+            return new ChatLogDto
+            {
+                ChatLogId = chatLog.ChatLogId,
+                PlayerId = (Guid) chatLog.PlayerPlayerId,
+                GameType = chatLog.GameServerServer.GameType.ToString(),
+                Timestamp = chatLog.Timestamp,
+                Username = chatLog.Username,
+                ChatType = chatLog.ChatType.ToString(),
+                Message = chatLog.Message
+            };
         }
     }
 }

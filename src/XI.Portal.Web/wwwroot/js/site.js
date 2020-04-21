@@ -20,3 +20,7 @@ function renderPlayerName (gameType, username) {
         gameType +
         "' width='16' height='16' /> " + safeUsername;
 }
+
+function chatLogUrl(chatLogId) {
+    return "<a href='/ServerAdmin/ChatLogPermaLink/" + chatLogId + "'>PermLink</a>";
+}

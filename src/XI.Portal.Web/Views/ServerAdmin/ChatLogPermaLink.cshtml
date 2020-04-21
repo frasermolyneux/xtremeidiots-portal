@@ -1,0 +1,48 @@
+﻿@model XI.Portal.Servers.Dto.ChatLogDto
+
+@{
+    ViewData["Title"] = "Chat Log Entry";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-12">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Chat Log Entry - @Model.ChatLogId</h5>
+                </div>
+
+                <div class="ibox-content">
+                    <ul class="list-group clear-list">
+                        <li class="list-group-item fist-item">
+                            <span class="pull-right"> @Model.PlayerId</span>
+                            Player ID
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right"> @Model.Username</span>
+                            Username
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right"> @Model.ChatType</span>
+                            Type
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right"> @Model.Message</span>
+                            Chat Message
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right">
+                                <i class="fa fa-clock-o"></i> @Model.Timestamp
+                            </span>
+                            Timestamp
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

@@ -133,7 +133,7 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-            var mapListEntries = await _chatLogsRepository.GetChatLog(filterModel);
+            var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
 
             return Json(new
             {
@@ -142,6 +142,16 @@ namespace XI.Portal.Web.Controllers
                 recordsFiltered,
                 data = mapListEntries
             });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        public async Task<IActionResult> ChatLogPermaLink(Guid? id)
+        {
+            if (id == null) return NotFound();
+
+            var chatLog = await _chatLogsRepository.GetChatLog((Guid) id);
+            return View(chatLog);
         }
     }
 }

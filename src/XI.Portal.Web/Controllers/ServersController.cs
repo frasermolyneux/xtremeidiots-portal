@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,8 +29,20 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.FromMinutes(-15));
-            return View(servers);
+            var servers = (await _gameServersRepository.GetGameServers(null, null)).Where(server => server.ShowOnPortalServerList);
+            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.FromMinutes(-15));
+
+            var results = new List<ServerInfoViewModel>();
+
+            foreach (var server in servers)
+            {
+                results.Add(new ServerInfoViewModel
+                {
+                    GameServer = server,
+                    GameServerStatus = serversStatus.SingleOrDefault(ss => server.ServerId == ss.ServerId)
+                });
+            }
+            return View(results);
         }
 
         [HttpGet]

@@ -1,5 +1,5 @@
 ﻿@using XI.Portal.Web.Extensions
-@model List<XI.Servers.Dto.GameServerStatusDto>
+@model List<XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel>
 
 @{
     ViewData["Title"] = "Game Servers";
@@ -42,23 +42,27 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameType)
+                                        @Html.GameTypeIcon(item.GameServer.GameType)
                                     </td>
                                     <td>
-                                        @Html.ServerName(null, item.ServerName)
+                                        @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
                                     </td>
                                     <td>
-                                        @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+                                        @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
 
                                     </td>
                                     <td>
-                                        @Html.GameTrackerIcon(item.Hostname, item.QueryPort)
-                                        @Html.SteamIcon(item.GameType, item.Hostname, item.QueryPort)
-                                        @Html.HlswIcon(item.GameType, item.Hostname, item.QueryPort)
+                                        @Html.GameTrackerIcon(item.GameServer.Hostname, item.GameServer.QueryPort)
+                                        @Html.SteamIcon(item.GameServer.GameType, item.GameServer.Hostname, item.GameServer.QueryPort)
+                                        @Html.HlswIcon(item.GameServer.GameType, item.GameServer.Hostname, item.GameServer.QueryPort)
                                     </td>
                                     <td>
                                         @{
-                                            var percentage = (double) item.PlayerCount / item.MaxPlayers * 100;
+                                            double percentage = 0;
+                                            if (item.GameServerStatus != null)
+                                            {
+                                                percentage = (double) item.GameServerStatus.PlayerCount / item.GameServerStatus.MaxPlayers * 100;
+                                            }
                                         }
 
                                         <div class="progress" style="margin-right: 20px">
@@ -68,13 +72,13 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Map)
+                                        @item.GameServerStatus?.Map
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.Mod)
+                                        @item.GameServerStatus?.Mod
                                     </td>
                                     <td>
-                                        <a asp-controller="Servers" asp-action="ServerInfo" asp-route-id="@item.ServerId">Server Info</a>
+                                        <a asp-controller="Servers" asp-action="ServerInfo" asp-route-id="@item.GameServer.ServerId">Server Info</a>
                                     </td>
                                 </tr>
                             }

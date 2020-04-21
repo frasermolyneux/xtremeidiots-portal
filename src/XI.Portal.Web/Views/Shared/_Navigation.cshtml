@@ -84,21 +84,21 @@
 
         @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
         {
-            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty2")">
+            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty2")">
                 <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) COD2 ChatLog</a>
             </li>
         }
 
         @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
         {
-            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty4")">
+            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty4")">
                 <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) COD4 ChatLog</a>
             </li>
         }
 
         @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
         {
-            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty5")">
+            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty5")">
                 <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) COD5 ChatLog</a>
             </li>
         }

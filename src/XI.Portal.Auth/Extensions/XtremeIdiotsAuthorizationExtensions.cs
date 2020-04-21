@@ -60,6 +60,13 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin
                 )));
 
+            options.AddPolicy(XtremeIdiotsPolicy.CanAccessGameChatLog, policy =>
+                policy.RequireAssertion(context => context.User.HasClaim(
+                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
+                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin
+                )));
+
             options.AddPolicy(XtremeIdiotsPolicy.CanAccessLiveRcon, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||

@@ -77,9 +77,31 @@
         <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "ServersIndex")">
             <a asp-controller="ServerAdmin" asp-action="ServersIndex">Servers</a>
         </li>
-        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "GlobalChatLogIndex")">
-            <a asp-controller="ServerAdmin" asp-action="GlobalChatLogIndex">Global ChatLog</a>
+
+        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "GlobalChatLog")">
+            <a asp-controller="ServerAdmin" asp-action="GlobalChatLog">Global ChatLog</a>
         </li>
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty2")">
+                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) COD2 ChatLog</a>
+            </li>
+        }
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty4")">
+                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) COD4 ChatLog</a>
+            </li>
+        }
+
+        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
+        {
+            <li class="@Html.IsSelected(action: "ServerAdmin", id: "CallOfDuty5")">
+                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) COD5 ChatLog</a>
+            </li>
+        }
     </ul>
 </li>
 

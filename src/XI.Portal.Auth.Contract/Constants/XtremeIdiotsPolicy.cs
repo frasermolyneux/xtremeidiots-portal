@@ -10,6 +10,6 @@
         public const string CanAccessLiveRcon = nameof(CanAccessLiveRcon);
         public const string CanAccessServerAdmin = nameof(CanAccessServerAdmin);
         public const string CanAccessGlobalChatLog = nameof(CanAccessGlobalChatLog);
-    
+        public const string CanAccessGameChatLog = nameof(CanAccessGameChatLog);
     }
 }

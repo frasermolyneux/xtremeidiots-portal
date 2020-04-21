@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -90,7 +91,7 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
-        public IActionResult GlobalChatLogIndex()
+        public IActionResult GlobalChatLog()
         {
             return View();
         }
@@ -108,6 +109,66 @@ namespace XI.Portal.Web.Controllers
                 return BadRequest();
 
             var filterModel = new ChatLogFilterModel();
+            var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+            filterModel.FilterString = model.Search?.Value;
+            var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+            filterModel.TakeEntries = model.Length;
+            filterModel.SkipEntries = model.Start;
+
+            if (model.Order == null)
+            {
+                filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
+            }
+            else
+            {
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var searchOrder = model.Order.First().Dir;
+
+                switch (orderColumn)
+                {
+                    case "timestamp":
+                        filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+                        break;
+                }
+            }
+
+            var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal,
+                recordsFiltered,
+                data = mapListEntries
+            });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public IActionResult GameChatLog(GameType id)
+        {
+            ViewData["GameType"] = id;
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public async Task<ActionResult> GetGameChatLogAjax(GameType id)
+        {
+            var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync();
+
+            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+            if (model == null)
+                return BadRequest();
+
+            var filterModel = new ChatLogFilterModel
+            {
+                GameType = id
+            };
             var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
 
             filterModel.FilterString = model.Search?.Value;

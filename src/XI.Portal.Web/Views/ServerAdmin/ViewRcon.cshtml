@@ -65,7 +65,7 @@
                 pageLength: 50,
                 order: [[0, "asc"]],
                 ajax: {
-                    url: '/LiveRcon/GetRconPlayers/@Model.ServerId',
+                    url: '/ServerAdmin/GetRconPlayers/@Model.ServerId',
                     dataSrc: 'data',
                     error: handleAjaxError
                 },
@@ -106,7 +106,7 @@
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return '<a href="/LiveRcon/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/LiveRcon/BanPlayer/' + row['num'] + '">Ban Player</a>';
+                            return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';
                         }
                     }
                 ]

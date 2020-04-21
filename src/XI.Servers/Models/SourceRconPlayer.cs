@@ -11,6 +11,6 @@ namespace XI.Servers.Models
         public string IpAddress { get; set; }
         public string Rate { get; set; }
 
-        public string NormalizedName => Name.ToUpper().Trim();
+        public string NormalizedName => Name.Normalize();
     }
 }

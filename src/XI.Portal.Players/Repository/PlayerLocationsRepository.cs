@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using FM.GeoLocation.Client;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Players.Dto;
@@ -11,11 +12,13 @@ namespace XI.Portal.Players.Repository
 {
     public class PlayerLocationsRepository : IPlayerLocationsRepository
     {
+        private readonly IGeoLocationClient _geoLocationClient;
         private readonly CloudTable _locationsTable;
 
-        public PlayerLocationsRepository(IPlayerLocationsRepositoryOptions options)
+        public PlayerLocationsRepository(IPlayerLocationsRepositoryOptions options, IGeoLocationClient geoLocationClient)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
+            _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
 
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
@@ -41,7 +44,7 @@ namespace XI.Portal.Players.Repository
                         GameType = entity.GameType,
                         ServerId = entity.ServerId,
                         ServerName = entity.ServerName,
-                        PlayerId = entity.PlayerId,
+                        Guid = entity.Guid,
                         PlayerName = entity.PlayerName,
                         GeoLocation = entity.GeoLocation
                     };
@@ -60,9 +63,10 @@ namespace XI.Portal.Players.Repository
             var playerLocationEntity = new PlayerLocationEntity
             {
                 PartitionKey = model.ServerId.ToString(),
+                GameType = model.GameType,
                 ServerId = model.ServerId,
                 ServerName = model.ServerName,
-                PlayerId = model.PlayerId,
+                Guid = model.Guid,
                 PlayerName = model.PlayerName,
                 GeoLocation = model.GeoLocation
             };

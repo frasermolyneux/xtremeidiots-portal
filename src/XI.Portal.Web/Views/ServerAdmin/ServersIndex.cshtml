@@ -65,7 +65,7 @@
                                     </td>
                                     <td>
                                         <a asp-action="ViewRcon" asp-route-id="@item.ServerId">View Rcon</a>
-                                        
+
                                         @if (ChatLogSupportedGames.Games.Contains(item.GameType))
                                         {
                                             <span policy="@XtremeIdiotsPolicy.CanAccessGameChatLog">|</span>

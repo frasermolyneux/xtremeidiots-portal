@@ -1,4 +1,5 @@
 ﻿using System;
+using FM.GeoLocation.Client;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Helpers;
@@ -74,6 +75,9 @@ namespace XI.Portal.Servers.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IGameServerStatusRepository, GameServerStatusRepository>();
+
+                serviceCollection.AddSingleton<IGeoLocationClientConfiguration>(subOptions.GeoLocationClientConfiguration);
+                serviceCollection.AddSingleton<IGeoLocationClient, GeoLocationClient>();
             }
 
             if (options.ChatLogsRepositoryOptions != null)

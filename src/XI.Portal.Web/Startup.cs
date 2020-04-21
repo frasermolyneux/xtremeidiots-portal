@@ -24,8 +24,8 @@ using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
+using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Data;
 using XI.Portal.Users.Extensions;
@@ -168,6 +168,11 @@ namespace XI.Portal.Web
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["PlayerLocationsRepository:StorageTableName"];
+                    repositoryOptions.GeoLocationClientConfiguration = new GeoLocationClientConfig
+                    {
+                        BaseUrl = Configuration["GeoLocation:BaseUrl"],
+                        ApiKey = Configuration["GeoLocation:ApiKey"]
+                    };
                 });
             });
 
@@ -193,6 +198,11 @@ namespace XI.Portal.Web
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusRepository:StorageTableName"];
+                    repositoryOptions.GeoLocationClientConfiguration = new Servers.Configuration.GeoLocationClientConfig
+                    {
+                        BaseUrl = Configuration["GeoLocation:BaseUrl"],
+                        ApiKey = Configuration["GeoLocation:ApiKey"]
+                    };
                 });
                 options.ConfigureChatLogsRepository(repositoryOptions => { });
             });

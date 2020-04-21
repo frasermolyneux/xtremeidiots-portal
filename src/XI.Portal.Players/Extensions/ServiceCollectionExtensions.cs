@@ -1,4 +1,5 @@
 ﻿using System;
+using FM.GeoLocation.Client;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Interfaces;
@@ -49,6 +50,9 @@ namespace XI.Portal.Players.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
+
+                serviceCollection.AddSingleton<IGeoLocationClientConfiguration>(subOptions.GeoLocationClientConfiguration);
+                serviceCollection.AddSingleton<IGeoLocationClient, GeoLocationClient>();
             }
         }
     }

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
@@ -214,7 +213,7 @@ namespace XI.Portal.Web.Controllers
 
             ViewData["ServerId"] = id;
             var server = await _gameServersRepository.GetGameServer(id, User, null);
-            
+
             return View(server);
         }
 

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.CommonTypes;
-using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;

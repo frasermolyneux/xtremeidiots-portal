@@ -12,7 +12,7 @@ namespace XI.Portal.Players.Models
 
         public Guid ServerId { get; set; }
         public string ServerName { get; set; }
-        public Guid PlayerId { get; set; }
+        public string Guid { get; set; }
         public string PlayerName { get; set; }
 
         [EntityJsonPropertyConverter] public GeoLocationDto GeoLocation { get; set; }

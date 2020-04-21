@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using XI.AzureTableLogging.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
+using XI.Portal.Players.Extensions;
+using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -43,6 +45,28 @@ namespace XI.Portal.FuncApp
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["GameServerStatusRepository:StorageTableName"];
+                    repositoryOptions.GeoLocationClientConfiguration = new GeoLocationClientConfig
+                    {
+                        BaseUrl = config["GeoLocation:BaseUrl"],
+                        ApiKey = config["GeoLocation:ApiKey"]
+                    };
+                });
+                options.ConfigureChatLogsRepository(repositoryOptions => { });
+            });
+
+            builder.Services.AddPlayersModule(options =>
+            {
+                options.ConfigurePlayersRepository(repositoryOptions => { });
+                options.ConfigureAdminActionsRepository(repositoryOptions => { });
+                options.ConfigurePlayerLocationsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["PlayerLocationsRepository:StorageTableName"];
+                    repositoryOptions.GeoLocationClientConfiguration = new Players.Configuration.GeoLocationClientConfig
+                    {
+                        BaseUrl = config["GeoLocation:BaseUrl"],
+                        ApiKey = config["GeoLocation:ApiKey"]
+                    };
                 });
             });
 

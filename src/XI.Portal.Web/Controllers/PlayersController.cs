@@ -9,7 +9,6 @@ using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
-using XI.Portal.Players.Repository;
 using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers

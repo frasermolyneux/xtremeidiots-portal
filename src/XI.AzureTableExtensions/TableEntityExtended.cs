@@ -1,5 +1,5 @@
-﻿using Microsoft.Azure.Cosmos.Table;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.Azure.Cosmos.Table;
 using XI.AzureTableExtensions.Attributes;
 
 namespace XI.AzureTableExtensions

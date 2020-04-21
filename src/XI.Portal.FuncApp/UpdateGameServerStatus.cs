@@ -5,6 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
+using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.FuncApp
@@ -13,11 +14,13 @@ namespace XI.Portal.FuncApp
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly LegacyPortalContext _legacyContext;
+        private readonly IPlayerLocationsRepository _playerLocationsRepository;
 
-        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusRepository gameServerStatusRepository)
+        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusRepository gameServerStatusRepository, IPlayerLocationsRepository playerLocationsRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
+            _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
         }
 
         [FunctionName("UpdateGameServerStatus")]
@@ -33,8 +36,7 @@ namespace XI.Portal.FuncApp
 
                 try
                 {
-                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-15));
-
+                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-10));
                     log.LogInformation($"{model.ServerName} is online running {model.Map} with {model.PlayerCount} players connected");
                 }
                 catch (Exception ex)

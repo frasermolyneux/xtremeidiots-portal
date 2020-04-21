@@ -93,7 +93,7 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'XI-Portal-Web-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"  -GeoLocation:BaseUrl "$(GeoLocation:BaseUrl)" -GeoLocation:ApiKey "$(GeoLocation:ApiKey)"'
 
   - deployment: 'funcapp_deploy'
     dependsOn: 'terraform_deploy'
@@ -124,4 +124,4 @@ stages:
               resourceGroupName: 'XI-Portal-Web-$(environment)'
               package: '$(Pipeline.Workspace)/funcapp/XI.Portal.FuncApp.zip'
               runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'
-              AppSettings: '-AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"'
+              AppSettings: '-AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)" -GeoLocation:BaseUrl "$(GeoLocation:BaseUrl)" -GeoLocation:ApiKey "$(GeoLocation:ApiKey)"'

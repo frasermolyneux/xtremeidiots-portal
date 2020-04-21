@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging.Configuration;
 using XI.AzureTableLogging.Interfaces;
 using XI.AzureTableLogging.Models;
 

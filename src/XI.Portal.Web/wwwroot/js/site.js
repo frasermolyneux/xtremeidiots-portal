@@ -11,14 +11,15 @@ function handleAjaxError(xhr, textStatus, error) {
     console.log(textStatus);
 }
 
-function renderPlayerName (gameType, username) {
+function renderPlayerName(gameType, username) {
     var safeUsername = escapeHtml(username);
 
     return "<img src='/images/game-icons/" +
         gameType +
         ".png' alt='" +
         gameType +
-        "' width='16' height='16' /> " + safeUsername;
+        "' width='16' height='16' /> " +
+        safeUsername;
 }
 
 function chatLogUrl(chatLogId) {

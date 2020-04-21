@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.FuncApp
 {

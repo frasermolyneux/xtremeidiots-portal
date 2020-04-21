@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models

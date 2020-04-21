@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging.Configuration;
 using XI.AzureTableLogging.Interfaces;
 using XI.AzureTableLogging.Logger;
 

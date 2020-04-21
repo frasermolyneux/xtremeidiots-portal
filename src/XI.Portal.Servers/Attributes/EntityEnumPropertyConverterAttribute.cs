@@ -8,10 +8,6 @@ namespace XI.Portal.Servers.Attributes
     [AttributeUsage(AttributeTargets.Property)]
     public class EntityEnumPropertyConverterAttribute : Attribute
     {
-        public EntityEnumPropertyConverterAttribute()
-        {
-            
-        }
     }
 
     public class EntityEnumPropertyConverter

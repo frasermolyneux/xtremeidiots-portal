@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Servers.Dto;

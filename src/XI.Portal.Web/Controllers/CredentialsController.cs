@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Repository;
 
 namespace XI.Portal.Web.Controllers
 {

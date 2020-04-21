@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
-using XI.Portal.Maps.Repository;
 using XI.Portal.Servers.Interfaces;
 using XI.Servers.Dto;
 

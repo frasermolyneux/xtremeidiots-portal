@@ -115,14 +115,14 @@ namespace XI.Portal.Maps.Repository
             {
                 double totalLikes = mapRotation.MapMap.MapVotes.Count(mv => mv.Like);
                 double totalDislikes = mapRotation.MapMap.MapVotes.Count(mv => !mv.Like);
-                int totalVotes = mapRotation.MapMap.MapVotes.Count();
+                var totalVotes = mapRotation.MapMap.MapVotes.Count();
                 double likePercentage = 0;
                 double dislikePercentage = 0;
 
                 if (totalVotes > 0)
                 {
-                    likePercentage = (totalLikes / totalVotes) * 100;
-                    dislikePercentage = (totalDislikes / totalVotes) * 100;
+                    likePercentage = totalLikes / totalVotes * 100;
+                    dislikePercentage = totalDislikes / totalVotes * 100;
                 }
 
                 var mapDto = new MapDto

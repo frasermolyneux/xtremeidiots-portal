@@ -1,5 +1,4 @@
-﻿using XI.Servers.Interfaces;
-using XI.Servers.Interfaces.Models;
+﻿using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models
 {

@@ -25,6 +25,7 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
+using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Data;
 using XI.Portal.Users.Extensions;

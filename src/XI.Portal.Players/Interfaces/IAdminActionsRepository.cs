@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using XI.Portal.Players.Models;
 
-namespace XI.Portal.Players.Repository
+namespace XI.Portal.Players.Interfaces
 {
     public interface IAdminActionsRepository
     {

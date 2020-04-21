@@ -1,7 +1,7 @@
 ﻿using System;
 using XI.Portal.Players.Configuration;
 
-namespace XI.Portal.Players.Extensions
+namespace XI.Portal.Players.Interfaces
 {
     public static class PlayersModuleOptionsExtensions
     {

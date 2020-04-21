@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Players.Configuration;
+using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Repository;
 
 namespace XI.Portal.Players.Extensions

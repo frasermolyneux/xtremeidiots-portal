@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.Players.Configuration
 {

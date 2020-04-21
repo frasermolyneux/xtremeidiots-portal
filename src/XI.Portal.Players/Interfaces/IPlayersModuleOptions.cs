@@ -1,6 +1,7 @@
 ﻿using System;
+using XI.Portal.Players.Configuration;
 
-namespace XI.Portal.Players.Configuration
+namespace XI.Portal.Players.Interfaces
 {
     public interface IPlayersModuleOptions
     {

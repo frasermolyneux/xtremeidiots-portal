@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
 using XI.Portal.Players.Repository;
 using XI.Portal.Web.Models;

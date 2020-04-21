@@ -7,6 +7,7 @@ namespace XI.Portal.Players.Configuration
     {
         public Action<IPlayersRepositoryOptions> PlayersRepositoryOptions { get; set; }
         public Action<IAdminActionsRepositoryOptions> AdminActionsRepositoryOptions { get; set; }
+        public Action<IPlayerLocationsRepositoryOptions> PlayerLocationsRepositoryOptions { get; set; }
 
         public void Validate()
         {
@@ -15,6 +16,9 @@ namespace XI.Portal.Players.Configuration
 
             if (AdminActionsRepositoryOptions == null)
                 throw new NullReferenceException(nameof(AdminActionsRepositoryOptions));
+
+            if (PlayerLocationsRepositoryOptions == null)
+                throw new NullReferenceException(nameof(PlayerLocationsRepositoryOptions));
         }
     }
 }

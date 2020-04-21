@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Azure.Cosmos.Table;
 
-namespace XI.Portal.Servers.Attributes
+namespace XI.AzureTableExtensions.Attributes
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class EntityEnumPropertyConverterAttribute : Attribute

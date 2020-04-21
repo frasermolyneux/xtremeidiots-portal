@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Azure.Cosmos.Table;
+using XI.AzureTableExtensions;
+using XI.AzureTableExtensions.Attributes;
 using XI.CommonTypes;
-using XI.Portal.Servers.Attributes;
 using XI.Servers.Dto;
 
 namespace XI.Portal.Servers.Models
 {
-    internal class GameServerStatusEntity : TableEntity
+    internal class GameServerStatusEntity : TableEntityExtended
     {
         public GameServerStatusEntity()
         {
@@ -42,21 +42,5 @@ namespace XI.Portal.Servers.Models
         public Guid ServerId { get; set; }
 
         [EntityEnumPropertyConverter] public GameType GameType { get; set; }
-
-        public override IDictionary<string, EntityProperty> WriteEntity(OperationContext operationContext)
-        {
-            var results = base.WriteEntity(operationContext);
-            EntityJsonPropertyConverter.Serialize(this, results);
-            EntityEnumPropertyConverter.Serialize(this, results);
-            return results;
-        }
-
-        public override void ReadEntity(IDictionary<string, EntityProperty> properties,
-            OperationContext operationContext)
-        {
-            base.ReadEntity(properties, operationContext);
-            EntityJsonPropertyConverter.Deserialize(this, properties);
-            EntityEnumPropertyConverter.Deserialize(this, properties);
-        }
     }
 }

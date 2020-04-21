@@ -39,6 +39,17 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
             }
+
+            if (options.PlayerLocationsRepositoryOptions != null)
+            {
+                IPlayerLocationsRepositoryOptions subOptions = new PlayerLocationsRepositoryOptions();
+                options.PlayerLocationsRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
+            }
         }
     }
 }

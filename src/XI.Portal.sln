@@ -44,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FuncApp", "FuncApp", "{7ADA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.FuncApp", "XI.Portal.FuncApp\XI.Portal.FuncApp.csproj", "{B8B134C4-5087-4C03-AF2D-239B767730C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.AzureTableExtensions", "XI.AzureTableExtensions\XI.AzureTableExtensions.csproj", "{D3D4B049-491F-4432-956A-696E53D02179}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{B8B134C4-5087-4C03-AF2D-239B767730C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8B134C4-5087-4C03-AF2D-239B767730C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8B134C4-5087-4C03-AF2D-239B767730C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3D4B049-491F-4432-956A-696E53D02179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D4B049-491F-4432-956A-696E53D02179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D4B049-491F-4432-956A-696E53D02179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D4B049-491F-4432-956A-696E53D02179}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{C1452861-A1E8-4493-B1B3-C8CE576A8255} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{7E2FFE1E-04A9-41E5-88EA-57A55B76376E} = {FCAB2882-2D60-47DC-86DD-11950A79CB97}
 		{B8B134C4-5087-4C03-AF2D-239B767730C7} = {7ADA21B5-49D1-468F-94A9-764BC85C8462}
+		{D3D4B049-491F-4432-956A-696E53D02179} = {FCAB2882-2D60-47DC-86DD-11950A79CB97}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

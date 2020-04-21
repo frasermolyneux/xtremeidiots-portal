@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\XI.AzureTableExtensions\XI.AzureTableExtensions.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth.Contract\XI.Portal.Auth.Contract.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />

@@ -164,6 +164,11 @@ namespace XI.Portal.Web
             {
                 options.ConfigurePlayersRepository(repositoryOptions => { });
                 options.ConfigureAdminActionsRepository(repositoryOptions => { });
+                options.ConfigurePlayerLocationsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["PlayerLocationsRepository:StorageTableName"];
+                });
             });
 
             services.AddUsersModule(options =>

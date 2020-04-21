@@ -1,5 +1,4 @@
 ﻿using System;
-using XI.Portal.Players.Configuration;
 
 namespace XI.Portal.Players.Interfaces
 {
@@ -7,6 +6,7 @@ namespace XI.Portal.Players.Interfaces
     {
         Action<IPlayersRepositoryOptions> PlayersRepositoryOptions { get; set; }
         Action<IAdminActionsRepositoryOptions> AdminActionsRepositoryOptions { get; set; }
+        Action<IPlayerLocationsRepositoryOptions> PlayerLocationsRepositoryOptions { get; set; }
 
         void Validate();
     }

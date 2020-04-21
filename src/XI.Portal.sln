@@ -44,7 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FuncApp", "FuncApp", "{7ADA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.FuncApp", "XI.Portal.FuncApp\XI.Portal.FuncApp.csproj", "{B8B134C4-5087-4C03-AF2D-239B767730C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.AzureTableExtensions", "XI.AzureTableExtensions\XI.AzureTableExtensions.csproj", "{D3D4B049-491F-4432-956A-696E53D02179}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.AzureTableExtensions", "XI.AzureTableExtensions\XI.AzureTableExtensions.csproj", "{D3D4B049-491F-4432-956A-696E53D02179}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -26,6 +26,7 @@ namespace XI.Portal.Web.Controllers
             _mapFileRepository = mapFileRepository ?? throw new ArgumentNullException(nameof(mapFileRepository));
         }
 
+        [HttpGet]
         public ActionResult Index()
         {
             return View();
@@ -43,6 +44,70 @@ namespace XI.Portal.Web.Controllers
                 return BadRequest();
 
             var filterModel = new MapsFilterModel();
+            var recordsTotal = await _mapsRepository.GetMapListCount(filterModel);
+
+            filterModel.FilterString = model.Search?.Value;
+            var recordsFiltered = await _mapsRepository.GetMapListCount(filterModel);
+
+            filterModel.TakeEntries = model.Length;
+            filterModel.SkipEntries = model.Start;
+
+            if (model.Order == null)
+            {
+                filterModel.Order = MapsFilterModel.OrderBy.MapNameAsc;
+            }
+            else
+            {
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var searchOrder = model.Order.First().Dir;
+
+                switch (orderColumn)
+                {
+                    case "mapName":
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.MapNameAsc : MapsFilterModel.OrderBy.MapNameDesc;
+                        break;
+                    case "popularity":
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.LikeDislikeAsc : MapsFilterModel.OrderBy.LikeDislikeDesc;
+                        break;
+                    case "gameType":
+                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.GameTypeAsc : MapsFilterModel.OrderBy.GameTypeDesc;
+                        break;
+                }
+            }
+
+            var mapListEntries = await _mapsRepository.GetMapList(filterModel);
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal,
+                recordsFiltered,
+                data = mapListEntries
+            });
+        }
+
+        [HttpGet]
+        public ActionResult GameMaps(GameType id)
+        {
+            ViewData["GameType"] = id;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> GetGameMapListAjax(GameType id)
+        {
+            var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync();
+
+            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+            if (model == null)
+                return BadRequest();
+
+            var filterModel = new MapsFilterModel
+            {
+                GameType = id
+            };
             var recordsTotal = await _mapsRepository.GetMapListCount(filterModel);
 
             filterModel.FilterString = model.Search?.Value;

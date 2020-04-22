@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Portal.Demos.Interfaces;
 
 namespace XI.Portal.Demos.Configuration
 {
@@ -6,7 +7,6 @@ namespace XI.Portal.Demos.Configuration
     {
         public string StorageConnectionString { get; set; }
         public string StorageContainerName { get; set; }
-        public string StorageTableName { get; set; }
 
         public void Validate()
         {
@@ -15,9 +15,6 @@ namespace XI.Portal.Demos.Configuration
 
             if (string.IsNullOrWhiteSpace(StorageContainerName))
                 throw new NullReferenceException(StorageContainerName);
-
-            if (string.IsNullOrWhiteSpace(StorageTableName))
-                throw new NullReferenceException(StorageTableName);
         }
     }
 }

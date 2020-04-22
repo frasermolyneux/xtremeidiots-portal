@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Portal.Demos.Interfaces;
 
 namespace XI.Portal.Demos.Configuration
 {

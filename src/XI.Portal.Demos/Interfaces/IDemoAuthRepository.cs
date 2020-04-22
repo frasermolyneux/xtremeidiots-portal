@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace XI.Portal.Demos.Repository
+namespace XI.Portal.Demos.Interfaces
 {
     public interface IDemoAuthRepository
     {

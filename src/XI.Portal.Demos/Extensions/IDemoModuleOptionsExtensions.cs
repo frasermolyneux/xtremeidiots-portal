@@ -1,5 +1,5 @@
 ﻿using System;
-using XI.Portal.Demos.Configuration;
+using XI.Portal.Demos.Interfaces;
 
 namespace XI.Portal.Demos.Extensions
 {

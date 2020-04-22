@@ -12,7 +12,7 @@ namespace XI.Portal.Servers.Extensions
     {
         public static IQueryable<ChatLogs> ApplyFilter(this ChatLogFilterModel filterModel, LegacyPortalContext legacyContext)
         {
-            var chatLogs = legacyContext.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable(); //
+            var chatLogs = legacyContext.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 
             if (filterModel.GameType != GameType.Unknown) chatLogs = chatLogs.Where(m => m.GameServerServer.GameType == filterModel.GameType).AsQueryable();
 

@@ -1,12 +1,11 @@
 ﻿using System;
-using XI.CommonTypes;
 
-namespace XI.Portal.Data.Legacy.Models
+namespace XI.Portal.Demos.Dto
 {
-    public class Demoes
+    public class DemoDto
     {
         public Guid DemoId { get; set; }
-        public GameType Game { get; set; }
+        public string Game { get; set; }
         public string Name { get; set; }
         public string FileName { get; set; }
         public DateTime Date { get; set; }
@@ -15,8 +14,9 @@ namespace XI.Portal.Data.Legacy.Models
         public string GameType { get; set; }
         public string Server { get; set; }
         public long Size { get; set; }
-        public string UserId { get; set; }
 
-        public virtual AspNetUsers User { get; set; }
+        [Obsolete("This links back to the AspNetUsers")]
+        public string UserId { get; set; }
+        public string UploadedBy { get; set; }
     }
 }

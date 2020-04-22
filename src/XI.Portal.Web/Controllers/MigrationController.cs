@@ -6,12 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Demos.Models;
-using XI.Portal.Demos.Repository;
+using XI.Portal.Demos.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -114,62 +112,6 @@ namespace XI.Portal.Web.Controllers
                     else
                     {
                         log.AppendLine("   Demo auth key already exists for user");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.AppendLine($"   {ex.Message}");
-                }
-            }
-
-            return Json(new
-            {
-                progress = progress + take,
-                log = log.ToString()
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> MigrateDemos()
-        {
-            ViewData["TotalEntries"] = await _legacyContext.Demoes.CountAsync();
-            return View();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ProcessMigrateDemos(int progress, int take)
-        {
-            var log = new StringBuilder();
-            var demos = await _legacyContext.Demoes.Include(demo => demo.User).Skip(progress).Take(take).ToListAsync();
-            log.AppendLine($"{demos.Count} records retrieved from the database, progress {progress}, take {take}");
-
-            foreach (var demo in demos)
-            {
-                log.AppendLine($"Processing demo {demo.Name} for {demo.User.UserName}");
-                try
-                {
-                    var existingDemo = await _demosRepository.GetUserDemo(demo.User.XtremeIdiotsId, demo.DemoId.ToString());
-
-                    if (existingDemo == null)
-                    {
-                        await _demosRepository.UpdateDemo(new DemoDto
-                        {
-                            RowKey = demo.DemoId.ToString(),
-                            UserId = demo.User.XtremeIdiotsId,
-                            Game = (GameType) demo.Game,
-                            Name = demo.Name,
-                            Created = demo.Date,
-                            Map = demo.Map,
-                            Mod = demo.Mod,
-                            Server = demo.Server,
-                            Size = demo.Size
-                        });
-
-                        log.AppendLine("   Created new demo");
-                    }
-                    else
-                    {
-                        log.AppendLine("   Demo already exists - doing nothing");
                     }
                 }
                 catch (Exception ex)

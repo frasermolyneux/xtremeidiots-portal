@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.Demos.Configuration
+namespace XI.Portal.Demos.Interfaces
 {
     public interface IDemoModuleOptions
     {

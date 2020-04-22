@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Demos.Configuration;
+using XI.Portal.Demos.Interfaces;
 using XI.Portal.Demos.Repository;
 
 namespace XI.Portal.Demos.Extensions

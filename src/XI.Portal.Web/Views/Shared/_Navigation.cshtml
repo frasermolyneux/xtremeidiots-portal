@@ -3,6 +3,8 @@
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Auth.Contract.Extensions
 @using XI.Portal.Auth.Contract.Models
+@using XI.Portal.Demos.Constants
+@using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Extensions
 @inject SignInManager<PortalIdentityUser> SignInManager
 <nav class="navbar-default navbar-static-side" role="navigation">
@@ -82,35 +84,37 @@
             <a asp-controller="ServerAdmin" asp-action="GlobalChatLog">Global ChatLog</a>
         </li>
 
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
+        @foreach (var game in ChatLogSupportedGames.Games)
         {
-            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty2")">
-                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) COD2 ChatLog</a>
-            </li>
+            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))
+            {
+                <li class="@Html.IsSelected(action: "GameChatLog", id: game.ToString())">
+                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game) @game ChatLog</a>
+                </li>
+            }
         }
 
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
-        {
-            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty4")">
-                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) COD4 ChatLog</a>
-            </li>
-        }
-
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
-        {
-            <li class="@Html.IsSelected(action: "GameChatLog", id: "CallOfDuty5")">
-                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) COD5 ChatLog</a>
-            </li>
-        }
     </ul>
 </li>
 
+<li class="@Html.IsSelected("Demos")">
+    <a asp-controller="Demos" asp-action="Index">
+        <i class="fa fa-camera"></i> <span class="nav-label">Demo Manager</span> <span class="fa arrow"></span>
+    </a>
+    <ul class="nav nav-second-level collapse @Html.IsSelected("Demos", cssClass: "in")">
+        <li class="@Html.IsSelected("Demos", "Index")">
+            <a asp-controller="Demos" asp-action="Index">Demos Index</a>
+        </li>
 
-@*<li class="@Html.IsSelected("Demo", "Index")">
-            <a asp-controller="Demo" asp-action="Index">
-                <i class="fa fa-camera"></i> <span class="nav-label">Demos Manager</span>
-            </a>
-        </li>*@
+        @foreach (var game in DemosSupportedGames.Games)
+        {
+            <li class="@Html.IsSelected(action: "GameDemos", id: game.ToString())">
+                <a asp-controller="Demos" asp-action="GameDemos" asp-route-id="@game">@Html.GameTypeIcon(game) @game Demos</a>
+            </li>
+        }
+
+    </ul>
+</li>
 
 <li class="@Html.IsSelected("Maps", "Index")">
     <a asp-controller="Maps" asp-action="Index">
@@ -233,9 +237,6 @@
         </li>
         <li class="@Html.IsSelected(action: "BanFileStatus")">
             <a asp-controller="Migration" asp-action="MigrateDemoAuthKeys">Demo Auth Keys</a>
-        </li>
-        <li class="@Html.IsSelected(action: "LogFileStatus")">
-            <a asp-controller="Migration" asp-action="MigrateDemos">Demos</a>
         </li>
     </ul>
 </li>

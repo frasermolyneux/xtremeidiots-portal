@@ -150,7 +150,6 @@ namespace XI.Portal.Web
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageContainerName = Configuration["DemosRepository:StorageContainerName"];
-                    repositoryOptions.StorageTableName = Configuration["DemosRepository:StorageTableName"];
                 });
 
                 options.ConfigureDemoAuthRepository(repositoryOptions =>

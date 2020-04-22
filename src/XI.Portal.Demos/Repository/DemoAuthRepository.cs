@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
-using XI.Portal.Demos.Configuration;
 using XI.Portal.Demos.Interfaces;
 using XI.Portal.Demos.Models;
 
@@ -11,12 +10,9 @@ namespace XI.Portal.Demos.Repository
     public class DemoAuthRepository : IDemoAuthRepository
     {
         private readonly CloudTable _demoAuthTable;
-        private readonly IDemoAuthRepositoryOptions _options;
 
         public DemoAuthRepository(IDemoAuthRepositoryOptions options)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
-
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 

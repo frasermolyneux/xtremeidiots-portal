@@ -6,6 +6,7 @@
 @using XI.Portal.Auth.Contract.Models
 @using XI.Portal.Demos.Constants
 @using XI.Portal.Maps.Constants
+@using XI.Portal.Players.Constants
 @using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Extensions
 @inject SignInManager<PortalIdentityUser> SignInManager
@@ -147,44 +148,26 @@
         </li>*@
 
 <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
-    <a asp-controller="Players" asp-action="GlobalPlayers">
+    <a asp-controller="Players" asp-action="Index">
         <i class="fa fa-users"></i> <span class="nav-label">Players</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("Players", cssClass: "in")">
-        <li class="@Html.IsSelected(action: "GlobalPlayers")">
-            <a asp-controller="Players" asp-action="GlobalPlayers">Global Player Index</a>
+        <li class="@Html.IsSelected(action: "Index")">
+            <a asp-controller="Players" asp-action="Index">Global Player Index</a>
         </li>
 
-        <li class="@Html.IsSelected(action: "IpSearch")">
-            <a asp-controller="Players" asp-action="IpSearch">IP Search</a>
+        <li class="@Html.IsSelected(action: "IpIndex")">
+            <a asp-controller="Players" asp-action="IpIndex">IP Search</a>
         </li>
 
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty2.ToString()))
+        @foreach (var game in PlayersSupportedGames.Games)
         {
-            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty2")">
-                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) Call of Duty 2</a>
-            </li>
-        }
-
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty4.ToString()))
-        {
-            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty4")">
-                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) Call of Duty 4</a>
-            </li>
-        }
-
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.CallOfDuty5.ToString()))
-        {
-            <li class="@Html.IsSelected(action: "GamePlayers", id: "CallOfDuty5")">
-                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) Call of Duty 5</a>
-            </li>
-        }
-
-        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == GameType.Insurgency.ToString()))
-        {
-            <li class="@Html.IsSelected(action: "GamePlayers", id: "Insurgency")">
-                <a asp-controller="Players" asp-action="GamePlayers" asp-route-id="Insurgency">@Html.GameTypeIcon(GameType.Insurgency) Insurgency</a>
-            </li>
+            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))
+            {
+                <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
+                    <a asp-controller="Players" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
+                </li>
+            }
         }
 
     </ul>

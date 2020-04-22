@@ -107,7 +107,7 @@
         @foreach (var game in DemosSupportedGames.Games)
         {
             <li class="@Html.IsSelected(action: "GameDemos", id: game.ToString())">
-                <a asp-controller="Demos" asp-action="GameDemos" asp-route-id="@game">@Html.GameTypeIcon(game) @game Demos</a>
+                <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
             </li>
         }
 

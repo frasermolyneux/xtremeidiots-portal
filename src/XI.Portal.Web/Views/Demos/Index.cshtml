@@ -1,5 +1,12 @@
 ﻿@{
     ViewData["Title"] = "Demos Index";
+    var dataUrl = "/Demos/GetDemoListAjax";
+
+    if (ViewData["GameType"] != null)
+    {
+        ViewData["Title"] = ViewData["GameType"] + " Demos Index";
+        dataUrl = "/Demos/GetDemoListAjax/" + ViewData["GameType"];
+    }
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -41,18 +48,18 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
                 order: [[2, "desc"]],
                 ajax: {
-                    url: '/Demos/GetGlobalDemoListAjax',
+                    url: '@dataUrl',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -60,14 +67,14 @@
                     {
                         name: 'game',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return gameTypeIcon(row['game']);
                         }
                     },
                     {
                         name: 'name',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return downloadDemoLink(row['name'], row['demoId']);
                         }
                     },
@@ -108,7 +115,7 @@
                     },
                     {
                         sortable: false,
-                        render: function() {
+                        render: function () {
                             return "";
                         }
                     }

@@ -1,5 +1,12 @@
 ﻿@{
     ViewData["Title"] = "Maps Index";
+    var dataUrl = "/Maps/GetMapListAjax";
+
+    if (ViewData["GameType"] != null)
+    {
+        ViewData["Title"] = ViewData["GameType"] + " Maps Index";
+        dataUrl = "/Maps/GetMapListAjax/" + ViewData["GameType"];
+    }
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -43,7 +50,7 @@
                 searchDelay: 1000,
                 order: [[1, "asc"]],
                 ajax: {
-                    url: '/Maps/GetGlobalMapListAjax',
+                    url: '@dataUrl',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",

@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using XI.CommonTypes
+@using XI.CommonTypes.Extensions
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Auth.Contract.Extensions
 @using XI.Portal.Auth.Contract.Models
@@ -124,8 +125,8 @@
 
         @foreach (var game in MapsSupportedGames.Games)
         {
-            <li class="@Html.IsSelected(action: "GameMaps", id: game.ToString())">
-                <a asp-controller="Maps" asp-action="GameMaps" asp-route-id="@game">@Html.GameTypeIcon(game) @game Maps</a>
+            <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
+                <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
             </li>
         }
 

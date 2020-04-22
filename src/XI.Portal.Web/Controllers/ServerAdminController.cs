@@ -37,7 +37,7 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
-        public async Task<IActionResult> ServersIndex()
+        public async Task<IActionResult> Index()
         {
             var servers = (await _gameServersRepository.GetGameServers(User, _requiredClaims))
                 .Where(server => !string.IsNullOrWhiteSpace(server.RconPassword));
@@ -91,14 +91,60 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
-        public IActionResult GlobalChatLog()
+        public IActionResult ChatLogIndex()
         {
             return View();
         }
 
         [HttpPost]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
-        public async Task<ActionResult> GetGlobalChatLogAjax()
+        public async Task<IActionResult> GetChatLogAjax()
+        {
+            return await GetChatLogPrivate(null, null);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public IActionResult GameChatLog(GameType id)
+        { 
+            if(!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString()))
+            {
+                return Unauthorized();
+            }
+
+            ViewData["GameType"] = id;
+            return View(nameof(ChatLogIndex));
+        }
+
+        [HttpPost]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public async Task<IActionResult> GetGameChatLogAjax(GameType id)
+        {
+            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString()))
+            {
+                return Unauthorized();
+            }
+
+            return await GetChatLogPrivate(id, null);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public IActionResult ServerChatLog(Guid id)
+        {
+            ViewData["ServerId"] = id;
+            return View(nameof(ChatLogIndex));
+        }
+
+        [HttpPost]
+        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        public async Task<IActionResult> GetServerChatLogAjax(Guid id)
+        {
+            return await GetChatLogPrivate(null, id);
+        }
+
+        [HttpGet]
+        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -109,6 +155,13 @@ namespace XI.Portal.Web.Controllers
                 return BadRequest();
 
             var filterModel = new ChatLogFilterModel();
+
+            if (gameType != null)
+                filterModel.GameType = (GameType) gameType;
+
+            if (serverId != null)
+                filterModel.ServerId = (Guid) serverId;
+
             var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
 
             filterModel.FilterString = model.Search?.Value;
@@ -145,129 +198,196 @@ namespace XI.Portal.Web.Controllers
             });
         }
 
-        [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
-        public IActionResult GameChatLog(GameType id)
-        {
-            ViewData["GameType"] = id;
-            return View();
-        }
 
-        [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
-        public async Task<ActionResult> GetGameChatLogAjax(GameType id)
-        {
-            var reader = new StreamReader(Request.Body);
-            var requestBody = await reader.ReadToEndAsync();
 
-            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-            if (model == null)
-                return BadRequest();
 
-            var filterModel = new ChatLogFilterModel
-            {
-                GameType = id
-            };
-            var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
 
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
 
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
 
-            if (model.Order == null)
-            {
-                filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
-            }
-            else
-            {
-                var orderColumn = model.Columns[model.Order.First().Column].Name;
-                var searchOrder = model.Order.First().Dir;
 
-                switch (orderColumn)
-                {
-                    case "timestamp":
-                        filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
-                        break;
-                }
-            }
 
-            var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
 
-            return Json(new
-            {
-                model.Draw,
-                recordsTotal,
-                recordsFiltered,
-                data = mapListEntries
-            });
-        }
 
-        [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
-        public async Task<IActionResult> ServerChatLog(Guid? id)
-        {
-            if (id == null) return NotFound();
+        //[HttpGet]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        //public IActionResult GlobalChatLog()
+        //{
+        //    return View();
+        //}
 
-            ViewData["ServerId"] = id;
-            var server = await _gameServersRepository.GetGameServer(id, User, null);
+        //[HttpPost]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        //public async Task<ActionResult> GetGlobalChatLogAjax()
+        //{
+        //    var reader = new StreamReader(Request.Body);
+        //    var requestBody = await reader.ReadToEndAsync();
 
-            return View(server);
-        }
+        //    var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-        [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
-        public async Task<ActionResult> GetServerChatLogAjax(Guid id)
-        {
-            var reader = new StreamReader(Request.Body);
-            var requestBody = await reader.ReadToEndAsync();
+        //    if (model == null)
+        //        return BadRequest();
 
-            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+        //    var filterModel = new ChatLogFilterModel();
+        //    var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
 
-            if (model == null)
-                return BadRequest();
+        //    filterModel.FilterString = model.Search?.Value;
+        //    var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
 
-            var filterModel = new ChatLogFilterModel
-            {
-                ServerId = id
-            };
-            var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
+        //    filterModel.TakeEntries = model.Length;
+        //    filterModel.SkipEntries = model.Start;
 
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
+        //    if (model.Order == null)
+        //    {
+        //        filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
+        //    }
+        //    else
+        //    {
+        //        var orderColumn = model.Columns[model.Order.First().Column].Name;
+        //        var searchOrder = model.Order.First().Dir;
 
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
+        //        switch (orderColumn)
+        //        {
+        //            case "timestamp":
+        //                filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+        //                break;
+        //        }
+        //    }
 
-            if (model.Order == null)
-            {
-                filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
-            }
-            else
-            {
-                var orderColumn = model.Columns[model.Order.First().Column].Name;
-                var searchOrder = model.Order.First().Dir;
+        //    var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
 
-                switch (orderColumn)
-                {
-                    case "timestamp":
-                        filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
-                        break;
-                }
-            }
+        //    return Json(new
+        //    {
+        //        model.Draw,
+        //        recordsTotal,
+        //        recordsFiltered,
+        //        data = mapListEntries
+        //    });
+        //}
 
-            var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
+        //[HttpGet]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        //public IActionResult GameChatLog(GameType id)
+        //{
+        //    ViewData["GameType"] = id;
+        //    return View();
+        //}
 
-            return Json(new
-            {
-                model.Draw,
-                recordsTotal,
-                recordsFiltered,
-                data = mapListEntries
-            });
-        }
+        //[HttpPost]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        //public async Task<ActionResult> GetGameChatLogAjax(GameType id)
+        //{
+        //    var reader = new StreamReader(Request.Body);
+        //    var requestBody = await reader.ReadToEndAsync();
+
+        //    var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+        //    if (model == null)
+        //        return BadRequest();
+
+        //    var filterModel = new ChatLogFilterModel
+        //    {
+        //        GameType = id
+        //    };
+        //    var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+        //    filterModel.FilterString = model.Search?.Value;
+        //    var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+        //    filterModel.TakeEntries = model.Length;
+        //    filterModel.SkipEntries = model.Start;
+
+        //    if (model.Order == null)
+        //    {
+        //        filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
+        //    }
+        //    else
+        //    {
+        //        var orderColumn = model.Columns[model.Order.First().Column].Name;
+        //        var searchOrder = model.Order.First().Dir;
+
+        //        switch (orderColumn)
+        //        {
+        //            case "timestamp":
+        //                filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+        //                break;
+        //        }
+        //    }
+
+        //    var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
+
+        //    return Json(new
+        //    {
+        //        model.Draw,
+        //        recordsTotal,
+        //        recordsFiltered,
+        //        data = mapListEntries
+        //    });
+        //}
+
+        //[HttpGet]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        //public async Task<IActionResult> ServerChatLog(Guid? id)
+        //{
+        //    if (id == null) return NotFound();
+
+        //    ViewData["ServerId"] = id;
+        //    var server = await _gameServersRepository.GetGameServer(id, User, null);
+
+        //    return View(server);
+        //}
+
+        //[HttpPost]
+        //[Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        //public async Task<ActionResult> GetServerChatLogAjax(Guid id)
+        //{
+        //    var reader = new StreamReader(Request.Body);
+        //    var requestBody = await reader.ReadToEndAsync();
+
+        //    var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+        //    if (model == null)
+        //        return BadRequest();
+
+        //    var filterModel = new ChatLogFilterModel
+        //    {
+        //        ServerId = id
+        //    };
+        //    var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+        //    filterModel.FilterString = model.Search?.Value;
+        //    var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
+
+        //    filterModel.TakeEntries = model.Length;
+        //    filterModel.SkipEntries = model.Start;
+
+        //    if (model.Order == null)
+        //    {
+        //        filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
+        //    }
+        //    else
+        //    {
+        //        var orderColumn = model.Columns[model.Order.First().Column].Name;
+        //        var searchOrder = model.Order.First().Dir;
+
+        //        switch (orderColumn)
+        //        {
+        //            case "timestamp":
+        //                filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+        //                break;
+        //        }
+        //    }
+
+        //    var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
+
+        //    return Json(new
+        //    {
+        //        model.Draw,
+        //        recordsTotal,
+        //        recordsFiltered,
+        //        data = mapListEntries
+        //    });
+        //}
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]

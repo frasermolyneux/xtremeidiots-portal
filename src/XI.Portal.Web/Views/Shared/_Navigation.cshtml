@@ -70,16 +70,16 @@
 </li>
 
 <li policy="@XtremeIdiotsPolicy.CanAccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
-    <a asp-controller="ServerAdmin" asp-action="ServersIndex">
+    <a asp-controller="ServerAdmin" asp-action="Index">
         <i class="fa fa-terminal"></i> <span class="nav-label">Server Admin</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "in")">
-        <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "ServersIndex")">
-            <a asp-controller="ServerAdmin" asp-action="ServersIndex">Servers</a>
+        <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
+            <a asp-controller="ServerAdmin" asp-action="Index">Servers</a>
         </li>
 
         <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "GlobalChatLog")">
-            <a asp-controller="ServerAdmin" asp-action="GlobalChatLog">Global ChatLog</a>
+            <a asp-controller="ServerAdmin" asp-action="ChatLogIndex">Global ChatLog</a>
         </li>
 
         @foreach (var game in ChatLogSupportedGames.Games)
@@ -87,11 +87,10 @@
             @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))
             {
                 <li class="@Html.IsSelected(action: "GameChatLog", id: game.ToString())">
-                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game) @game ChatLog</a>
+                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game) @game.ShortDisplayName() ChatLog</a>
                 </li>
             }
         }
-
     </ul>
 </li>
 

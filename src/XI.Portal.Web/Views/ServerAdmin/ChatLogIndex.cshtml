@@ -1,7 +1,20 @@
-﻿@model XI.Portal.Data.Legacy.Models.GameServers
-
+﻿@using XI.CommonTypes
+@using XI.CommonTypes.Extensions
 @{
-    ViewData["Title"] = Model.Title + " ChatLog";
+    ViewData["Title"] = "Global ChatLog";
+    var dataUrl = "/ServerAdmin/GetChatLogAjax";
+
+    if (ViewData["GameType"] != null)
+    {
+        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " ChatLog Index";
+        dataUrl = "/ServerAdmin/GetGameChatLogAjax/" + ViewData["GameType"];
+    }
+
+    if (ViewData["ServerId"] != null)
+    {
+        ViewData["Title"] = "Server ChatLog Index";
+        dataUrl = "/ServerAdmin/GetServerChatLogAjax/" + ViewData["ServerId"];
+    }
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -27,9 +40,6 @@
                             </thead>
                         </table>
                     </div>
-                    <div class="ibox-footer">
-                        <a asp-action="ServersIndex">Back to List</a>
-                    </div>
                 </div>
             </div>
 
@@ -51,7 +61,7 @@
                 searchDelay: 1000,
                 order: [[1, "desc"]],
                 ajax: {
-                    url: '/ServerAdmin/GetServerChatLogAjax/@ViewData["ServerId"]',
+                    url: '@dataUrl',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",

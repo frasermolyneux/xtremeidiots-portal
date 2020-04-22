@@ -13,7 +13,7 @@ function handleAjaxError(xhr, textStatus, error) {
 
 function renderPlayerName(gameType, username) {
     var safeUsername = escapeHtml(username);
-    return gameTypeIcon(gameType) + safeUsername;
+    return gameTypeIcon(gameType) + " " + safeUsername;
 }
 
 function chatLogUrl(chatLogId) {

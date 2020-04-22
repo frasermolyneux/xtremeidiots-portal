@@ -57,11 +57,7 @@
                         name: 'gameType',
                         sortable: true,
                         render: function(data, type, row) {
-                            return "<img src='/images/game-icons/" +
-                                data +
-                                ".png' alt='" +
-                                data +
-                                "' width='16' height='16' />";
+                            return gameTypeIcon(row['gameType']);
                         }
                     },
                     {

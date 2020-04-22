@@ -37,7 +37,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> GetDemoListAjax(GameType? id)
+        public async Task<IActionResult> GetDemoListAjax(GameType? id)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();

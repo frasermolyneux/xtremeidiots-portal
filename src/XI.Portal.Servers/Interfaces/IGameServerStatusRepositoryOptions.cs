@@ -7,8 +7,6 @@ namespace XI.Portal.Servers.Interfaces
         string StorageConnectionString { get; set; }
         string StorageTableName { get; set; }
 
-        GeoLocationClientConfig GeoLocationClientConfiguration { get; set; }
-
         void Validate();
     }
 }

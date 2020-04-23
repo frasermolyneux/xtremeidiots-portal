@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,20 @@ namespace XI.Portal.FuncApp
             builder.Services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(config["LegacyPortalContext:ConnectionString"]));
 
+            builder.Services.AddGeoLocationClient(options =>
+            {
+                options.BaseUrl = config["GeoLocation:BaseUrl"];
+                options.ApiKey = config["GeoLocation:ApiKey"];
+                options.UseMemoryCache = true;
+                options.CacheEntryLifeInMinutes = 60;
+                options.RetryTimespans = new[]
+                {
+                    TimeSpan.FromSeconds(1),
+                    TimeSpan.FromSeconds(3),
+                    TimeSpan.FromSeconds(5)
+                };
+            });
+
             builder.Services.AddServersModule(options =>
             {
                 options.ConfigureGameServersRepository(repositoryOptions => { });
@@ -45,11 +60,6 @@ namespace XI.Portal.FuncApp
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["GameServerStatusRepository:StorageTableName"];
-                    repositoryOptions.GeoLocationClientConfiguration = new GeoLocationClientConfig
-                    {
-                        BaseUrl = config["GeoLocation:BaseUrl"],
-                        ApiKey = config["GeoLocation:ApiKey"]
-                    };
                 });
                 options.ConfigureChatLogsRepository(repositoryOptions => { });
             });
@@ -62,11 +72,6 @@ namespace XI.Portal.FuncApp
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["PlayerLocationsRepository:StorageTableName"];
-                    repositoryOptions.GeoLocationClientConfiguration = new Players.Configuration.GeoLocationClientConfig
-                    {
-                        BaseUrl = config["GeoLocation:BaseUrl"],
-                        ApiKey = config["GeoLocation:ApiKey"]
-                    };
                 });
             });
 

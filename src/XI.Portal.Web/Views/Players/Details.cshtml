@@ -1,0 +1,174 @@
+﻿@using FM.GeoLocation.Contract
+@using XI.Portal.Web.Extensions
+@model XI.Portal.Web.Controllers.PlayersController.PlayerDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Player.Username + " Player Details";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+
+        <div class="col-sm-4">
+            <div class="ibox">
+                <div class="ibox-content">
+
+                    <span class="text-muted pull-right">
+                        @Html.GameTypeIcon(Model.Player.GameType)
+                    </span>
+
+                    <div id="player" class="tab-pane active">
+                        <div class="row m-b-lg" style="margin-left: 5px">
+                            <div class="text-center">
+                                <h2>@Model.Player.Username</h2>
+                            </div>
+                        </div>
+
+                        <div>
+                            <ul class="list-group clear-list">
+                                <li class="list-group-item fist-item">
+                                    <span class="pull-right"> @Model.Player.PlayerId</span>
+                                    Player ID
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="pull-right"> @Model.Player.Username</span>
+                                    Alias
+                                </li>
+
+                                @if (Model.GeoLocation != null)
+                                {
+                                    <li class="list-group-item">
+                                        <span class="pull-right">
+                                            <a target="_blank" href="@GeoLocationUrls.LookupAddress(Model.Player.IpAddress)">
+                                                @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
+                                            </a>
+                                        </span>
+                                        IP Address
+                                    </li>
+
+                                    <li class="list-group-item">
+                                        <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
+                                        Country/City
+                                    </li>
+                                }
+
+                                <li class="list-group-item">
+                                    <span class="pull-right"> @Html.GuidLink(Model.Player.Guid, Model.Player.GameType)</span>
+                                    GUID
+                                </li>
+                                <li class="list-group-item">
+                                    <span class="pull-right">
+                                        <i class="fa fa-clock-o"></i> @Model.Player.LastSeen
+                                    </span>
+                                    Last Seen
+                                </li>
+                            </ul>
+
+                            <div style="padding-bottom: 10px; padding-top: 20px">
+                                <div>
+                                    <h4>Perform Admin Action:</h4>
+                                    <ul>
+                                        @*@if (User.Identity.IsInAdminOrModeratorRole())
+                                            {
+                                                <li>@Html.ActionLink("Add Observation", "Create", "Observations", new {id = Model.Player.PlayerId}, new {})</li>
+                                                <li>@Html.ActionLink("Add Warning", "Create", "Warnings", new {id = Model.Player.PlayerId}, new {})</li>
+                                                <li>@Html.ActionLink("Add Kick", "Create", "Kicks", new {id = Model.Player.PlayerId}, new {})</li>
+                                            }
+
+                                            @if (User.Identity.IsInAdminRole())
+                                            {
+                                                <li>@Html.ActionLink("Add TempBan", "Create", "TempBans", new {id = Model.Player.PlayerId}, new {})</li>
+                                                <li>@Html.ActionLink("Add Ban", "Create", "Bans", new {id = Model.Player.PlayerId}, new {})</li>
+                                            }
+
+                                            @if (User.Identity.IsInSeniorAdminRole())
+                                            {
+                                                <li>@Html.ActionLink("Delete Player", "Delete", "Players", new {id = Model.Player.PlayerId}, new {})</li>
+                                            }*@
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#location">Location</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#aliases">Aliases</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" style="height: 450px">
+                        <div class="tab-pane container active" style="height: 100%" id="location">
+                            <div id="map" style="height: 100%; width: 100%;"></div>
+                            <a target="_blank" href="https://geo-location.net/">Powered by geo-location.net</a>
+                        </div>
+
+                        <div class="tab-pane container fade" style="height: 100%" id="aliases">
+
+                        </div>
+
+                        <div class="tab-pane container fade" style="height: 100%" id="ipAddresses">
+
+                        </div>
+
+                        <div class="tab-pane container fade" style="height: 100%" id="relatedPlayers">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    <script>
+        function initMap() {
+            @if (Model.GeoLocation != null)
+            {
+                <text>var myLatLng = {
+                        lat: @Model.GeoLocation.Latitude,
+                        lng: @Model.GeoLocation.Longitude
+                    };
+
+                    var map = new google.maps.Map(document.getElementById('map'),
+                        {
+                            zoom: 4,
+                            center: myLatLng
+                        });
+
+                    var marker = new google.maps.Marker({
+                        position: myLatLng,
+                        map: map,
+                        title: 'Player Location'
+                    });
+                </text>
+            }
+        }
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDqX0zqt8PWTqRtk0PA6luVuOJiWSgbiw0&signed_in=false&callback=initMap"></script>
+}

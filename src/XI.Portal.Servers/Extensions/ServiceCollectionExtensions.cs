@@ -75,9 +75,6 @@ namespace XI.Portal.Servers.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IGameServerStatusRepository, GameServerStatusRepository>();
-
-                serviceCollection.AddSingleton<IGeoLocationClientConfiguration>(subOptions.GeoLocationClientConfiguration);
-                serviceCollection.AddSingleton<IGeoLocationClient, GeoLocationClient>();
             }
 
             if (options.ChatLogsRepositoryOptions != null)

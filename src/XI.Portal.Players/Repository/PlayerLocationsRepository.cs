@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using FM.GeoLocation.Client;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Players.Dto;
@@ -12,13 +11,11 @@ namespace XI.Portal.Players.Repository
 {
     public class PlayerLocationsRepository : IPlayerLocationsRepository
     {
-        private readonly IGeoLocationClient _geoLocationClient;
         private readonly CloudTable _locationsTable;
 
-        public PlayerLocationsRepository(IPlayerLocationsRepositoryOptions options, IGeoLocationClient geoLocationClient)
+        public PlayerLocationsRepository(IPlayerLocationsRepositoryOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
 
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();

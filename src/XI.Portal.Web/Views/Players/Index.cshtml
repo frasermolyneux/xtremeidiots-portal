@@ -69,7 +69,7 @@
                         name: 'username',
                         sortable: true,
                         render: function(data, type, row) {
-                            return renderPlayerName(row['gameType'], row['username']);
+                            return renderPlayerName(row['gameType'], row['username'], row['playerId']);
                         }
                     },
                     {

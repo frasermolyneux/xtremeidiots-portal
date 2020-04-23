@@ -16,6 +16,11 @@ function renderPlayerName(gameType, username) {
     return gameTypeIcon(gameType) + " " + safeUsername;
 }
 
+function renderPlayerName(gameType, username, playerId) {
+    var safeUsername = escapeHtml(username);
+    return gameTypeIcon(gameType) + " <a href='/Players/Details/" + playerId + "'>" + safeUsername + "</a>";
+}
+
 function chatLogUrl(chatLogId) {
     return "<a href='/ServerAdmin/ChatLogPermaLink/" + chatLogId + "'>PermLink</a>";
 }

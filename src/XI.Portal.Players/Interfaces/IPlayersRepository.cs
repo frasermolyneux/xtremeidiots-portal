@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using XI.Portal.Players.Dto;
 using XI.Portal.Players.Models;
 
 namespace XI.Portal.Players.Interfaces
 {
     public interface IPlayersRepository
     {
-        Task<int> GetPlayerListCount(PlayersFilterModel filterModel = null);
-        Task<List<PlayerListEntryViewModel>> GetPlayerList(PlayersFilterModel filterModel = null);
+        Task<int> GetPlayerListCount(PlayersFilterModel filterModel);
+        Task<List<PlayerListEntryViewModel>> GetPlayerList(PlayersFilterModel filterModel);
+        Task<PlayerDto> GetPlayer(Guid id, ClaimsPrincipal user, string[] requiredClaims);
     }
 }

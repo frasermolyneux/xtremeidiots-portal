@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using FM.GeoLocation.Client;
+using FM.GeoLocation.Contract.Interfaces;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Auth.Contract.Extensions;

@@ -50,9 +50,6 @@ namespace XI.Portal.Players.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
-
-                serviceCollection.AddSingleton<IGeoLocationClientConfiguration>(subOptions.GeoLocationClientConfiguration);
-                serviceCollection.AddSingleton<IGeoLocationClient, GeoLocationClient>();
             }
         }
     }

@@ -11,5 +11,20 @@ namespace XI.Portal.Web.Extensions
                 ? new HtmlString($"<img src=\"/images/flags/{geoLocationDto.CountryCode.ToLower()}.png\" />")
                 : new HtmlString("<img src=\"/images/flags/unknown.png\" />");
         }
+
+        public static HtmlString LocationSummary(this GeoLocationDto geoLocationDto)
+        {
+            if (!string.IsNullOrWhiteSpace(geoLocationDto.CityName) &&
+                !string.IsNullOrWhiteSpace(geoLocationDto.CountryName))
+                return new HtmlString($"{geoLocationDto.CityName}, {geoLocationDto.CountryName}");
+
+            if (!string.IsNullOrWhiteSpace(geoLocationDto.CountryCode))
+                return new HtmlString($"{geoLocationDto.CountryCode}");
+
+            if (!string.IsNullOrWhiteSpace(geoLocationDto.RegisteredCountry))
+                return new HtmlString($"{geoLocationDto.RegisteredCountry}");
+
+            return new HtmlString("Unknown");
+        }
     }
 }

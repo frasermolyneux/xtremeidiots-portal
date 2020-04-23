@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
+using FM.GeoLocation.Client.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
@@ -125,6 +126,18 @@ namespace XI.Portal.Web
                     });
                 });
 
+            services.AddGeoLocationClient(options =>
+            {
+                options.BaseUrl = Configuration["GeoLocation:BaseUrl"];
+                options.ApiKey = Configuration["GeoLocation:ApiKey"];
+                options.UseMemoryCache = true;
+                options.CacheEntryLifeInMinutes = 60;
+                options.RetryTimespans = new[]
+                {
+                    TimeSpan.FromSeconds(1)
+                };
+            });
+
             services.AddForumsClient(options =>
             {
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
@@ -167,11 +180,6 @@ namespace XI.Portal.Web
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["PlayerLocationsRepository:StorageTableName"];
-                    repositoryOptions.GeoLocationClientConfiguration = new GeoLocationClientConfig
-                    {
-                        BaseUrl = Configuration["GeoLocation:BaseUrl"],
-                        ApiKey = Configuration["GeoLocation:ApiKey"]
-                    };
                 });
             });
 
@@ -197,11 +205,6 @@ namespace XI.Portal.Web
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusRepository:StorageTableName"];
-                    repositoryOptions.GeoLocationClientConfiguration = new Servers.Configuration.GeoLocationClientConfig
-                    {
-                        BaseUrl = Configuration["GeoLocation:BaseUrl"],
-                        ApiKey = Configuration["GeoLocation:ApiKey"]
-                    };
                 });
                 options.ConfigureChatLogsRepository(repositoryOptions => { });
             });

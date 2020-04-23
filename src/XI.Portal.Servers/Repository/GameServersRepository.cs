@@ -36,13 +36,13 @@ namespace XI.Portal.Servers.Repository
 
         public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers.ApplyAuthPolicies(user, requiredClaims).OrderBy(server => server.BannerServerListPosition).ToListAsync();
+            return await _legacyContext.GameServers.ApplyAuth(user, requiredClaims).OrderBy(server => server.BannerServerListPosition).ToListAsync();
         }
 
         public async Task<GameServers> GetGameServer(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.GameServers
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
         }
 
@@ -79,7 +79,7 @@ namespace XI.Portal.Servers.Repository
 
         public async Task<bool> GameServerExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.ServerId == id);
+            return await _legacyContext.GameServers.ApplyAuth(user, requiredClaims).AnyAsync(e => e.ServerId == id);
         }
 
         public async Task RemoveGameServer(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)

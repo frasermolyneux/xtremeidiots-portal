@@ -1,4 +1,8 @@
-﻿@using FM.GeoLocation.Contract
+﻿@inject IAuthorizationService AuthorizationService
+@using FM.GeoLocation.Contract
+@using Microsoft.AspNetCore.Authorization
+@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Data.Legacy.CommonTypes
 @using XI.Portal.Web.Extensions
 @model XI.Portal.Web.Controllers.PlayersController.PlayerDetailsViewModel
 
@@ -8,183 +12,388 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-    <div class="row">
+<div class="row">
 
-        <div class="col-sm-4">
-            <div class="ibox">
-                <div class="ibox-content">
+<div class="col-sm-4">
+    <div class="ibox">
+        <div class="ibox-content">
 
-                    <span class="text-muted pull-right">
-                        @Html.GameTypeIcon(Model.Player.GameType)
-                    </span>
+            <span class="text-muted pull-right">
+                @Html.GameTypeIcon(Model.Player.GameType)
+            </span>
 
-                    <div id="player" class="tab-pane active">
-                        <div class="row m-b-lg" style="margin-left: 5px">
-                            <div class="text-center">
-                                <h2>@Model.Player.Username</h2>
-                            </div>
-                        </div>
+            <div id="player" class="tab-pane active">
+                <div class="row m-b-lg" style="margin-left: 5px">
+                    <div class="text-center">
+                        <h2>@Model.Player.Username</h2>
+                    </div>
+                </div>
 
+                <div>
+                    <ul class="list-group clear-list">
+                        <li class="list-group-item fist-item">
+                            <span class="pull-right"> @Model.Player.PlayerId</span>
+                            Player ID
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right"> @Model.Player.Username</span>
+                            Alias
+                        </li>
+
+                        @if (Model.GeoLocation != null)
+                        {
+                            <li class="list-group-item">
+                                <span class="pull-right">
+                                    <a target="_blank" href="@GeoLocationUrls.LookupAddress(Model.Player.IpAddress)">
+                                        @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
+                                    </a>
+                                </span>
+                                IP Address
+                            </li>
+
+                            <li class="list-group-item">
+                                <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
+                                Country/City
+                            </li>
+                        }
+
+                        <li class="list-group-item">
+                            <span class="pull-right"> @Html.GuidLink(Model.Player.Guid, Model.Player.GameType)</span>
+                            GUID
+                        </li>
+                        <li class="list-group-item">
+                            <span class="pull-right">
+                                <i class="fa fa-clock-o"></i> @Model.Player.LastSeen
+                            </span>
+                            Last Seen
+                        </li>
+                    </ul>
+
+                    <div style="padding-bottom: 10px; padding-top: 20px">
                         <div>
-                            <ul class="list-group clear-list">
-                                <li class="list-group-item fist-item">
-                                    <span class="pull-right"> @Model.Player.PlayerId</span>
-                                    Player ID
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="pull-right"> @Model.Player.Username</span>
-                                    Alias
-                                </li>
+                            <ul>
+                                @{
+                                    var canAddObservation = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                     claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                     claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                     claim.Type == XtremeIdiotsClaimTypes.Moderator && claim.Value == Model.Player.GameType.ToString());
 
-                                @if (Model.GeoLocation != null)
+                                    var canAddWarning = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.Moderator && claim.Value == Model.Player.GameType.ToString());
+
+                                    var canAddKick = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.Moderator && claim.Value == Model.Player.GameType.ToString());
+
+                                    var canAddTempBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+
+                                    var canAddBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+
+                                    var canDeletePlayer = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin);
+                                }
+
+                                @if (canAddObservation || canAddWarning || canAddKick || canAddTempBan || canAddBan || canDeletePlayer)
                                 {
-                                    <li class="list-group-item">
-                                        <span class="pull-right">
-                                            <a target="_blank" href="@GeoLocationUrls.LookupAddress(Model.Player.IpAddress)">
-                                                @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
-                                            </a>
-                                        </span>
-                                        IP Address
-                                    </li>
+                                    <h4>Perform Admin Action:</h4>
+                                }
 
-                                    <li class="list-group-item">
-                                        <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
-                                        Country/City
+                                @if (canAddObservation)
+                                {
+                                    <li>
+                                        <a asp-controller="Observations" asp-action="Create" asp-route-id="@Model.Player.PlayerId">Add Observation</a>
                                     </li>
                                 }
 
-                                <li class="list-group-item">
-                                    <span class="pull-right"> @Html.GuidLink(Model.Player.Guid, Model.Player.GameType)</span>
-                                    GUID
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="pull-right">
-                                        <i class="fa fa-clock-o"></i> @Model.Player.LastSeen
-                                    </span>
-                                    Last Seen
-                                </li>
+                                @if (canAddWarning)
+                                {
+                                    <li>
+                                        <a asp-controller="Warnings" asp-action="Create" asp-route-id="@Model.Player.PlayerId">Add Warning</a>
+                                    </li>
+                                }
+
+                                @if (canAddKick)
+                                {
+                                    <li>
+                                        <a asp-controller="Kicks" asp-action="Create" asp-route-id="@Model.Player.PlayerId">Add Kick</a>
+                                    </li>
+                                }
+
+                                @if (canAddTempBan)
+                                {
+                                    <li>
+                                        <a asp-controller="TempBans" asp-action="Create" asp-route-id="@Model.Player.PlayerId">Add Temp Ban</a>
+                                    </li>
+                                }
+
+                                @if (canAddBan)
+                                {
+                                    <li>
+                                        <a asp-controller="Bans" asp-action="Create" asp-route-id="@Model.Player.PlayerId">Add Ban</a>
+                                    </li>
+                                }
+
+                                @if (canDeletePlayer)
+                                {
+                                    <li>
+                                        <a asp-controller="Players" asp-action="Delete" asp-route-id="@Model.Player.PlayerId">Delete Player</a>
+                                    </li>
+                                }
+
                             </ul>
-
-                            <div style="padding-bottom: 10px; padding-top: 20px">
-                                <div>
-                                    <h4>Perform Admin Action:</h4>
-                                    <ul>
-                                        @*@if (User.Identity.IsInAdminOrModeratorRole())
-                                            {
-                                                <li>@Html.ActionLink("Add Observation", "Create", "Observations", new {id = Model.Player.PlayerId}, new {})</li>
-                                                <li>@Html.ActionLink("Add Warning", "Create", "Warnings", new {id = Model.Player.PlayerId}, new {})</li>
-                                                <li>@Html.ActionLink("Add Kick", "Create", "Kicks", new {id = Model.Player.PlayerId}, new {})</li>
-                                            }
-
-                                            @if (User.Identity.IsInAdminRole())
-                                            {
-                                                <li>@Html.ActionLink("Add TempBan", "Create", "TempBans", new {id = Model.Player.PlayerId}, new {})</li>
-                                                <li>@Html.ActionLink("Add Ban", "Create", "Bans", new {id = Model.Player.PlayerId}, new {})</li>
-                                            }
-
-                                            @if (User.Identity.IsInSeniorAdminRole())
-                                            {
-                                                <li>@Html.ActionLink("Delete Player", "Delete", "Players", new {id = Model.Player.PlayerId}, new {})</li>
-                                            }*@
-                                    </ul>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
 
                 </div>
             </div>
+
         </div>
-
-        <div class="col-sm-8">
-            <div class="ibox ">
-                <div class="ibox-content">
-
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#location">Location</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#aliases">Aliases</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
-                        </li>
-                        @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
-                            </li>
-                        }
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="ibox-content tab-pane container active" style="height: 100%" id="location">
-                            <div id="map" style="height: 450px; width: 100%;"></div>
-                            <a target="_blank" href="https://geo-location.net/">Powered by geo-location.net</a>
-                        </div>
-
-                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
-                            <table id="aliasesTable" style="width: 100%;">
-                                <thead>
-                                <tr>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Added
-                                    </th>
-                                    <th>
-                                        Last Used
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-
-                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
-                            <table id="ipAddressesTable" style="width: 100%;">
-                                <thead>
-                                <tr>
-                                    <th>
-                                        Address
-                                    </th>
-                                    <th>
-                                        Added
-                                    </th>
-                                    <th>
-                                        Last Used
-                                    </th>
-                                </tr>
-                                </thead>
-                            </table>
-                        </div>
-
-                        @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
-                        {
-                            <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
-                                <table id="relatedPlayersTable" style="width: 100%;">
-                                    <thead>
-                                    <tr>
-                                        <th>
-                                            Player Name
-                                        </th>
-                                        <th>
-                                            Connected By IP
-                                        </th>
-                                    </tr>
-                                    </thead>
-                                </table>
-                            </div>
-                        }
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+</div>
+
+<div class="col-sm-8">
+    <div class="ibox ">
+        <div class="ibox-content">
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#location">Location</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#aliases">Aliases</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
+                </li>
+                @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
+                    </li>
+                }
+            </ul>
+
+            <div class="tab-content">
+                <div class="ibox-content tab-pane container active" style="height: 100%" id="location">
+                    <div id="map" style="height: 450px; width: 100%;"></div>
+                    <a target="_blank" href="https://geo-location.net/">Powered by geo-location.net</a>
+                </div>
+
+                <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
+                    <table id="aliasesTable" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Added
+                            </th>
+                            <th>
+                                Last Used
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                    <table id="ipAddressesTable" style="width: 100%;">
+                        <thead>
+                        <tr>
+                            <th>
+                                Address
+                            </th>
+                            <th>
+                                Added
+                            </th>
+                            <th>
+                                Last Used
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                {
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
+                        <table id="relatedPlayersTable" style="width: 100%;">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Player Name
+                                </th>
+                                <th>
+                                    Connected By IP
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+@foreach (var item in Model.AdminActions)
+{
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <h2>
+                        @item.Type Record
+                    </h2>
+                    <p>
+                        @if (item.AdminId == null)
+                        {
+                            <text><strong>Created By:</strong> System</text>
+                        }
+                        else
+                        {
+                            <text><strong>Created By:</strong> </text>
+                            @item.AdminName
+                        }
+
+                        <br />
+                        <strong>Created:</strong> @item.Created
+
+                        @if (item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
+                        {
+                            <br />
+                            <text><strong>Expires:</strong> @item.Expires</text>
+                        }
+                        else if (item.Type == AdminActionType.TempBan)
+                        {
+                            <br />
+                            <text><strong>Expired:</strong> @item.Expires</text>
+                        }
+
+                        @if (item.Type == AdminActionType.Ban && item.Expires != null)
+                        {
+                            <br />
+                            <text><strong>Ban Lifted:</strong> @item.Expires</text>
+                        }
+
+
+                        @if (item.ForumTopicId != 0)
+                        {
+                            <br />
+                            <strong>Discussion Topic: </strong>
+                            <a href="https://www.xtremeidiots.com/forums/topic/@item.ForumTopicId-topic/" target="_blank">Link</a>
+                        }
+                        else
+                        {
+                            var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+
+                            if (canCreateDiscussionTopic)
+                            {
+                                <a asp-controller="Players" asp-action="CreateDiscussionTopic" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
+                            }
+                        }
+
+                    </p>
+
+                    @{
+                        string style;
+                        switch (item.Type)
+                        {
+                            case AdminActionType.Observation:
+                                style = "info";
+                                break;
+                            case AdminActionType.Warning:
+                                style = "info";
+                                break;
+                            case AdminActionType.Kick:
+                                style = "warning";
+                                break;
+                            case AdminActionType.TempBan:
+                                style = item.Expires < DateTime.UtcNow ? "dark" : "danger";
+                                break;
+                            case AdminActionType.Ban:
+                                style = item.Expires != null ? "dark" : "danger";
+                                break;
+                            default:
+                                style = "info";
+                                break;
+                        }
+                    }
+
+                    @* ReSharper disable once UnknownCssClass *@
+                    <div class="alert alert-@style">
+                        @Html.Raw(item.Text)
+                    </div>
+
+                    <p>
+                        @{
+                            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == item.AdminId);
+                        }
+
+                        @if (canEditAdminAction)
+                        {
+                            switch (item.Type)
+                            {
+                                case AdminActionType.Observation:
+                                    <a asp-controller="Observations" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Observation</a>
+                                    break;
+                                case AdminActionType.Warning:
+                                    <a asp-controller="Warnings" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Warning</a>
+                                    break;
+                                case AdminActionType.Kick:
+                                    <a asp-controller="Kicks" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Kicks</a>
+                                    break;
+                                case AdminActionType.TempBan:
+                                    <a asp-controller="TempBans" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Temp Ban</a>
+
+                                    if (item.Expires > DateTime.UtcNow)
+                                    {
+                                        <a asp-controller="TempBans" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
+                                    }
+                                    break;
+                                case AdminActionType.Ban:
+                                    <a asp-controller="Bans" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Ban</a>
+
+                                    if (item.Expires == null)
+                                    {
+                                        <a asp-controller="Bans" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
+                                    }
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
+                            }
+                        }
+
+                        @{
+                            var canClaimBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                       claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                       claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+                        }
+
+                        @if (item.Type == AdminActionType.Ban && item.AdminId == null && canClaimBan)
+                        {
+                            <a asp-controller="Bans" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 </div>
 

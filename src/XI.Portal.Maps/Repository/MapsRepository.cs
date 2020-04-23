@@ -28,14 +28,14 @@ namespace XI.Portal.Maps.Repository
         {
             if (filterModel == null) filterModel = new MapsFilterModel();
 
-            return await filterModel.ApplyFilter(_legacyContext).CountAsync();
+            return await _legacyContext.Maps.ApplyFilter(filterModel).CountAsync();
         }
 
         public async Task<List<MapsListEntryViewModel>> GetMapList(MapsFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new MapsFilterModel();
 
-            var maps = await filterModel.ApplyFilter(_legacyContext).Include(m => m.MapFiles).Include(m => m.MapVotes).ToListAsync();
+            var maps = await _legacyContext.Maps.ApplyFilter(filterModel).Include(m => m.MapFiles).Include(m => m.MapVotes).ToListAsync();
 
             var mapsResult = new List<MapsListEntryViewModel>();
 

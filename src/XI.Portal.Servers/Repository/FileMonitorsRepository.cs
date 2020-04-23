@@ -29,7 +29,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<List<FileMonitors>> GetFileMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.FileMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(f => f.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
         }
@@ -37,7 +37,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<FileMonitors> GetFileMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.FileMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(f => f.GameServerServer)
                 .FirstOrDefaultAsync(m => m.FileMonitorId == id);
         }
@@ -63,7 +63,7 @@ namespace XI.Portal.Servers.Repository
 
         public async Task<bool> FileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.FileMonitors.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.FileMonitorId == id);
+            return await _legacyContext.FileMonitors.ApplyAuth(user, requiredClaims).AnyAsync(e => e.FileMonitorId == id);
         }
 
         public async Task RemoveFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)

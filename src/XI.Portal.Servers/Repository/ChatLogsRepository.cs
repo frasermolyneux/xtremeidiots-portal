@@ -23,14 +23,14 @@ namespace XI.Portal.Servers.Repository
         {
             if (filterModel == null) filterModel = new ChatLogFilterModel();
 
-            return await filterModel.ApplyFilter(_legacyContext).CountAsync();
+            return await _legacyContext.ChatLogs.ApplyFilter(filterModel).CountAsync();
         }
 
         public async Task<List<ChatLogDto>> GetChatLogs(ChatLogFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new ChatLogFilterModel();
 
-            var chatLogs = await filterModel.ApplyFilter(_legacyContext).ToListAsync();
+            var chatLogs = await _legacyContext.ChatLogs.ApplyFilter(filterModel).ToListAsync();
 
             var results = new List<ChatLogDto>();
 

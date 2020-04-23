@@ -2,17 +2,16 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
-    public static class ChatLogFilterModelExtensions
+    public static class ChatLogsQueryExtensions
     {
-        public static IQueryable<ChatLogs> ApplyFilter(this ChatLogFilterModel filterModel, LegacyPortalContext legacyContext)
+        public static IQueryable<ChatLogs> ApplyFilter(this IQueryable<ChatLogs> chatLogs, ChatLogFilterModel filterModel)
         {
-            var chatLogs = legacyContext.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+            chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 
             if (filterModel.GameType != GameType.Unknown) chatLogs = chatLogs.Where(m => m.GameServerServer.GameType == filterModel.GameType).AsQueryable();
 

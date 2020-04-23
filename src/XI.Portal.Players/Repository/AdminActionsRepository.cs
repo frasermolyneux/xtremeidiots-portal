@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
@@ -26,23 +26,32 @@ namespace XI.Portal.Players.Repository
         {
             if (filterModel == null) filterModel = new AdminActionsFilterModel();
 
-            return await filterModel.ApplyFilter(_legacyContext).CountAsync();
+            return await _legacyContext.AdminActions.ApplyFilter(filterModel).CountAsync();
         }
 
-        public async Task<List<AdminActionListEntryViewModel>> GetAdminActionsList(AdminActionsFilterModel filterModel)
+        public async Task<List<AdminActionDto>> GetAdminActions(AdminActionsFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new AdminActionsFilterModel();
 
-            var adminActions = await filterModel.ApplyFilter(_legacyContext).Include(aa => aa.PlayerPlayer).ToListAsync();
+            var adminActions = await _legacyContext.AdminActions
+                .ApplyFilter(filterModel)
+                .Include(aa => aa.PlayerPlayer)
+                .Include(aa => aa.Admin)
+                .ToListAsync();
 
-            var adminActionsEntryViewModels = adminActions.Select(aa => new AdminActionListEntryViewModel
+            var adminActionsEntryViewModels = adminActions.Select(aa => new AdminActionDto
             {
+                AdminActionId = aa.AdminActionId,
                 PlayerId = aa.PlayerPlayer.PlayerId,
                 Username = aa.PlayerPlayer.Username,
                 Guid = aa.PlayerPlayer.Guid,
-                Type = aa.Type.ToString(),
-                Expires = aa.Type == AdminActionType.Ban ? "Never" : aa.Expires.ToString(),
-                Created = aa.Created
+                Type = aa.Type,
+                Text = aa.Text,
+                Expires = aa.Expires,
+                ForumTopicId = aa.ForumTopicId,
+                Created = aa.Created,
+                AdminId = aa.AdminId,
+                AdminName = aa.Admin.XtremeIdiotsId
             }).ToList();
 
             return adminActionsEntryViewModels;

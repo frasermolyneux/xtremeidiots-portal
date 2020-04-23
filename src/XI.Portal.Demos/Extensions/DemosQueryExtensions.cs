@@ -9,9 +9,9 @@ using XI.Portal.Demos.Models;
 
 namespace XI.Portal.Demos.Extensions
 {
-    public static class DemosDbSetAuthExtensions
+    public static class DemosQueryExtensions
     {
-        public static IQueryable<Demoes> ApplyAuthPolicies(this DbSet<Demoes> demos, ClaimsPrincipal claimsPrincipal, string[] requiredClaims)
+        public static IQueryable<Demoes> ApplyAuth(this IQueryable<Demoes> demos, ClaimsPrincipal claimsPrincipal, string[] requiredClaims)
         {
             if (claimsPrincipal == null || requiredClaims == null)
                 return demos.AsQueryable();

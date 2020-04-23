@@ -8,9 +8,9 @@ using XI.Portal.Data.Legacy.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
-    public static class FileMonitorDbSetAuthExtensions
+    public static class FileMonitorsQueryExtensions
     {
-        public static IQueryable<FileMonitors> ApplyAuthPolicies(this DbSet<FileMonitors> fileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<FileMonitors> ApplyAuth(this IQueryable<FileMonitors> fileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             if (claimsPrincipal == null || requiredClaims == null)
                 return fileMonitors.AsQueryable();

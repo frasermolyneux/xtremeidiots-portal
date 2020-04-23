@@ -8,9 +8,9 @@ using XI.Portal.Data.Legacy.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
-    public static class RconMonitorDbSetAuthExtensions
+    public static class RconMonitorsQueryExtensions
     {
-        public static IQueryable<RconMonitors> ApplyAuthPolicies(this DbSet<RconMonitors> rconMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<RconMonitors> ApplyAuth(this IQueryable<RconMonitors> rconMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             if (claimsPrincipal == null || requiredClaims == null)
                 return rconMonitors.AsQueryable();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,14 +21,18 @@ namespace XI.Portal.Web.Controllers
     public class PlayersController : Controller
     {
         private readonly IGeoLocationClient _geoLocationClient;
+        private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IPlayersRepository _playersRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 
-        public PlayersController(IPlayersRepository playersRepository, IGeoLocationClient geoLocationClient)
+        public PlayersController(IPlayersRepository playersRepository, 
+            IGeoLocationClient geoLocationClient,
+            IAdminActionsRepository adminActionsRepository)
         {
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
+            _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
         }
 
         [HttpGet]
@@ -132,9 +137,18 @@ namespace XI.Portal.Web.Controllers
 
             var player = await _playersRepository.GetPlayer((Guid) id, User, _requiredClaims);
 
+            var adminActionsFilterModel = new AdminActionsFilterModel
+            {
+                PlayerId = (Guid)id,
+                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
+            };
+
+            var adminActions = await _adminActionsRepository.GetAdminActions(adminActionsFilterModel);
+
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = player
+                Player = player,
+                AdminActions = adminActions
             };
 
             if (!string.IsNullOrWhiteSpace(player.IpAddress))
@@ -199,6 +213,7 @@ namespace XI.Portal.Web.Controllers
         {
             public PlayerDto Player { get; set; }
             public GeoLocationDto GeoLocation { get; set; }
+            public List<AdminActionDto> AdminActions { get; set; }
         }
     }
 }

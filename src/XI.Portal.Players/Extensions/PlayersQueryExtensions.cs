@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Linq;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Players.Models;
 
 namespace XI.Portal.Players.Extensions
 {
-    public static class PlayerFilterModelExtensions
+    public static class PlayersQueryExtensions
     {
-        public static IQueryable<Player2> ApplyFilter(this PlayersFilterModel filterModel, LegacyPortalContext context)
+        public static IQueryable<Player2> ApplyFilter(this IQueryable<Player2> players, PlayersFilterModel filterModel)
         {
-            var players = context.Player2.AsQueryable();
-
             if (filterModel.GameType != GameType.Unknown) players = players.Where(p => p.GameType == filterModel.GameType).AsQueryable();
 
             if (filterModel.Filter != PlayersFilterModel.FilterType.None && !string.IsNullOrWhiteSpace(filterModel.FilterString))

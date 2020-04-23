@@ -26,14 +26,14 @@ namespace XI.Portal.Players.Repository
         {
             if (filterModel == null) filterModel = new PlayersFilterModel();
 
-            return await filterModel.ApplyFilter(_legacyContext).CountAsync();
+            return await _legacyContext.Player2.ApplyFilter(filterModel).CountAsync();
         }
 
         public async Task<List<PlayerListEntryViewModel>> GetPlayerList(PlayersFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new PlayersFilterModel();
 
-            var players = await filterModel.ApplyFilter(_legacyContext).ToListAsync();
+            var players = await _legacyContext.Player2.ApplyFilter(filterModel).ToListAsync();
 
             var playerListEntryViewModels = players.Select(p => new PlayerListEntryViewModel
             {

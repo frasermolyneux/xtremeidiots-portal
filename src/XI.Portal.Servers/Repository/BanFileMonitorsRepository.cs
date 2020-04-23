@@ -33,7 +33,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<List<BanFileMonitors>> GetBanFileMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(b => b.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
         }
@@ -41,7 +41,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<BanFileMonitors> GetBanFileMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.BanFileMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(b => b.GameServerServer)
                 .FirstOrDefaultAsync(m => m.BanFileMonitorId == id);
         }
@@ -67,7 +67,7 @@ namespace XI.Portal.Servers.Repository
 
         public async Task<bool> BanFileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.BanFileMonitors.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.BanFileMonitorId == id);
+            return await _legacyContext.BanFileMonitors.ApplyAuth(user, requiredClaims).AnyAsync(e => e.BanFileMonitorId == id);
         }
 
         public async Task RemoveBanFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
@@ -90,7 +90,7 @@ namespace XI.Portal.Servers.Repository
                     var fileSize = _ftpHelper.GetFileSize(banFileMonitor.GameServerServer.FtpHostname, banFileMonitor.FilePath, banFileMonitor.GameServerServer.FtpUsername, banFileMonitor.GameServerServer.FtpPassword);
                     var lastModified = _ftpHelper.GetLastModified(banFileMonitor.GameServerServer.FtpHostname, banFileMonitor.FilePath, banFileMonitor.GameServerServer.FtpUsername, banFileMonitor.GameServerServer.FtpPassword);
 
-                    var lastBans = await _adminActionsRepository.GetAdminActionsList(new AdminActionsFilterModel
+                    var lastBans = await _adminActionsRepository.GetAdminActions(new AdminActionsFilterModel
                     {
                         Filter = AdminActionsFilterModel.FilterType.ActiveBans,
                         GameType = banFileMonitor.GameServerServer.GameType,

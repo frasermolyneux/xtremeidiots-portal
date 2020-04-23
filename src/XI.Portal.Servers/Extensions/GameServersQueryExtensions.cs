@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
-    public static class GameServerDbSetAuthExtensions
+    public static class GameServersQueryExtensions
     {
-        public static IQueryable<GameServers> ApplyAuthPolicies(this DbSet<GameServers> gameServers, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<GameServers> ApplyAuth(this IQueryable<GameServers> gameServers, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             if (claimsPrincipal == null || requiredClaims == null)
                 return gameServers.AsQueryable();

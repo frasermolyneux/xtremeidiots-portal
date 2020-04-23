@@ -29,7 +29,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<List<RconMonitors>> GetRconMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(r => r.GameServerServer)
                 .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
         }
@@ -37,7 +37,7 @@ namespace XI.Portal.Servers.Repository
         public async Task<RconMonitors> GetRconMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
             return await _legacyContext.RconMonitors
-                .ApplyAuthPolicies(user, requiredClaims)
+                .ApplyAuth(user, requiredClaims)
                 .Include(r => r.GameServerServer)
                 .FirstOrDefaultAsync(m => m.RconMonitorId == id);
         }
@@ -66,7 +66,7 @@ namespace XI.Portal.Servers.Repository
 
         public async Task<bool> RconMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.RconMonitors.ApplyAuthPolicies(user, requiredClaims).AnyAsync(e => e.RconMonitorId == id);
+            return await _legacyContext.RconMonitors.ApplyAuth(user, requiredClaims).AnyAsync(e => e.RconMonitorId == id);
         }
 
         public async Task RemoveRconMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)

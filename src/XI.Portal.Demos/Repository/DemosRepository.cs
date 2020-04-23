@@ -24,7 +24,7 @@ namespace XI.Portal.Demos.Repository
 
         public async Task<List<DemoDto>> GetDemos(DemosFilterModel filterModel, ClaimsPrincipal user, string[] requiredClaims)
         {
-            var demos = await _legacyContext.Demoes.ApplyAuthPolicies(user, requiredClaims).ApplyFilter(filterModel).ToListAsync();
+            var demos = await _legacyContext.Demoes.ApplyAuth(user, requiredClaims).ApplyFilter(filterModel).ToListAsync();
 
             var results = new List<DemoDto>();
 
@@ -55,7 +55,7 @@ namespace XI.Portal.Demos.Repository
 
         public async Task<int> GetDemoCount(DemosFilterModel filterModel, ClaimsPrincipal user, string[] requiredClaims)
         {
-            return await _legacyContext.Demoes.ApplyAuthPolicies(user, requiredClaims).ApplyFilter(filterModel).CountAsync();
+            return await _legacyContext.Demoes.ApplyAuth(user, requiredClaims).ApplyFilter(filterModel).CountAsync();
         }
     }
 }

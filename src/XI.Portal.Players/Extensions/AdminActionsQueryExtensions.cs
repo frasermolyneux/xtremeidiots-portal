@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Linq;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Players.Models;
 
 namespace XI.Portal.Players.Extensions
 {
-    public static class AdminActionFilterModelExtensions
+    public static class AdminActionsQueryExtensions
     {
-        public static IQueryable<AdminActions> ApplyFilter(this AdminActionsFilterModel filterModel, LegacyPortalContext context)
+        public static IQueryable<AdminActions> ApplyFilter(this IQueryable<AdminActions> adminActions, AdminActionsFilterModel filterModel)
         {
-            var adminActions = context.AdminActions.AsQueryable();
-
             if (filterModel.GameType != GameType.Unknown) adminActions = adminActions.Where(aa => aa.PlayerPlayer.GameType == filterModel.GameType).AsQueryable();
+
+            if (filterModel.PlayerId != Guid.Empty) adminActions = adminActions.Where(aa => aa.PlayerPlayerId == filterModel.PlayerId).AsQueryable();
 
             switch (filterModel.Filter)
             {
@@ -32,7 +31,7 @@ namespace XI.Portal.Players.Extensions
 
             switch (filterModel.Order)
             {
-                case AdminActionsFilterModel.OrderBy.Created:
+                case AdminActionsFilterModel.OrderBy.CreatedAsc:
                     adminActions = adminActions.OrderBy(aa => aa.Created).AsQueryable();
                     break;
                 case AdminActionsFilterModel.OrderBy.CreatedDesc:

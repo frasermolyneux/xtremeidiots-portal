@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Linq;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
 using XI.Portal.Maps.Models;
 
 namespace XI.Portal.Maps.Extensions
 {
-    public static class MapFilterModelExtensions
+    public static class MapsQueryExtensions
     {
-        public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this MapsFilterModel filterModel, LegacyPortalContext legacyContext)
+        public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this IQueryable<Data.Legacy.Models.Maps> maps, MapsFilterModel filterModel)
         {
-            var maps = legacyContext.Maps.AsQueryable();
-
             if (filterModel.GameType != GameType.Unknown) maps = maps.Where(m => m.GameType == filterModel.GameType).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filterModel.FilterString)) maps = maps.Where(m => m.MapName.Contains(filterModel.FilterString)).AsQueryable();

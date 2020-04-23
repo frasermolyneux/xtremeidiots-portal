@@ -61,8 +61,36 @@ namespace XI.Portal.Players.Repository
                 Guid = player.Guid,
                 IpAddress = player.IpAddress,
                 FirstSeen = player.FirstSeen,
-                LastSeen = player.LastSeen
+                LastSeen = player.LastSeen,
             };
+        }
+
+        public async Task<List<AliasDto>> GetPlayerAliases(Guid id, ClaimsPrincipal user, string[] requiredClaims)
+        {
+            var player = await _legacyContext.Player2
+                .Include(p => p.PlayerAlias)
+                .SingleAsync(p => p.PlayerId == id);
+
+            return player.PlayerAlias.Select(alias => new AliasDto
+            {
+                Name = alias.Name,
+                Added = alias.Added,
+                LastUsed = alias.LastUsed
+            }).ToList();
+        }
+
+        public async Task<List<IpAddressDto>> GetPlayerIpAddresses(Guid id, ClaimsPrincipal user, string[] requiredClaims)
+        {
+            var player = await _legacyContext.Player2
+                .Include(p => p.PlayerIpAddresses)
+                .SingleAsync(p => p.PlayerId == id);
+
+            return player.PlayerIpAddresses.Select(address => new IpAddressDto
+            {
+                Address = address.Address,
+                Added = address.Added,
+                LastUsed = address.LastUsed
+            }).ToList();
         }
     }
 }

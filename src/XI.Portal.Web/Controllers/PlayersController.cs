@@ -126,7 +126,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null) return NotFound();
 
@@ -151,63 +151,32 @@ namespace XI.Portal.Web.Controllers
                 }
 
             return View(playerDetailsViewModel);
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> GetPlayerAliasesAjax(Guid? id)
+        {
+            if (id == null) return NotFound();
 
-            //try
-            //{
-            //    if (!Guid.TryParse(id, out var idAsGuid))
-            //        return RedirectToAction("Home");
+            var aliases = await _playersRepository.GetPlayerAliases((Guid)id, User, _requiredClaims);
 
-            //    using (var context = ContextProvider.GetContext())
-            //    {
-            //        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == idAsGuid);
+            return Json(new
+            {
+                data = aliases
+            });
+        }
 
-            //        if (player == null)
-            //            return RedirectToAction("Home");
+        [HttpGet]
+        public async Task<IActionResult> GetPlayerIpAddressesAjax(Guid? id)
+        {
+            if (id == null) return NotFound();
 
-            //        var model = new PlayerInfoViewModel
-            //        {
-            //            Player = player,
-            //            Aliases = await context.PlayerAliases.Where(pa => pa.Player.PlayerId == player.PlayerId)
-            //                .OrderByDescending(pa => pa.LastUsed).ToListAsync(),
-            //            IpAddresses = await context.PlayerIpAddresses
-            //                .Where(pip => pip.Player.PlayerId == player.PlayerId)
-            //                .OrderByDescending(pip => pip.LastUsed).ToListAsync(),
-            //            AdminActions = await context.AdminActions.Include(aa => aa.Admin)
-            //                .Where(aa => aa.Player.PlayerId == player.PlayerId)
-            //                .OrderByDescending(aa => aa.Created).ToListAsync(),
-            //            RelatedIpAddresses = new List<PlayerIpAddress>()
-            //        };
+            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid)id, User, _requiredClaims);
 
-            //        foreach (var playerIpAddress in model.IpAddresses)
-            //        {
-            //            var relatedPlayersFromIp = await context.PlayerIpAddresses.Include(ip => ip.Player)
-            //                .Where(ip => ip.Address == playerIpAddress.Address && ip.Player.PlayerId != idAsGuid)
-            //                .ToListAsync();
-            //            model.RelatedIpAddresses.AddRange(relatedPlayersFromIp);
-            //        }
-
-            //        LookupAddressResponse lookupAddressResponse = null;
-            //        try
-            //        {
-            //            lookupAddressResponse = await geoLocationClient.LookupAddress(player.IpAddress);
-            //        }
-            //        catch (Exception)
-            //        {
-            //            // swallow
-            //        }
-
-            //        if (lookupAddressResponse != null)
-            //            model.LookupAddressResponse = lookupAddressResponse;
-
-            //        return View(model);
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    await DatabaseLogger.CreateSystemLogAsync("Error", "[Portal] Unhandled Error", ex);
-            //    throw;
-            //}
+            return Json(new
+            {
+                data = ipAddresses
+            });
         }
 
         public class PlayerDetailsViewModel

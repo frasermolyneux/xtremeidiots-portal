@@ -61,7 +61,7 @@ namespace XI.Portal.Players.Repository
                 Guid = player.Guid,
                 IpAddress = player.IpAddress,
                 FirstSeen = player.FirstSeen,
-                LastSeen = player.LastSeen,
+                LastSeen = player.LastSeen
             };
         }
 
@@ -90,6 +90,21 @@ namespace XI.Portal.Players.Repository
                 Address = address.Address,
                 Added = address.Added,
                 LastUsed = address.LastUsed
+            }).ToList();
+        }
+
+        public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(Guid id, string ipAddress, ClaimsPrincipal user, string[] requiredClaims)
+        {
+            var playerIpAddresses = await _legacyContext.PlayerIpAddresses.Include(ip => ip.PlayerPlayer)
+                .Where(ip => ip.Address == ipAddress && ip.PlayerPlayerId != id)
+                .ToListAsync();
+
+            return playerIpAddresses.Select(pip => new RelatedPlayerDto
+            {
+                GameType = pip.PlayerPlayer.GameType.ToString(),
+                Username = pip.PlayerPlayer.Username,
+                PlayerId = pip.PlayerPlayer.PlayerId,
+                IpAddress = pip.Address
             }).ToList();
         }
     }

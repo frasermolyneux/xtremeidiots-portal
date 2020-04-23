@@ -158,7 +158,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var aliases = await _playersRepository.GetPlayerAliases((Guid)id, User, _requiredClaims);
+            var aliases = await _playersRepository.GetPlayerAliases((Guid) id, User, _requiredClaims);
 
             return Json(new
             {
@@ -171,11 +171,27 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid)id, User, _requiredClaims);
+            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid) id, User, _requiredClaims);
 
             return Json(new
             {
                 data = ipAddresses
+            });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRelatedPlayersAjax(Guid? id, string ipAddress)
+        {
+            if (id == null) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(ipAddress))
+                return BadRequest();
+
+            var relatedPlayers = await _playersRepository.GetRelatedPlayers((Guid) id, ipAddress, User, _requiredClaims);
+
+            return Json(new
+            {
+                data = relatedPlayers
             });
         }
 

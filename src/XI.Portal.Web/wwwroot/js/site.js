@@ -36,3 +36,7 @@ function gameTypeIcon(gameType) {
 function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }
+
+function geoLocationIpLink(ipAddress) {
+    return "<a href='https://geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
+}

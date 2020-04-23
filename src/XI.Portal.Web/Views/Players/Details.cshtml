@@ -111,9 +111,12 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
-                        </li>
+                        @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
+                            </li>
+                        }
                     </ul>
 
                     <div class="tab-content">
@@ -158,9 +161,24 @@
                             </table>
                         </div>
 
-                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
+                        @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                        {
+                            <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
+                                <table id="relatedPlayersTable" style="width: 100%;">
+                                    <thead>
+                                    <tr>
+                                        <th>
+                                            Player Name
+                                        </th>
+                                        <th>
+                                            Connected By IP
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        }
 
-                        </div>
                     </div>
                 </div>
             </div>
@@ -230,6 +248,39 @@
                     }
                 ]
             });
+
+            @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+            {
+                <text>
+
+                    $('#relatedPlayersTable').DataTable({
+                        processing: true,
+                        order: [[0, "asc"]],
+                        ajax: {
+                            url: '/Players/GetRelatedPlayersAjax/@Model.Player.PlayerId?ipAddress=@Model.Player.IpAddress',
+                            dataSrc: 'data',
+                            contentType: "application/json"
+                        },
+                        columns: [
+                            {
+                                name: 'playerName',
+                                sortable: true,
+                                render: function(data, type, row) {
+                                    return renderPlayerName(row['gameType'], row['username'], row['playerId']);
+                                }
+                            },
+                            {
+                                name: 'connectedByIp',
+                                sortable: true,
+                                render: function(data, type, row) {
+                                    return geoLocationIpLink(row['ipAddress']);
+                                }
+                            }
+                        ]
+                    });
+
+                </text>
+            }
 
         });
 

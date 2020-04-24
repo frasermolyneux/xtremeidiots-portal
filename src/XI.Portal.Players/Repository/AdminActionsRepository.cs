@@ -36,8 +36,6 @@ namespace XI.Portal.Players.Repository
 
             var adminActions = await _legacyContext.AdminActions
                 .ApplyFilter(filterModel)
-                .Include(aa => aa.PlayerPlayer)
-                .Include(aa => aa.Admin)
                 .ToListAsync();
 
             var adminActionsEntryViewModels = adminActions.Select(aa => new AdminActionDto

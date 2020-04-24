@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
 using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
@@ -11,9 +12,15 @@ namespace XI.Portal.Players.Extensions
     {
         public static IQueryable<AdminActions> ApplyFilter(this IQueryable<AdminActions> adminActions, AdminActionsFilterModel filterModel)
         {
+            adminActions = adminActions.Include(aa => aa.PlayerPlayer)
+                .Include(aa => aa.Admin)
+                .AsQueryable();
+
             if (filterModel.GameType != GameType.Unknown) adminActions = adminActions.Where(aa => aa.PlayerPlayer.GameType == filterModel.GameType).AsQueryable();
 
             if (filterModel.PlayerId != Guid.Empty) adminActions = adminActions.Where(aa => aa.PlayerPlayerId == filterModel.PlayerId).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filterModel.AdminId)) adminActions = adminActions.Where(aa => aa.Admin.XtremeIdiotsId == filterModel.AdminId).AsQueryable();
 
             switch (filterModel.Filter)
             {

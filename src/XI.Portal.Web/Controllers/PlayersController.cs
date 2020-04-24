@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
@@ -207,6 +208,20 @@ namespace XI.Portal.Web.Controllers
             {
                 data = relatedPlayers
             });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyActions()
+        {
+            var filterModel = new AdminActionsFilterModel
+            {
+                AdminId = User.XtremeIdiotsId(),
+                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
+            };
+
+            var adminActions = await _adminActionsRepository.GetAdminActions(filterModel);
+
+            return View(adminActions);
         }
 
         public class PlayerDetailsViewModel

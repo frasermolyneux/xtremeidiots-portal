@@ -162,6 +162,10 @@
             <a asp-controller="Players" asp-action="IpIndex">IP Search</a>
         </li>
 
+        <li class="@Html.IsSelected(action: "MyActions")">
+            <a asp-controller="Players" asp-action="MyActions">My Actions</a>
+        </li>
+
         @foreach (var game in PlayersSupportedGames.Games)
         {
             @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))

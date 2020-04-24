@@ -21,6 +21,7 @@ namespace XI.Portal.Players.Models
 
         public GameType GameType { get; set; }
         public Guid PlayerId { get; set; }
+        public string AdminId { get; set; }
         public FilterType Filter { get; set; } = FilterType.None;
         public OrderBy Order { get; set; } = OrderBy.None;
         public int SkipEntries { get; set; } = 0;

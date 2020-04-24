@@ -328,7 +328,7 @@
                     <p>
                         @{
                             var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
+                                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
                                                                               claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == item.AdminId);
                         }
 
@@ -368,13 +368,13 @@
 
                         @{
                             var canClaimBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                       claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
-                                                                       claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+                                                                       claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
+                                                                       claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
                         }
 
                         @if (item.Type == AdminActionType.Ban && item.AdminId == null && canClaimBan)
                         {
-                            <a asp-controller="Bans" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
+                            <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
                         }
 
                         @{
@@ -389,8 +389,8 @@
                         @if (item.ForumTopicId == 0)
                         {
                             var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == Model.Player.GameType.ToString() ||
-                                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == Model.Player.GameType.ToString());
+                                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
+                                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
 
                             if (canCreateDiscussionTopic)
                             {

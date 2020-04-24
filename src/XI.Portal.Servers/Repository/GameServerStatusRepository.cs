@@ -99,7 +99,7 @@ namespace XI.Portal.Servers.Repository
                 var queryResult = await _statusTable.ExecuteQuerySegmentedAsync(query, continuationToken);
                 foreach (var entity in queryResult)
                 {
-                    if (entity.Timestamp < DateTime.UtcNow + cacheCutoff)
+                    if (cacheCutoff != TimeSpan.Zero && entity.Timestamp < DateTime.UtcNow + cacheCutoff)
                     {
                         var refreshedGameServerStatusDto = await RefreshGameServerStatus(entity.ServerId);
 

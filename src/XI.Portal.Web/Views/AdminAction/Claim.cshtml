@@ -1,0 +1,73 @@
+﻿@using XI.Portal.Data.Legacy.CommonTypes
+@model XI.Portal.Web.Controllers.AdminActionController.EditAdminActionViewModel
+
+@{
+    ViewData["Title"] = "Claiming " + Model.AdminActionType;
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <h3>Are you sure you want to claim this @Model.AdminActionType?</h3>
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.AdminActionType)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.AdminActionType)
+                            </dd>
+
+                            @if (Model.AdminActionType == AdminActionType.TempBan)
+                            {
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.Expires)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.Expires)
+                                </dd>
+                            }
+
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.PlayerName)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.PlayerName)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Text)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.Raw(Model.Text)
+                            </dd>
+                        </dl>
+                        <h4>After claiming you should then edit the @Model.AdminActionType with the reason.</h4>
+                    </div>
+                    <div class="ibox-footer">
+                        <form asp-action="Claim">
+                            <input type="hidden" asp-for="AdminActionId" />
+                            <input type="hidden" asp-for="PlayerId" />
+                            <input type="submit" value="Claim @Model.AdminActionType" class="btn btn-danger" /> |
+                            <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

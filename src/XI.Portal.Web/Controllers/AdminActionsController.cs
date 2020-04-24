@@ -212,6 +212,55 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction("Details", "Players", new { id = playerId });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Claim(Guid? id)
+        {
+            if (id == null) return NotFound();
+
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+
+            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+
+            var model = new EditAdminActionViewModel
+            {
+                AdminActionId = adminAction.AdminActionId,
+                AdminActionType = adminAction.Type,
+                PlayerId = adminAction.PlayerId,
+                PlayerName = adminAction.Username,
+                Text = adminAction.Text,
+                Expires = adminAction.Expires,
+                AdminId = adminAction.AdminId
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ActionName("Claim")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId)
+        {
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+
+            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+
+            var currentUserId = User.XtremeIdiotsId();
+
+            var adminActionDto = new AdminActionDto
+            {
+                AdminActionId = adminAction.AdminActionId,
+                AdminId = currentUserId,
+                Text = adminAction.Text,
+                Expires = adminAction.Expires
+            };
+
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+
+            _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
+            TempData["Success"] = "The Admin Action has been successfully claim";
+
+            return RedirectToAction("Details", "Players", new { id = playerId });
+        }
 
         [HttpGet]
         [Authorize(XtremeIdiotsPolicy.RootPolicy)]

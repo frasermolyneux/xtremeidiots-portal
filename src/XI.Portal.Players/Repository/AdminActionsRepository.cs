@@ -118,7 +118,10 @@ namespace XI.Portal.Players.Repository
 
             if (adminAction.AdminId != model.AdminId)
             {
-                adminAction.Admin = await _legacyContext.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == model.AdminId);
+                if (string.IsNullOrWhiteSpace(model.AdminId))
+                    adminAction.Admin = null;
+                else
+                    adminAction.Admin = await _legacyContext.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == model.AdminId);
             }
 
             await _legacyContext.SaveChangesAsync();

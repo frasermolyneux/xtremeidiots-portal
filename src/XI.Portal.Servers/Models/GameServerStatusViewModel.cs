@@ -1,10 +1,11 @@
 ﻿using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 
 namespace XI.Portal.Servers.Models
 {
     public class GameServerStatusViewModel
     {
-        public GameServers GameServer { get; set; }
+        public GameServerDto GameServer { get; set; }
 
         public string Mod { get; set; }
         public string Map { get; set; }

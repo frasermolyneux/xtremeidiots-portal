@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.Azure.Documents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Serialization;
 using XI.CommonTypes;
+using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -34,45 +38,114 @@ namespace XI.Portal.Servers.Repository
             _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
         }
 
-        public async Task<List<GameServers>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<List<GameServerDto>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers.ApplyAuth(user, requiredClaims).OrderBy(server => server.BannerServerListPosition).ToListAsync();
+            var servers = await _legacyContext.GameServers
+                .ApplyAuth(user, requiredClaims)
+                .OrderBy(server => server.BannerServerListPosition)
+                .ToListAsync();
+
+            var results = servers.Select(server => new GameServerDto
+            {
+                ServerId = server.ServerId,
+                Title = server.Title,
+                GameType = server.GameType,
+                Hostname = server.Hostname,
+                QueryPort = server.QueryPort,
+                FtpHostname = server.FtpHostname,
+                FtpUsername = server.FtpUsername,
+                FtpPassword = server.FtpPassword,
+                RconPassword = server.RconPassword,
+                ShowOnBannerServerList = server.ShowOnBannerServerList,
+                BannerServerListPosition = server.BannerServerListPosition,
+                HtmlBanner = server.HtmlBanner,
+                ShowOnPortalServerList = server.ShowOnPortalServerList,
+                ShowChatLog = server.ShowChatLog
+            }).ToList();
+
+            return results;
         }
 
-        public async Task<GameServers> GetGameServer(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<GameServerDto> GetGameServer(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            return await _legacyContext.GameServers
+            var server = await _legacyContext.GameServers
                 .ApplyAuth(user, requiredClaims)
                 .FirstOrDefaultAsync(m => m.ServerId == id);
+
+            var gameServerDto = new GameServerDto
+            {
+                ServerId = server.ServerId,
+                Title = server.Title,
+                GameType = server.GameType,
+                Hostname = server.Hostname,
+                QueryPort = server.QueryPort,
+                FtpHostname = server.FtpHostname,
+                FtpUsername = server.FtpUsername,
+                FtpPassword = server.FtpPassword,
+                RconPassword = server.RconPassword,
+                ShowOnBannerServerList = server.ShowOnBannerServerList,
+                BannerServerListPosition = server.BannerServerListPosition,
+                HtmlBanner = server.HtmlBanner,
+                ShowOnPortalServerList = server.ShowOnPortalServerList,
+                ShowChatLog = server.ShowChatLog
+            };
+
+            return gameServerDto;
         }
 
-        public async Task CreateGameServer(GameServers model)
+        public async Task CreateGameServer(GameServerDto model)
         {
-            model.ServerId = Guid.NewGuid();
-            model.LiveLastUpdated = DateTime.UtcNow;
+            var server = new GameServers
+            {
+                ServerId = Guid.NewGuid(),
+                Title = model.Title,
+                GameType = model.GameType,
+                Hostname = model.Hostname,
+                QueryPort = model.QueryPort,
+                FtpHostname = model.FtpHostname,
+                FtpUsername = model.FtpUsername,
+                FtpPassword = model.FtpPassword,
+                RconPassword = model.RconPassword,
+                ShowOnBannerServerList = model.ShowOnBannerServerList,
+                BannerServerListPosition = model.BannerServerListPosition,
+                HtmlBanner = model.HtmlBanner,
+                ShowOnPortalServerList = model.ShowOnPortalServerList,
+                ShowChatLog = model.ShowChatLog,
+#pragma warning disable 618 // Required to prevent SQL error
+                LiveLastUpdated = DateTime.UtcNow
+#pragma warning restore 618
+            };
 
-            _legacyContext.Add(model);
+            _legacyContext.Add(server);
 
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateGameServer(Guid? id, GameServers model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task UpdateGameServer(Guid? id, GameServerDto model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var storedModel = await GetGameServer(id, user, requiredClaims);
-            storedModel.Title = model.Title;
-            storedModel.Hostname = model.Hostname;
-            storedModel.QueryPort = model.QueryPort;
-            storedModel.FtpHostname = model.FtpHostname;
-            storedModel.FtpUsername = model.FtpUsername;
-            storedModel.FtpPassword = model.FtpPassword;
-            storedModel.RconPassword = model.RconPassword;
-            storedModel.ShowOnBannerServerList = model.ShowOnBannerServerList;
-            storedModel.BannerServerListPosition = model.BannerServerListPosition;
-            storedModel.HtmlBanner = model.HtmlBanner;
-            storedModel.ShowOnPortalServerList = model.ShowOnPortalServerList;
-            storedModel.ShowChatLog = model.ShowChatLog;
+            var server = await _legacyContext.GameServers
+                .ApplyAuth(user, requiredClaims)
+                .FirstOrDefaultAsync(m => m.ServerId == id);
 
-            _legacyContext.Update(storedModel);
+            server.Title = model.Title;
+            server.Hostname = model.Hostname;
+            server.QueryPort = model.QueryPort;
+
+            if (user.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            {
+                server.FtpHostname = model.FtpHostname;
+                server.FtpUsername = model.FtpUsername;
+                server.FtpPassword = model.FtpPassword;
+            }
+
+            server.RconPassword = model.RconPassword;
+            server.ShowOnBannerServerList = model.ShowOnBannerServerList;
+            server.BannerServerListPosition = model.BannerServerListPosition;
+            server.HtmlBanner = model.HtmlBanner;
+            server.ShowOnPortalServerList = model.ShowOnPortalServerList;
+            server.ShowChatLog = model.ShowChatLog;
+
+            _legacyContext.Update(server);
 
             await _legacyContext.SaveChangesAsync();
         }
@@ -84,9 +157,11 @@ namespace XI.Portal.Servers.Repository
 
         public async Task RemoveGameServer(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
         {
-            var model = await GetGameServer(id, user, requiredClaims);
+            var server = await _legacyContext.GameServers
+                .ApplyAuth(user, requiredClaims)
+                .FirstOrDefaultAsync(m => m.ServerId == id);
 
-            _legacyContext.GameServers.Remove(model);
+            _legacyContext.GameServers.Remove(server);
             await _legacyContext.SaveChangesAsync();
         }
 
@@ -104,8 +179,8 @@ namespace XI.Portal.Servers.Repository
 
                     var errorMessage = string.Empty;
 
-                    if (serverMonitor.LiveLastUpdated < DateTime.UtcNow.AddMinutes(-15))
-                        errorMessage = "ERROR - The server has not been directly queried for more than 15 minutes";
+                    //if (serverMonitor.LiveLastUpdated < DateTime.UtcNow.AddMinutes(-15))
+                    //    errorMessage = "ERROR - The server has not been directly queried for more than 15 minutes";
 
                     if (string.IsNullOrWhiteSpace(result.Map))
                         errorMessage = "ERROR - The current map could not be retrieved from the direct query";

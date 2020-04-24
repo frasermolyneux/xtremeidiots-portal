@@ -9,6 +9,7 @@ using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
@@ -58,7 +59,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(
             [Bind(
                 "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServers model)
+            GameServerDto model)
         {
             if (!User.HasGameClaim(model.GameType, _requiredClaims)) return Unauthorized();
 
@@ -96,7 +97,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Edit(Guid id,
             [Bind(
                 "ServerId,Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServers model)
+            GameServerDto model)
         {
             if (id != model.ServerId) return NotFound();
 

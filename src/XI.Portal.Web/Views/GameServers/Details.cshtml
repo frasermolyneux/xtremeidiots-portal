@@ -1,5 +1,6 @@
-﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Data.Legacy.Models.GameServers
+﻿@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Web.Extensions
+@model XI.Portal.Servers.Dto.GameServerDto
 
 @{
     ViewData["Title"] = "Game Server Details";
@@ -35,24 +36,29 @@
                             <dd class="col-sm-10">
                                 @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
                             </dd>
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.FtpHostname)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.FtpHostname)
-                            </dd>
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.FtpUsername)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.FtpUsername)
-                            </dd>
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.FtpPassword)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.FtpPassword)
-                            </dd>
+
+                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                            {
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.FtpHostname)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.FtpHostname)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.FtpUsername)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.FtpUsername)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.FtpPassword)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.FtpPassword)
+                                </dd>
+                            }
+
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.RconPassword)
                             </dt>

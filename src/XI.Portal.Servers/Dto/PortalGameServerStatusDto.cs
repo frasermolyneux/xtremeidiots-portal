@@ -15,6 +15,7 @@ namespace XI.Portal.Servers.Dto
         public string Map { get; set; }
         public string Mod { get; set; }
         public int PlayerCount { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
         public IList<PortalGameServerPlayerDto> Players { get; set; }
     }
 }

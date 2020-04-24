@@ -73,7 +73,8 @@ namespace XI.Portal.Servers.Repository
                 Mod = storedGameServerStatus.Mod,
                 PlayerCount = storedGameServerStatus.PlayerCount,
                 MaxPlayers = storedGameServerStatus.MaxPlayers,
-                Players = storedGameServerStatus.Players
+                Players = storedGameServerStatus.Players,
+                Timestamp = storedGameServerStatus.Timestamp
             };
 
             return !UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto) ? null : gameServerStatusDto;
@@ -120,7 +121,8 @@ namespace XI.Portal.Servers.Repository
                         Mod = entity.Mod,
                         PlayerCount = entity.PlayerCount,
                         MaxPlayers = entity.MaxPlayers,
-                        Players = entity.Players
+                        Players = entity.Players,
+                        Timestamp = entity.Timestamp
                     };
 
                     if (UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto))

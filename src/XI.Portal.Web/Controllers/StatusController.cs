@@ -12,17 +12,20 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
-        private readonly IGameServersRepository _gameServersRepository;
         private readonly IRconMonitorsRepository _rconMonitorsRepository;
+        private readonly IGameServerStatusRepository _gameServerStatusRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 
-        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, IFileMonitorsRepository fileMonitorsRepository, IRconMonitorsRepository rconMonitorsRepository, IGameServersRepository gameServersRepository)
+        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, 
+            IFileMonitorsRepository fileMonitorsRepository, 
+            IRconMonitorsRepository rconMonitorsRepository,
+            IGameServerStatusRepository gameServerStatusRepository)
         {
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _rconMonitorsRepository = rconMonitorsRepository ?? throw new ArgumentNullException(nameof(rconMonitorsRepository));
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
         }
 
         public async Task<IActionResult> BanFileStatus()
@@ -45,7 +48,7 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> GameServerStatus()
         {
-            var statusModel = await _gameServersRepository.GetStatusModel(User, _requiredClaims);
+            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
             return View(statusModel);
         }
     }

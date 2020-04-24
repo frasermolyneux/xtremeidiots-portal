@@ -89,7 +89,7 @@ namespace XI.Portal.Web.Controllers
 
         public class ServerInfoViewModel
         {
-            public GameServers GameServer { get; set; }
+            public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
             public MapDto Map { get; set; }
             public List<MapRotationDto> MapRotation { get; set; }

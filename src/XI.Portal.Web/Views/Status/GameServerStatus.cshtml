@@ -1,6 +1,6 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
-@model List<XI.Portal.Servers.Models.GameServerStatusViewModel>
+@model List<XI.Portal.Servers.Dto.PortalGameServerStatusDto>
 
 @{
     ViewData["Title"] = "Game Server Status";
@@ -38,50 +38,45 @@
                     <div class="ibox">
                         <div class="ibox-title">
                             <span>
-                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                @Html.GameTypeIcon(item.GameType) @Html.ServerName(item.ServerName, item.ServerName)
                             </span>
                         </div>
                         <div class="ibox-content">
                             <p>
                                 <text>
-                                    <strong>Server Hostname: </strong>@item.GameServer.Hostname
-                                </text><br/>
+                                    <strong>Server Hostname: </strong>@item.Hostname
+                                </text><br />
                                 <text>
-                                    <strong>Last Queried: </strong>@item.GameServer.LiveLastUpdated
-                                </text><br/>
+                                    <strong>Last Queried: </strong>@item.Timestamp
+                                </text><br />
                                 <text>
-                                    <strong>Mod: </strong>@item.GameServer.LiveMod
-                                </text><br/>
+                                    <strong>Mod: </strong>@item.Mod
+                                </text><br />
                                 <text>
-                                    <strong>Map: </strong>@item.GameServer.LiveMap
-                                </text><br/>
+                                    <strong>Map: </strong>@item.Map
+                                </text><br />
                                 <text>
-                                    <strong>Player Count: </strong>@item.GameServer.LiveCurrentPlayers
-                                </text><br/>
+                                    <strong>Player Count: </strong>@item.PlayerCount
+                                </text><br />
 
-                                @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                                @if (DateTime.UtcNow.AddMinutes(-15) > item.Timestamp)
                                 {
-                                    <div class="alert alert-danger">@item.ErrorMessage</div>
+                                    <div class="alert alert-danger">Server has not been queried in the past 15 minutes</div>
                                 }
 
-                                @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
+                                @if (string.IsNullOrWhiteSpace(item.Map))
                                 {
-                                    <div class="alert alert-warning">@item.WarningMessage</div>
-                                }
-
-                                @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-success">@item.SuccessMessage</div>
+                                    <div class="alert alert-danger">Map could not be retrieved from the server</div>
                                 }
 
                                 @{
                                     var canEditConfig = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameServer.GameType.ToString());
+                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString());
                                 }
 
                                 @if (canEditConfig)
                                 {
-                                    <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
+                                    <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
                                 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
@@ -12,6 +13,7 @@ using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
+    [Authorize]
     public class DemosController : Controller
     {
         private readonly IDemosRepository _demosRepository;

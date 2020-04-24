@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using XI.CommonTypes
 @using XI.CommonTypes.Extensions
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Auth.Contract.Extensions
@@ -98,24 +97,27 @@
     </ul>
 </li>
 
-<li class="@Html.IsSelected("Demos")">
-    <a asp-controller="Demos" asp-action="Index">
-        <i class="fa fa-camera"></i> <span class="nav-label">Demo Manager</span> <span class="fa arrow"></span>
-    </a>
-    <ul class="nav nav-second-level collapse @Html.IsSelected("Demos", cssClass: "in")">
-        <li class="@Html.IsSelected("Demos", "Index")">
-            <a asp-controller="Demos" asp-action="Index">Demos Index</a>
-        </li>
-
-        @foreach (var game in DemosSupportedGames.Games)
-        {
-            <li class="@Html.IsSelected(action: "GameDemos", id: game.ToString())">
-                <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="@Html.IsSelected("Demos")">
+        <a asp-controller="Demos" asp-action="Index">
+            <i class="fa fa-camera"></i> <span class="nav-label">Demo Manager</span> <span class="fa arrow"></span>
+        </a>
+        <ul class="nav nav-second-level collapse @Html.IsSelected("Demos", cssClass: "in")">
+            <li class="@Html.IsSelected("Demos", "Index")">
+                <a asp-controller="Demos" asp-action="Index">Demos Index</a>
             </li>
-        }
 
-    </ul>
-</li>
+            @foreach (var game in DemosSupportedGames.Games)
+            {
+                <li class="@Html.IsSelected(action: "GameDemos", id: game.ToString())">
+                    <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
+                </li>
+            }
+
+        </ul>
+    </li>
+}
 
 <li class="@Html.IsSelected("Maps")">
     <a asp-controller="Maps" asp-action="Index">
@@ -137,15 +139,15 @@
 </li>
 
 @*<li class="@Html.IsSelected("Analytics")">
-            <a asp-controller="Analytics">
-                <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
-            </a>
-            <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
-                <li class="@Html.IsSelected(action: "Index")">
-                    <a asp-controller="Analytics" asp-action="Index">High-Level</a>
-                </li>
-            </ul>
-        </li>*@
+                <a asp-controller="Analytics">
+                    <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Index")">
+                        <a asp-controller="Analytics" asp-action="Index">High-Level</a>
+                    </li>
+                </ul>
+            </li>*@
 
 <li policy="@XtremeIdiotsPolicy.PlayersManagement" class="@Html.IsSelected("Players")">
     <a asp-controller="Players" asp-action="Index">

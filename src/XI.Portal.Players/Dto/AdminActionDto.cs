@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Players.Dto
@@ -7,6 +8,7 @@ namespace XI.Portal.Players.Dto
     {
         public Guid AdminActionId { get; set; }
         public Guid PlayerId { get; set; }
+        public GameType GameType { get; set; }
         public string Username { get; set; }
         public string Guid { get; set; }
         public AdminActionType Type { get; set; }

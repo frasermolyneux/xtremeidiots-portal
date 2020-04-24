@@ -1,0 +1,95 @@
+﻿@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Data.Legacy.CommonTypes
+@model XI.Portal.Web.Controllers.AdminActionController.EditAdminActionViewModel
+
+@{
+    ViewData["Title"] = "Editing " + Model.AdminActionType + " for " + Model.PlayerName;
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>@ViewBag.Title</h5>
+                </div>
+
+                <div class="ibox-content">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="AdminActionId" />
+                        <input type="hidden" asp-for="PlayerId" />
+                        <input type="hidden" asp-for="PlayerName" />
+                        <input type="hidden" asp-for="AdminActionType" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <textarea id="summernote" asp-for="Text" class="form-control"></textarea>
+                            <span asp-validation-for="Text" class="text-danger"></span>
+                        </div>
+
+                        @if (Model.AdminActionType == AdminActionType.TempBan)
+                        {
+                            <div class="form-group">
+                                <label asp-for="Expires"></label>
+                                <input asp-for="Expires" class="form-control" />
+                                <span asp-validation-for="Expires" class="text-danger"></span>
+                            </div>
+                        }
+
+                        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                        {
+                            <div class="form-group">
+                                <label asp-for="AdminId"></label>
+                                <input asp-for="AdminId" class="form-control" />
+                                <span asp-validation-for="AdminId" class="text-danger"></span>
+                            </div>
+                        }
+
+                        <div class="form-group">
+                            <input type="submit" value="Save @Model.AdminActionType" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Styles {
+    <environment names="Development,Staging,Production">
+        <link rel="stylesheet" href="~/lib/summernote/summernote-bs4.css" />
+    </environment>
+
+}
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/summernote/summernote-bs4.js"></script>
+    </environment>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#summernote').summernote({
+                focus: true,
+                styleWithSpan: false,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol']],
+                    ['insert', ['link']]
+                ],
+                height: 350
+            });
+
+        });
+
+    </script>
+}

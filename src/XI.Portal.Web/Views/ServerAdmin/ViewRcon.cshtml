@@ -105,8 +105,9 @@
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
-                            return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';
+                        render: function (data, type, row) {
+                            return "";
+                            @*return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';*@
                         }
                     }
                 ]

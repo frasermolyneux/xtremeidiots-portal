@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Demos.Dto;
 using XI.Portal.Demos.Interfaces;
 using XI.Portal.Demos.Models;
 using XI.Portal.Web.Models;
@@ -88,15 +89,60 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-            var mapListEntries = await _demosRepository.GetDemos(filterModel, User, _requiredClaims);
+            var demosEntries = await _demosRepository.GetDemos(filterModel, User, _requiredClaims);
+            var portalDemoEntries = demosEntries.Select(demo => new PortalDemoDto(demo)).ToList();
+
+            foreach (var portalDemoEntry in portalDemoEntries)
+            {
+                var canDeletePortalDemo = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                   claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == portalDemoEntry.GameType ||
+                                                                   claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == portalDemoEntry.UserId);
+
+                if (canDeletePortalDemo)
+                    portalDemoEntry.ShowDeleteLink = true;
+            }
 
             return Json(new
             {
                 model.Draw,
                 recordsTotal,
                 recordsFiltered,
-                data = mapListEntries
+                data = portalDemoEntries
             });
+        }
+
+        public class PortalDemoDto
+        {
+            public PortalDemoDto(DemoDto demo)
+            {
+                DemoId = demo.DemoId;
+                Game = demo.Game;
+                Name = demo.Name;
+                FileName = demo.FileName;
+                Date = demo.Date;
+                Map = demo.Map;
+                Mod = demo.Mod;
+                GameType = demo.GameType;
+                Server = demo.Server;
+                Size = demo.Size;
+                UserId = demo.UserId;
+                UploadedBy = demo.UploadedBy;
+            }
+
+            public Guid DemoId { get; set; }
+            public string Game { get; set; }
+            public string Name { get; set; }
+            public string FileName { get; set; }
+            public DateTime Date { get; set; }
+            public string Map { get; set; }
+            public string Mod { get; set; }
+            public string GameType { get; set; }
+            public string Server { get; set; }
+            public long Size { get; set; }
+            public string UserId { get; set; }
+            public string UploadedBy { get; set; }
+
+            public bool ShowDeleteLink { get; set; }
         }
     }
 }

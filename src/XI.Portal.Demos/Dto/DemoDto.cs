@@ -14,10 +14,7 @@ namespace XI.Portal.Demos.Dto
         public string GameType { get; set; }
         public string Server { get; set; }
         public long Size { get; set; }
-
-        [Obsolete("This links back to the AspNetUsers")]
         public string UserId { get; set; }
-
         public string UploadedBy { get; set; }
     }
 }

@@ -43,7 +43,7 @@ namespace XI.Portal.Demos.Repository
                     Server = demo.Server,
                     Size = demo.Size,
 
-                    UserId = demo.UserId,
+                    UserId = demo.User.XtremeIdiotsId,
                     UploadedBy = demo.User.UserName
                 };
 

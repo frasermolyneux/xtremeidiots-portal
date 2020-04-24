@@ -37,6 +37,10 @@ function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }
 
+function deleteDemoLink(demoId) {
+    return "<a href='/Demos/Delete/" + demoId + "'>Delete Demo</a>";
+}
+
 function geoLocationIpLink(ipAddress) {
     return "<a href='https://geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
 }

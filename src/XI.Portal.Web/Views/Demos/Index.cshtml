@@ -120,7 +120,10 @@
                     },
                     {
                         sortable: false,
-                        render: function() {
+                        render: function (data, type, row) {
+                            if (row['showDeleteLink'] === true) {
+                                return deleteDemoLink(row['demoId']);
+                            }
                             return "";
                         }
                     }

@@ -152,6 +152,66 @@ namespace XI.Portal.Web.Controllers
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Lift(Guid? id)
+        {
+            if (id == null) return NotFound();
+
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+
+            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+
+            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
+                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
+
+            if (!canEditAdminAction) return Unauthorized();
+
+            var model = new EditAdminActionViewModel
+            {
+                AdminActionId = adminAction.AdminActionId,
+                AdminActionType = adminAction.Type,
+                PlayerId = adminAction.PlayerId,
+                PlayerName = adminAction.Username,
+                Text = adminAction.Text,
+                Expires = adminAction.Expires,
+                AdminId = adminAction.AdminId
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ActionName("Lift")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId)
+        {
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+
+            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+
+            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
+                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
+
+            if (!canEditAdminAction) return Unauthorized();
+
+            var adminActionDto = new AdminActionDto
+            {
+                AdminActionId = adminAction.AdminActionId,
+                AdminId = adminAction.AdminId,
+                Text = adminAction.Text,
+                Expires = DateTime.UtcNow
+            };
+
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+
+            _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
+            TempData["Success"] = "The Admin Action has been successfully updated";
+
+            return RedirectToAction("Details", "Players", new { id = playerId });
+        }
+
 
         [HttpGet]
         [Authorize(XtremeIdiotsPolicy.RootPolicy)]
@@ -174,10 +234,8 @@ namespace XI.Portal.Web.Controllers
         {
             await _adminActionsRepository.Delete(id);
 
-            // Add Logging
-
             _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            TempData["Success"] = $"The Admin Action has been successfully updated";
+            TempData["Success"] = "The Admin Action has been successfully deleted";
 
             return RedirectToAction("Details", "Players", new {id = playerId});
         }

@@ -37,6 +37,11 @@
                             </div>
                         }
 
+                        @if (Model.AdminActionType == AdminActionType.Ban)
+                        {
+                            <input type="hidden" asp-for="Expires" />
+                        }
+
                         @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                         {
                             <div class="form-group">

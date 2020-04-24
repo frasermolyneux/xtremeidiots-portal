@@ -16,8 +16,10 @@ namespace XI.Portal.Demos.Extensions
             if (claimsPrincipal == null || requiredClaims == null)
                 return demos.AsQueryable();
 
+            var xtremeIdiotsId = claimsPrincipal.XtremeIdiotsId();
+
             var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
-            return demos.Where(demo => gameTypes.Contains(demo.Game)).AsQueryable();
+            return demos.Where(demo => gameTypes.Contains(demo.Game) || demo.User.XtremeIdiotsId == xtremeIdiotsId).AsQueryable();
         }
 
         public static IQueryable<Demoes> ApplyFilter(this IQueryable<Demoes> demos, DemosFilterModel filterModel)

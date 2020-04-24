@@ -55,7 +55,7 @@ namespace XI.Portal.Servers.Repository
 
             var storedGameServerStatus = (PortalGameServerStatusEntity) result.Result;
 
-            if (storedGameServerStatus.Timestamp < DateTime.UtcNow + cacheCutoff)
+            if (cacheCutoff != TimeSpan.Zero && storedGameServerStatus.Timestamp < DateTime.UtcNow + cacheCutoff)
             {
                 var gameServerDto = await RefreshGameServerStatus(serverId);
 

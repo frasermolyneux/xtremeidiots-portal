@@ -64,7 +64,7 @@ namespace XI.Portal.Web.Controllers
                 return NotFound();
 
             var gameServer = await _gameServersRepository.GetGameServer(id, null, null);
-            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus((Guid) id, null, null, TimeSpan.FromMinutes(-15));
+            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus((Guid) id, null, null, TimeSpan.Zero);
 
             MapDto map = null;
             if (gameServerStatusDto != null)

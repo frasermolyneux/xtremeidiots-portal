@@ -25,7 +25,6 @@ using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
-using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Data;

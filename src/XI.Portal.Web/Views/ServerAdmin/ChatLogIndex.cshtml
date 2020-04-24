@@ -6,7 +6,7 @@
 
     if (ViewData["GameType"] != null)
     {
-        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " ChatLog Index";
+        ViewData["Title"] = ((GameType) ViewData["GameType"]).DisplayName() + " ChatLog Index";
         dataUrl = "/ServerAdmin/GetGameChatLogAjax/" + ViewData["GameType"];
     }
 

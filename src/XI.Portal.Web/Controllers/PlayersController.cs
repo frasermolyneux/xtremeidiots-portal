@@ -21,13 +21,13 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = XtremeIdiotsPolicy.PlayersManagement)]
     public class PlayersController : Controller
     {
-        private readonly IGeoLocationClient _geoLocationClient;
         private readonly IAdminActionsRepository _adminActionsRepository;
+        private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayersRepository _playersRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 
-        public PlayersController(IPlayersRepository playersRepository, 
+        public PlayersController(IPlayersRepository playersRepository,
             IGeoLocationClient geoLocationClient,
             IAdminActionsRepository adminActionsRepository)
         {
@@ -140,7 +140,7 @@ namespace XI.Portal.Web.Controllers
 
             var adminActionsFilterModel = new AdminActionsFilterModel
             {
-                PlayerId = (Guid)id,
+                PlayerId = (Guid) id,
                 Order = AdminActionsFilterModel.OrderBy.CreatedDesc
             };
 

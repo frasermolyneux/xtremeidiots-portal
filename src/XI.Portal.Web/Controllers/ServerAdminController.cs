@@ -106,11 +106,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
         public IActionResult GameChatLog(GameType id)
-        { 
-            if(!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString()))
-            {
-                return Unauthorized();
-            }
+        {
+            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
 
             ViewData["GameType"] = id;
             return View(nameof(ChatLogIndex));
@@ -120,10 +117,7 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
         public async Task<IActionResult> GetGameChatLogAjax(GameType id)
         {
-            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString()))
-            {
-                return Unauthorized();
-            }
+            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
 
             return await GetChatLogPrivate(id, null);
         }

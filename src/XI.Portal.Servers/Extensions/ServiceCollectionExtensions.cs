@@ -1,5 +1,4 @@
 ﻿using System;
-using FM.GeoLocation.Client;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Helpers;

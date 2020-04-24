@@ -6,7 +6,7 @@
 
     if (ViewData["GameType"] != null)
     {
-        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Players Index";
+        ViewData["Title"] = ((GameType) ViewData["GameType"]).DisplayName() + " Players Index";
         dataUrl = "/Players/GetPlayersAjax/" + ViewData["GameType"];
     }
 }
@@ -24,12 +24,12 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                                <tr>
-                                    <td>Name</td>
-                                    <td>Guid</td>
-                                    <td>First Seen</td>
-                                    <td>Last Seen</td>
-                                </tr>
+                            <tr>
+                                <td>Name</td>
+                                <td>Guid</td>
+                                <td>First Seen</td>
+                                <td>Last Seen</td>
+                            </tr>
                             </thead>
                         </table>
                     </div>

@@ -9,7 +9,6 @@ using XI.AzureTableLogging.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Extensions;
 
 [assembly: FunctionsStartup(typeof(Startup))]

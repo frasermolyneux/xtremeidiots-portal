@@ -17,9 +17,9 @@ namespace XI.Portal.Web.Controllers
     public class AdminActionController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
+        private readonly ILogger<AdminActionController> _logger;
 
         private readonly string[] _observationWarningKick = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
-        private readonly ILogger<AdminActionController> _logger;
         private readonly IPlayersRepository _playersRepository;
         private readonly string[] _tempBanBan = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
 
@@ -82,7 +82,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.AdminActionType, model.PlayerId);
             TempData["Success"] = $"The {model.AdminActionType} has been successfully created";
 
-            return RedirectToAction("Details", "Players", new { id = model.PlayerId });
+            return RedirectToAction("Details", "Players", new {id = model.PlayerId});
         }
 
         [HttpGet]
@@ -90,7 +90,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
 
             if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
 
@@ -139,17 +139,14 @@ namespace XI.Portal.Web.Controllers
                 Expires = model.Expires
             };
 
-            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
-            {
-                adminActionDto.AdminId = model.AdminId;
-            }
+            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin)) adminActionDto.AdminId = model.AdminId;
 
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             TempData["Success"] = $"The {model.AdminActionType} has been successfully updated";
 
-            return RedirectToAction("Details", "Players", new { id = model.PlayerId });
+            return RedirectToAction("Details", "Players", new {id = model.PlayerId});
         }
 
         [HttpGet]
@@ -157,7 +154,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
 
             if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
 
@@ -209,7 +206,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             TempData["Success"] = "The Admin Action has been successfully updated";
 
-            return RedirectToAction("Details", "Players", new { id = playerId });
+            return RedirectToAction("Details", "Players", new {id = playerId});
         }
 
         [HttpGet]
@@ -217,7 +214,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
 
             if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
 
@@ -259,7 +256,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             TempData["Success"] = "The Admin Action has been successfully claim";
 
-            return RedirectToAction("Details", "Players", new { id = playerId });
+            return RedirectToAction("Details", "Players", new {id = playerId});
         }
 
         [HttpGet]

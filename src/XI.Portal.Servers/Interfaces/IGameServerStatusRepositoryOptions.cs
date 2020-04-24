@@ -1,6 +1,4 @@
-﻿using XI.Portal.Servers.Configuration;
-
-namespace XI.Portal.Servers.Interfaces
+﻿namespace XI.Portal.Servers.Interfaces
 {
     public interface IGameServerStatusRepositoryOptions
     {

@@ -1,6 +1,4 @@
-﻿using XI.Portal.Players.Configuration;
-
-namespace XI.Portal.Players.Interfaces
+﻿namespace XI.Portal.Players.Interfaces
 {
     public interface IPlayerLocationsRepositoryOptions
     {

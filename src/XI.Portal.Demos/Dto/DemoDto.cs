@@ -17,6 +17,7 @@ namespace XI.Portal.Demos.Dto
 
         [Obsolete("This links back to the AspNetUsers")]
         public string UserId { get; set; }
+
         public string UploadedBy { get; set; }
     }
 }

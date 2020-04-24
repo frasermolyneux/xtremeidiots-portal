@@ -51,9 +51,9 @@
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Lift">
-                            <input type="hidden" asp-for="AdminActionId" />
-                            <input type="hidden" asp-for="PlayerId" />
-                            <input type="submit" value="Lift @Model.AdminActionType" class="btn btn-danger" /> |
+                            <input type="hidden" asp-for="AdminActionId"/>
+                            <input type="hidden" asp-for="PlayerId"/>
+                            <input type="submit" value="Lift @Model.AdminActionType" class="btn btn-danger"/> |
                             <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
                         </form>
                     </div>

@@ -6,7 +6,7 @@
 
     if (ViewData["GameType"] != null)
     {
-        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Demos Index";
+        ViewData["Title"] = ((GameType) ViewData["GameType"]).DisplayName() + " Demos Index";
         dataUrl = "/Demos/GetDemoListAjax/" + ViewData["GameType"];
     }
 }
@@ -24,18 +24,18 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                                <tr>
-                                    <td>Game</td>
-                                    <td>Name</td>
-                                    <td>Date</td>
-                                    <td>Map</td>
-                                    <td>Mod</td>
-                                    <td>GameType</td>
-                                    <td>Server</td>
-                                    <td>Size</td>
-                                    <td>Uploaded By</td>
-                                    <td></td>
-                                </tr>
+                            <tr>
+                                <td>Game</td>
+                                <td>Name</td>
+                                <td>Date</td>
+                                <td>Map</td>
+                                <td>Mod</td>
+                                <td>GameType</td>
+                                <td>Server</td>
+                                <td>Size</td>
+                                <td>Uploaded By</td>
+                                <td></td>
+                            </tr>
                             </thead>
                         </table>
                     </div>
@@ -53,7 +53,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -64,7 +64,7 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function (d) {
+                    "data": function(d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -72,14 +72,14 @@
                     {
                         name: 'game',
                         sortable: true,
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return gameTypeIcon(row['game']);
                         }
                     },
                     {
                         name: 'name',
                         sortable: true,
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return downloadDemoLink(row['name'], row['demoId']);
                         }
                     },
@@ -120,7 +120,7 @@
                     },
                     {
                         sortable: false,
-                        render: function () {
+                        render: function() {
                             return "";
                         }
                     }

@@ -61,7 +61,11 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(
             [Bind("FilePath,GameServerServerId")] BanFileMonitors model)
         {
-            if (!User.HasGameClaim(model.GameServerServer.GameType, _requiredClaims)) return Unauthorized();
+            var server = await _gameServersRepository.GetGameServer(model.GameServerServerId, User, _requiredClaims);
+
+            if (server == null) return NotFound();
+
+            if (!User.HasGameClaim(server.GameType, _requiredClaims)) return Unauthorized();
 
             if (ModelState.IsValid)
             {

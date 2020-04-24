@@ -50,8 +50,8 @@ namespace XI.Portal.Players.Repository
                 Expires = aa.Expires,
                 ForumTopicId = aa.ForumTopicId,
                 Created = aa.Created,
-                AdminId = aa.Admin.XtremeIdiotsId,
-                AdminName = aa.Admin.UserName
+                AdminId = aa.Admin?.XtremeIdiotsId,
+                AdminName = aa.Admin?.UserName
             }).ToList();
 
             return adminActionsEntryViewModels;
@@ -95,8 +95,8 @@ namespace XI.Portal.Players.Repository
                 Expires = adminAction.Expires,
                 ForumTopicId = adminAction.ForumTopicId,
                 Created = adminAction.Created,
-                AdminId = adminAction.Admin.XtremeIdiotsId,
-                AdminName = adminAction.Admin.UserName
+                AdminId = adminAction.Admin?.XtremeIdiotsId,
+                AdminName = adminAction.Admin?.UserName
             };
         }
 

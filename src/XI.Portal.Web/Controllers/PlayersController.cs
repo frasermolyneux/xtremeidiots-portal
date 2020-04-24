@@ -224,6 +224,20 @@ namespace XI.Portal.Web.Controllers
             return View(adminActions);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Unclaimed()
+        {
+            var filterModel = new AdminActionsFilterModel
+            {
+                Filter = AdminActionsFilterModel.FilterType.UnclaimedBans,
+                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
+            };
+
+            var adminActions = await _adminActionsRepository.GetAdminActions(filterModel);
+
+            return View(adminActions);
+        }
+
         public class PlayerDetailsViewModel
         {
             public PlayerDto Player { get; set; }

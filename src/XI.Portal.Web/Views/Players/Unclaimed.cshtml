@@ -1,0 +1,183 @@
+﻿@using XI.Portal.Auth.Contract.Constants
+@using XI.Portal.Data.Legacy.CommonTypes
+@model List<XI.Portal.Players.Dto.AdminActionDto>
+
+@{
+    ViewData["Title"] = "Unclaimed Bans";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <h1 style="text-align: center">You have not performed any admin actions</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+    @foreach (var item in Model)
+    {
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <h2>
+                            @item.Type Record for <a asp-controller="Players" asp-action="Details" asp-route-id="@item.PlayerId">@item.Username</a>
+                        </h2>
+                        <p>
+                            @if (item.AdminId == null)
+                            {
+                                <text><strong>Created By:</strong> System</text>
+                            }
+                            else
+                            {
+                                <text><strong>Created By:</strong> </text>
+                                @item.AdminName
+                            }
+
+                            <br />
+                            <strong>Created:</strong> @item.Created
+
+                            @if (item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
+                            {
+                                <br />
+                                <text><strong>Expires:</strong> @item.Expires</text>
+                            }
+                            else if (item.Type == AdminActionType.TempBan)
+                            {
+                                <br />
+                                <text><strong>Expired:</strong> @item.Expires</text>
+                            }
+
+                            @if (item.Type == AdminActionType.Ban && item.Expires != null)
+                            {
+                                <br />
+                                <text><strong>Ban Lifted:</strong> @item.Expires</text>
+                            }
+
+
+                            @if (item.ForumTopicId != 0)
+                            {
+                                <br />
+                                <strong>Discussion Topic: </strong>
+                                <a href="https://www.xtremeidiots.com/forums/topic/@item.ForumTopicId-topic/" target="_blank">Link</a>
+                            }
+                        </p>
+
+                        @{
+                            string style;
+                            switch (item.Type)
+                            {
+                                case AdminActionType.Observation:
+                                    style = "info";
+                                    break;
+                                case AdminActionType.Warning:
+                                    style = "info";
+                                    break;
+                                case AdminActionType.Kick:
+                                    style = "warning";
+                                    break;
+                                case AdminActionType.TempBan:
+                                    style = item.Expires < DateTime.UtcNow ? "dark" : "danger";
+                                    break;
+                                case AdminActionType.Ban:
+                                    style = item.Expires != null ? "dark" : "danger";
+                                    break;
+                                default:
+                                    style = "info";
+                                    break;
+                            }
+                        }
+
+                        @* ReSharper disable once UnknownCssClass *@
+                        <div class="alert alert-@style">
+                            @Html.Raw(item.Text)
+                        </div>
+
+                        <p>
+                            @{
+                                var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                  claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
+                                                                                  claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == item.AdminId);
+                            }
+
+                            @if (canEditAdminAction)
+                            {
+                                switch (item.Type)
+                                {
+                                    case AdminActionType.Observation:
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Observation</a>
+                                        break;
+                                    case AdminActionType.Warning:
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Warning</a>
+                                        break;
+                                    case AdminActionType.Kick:
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Kicks</a>
+                                        break;
+                                    case AdminActionType.TempBan:
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Temp Ban</a>
+
+                                        if (item.Expires > DateTime.UtcNow)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
+                                        }
+                                        break;
+                                    case AdminActionType.Ban:
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Ban</a>
+
+                                        if (item.Expires == null)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
+                                        }
+                                        break;
+                                    default:
+                                        throw new ArgumentOutOfRangeException();
+                                }
+                            }
+
+                            @{
+                                var canClaimBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                           claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
+                                                                           claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
+                            }
+
+                            @if (item.Type == AdminActionType.Ban && item.AdminId == null && canClaimBan)
+                            {
+                                <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
+                            }
+
+                            @{
+                                var canDeleteAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin);
+                            }
+
+                            @if (canDeleteAdminAction)
+                            {
+                                <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Delete @item.Type</a>
+                            }
+
+                            @if (item.ForumTopicId == 0)
+                            {
+                                var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                                        claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
+                                                                                        claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
+
+                                if (canCreateDiscussionTopic)
+                                {
+                                    <a asp-controller="Players" asp-action="CreateDiscussionTopic" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
+                                }
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

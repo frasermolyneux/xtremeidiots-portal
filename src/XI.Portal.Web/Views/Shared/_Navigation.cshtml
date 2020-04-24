@@ -166,6 +166,10 @@
             <a asp-controller="Players" asp-action="MyActions">My Actions</a>
         </li>
 
+        <li class="@Html.IsSelected(action: "Unclaimed")">
+            <a asp-controller="Players" asp-action="Unclaimed">Unclaimed Bans</a>
+        </li>
+
         @foreach (var game in PlayersSupportedGames.Games)
         {
             @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))

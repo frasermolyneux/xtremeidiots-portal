@@ -157,7 +157,7 @@
 
                             if (canCreateDiscussionTopic)
                             {
-                                <a asp-controller="Players" asp-action="CreateDiscussionTopic" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
+                                <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
                             }
                         }
                     </p>

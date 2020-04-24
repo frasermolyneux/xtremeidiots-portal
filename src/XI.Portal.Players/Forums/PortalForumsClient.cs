@@ -1,0 +1,93 @@
+﻿using System;
+using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using XI.Forums.Interfaces;
+using XI.Portal.Data.Legacy.CommonTypes;
+using XI.Portal.Players.Dto;
+using XI.Portal.Players.Extensions;
+using XI.Portal.Players.Interfaces;
+
+namespace XI.Portal.Players.Forums
+{
+    public class PortalForumsClient : IPortalForumsClient
+    {
+        private readonly IForumsClient _forumsClient;
+        private readonly ILogger<PortalForumsClient> _logger;
+
+        public PortalForumsClient(ILogger<PortalForumsClient> logger, IForumsClient forumsClient)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
+        }
+
+        public async Task<int> CreateTopicForAdminAction(AdminActionDto model)
+        {
+            try
+            {
+                var userId = 21145; // Admin
+                if (model.AdminId != null)
+                    userId = Convert.ToInt32(model.AdminId);
+
+                var forumId = 28;
+                switch (model.Type)
+                {
+                    case AdminActionType.Observation:
+                        forumId = model.GameType.ForumIdForObservations();
+                        break;
+                    case AdminActionType.Warning:
+                        forumId = model.GameType.ForumIdForWarnings();
+                        break;
+                    case AdminActionType.Kick:
+                        forumId = model.GameType.ForumIdForKicks();
+                        break;
+                    case AdminActionType.TempBan:
+                        forumId = model.GameType.ForumIdForTempBans();
+                        break;
+                    case AdminActionType.Ban:
+                        forumId = model.GameType.ForumIdForBans();
+                        break;
+                }
+
+                var postTopicResult = await _forumsClient.PostTopic(forumId, userId, $"{model.Username} - {model.Type}", PostContent(model), model.Type.ToString());
+                return postTopicResult.TopicId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating admin action topic");
+                return 0;
+            }
+        }
+
+        //private void UpdateTopic(int topicId, int authorId, string post)
+        //{
+        //    using (var client = new WebClient())
+        //    {
+        //        var requestParams = new NameValueCollection
+        //        {
+        //            {"key", xtremeIdiotsForumsConfiguration.ApiKey},
+        //            {"author", authorId.ToString()},
+        //            {"post", post}
+        //        };
+
+        //        var requestUrl = $"https://www.xtremeidiots.com/api/forums/topics/{topicId}";
+        //        client.UploadValues(requestUrl, "POST", requestParams);
+        //    }
+        //}
+
+        private string PostContent(AdminActionDto model)
+        {
+            return "<p>" +
+                   $"   Username: {model.Username}<br>" +
+                   $"   Player Link: <a href=\"https://portal.xtremeidiots.com/Players/Details/{model.PlayerId}\">Portal</a><br>" +
+                   $"   Admin Action Created: {model.Created.ToString(CultureInfo.InvariantCulture)}" +
+                   "</p>" +
+                   "<p>" +
+                   $"   {model.Text}" +
+                   "</p>" +
+                   "<p>" +
+                   "   <small>Do not edit this post directly as it will be overwritten by the Portal. Add comments on posts below or edit the record in the Portal.</small>" +
+                   "</p>";
+        }
+    }
+}

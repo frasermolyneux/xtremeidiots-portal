@@ -124,6 +124,9 @@ namespace XI.Portal.Players.Repository
                     adminAction.Admin = await _legacyContext.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == model.AdminId);
             }
 
+            if (model.ForumTopicId != 0)
+                adminAction.ForumTopicId = model.ForumTopicId;
+
             await _legacyContext.SaveChangesAsync();
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Players.Configuration;
+using XI.Portal.Players.Forums;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Repository;
 
@@ -50,6 +51,8 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
             }
+
+            serviceCollection.AddSingleton<IPortalForumsClient, PortalForumsClient>();
         }
     }
 }

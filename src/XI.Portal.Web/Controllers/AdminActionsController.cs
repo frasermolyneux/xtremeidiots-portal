@@ -17,6 +17,7 @@ namespace XI.Portal.Web.Controllers
     public class AdminActionController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
+        private readonly IPortalForumsClient _portalForumsClient;
         private readonly ILogger<AdminActionController> _logger;
 
         private readonly string[] _observationWarningKick = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
@@ -26,11 +27,13 @@ namespace XI.Portal.Web.Controllers
         public AdminActionController(
             ILogger<AdminActionController> logger,
             IPlayersRepository playersRepository,
-            IAdminActionsRepository adminActionsRepository)
+            IAdminActionsRepository adminActionsRepository,
+            IPortalForumsClient portalForumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
+            _portalForumsClient = portalForumsClient ?? throw new ArgumentNullException(nameof(portalForumsClient));
         }
 
         [HttpGet]
@@ -254,9 +257,43 @@ namespace XI.Portal.Web.Controllers
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            TempData["Success"] = "The Admin Action has been successfully claim";
+            TempData["Success"] = "The Admin Action has been successfully claimed";
 
             return RedirectToAction("Details", "Players", new {id = playerId});
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CreateDiscussionTopic(Guid? id)
+        {
+            if (id == null) return NotFound();
+
+            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+
+            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+
+            var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
+                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
+                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == adminAction.GameType.ToString());
+
+            if (!canCreateDiscussionTopic) return Unauthorized();
+
+            var topicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
+
+            var adminActionDto = new AdminActionDto
+            {
+                AdminActionId = adminAction.AdminActionId,
+                AdminId = adminAction.AdminId,
+                Text = adminAction.Text,
+                Expires = adminAction.Expires,
+                ForumTopicId = topicId
+            };
+
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+
+            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminAction.PlayerId);
+            TempData["Success"] = "The discussion topic has been successfully created";
+
+            return RedirectToAction("Details", "Players", new {id = adminAction.PlayerId});
         }
 
         [HttpGet]

@@ -6,5 +6,6 @@ namespace XI.Forums.Interfaces
     public interface IForumsClient
     {
         Task<Member> GetMember(string id);
+        Task<PostTopicResult> PostTopic(int forumId, int authorId, string title, string post, string prefix);
     }
 }

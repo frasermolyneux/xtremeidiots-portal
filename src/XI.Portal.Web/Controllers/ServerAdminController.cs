@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
@@ -39,10 +42,19 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
-            var servers = (await _gameServersRepository.GetGameServers(User, _requiredClaims))
-                .Where(server => !string.IsNullOrWhiteSpace(server.RconPassword));
+            var servers = (await _gameServersRepository.GetGameServers(null, null)).Where(server => server.ShowOnPortalServerList);
+            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
 
-            return View(servers);
+            var results = new List<ServersController.ServerInfoViewModel>();
+
+            foreach (var server in servers)
+                results.Add(new ServersController.ServerInfoViewModel
+                {
+                    GameServer = server,
+                    GameServerStatus = serversStatus.SingleOrDefault(ss => server.ServerId == ss.ServerId)
+                });
+
+            return View(results);
         }
 
         [HttpGet]
@@ -200,6 +212,12 @@ namespace XI.Portal.Web.Controllers
 
             var chatLog = await _chatLogsRepository.GetChatLog((Guid) id);
             return View(chatLog);
+        }
+
+        public class ServerInfoViewModel
+        {
+            public GameServers GameServer { get; set; }
+            public PortalGameServerStatusDto GameServerStatus { get; set; }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Extensions
-@model IEnumerable<XI.Portal.Data.Legacy.Models.GameServers>
+@model IEnumerable<XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel>
 
 @{
     ViewData["Title"] = "Live Rcon";
@@ -19,19 +19,19 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Title)
+                                    @Html.Label("Title")
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.Hostname)
+                                    @Html.Label("Hostname")
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.LiveCurrentPlayers)
+                                    @Html.Label("Players")
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.LiveMap)
+                                    @Html.Label("Map")
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.LiveMod)
+                                    @Html.Label("Mod")
                                 </th>
                                 <th></th>
                             </tr>
@@ -41,14 +41,18 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameType) @Html.DisplayFor(modelItem => item.Title)
+                                        @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
                                     </td>
                                     <td>
-                                        @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+                                        @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
                                     </td>
                                     <td>
                                         @{
-                                            var percentage = item.LiveCurrentPlayers / (double) item.LiveMaxPlayers * 100;
+                                            double percentage = 0;
+                                            if (item.GameServerStatus != null)
+                                            {
+                                                percentage = (double) item.GameServerStatus.PlayerCount / item.GameServerStatus.MaxPlayers * 100;
+                                            }
                                         }
 
                                         <div class="progress" style="margin-right: 20px">
@@ -58,18 +62,18 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.LiveMap)
+                                        @item.GameServerStatus?.Map
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.LiveMod)
+                                        @item.GameServerStatus?.Mod
                                     </td>
                                     <td>
-                                        <a asp-action="ViewRcon" asp-route-id="@item.ServerId">View Rcon</a>
+                                        <a asp-action="ViewRcon" asp-route-id="@item.GameServer.ServerId">View Rcon</a>
 
-                                        @if (ChatLogSupportedGames.Games.Contains(item.GameType))
+                                        @if (ChatLogSupportedGames.Games.Contains(item.GameServer.GameType))
                                         {
                                             <span policy="@XtremeIdiotsPolicy.CanAccessGameChatLog">|</span>
-                                            <a asp-action="ServerChatLog" asp-route-id="@item.ServerId">View ChatLog</a>
+                                            <a asp-action="ServerChatLog" asp-route-id="@item.GameServer.ServerId">View ChatLog</a>
                                         }
                                     </td>
                                 </tr>

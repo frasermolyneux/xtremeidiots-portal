@@ -1,8 +1,8 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Data.Legacy.Models.GameServers
+@model XI.Portal.Servers.Dto.GameServerDto
 
 @{
-    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
+    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, null);
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">

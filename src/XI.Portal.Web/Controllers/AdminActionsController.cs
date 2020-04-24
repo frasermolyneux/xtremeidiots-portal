@@ -80,8 +80,9 @@ namespace XI.Portal.Web.Controllers
                 Expires = model.Expires
             };
 
+            adminAction.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
             await _adminActionsRepository.Create(adminAction);
-            // Post Topic
+
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.AdminActionType, model.PlayerId);
             TempData["Success"] = $"The {model.AdminActionType} has been successfully created";
 

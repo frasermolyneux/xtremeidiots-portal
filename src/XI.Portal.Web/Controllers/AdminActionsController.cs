@@ -140,12 +140,16 @@ namespace XI.Portal.Web.Controllers
                 AdminActionId = adminAction.AdminActionId,
                 AdminId = adminAction.AdminId,
                 Text = model.Text,
-                Expires = model.Expires
+                Expires = model.Expires,
+                ForumTopicId = adminAction.ForumTopicId
             };
 
             if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin)) adminActionDto.AdminId = model.AdminId;
 
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+
+            if (adminAction.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             TempData["Success"] = $"The {model.AdminActionType} has been successfully updated";

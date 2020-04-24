@@ -63,5 +63,22 @@ namespace XI.Forums.Client
                 };
             }
         }
+
+        public async Task UpdateTopic(int topicId, int authorId, string post)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_forumsOptions.BaseUrl);
+
+                var requestParams = new Dictionary<string, string>()
+                {
+                    {"key", _forumsOptions.ApiKey},
+                    {"author", authorId.ToString()},
+                    {"post", post}
+                };
+
+                await client.PostAsync($"/api/forums/topics/{topicId}", new FormUrlEncodedContent(requestParams));
+            }
+        }
     }
 }

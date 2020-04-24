@@ -59,28 +59,24 @@ namespace XI.Portal.Players.Forums
             }
         }
 
-        //private void UpdateTopic(int topicId, int authorId, string post)
-        //{
-        //    using (var client = new WebClient())
-        //    {
-        //        var requestParams = new NameValueCollection
-        //        {
-        //            {"key", xtremeIdiotsForumsConfiguration.ApiKey},
-        //            {"author", authorId.ToString()},
-        //            {"post", post}
-        //        };
+        public async Task UpdateTopicForAdminAction(AdminActionDto model)
+        {
+            if (model.ForumTopicId == 0)
+                return;
 
-        //        var requestUrl = $"https://www.xtremeidiots.com/api/forums/topics/{topicId}";
-        //        client.UploadValues(requestUrl, "POST", requestParams);
-        //    }
-        //}
+            var userId = 21145; // Admin
+            if (model.AdminId != null)
+                userId = Convert.ToInt32(model.AdminId);
+
+            await _forumsClient.UpdateTopic(model.ForumTopicId, userId, PostContent(model));
+        }
 
         private string PostContent(AdminActionDto model)
         {
             return "<p>" +
                    $"   Username: {model.Username}<br>" +
                    $"   Player Link: <a href=\"https://portal.xtremeidiots.com/Players/Details/{model.PlayerId}\">Portal</a><br>" +
-                   $"   Admin Action Created: {model.Created.ToString(CultureInfo.InvariantCulture)}" +
+                   $"   {model.Type} Created: {model.Created.ToString(CultureInfo.InvariantCulture)}" +
                    "</p>" +
                    "<p>" +
                    $"   {model.Text}" +

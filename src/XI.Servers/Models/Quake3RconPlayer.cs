@@ -1,4 +1,5 @@
-﻿using XI.Servers.Interfaces.Models;
+﻿using XI.Servers.Extensions;
+using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models
 {
@@ -13,6 +14,6 @@ namespace XI.Servers.Models
         public string IpAddress { get; set; }
         public string Rate { get; set; }
 
-        public string NormalizedName => Name.Normalize();
+        public string NormalizedName => Name.NormalizeName();
     }
 }

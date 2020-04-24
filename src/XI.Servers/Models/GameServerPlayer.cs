@@ -1,4 +1,5 @@
 ﻿using System;
+using XI.Servers.Extensions;
 using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models
@@ -21,6 +22,6 @@ namespace XI.Servers.Models
         public int Score => _queryPlayer?.Score ?? 0;
         public string Rate => RconPlayer != null ? RconPlayer.Rate : "";
 
-        public string NormalizedName => Name.Normalize();
+        public string NormalizedName => Name.NormalizeName();
     }
 }

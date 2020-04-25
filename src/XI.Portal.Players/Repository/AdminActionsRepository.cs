@@ -38,7 +38,7 @@ namespace XI.Portal.Players.Repository
                 .ApplyFilter(filterModel)
                 .ToListAsync();
 
-            var adminActionsEntryViewModels = adminActions.Select(aa => new AdminActionDto
+            var models = adminActions.Select(aa => new AdminActionDto
             {
                 AdminActionId = aa.AdminActionId,
                 PlayerId = aa.PlayerPlayer.PlayerId,
@@ -54,7 +54,7 @@ namespace XI.Portal.Players.Repository
                 AdminName = aa.Admin?.UserName
             }).ToList();
 
-            return adminActionsEntryViewModels;
+            return models;
         }
 
         public async Task Create(AdminActionDto adminAction)
@@ -69,7 +69,8 @@ namespace XI.Portal.Players.Repository
                 Type = adminAction.Type,
                 Text = adminAction.Text,
                 Created = adminAction.Created,
-                Expires = adminAction.Expires
+                Expires = adminAction.Expires,
+                ForumTopicId = adminAction.ForumTopicId
             };
 
             _legacyContext.AdminActions.Add(model);

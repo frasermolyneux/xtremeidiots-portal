@@ -9,6 +9,7 @@ using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Players.Dto;
+using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.Web.Controllers
@@ -68,17 +69,13 @@ namespace XI.Portal.Web.Controllers
 
             if (AuthCheck(model.AdminActionType, player.GameType, out var unauthorized)) return unauthorized;
 
-            var currentUserId = User.XtremeIdiotsId();
+            var adminAction = new AdminActionDto().OfType(model.AdminActionType)
+                .WithPlayerDto(player);
 
-            var adminAction = new AdminActionDto
-            {
-                PlayerId = model.PlayerId,
-                AdminId = currentUserId,
-                Type = model.AdminActionType,
-                Text = model.Text,
-                Created = DateTime.UtcNow,
-                Expires = model.Expires
-            };
+            adminAction.AdminId = User.XtremeIdiotsId();
+            adminAction.Text = model.Text;
+            adminAction.Expires = model.Expires;
+            adminAction.Created = DateTime.UtcNow;
 
             adminAction.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
             await _adminActionsRepository.Create(adminAction);
@@ -135,21 +132,16 @@ namespace XI.Portal.Web.Controllers
 
             if (!canEditAdminAction) return Unauthorized();
 
-            var adminActionDto = new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminId = adminAction.AdminId,
-                Text = model.Text,
-                Expires = model.Expires,
-                ForumTopicId = adminAction.ForumTopicId
-            };
+            adminAction.Text = model.Text;
+            adminAction.Expires = model.Expires;
 
-            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin)) adminActionDto.AdminId = model.AdminId;
+            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin)) 
+                adminAction.AdminId = model.AdminId;
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await _adminActionsRepository.UpdateAdminAction(adminAction);
 
             if (adminAction.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
+                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             TempData["Success"] = $"The {model.AdminActionType} has been successfully updated";
@@ -201,15 +193,12 @@ namespace XI.Portal.Web.Controllers
 
             if (!canEditAdminAction) return Unauthorized();
 
-            var adminActionDto = new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminId = adminAction.AdminId,
-                Text = adminAction.Text,
-                Expires = DateTime.UtcNow
-            };
+            adminAction.Expires = DateTime.UtcNow;
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await _adminActionsRepository.UpdateAdminAction(adminAction);
+
+            if (adminAction.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             TempData["Success"] = "The Admin Action has been successfully updated";
@@ -249,17 +238,12 @@ namespace XI.Portal.Web.Controllers
 
             if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
 
-            var currentUserId = User.XtremeIdiotsId();
+            adminAction.AdminId = User.XtremeIdiotsId();
 
-            var adminActionDto = new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminId = currentUserId,
-                Text = adminAction.Text,
-                Expires = adminAction.Expires
-            };
+            await _adminActionsRepository.UpdateAdminAction(adminAction);
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            if (adminAction.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             TempData["Success"] = "The Admin Action has been successfully claimed";
@@ -284,16 +268,9 @@ namespace XI.Portal.Web.Controllers
 
             var topicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
 
-            var adminActionDto = new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminId = adminAction.AdminId,
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                ForumTopicId = topicId
-            };
+            adminAction.ForumTopicId = topicId;
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await _adminActionsRepository.UpdateAdminAction(adminAction);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminAction.PlayerId);
             TempData["Success"] = "The discussion topic has been successfully created";

@@ -191,7 +191,7 @@ namespace XI.Portal.Web
                 });
             });
 
-            services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
+            services.AddXtremeIdiotsAuth();
             services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
 
             services.AddServersModule(options =>

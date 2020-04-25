@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Players.Models;
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
@@ -18,33 +16,37 @@ namespace XI.Portal.Web.Controllers
     public class AdminActionController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
-        private readonly IPortalForumsClient _portalForumsClient;
+        private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<AdminActionController> _logger;
-
-        private readonly string[] _observationWarningKick = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
         private readonly IPlayersRepository _playersRepository;
-        private readonly string[] _tempBanBan = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
+        private readonly IPortalForumsClient _portalForumsClient;
+
 
         public AdminActionController(
             ILogger<AdminActionController> logger,
+            IAuthorizationService authorizationService,
             IPlayersRepository playersRepository,
             IAdminActionsRepository adminActionsRepository,
             IPortalForumsClient portalForumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _portalForumsClient = portalForumsClient ?? throw new ArgumentNullException(nameof(portalForumsClient));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(Guid? id, AdminActionType adminActionType)
+        public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
-            if (id == null) return NotFound();
+            var player = await _playersRepository.GetPlayer(id);
+            if (player == null) return NotFound();
 
-            var player = await _playersRepository.GetPlayer((Guid) id, User, _observationWarningKick);
+            var adminAction = new AdminActionDto().OfType(adminActionType).WithPlayerDto(player);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminAction);
 
-            if (AuthCheck(adminActionType, player.GameType, out var unauthorized)) return unauthorized;
+            if (!canCreateAdminAction.Succeeded)
+                return Unauthorized();
 
             var model = new CreateAdminActionViewModel
             {
@@ -65,19 +67,21 @@ namespace XI.Portal.Web.Controllers
             if (!ModelState.IsValid)
                 return View();
 
-            var player = await _playersRepository.GetPlayer(model.PlayerId, User, _observationWarningKick);
+            var player = await _playersRepository.GetPlayer(model.PlayerId);
+            if (player == null) return NotFound();
 
-            if (AuthCheck(model.AdminActionType, player.GameType, out var unauthorized)) return unauthorized;
+            var adminAction = new AdminActionDto().WithPlayerDto(player);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminAction);
 
-            var adminAction = new AdminActionDto().OfType(model.AdminActionType)
-                .WithPlayerDto(player);
+            if (!canCreateAdminAction.Succeeded)
+                return Unauthorized();
 
             adminAction.AdminId = User.XtremeIdiotsId();
             adminAction.Text = model.Text;
             adminAction.Expires = model.Expires;
             adminAction.Created = DateTime.UtcNow;
-
             adminAction.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
+
             await _adminActionsRepository.Create(adminAction);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.AdminActionType, model.PlayerId);
@@ -87,19 +91,15 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Edit(Guid id)
         {
-            if (id == null) return NotFound();
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.EditAdminAction);
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
-
-            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
-
-            if (!canEditAdminAction) return Unauthorized();
+            if (!canEditAdminAction.Succeeded)
+                return Unauthorized();
 
             var model = new EditAdminActionViewModel
             {
@@ -123,19 +123,19 @@ namespace XI.Portal.Web.Controllers
                 return View();
 
             var adminAction = await _adminActionsRepository.GetAdminAction(model.AdminActionId);
+            if (adminAction == null) return NotFound();
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.EditAdminAction);
 
-            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
-
-            if (!canEditAdminAction) return Unauthorized();
+            if (!canEditAdminAction.Succeeded)
+                return Unauthorized();
 
             adminAction.Text = model.Text;
             adminAction.Expires = model.Expires;
 
-            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin)) 
+            var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ChangeAdminActionAdmin);
+
+            if (canChangeAdminActionAdmin.Succeeded)
                 adminAction.AdminId = model.AdminId;
 
             await _adminActionsRepository.UpdateAdminAction(adminAction);
@@ -150,19 +150,15 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Lift(Guid? id)
+        public async Task<IActionResult> Lift(Guid id)
         {
-            if (id == null) return NotFound();
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.LiftAdminAction);
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
-
-            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
-
-            if (!canEditAdminAction) return Unauthorized();
+            if (!canLiftAdminAction.Succeeded)
+                return Unauthorized();
 
             var model = new EditAdminActionViewModel
             {
@@ -184,14 +180,12 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId)
         {
             var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.LiftAdminAction);
 
-            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
-                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == adminAction.AdminId);
-
-            if (!canEditAdminAction) return Unauthorized();
+            if (!canLiftAdminAction.Succeeded)
+                return Unauthorized();
 
             adminAction.Expires = DateTime.UtcNow;
 
@@ -207,13 +201,15 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Claim(Guid? id)
+        public async Task<IActionResult> Claim(Guid id)
         {
-            if (id == null) return NotFound();
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid) id);
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ClaimAdminAction);
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+            if (!canClaimAdminAction.Succeeded)
+                return Unauthorized();
 
             var model = new EditAdminActionViewModel
             {
@@ -235,8 +231,12 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId)
         {
             var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ClaimAdminAction);
+
+            if (!canClaimAdminAction.Succeeded)
+                return Unauthorized();
 
             adminAction.AdminId = User.XtremeIdiotsId();
 
@@ -252,19 +252,15 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateDiscussionTopic(Guid? id)
+        public async Task<IActionResult> CreateDiscussionTopic(Guid id)
         {
-            if (id == null) return NotFound();
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            var adminAction = await _adminActionsRepository.GetAdminAction((Guid)id);
+            var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminActionTopic);
 
-            if (AuthCheck(adminAction.Type, adminAction.GameType, out var unauthorized)) return unauthorized;
-
-            var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == adminAction.GameType.ToString() ||
-                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == adminAction.GameType.ToString());
-
-            if (!canCreateDiscussionTopic) return Unauthorized();
+            if (!canCreateAdminActionDiscussionTopic.Succeeded)
+                return Unauthorized();
 
             var topicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
 
@@ -279,82 +275,38 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(XtremeIdiotsPolicy.RootPolicy)]
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (id == null) return NotFound();
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
 
-            var model = await _adminActionsRepository.GetAdminAction((Guid) id);
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.DeleteAdminAction);
 
-            if (model == null) return NotFound();
+            if (!canDeleteAdminAction.Succeeded)
+                return Unauthorized();
 
-            return View(model);
+            return View(adminAction);
         }
 
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(XtremeIdiotsPolicy.RootPolicy)]
         public async Task<IActionResult> DeleteConfirmed(Guid id, Guid playerId)
         {
+            var adminAction = await _adminActionsRepository.GetAdminAction(id);
+            if (adminAction == null) return NotFound();
+
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.DeleteAdminAction);
+
+            if (!canDeleteAdminAction.Succeeded)
+                return Unauthorized();
+
             await _adminActionsRepository.Delete(id);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             TempData["Success"] = "The Admin Action has been successfully deleted";
 
             return RedirectToAction("Details", "Players", new {id = playerId});
-        }
-
-        private bool AuthCheck(AdminActionType adminActionType, GameType gameType, out IActionResult unauthorized)
-        {
-            switch (adminActionType)
-            {
-                case AdminActionType.Observation:
-                    if (!User.HasGameClaim(gameType, _observationWarningKick))
-                    {
-                        unauthorized = Unauthorized();
-                        return true;
-                    }
-
-                    break;
-                case AdminActionType.Warning:
-                    if (!User.HasGameClaim(gameType, _observationWarningKick))
-                    {
-                        unauthorized = Unauthorized();
-                        return true;
-                    }
-
-                    break;
-                case AdminActionType.Kick:
-                    if (!User.HasGameClaim(gameType, _observationWarningKick))
-                    {
-                        unauthorized = Unauthorized();
-                        return true;
-                    }
-
-                    break;
-                case AdminActionType.TempBan:
-                    if (!User.HasGameClaim(gameType, _tempBanBan))
-                    {
-                        unauthorized = Unauthorized();
-                        return true;
-                    }
-
-                    break;
-                case AdminActionType.Ban:
-                    if (!User.HasGameClaim(gameType, _tempBanBan))
-                    {
-                        unauthorized = Unauthorized();
-                        return true;
-                    }
-
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(adminActionType), adminActionType, null);
-            }
-
-            unauthorized = null;
-            return false;
         }
 
         public class CreateAdminActionViewModel

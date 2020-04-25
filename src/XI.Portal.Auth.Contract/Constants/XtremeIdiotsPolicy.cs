@@ -11,5 +11,14 @@
         public const string CanAccessServerAdmin = nameof(CanAccessServerAdmin);
         public const string CanAccessGlobalChatLog = nameof(CanAccessGlobalChatLog);
         public const string CanAccessGameChatLog = nameof(CanAccessGameChatLog);
+
+        // Admin Actions
+        public const string ChangeAdminActionAdmin = nameof(ChangeAdminActionAdmin);
+        public const string ClaimAdminAction = nameof(ClaimAdminAction);
+        public const string CreateAdminAction = nameof(CreateAdminAction);
+        public const string CreateAdminActionTopic = nameof(CreateAdminActionTopic);
+        public const string DeleteAdminAction = nameof(DeleteAdminAction);
+        public const string EditAdminAction = nameof(EditAdminAction);
+        public const string LiftAdminAction = nameof(LiftAdminAction);
     }
 }

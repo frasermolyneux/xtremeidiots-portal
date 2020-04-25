@@ -49,7 +49,7 @@ namespace XI.Portal.Players.Repository
             return playerListEntryViewModels;
         }
 
-        public async Task<PlayerDto> GetPlayer(Guid id, ClaimsPrincipal user, string[] requiredClaims)
+        public async Task<PlayerDto> GetPlayer(Guid id)
         {
             var player = await _legacyContext.Player2.SingleAsync(p => p.PlayerId == id);
 

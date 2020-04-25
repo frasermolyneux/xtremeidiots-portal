@@ -6,13 +6,14 @@
 
   <ItemGroup>
     <PackageReference Include="ElCamino.AspNetCore.Identity.AzureTable" Version="3.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="3.1.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\XI.CommonTypes\XI.CommonTypes.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth.Contract\XI.Portal.Auth.Contract.csproj" />
+    <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Portal.Users\XI.Portal.Users.csproj" />
   </ItemGroup>
 

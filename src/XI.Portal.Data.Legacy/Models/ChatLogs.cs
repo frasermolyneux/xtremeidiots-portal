@@ -1,5 +1,5 @@
 ﻿using System;
-using XI.Portal.Data.Legacy.CommonTypes;
+using XI.CommonTypes;
 
 namespace XI.Portal.Data.Legacy.Models
 {

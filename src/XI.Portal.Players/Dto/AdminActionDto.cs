@@ -1,6 +1,5 @@
 ﻿using System;
 using XI.CommonTypes;
-using XI.Portal.Data.Legacy.CommonTypes;
 
 namespace XI.Portal.Players.Dto
 {

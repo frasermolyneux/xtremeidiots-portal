@@ -2,8 +2,8 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
 using XI.Forums.Interfaces;
-using XI.Portal.Data.Legacy.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;

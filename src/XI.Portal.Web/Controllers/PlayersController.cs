@@ -136,7 +136,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var player = await _playersRepository.GetPlayer((Guid) id, User, _requiredClaims);
+            var player = await _playersRepository.GetPlayer((Guid) id);
 
             var adminActionsFilterModel = new AdminActionsFilterModel
             {

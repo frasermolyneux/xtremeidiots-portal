@@ -1,5 +1,7 @@
-﻿@using XI.Portal.Auth.Contract.Constants
-@using XI.Portal.Data.Legacy.CommonTypes
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.CommonTypes
+@using XI.Portal.Auth.Contract.Constants
 @model List<XI.Portal.Players.Dto.AdminActionDto>
 
 @foreach (var item in Model)
@@ -49,7 +51,6 @@
                             <text><strong>Ban Lifted:</strong> @item.Expires</text>
                         }
 
-
                         @if (item.ForumTopicId != 0)
                         {
                             <br/>
@@ -89,76 +90,38 @@
                     </div>
 
                     <p>
-                        @{
-                            var canEditAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
-                                                                              claim.Type == XtremeIdiotsClaimTypes.XtremeIdiotsId && claim.Value == item.AdminId);
+                        @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.EditAdminAction)).Succeeded)
+                        {
+                            <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit @item.Type</a>
                         }
 
-                        @if (canEditAdminAction)
+                        @if (item.Type == AdminActionType.Ban && item.Expires == null || item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
-                            switch (item.Type)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.LiftAdminAction)).Succeeded)
                             {
-                                case AdminActionType.Observation:
-                                    <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Observation</a>
-                                    break;
-                                case AdminActionType.Warning:
-                                    <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Warning</a>
-                                    break;
-                                case AdminActionType.Kick:
-                                    <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Kicks</a>
-                                    break;
-                                case AdminActionType.TempBan:
-                                    <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Temp Ban</a>
-
-                                    if (item.Expires > DateTime.UtcNow)
-                                    {
-                                        <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
-                                    }
-                                    break;
-                                case AdminActionType.Ban:
-                                    <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit Ban</a>
-
-                                    if (item.Expires == null)
-                                    {
-                                        <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
-                                    }
-                                    break;
-                                default:
-                                    throw new ArgumentOutOfRangeException();
+                                <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
                             }
                         }
 
-                        @{
-                            var canClaimBan = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                       claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
-                                                                       claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
-                        }
-
-                        @if (item.Type == AdminActionType.Ban && item.AdminId == null && canClaimBan)
+                        @if (item.Type == AdminActionType.Ban && item.AdminId == null)
                         {
-                            <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
-                        }
-
-                        @{
-                            var canDeleteAdminAction = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin);
-                        }
-
-                        @if (canDeleteAdminAction)
-                        {
-                            <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Delete @item.Type</a>
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.ClaimAdminAction)).Succeeded)
+                            {
+                                <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
+                            }
                         }
 
                         @if (item.ForumTopicId == 0)
                         {
-                            var canCreateDiscussionTopic = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                                    claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameType.ToString() ||
-                                                                                    claim.Type == XtremeIdiotsClaimTypes.GameAdmin && claim.Value == item.GameType.ToString());
-
-                            if (canCreateDiscussionTopic)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.CreateAdminActionTopic)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
                             }
+                        }
+
+                        @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.DeleteAdminAction)).Succeeded)
+                        {
+                            <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Delete @item.Type</a>
                         }
                     </p>
                 </div>

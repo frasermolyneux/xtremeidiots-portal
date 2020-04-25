@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Data.Legacy.CommonTypes
+﻿namespace XI.CommonTypes
 {
     public enum ChatType
     {

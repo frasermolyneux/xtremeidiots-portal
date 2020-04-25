@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using XI.Portal.Auth.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 
 namespace XI.Portal.Auth.Extensions
 {
-    public static class XtremeIdiotsAuthorizationExtensions
+    public static class PolicyExtensions
     {
         public static void AddXtremeIdiotsPolicies(this AuthorizationOptions options)
         {
@@ -73,6 +74,41 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.Moderator
                 )));
+
+            options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy =>
+            {
+                policy.Requirements.Add(new ChangeAdminActionAdmin());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.ClaimAdminAction, policy =>
+            {
+                policy.Requirements.Add(new ClaimAdminAction());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminAction, policy =>
+            {
+                policy.Requirements.Add(new CreateAdminAction());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminActionTopic, policy =>
+            {
+                policy.Requirements.Add(new CreateAdminActionTopic());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteAdminAction, policy =>
+            {
+                policy.Requirements.Add(new DeleteAdminAction());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.EditAdminAction, policy =>
+            {
+                policy.Requirements.Add(new EditAdminAction());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.LiftAdminAction, policy =>
+            {
+                policy.Requirements.Add(new LiftAdminAction());
+            });
         }
     }
 }

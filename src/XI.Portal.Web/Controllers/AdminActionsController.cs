@@ -68,7 +68,7 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var adminActionDto = new AdminActionDto().WithPlayerDto(player);
+            var adminActionDto = new AdminActionDto().OfType(model.Type).WithPlayerDto(player);
             var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)

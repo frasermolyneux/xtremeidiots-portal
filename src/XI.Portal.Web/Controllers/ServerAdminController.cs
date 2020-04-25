@@ -42,8 +42,8 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
-            var servers = (await _gameServersRepository.GetGameServers(null, null)).Where(server => server.ShowOnPortalServerList);
-            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
+            var servers = await _gameServersRepository.GetGameServers(User, _requiredClaims);
+            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
 
             var results = new List<ServersController.ServerInfoViewModel>();
 

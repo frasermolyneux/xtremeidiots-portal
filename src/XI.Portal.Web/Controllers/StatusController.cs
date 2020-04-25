@@ -15,7 +15,7 @@ namespace XI.Portal.Web.Controllers
         private readonly IRconMonitorsRepository _rconMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
+        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
         public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, 
             IFileMonitorsRepository fileMonitorsRepository, 
@@ -48,7 +48,7 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> GameServerStatus()
         {
-            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
+            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
             return View(statusModel);
         }
     }

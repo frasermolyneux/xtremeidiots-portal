@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Auth.AuthorizationRequirements;
+using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 
 namespace XI.Portal.Auth.Extensions

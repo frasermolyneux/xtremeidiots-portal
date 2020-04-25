@@ -9,6 +9,7 @@ using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -42,50 +43,49 @@ namespace XI.Portal.Web.Controllers
             var player = await _playersRepository.GetPlayer(id);
             if (player == null) return NotFound();
 
-            var adminAction = new AdminActionDto().OfType(adminActionType).WithPlayerDto(player);
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminAction);
+            var adminActionDto = new AdminActionDto().OfType(adminActionType).WithPlayerDto(player);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
-            var model = new CreateAdminActionViewModel
-            {
-                AdminActionType = adminActionType,
-                PlayerId = player.PlayerId,
-                PlayerName = player.Username,
-                Text = string.Empty,
-                Expires = DateTime.UtcNow.AddDays(7)
-            };
+            if (adminActionType == AdminActionType.TempBan)
+                adminActionDto.Expires = DateTime.UtcNow.AddDays(7);
 
-            return View(model);
+            return View(adminActionDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateAdminActionViewModel model)
+        public async Task<IActionResult> Create(AdminActionDto model)
         {
-            if (!ModelState.IsValid)
-                return View();
-
             var player = await _playersRepository.GetPlayer(model.PlayerId);
             if (player == null) return NotFound();
 
-            var adminAction = new AdminActionDto().WithPlayerDto(player);
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminAction);
+            if (!ModelState.IsValid)
+            {
+                model = model.WithPlayerDto(player);
+                return View(model);
+            }
+
+            var adminActionDto = new AdminActionDto().WithPlayerDto(player);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
-            adminAction.AdminId = User.XtremeIdiotsId();
-            adminAction.Text = model.Text;
-            adminAction.Expires = model.Expires;
-            adminAction.Created = DateTime.UtcNow;
-            adminAction.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
+            adminActionDto.AdminId = User.XtremeIdiotsId();
+            adminActionDto.Text = model.Text;
 
-            await _adminActionsRepository.Create(adminAction);
+            if (model.Type == AdminActionType.TempBan)
+                adminActionDto.Expires = model.Expires;
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.AdminActionType, model.PlayerId);
-            TempData["Success"] = $"The {model.AdminActionType} has been successfully created";
+            adminActionDto.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminActionDto);
+
+            await _adminActionsRepository.CreateAdminAction(adminActionDto);
+
+            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
+            this.AddAlertSuccess($"The {model.Type} has been successfully against {player.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
 
             return RedirectToAction("Details", "Players", new {id = model.PlayerId});
         }
@@ -93,58 +93,52 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.EditAdminAction);
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
 
-            var model = new EditAdminActionViewModel
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminActionType = adminAction.Type,
-                PlayerId = adminAction.PlayerId,
-                PlayerName = adminAction.Username,
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                AdminId = adminAction.AdminId
-            };
-
-            return View(model);
+            return View(adminActionDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(EditAdminActionViewModel model)
+        public async Task<IActionResult> Edit(AdminActionDto model)
         {
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(model.AdminActionId);
+            if (adminActionDto == null) return NotFound();
+
             if (!ModelState.IsValid)
-                return View();
+            {
+                model.Username = adminActionDto.Username;
+                return View(model);
+            }
 
-            var adminAction = await _adminActionsRepository.GetAdminAction(model.AdminActionId);
-            if (adminAction == null) return NotFound();
-
-            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.EditAdminAction);
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
 
-            adminAction.Text = model.Text;
-            adminAction.Expires = model.Expires;
+            adminActionDto.Text = model.Text;
 
-            var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ChangeAdminActionAdmin);
+            if (model.Type == AdminActionType.TempBan)
+                adminActionDto.Expires = model.Expires;
+
+            var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ChangeAdminActionAdmin);
 
             if (canChangeAdminActionAdmin.Succeeded)
-                adminAction.AdminId = model.AdminId;
+                adminActionDto.AdminId = model.AdminId;
 
-            await _adminActionsRepository.UpdateAdminAction(adminAction);
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
-            if (adminAction.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
+            if (adminActionDto.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
-            TempData["Success"] = $"The {model.AdminActionType} has been successfully updated";
+            this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new {id = model.PlayerId});
         }
@@ -152,26 +146,15 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Lift(Guid id)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.LiftAdminAction);
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
 
-            var model = new EditAdminActionViewModel
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminActionType = adminAction.Type,
-                PlayerId = adminAction.PlayerId,
-                PlayerName = adminAction.Username,
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                AdminId = adminAction.AdminId
-            };
-
-            return View(model);
+            return View(adminActionDto);
         }
 
         [HttpPost]
@@ -179,23 +162,23 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.LiftAdminAction);
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
 
-            adminAction.Expires = DateTime.UtcNow;
+            adminActionDto.Expires = DateTime.UtcNow;
 
-            await _adminActionsRepository.UpdateAdminAction(adminAction);
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
-            if (adminAction.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
+            if (adminActionDto.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            TempData["Success"] = "The Admin Action has been successfully updated";
+            this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully lifted for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new {id = playerId});
         }
@@ -203,26 +186,15 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Claim(Guid id)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ClaimAdminAction);
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
 
-            var model = new EditAdminActionViewModel
-            {
-                AdminActionId = adminAction.AdminActionId,
-                AdminActionType = adminAction.Type,
-                PlayerId = adminAction.PlayerId,
-                PlayerName = adminAction.Username,
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                AdminId = adminAction.AdminId
-            };
-
-            return View(model);
+            return View(adminActionDto);
         }
 
         [HttpPost]
@@ -230,23 +202,23 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.ClaimAdminAction);
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
 
-            adminAction.AdminId = User.XtremeIdiotsId();
+            adminActionDto.AdminId = User.XtremeIdiotsId();
 
-            await _adminActionsRepository.UpdateAdminAction(adminAction);
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
-            if (adminAction.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminAction);
+            if (adminActionDto.ForumTopicId != 0)
+                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            TempData["Success"] = "The Admin Action has been successfully claimed";
+            this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully claimed for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new {id = playerId});
         }
@@ -254,38 +226,36 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateDiscussionTopic(Guid id)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.CreateAdminActionTopic);
+            var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminActionTopic);
 
             if (!canCreateAdminActionDiscussionTopic.Succeeded)
                 return Unauthorized();
 
-            var topicId = await _portalForumsClient.CreateTopicForAdminAction(adminAction);
+            adminActionDto.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminActionDto);
 
-            adminAction.ForumTopicId = topicId;
+            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
-            await _adminActionsRepository.UpdateAdminAction(adminAction);
+            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
+            this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">here</a>");
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminAction.PlayerId);
-            TempData["Success"] = "The discussion topic has been successfully created";
-
-            return RedirectToAction("Details", "Players", new {id = adminAction.PlayerId});
+            return RedirectToAction("Details", "Players", new {id = adminActionDto.PlayerId});
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.DeleteAdminAction);
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
 
-            return View(adminAction);
+            return View(adminActionDto);
         }
 
         [HttpPost]
@@ -293,40 +263,20 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, Guid playerId)
         {
-            var adminAction = await _adminActionsRepository.GetAdminAction(id);
-            if (adminAction == null) return NotFound();
+            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            if (adminActionDto == null) return NotFound();
 
-            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminAction, XtremeIdiotsPolicy.DeleteAdminAction);
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
 
-            await _adminActionsRepository.Delete(id);
+            await _adminActionsRepository.DeleteAdminAction(id);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            TempData["Success"] = "The Admin Action has been successfully deleted";
+            this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully deleted from {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new {id = playerId});
-        }
-
-        public class CreateAdminActionViewModel
-        {
-            public AdminActionType AdminActionType { get; set; }
-            public Guid PlayerId { get; set; }
-            public string PlayerName { get; set; }
-            public string Text { get; set; }
-            public DateTime? Expires { get; set; }
-        }
-
-        public class EditAdminActionViewModel
-        {
-            public Guid AdminActionId { get; set; }
-            public AdminActionType AdminActionType { get; set; }
-            public Guid PlayerId { get; set; }
-            public string PlayerName { get; set; }
-            public string Text { get; set; }
-            public DateTime? Expires { get; set; }
-            public string AdminId { get; set; }
         }
     }
 }

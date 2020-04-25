@@ -1,11 +1,24 @@
 ﻿@using XI.CommonTypes
-@model XI.Portal.Web.Controllers.AdminActionController.CreateAdminActionViewModel
+@model XI.Portal.Players.Dto.AdminActionDto
 
 @{
-    ViewData["Title"] = "Create " + Model.AdminActionType + " for " + Model.PlayerName;
+    ViewData["Title"] = "Create " + Model.Type + " for " + Model.Username;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> Enter the reason for your @Model.Type in the text box below, you can use rich text (bold/italic etc.) however images and video are not supported.
+        When you click the create button a forum topic will automatically be posted for you in the relevant section.
+
+        @if (Model.Type == AdminActionType.Ban || Model.Type == AdminActionType.TempBan)
+        {
+            <text>
+                @Model.Type's may take up to an hour to be applied to all of the servers.
+            </text>
+        }
+
+    </div>
 
     <div class="row">
         <div class="col-sm-12">
@@ -18,15 +31,14 @@
                 <div class="ibox-content">
                     <form asp-action="Create">
                         <input type="hidden" asp-for="PlayerId"/>
-                        <input type="hidden" asp-for="PlayerName"/>
-                        <input type="hidden" asp-for="AdminActionType"/>
+                        <input type="hidden" asp-for="Type"/>
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <textarea id="summernote" asp-for="Text" class="form-control"></textarea>
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
-                        @if (Model.AdminActionType == AdminActionType.TempBan)
+                        @if (Model.Type == AdminActionType.TempBan)
                         {
                             <div class="form-group">
                                 <label asp-for="Expires"></label>
@@ -36,7 +48,7 @@
                         }
 
                         <div class="form-group">
-                            <input type="submit" value="Create @Model.AdminActionType" class="btn btn-primary"/>
+                            <input type="submit" value="Create @Model.Type" class="btn btn-primary"/>
                         </div>
                     </form>
                 </div>

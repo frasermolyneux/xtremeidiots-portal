@@ -8,11 +8,11 @@ namespace XI.Portal.Players.Interfaces
 {
     public interface IAdminActionsRepository
     {
-        Task<int> GetAdminActionsListCount(AdminActionsFilterModel filterModel);
+        Task<int> GetAdminActionsCount(AdminActionsFilterModel filterModel);
         Task<List<AdminActionDto>> GetAdminActions(AdminActionsFilterModel filterModel);
-        Task Create(AdminActionDto adminAction);
-        Task<AdminActionDto> GetAdminAction(Guid id);
-        Task Delete(Guid id);
-        Task UpdateAdminAction(AdminActionDto model);
+        Task<AdminActionDto> GetAdminAction(Guid adminActionId);
+        Task CreateAdminAction(AdminActionDto adminActionDto);
+        Task UpdateAdminAction(AdminActionDto adminActionDto);
+        Task DeleteAdminAction(Guid adminActionId);
     }
 }

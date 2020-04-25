@@ -174,7 +174,6 @@ namespace XI.Portal.Web
             services.AddPlayersModule(options =>
             {
                 options.ConfigurePlayersRepository(repositoryOptions => { });
-                options.ConfigureAdminActionsRepository(repositoryOptions => { });
                 options.ConfigurePlayerLocationsRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];

@@ -30,16 +30,7 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             }
 
-            if (options.AdminActionsRepositoryOptions != null)
-            {
-                IAdminActionsRepositoryOptions subOptions = new AdminActionsRepositoryOptions();
-                options.AdminActionsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
-            }
+            serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
 
             if (options.PlayerLocationsRepositoryOptions != null)
             {

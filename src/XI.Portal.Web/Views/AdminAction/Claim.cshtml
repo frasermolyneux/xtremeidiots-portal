@@ -1,11 +1,15 @@
 ﻿@using XI.CommonTypes
-@model XI.Portal.Web.Controllers.AdminActionController.EditAdminActionViewModel
+@model XI.Portal.Players.Dto.AdminActionDto
 
 @{
-    ViewData["Title"] = "Claiming " + Model.AdminActionType;
+    ViewData["Title"] = "Claiming " + Model.Type;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> Claim this @Model.Type by clicking the claim button below. Head admins are able to claim a ban on behalf of an admin through the edit function.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -16,16 +20,16 @@
                         @ViewData["Title"]
                     </div>
                     <div class="ibox-content">
-                        <h3>Are you sure you want to claim this @Model.AdminActionType?</h3>
+                        <h3>Are you sure you want to claim this @Model.Type?</h3>
                         <dl class="row">
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.AdminActionType)
+                                @Html.DisplayNameFor(model => model.Type)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.AdminActionType)
+                                @Html.DisplayFor(model => model.Type)
                             </dd>
 
-                            @if (Model.AdminActionType == AdminActionType.TempBan)
+                            @if (Model.Type == AdminActionType.TempBan)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.Expires)
@@ -36,10 +40,10 @@
                             }
 
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.PlayerName)
+                                @Html.DisplayNameFor(model => model.Username)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.PlayerName)
+                                @Html.DisplayFor(model => model.Username)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.Text)
@@ -48,13 +52,13 @@
                                 @Html.Raw(Model.Text)
                             </dd>
                         </dl>
-                        <h4>After claiming you should then edit the @Model.AdminActionType with the reason.</h4>
+                        <h4>After claiming you should then edit the @Model.Type with the reason.</h4>
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Claim">
                             <input type="hidden" asp-for="AdminActionId"/>
                             <input type="hidden" asp-for="PlayerId"/>
-                            <input type="submit" value="Claim @Model.AdminActionType" class="btn btn-danger"/> |
+                            <input type="submit" value="Claim @Model.Type" class="btn btn-danger"/> |
                             <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
                         </form>
                     </div>

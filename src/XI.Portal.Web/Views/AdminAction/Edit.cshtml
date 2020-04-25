@@ -1,12 +1,19 @@
-﻿@using XI.CommonTypes
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
-@model XI.Portal.Web.Controllers.AdminActionController.EditAdminActionViewModel
+@model XI.Portal.Players.Dto.AdminActionDto
 
 @{
-    ViewData["Title"] = "Editing " + Model.AdminActionType + " for " + Model.PlayerName;
+    ViewData["Title"] = "Editing " + Model.Type + " for " + Model.Username;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> Enter the reason for your @Model.Type in the text box below, you can use rich text (bold/italic etc.) however images and video are not supported.
+        If a forum topic has been previously created then it will be updated with the new content.
+    </div>
 
     <div class="row">
         <div class="col-sm-12">
@@ -20,15 +27,14 @@
                     <form asp-action="Edit">
                         <input type="hidden" asp-for="AdminActionId"/>
                         <input type="hidden" asp-for="PlayerId"/>
-                        <input type="hidden" asp-for="PlayerName"/>
-                        <input type="hidden" asp-for="AdminActionType"/>
+                        <input type="hidden" asp-for="Type"/>
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <div class="form-group">
                             <textarea id="summernote" asp-for="Text" class="form-control"></textarea>
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
-                        @if (Model.AdminActionType == AdminActionType.TempBan)
+                        @if (Model.Type == AdminActionType.TempBan)
                         {
                             <div class="form-group">
                                 <label asp-for="Expires"></label>
@@ -37,22 +43,22 @@
                             </div>
                         }
 
-                        @if (Model.AdminActionType == AdminActionType.Ban)
-                        {
-                            <input type="hidden" asp-for="Expires"/>
-                        }
-
-                        @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                        @if ((await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.ChangeAdminActionAdmin)).Succeeded)
                         {
                             <div class="form-group">
                                 <label asp-for="AdminId"></label>
                                 <input asp-for="AdminId" class="form-control"/>
                                 <span asp-validation-for="AdminId" class="text-danger"></span>
                             </div>
+
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> To set this @Model.Type as claimed by an admin enter their forum id (this can be located by going to their profile and looking at the number in the URL).
+                                To set the @Model.Type as unclaimed leave the field empty.
+                            </div>
                         }
 
                         <div class="form-group">
-                            <input type="submit" value="Save @Model.AdminActionType" class="btn btn-primary"/>
+                            <input type="submit" value="Save @Model.Type" class="btn btn-primary"/>
                         </div>
                     </form>
                 </div>

@@ -10,11 +10,6 @@ namespace XI.Portal.Players.Extensions
             options.PlayersRepositoryOptions = repositoryOptions;
         }
 
-        public static void ConfigureAdminActionsRepository(this IPlayersModuleOptions options, Action<IAdminActionsRepositoryOptions> repositoryOptions)
-        {
-            options.AdminActionsRepositoryOptions = repositoryOptions;
-        }
-
         public static void ConfigurePlayerLocationsRepository(this IPlayersModuleOptions options, Action<IPlayerLocationsRepositoryOptions> repositoryOptions)
         {
             options.PlayerLocationsRepositoryOptions = repositoryOptions;

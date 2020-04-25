@@ -1,11 +1,16 @@
 ﻿@using XI.CommonTypes
-@model XI.Portal.Web.Controllers.AdminActionController.EditAdminActionViewModel
+@model XI.Portal.Players.Dto.AdminActionDto
 
 @{
-    ViewData["Title"] = "Lift " + Model.AdminActionType;
+    ViewData["Title"] = "Lift " + Model.Type;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> After you lift the below @Model.Type it may take up to an hour before the @Model.Type is removed from all of the servers.
+        It is best to inform the player that the ban may take up to 24 hours to be removed.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -16,16 +21,16 @@
                         @ViewData["Title"]
                     </div>
                     <div class="ibox-content">
-                        <h3>Are you sure you want to lift this @Model.AdminActionType?</h3>
+                        <h3>Are you sure you want to lift this @Model.Type?</h3>
                         <dl class="row">
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.AdminActionType)
+                                @Html.DisplayNameFor(model => model.Type)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.AdminActionType)
+                                @Html.DisplayFor(model => model.Type)
                             </dd>
 
-                            @if (Model.AdminActionType == AdminActionType.TempBan)
+                            @if (Model.Type == AdminActionType.TempBan)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.Expires)
@@ -36,10 +41,10 @@
                             }
 
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.PlayerName)
+                                @Html.DisplayNameFor(model => model.Username)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.PlayerName)
+                                @Html.DisplayFor(model => model.Username)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.Text)
@@ -53,7 +58,7 @@
                         <form asp-action="Lift">
                             <input type="hidden" asp-for="AdminActionId"/>
                             <input type="hidden" asp-for="PlayerId"/>
-                            <input type="submit" value="Lift @Model.AdminActionType" class="btn btn-danger"/> |
+                            <input type="submit" value="Lift @Model.Type" class="btn btn-danger"/> |
                             <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
                         </form>
                     </div>

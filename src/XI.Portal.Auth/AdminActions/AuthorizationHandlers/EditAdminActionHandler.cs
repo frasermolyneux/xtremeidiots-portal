@@ -1,12 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using XI.CommonTypes;
-using XI.Portal.Auth.AuthorizationRequirements;
+using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Dto;
 
-namespace XI.Portal.Auth.AuthorizationHandlers
+namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
 {
     public class EditAdminActionHandler : AuthorizationHandler<EditAdminAction, AdminActionDto>
     {

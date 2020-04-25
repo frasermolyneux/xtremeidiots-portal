@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.AuthorizationRequirements
+namespace XI.Portal.Auth.AdminActions.AuthorizationRequirements
 {
     public class CreateAdminActionTopic : IAuthorizationRequirement
     {

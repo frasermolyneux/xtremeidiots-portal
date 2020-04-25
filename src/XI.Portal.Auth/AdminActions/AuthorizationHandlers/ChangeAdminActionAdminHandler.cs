@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Auth.AuthorizationRequirements;
+using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Players.Dto;
 
-namespace XI.Portal.Auth.AuthorizationHandlers
+namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
 {
     public class ChangeAdminActionAdminHandler : AuthorizationHandler<ChangeAdminActionAdmin, AdminActionDto>
     {

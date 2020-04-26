@@ -55,8 +55,15 @@ namespace XI.Portal.Players.Repository
         {
             if (adminActionDto == null) throw new ArgumentNullException(nameof(adminActionDto));
 
-            var player = await _legacyContext.Player2.SingleAsync(p => p.PlayerId == adminActionDto.PlayerId);
-            var admin = await _legacyContext.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+            var player = await _legacyContext.Player2.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
+
+            if (player == null)
+                throw new NullReferenceException(nameof(player));
+
+            var admin = await _legacyContext.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+
+            if (admin == null)
+                throw new NullReferenceException(nameof(admin));
 
             var adminAction = new AdminActions
             {
@@ -90,7 +97,14 @@ namespace XI.Portal.Players.Repository
                 if (string.IsNullOrWhiteSpace(adminActionDto.AdminId))
                     adminAction.Admin = null;
                 else
-                    adminAction.Admin = await _legacyContext.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+                {
+                    var admin = await _legacyContext.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+
+                    if (admin == null)
+                        throw new NullReferenceException(nameof(admin));
+
+                    adminAction.Admin = admin;
+                }
             }
 
             if (adminActionDto.ForumTopicId != 0)

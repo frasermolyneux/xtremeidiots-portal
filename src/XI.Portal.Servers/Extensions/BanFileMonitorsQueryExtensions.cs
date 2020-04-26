@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
     public static class BanFileMonitorsQueryExtensions
     {
-        public static IQueryable<BanFileMonitors> ApplyAuth(this IQueryable<BanFileMonitors> banFileMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<BanFileMonitors> ApplyFilter(this IQueryable<BanFileMonitors> banFileMonitors, BanFileMonitorFilterModel filterModel)
         {
-            if (claimsPrincipal == null || requiredClaims == null)
-                return banFileMonitors.AsQueryable();
+            banFileMonitors = banFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
 
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
-            var query = banFileMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
+            if (filterModel.GameTypes != null)
+                banFileMonitors = banFileMonitors.Where(bfm => filterModel.GameTypes.Contains(bfm.GameServerServer.GameType)).AsQueryable();
 
-            return query.Where(server => gameTypes.Contains(server.GameServerServer.GameType)).AsQueryable();
+            banFileMonitors = banFileMonitors.Skip(filterModel.SkipEntries).AsQueryable();
+
+            if (filterModel.TakeEntries != 0) banFileMonitors = banFileMonitors.Take(filterModel.TakeEntries).AsQueryable();
+
+            return banFileMonitors;
         }
     }
 }

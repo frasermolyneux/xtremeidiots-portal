@@ -29,7 +29,7 @@ namespace XI.Portal.Auth.Contract.Extensions
             return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.PhotoUrl).Value;
         }
 
-        public static Tuple<IEnumerable<GameType>, IEnumerable<Guid>> ClaimedGamesAndServers(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static Tuple<List<GameType>, List<Guid>> ClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             var gameTypes = new List<GameType>();
             var servers = new List<Guid>();
@@ -46,7 +46,7 @@ namespace XI.Portal.Auth.Contract.Extensions
                 if (Guid.TryParse(claim.Value, out var guid)) servers.Add(guid);
             }
 
-            return new Tuple<IEnumerable<GameType>, IEnumerable<Guid>>(gameTypes, servers);
+            return new Tuple<List<GameType>, List<Guid>>(gameTypes, servers);
         }
 
 

@@ -15,7 +15,7 @@ namespace XI.Portal.Servers.Extensions
             if (claimsPrincipal == null || requiredClaims == null)
                 return rconMonitors.AsQueryable();
 
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
+            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
             var query = rconMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
 
             return query.Where(server => gameTypes.Contains(server.GameServerServer.GameType)).AsQueryable();

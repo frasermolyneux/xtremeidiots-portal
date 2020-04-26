@@ -209,7 +209,7 @@ namespace XI.Portal.Servers.Repository
         {
             if (claimsPrincipal == null && requiredClaims == null) return true;
 
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
+            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
 
             if (serverIds.Contains(gameServerStatusDto.ServerId)) return true;
 

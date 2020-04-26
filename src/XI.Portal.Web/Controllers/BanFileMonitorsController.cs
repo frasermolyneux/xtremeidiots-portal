@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
+using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -19,34 +22,29 @@ namespace XI.Portal.Web.Controllers
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<BanFileMonitorsController> _logger;
+        private readonly IAuthorizationService _authorizationService;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
 
-        public BanFileMonitorsController(IBanFileMonitorsRepository banFileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<BanFileMonitorsController> logger)
+        public BanFileMonitorsController(
+            ILogger<BanFileMonitorsController> logger,
+            IAuthorizationService authorizationService,
+            IBanFileMonitorsRepository banFileMonitorsRepository, 
+            IGameServersRepository gameServersRepository)
         {
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = await _banFileMonitorsRepository.GetBanFileMonitors(User, _requiredClaims);
+            var filterModel = new BanFileMonitorFilterModel().ApplyAuth(User);
+            var banFileMonitors = await _banFileMonitorsRepository.GetBanFileMonitors(filterModel);
 
-            return View(models);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null) return NotFound();
-
-            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User, _requiredClaims);
-
-            if (model == null) return NotFound();
-
-            return View(model);
+            return View(banFileMonitors);
         }
 
         [HttpGet]
@@ -58,12 +56,23 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("FilePath,GameServerServerId")] BanFileMonitors model)
+        public async Task<IActionResult> Create(BanFileMonitorDto model)
         {
-            var server = await _gameServersRepository.GetGameServer(model.GameServerServerId, User, _requiredClaims);
+            var server = await _gameServersRepository.GetGameServer(model.ServerId, User, _requiredClaims);
 
             if (server == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title");
+                return View(model);
+            }
+
+
+
+
+
+
 
             if (!User.HasGameClaim(server.GameType, _requiredClaims)) return Unauthorized();
 
@@ -82,6 +91,53 @@ namespace XI.Portal.Web.Controllers
 
             return View(model);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+
+
+
+
+
+            if (id == null) return NotFound();
+
+            var model = await _banFileMonitorsRepository.GetBanFileMonitor(id, User, _requiredClaims);
+
+            if (model == null) return NotFound();
+
+            return View(model);
+        }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid? id)
@@ -148,7 +204,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _banFileMonitorsRepository.RemoveBanFileMonitor(id, User, _requiredClaims);
+            await _banFileMonitorsRepository.DeleteBanFileMonitor(id, User, _requiredClaims);
 
             _logger.LogInformation(EventIds.Management, "User {User} has deleted a ban file monitor with Id {Id}", User.Username(), id);
 

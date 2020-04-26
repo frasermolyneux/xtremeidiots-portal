@@ -14,7 +14,7 @@ namespace XI.Portal.Servers.Extensions
             if (claimsPrincipal == null || requiredClaims == null)
                 return gameServers.AsQueryable();
 
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndServers(requiredClaims);
+            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
             return gameServers.Where(server => gameTypes.Contains(server.GameType) || serverIds.Contains(server.ServerId)).AsQueryable();
         }
     }

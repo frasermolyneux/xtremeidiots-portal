@@ -1,5 +1,4 @@
-﻿using System;
-using XI.CommonTypes;
+﻿using XI.CommonTypes;
 using XI.Portal.Players.Dto;
 
 namespace XI.Portal.Players.Extensions

@@ -4,5 +4,6 @@
     {
         public static string FtpCredentials => nameof(FtpCredentials);
         public static string RconCredentials => nameof(RconCredentials);
+        public static string BanFileMonitor => nameof(BanFileMonitor);
     }
 }

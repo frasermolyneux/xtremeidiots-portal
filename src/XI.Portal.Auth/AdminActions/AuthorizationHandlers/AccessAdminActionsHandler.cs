@@ -5,9 +5,9 @@ using XI.Portal.Auth.Contract.Constants;
 
 namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
 {
-    public class AccessAdminActionsControllerHandler : AuthorizationHandler<AccessAdminActionsController>
+    public class AccessAdminActionsHandler : AuthorizationHandler<AccessAdminActions>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessAdminActionsController requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessAdminActions requirement)
         {
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);

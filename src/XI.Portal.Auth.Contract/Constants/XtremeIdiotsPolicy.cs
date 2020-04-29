@@ -23,6 +23,7 @@
         public const string LiftAdminAction = nameof(LiftAdminAction);
 
         // Ban File Monitors
+        public const string AccessBanFileMonitors = nameof(AccessBanFileMonitors);
         public const string CreateBanFileMonitor = nameof(CreateBanFileMonitor);
         public const string ViewBanFileMonitor = nameof(ViewBanFileMonitor);
         public const string EditBanFileMonitor = nameof(EditBanFileMonitor);
@@ -35,6 +36,5 @@
         public const string EditGameServerFtp = nameof(EditGameServerFtp);
         public const string EditGameServerRcon = nameof(EditGameServerRcon);
         public const string DeleteGameServer = nameof(DeleteGameServer);
-        
     }
 }

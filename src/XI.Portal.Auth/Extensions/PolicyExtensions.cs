@@ -79,7 +79,7 @@ namespace XI.Portal.Auth.Extensions
             // Admin Actions
             options.AddPolicy(XtremeIdiotsPolicy.AccessAdminActionsController, policy =>
             {
-                policy.Requirements.Add(new AccessAdminActionsController());
+                policy.Requirements.Add(new AccessAdminActions());
             });
 
             options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy =>
@@ -118,6 +118,11 @@ namespace XI.Portal.Auth.Extensions
             });
 
             // Ban File Monitors
+            options.AddPolicy(XtremeIdiotsPolicy.AccessBanFileMonitors, policy =>
+            {
+                policy.Requirements.Add(new AccessBanFileMonitors());
+            });
+
             options.AddPolicy(XtremeIdiotsPolicy.CreateBanFileMonitor, policy =>
             {
                 policy.Requirements.Add(new CreateBanFileMonitor());

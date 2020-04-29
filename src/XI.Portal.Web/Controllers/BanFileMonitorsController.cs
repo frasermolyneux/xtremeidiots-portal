@@ -16,7 +16,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessBanFileMonitors)]
     public class BanFileMonitorsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;

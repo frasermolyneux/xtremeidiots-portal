@@ -2,7 +2,7 @@
 
 namespace XI.Portal.Auth.AdminActions.AuthorizationRequirements
 {
-    public class AccessAdminActionsController : IAuthorizationRequirement
+    public class AccessAdminActions : IAuthorizationRequirement
     {
     }
 }

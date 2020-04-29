@@ -21,7 +21,10 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel().ApplyAuthForCredentials(User);
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForCredentials(User);
             var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
 
             return View(gameServerDtos);

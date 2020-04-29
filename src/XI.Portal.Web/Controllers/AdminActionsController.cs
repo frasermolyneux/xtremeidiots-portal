@@ -13,7 +13,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.PlayersManagement)]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessAdminActionsController)]
     public class AdminActionController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;

@@ -13,6 +13,7 @@ namespace XI.Portal.Auth.Extensions
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
             // Admin Actions
+            services.AddSingleton<IAuthorizationHandler, AccessAdminActionsControllerHandler>();
             services.AddSingleton<IAuthorizationHandler, ChangeAdminActionAdminHandler>();
             services.AddSingleton<IAuthorizationHandler, ClaimAdminActionHandler>();
             services.AddSingleton<IAuthorizationHandler, CreateAdminActionHandler>();

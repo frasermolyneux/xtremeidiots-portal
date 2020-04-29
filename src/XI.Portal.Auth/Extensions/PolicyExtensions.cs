@@ -77,6 +77,11 @@ namespace XI.Portal.Auth.Extensions
                 )));
 
             // Admin Actions
+            options.AddPolicy(XtremeIdiotsPolicy.AccessAdminActionsController, policy =>
+            {
+                policy.Requirements.Add(new AccessAdminActionsController());
+            });
+
             options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy =>
             {
                 policy.Requirements.Add(new ChangeAdminActionAdmin());

@@ -13,6 +13,7 @@
         public const string CanAccessGameChatLog = nameof(CanAccessGameChatLog);
 
         // Admin Actions
+        public const string AccessAdminActionsController = nameof(AccessAdminActionsController);
         public const string ChangeAdminActionAdmin = nameof(ChangeAdminActionAdmin);
         public const string ClaimAdminAction = nameof(ClaimAdminAction);
         public const string CreateAdminAction = nameof(CreateAdminAction);
@@ -34,5 +35,6 @@
         public const string EditGameServerFtp = nameof(EditGameServerFtp);
         public const string EditGameServerRcon = nameof(EditGameServerRcon);
         public const string DeleteGameServer = nameof(DeleteGameServer);
+        
     }
 }

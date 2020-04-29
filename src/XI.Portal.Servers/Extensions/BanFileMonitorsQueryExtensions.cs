@@ -16,6 +16,16 @@ namespace XI.Portal.Servers.Extensions
 
             banFileMonitors = banFileMonitors.Skip(filterModel.SkipEntries).AsQueryable();
 
+            switch (filterModel.Order)
+            {
+                case BanFileMonitorFilterModel.OrderBy.BannerServerListPosition:
+                    banFileMonitors = banFileMonitors.OrderBy(bfm => bfm.GameServerServer.BannerServerListPosition).AsQueryable();
+                    break;
+                case BanFileMonitorFilterModel.OrderBy.GameType:
+                    banFileMonitors = banFileMonitors.OrderBy(bfm => bfm.GameServerServer.GameType).AsQueryable();
+                    break;
+            }
+
             if (filterModel.TakeEntries != 0) banFileMonitors = banFileMonitors.Take(filterModel.TakeEntries).AsQueryable();
 
             return banFileMonitors;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
+using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 
 namespace XI.Portal.Auth.Extensions
@@ -75,6 +76,7 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.Moderator
                 )));
 
+            // Admin Actions
             options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy =>
             {
                 policy.Requirements.Add(new ChangeAdminActionAdmin());
@@ -108,6 +110,27 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(XtremeIdiotsPolicy.LiftAdminAction, policy =>
             {
                 policy.Requirements.Add(new LiftAdminAction());
+            });
+
+            // Ban File Monitors
+            options.AddPolicy(XtremeIdiotsPolicy.CreateBanFileMonitor, policy =>
+            {
+                policy.Requirements.Add(new CreateBanFileMonitor());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.ViewBanFileMonitor, policy =>
+            {
+                policy.Requirements.Add(new ViewBanFileMonitor());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.EditBanFileMonitor, policy =>
+            {
+                policy.Requirements.Add(new EditBanFileMonitor());
+            });
+
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteBanFileMonitor, policy =>
+            {
+                policy.Requirements.Add(new DeleteBanFileMonitor());
             });
         }
     }

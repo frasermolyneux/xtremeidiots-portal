@@ -139,7 +139,7 @@ namespace XI.Portal.Servers.Repository
         {
             try
             {
-                var server = await _gameServersRepository.GetGameServer(serverId, null, null);
+                var server = await _gameServersRepository.GetGameServer(serverId);
                 var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
 
                 var gameServerStatus = await gameServerStatusHelper.GetServerStatus();

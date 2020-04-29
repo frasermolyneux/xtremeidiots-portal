@@ -14,8 +14,6 @@ namespace XI.Portal.Servers.Dto
 
         [DisplayName("Last Read")] public DateTime LastSync { get; set; }
 
-        [Obsolete] public string LastError { get; set; }
-
         [DisplayName("Server")] public Guid ServerId { get; set; }
 
         [DisplayName("Server")] public GameServerDto GameServer { get; set; }

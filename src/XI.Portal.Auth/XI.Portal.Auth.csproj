@@ -18,9 +18,4 @@
     <ProjectReference Include="..\XI.Portal.Users\XI.Portal.Users.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="BanFileMonitors\AuthorizationHandlers\" />
-    <Folder Include="BanFileMonitors\AuthorizationRequirements\" />
-  </ItemGroup>
-
 </Project>

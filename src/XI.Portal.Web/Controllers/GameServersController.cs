@@ -3,156 +3,238 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Auth.GameServers.Extensions;
 using XI.Portal.Servers.Dto;
+using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
     public class GameServersController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<GameServersController> _logger;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
-
-        public GameServersController(IGameServersRepository gameServersRepository, ILogger<GameServersController> logger)
+        public GameServersController(
+            ILogger<GameServersController> logger,
+            IAuthorizationService authorizationService,
+            IGameServersRepository gameServersRepository)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = await _gameServersRepository.GetGameServers(User, _requiredClaims);
-            return View(servers);
-        }
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForGameServers(User);
 
-        [HttpGet]
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null) return NotFound();
+            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
 
-            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
-
-            if (model == null) return NotFound();
-
-            return View(model);
+            return View(gameServerDtos);
         }
 
         [HttpGet]
         public IActionResult Create()
         {
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
+            AddGameTypeViewData();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind(
-                "Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServerDto model)
+        public async Task<IActionResult> Create(GameServerDto model)
         {
-            if (!User.HasGameClaim(model.GameType, _requiredClaims)) return Unauthorized();
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                await _gameServersRepository.CreateGameServer(model);
-
-                _logger.LogInformation(EventIds.Management, "User {User} has created a new game server with Id {Id}", User.Username(), model.ServerId);
-
-                TempData["Success"] = "A new Game Server has been successfully created";
-                return RedirectToAction(nameof(Index));
+                AddGameTypeViewData(model.GameType);
+                return View(model);
             }
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
+            var gameServerDto = new GameServerDto().ForGameType(model.GameType);
+            var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.CreateGameServer);
 
-            return View(model);
+            if (!canCreateGameServer.Succeeded)
+                return Unauthorized();
+
+            gameServerDto.Title = model.Title;
+            gameServerDto.Hostname = model.Hostname;
+            gameServerDto.QueryPort = model.QueryPort;
+
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerFtp);
+
+            if (canEditGameServerFtp.Succeeded)
+            {
+                gameServerDto.FtpHostname = model.FtpHostname;
+                gameServerDto.FtpUsername = model.FtpUsername;
+                gameServerDto.FtpPassword = model.FtpPassword;
+            }
+
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerRcon);
+
+            if (canEditGameServerRcon.Succeeded)
+                gameServerDto.RconPassword = model.RconPassword;
+
+            gameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
+            gameServerDto.BannerServerListPosition = model.BannerServerListPosition;
+            gameServerDto.HtmlBanner = model.HtmlBanner;
+            gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
+            gameServerDto.ShowChatLog = model.ShowChatLog;
+
+            await _gameServersRepository.UpdateGameServer(gameServerDto);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
+            this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Details(Guid id)
         {
-            if (id == null) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            if (gameServerDto == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.ViewGameServer);
 
-            if (model == null) return NotFound();
+            if (!canEditGameServer.Succeeded)
+                return Unauthorized();
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
+            return View(gameServerDto);
+        }
 
-            return View(model);
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            if (gameServerDto == null) return NotFound();
+
+            AddGameTypeViewData(gameServerDto.GameType);
+
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServer);
+
+            if (!canEditGameServer.Succeeded)
+                return Unauthorized();
+
+
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerFtp);
+
+            if (!canEditGameServerFtp.Succeeded)
+            {
+                gameServerDto.FtpHostname = string.Empty;
+                gameServerDto.FtpUsername = string.Empty;
+                gameServerDto.FtpPassword = string.Empty;
+            }
+
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerRcon);
+
+            if (!canEditGameServerRcon.Succeeded)
+                gameServerDto.RconPassword = string.Empty;
+
+            return View(gameServerDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id,
-            [Bind(
-                "ServerId,Title,GameType,Hostname,QueryPort,FtpHostname,FtpUsername,FtpPassword,RconPassword,ShowOnBannerServerList,BannerServerListPosition,HtmlBanner,ShowOnPortalServerList,ShowChatLog")]
-            GameServerDto model)
+        public async Task<IActionResult> Edit(GameServerDto model)
         {
-            if (id != model.ServerId) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(model.ServerId);
+            if (gameServerDto == null) return NotFound();
 
-            if (ModelState.IsValid)
-                try
-                {
-                    await _gameServersRepository.UpdateGameServer(id, model, User, _requiredClaims);
+            if (!ModelState.IsValid)
+            {
+                AddGameTypeViewData(model.GameType);
+                return View(model);
+            }
 
-                    _logger.LogInformation(EventIds.Management, "User {User} has modified a game server with Id {Id}", User.Username(), id);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServer);
 
-                    TempData["Success"] = "The Game Server has been successfully updated";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await GameServersExists(model.ServerId))
-                        return NotFound();
-                    throw;
-                }
+            if (!canEditGameServer.Succeeded)
+                return Unauthorized();
 
-            ViewData["GameType"] = new SelectList(User.ClaimedGameTypes(_requiredClaims));
+            gameServerDto.Title = model.Title;
+            gameServerDto.Hostname = model.Hostname;
+            gameServerDto.QueryPort = model.QueryPort;
 
-            return View(model);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerFtp);
+
+            if (canEditGameServerFtp.Succeeded)
+            {
+                gameServerDto.FtpHostname = model.FtpHostname;
+                gameServerDto.FtpUsername = model.FtpUsername;
+                gameServerDto.FtpPassword = model.FtpPassword;
+            }
+
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.EditGameServerRcon);
+
+            if (canEditGameServerRcon.Succeeded)
+                gameServerDto.RconPassword = model.RconPassword;
+
+            gameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
+            gameServerDto.BannerServerListPosition = model.BannerServerListPosition;
+            gameServerDto.HtmlBanner = model.HtmlBanner;
+            gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
+            gameServerDto.ShowChatLog = model.ShowChatLog;
+
+            await _gameServersRepository.UpdateGameServer(gameServerDto);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerDto.ServerId, gameServerDto.GameType);
+            this.AddAlertSuccess($"The game server {gameServerDto.Title} has been updated for {gameServerDto.GameType}");
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (id == null) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            if (gameServerDto == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
+            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.DeleteGameServer);
 
-            if (model == null) return NotFound();
+            if (!canDeleteGameServer.Succeeded)
+                return Unauthorized();
 
-            return View(model);
+            return View(gameServerDto);
         }
 
         [HttpPost]
         [ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _gameServersRepository.RemoveGameServer(id, User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            if (gameServerDto == null) return NotFound();
 
-            _logger.LogInformation(EventIds.Management, "User {User} has deleted a game server with Id {Id}", User.Username(), id);
+            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.DeleteGameServer);
 
-            TempData["Success"] = "The Game Server has been successfully deleted";
+            if (!canDeleteGameServer.Succeeded)
+                return Unauthorized();
+
+            await _gameServersRepository.DeleteGameServer(id);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerDto.ServerId, gameServerDto.GameType);
+            this.AddAlertSuccess($"The game server {gameServerDto.Title} has been deleted for {gameServerDto.GameType}");
+
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task<bool> GameServersExists(Guid id)
+        private void AddGameTypeViewData(GameType? selected = null)
         {
-            return await _gameServersRepository.GameServerExists(id, User, _requiredClaims);
+            var gameTypes = User.GetGameTypesForGameServers();
+            ViewData["GameType"] = new SelectList(gameTypes, "ServerId", "Title", selected);
         }
     }
 }

@@ -11,6 +11,7 @@ using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -36,7 +37,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = (await _gameServersRepository.GetGameServers(null, null)).Where(server => server.ShowOnPortalServerList);
+            var servers = (await _gameServersRepository.GetGameServers(new GameServerFilterModel())).Where(server => server.ShowOnPortalServerList);
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
 
             var locations = await _playerLocationsRepository.GetLocations();
@@ -58,12 +59,12 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ServerInfo(Guid? id)
+        public async Task<IActionResult> ServerInfo(Guid id)
         {
             if (id == null)
                 return NotFound();
 
-            var gameServer = await _gameServersRepository.GetGameServer(id, null, null);
+            var gameServer = await _gameServersRepository.GetGameServer(id);
             var gameServerStatusDto = await _gameServerStatusRepository.GetStatus((Guid) id, null, null, TimeSpan.Zero);
 
             MapDto map = null;

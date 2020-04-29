@@ -1,4 +1,4 @@
-﻿@model List<string>
+﻿@model List<XI.Portal.Servers.Dto.GameServerDto>
 
 @{
     Layout = null;
@@ -13,7 +13,7 @@
         <tr>
             <td style="padding: 2px;">
                 <div style="text-align: center;">
-                    @Html.Raw(item)
+                    @Html.Raw(item.HtmlBanner)
                 </div>
             </td>
         </tr>

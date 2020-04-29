@@ -51,8 +51,6 @@ namespace XI.Portal.FuncApp
 
             builder.Services.AddServersModule(options =>
             {
-                options.ConfigureGameServersRepository(repositoryOptions => { });
-                options.ConfigureBanFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureRconMonitorsRepository(repositoryOptions => { });
                 options.ConfigureGameServerStatusRepository(repositoryOptions =>
@@ -66,7 +64,6 @@ namespace XI.Portal.FuncApp
             builder.Services.AddPlayersModule(options =>
             {
                 options.ConfigurePlayersRepository(repositoryOptions => { });
-                options.ConfigureAdminActionsRepository(repositoryOptions => { });
                 options.ConfigurePlayerLocationsRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];

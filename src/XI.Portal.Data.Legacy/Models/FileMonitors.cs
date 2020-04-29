@@ -16,7 +16,7 @@ namespace XI.Portal.Data.Legacy.Models
 
         [Obsolete] public string LastError { get; set; }
 
-        [DisplayName("Server")] public Guid? GameServerServerId { get; set; }
+        [DisplayName("Server")] public Guid GameServerServerId { get; set; }
 
         [DisplayName("Server")] public virtual GameServers GameServerServer { get; set; }
     }

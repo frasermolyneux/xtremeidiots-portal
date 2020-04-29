@@ -40,10 +40,10 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
-            var player = await _playersRepository.GetPlayer(id);
-            if (player == null) return NotFound();
+            var playerDto = await _playersRepository.GetPlayer(id);
+            if (playerDto == null) return NotFound();
 
-            var adminActionDto = new AdminActionDto().OfType(adminActionType).WithPlayerDto(player);
+            var adminActionDto = new AdminActionDto().OfType(adminActionType).WithPlayerDto(playerDto);
             var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
@@ -59,16 +59,16 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminActionDto model)
         {
-            var player = await _playersRepository.GetPlayer(model.PlayerId);
-            if (player == null) return NotFound();
+            var playerDto = await _playersRepository.GetPlayer(model.PlayerId);
+            if (playerDto == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                model = model.WithPlayerDto(player);
+                model = model.WithPlayerDto(playerDto);
                 return View(model);
             }
 
-            var adminActionDto = new AdminActionDto().OfType(model.Type).WithPlayerDto(player);
+            var adminActionDto = new AdminActionDto().OfType(model.Type).WithPlayerDto(playerDto);
             var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
@@ -85,7 +85,7 @@ namespace XI.Portal.Web.Controllers
             await _adminActionsRepository.CreateAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
-            this.AddAlertSuccess($"The {model.Type} has been successfully against {player.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
+            this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDto.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
 
             return RedirectToAction("Details", "Players", new {id = model.PlayerId});
         }

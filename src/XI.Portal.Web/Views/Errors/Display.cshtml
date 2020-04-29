@@ -1,0 +1,58 @@
+﻿@model int
+
+@{
+    ViewData["Title"] = "oops...";
+    Layout = null;
+}
+
+<style type="text/css">
+    * { transition: all 0.6s; }
+
+    html { height: 100%; }
+
+    body {
+        color: #888;
+        font-family: 'Lato', sans-serif;
+        margin: 0;
+    }
+
+    #main {
+        display: table;
+        height: 100vh;
+        text-align: center;
+        width: 100%;
+    }
+
+    .fof {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .fof h1 {
+        animation: type .5s alternate infinite;
+        display: inline-block;
+        font-size: 50px;
+        padding-right: 12px;
+    }
+
+    
+    @@keyframes type {
+        from { box-shadow: inset -3px 0px 0px #888; }
+
+        to { box-shadow: inset -3px 0px 0px transparent; }
+    }
+</style>
+
+
+<div id="main">
+    <div class="fof">
+        <h1>Error @Model</h1>
+        <h2>Something has gone wrong processing your request, return home by clicking <a asp-controller="Home" asp-action="Index">here.</a></h2>
+        
+        @if (Model == 401)
+        {
+            <h2>You attempted to access a resource of which you have no permission to - if you believe this is incorrect contact Sitting-Duc.</h2>
+        }
+
+    </div>
+</div>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Auth.AdminActions.AuthorizationHandlers;
+using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Auth.Extensions
@@ -11,6 +12,7 @@ namespace XI.Portal.Auth.Extensions
         {
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
+            // Admin Actions
             services.AddSingleton<IAuthorizationHandler, ChangeAdminActionAdminHandler>();
             services.AddSingleton<IAuthorizationHandler, ClaimAdminActionHandler>();
             services.AddSingleton<IAuthorizationHandler, CreateAdminActionHandler>();
@@ -18,6 +20,12 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteAdminActionHandler>();
             services.AddSingleton<IAuthorizationHandler, EditAdminActionHandler>();
             services.AddSingleton<IAuthorizationHandler, LiftAdminActionHandler>();
+
+            // Ban File Monitors
+            services.AddSingleton<IAuthorizationHandler, CreateBanFileMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeleteBanFileMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditBanFileMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewBanFileMonitorHandler>();
         }
     }
 }

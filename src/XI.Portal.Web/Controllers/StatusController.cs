@@ -30,8 +30,8 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> BanFileStatus()
         {
-            var statusModel = await _banFileMonitorsRepository.GetStatusModel(User, _requiredClaims);
-            return View(statusModel);
+            //var statusModel = await _banFileMonitorsRepository.GetStatusModel(User, _requiredClaims);
+            return View();
         }
 
         public async Task<IActionResult> LogFileStatus()

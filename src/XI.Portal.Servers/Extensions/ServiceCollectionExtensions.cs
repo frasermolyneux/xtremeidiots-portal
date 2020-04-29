@@ -21,27 +21,9 @@ namespace XI.Portal.Servers.Extensions
 
             options.Validate();
 
-            if (options.GameServersRepositoryOptions != null)
-            {
-                IGameServersRepositoryOptions subOptions = new GameServersRepositoryOptions();
-                options.GameServersRepositoryOptions.Invoke(subOptions);
+            serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
 
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
-            }
-
-            if (options.BanFileMonitorsRepositoryOptions != null)
-            {
-                IBanFileMonitorsRepositoryOptions subOptions = new BanFileMonitorsRepositoryOptions();
-                options.BanFileMonitorsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
-            }
+            serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
 
             if (options.FileMonitorsRepositoryOptions != null)
             {

@@ -20,5 +20,19 @@
         public const string DeleteAdminAction = nameof(DeleteAdminAction);
         public const string EditAdminAction = nameof(EditAdminAction);
         public const string LiftAdminAction = nameof(LiftAdminAction);
+
+        // Ban File Monitors
+        public const string CreateBanFileMonitor = nameof(CreateBanFileMonitor);
+        public const string ViewBanFileMonitor = nameof(ViewBanFileMonitor);
+        public const string EditBanFileMonitor = nameof(EditBanFileMonitor);
+        public const string DeleteBanFileMonitor = nameof(DeleteBanFileMonitor);
+
+        // Game Servers
+        public const string CreateGameServer = nameof(CreateGameServer);
+        public const string ViewGameServer = nameof(ViewGameServer);
+        public const string EditGameServer = nameof(EditGameServer);
+        public const string EditGameServerFtp = nameof(EditGameServerFtp);
+        public const string EditGameServerRcon = nameof(EditGameServerRcon);
+        public const string DeleteGameServer = nameof(DeleteGameServer);
     }
 }

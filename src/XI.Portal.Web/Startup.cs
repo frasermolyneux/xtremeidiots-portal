@@ -21,7 +21,6 @@ using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
-using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
@@ -195,8 +194,6 @@ namespace XI.Portal.Web
 
             services.AddServersModule(options =>
             {
-                options.ConfigureGameServersRepository(repositoryOptions => { });
-                options.ConfigureBanFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureFileMonitorsRepository(repositoryOptions => { });
                 options.ConfigureRconMonitorsRepository(repositoryOptions => { });
                 options.ConfigureGameServerStatusRepository(repositoryOptions =>
@@ -223,7 +220,7 @@ namespace XI.Portal.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Errors/Display/500");
                 app.UseHsts();
             }
 
@@ -236,6 +233,8 @@ namespace XI.Portal.Web
             app.UseAuthorization();
 
             app.UseCookiePolicy();
+
+            app.UseStatusCodePagesWithRedirects("/Errors/Display/{0}");
 
             app.UseEndpoints(endpoints =>
             {

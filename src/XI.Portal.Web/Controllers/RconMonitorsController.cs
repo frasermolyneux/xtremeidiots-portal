@@ -8,8 +8,11 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
+using XI.Portal.Auth.FileMonitors.Extensions;
+using XI.Portal.Auth.RconMonitors.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -52,7 +55,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title");
+            await AddGameServersViewData();
             return View();
         }
 
@@ -62,7 +65,7 @@ namespace XI.Portal.Web.Controllers
             [Bind("MonitorMapRotation,MonitorPlayers,MonitorPlayerIps,GameServerServerId")]
             RconMonitors model)
         {
-            var server = await _gameServersRepository.GetGameServer(model.GameServerServerId, User, _requiredClaims);
+            var server = await _gameServersRepository.GetGameServer(model.GameServerServerId);
 
             if (server == null) return NotFound();
 
@@ -78,8 +81,7 @@ namespace XI.Portal.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
-                model.GameServerServerId);
+            await AddGameServersViewData(model.GameServerServerId);
 
             return View(model);
         }
@@ -93,8 +95,7 @@ namespace XI.Portal.Web.Controllers
 
             if (model == null) return NotFound();
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
-                model.GameServerServerId);
+            await AddGameServersViewData(model.GameServerServerId);
 
             return View(model);
         }
@@ -124,8 +125,7 @@ namespace XI.Portal.Web.Controllers
                     throw;
                 }
 
-            ViewData["GameServerServerId"] = new SelectList(await _gameServersRepository.GetGameServers(User, _requiredClaims), "ServerId", "Title",
-                model.GameServerServerId);
+            await AddGameServersViewData(model.GameServerServerId);
 
             return View(model);
         }
@@ -158,6 +158,12 @@ namespace XI.Portal.Web.Controllers
         private async Task<bool> RconMonitorsExists(Guid id)
         {
             return await _rconMonitorsRepository.RconMonitorExists(id, User, _requiredClaims);
+        }
+
+        private async Task AddGameServersViewData(Guid? selected = null)
+        {
+            var gameServerDtos = await _gameServersRepository.GetGameServers(new GameServerFilterModel().ApplyAuthForRconMonitors(User));
+            ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
         }
     }
 }

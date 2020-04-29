@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.ViewComponents
 {
@@ -16,8 +18,16 @@ namespace XI.Portal.Web.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var gameServersBanners = await _gameServersRepository.GetGameServerBanners();
-            return View(gameServersBanners);
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            };
+
+            var gameServerDtos = (await _gameServersRepository.GetGameServers(filterModel))
+                .Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner))
+                .ToList();
+
+            return View(gameServerDtos);
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.LiveRcon.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
@@ -42,7 +43,9 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
-            var servers = await _gameServersRepository.GetGameServers(User, _requiredClaims);
+            var filterModel = new GameServerFilterModel().ApplyAuthForLiveRcon(User);
+            var servers = await _gameServersRepository.GetGameServers(filterModel);
+
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
 
             var results = new List<ServersController.ServerInfoViewModel>();
@@ -59,11 +62,11 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
-        public async Task<IActionResult> ViewRcon(Guid? id)
+        public async Task<IActionResult> ViewRcon(Guid id)
         {
             if (id == null) return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
+            var model = await _gameServersRepository.GetGameServer(id);
 
             return View(model);
         }
@@ -84,14 +87,14 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
-        public async Task<IActionResult> KickPlayer(Guid? id, string num)
+        public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
             if (id == null) return NotFound();
 
             if (string.IsNullOrWhiteSpace(num))
                 return NotFound();
 
-            var model = await _gameServersRepository.GetGameServer(id, User, _requiredClaims);
+            var model = await _gameServersRepository.GetGameServer(id);
 
             var rconClient = _rconClientFactory.CreateInstance(model.GameType, model.ServerId, model.Hostname, model.QueryPort, model.RconPassword);
 

@@ -19,7 +19,7 @@ namespace XI.Portal.Data.Legacy.Models
         [DisplayName("Monitor Player IPs")] public bool MonitorPlayerIps { get; set; }
 
         [Obsolete] private string LastError { get; set; }
-        [DisplayName("Server")] public Guid? GameServerServerId { get; set; }
+        [DisplayName("Server")] public Guid GameServerServerId { get; set; }
 
         [DisplayName("Server")] public virtual GameServers GameServerServer { get; set; }
     }

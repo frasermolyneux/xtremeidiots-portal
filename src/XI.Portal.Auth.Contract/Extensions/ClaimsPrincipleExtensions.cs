@@ -55,7 +55,7 @@ namespace XI.Portal.Auth.Contract.Extensions
             return claimsPrincipal.Claims.Any(claim => requiredClaims.Contains(claim.Type) && claim.Value == gameType.ToString());
         }
 
-        public static IEnumerable<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static List<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             var gameTypes = new List<GameType>();
 

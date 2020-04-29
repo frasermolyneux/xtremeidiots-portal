@@ -11,6 +11,7 @@ using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 using XI.Portal.Users.Models;
 using XI.Portal.Users.Repository;
 
@@ -47,7 +48,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ManagePortalClaims(string id)
         {
             var user = await _usersRepository.GetUser(id);
-            var gameServers = await _gameServersRepository.GetGameServers(User, new[] {XtremeIdiotsClaimTypes.SeniorAdmin});
+            var gameServers = await _gameServersRepository.GetGameServers(new GameServerFilterModel());
 
             ViewData["GameServers"] = gameServers;
             ViewData["GameServerServerId"] = new SelectList(gameServers, "ServerId", "Title");

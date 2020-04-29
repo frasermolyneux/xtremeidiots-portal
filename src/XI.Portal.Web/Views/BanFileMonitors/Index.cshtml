@@ -1,11 +1,15 @@
 ﻿@using XI.Portal.Web.Extensions
-@model IEnumerable<XI.Portal.Data.Legacy.Models.BanFileMonitors>
+@model IEnumerable<XI.Portal.Servers.Dto.BanFileMonitorDto>
 
 @{
     ViewData["Title"] = "Ban File Monitor Index";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> This section allows you to manage what ban files are monitored on all the servers, ideally there should be one entry per server. If the mod changes then the file path should be updated to reflect that.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -17,7 +21,7 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.GameServerServer)
+                                    @Html.DisplayNameFor(model => model.GameServer)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.FilePath)
@@ -33,11 +37,11 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServerServer.GameType)
-                                        @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
+                                        @Html.GameTypeIcon(item.GameServer.GameType)
+                                        @Html.ServerName(item.GameServer.Title, null)
                                     </td>
                                     <td>
-                                        @Html.MonitorFtpPath(item.GameServerServer.FtpHostname, item.FilePath)
+                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.LastSync)

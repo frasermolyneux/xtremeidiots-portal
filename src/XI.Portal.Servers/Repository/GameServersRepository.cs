@@ -1,218 +1,118 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.Azure.Documents;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Serialization;
-using XI.CommonTypes;
-using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
-using XI.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServersRepository : IGameServersRepository
     {
-        private readonly IGameServerClientFactory _gameServerClientFactory;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly ILogger<GameServersRepository> _logger;
-        private readonly IGameServersRepositoryOptions _options;
 
-        public GameServersRepository(
-            ILogger<GameServersRepository> logger,
-            IGameServersRepositoryOptions options,
-            LegacyPortalContext legacyContext,
-            IGameServerClientFactory gameServerClientFactory)
+        public GameServersRepository(LegacyPortalContext legacyContext)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
-            _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
         }
 
-        public async Task<List<GameServerDto>> GetGameServers(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<int> GetGameServersCount(GameServerFilterModel filterModel)
         {
-            var servers = await _legacyContext.GameServers
-                .ApplyAuth(user, requiredClaims)
-                .OrderBy(server => server.BannerServerListPosition)
+            if (filterModel == null) throw new ArgumentNullException(nameof(filterModel));
+
+            return await _legacyContext.GameServers.ApplyFilter(filterModel).CountAsync();
+        }
+
+        public async Task<List<GameServerDto>> GetGameServers(GameServerFilterModel filterModel)
+        {
+            if (filterModel == null) throw new ArgumentNullException(nameof(filterModel));
+
+            var gameServers = await _legacyContext.GameServers
+                .ApplyFilter(filterModel)
                 .ToListAsync();
 
-            var results = servers.Select(server => new GameServerDto
-            {
-                ServerId = server.ServerId,
-                Title = server.Title,
-                GameType = server.GameType,
-                Hostname = server.Hostname,
-                QueryPort = server.QueryPort,
-                FtpHostname = server.FtpHostname,
-                FtpUsername = server.FtpUsername,
-                FtpPassword = server.FtpPassword,
-                RconPassword = server.RconPassword,
-                ShowOnBannerServerList = server.ShowOnBannerServerList,
-                BannerServerListPosition = server.BannerServerListPosition,
-                HtmlBanner = server.HtmlBanner,
-                ShowOnPortalServerList = server.ShowOnPortalServerList,
-                ShowChatLog = server.ShowChatLog
-            }).ToList();
+            var models = gameServers.Select(s => s.ToDto()).ToList();
 
-            return results;
+            return models;
         }
 
-        public async Task<GameServerDto> GetGameServer(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<GameServerDto> GetGameServer(Guid gameServerId)
         {
-            var server = await _legacyContext.GameServers
-                .ApplyAuth(user, requiredClaims)
-                .FirstOrDefaultAsync(m => m.ServerId == id);
+            var gameServer = await _legacyContext.GameServers
+                .SingleOrDefaultAsync(s => s.ServerId == gameServerId);
 
-            var gameServerDto = new GameServerDto
-            {
-                ServerId = server.ServerId,
-                Title = server.Title,
-                GameType = server.GameType,
-                Hostname = server.Hostname,
-                QueryPort = server.QueryPort,
-                FtpHostname = server.FtpHostname,
-                FtpUsername = server.FtpUsername,
-                FtpPassword = server.FtpPassword,
-                RconPassword = server.RconPassword,
-                ShowOnBannerServerList = server.ShowOnBannerServerList,
-                BannerServerListPosition = server.BannerServerListPosition,
-                HtmlBanner = server.HtmlBanner,
-                ShowOnPortalServerList = server.ShowOnPortalServerList,
-                ShowChatLog = server.ShowChatLog
-            };
-
-            return gameServerDto;
+            return gameServer?.ToDto();
         }
 
-        public async Task CreateGameServer(GameServerDto model)
+        public async Task CreateGameServer(GameServerDto gameServerDto)
         {
-            var server = new GameServers
+            if (gameServerDto == null) throw new ArgumentNullException(nameof(gameServerDto));
+
+            var gameServer = new GameServers
             {
                 ServerId = Guid.NewGuid(),
-                Title = model.Title,
-                GameType = model.GameType,
-                Hostname = model.Hostname,
-                QueryPort = model.QueryPort,
-                FtpHostname = model.FtpHostname,
-                FtpUsername = model.FtpUsername,
-                FtpPassword = model.FtpPassword,
-                RconPassword = model.RconPassword,
-                ShowOnBannerServerList = model.ShowOnBannerServerList,
-                BannerServerListPosition = model.BannerServerListPosition,
-                HtmlBanner = model.HtmlBanner,
-                ShowOnPortalServerList = model.ShowOnPortalServerList,
-                ShowChatLog = model.ShowChatLog,
+                Title = gameServerDto.Title,
+                GameType = gameServerDto.GameType,
+                Hostname = gameServerDto.Hostname,
+                QueryPort = gameServerDto.QueryPort,
+                FtpHostname = gameServerDto.FtpHostname,
+                FtpUsername = gameServerDto.FtpUsername,
+                FtpPassword = gameServerDto.FtpPassword,
+                RconPassword = gameServerDto.RconPassword,
+                ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList,
+                BannerServerListPosition = gameServerDto.BannerServerListPosition,
+                HtmlBanner = gameServerDto.HtmlBanner,
+                ShowOnPortalServerList = gameServerDto.ShowOnPortalServerList,
+                ShowChatLog = gameServerDto.ShowChatLog,
 #pragma warning disable 618 // Required to prevent SQL error
                 LiveLastUpdated = DateTime.UtcNow
 #pragma warning restore 618
             };
 
-            _legacyContext.Add(server);
+            _legacyContext.GameServers.Add(gameServer);
+            await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateGameServer(GameServerDto gameServerDto)
+        {
+            if (gameServerDto == null) throw new ArgumentNullException(nameof(gameServerDto));
+
+            var gameServer = await _legacyContext.GameServers.SingleOrDefaultAsync(s => s.ServerId == gameServerDto.ServerId);
+
+            if (gameServer == null)
+                throw new NullReferenceException(nameof(gameServer));
+
+            gameServer.Title = gameServerDto.Title;
+            gameServer.Hostname = gameServerDto.Hostname;
+            gameServer.QueryPort = gameServerDto.QueryPort;
+            gameServer.FtpHostname = gameServerDto.FtpHostname;
+            gameServer.FtpUsername = gameServerDto.FtpUsername;
+            gameServer.FtpPassword = gameServerDto.FtpPassword;
+            gameServer.RconPassword = gameServerDto.RconPassword;
+            gameServer.ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList;
+            gameServer.BannerServerListPosition = gameServerDto.BannerServerListPosition;
+            gameServer.HtmlBanner = gameServerDto.HtmlBanner;
+            gameServer.ShowOnPortalServerList = gameServerDto.ShowOnPortalServerList;
+            gameServer.ShowChatLog = gameServerDto.ShowChatLog;
 
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateGameServer(Guid? id, GameServerDto model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task DeleteGameServer(Guid gameServerId)
         {
-            var server = await _legacyContext.GameServers
-                .ApplyAuth(user, requiredClaims)
-                .FirstOrDefaultAsync(m => m.ServerId == id);
+            var gameServer = await _legacyContext.GameServers
+                .SingleOrDefaultAsync(s => s.ServerId == gameServerId);
 
-            server.Title = model.Title;
-            server.Hostname = model.Hostname;
-            server.QueryPort = model.QueryPort;
+            if (gameServer == null)
+                throw new NullReferenceException(nameof(gameServer));
 
-            if (user.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
-            {
-                server.FtpHostname = model.FtpHostname;
-                server.FtpUsername = model.FtpUsername;
-                server.FtpPassword = model.FtpPassword;
-            }
-
-            server.RconPassword = model.RconPassword;
-            server.ShowOnBannerServerList = model.ShowOnBannerServerList;
-            server.BannerServerListPosition = model.BannerServerListPosition;
-            server.HtmlBanner = model.HtmlBanner;
-            server.ShowOnPortalServerList = model.ShowOnPortalServerList;
-            server.ShowChatLog = model.ShowChatLog;
-
-            _legacyContext.Update(server);
-
+            _legacyContext.Remove(gameServer);
             await _legacyContext.SaveChangesAsync();
-        }
-
-        public async Task<bool> GameServerExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
-        {
-            return await _legacyContext.GameServers.ApplyAuth(user, requiredClaims).AnyAsync(e => e.ServerId == id);
-        }
-
-        public async Task RemoveGameServer(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
-        {
-            var server = await _legacyContext.GameServers
-                .ApplyAuth(user, requiredClaims)
-                .FirstOrDefaultAsync(m => m.ServerId == id);
-
-            _legacyContext.GameServers.Remove(server);
-            await _legacyContext.SaveChangesAsync();
-        }
-
-        public async Task<List<GameServerStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims)
-        {
-            var results = new List<GameServerStatusViewModel>();
-
-            var serverMonitors = (await GetGameServers(user, requiredClaims)).Where(server => server.ShowOnBannerServerList && server.GameType != GameType.Unknown);
-
-            foreach (var serverMonitor in serverMonitors)
-                try
-                {
-                    var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(serverMonitor.GameType, serverMonitor.ServerId, serverMonitor.Hostname, serverMonitor.QueryPort, serverMonitor.RconPassword);
-                    var result = await gameServerStatusHelper.GetServerStatus();
-
-                    var errorMessage = string.Empty;
-
-                    //if (serverMonitor.LiveLastUpdated < DateTime.UtcNow.AddMinutes(-15))
-                    //    errorMessage = "ERROR - The server has not been directly queried for more than 15 minutes";
-
-                    if (string.IsNullOrWhiteSpace(result.Map))
-                        errorMessage = "ERROR - The current map could not be retrieved from the direct query";
-
-                    results.Add(new GameServerStatusViewModel
-                    {
-                        GameServer = serverMonitor,
-                        ErrorMessage = errorMessage,
-                        Map = result.Map,
-                        Mod = result.Mod,
-                        PlayerCount = result.PlayerCount
-                    });
-                }
-                catch (Exception ex)
-                {
-                    results.Add(new GameServerStatusViewModel
-                    {
-                        GameServer = serverMonitor,
-                        ErrorMessage = ex.Message
-                    });
-                }
-
-            return results;
-        }
-
-        public async Task<List<string>> GetGameServerBanners()
-        {
-            return await _legacyContext.GameServers
-                .OrderBy(server => server.BannerServerListPosition)
-                .Where(server => server.ShowOnBannerServerList)
-                .Select(server => server.HtmlBanner)
-                .ToListAsync();
         }
     }
 }

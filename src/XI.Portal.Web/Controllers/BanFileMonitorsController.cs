@@ -104,12 +104,12 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            await AddGameServersViewData(banFileMonitorDto.ServerId);
-
             var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
+
+            await AddGameServersViewData(banFileMonitorDto.ServerId);
 
             return View(banFileMonitorDto);
         }
@@ -148,12 +148,12 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            await AddGameServersViewData(banFileMonitorDto.ServerId);
-
             var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
+
+            await AddGameServersViewData(banFileMonitorDto.ServerId);
 
             return View(banFileMonitorDto);
         }

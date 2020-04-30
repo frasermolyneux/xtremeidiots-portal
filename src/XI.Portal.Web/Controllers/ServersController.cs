@@ -4,13 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
+
+
 using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
@@ -85,7 +87,8 @@ namespace XI.Portal.Web.Controllers
         public class ServerIndexViewModel
         {
             public List<ServerInfoViewModel> ServerInfoViewModels { get; set; }
-            public List<PlayerLocationDto> Locations { get; set; }
+            pub
+        layerLocationDto> Locations { get; set; }
         }
 
         public class ServerInfoViewModel
@@ -93,7 +96,9 @@ namespace XI.Portal.Web.Controllers
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
             public MapDto Map { get; set; }
-            public List<MapRotationDto> MapRotation { get; set; }
+            pu
+        M
+    tionDto> MapRotation { get; set; }
         }
     }
 }

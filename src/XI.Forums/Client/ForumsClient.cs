@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -42,7 +40,7 @@ namespace XI.Forums.Client
             {
                 client.BaseAddress = new Uri(_forumsOptions.BaseUrl);
 
-                var requestParams = new Dictionary<string, string>()
+                var requestParams = new Dictionary<string, string>
                 {
                     {"key", _forumsOptions.ApiKey},
                     {"forum", forumId.ToString()},
@@ -70,7 +68,7 @@ namespace XI.Forums.Client
             {
                 client.BaseAddress = new Uri(_forumsOptions.BaseUrl);
 
-                var requestParams = new Dictionary<string, string>()
+                var requestParams = new Dictionary<string, string>
                 {
                     {"key", _forumsOptions.ApiKey},
                     {"author", authorId.ToString()},

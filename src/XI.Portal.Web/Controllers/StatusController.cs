@@ -12,13 +12,13 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
-        private readonly IRconMonitorsRepository _rconMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
+        private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
-        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository, 
-            IFileMonitorsRepository fileMonitorsRepository, 
+        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository,
+            IFileMonitorsRepository fileMonitorsRepository,
             IRconMonitorsRepository rconMonitorsRepository,
             IGameServerStatusRepository gameServerStatusRepository)
         {

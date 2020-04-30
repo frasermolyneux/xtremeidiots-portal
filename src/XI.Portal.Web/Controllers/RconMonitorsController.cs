@@ -8,10 +8,12 @@ using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Auth.FileMonitors.Extensions;
 using XI.Portal.Auth.RconMonitors.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
+
+nterfaces;
 using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
@@ -163,7 +165,8 @@ namespace XI.Portal.Web.Controllers
         private async Task AddGameServersViewData(Guid? selected = null)
         {
             var gameServerDtos = await _gameServersRepository.GetGameServers(new GameServerFilterModel().ApplyAuthForRconMonitors(User));
-            ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
+            ViewData["GameServers"] = new SelectList(gameServerD
+    ServerId", "Title", selected);
         }
     }
 }

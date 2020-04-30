@@ -1,4 +1,6 @@
-﻿using XI.Portal.Data.Legacy.Models;
+﻿using XI.Portal.Servers.Dto;
+
+ls;
 using XI.Portal.Servers.Dto;
 
 namespace XI.Portal.Servers.Models
@@ -13,6 +15,7 @@ namespace XI.Portal.Servers.Models
 
         public string ErrorMessage { get; set; }
         public string WarningMessage { get; set; }
-        public string SuccessMessage { get; set; } = "Everything looks OK";
+        public string SuccessMessage {
+    set; } = "Everything looks OK";
     }
 }

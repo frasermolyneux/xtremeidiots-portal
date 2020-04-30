@@ -8,6 +8,6 @@
         public static string BanFileMonitor => nameof(BanFileMonitor);
         public static string FileMonitor => nameof(FileMonitor);
         public static string RconMonitor => nameof(RconMonitor);
-        public static string LiveRcon => nameof(LiveRcon);
+        public static string ServerAdmin => nameof(ServerAdmin);
     }
 }

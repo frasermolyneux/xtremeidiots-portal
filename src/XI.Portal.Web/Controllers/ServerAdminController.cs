@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.LiveRcon.Extensions;
+using XI.Portal.Auth.ServerAdmin.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
@@ -43,7 +43,7 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel().ApplyAuthForLiveRcon(User);
+            var filterModel = new GameServerFilterModel().ApplyAuthForServerAdmin(User);
             var servers = await _gameServersRepository.GetGameServers(filterModel);
 
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);

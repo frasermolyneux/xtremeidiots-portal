@@ -90,9 +90,9 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.ViewFileMonitor);
+            var canViewFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.ViewFileMonitor);
 
-            if (!canEditFileMonitor.Succeeded)
+            if (!canViewFileMonitor.Succeeded)
                 return Unauthorized();
 
             return View(fileMonitorDto);

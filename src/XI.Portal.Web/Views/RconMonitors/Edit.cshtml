@@ -1,10 +1,14 @@
-﻿@model XI.Portal.Data.Legacy.Models.RconMonitors
+﻿@model XI.Portal.Servers.Dto.RconMonitorDto
 
 @{
     ViewData["Title"] = "Edit Rcon Monitor";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> There may be a delay of 15 - 30 minutes before the next execution of the monitor process after editing.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -17,29 +21,33 @@
                     <div class="ibox-content">
                         <form asp-action="Edit">
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                            <input type="hidden" asp-for="RconMonitorId"/>
+                            <input type="hidden" asp-for="RconMonitorId" />
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="MonitorMapRotation" /> @Html.DisplayNameFor(model => model.MonitorMapRotation)
+                                </label>
+                            </div>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> This is experimental, the portal will try and retrieve the map rotation using rcon. It does not work on player variable rotations.
+                            </div>
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="MonitorPlayers" /> @Html.DisplayNameFor(model => model.MonitorPlayers)
+                                </label>
+                            </div>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> This is needed if there is not a file monitor to gather player information.
+                            </div>
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="MonitorPlayerIps" /> @Html.DisplayNameFor(model => model.MonitorPlayerIps)
+                                </label>
+                            </div>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> This will gather and record player IP address data from rcon.
+                            </div>
                             <div class="form-group">
-                                <label asp-for="GameServerServerId" class="control-label"></label>
-                                <select asp-for="GameServerServerId" class="form-control" asp-items="ViewBag.GameServerServerId" disabled="disabled"></select>
-                                <span asp-validation-for="GameServerServerId" class="text-danger"></span>
-                            </div>
-                            <div class="form-group form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="MonitorMapRotation"/> @Html.DisplayNameFor(model => model.MonitorMapRotation)
-                                </label>
-                            </div>
-                            <div class="form-group form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="MonitorPlayers"/> @Html.DisplayNameFor(model => model.MonitorPlayers)
-                                </label>
-                            </div>
-                            <div class="form-group form-check">
-                                <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="MonitorPlayerIps"/> @Html.DisplayNameFor(model => model.MonitorPlayerIps)
-                                </label>
-                            </div>
-                            <div class="form-group">
-                                <input type="submit" value="Save" class="btn btn-primary"/>
+                                <input type="submit" value="Save" class="btn btn-primary" />
                             </div>
                         </form>
                     </div>

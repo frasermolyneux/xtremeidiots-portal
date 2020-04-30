@@ -6,6 +6,10 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> There may be a delay of 15 - 30 minutes before the next execution of the monitor process after creating.
+    </div>
+
     <row class="row">
         <div class="col-12">
 
@@ -23,11 +27,14 @@
                             </div>
                             <div class="form-group">
                                 <label asp-for="FilePath" class="control-label"></label>
-                                <input asp-for="FilePath" class="form-control"/>
+                                <input asp-for="FilePath" class="form-control" />
                                 <span asp-validation-for="FilePath" class="text-danger"></span>
                             </div>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> You do not need to enter the ftp hostname or credentials. example: /mods/xinam/foobar.log
+                            </div>
                             <div class="form-group">
-                                <input type="submit" value="Create" class="btn btn-primary"/>
+                                <input type="submit" value="Create" class="btn btn-primary" />
                             </div>
                         </form>
                     </div>

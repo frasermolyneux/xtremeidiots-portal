@@ -42,8 +42,8 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> RconStatus()
         {
-            var statusModel = await _rconMonitorsRepository.GetStatusModel(User, _requiredClaims);
-            return View(statusModel);
+            //var statusModel = await _rconMonitorsRepository.GetStatusModel(User, _requiredClaims);
+            return View();
         }
 
         public async Task<IActionResult> GameServerStatus()

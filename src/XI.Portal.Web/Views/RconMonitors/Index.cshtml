@@ -1,11 +1,15 @@
 ﻿@using XI.Portal.Web.Extensions
-@model IEnumerable<XI.Portal.Data.Legacy.Models.RconMonitors>
+@model IEnumerable<XI.Portal.Servers.Dto.RconMonitorDto>
 
 @{
     ViewData["Title"] = "Rcon Monitor Index";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> This section allows you to manage what servers are monitored through rcon. This is where the portal gets it's player information and processes events.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -17,7 +21,7 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.GameServerServer)
+                                    @Html.DisplayNameFor(model => model.GameServer)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.MonitorMapRotation)
@@ -39,8 +43,8 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServerServer.GameType)
-                                        @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
+                                        @Html.GameTypeIcon(item.GameServer.GameType)
+                                        @Html.ServerName(item.GameServer.Title, null)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.MonitorMapRotation)

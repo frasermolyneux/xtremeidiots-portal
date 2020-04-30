@@ -5,6 +5,7 @@ using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Credentials.AuthorizationRequirements;
 using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
+using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
 
 namespace XI.Portal.Auth.Extensions
 {
@@ -116,6 +117,13 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewGameServer, policy => { policy.Requirements.Add(new ViewGameServer()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
+
+            // Rcon Monitors
+            options.AddPolicy(XtremeIdiotsPolicy.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateRconMonitor, policy => { policy.Requirements.Add(new CreateRconMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ViewRconMonitor, policy => { policy.Requirements.Add(new ViewRconMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
         }
     }
 }

@@ -1,24 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Servers.Extensions
 {
     public static class RconMonitorsQueryExtensions
     {
-        public static IQueryable<RconMonitors> ApplyAuth(this IQueryable<RconMonitors> rconMonitors, ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static IQueryable<RconMonitors> ApplyFilter(this IQueryable<RconMonitors> rconMonitors, RconMonitorFilterModel filterModel)
         {
-            if (claimsPrincipal == null || requiredClaims == null)
-                return rconMonitors.AsQueryable();
+            rconMonitors = rconMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
 
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
-            var query = rconMonitors.Include(monitor => monitor.GameServerServer).AsQueryable();
+            if (filterModel.GameTypes != null)
+                rconMonitors = rconMonitors.Where(rm => filterModel.GameTypes.Contains(rm.GameServerServer.GameType)).AsQueryable();
 
-            return query.Where(server => gameTypes.Contains(server.GameServerServer.GameType)).AsQueryable();
+            rconMonitors = rconMonitors.Skip(filterModel.SkipEntries).AsQueryable();
+
+            switch (filterModel.Order)
+            {
+                case RconMonitorFilterModel.OrderBy.BannerServerListPosition:
+                    rconMonitors = rconMonitors.OrderBy(rm => rm.GameServerServer.BannerServerListPosition).AsQueryable();
+                    break;
+                case RconMonitorFilterModel.OrderBy.GameType:
+                    rconMonitors = rconMonitors.OrderBy(rm => rm.GameServerServer.GameType).AsQueryable();
+                    break;
+            }
+
+            if (filterModel.TakeEntries != 0) rconMonitors = rconMonitors.Take(filterModel.TakeEntries).AsQueryable();
+
+            return rconMonitors;
         }
     }
 }

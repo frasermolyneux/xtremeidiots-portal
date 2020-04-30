@@ -5,6 +5,7 @@ using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
 using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.GameServers.AuthorizationHandlers;
+using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Auth.Extensions
@@ -52,6 +53,13 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, ViewFtpCredentialHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewGameServerHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewRconCredentialHandler>();
+
+            // Rcon Monitors
+            services.AddSingleton<IAuthorizationHandler, AccessRconMonitorsHandler>();
+            services.AddSingleton<IAuthorizationHandler, CreateRconMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeleteRconMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditRconMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewRconMonitorHandler>();
         }
     }
 }

@@ -49,5 +49,12 @@
         public const string ViewFtpCredential = nameof(ViewFtpCredential);
         public const string ViewGameServer = nameof(ViewGameServer);
         public const string ViewRconCredential = nameof(ViewRconCredential);
+
+        // Rcon Monitors
+        public const string AccessRconMonitors = nameof(AccessRconMonitors);
+        public const string CreateRconMonitor = nameof(CreateRconMonitor);
+        public const string ViewRconMonitor = nameof(ViewRconMonitor);
+        public const string EditRconMonitor = nameof(EditRconMonitor);
+        public const string DeleteRconMonitor = nameof(DeleteRconMonitor);
     }
 }

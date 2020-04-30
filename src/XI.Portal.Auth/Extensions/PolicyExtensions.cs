@@ -3,6 +3,7 @@ using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Credentials.AuthorizationRequirements;
+using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 
 namespace XI.Portal.Auth.Extensions
@@ -97,6 +98,13 @@ namespace XI.Portal.Auth.Extensions
 
             // Credentials
             options.AddPolicy(XtremeIdiotsPolicy.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });
+
+            // Ban File Monitors
+            options.AddPolicy(XtremeIdiotsPolicy.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateFileMonitor, policy => { policy.Requirements.Add(new CreateFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ViewFileMonitor, policy => { policy.Requirements.Add(new ViewFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditFileMonitor, policy => { policy.Requirements.Add(new EditFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteFileMonitor, policy => { policy.Requirements.Add(new DeleteFileMonitor()); });
 
             // Game Servers
             options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });

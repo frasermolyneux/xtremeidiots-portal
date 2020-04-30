@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
-using XI.Portal.Servers.Helpers;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
@@ -15,111 +14,137 @@ namespace XI.Portal.Servers.Repository
 {
     public class FileMonitorsRepository : IFileMonitorsRepository
     {
-        private readonly IFtpHelper _ftpHelper;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly IFileMonitorsRepositoryOptions _options;
 
-        public FileMonitorsRepository(IFileMonitorsRepositoryOptions options, LegacyPortalContext legacyContext, IFtpHelper ftpHelper)
+        public FileMonitorsRepository(LegacyPortalContext legacyContext)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
-            _ftpHelper = ftpHelper ?? throw new ArgumentNullException(nameof(ftpHelper));
         }
 
-        public async Task<List<FileMonitors>> GetFileMonitors(ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<int> GetFileMonitorsCount(FileMonitorFilterModel filterModel)
         {
-            return await _legacyContext.FileMonitors
-                .ApplyAuth(user, requiredClaims)
-                .Include(f => f.GameServerServer)
-                .OrderBy(monitor => monitor.GameServerServer.BannerServerListPosition).ToListAsync();
+            if (filterModel == null) throw new ArgumentNullException(nameof(filterModel));
+
+            return await _legacyContext.FileMonitors.ApplyFilter(filterModel).CountAsync();
         }
 
-        public async Task<FileMonitors> GetFileMonitor(Guid? id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task<List<FileMonitorDto>> GetFileMonitors(FileMonitorFilterModel filterModel)
         {
-            return await _legacyContext.FileMonitors
-                .ApplyAuth(user, requiredClaims)
-                .Include(f => f.GameServerServer)
-                .FirstOrDefaultAsync(m => m.FileMonitorId == id);
+            if (filterModel == null) throw new ArgumentNullException(nameof(filterModel));
+
+            var fileMonitors = await _legacyContext.FileMonitors
+                .ApplyFilter(filterModel)
+                .ToListAsync();
+
+            var models = fileMonitors.Select(fm => fm.ToDto()).ToList();
+
+            return models;
         }
 
-        public async Task CreateFileMonitor(FileMonitors model)
+        public async Task<FileMonitorDto> GetFileMonitor(Guid fileMonitorId)
         {
-            model.FileMonitorId = Guid.NewGuid();
-            model.LastRead = DateTime.UtcNow;
+            var fileMonitor = await _legacyContext.FileMonitors
+                .Include(fm => fm.GameServerServer)
+                .SingleOrDefaultAsync(fm => fm.FileMonitorId == fileMonitorId);
 
-            _legacyContext.Add(model);
+            return fileMonitor?.ToDto();
+        }
+
+        public async Task CreateFileMonitor(FileMonitorDto fileMonitorDto)
+        {
+            if (fileMonitorDto == null) throw new ArgumentNullException(nameof(fileMonitorDto));
+
+            var server = await _legacyContext.GameServers.SingleOrDefaultAsync(s => s.ServerId == fileMonitorDto.ServerId);
+
+            if (server == null)
+                throw new NullReferenceException(nameof(server));
+
+            var fileMonitor = new FileMonitors
+            {
+                FileMonitorId = Guid.NewGuid(),
+                FilePath = fileMonitorDto.FilePath,
+                BytesRead = fileMonitorDto.BytesRead,
+                LastRead = fileMonitorDto.LastRead,
+                //LastError = string.Empty;
+                GameServerServer = server
+            };
+
+            _legacyContext.FileMonitors.Add(fileMonitor);
+            await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateFileMonitor(FileMonitorDto fileMonitorDto)
+        {
+            if (fileMonitorDto == null) throw new ArgumentNullException(nameof(fileMonitorDto));
+
+            var fileMonitor = await _legacyContext.FileMonitors.SingleOrDefaultAsync(fm => fm.FileMonitorId == fileMonitorDto.FileMonitorId);
+
+            if (fileMonitor == null)
+                throw new NullReferenceException(nameof(fileMonitor));
+
+            fileMonitor.FilePath = fileMonitorDto.FilePath;
 
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateFileMonitor(Guid? id, FileMonitors model, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
+        public async Task DeleteFileMonitor(Guid fileMonitorId)
         {
-            var storedModel = await GetFileMonitor(id, user, requiredClaims);
-            storedModel.FilePath = model.FilePath;
+            var fileMonitor = await _legacyContext.FileMonitors
+                .SingleOrDefaultAsync(fm => fm.FileMonitorId == fileMonitorId);
 
-            _legacyContext.Update(storedModel);
+            if (fileMonitor == null)
+                throw new NullReferenceException(nameof(fileMonitor));
+
+            _legacyContext.Remove(fileMonitor);
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task<bool> FileMonitorExists(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
-        {
-            return await _legacyContext.FileMonitors.ApplyAuth(user, requiredClaims).AnyAsync(e => e.FileMonitorId == id);
-        }
+        //public async Task<List<FileMonitorStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims)
+        //{
+        //    var results = new List<FileMonitorStatusViewModel>();
 
-        public async Task RemoveFileMonitor(Guid id, ClaimsPrincipal user, IEnumerable<string> requiredClaims)
-        {
-            var model = await GetFileMonitor(id, user, requiredClaims);
+        //    var fileMonitors = await GetFileMonitors(user, requiredClaims);
 
-            _legacyContext.FileMonitors.Remove(model);
-            await _legacyContext.SaveChangesAsync();
-        }
+        //    foreach (var fileMonitor in fileMonitors)
+        //        try
+        //        {
+        //            var fileSize = _ftpHelper.GetFileSize(fileMonitor.GameServerServer.Hostname, fileMonitor.FilePath, fileMonitor.GameServerServer.FtpUsername, fileMonitor.GameServerServer.FtpPassword);
+        //            var lastModified = _ftpHelper.GetLastModified(fileMonitor.GameServerServer.Hostname, fileMonitor.FilePath, fileMonitor.GameServerServer.FtpUsername, fileMonitor.GameServerServer.FtpPassword);
 
-        public async Task<List<FileMonitorStatusViewModel>> GetStatusModel(ClaimsPrincipal user, string[] requiredClaims)
-        {
-            var results = new List<FileMonitorStatusViewModel>();
+        //            var errorMessage = string.Empty;
+        //            var warningMessage = string.Empty;
 
-            var fileMonitors = await GetFileMonitors(user, requiredClaims);
+        //            if (lastModified < DateTime.Now.AddHours(-1))
+        //                errorMessage = "INVESTIGATE - The log file has not been modified in over 1 hour.";
 
-            foreach (var fileMonitor in fileMonitors)
-                try
-                {
-                    var fileSize = _ftpHelper.GetFileSize(fileMonitor.GameServerServer.Hostname, fileMonitor.FilePath, fileMonitor.GameServerServer.FtpUsername, fileMonitor.GameServerServer.FtpPassword);
-                    var lastModified = _ftpHelper.GetLastModified(fileMonitor.GameServerServer.Hostname, fileMonitor.FilePath, fileMonitor.GameServerServer.FtpUsername, fileMonitor.GameServerServer.FtpPassword);
+        //            if (fileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-15))
+        //                warningMessage = "WARNING - The file has not been read in the past 15 minutes";
 
-                    var errorMessage = string.Empty;
-                    var warningMessage = string.Empty;
+        //            if (fileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-30))
+        //                errorMessage = "ERROR - The file has not been read in the past 30 minutes";
 
-                    if (lastModified < DateTime.Now.AddHours(-1))
-                        errorMessage = "INVESTIGATE - The log file has not been modified in over 1 hour.";
-
-                    if (fileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-15))
-                        warningMessage = "WARNING - The file has not been read in the past 15 minutes";
-
-                    if (fileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-30))
-                        errorMessage = "ERROR - The file has not been read in the past 30 minutes";
-
-                    results.Add(new FileMonitorStatusViewModel
-                    {
-                        FileMonitor = fileMonitor,
-                        GameServer = fileMonitor.GameServerServer,
-                        FileSize = fileSize,
-                        LastModified = lastModified,
-                        ErrorMessage = errorMessage,
-                        WarningMessage = warningMessage
-                    });
-                }
-                catch (Exception ex)
-                {
-                    results.Add(new FileMonitorStatusViewModel
-                    {
-                        FileMonitor = fileMonitor,
-                        GameServer = fileMonitor.GameServerServer,
-                        ErrorMessage = ex.Message
-                    });
-                }
+        //            results.Add(new FileMonitorStatusViewModel
+        //            {
+        //                FileMonitor = fileMonitor,
+        //                GameServer = fileMonitor.GameServerServer,
+        //                FileSize = fileSize,
+        //                LastModified = lastModified,
+        //                ErrorMessage = errorMessage,
+        //                WarningMessage = warningMessage
+        //            });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            results.Add(new FileMonitorStatusViewModel
+        //            {
+        //                FileMonitor = fileMonitor,
+        //                GameServer = fileMonitor.GameServerServer,
+        //                ErrorMessage = ex.Message
+        //            });
+        //        }
 
 
-            return results;
-        }
+        //    return results;
+        //}
     }
 }

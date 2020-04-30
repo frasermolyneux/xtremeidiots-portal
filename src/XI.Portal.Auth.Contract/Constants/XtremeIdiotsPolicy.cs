@@ -40,6 +40,13 @@
         // Credentials
         public const string AccessCredentials = nameof(AccessCredentials);
 
+        // File Monitors
+        public const string AccessFileMonitors = nameof(AccessFileMonitors);
+        public const string CreateFileMonitor = nameof(CreateFileMonitor);
+        public const string ViewFileMonitor = nameof(ViewFileMonitor);
+        public const string EditFileMonitor = nameof(EditFileMonitor);
+        public const string DeleteFileMonitor = nameof(DeleteFileMonitor);
+
         // Game Servers
         public const string ViewFtpCredential = nameof(ViewFtpCredential);
         public const string ViewRconCredential = nameof(ViewRconCredential);

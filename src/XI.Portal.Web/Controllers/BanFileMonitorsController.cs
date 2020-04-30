@@ -181,7 +181,11 @@ namespace XI.Portal.Web.Controllers
 
         private async Task AddGameServersViewData(Guid? selected = null)
         {
-            var gameServerDtos = await _gameServersRepository.GetGameServers(new GameServerFilterModel().ApplyAuthForBanFileMonitors(User));
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForBanFileMonitors(User);
+            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
             ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
         }
     }

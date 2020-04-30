@@ -87,8 +87,7 @@ namespace XI.Portal.Web.Controllers
         public class ServerIndexViewModel
         {
             public List<ServerInfoViewModel> ServerInfoViewModels { get; set; }
-            pub
-        layerLocationDto> Locations { get; set; }
+            public List<PlayerLocationDto> Locations { get; set; }
         }
 
         public class ServerInfoViewModel
@@ -96,9 +95,7 @@ namespace XI.Portal.Web.Controllers
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
             public MapDto Map { get; set; }
-            pu
-        M
-    tionDto> MapRotation { get; set; }
+            public List<MapRotationDto> MapRotation { get; set; }
         }
     }
 }

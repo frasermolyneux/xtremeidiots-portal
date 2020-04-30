@@ -1,5 +1,5 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Data.Legacy.Models.FileMonitors
+@model XI.Portal.Servers.Dto.FileMonitorDto
 
 @{
     ViewData["Title"] = "File Monitor Details";
@@ -18,16 +18,16 @@
                     <div class="ibox-content">
                         <dl class="row">
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.GameServerServer)
+                                @Html.DisplayNameFor(model => model.GameServer)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.ServerName(Model.GameServerServer.Title, Model.GameServerServer.LiveTitle)
+                                @Html.ServerName(Model.GameServer.Title, null)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.FilePath)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.MonitorFtpPath(Model.GameServerServer.FtpHostname, Model.FilePath)
+                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.FilePath)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.BytesRead)

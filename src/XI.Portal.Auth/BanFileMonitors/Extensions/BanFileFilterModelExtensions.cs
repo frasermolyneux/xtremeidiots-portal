@@ -6,7 +6,7 @@ using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Auth.BanFileMonitors.Extensions
 {
-    public static class BanFileModelFilterModelExtensions
+    public static class BanFileMonitorModelFilterModelExtensions
     {
         public static BanFileMonitorFilterModel ApplyAuth(this BanFileMonitorFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {

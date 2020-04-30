@@ -1,5 +1,5 @@
 ﻿@using XI.Portal.Web.Extensions
-@model IEnumerable<XI.Portal.Data.Legacy.Models.FileMonitors>
+@model IEnumerable<XI.Portal.Servers.Dto.FileMonitorDto>
 
 @{
     ViewData["Title"] = "File Monitor Index";
@@ -17,7 +17,7 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.GameServerServer)
+                                    @Html.DisplayNameFor(model => model.GameServer)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.FilePath)
@@ -33,11 +33,11 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServerServer.GameType)
-                                        @Html.ServerName(item.GameServerServer.Title, item.GameServerServer.LiveTitle)
+                                        @Html.GameTypeIcon(item.GameServer.GameType)
+                                        @Html.ServerName(item.GameServer.Title, null)
                                     </td>
                                     <td>
-                                        @Html.MonitorFtpPath(item.GameServerServer.FtpHostname, item.FilePath)
+                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.LastRead)

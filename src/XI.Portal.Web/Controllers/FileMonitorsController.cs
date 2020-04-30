@@ -3,51 +3,49 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.FileMonitors.Extensions;
-using XI.Portal.Data.Legacy.Models;
+using XI.Portal.Servers.Dto;
+using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessFileMonitors)]
     public class FileMonitorsController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<FileMonitorsController> _logger;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
-
-        public FileMonitorsController(IFileMonitorsRepository fileMonitorsRepository, IGameServersRepository gameServersRepository, ILogger<FileMonitorsController> logger)
+        public FileMonitorsController(
+            ILogger<FileMonitorsController> logger,
+            IAuthorizationService authorizationService,
+            IFileMonitorsRepository fileMonitorsRepository,
+            IGameServersRepository gameServersRepository)
         {
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var models = await _fileMonitorsRepository.GetFileMonitors(User, _requiredClaims);
-            return View(models);
-        }
+            var filterModel = new FileMonitorFilterModel
+            {
+                Order = FileMonitorFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuth(User);
+            var fileMonitorsDtos = await _fileMonitorsRepository.GetFileMonitors(filterModel);
 
-        [HttpGet]
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null) return NotFound();
-
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
-
-            if (model == null) return NotFound();
-
-            return View(model);
+            return View(fileMonitorsDtos);
         }
 
         [HttpGet]
@@ -59,84 +57,105 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            [Bind("FilePath,GameServerServerId")] FileMonitors model)
+        public async Task<IActionResult> Create(FileMonitorDto model)
         {
-            var server = await _gameServersRepository.GetGameServer(model.GameServerServerId);
+            var gameServerDto = await _gameServersRepository.GetGameServer(model.ServerId);
+            if (gameServerDto == null) return NotFound();
 
-            if (server == null) return NotFound();
-
-            if (!User.HasGameClaim(server.GameType, _requiredClaims)) return Unauthorized();
-
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                await _fileMonitorsRepository.CreateFileMonitor(model);
-
-                _logger.LogInformation(EventIds.Management, "User {User} has created a new file monitor with Id {Id}", User.Username(), model.FileMonitorId);
-
-                TempData["Success"] = "A new File Monitor has been successfully created";
-                return RedirectToAction(nameof(Index));
+                await AddGameServersViewData(model.ServerId);
+                return View(model);
             }
 
-            await AddGameServersViewData(model.GameServerServerId);
+            var fileMonitorDto = new FileMonitorDto().WithServerDto(gameServerDto);
+            var canCreateFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.CreateFileMonitor);
 
-            return View(model);
+            if (!canCreateFileMonitor.Succeeded)
+                return Unauthorized();
+
+            fileMonitorDto.FilePath = model.FilePath;
+
+            await _fileMonitorsRepository.CreateFileMonitor(fileMonitorDto);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has created a new file monitor with Id {Id}", User.Username(), fileMonitorDto.FileMonitorId);
+            this.AddAlertSuccess($"The file monitor has been created for {gameServerDto.Title}");
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid? id)
+        public async Task<IActionResult> Details(Guid id)
         {
-            if (id == null) return NotFound();
+            var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
+            if (fileMonitorDto == null) return NotFound();
 
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
+            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.ViewFileMonitor);
 
-            if (model == null) return NotFound();
+            if (!canEditFileMonitor.Succeeded)
+                return Unauthorized();
 
-            await AddGameServersViewData(model.GameServerServerId);
+            return View(fileMonitorDto);
+        }
 
-            return View(model);
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
+            if (fileMonitorDto == null) return NotFound();
+
+            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.EditFileMonitor);
+
+            if (!canEditFileMonitor.Succeeded)
+                return Unauthorized();
+
+            await AddGameServersViewData(fileMonitorDto.ServerId);
+
+            return View(fileMonitorDto);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id,
-            [Bind("FileMonitorId,FilePath,GameServerServerId")]
-            FileMonitors model)
+        public async Task<IActionResult> Edit(FileMonitorDto model)
         {
-            if (id != model.FileMonitorId) return NotFound();
+            var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(model.FileMonitorId);
+            if (fileMonitorDto == null) return NotFound();
 
-            if (ModelState.IsValid)
-                try
-                {
-                    await _fileMonitorsRepository.UpdateFileMonitor(id, model, User, _requiredClaims);
+            if (!ModelState.IsValid)
+            {
+                await AddGameServersViewData(model.ServerId);
+                return View(fileMonitorDto);
+            }
 
-                    _logger.LogInformation(EventIds.Management, "User {User} has modified a file monitor with Id {Id}", User.Username(), id);
+            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.EditFileMonitor);
 
-                    TempData["Success"] = "The File Monitor has been successfully updated";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await FileMonitorsExists(model.FileMonitorId))
-                        return NotFound();
-                    throw;
-                }
+            if (!canEditFileMonitor.Succeeded)
+                return Unauthorized();
 
-            await AddGameServersViewData(model.GameServerServerId);
+            fileMonitorDto.FilePath = model.FilePath;
 
-            return View(model);
+            await _fileMonitorsRepository.UpdateFileMonitor(fileMonitorDto);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has updated {FileMonitorId} against {ServerId}", User.Username(), fileMonitorDto.FileMonitorId, fileMonitorDto.ServerId);
+            this.AddAlertSuccess($"The file monitor has been created for {fileMonitorDto.GameServer.Title}");
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(Guid? id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            if (id == null) return NotFound();
+            var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
+            if (fileMonitorDto == null) return NotFound();
 
-            var model = await _fileMonitorsRepository.GetFileMonitor(id, User, _requiredClaims);
+            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.DeleteFileMonitor);
 
-            if (model == null) return NotFound();
+            if (!canDeleteFileMonitor.Succeeded)
+                return Unauthorized();
 
-            return View(model);
+            await AddGameServersViewData(fileMonitorDto.ServerId);
+
+            return View(fileMonitorDto);
         }
 
         [HttpPost]
@@ -144,22 +163,29 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            await _fileMonitorsRepository.RemoveFileMonitor(id, User, _requiredClaims);
+            var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
+            if (fileMonitorDto == null) return NotFound();
 
-            _logger.LogInformation(EventIds.Management, "User {User} has deleted a file monitor with Id {Id}", User.Username(), id);
+            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.DeleteFileMonitor);
 
-            TempData["Success"] = "The File Monitor has been successfully deleted";
+            if (!canDeleteFileMonitor.Succeeded)
+                return Unauthorized();
+
+            await _fileMonitorsRepository.DeleteFileMonitor(id);
+
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted {FileMonitorId} against {ServerId}", User.Username(), fileMonitorDto.FileMonitorId, fileMonitorDto.ServerId);
+            this.AddAlertSuccess($"The file monitor has been deleted for {fileMonitorDto.GameServer.Title}");
+
             return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<bool> FileMonitorsExists(Guid id)
-        {
-            return await _fileMonitorsRepository.FileMonitorExists(id, User, _requiredClaims);
         }
 
         private async Task AddGameServersViewData(Guid? selected = null)
         {
-            var gameServerDtos = await _gameServersRepository.GetGameServers(new GameServerFilterModel().ApplyAuthForFileMonitors(User));
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForFileMonitors(User);
+            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
             ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
         }
     }

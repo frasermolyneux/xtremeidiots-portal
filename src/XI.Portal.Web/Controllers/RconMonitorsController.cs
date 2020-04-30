@@ -13,9 +13,6 @@ using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
-nterfaces;
-using XI.Portal.Servers.Models;
-
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
@@ -164,9 +161,12 @@ namespace XI.Portal.Web.Controllers
 
         private async Task AddGameServersViewData(Guid? selected = null)
         {
-            var gameServerDtos = await _gameServersRepository.GetGameServers(new GameServerFilterModel().ApplyAuthForRconMonitors(User));
-            ViewData["GameServers"] = new SelectList(gameServerD
-    ServerId", "Title", selected);
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForRconMonitors(User);
+            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
+            ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
         }
     }
 }

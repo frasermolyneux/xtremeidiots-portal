@@ -29,14 +29,6 @@
         public const string EditBanFileMonitor = nameof(EditBanFileMonitor);
         public const string DeleteBanFileMonitor = nameof(DeleteBanFileMonitor);
 
-        // Game Servers
-        public const string CreateGameServer = nameof(CreateGameServer);
-        public const string ViewGameServer = nameof(ViewGameServer);
-        public const string EditGameServer = nameof(EditGameServer);
-        public const string EditGameServerFtp = nameof(EditGameServerFtp);
-        public const string EditGameServerRcon = nameof(EditGameServerRcon);
-        public const string DeleteGameServer = nameof(DeleteGameServer);
-
         // Credentials
         public const string AccessCredentials = nameof(AccessCredentials);
 
@@ -48,7 +40,14 @@
         public const string DeleteFileMonitor = nameof(DeleteFileMonitor);
 
         // Game Servers
+        public const string AccessGameServers = nameof(AccessGameServers);
+        public const string CreateGameServer = nameof(CreateGameServer);
+        public const string DeleteGameServer = nameof(DeleteGameServer);
+        public const string EditGameServerFtp = nameof(EditGameServerFtp);
+        public const string EditGameServer = nameof(EditGameServer);
+        public const string EditGameServerRcon = nameof(EditGameServerRcon);
         public const string ViewFtpCredential = nameof(ViewFtpCredential);
+        public const string ViewGameServer = nameof(ViewGameServer);
         public const string ViewRconCredential = nameof(ViewRconCredential);
     }
 }

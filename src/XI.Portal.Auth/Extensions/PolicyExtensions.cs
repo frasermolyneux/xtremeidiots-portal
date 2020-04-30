@@ -107,7 +107,14 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(XtremeIdiotsPolicy.DeleteFileMonitor, policy => { policy.Requirements.Add(new DeleteFileMonitor()); });
 
             // Game Servers
+            options.AddPolicy(XtremeIdiotsPolicy.AccessGameServers, policy => { policy.Requirements.Add(new AccessGameServers()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateGameServer, policy => { policy.Requirements.Add(new CreateGameServer()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteGameServer, policy => { policy.Requirements.Add(new DeleteGameServer()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditGameServer, policy => { policy.Requirements.Add(new EditGameServer()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditGameServerFtp, policy => { policy.Requirements.Add(new EditGameServerFtp()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditGameServerRcon, policy => { policy.Requirements.Add(new EditGameServerRcon()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ViewGameServer, policy => { policy.Requirements.Add(new ViewGameServer()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
         }
     }

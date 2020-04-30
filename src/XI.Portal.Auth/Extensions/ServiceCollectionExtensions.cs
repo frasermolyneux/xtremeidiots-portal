@@ -43,7 +43,14 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, ViewFileMonitorHandler>();
 
             // Game Servers
+            services.AddSingleton<IAuthorizationHandler, AccessGameServersHandler>();
+            services.AddSingleton<IAuthorizationHandler, CreateGameServerHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeleteGameServerHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditGameServerFtpHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditGameServerHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditGameServerRconHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewFtpCredentialHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewGameServerHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewRconCredentialHandler>();
         }
     }

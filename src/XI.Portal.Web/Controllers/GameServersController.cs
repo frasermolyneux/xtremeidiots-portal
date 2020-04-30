@@ -16,7 +16,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.ServersManagement)]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessGameServers)]
     public class GameServersController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -50,7 +50,7 @@ namespace XI.Portal.Web.Controllers
         public IActionResult Create()
         {
             AddGameTypeViewData();
-            return View();
+            return View(new GameServerDto());
         }
 
         [HttpPost]
@@ -233,8 +233,11 @@ namespace XI.Portal.Web.Controllers
 
         private void AddGameTypeViewData(GameType? selected = null)
         {
+            if (selected == null)
+                selected = GameType.Unknown;
+
             var gameTypes = User.GetGameTypesForGameServers();
-            ViewData["GameType"] = new SelectList(gameTypes, "ServerId", "Title", selected);
+            ViewData["GameType"] = new SelectList(gameTypes, selected);
         }
     }
 }

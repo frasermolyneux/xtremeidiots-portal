@@ -1,4 +1,6 @@
-﻿@using XI.Portal.Auth.Contract.Constants
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
 @model XI.Portal.Servers.Dto.GameServerDto
 
@@ -37,7 +39,7 @@
                                 @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
                             </dd>
 
-                            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.ViewFtpCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.FtpHostname)
@@ -59,12 +61,16 @@
                                 </dd>
                             }
 
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.RconPassword)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.RconPassword)
-                            </dd>
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.ViewRconCredential)).Succeeded)
+                            {
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.RconPassword)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.RconPassword)
+                                </dd>
+                            }
+
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
                             </dt>

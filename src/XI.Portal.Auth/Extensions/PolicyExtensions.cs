@@ -2,6 +2,8 @@
 using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Credentials.AuthorizationRequirements;
+using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 
 namespace XI.Portal.Auth.Extensions
 {
@@ -77,71 +79,28 @@ namespace XI.Portal.Auth.Extensions
                 )));
 
             // Admin Actions
-            options.AddPolicy(XtremeIdiotsPolicy.AccessAdminActionsController, policy =>
-            {
-                policy.Requirements.Add(new AccessAdminActions());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy =>
-            {
-                policy.Requirements.Add(new ChangeAdminActionAdmin());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.ClaimAdminAction, policy =>
-            {
-                policy.Requirements.Add(new ClaimAdminAction());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminAction, policy =>
-            {
-                policy.Requirements.Add(new CreateAdminAction());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminActionTopic, policy =>
-            {
-                policy.Requirements.Add(new CreateAdminActionTopic());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteAdminAction, policy =>
-            {
-                policy.Requirements.Add(new DeleteAdminAction());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.EditAdminAction, policy =>
-            {
-                policy.Requirements.Add(new EditAdminAction());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.LiftAdminAction, policy =>
-            {
-                policy.Requirements.Add(new LiftAdminAction());
-            });
+            options.AddPolicy(XtremeIdiotsPolicy.AccessAdminActionsController, policy => { policy.Requirements.Add(new AccessAdminActions()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy => { policy.Requirements.Add(new ChangeAdminActionAdmin()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ClaimAdminAction, policy => { policy.Requirements.Add(new ClaimAdminAction()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminAction, policy => { policy.Requirements.Add(new CreateAdminAction()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminActionTopic, policy => { policy.Requirements.Add(new CreateAdminActionTopic()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteAdminAction, policy => { policy.Requirements.Add(new DeleteAdminAction()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditAdminAction, policy => { policy.Requirements.Add(new EditAdminAction()); });
+            options.AddPolicy(XtremeIdiotsPolicy.LiftAdminAction, policy => { policy.Requirements.Add(new LiftAdminAction()); });
 
             // Ban File Monitors
-            options.AddPolicy(XtremeIdiotsPolicy.AccessBanFileMonitors, policy =>
-            {
-                policy.Requirements.Add(new AccessBanFileMonitors());
-            });
+            options.AddPolicy(XtremeIdiotsPolicy.AccessBanFileMonitors, policy => { policy.Requirements.Add(new AccessBanFileMonitors()); });
+            options.AddPolicy(XtremeIdiotsPolicy.CreateBanFileMonitor, policy => { policy.Requirements.Add(new CreateBanFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ViewBanFileMonitor, policy => { policy.Requirements.Add(new ViewBanFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.EditBanFileMonitor, policy => { policy.Requirements.Add(new EditBanFileMonitor()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteBanFileMonitor, policy => { policy.Requirements.Add(new DeleteBanFileMonitor()); });
 
-            options.AddPolicy(XtremeIdiotsPolicy.CreateBanFileMonitor, policy =>
-            {
-                policy.Requirements.Add(new CreateBanFileMonitor());
-            });
+            // Credentials
+            options.AddPolicy(XtremeIdiotsPolicy.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });
 
-            options.AddPolicy(XtremeIdiotsPolicy.ViewBanFileMonitor, policy =>
-            {
-                policy.Requirements.Add(new ViewBanFileMonitor());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.EditBanFileMonitor, policy =>
-            {
-                policy.Requirements.Add(new EditBanFileMonitor());
-            });
-
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteBanFileMonitor, policy =>
-            {
-                policy.Requirements.Add(new DeleteBanFileMonitor());
-            });
+            // Game Servers
+            options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
+            options.AddPolicy(XtremeIdiotsPolicy.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
         }
     }
 }

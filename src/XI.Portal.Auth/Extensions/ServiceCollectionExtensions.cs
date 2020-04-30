@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Auth.AdminActions.AuthorizationHandlers;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
+using XI.Portal.Auth.Credentials.AuthorizationHandlers;
+using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Auth.Extensions
@@ -28,6 +30,13 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteBanFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, EditBanFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewBanFileMonitorHandler>();
+
+            // Credentials
+            services.AddSingleton<IAuthorizationHandler, AccessCredentialsHandler>();
+
+            // Game Servers
+            services.AddSingleton<IAuthorizationHandler, ViewFtpCredentialHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewRconCredentialHandler>();
         }
     }
 }

@@ -36,5 +36,12 @@
         public const string EditGameServerFtp = nameof(EditGameServerFtp);
         public const string EditGameServerRcon = nameof(EditGameServerRcon);
         public const string DeleteGameServer = nameof(DeleteGameServer);
+
+        // Credentials
+        public const string AccessCredentials = nameof(AccessCredentials);
+
+        // Game Servers
+        public const string ViewFtpCredential = nameof(ViewFtpCredential);
+        public const string ViewRconCredential = nameof(ViewRconCredential);
     }
 }

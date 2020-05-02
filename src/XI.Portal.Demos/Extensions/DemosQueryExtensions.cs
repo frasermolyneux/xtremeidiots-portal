@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Demos.Models;
 

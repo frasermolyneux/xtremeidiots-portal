@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Interfaces;
 

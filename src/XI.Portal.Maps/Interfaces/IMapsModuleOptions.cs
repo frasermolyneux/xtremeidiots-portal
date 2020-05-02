@@ -1,5 +1,4 @@
 ﻿using System;
-using XI.Portal.Maps.Configuration;
 
 namespace XI.Portal.Maps.Interfaces
 {

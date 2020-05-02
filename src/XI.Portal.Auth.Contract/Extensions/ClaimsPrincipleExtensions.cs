@@ -49,12 +49,6 @@ namespace XI.Portal.Auth.Contract.Extensions
             return new Tuple<List<GameType>, List<Guid>>(gameTypes, servers);
         }
 
-
-        public static bool HasGameClaim(this ClaimsPrincipal claimsPrincipal, GameType gameType, IEnumerable<string> requiredClaims)
-        {
-            return claimsPrincipal.Claims.Any(claim => requiredClaims.Contains(claim.Type) && claim.Value == gameType.ToString());
-        }
-
         public static List<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             var gameTypes = new List<GameType>();

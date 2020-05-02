@@ -17,18 +17,17 @@ namespace XI.Portal.Web.Controllers
     public class MigrationController : Controller
     {
         private readonly IDemoAuthRepository _demoAuthRepository;
-        private readonly IDemosRepository _demosRepository;
         private readonly LegacyPortalContext _legacyContext;
         private readonly UserManager<PortalIdentityUser> _userManager;
 
-        public MigrationController(LegacyPortalContext legacyContext, UserManager<PortalIdentityUser> userManager,
-            IDemoAuthRepository demoAuthRepository,
-            IDemosRepository demosRepository)
+        public MigrationController(
+            LegacyPortalContext legacyContext,
+            UserManager<PortalIdentityUser> userManager,
+            IDemoAuthRepository demoAuthRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _demoAuthRepository = demoAuthRepository ?? throw new ArgumentNullException(nameof(demoAuthRepository));
-            _demosRepository = demosRepository ?? throw new ArgumentNullException(nameof(demosRepository));
         }
 
         [HttpGet]

@@ -7,9 +7,9 @@
         public const string PlayersManagement = nameof(PlayersManagement);
         public const string UserHasCredentials = nameof(UserHasCredentials);
         public const string ViewServiceStatus = nameof(ViewServiceStatus);
-        public const string CanAccessLiveRcon = nameof(CanAccessLiveRcon);
-        public const string CanAccessServerAdmin = nameof(CanAccessServerAdmin);
-        public const string CanAccessGlobalChatLog = nameof(CanAccessGlobalChatLog);
+        public const string AccessLiveRcon = nameof(AccessLiveRcon);
+        public const string AccessServerAdmin = nameof(AccessServerAdmin);
+        public const string AccessGlobalChatLog = nameof(AccessGlobalChatLog);
         public const string CanAccessGameChatLog = nameof(CanAccessGameChatLog);
 
         // Admin Actions

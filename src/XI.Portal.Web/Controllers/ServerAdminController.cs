@@ -18,7 +18,7 @@ using XI.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.CanAccessServerAdmin)]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessServerAdmin)]
     public class ServerAdminController : Controller
     {
         private readonly IChatLogsRepository _chatLogsRepository;
@@ -40,7 +40,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
             var filterModel = new GameServerFilterModel
@@ -70,7 +70,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
         public async Task<IActionResult> ViewRcon(Guid id)
         {
             if (id == null) return NotFound();
@@ -81,7 +81,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
         public async Task<IActionResult> GetRconPlayers(Guid? id)
         {
             if (id == null) return NotFound();
@@ -95,7 +95,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
             if (id == null) return NotFound();
@@ -114,14 +114,14 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
         public IActionResult ChatLogIndex()
         {
             return View();
         }
 
         [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
         public async Task<IActionResult> GetChatLogAjax()
         {
             return await GetChatLogPrivate(null, null);
@@ -217,7 +217,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGlobalChatLog)]
+        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
         public async Task<IActionResult> ChatLogPermaLink(Guid? id)
         {
             if (id == null) return NotFound();

@@ -53,7 +53,7 @@ namespace XI.Portal.Auth.Extensions
                 )
             );
 
-            options.AddPolicy(XtremeIdiotsPolicy.CanAccessServerAdmin, policy =>
+            options.AddPolicy(XtremeIdiotsPolicy.AccessServerAdmin, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -61,7 +61,7 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.Moderator
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.CanAccessGlobalChatLog, policy =>
+            options.AddPolicy(XtremeIdiotsPolicy.AccessGlobalChatLog, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -75,7 +75,7 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.CanAccessLiveRcon, policy =>
+            options.AddPolicy(XtremeIdiotsPolicy.AccessLiveRcon, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||

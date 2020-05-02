@@ -76,16 +76,16 @@
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.CanAccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
+<li policy="@XtremeIdiotsPolicy.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
     <a asp-controller="ServerAdmin" asp-action="Index">
         <i class="fa fa-terminal"></i> <span class="nav-label">Server Admin</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "in")">
-        <li policy="@XtremeIdiotsPolicy.CanAccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
+        <li policy="@XtremeIdiotsPolicy.AccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
             <a asp-controller="ServerAdmin" asp-action="Index">Servers</a>
         </li>
 
-        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
+        <li policy="@XtremeIdiotsPolicy.AccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
             <a asp-controller="ServerAdmin" asp-action="ChatLogIndex">Global ChatLog</a>
         </li>
 

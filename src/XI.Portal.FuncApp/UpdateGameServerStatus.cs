@@ -5,7 +5,6 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.FuncApp
@@ -14,13 +13,11 @@ namespace XI.Portal.FuncApp
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly IPlayerLocationsRepository _playerLocationsRepository;
 
-        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusRepository gameServerStatusRepository, IPlayerLocationsRepository playerLocationsRepository)
+        public UpdateGameServerStatus(LegacyPortalContext legacyContext, IGameServerStatusRepository gameServerStatusRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
-            _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
         }
 
         [FunctionName("UpdateGameServerStatus")]

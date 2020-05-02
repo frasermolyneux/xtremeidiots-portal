@@ -1,11 +1,11 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
-@using XI.Portal.Data.Legacy.Models
+@using XI.Portal.Servers.Dto
 @model XI.Portal.Users.Models.UserListEntryViewModel
 
 @{
     ViewData["Title"] = "Manage Portal Claims - " + Model.Username;
 
-    var gameServers = (List<GameServers>) ViewData["GameServers"];
+    var gameServers = (List<GameServerDto>) ViewData["GameServers"];
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -109,7 +109,7 @@
                             <input id="claimType" name="claimType" type="hidden" value="@PortalClaimTypes.FtpCredentials"/>
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="form-group">
-                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServerServerId"></select>
+                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServersSelect"></select>
                             </div>
                             <div class="form-group">
                                 <input type="submit" value="Create" class="btn btn-primary"/>
@@ -136,7 +136,7 @@
                             <input id="claimType" name="claimType" type="hidden" value="@PortalClaimTypes.RconCredentials"/>
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="form-group">
-                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServerServerId"></select>
+                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServersSelect"></select>
                             </div>
                             <div class="form-group">
                                 <input type="submit" value="Create" class="btn btn-primary"/>

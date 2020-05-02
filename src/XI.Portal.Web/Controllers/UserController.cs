@@ -10,6 +10,7 @@ using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
+using XI.Portal.Auth.Users.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Users.Models;
@@ -48,10 +49,14 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ManagePortalClaims(string id)
         {
             var user = await _usersRepository.GetUser(id);
-            var gameServers = await _gameServersRepository.GetGameServers(new GameServerFilterModel());
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForUsers(User);
+            var gameServers = await _gameServersRepository.GetGameServers(filterModel);
 
             ViewData["GameServers"] = gameServers;
-            ViewData["GameServerServerId"] = new SelectList(gameServers, "ServerId", "Title");
+            ViewData["GameServersSelect"] = new SelectList(gameServers, "ServerId", "Title");
 
             return View(user);
         }

@@ -1,12 +1,16 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
-@model List<XI.Portal.Servers.Models.RconMonitorStatusViewModel>
+@model List<XI.Portal.Servers.Dto.RconMonitorDto>
 
 @{
     ViewData["Title"] = "Rcon Status";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-warning"></i> This is a legacy feature which will be migrated to the new portal backend in the near future, this is a cut down status until then.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -19,9 +23,7 @@
                     <div class="ibox-content">
                         A rcon monitor will be considered failed if:
                         <ul>
-                            <li>The rcon status has not been updated in the past 15 minutes</li>
-                            <li>The rcon result is empty</li>
-                            <li>The rcon result contains 'Invalid Password'</li>
+                            <li>The last update has been more than 30 minutes ago</li>
                         </ul>
                     </div>
                 </div>
@@ -39,7 +41,7 @@
                     <div class="ibox">
                         <div class="ibox-title">
                             <span>
-                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, null)
                             </span>
                         </div>
                         <div class="ibox-content">
@@ -48,47 +50,14 @@
                                     <strong>Server Hostname: </strong>@item.GameServer.Hostname
                                 </text><br/>
                                 <text>
-                                    <strong>Last Rcon Status: </strong>@item.RconMonitor.LastUpdated
-                                </text><br/>
+                                    <strong>Last Rcon Status: </strong>@item.LastUpdated
+                                </text><br/><br/>
 
-                                <div id="accordion-@item.RconMonitor.RconMonitorId">
-                                    <div class="card">
-                                        <div class="card-header" id="headingTwo">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo-@item.RconMonitor.RconMonitorId" aria-expanded="false" aria-controls="collapseTwo">
-                                                    View Rcon Status Command Response
-
-                                                    @if (string.IsNullOrWhiteSpace(item.RconStatusResult))
-                                                    {
-                                                        <text> - (RCON STATUS EMPTY!!)</text>
-                                                    }
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseTwo-@item.RconMonitor.RconMonitorId" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion-@item.RconMonitor.RconMonitorId">
-                                            <div class="card-body">
-                                                @item.RconStatusResult
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <br/>
-
-                                @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                                @if (item.LastUpdated < DateTime.UtcNow.AddMinutes(-30))
                                 {
-                                    <div class="alert alert-danger">@item.ErrorMessage</div>
+                                    <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                                 }
 
-                                @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-warning">@item.WarningMessage</div>
-                                }
-
-                                @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-success">@item.SuccessMessage</div>
-                                }
                                 @{
                                     var canEditConfig = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                                                                                  claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameServer.GameType.ToString());
@@ -99,7 +68,7 @@
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
-                                    <a asp-controller="RconMonitors" asp-action="Edit" asp-route-id="@item.RconMonitor.RconMonitorId">
+                                    <a asp-controller="RconMonitors" asp-action="Edit" asp-route-id="@item.RconMonitorId">
                                         <i class="fa fa-edit"></i> Edit Rcon Monitor
                                     </a>
                                 }

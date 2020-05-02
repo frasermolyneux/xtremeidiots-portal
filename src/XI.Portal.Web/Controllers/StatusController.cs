@@ -2,8 +2,12 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.FileMonitors.Extensions;
+using XI.Portal.Auth.RconMonitors.Extensions;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -30,20 +34,35 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> BanFileStatus()
         {
-            //var statusModel = await _banFileMonitorsRepository.GetStatusModel(User, _requiredClaims);
-            return View();
+            var filterModel = new BanFileMonitorFilterModel
+            {
+                Order = BanFileMonitorFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuth(User);
+
+            var banFileMonitorDtos = await _banFileMonitorsRepository.GetBanFileMonitors(filterModel);
+            return View(banFileMonitorDtos);
         }
 
         public async Task<IActionResult> LogFileStatus()
         {
-            //var statusModel = await _fileMonitorsRepository.GetStatusModel(User, _requiredClaims);
-            return View();
+            var filterModel = new FileMonitorFilterModel
+            {
+                Order = FileMonitorFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuth(User);
+
+            var fileMonitorDtos = await _fileMonitorsRepository.GetFileMonitors(filterModel);
+            return View(fileMonitorDtos);
         }
 
         public async Task<IActionResult> RconStatus()
         {
-            //var statusModel = await _rconMonitorsRepository.GetStatusModel(User, _requiredClaims);
-            return View();
+            var filterModel = new RconMonitorFilterModel
+            {
+                Order = RconMonitorFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuth(User);
+
+            var rconMonitorDtos = await _rconMonitorsRepository.GetRconMonitors(filterModel);
+            return View(rconMonitorDtos);
         }
 
         public async Task<IActionResult> GameServerStatus()

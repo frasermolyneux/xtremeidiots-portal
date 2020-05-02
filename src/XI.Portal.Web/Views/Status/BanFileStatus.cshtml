@@ -1,12 +1,16 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
-@model List<XI.Portal.Servers.Models.BanFileMonitorStatusViewModel>
+@model List<XI.Portal.Servers.Dto.BanFileMonitorDto>
 
 @{
     ViewData["Title"] = "Ban File Status";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-warning"></i> This is a legacy feature which will be migrated to the new portal backend in the near future, this is a cut down status until then.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -19,9 +23,7 @@
                     <div class="ibox-content">
                         A ban file will be considered out of sync if:
                         <ul>
-                            <li>The last game ban placed in the portal was done after the last modified date on the remote file</li>
-                            <li>The file size (updated each run) does not match the current file on the server</li>
-                            <li>(Warning) The last sync has been more than 30 minutes ago</li>
+                            <li>The last sync has been more than 30 minutes ago</li>
                         </ul>
                     </div>
                 </div>
@@ -39,38 +41,27 @@
                     <div class="ibox">
                         <div class="ibox-title">
                             <span>
-                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, null)
                             </span>
                         </div>
                         <div class="ibox-content">
                             <p>
-                                <text><strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.BanFileMonitor.FilePath</text><br/>
+                                <text><strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FilePath</text><br/>
                                 <text>
-                                    <strong>Last Recorded Sync: </strong>@item.BanFileMonitor.LastSync
+                                    <strong>Last Recorded Sync: </strong>@item.LastSync
                                 </text><br/>
                                 <text>
-                                    <strong>Remote Modified: </strong>@item.LastModified
+                                    <strong>Remote Modified: </strong>@item.LastSync
                                 </text><br/>
                                 <text>
-                                    <strong>Last Recorded Size: </strong>@item.BanFileMonitor.RemoteFileSize
-                                </text><br/>
-                                <text>
-                                    <strong>Remote Size: </strong>@item.FileSize
-                                </text><br/>
+                                    <strong>Last Recorded Size: </strong>@item.RemoteFileSize
+                                </text>
+                                <br/>
+                                <br/>
 
-                                @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                                @if (item.LastSync < DateTime.UtcNow.AddMinutes(-30))
                                 {
-                                    <div class="alert alert-danger">@item.ErrorMessage</div>
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-warning">@item.WarningMessage</div>
-                                }
-
-                                @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-success">@item.SuccessMessage</div>
+                                    <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                                 }
 
                                 @{
@@ -83,7 +74,7 @@
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
-                                    <a asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitor.BanFileMonitorId">
+                                    <a asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId">
                                         <i class="fa fa-edit"></i> Edit Ban File Monitor
                                     </a>
                                 }

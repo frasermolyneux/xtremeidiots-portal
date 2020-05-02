@@ -1,12 +1,16 @@
 ﻿@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
-@model List<XI.Portal.Servers.Models.FileMonitorStatusViewModel>
+@model List<XI.Portal.Servers.Dto.FileMonitorDto>
 
 @{
     ViewData["Title"] = "Log File Status";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-warning"></i> This is a legacy feature which will be migrated to the new portal backend in the near future, this is a cut down status until then.
+    </div>
 
     <row class="row">
         <div class="col-12">
@@ -19,9 +23,7 @@
                     <div class="ibox-content">
                         A log file will be considered out of sync if:
                         <ul>
-                            <li>The log file has not been read in the past 30 minutes</li>
-                            <li>(Warning) The log file has not been read in the past 15 minutes</li>
-                            <li>(Investigate) The log file has not been modified in over 1 hour (this can be caused by an empty server)</li>
+                            <li>The last read has been more than 30 minutes ago</li>
                         </ul>
                     </div>
                 </div>
@@ -39,32 +41,21 @@
                     <div class="ibox">
                         <div class="ibox-title">
                             <span>
-                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, null)
                             </span>
                         </div>
                         <div class="ibox-content">
                             <p>
-                                <text><strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FileMonitor.FilePath</text><br/>
+                                <text><strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FilePath</text><br/>
                                 <text>
-                                    <strong>Remote Modified: </strong>@item.LastModified
-                                </text><br/>
-                                <text>
-                                    <strong>Remote Size: </strong>@item.FileSize
-                                </text><br/>
+                                    <strong>Last Read: </strong>@item.LastRead
+                                </text>
+                                <br/>
+                                <br/>
 
-                                @if (!string.IsNullOrWhiteSpace(item.ErrorMessage))
+                                @if (item.LastRead < DateTime.UtcNow.AddMinutes(-30))
                                 {
-                                    <div class="alert alert-danger">@item.ErrorMessage</div>
-                                }
-
-                                @if (!string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-warning">@item.WarningMessage</div>
-                                }
-
-                                @if (string.IsNullOrWhiteSpace(item.ErrorMessage) && string.IsNullOrWhiteSpace(item.WarningMessage))
-                                {
-                                    <div class="alert alert-success">@item.SuccessMessage</div>
+                                    <div class="alert alert-danger">Log file monitor has not run in the past 30 minutes</div>
                                 }
 
                                 @{
@@ -77,7 +68,7 @@
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
-                                    <a asp-controller="FileMonitors" asp-action="Edit" asp-route-id="@item.FileMonitor.FileMonitorId">
+                                    <a asp-controller="FileMonitors" asp-action="Edit" asp-route-id="@item.FileMonitorId">
                                         <i class="fa fa-edit"></i> Edit File Monitor
                                     </a>
                                 }

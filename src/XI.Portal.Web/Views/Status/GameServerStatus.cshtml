@@ -8,6 +8,10 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info"></i> This confirms that the process that retrieves the player data to display on the servers section of this website is functioning correctly.
+    </div>
+
     <row class="row">
         <div class="col-12">
 
@@ -57,7 +61,9 @@
                                 </text><br/>
                                 <text>
                                     <strong>Player Count: </strong>@item.PlayerCount
-                                </text><br/>
+                                </text>
+                                <br/>
+                                <br/>
 
                                 @if (DateTime.UtcNow.AddMinutes(-15) > item.Timestamp)
                                 {

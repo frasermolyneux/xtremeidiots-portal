@@ -60,6 +60,9 @@
         // Maps
         public const string AccessMaps = nameof(AccessMaps);
 
+        // Maps
+        public const string AccessPlayers = nameof(AccessPlayers);
+
         // Rcon Monitors
         public const string AccessRconMonitors = nameof(AccessRconMonitors);
         public const string CreateRconMonitor = nameof(CreateRconMonitor);

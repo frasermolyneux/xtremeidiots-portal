@@ -8,6 +8,7 @@ using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 using XI.Portal.Auth.Home.AuthorizationRequirements;
 using XI.Portal.Auth.Maps.AuthorizationRequirements;
+using XI.Portal.Auth.Players.AuthorizationRequirements;
 using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
 
@@ -131,6 +132,9 @@ namespace XI.Portal.Auth.Extensions
 
             // Maps
             options.AddPolicy(XtremeIdiotsPolicy.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
+
+            // Players
+            options.AddPolicy(XtremeIdiotsPolicy.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
 
             // Rcon Monitors
             options.AddPolicy(XtremeIdiotsPolicy.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });

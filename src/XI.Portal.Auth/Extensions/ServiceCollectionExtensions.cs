@@ -8,6 +8,7 @@ using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.Home.AuthorizationHandlers;
 using XI.Portal.Auth.Maps.AuthorizationHandlers;
+using XI.Portal.Auth.Players.AuthorizationHandlers;
 using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.Servers.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
@@ -67,6 +68,9 @@ namespace XI.Portal.Auth.Extensions
 
             // Maps
             services.AddSingleton<IAuthorizationHandler, AccessMapsHandler>();
+
+            // Players
+            services.AddSingleton<IAuthorizationHandler, AccessPlayersHandler>();
 
             // Rcon Monitors
             services.AddSingleton<IAuthorizationHandler, AccessRconMonitorsHandler>();

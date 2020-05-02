@@ -49,7 +49,7 @@
     </div>
 </li>
 
-<li class="@Html.IsSelected("Home", "Index")">
+<li policy="@XtremeIdiotsPolicy.AccessHome" class="@Html.IsSelected("Home", "Index")">
     <a asp-controller="Home" asp-action="Index">
         <i class="fa fa-home"></i> <span class="nav-label">Home</span>
     </a>

@@ -54,6 +54,9 @@
         public const string ViewGameServer = nameof(ViewGameServer);
         public const string ViewRconCredential = nameof(ViewRconCredential);
 
+        // Home
+        public const string AccessHome = nameof(AccessHome);
+
         // Rcon Monitors
         public const string AccessRconMonitors = nameof(AccessRconMonitors);
         public const string CreateRconMonitor = nameof(CreateRconMonitor);

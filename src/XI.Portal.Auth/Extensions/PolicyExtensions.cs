@@ -6,6 +6,7 @@ using XI.Portal.Auth.Credentials.AuthorizationRequirements;
 using XI.Portal.Auth.Demos.AuthorizationRequirements;
 using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
+using XI.Portal.Auth.Home.AuthorizationRequirements;
 using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
 
@@ -123,6 +124,9 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewGameServer, policy => { policy.Requirements.Add(new ViewGameServer()); });
             options.AddPolicy(XtremeIdiotsPolicy.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
+
+            // Home
+            options.AddPolicy(XtremeIdiotsPolicy.AccessHome, policy => { policy.Requirements.Add(new AccessHome()); });
 
             // Rcon Monitors
             options.AddPolicy(XtremeIdiotsPolicy.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });

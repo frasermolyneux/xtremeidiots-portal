@@ -78,5 +78,17 @@ namespace XI.Forums.Client
                 await client.PostAsync($"/api/forums/topics/{topicId}", new FormUrlEncodedContent(requestParams));
             }
         }
+
+        public async Task<DownloadFile> GetDownloadFile(int fileId)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_forumsOptions.BaseUrl);
+
+                var result = await client.GetStringAsync($"/api/downloads/files/{fileId}?key={_forumsOptions.ApiKey}");
+
+                return JsonConvert.DeserializeObject<DownloadFile>(result);
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Credentials.AuthorizationRequirements;
+using XI.Portal.Auth.Demos.AuthorizationRequirements;
 using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
@@ -99,6 +100,10 @@ namespace XI.Portal.Auth.Extensions
 
             // Credentials
             options.AddPolicy(XtremeIdiotsPolicy.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });
+
+            // Demos
+            options.AddPolicy(XtremeIdiotsPolicy.AccessDemos, policy => { policy.Requirements.Add(new AccessDemos()); });
+            options.AddPolicy(XtremeIdiotsPolicy.DeleteDemo, policy => { policy.Requirements.Add(new DeleteDemo()); });
 
             // Ban File Monitors
             options.AddPolicy(XtremeIdiotsPolicy.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });

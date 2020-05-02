@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Demos.Configuration;
+using XI.Portal.Demos.Forums;
 using XI.Portal.Demos.Interfaces;
 using XI.Portal.Demos.Repository;
 
@@ -39,6 +40,8 @@ namespace XI.Portal.Demos.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IDemosRepository, DemosRepository>();
             }
+
+            serviceCollection.AddScoped<IDemosForumsClient, DemosForumsClient>();
         }
     }
 }

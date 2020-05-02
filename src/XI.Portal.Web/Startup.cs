@@ -207,7 +207,7 @@ namespace XI.Portal.Web
             services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
         }

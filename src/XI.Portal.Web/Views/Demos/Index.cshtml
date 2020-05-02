@@ -13,6 +13,10 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> Demos are only visible to the uploader and the admin team for that game. Demos can be managed (e.g. deleted) by the uploader or a head admin of the relevant game.
+    </div>
+
     <row class="row">
         <div class="col-12">
 
@@ -122,7 +126,18 @@
                         sortable: false,
                         render: function(data, type, row) {
                             if (row['showDeleteLink'] === true) {
-                                return deleteDemoLink(row['demoId']);
+                                @if (ViewData["GameType"] != null)
+                                {
+                                    <text>
+                                        return deleteDemoLink(row['demoId'], "@ViewData["GameType"]");
+                                    </text>
+                                }
+                                else
+                                {
+                                    <text>
+                                        return deleteDemoLink(row['demoId']);
+                                    </text>
+                                }
                             }
                             return "";
                         }

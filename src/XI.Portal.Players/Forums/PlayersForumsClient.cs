@@ -10,12 +10,12 @@ using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.Players.Forums
 {
-    public class PortalForumsClient : IPortalForumsClient
+    public class PlayersForumsClient : IPlayersForumsClient
     {
         private readonly IForumsClient _forumsClient;
-        private readonly ILogger<PortalForumsClient> _logger;
+        private readonly ILogger<PlayersForumsClient> _logger;
 
-        public PortalForumsClient(ILogger<PortalForumsClient> logger, IForumsClient forumsClient)
+        public PlayersForumsClient(ILogger<PlayersForumsClient> logger, IForumsClient forumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));

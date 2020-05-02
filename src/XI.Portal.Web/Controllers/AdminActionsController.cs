@@ -20,7 +20,7 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<AdminActionController> _logger;
         private readonly IPlayersRepository _playersRepository;
-        private readonly IPortalForumsClient _portalForumsClient;
+        private readonly IPlayersForumsClient _playersForumsClient;
 
 
         public AdminActionController(
@@ -28,13 +28,13 @@ namespace XI.Portal.Web.Controllers
             IAuthorizationService authorizationService,
             IPlayersRepository playersRepository,
             IAdminActionsRepository adminActionsRepository,
-            IPortalForumsClient portalForumsClient)
+            IPlayersForumsClient playersForumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
-            _portalForumsClient = portalForumsClient ?? throw new ArgumentNullException(nameof(portalForumsClient));
+            _playersForumsClient = playersForumsClient ?? throw new ArgumentNullException(nameof(playersForumsClient));
         }
 
         [HttpGet]
@@ -80,7 +80,7 @@ namespace XI.Portal.Web.Controllers
             if (model.Type == AdminActionType.TempBan)
                 adminActionDto.Expires = model.Expires;
 
-            adminActionDto.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminActionDto);
+            adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
             await _adminActionsRepository.CreateAdminAction(adminActionDto);
 
@@ -135,7 +135,7 @@ namespace XI.Portal.Web.Controllers
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
+                await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionDto.Username}");
@@ -175,7 +175,7 @@ namespace XI.Portal.Web.Controllers
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
+                await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully lifted for {adminActionDto.Username}");
@@ -215,7 +215,7 @@ namespace XI.Portal.Web.Controllers
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
-                await _portalForumsClient.UpdateTopicForAdminAction(adminActionDto);
+                await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully claimed for {adminActionDto.Username}");
@@ -234,7 +234,7 @@ namespace XI.Portal.Web.Controllers
             if (!canCreateAdminActionDiscussionTopic.Succeeded)
                 return Unauthorized();
 
-            adminActionDto.ForumTopicId = await _portalForumsClient.CreateTopicForAdminAction(adminActionDto);
+            adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
             await _adminActionsRepository.UpdateAdminAction(adminActionDto);
 

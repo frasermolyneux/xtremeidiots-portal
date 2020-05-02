@@ -1,11 +1,12 @@
 ﻿using System;
+using XI.CommonTypes;
 
 namespace XI.Portal.Demos.Dto
 {
     public class DemoDto
     {
         public Guid DemoId { get; set; }
-        public string Game { get; set; }
+        public GameType Game { get; set; }
         public string Name { get; set; }
         public string FileName { get; set; }
         public DateTime Date { get; set; }

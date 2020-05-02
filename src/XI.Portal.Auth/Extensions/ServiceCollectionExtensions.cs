@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Auth.AdminActions.AuthorizationHandlers;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
+using XI.Portal.Auth.Demos.AuthorizationHandlers;
 using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
@@ -35,6 +36,10 @@ namespace XI.Portal.Auth.Extensions
 
             // Credentials
             services.AddSingleton<IAuthorizationHandler, AccessCredentialsHandler>();
+
+            // Demos
+            services.AddSingleton<IAuthorizationHandler, AccessDemosHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeleteDemoHandler>();
 
             // File Monitors
             services.AddSingleton<IAuthorizationHandler, AccessFileMonitorsHandler>();

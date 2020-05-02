@@ -32,6 +32,10 @@
         // Credentials
         public const string AccessCredentials = nameof(AccessCredentials);
 
+        // Demos
+        public const string AccessDemos = nameof(AccessDemos);
+        public const string DeleteDemo = nameof(DeleteDemo);
+
         // File Monitors
         public const string AccessFileMonitors = nameof(AccessFileMonitors);
         public const string CreateFileMonitor = nameof(CreateFileMonitor);

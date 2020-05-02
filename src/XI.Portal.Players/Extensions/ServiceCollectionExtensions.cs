@@ -43,7 +43,7 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
             }
 
-            serviceCollection.AddSingleton<IPortalForumsClient, PortalForumsClient>();
+            serviceCollection.AddSingleton<IPlayersForumsClient, PlayersForumsClient>();
         }
     }
 }

@@ -43,5 +43,13 @@ namespace XI.Portal.Demos.Repository
             var insertOp = TableOperation.InsertOrMerge(demoAuthEntity);
             await _demoAuthTable.ExecuteAsync(insertOp);
         }
+
+        public Task<string> GetUserId(string authKey)
+        {
+            var query = new TableQuery<DemoAuthEntity>().Where(TableQuery.GenerateFilterCondition(nameof(DemoAuthEntity.AuthKey), QueryComparisons.Equal, authKey));
+            var result = _demoAuthTable.ExecuteQuery(query).FirstOrDefault();
+
+            return Task.FromResult(result?.RowKey);
+        }
     }
 }

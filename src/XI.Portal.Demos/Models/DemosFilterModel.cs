@@ -1,4 +1,5 @@
-﻿using XI.CommonTypes;
+﻿using System.Collections.Generic;
+using XI.CommonTypes;
 
 namespace XI.Portal.Demos.Models
 {
@@ -16,7 +17,8 @@ namespace XI.Portal.Demos.Models
             UploadedByDesc
         }
 
-        public GameType GameType { get; set; }
+        public List<GameType> GameTypes { get; set; } = new List<GameType>();
+        public string UserId { get; set; }
         public OrderBy Order { get; set; } = OrderBy.UploadedByDesc;
         public string FilterString { get; set; }
         public int SkipEntries { get; set; } = 0;

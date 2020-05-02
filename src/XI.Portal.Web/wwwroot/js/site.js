@@ -37,8 +37,12 @@ function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }
 
-function deleteDemoLink(demoId) {
-    return "<a href='/Demos/Delete/" + demoId + "'>Delete Demo</a>";
+function deleteDemoLink(demoId, gameType = null) {
+    if (gameType === null) {
+        return "<a href='/Demos/Delete/" + demoId + "'>Delete Demo</a>";
+    } else {
+        return "<a href='/Demos/Delete/" + demoId + "?filterGame=true'>Delete Demo</a>";
+    }
 }
 
 function geoLocationIpLink(ipAddress) {

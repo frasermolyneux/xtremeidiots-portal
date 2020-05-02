@@ -11,22 +11,16 @@ namespace XI.Portal.Demos.Extensions
 {
     public static class DemosQueryExtensions
     {
-        public static IQueryable<Demoes> ApplyAuth(this IQueryable<Demoes> demos, ClaimsPrincipal claimsPrincipal, string[] requiredClaims)
-        {
-            if (claimsPrincipal == null || requiredClaims == null)
-                return demos.AsQueryable();
-
-            var xtremeIdiotsId = claimsPrincipal.XtremeIdiotsId();
-
-            var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
-            return demos.Where(demo => gameTypes.Contains(demo.Game) || demo.User.XtremeIdiotsId == xtremeIdiotsId).AsQueryable();
-        }
-
         public static IQueryable<Demoes> ApplyFilter(this IQueryable<Demoes> demos, DemosFilterModel filterModel)
         {
             demos = demos.Include(d => d.User).AsQueryable();
 
-            if (filterModel.GameType != GameType.Unknown) demos = demos.Where(m => m.Game == filterModel.GameType).AsQueryable();
+            if (filterModel.UserId != null && filterModel.GameTypes.Count != 0)
+                demos = demos.Where(d => filterModel.GameTypes.Contains(d.Game) && d.UserId == filterModel.UserId).AsQueryable();
+            else if (filterModel.GameTypes.Count != 0)
+                demos = demos.Where(d => filterModel.GameTypes.Contains(d.Game)).AsQueryable();
+            else if (filterModel.UserId != null)
+                demos = demos.Where(d => d.UserId == filterModel.UserId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filterModel.FilterString))
                 demos = demos.Where(d => d.Name.Contains(filterModel.FilterString) || d.User.UserName.Contains(filterModel.FilterString)).AsQueryable();

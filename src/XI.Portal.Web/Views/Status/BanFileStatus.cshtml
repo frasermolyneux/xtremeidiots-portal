@@ -1,4 +1,6 @@
-﻿@using XI.Portal.Auth.Contract.Constants
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
 @model List<XI.Portal.Servers.Dto.BanFileMonitorDto>
 
@@ -64,16 +66,15 @@
                                     <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                                 }
 
-                                @{
-                                    var canEditConfig = User.Claims.Any(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                                                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == item.GameServer.GameType.ToString());
-                                }
-
-                                @if (canEditConfig)
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, XtremeIdiotsPolicy.EditGameServer)).Succeeded)
                                 {
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
+                                }
+
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.EditBanFileMonitor)).Succeeded)
+                                {
                                     <a asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId">
                                         <i class="fa fa-edit"></i> Edit Ban File Monitor
                                     </a>

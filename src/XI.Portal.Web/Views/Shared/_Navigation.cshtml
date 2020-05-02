@@ -81,7 +81,7 @@
             <a asp-controller="ServerAdmin" asp-action="Index">Servers</a>
         </li>
 
-        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "GlobalChatLog")">
+        <li policy="@XtremeIdiotsPolicy.CanAccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
             <a asp-controller="ServerAdmin" asp-action="ChatLogIndex">Global ChatLog</a>
         </li>
 

@@ -60,5 +60,8 @@
         public const string ViewRconMonitor = nameof(ViewRconMonitor);
         public const string EditRconMonitor = nameof(EditRconMonitor);
         public const string DeleteRconMonitor = nameof(DeleteRconMonitor);
+
+        // Servers
+        public const string AccessServers = nameof(AccessServers);
     }
 }

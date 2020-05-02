@@ -55,13 +55,17 @@
     </a>
 </li>
 
-<li class="@Html.IsSelected("Servers")">
+<li policy="@XtremeIdiotsPolicy.AccessServers" class="@Html.IsSelected("Servers")">
     <a asp-controller="Servers" asp-action="Index">
         <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("Servers", cssClass: "in")">
         <li class="@Html.IsSelected(action: "Index")">
             <a asp-controller="Servers" asp-action="Index">Game Servers</a>
+        </li>
+
+        <li class="@Html.IsSelected(action: "Map")">
+            <a asp-controller="Servers" asp-action="Map">Player Map</a>
         </li>
     </ul>
 </li>

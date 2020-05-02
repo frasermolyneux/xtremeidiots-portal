@@ -7,6 +7,7 @@ using XI.Portal.Auth.Demos.AuthorizationHandlers;
 using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
+using XI.Portal.Auth.Servers.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Auth.Extensions
@@ -65,6 +66,9 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteRconMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, EditRconMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewRconMonitorHandler>();
+
+            // Servers
+            services.AddSingleton<IAuthorizationHandler, AccessServersHandler>();
         }
     }
 }

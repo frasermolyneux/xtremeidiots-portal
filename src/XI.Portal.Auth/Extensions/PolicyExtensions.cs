@@ -7,6 +7,7 @@ using XI.Portal.Auth.Demos.AuthorizationRequirements;
 using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
+using XI.Portal.Auth.Servers.AuthorizationRequirements;
 
 namespace XI.Portal.Auth.Extensions
 {
@@ -129,6 +130,9 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(XtremeIdiotsPolicy.ViewRconMonitor, policy => { policy.Requirements.Add(new ViewRconMonitor()); });
             options.AddPolicy(XtremeIdiotsPolicy.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
             options.AddPolicy(XtremeIdiotsPolicy.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
+
+            // Servers
+            options.AddPolicy(XtremeIdiotsPolicy.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });
         }
     }
 }

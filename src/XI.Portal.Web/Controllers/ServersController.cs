@@ -4,20 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
-using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
-
-using XI.Portal.Servers.Models;
-
 namespace XI.Portal.Web.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessServers)]
     public class ServersController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
@@ -48,8 +45,6 @@ namespace XI.Portal.Web.Controllers
             var servers = await _gameServersRepository.GetGameServers(filterModel);
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
 
-            var locations = await _playerLocationsRepository.GetLocations();
-
             var results = new List<ServerInfoViewModel>();
 
             foreach (var server in servers)
@@ -59,27 +54,28 @@ namespace XI.Portal.Web.Controllers
                     GameServerStatus = serversStatus.SingleOrDefault(ss => server.ServerId == ss.ServerId)
                 });
 
-            return View(new ServerIndexViewModel
-            {
-                ServerInfoViewModels = results,
-                Locations = locations
-            });
+            return View(results);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Map()
+        {
+            var playerLocationDtos = await _playerLocationsRepository.GetLocations();
+
+            return View(playerLocationDtos);
         }
 
         [HttpGet]
         public async Task<IActionResult> ServerInfo(Guid id)
         {
-            if (id == null)
-                return NotFound();
-
             var gameServer = await _gameServersRepository.GetGameServer(id);
-            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus((Guid) id, null, null, TimeSpan.Zero);
+            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, null, null, TimeSpan.Zero);
 
             MapDto map = null;
             if (gameServerStatusDto != null)
                 map = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
-            var mapRotation = await _mapsRepository.GetMapRotation((Guid) id);
+            var mapRotation = await _mapsRepository.GetMapRotation(id);
 
             return View(new ServerInfoViewModel
             {
@@ -88,12 +84,6 @@ namespace XI.Portal.Web.Controllers
                 Map = map,
                 MapRotation = mapRotation
             });
-        }
-
-        public class ServerIndexViewModel
-        {
-            public List<ServerInfoViewModel> ServerInfoViewModels { get; set; }
-            public List<PlayerLocationDto> Locations { get; set; }
         }
 
         public class ServerInfoViewModel

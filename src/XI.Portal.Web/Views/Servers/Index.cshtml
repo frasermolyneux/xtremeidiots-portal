@@ -1,5 +1,5 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Web.Controllers.ServersController.ServerIndexViewModel
+@model List<XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel>
 
 @{
     ViewData["Title"] = "Game Servers";
@@ -38,7 +38,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach (var item in Model.ServerInfoViewModels)
+                            @foreach (var item in Model)
                             {
                                 <tr>
                                     <td>
@@ -91,57 +91,4 @@
         </div>
     </row>
 
-    <div class="row">
-        <div class="col-12">
-
-            <div class="ibox">
-                <div class="ibox-title">
-                    Players Online in the last 24 Hours (@Model.Locations.Count) across all tracked game servers
-                </div>
-
-                <div class="ibox-content">
-                    <div id="map" style="height: 600px; width: 100%;"></div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
 </div>
-
-@* ReSharper disable once Razor.SectionNotResolved *@
-
-@section Scripts {
-    <script>
-        function initMap() {
-
-            var map = new google.maps.Map(document.getElementById('map'),
-                {
-                    zoom: 2,
-                    center: { lat: 0.00, lng: 0.00 }
-                });
-
-            var locations = [
-                @foreach (var location in Model.Locations.Where(location => location.GeoLocation != null))
-                {
-                    <text>
-                        ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude, '@location.GameType.ToString()'],
-                    </text>
-                }
-            ];
-
-            for (count = 0; count < locations.length; count++) {
-                new google.maps.Marker({
-                    position: new google.maps.LatLng(locations[count][1], locations[count][2]),
-                    map: map,
-                    title: locations[count][0],
-                    icon: {
-                        url: "/images/game-icons/" + locations[count][3] + ".png"
-                    }
-                });
-            }
-        }
-    </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initMap"></script>
-}

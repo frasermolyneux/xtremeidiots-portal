@@ -43,7 +43,11 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = XtremeIdiotsPolicy.CanAccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel().ApplyAuthForServerAdmin(User);
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
+            }.ApplyAuthForServerAdmin(User);
+
             var servers = await _gameServersRepository.GetGameServers(filterModel);
 
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
@@ -51,11 +55,16 @@ namespace XI.Portal.Web.Controllers
             var results = new List<ServersController.ServerInfoViewModel>();
 
             foreach (var server in servers)
-                results.Add(new ServersController.ServerInfoViewModel
-                {
-                    GameServer = server,
-                    GameServerStatus = serversStatus.SingleOrDefault(ss => server.ServerId == ss.ServerId)
-                });
+            {
+                var portalGameServerStatusDto = serversStatus.SingleOrDefault(ss => server.ServerId == ss.ServerId);
+
+                if (portalGameServerStatusDto != null)
+                    results.Add(new ServersController.ServerInfoViewModel
+                    {
+                        GameServer = server,
+                        GameServerStatus = portalGameServerStatusDto
+                    });
+            }
 
             return View(results);
         }

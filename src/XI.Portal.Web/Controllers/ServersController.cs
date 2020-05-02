@@ -39,7 +39,13 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = (await _gameServersRepository.GetGameServers(new GameServerFilterModel())).Where(server => server.ShowOnPortalServerList);
+            var filterModel = new GameServerFilterModel
+            {
+                Order = GameServerFilterModel.OrderBy.BannerServerListPosition,
+                Filter = GameServerFilterModel.FilterBy.ShowOnPortalServerList
+            };
+
+            var servers = await _gameServersRepository.GetGameServers(filterModel);
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
 
             var locations = await _playerLocationsRepository.GetLocations();

@@ -14,6 +14,13 @@ namespace XI.Portal.Servers.Extensions
                 gameServers = gameServers.Where(s => filterModel.GameTypes.Contains(s.GameType)).AsQueryable();
             else if (filterModel.ServerIds != null) gameServers = gameServers.Where(s => filterModel.ServerIds.Contains(s.ServerId)).AsQueryable();
 
+            switch (filterModel.Filter)
+            {
+                case GameServerFilterModel.FilterBy.ShowOnPortalServerList:
+                    gameServers = gameServers.Where(s => s.ShowOnPortalServerList);
+                    break;
+            }
+
             gameServers = gameServers.Skip(filterModel.SkipEntries).AsQueryable();
 
             switch (filterModel.Order)

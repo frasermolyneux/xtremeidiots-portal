@@ -5,52 +5,56 @@
     ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, null);
 }
 
-<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="wrapper wrapper-content animated fadeInRight">
 
-    <row class="row">
-        <div class="col-12">
+        <div class="alert alert-warning" role="alert">
+            <i class="fa fa-info-circle"></i> THIS FEATURE IS CURRENTLY UNDER DEVELOPMENT AND IS EXPERIMENTAL
+        </div>
 
-            <div class="container-fluid">
-                <div class="ibox">
-                    <div class="ibox-title">
-                        @ViewData["Title"]
-                    </div>
-                    <div class="ibox-content">
-                        <table id="dataTable">
-                            <thead>
-                            <tr>
-                                <th>
-                                    #
-                                </th>
-                                <th>
-                                    Username
-                                </th>
-                                <th>
-                                    Guid
-                                </th>
-                                <th>
-                                    Ip Address
-                                </th>
-                                <th>
-                                    Score
-                                </th>
-                                <th>
-                                    Rate
-                                </th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+        <row class="row">
+            <div class="col-12">
+
+                <div class="container-fluid">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            @ViewData["Title"]
+                        </div>
+                        <div class="ibox-content">
+                            <table id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            #
+                                        </th>
+                                        <th>
+                                            Username
+                                        </th>
+                                        <th>
+                                            Guid
+                                        </th>
+                                        <th>
+                                            Ip Address
+                                        </th>
+                                        <th>
+                                            Score
+                                        </th>
+                                        <th>
+                                            Rate
+                                        </th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
+
             </div>
+        </row>
 
-        </div>
-    </row>
-
-</div>
+    </div>
 
 @* ReSharper disable once Razor.SectionNotResolved *@
 

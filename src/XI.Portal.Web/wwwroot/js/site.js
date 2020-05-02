@@ -39,12 +39,28 @@ function downloadDemoLink(demoName, demoId) {
 
 function deleteDemoLink(demoId, gameType = null) {
     if (gameType === null) {
-        return "<a href='/Demos/Delete/" + demoId + "'>Delete Demo</a>";
+        return '<div class="btn-group btn-group-sm" role="group">' +
+            '<a type="button" class="btn btn-danger"  href="/Demos/Delete/' +
+            demoId +
+            '"><i class="fa fa-trash"></i> Delete Demo</a>' +
+            "</div>";
     } else {
-        return "<a href='/Demos/Delete/" + demoId + "?filterGame=true'>Delete Demo</a>";
+        return '<div class="btn-group btn-group-sm" role="group">' +
+            '<a type="button" class="btn btn-danger"  href="/Demos/Delete/' +
+            demoId +
+            '?filterGame=true"><i class="fa fa-trash"></i> Delete Demo</a>' +
+            "</div>";
     }
 }
 
 function geoLocationIpLink(ipAddress) {
     return "<a href='https://geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
+}
+
+function manageClaimsLink(userId) {
+    return '<div class="btn-group btn-group-sm" role="group">' +
+        '<a type="button" class="btn btn-primary"  href="/User/ManagePortalClaims/' +
+        userId +
+        '?filterGame=true"><i class="fa fa-key"></i> Manage Claims</a>' +
+        "</div>";
 }

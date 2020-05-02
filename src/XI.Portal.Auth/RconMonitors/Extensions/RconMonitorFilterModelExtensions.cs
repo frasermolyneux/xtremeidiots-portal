@@ -10,7 +10,7 @@ namespace XI.Portal.Auth.RconMonitors.Extensions
     {
         public static RconMonitorFilterModel ApplyAuth(this RconMonitorFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {
-            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.RconMonitor};
+            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.RconMonitor};
             var (gameTypes, rconMonitorIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
 
             filterModel.GameTypes = gameTypes;

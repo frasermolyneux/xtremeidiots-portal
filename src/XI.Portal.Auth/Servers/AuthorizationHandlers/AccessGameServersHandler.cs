@@ -8,9 +8,7 @@ namespace XI.Portal.Auth.Servers.AuthorizationHandlers
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessServers requirement)
         {
-            if (context.User.Identity.IsAuthenticated)
-                context.Succeed(requirement);
-
+            context.Succeed(requirement);
             return Task.CompletedTask;
         }
     }

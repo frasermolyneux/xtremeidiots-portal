@@ -121,7 +121,7 @@
 
                         @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteAdminAction)).Succeeded)
                         {
-                            <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Delete @item.Type</a>
+                            <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-danger"><span class="fa fa-trash"></span> Delete @item.Type</a>
                         }
                     </p>
                 </div>

@@ -93,7 +93,7 @@
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return '<a href="/User/ManagePortalClaims/' + row['id'] + '">Manage Claims</a>';
+                            return manageClaimsLink(row['id']);
                         }
                     }
                 ]

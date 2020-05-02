@@ -43,10 +43,16 @@
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Delete">
-                            <input type="hidden" asp-for="AdminActionId"/>
-                            <input type="hidden" asp-for="PlayerId"/>
-                            <input type="submit" value="Delete" class="btn btn-danger"/> |
-                            <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
+                            <input type="hidden" asp-for="AdminActionId" />
+                            <input type="hidden" asp-for="PlayerId" />
+
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-danger" type="submit">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+
+                                <a type="button" class="btn btn-primary" asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId"><i class="fa fa-arrow-left"></i> Back to Player</a>
+                            </div>
                         </form>
                     </div>
                 </div>

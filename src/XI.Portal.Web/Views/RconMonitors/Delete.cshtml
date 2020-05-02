@@ -46,9 +46,15 @@
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Delete">
-                            <input type="hidden" asp-for="RconMonitorId"/>
-                            <input type="submit" value="Delete" class="btn btn-danger"/> |
-                            <a asp-action="Index">Back to List</a>
+                            <input type="hidden" asp-for="RconMonitorId" />
+
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-danger" type="submit">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+
+                                <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                            </div>
                         </form>
                     </div>
                 </div>

@@ -10,7 +10,7 @@ namespace XI.Portal.Auth.FileMonitors.Extensions
     {
         public static FileMonitorFilterModel ApplyAuth(this FileMonitorFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {
-            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.FileMonitor};
+            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.FileMonitor};
             var (gameTypes, fileMonitorIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
 
             filterModel.GameTypes = gameTypes;

@@ -69,20 +69,22 @@
                                         @Html.DisplayFor(modelItem => item.ShowChatLog)
                                     </td>
                                     <td>
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditGameServer)).Succeeded)
-                                        {
-                                            <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a>
-                                        }
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditGameServer)).Succeeded)
+                                            {
+                                                <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@item.ServerId"><i class="fa fa-edit"></i> Edit</a>
+                                            }
 
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewGameServer)).Succeeded)
-                                        {
-                                            <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
-                                        }
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewGameServer)).Succeeded)
+                                            {
+                                                <a type="button" class="btn btn-primary" asp-action="Details" asp-route-id="@item.ServerId"><i class="fa fa-info-circle"></i> Details</a>
+                                            }
 
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteGameServer)).Succeeded)
-                                        {
-                                            <a asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
-                                        }
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteGameServer)).Succeeded)
+                                            {
+                                                <a type="button" class="btn btn-primary" asp-action="Delete" asp-route-id="@item.ServerId"><i class="fa fa-trash"></i> Delete</a>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -90,7 +92,9 @@
                         </table>
                     </div>
                     <div class="ibox-footer">
-                        <a asp-action="Create">Create New</a>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a type="button" class="btn btn-primary" asp-action="Create"><i class="fa fa-plus"></i> Create New</a>
+                        </div>
                     </div>
                 </div>
             </div>

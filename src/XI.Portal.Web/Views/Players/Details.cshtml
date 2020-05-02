@@ -108,14 +108,6 @@
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Ban">Add Ban</a>
                                         </li>
                                     }
-
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, Model.Player, AuthPolicies.DeletePlayer)).Succeeded)
-                                    {
-                                        <li>
-                                            <a asp-controller="Players" asp-action="Delete" asp-route-id="@Model.Player.PlayerId">Delete Player</a>
-                                        </li>
-                                    }
-
                                 </ul>
                             </div>
                         </div>

@@ -59,20 +59,26 @@
                                 {
                                     <div class="alert alert-danger">Log file monitor has not run in the past 30 minutes</div>
                                 }
-
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
+                                else
                                 {
-                                    <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
-                                        <i class="fa fa-edit"></i> Edit Game Server
-                                    </a>
+                                    <div class="alert alert-success">Everything looks OK, on the surface at least.</div>
                                 }
 
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditFileMonitor)).Succeeded)
-                                {
-                                    <a asp-controller="FileMonitors" asp-action="Edit" asp-route-id="@item.FileMonitorId">
-                                        <i class="fa fa-edit"></i> Edit File Monitor
-                                    </a>
-                                }
+                                <div class="btn-group btn-group-sm" role="group">
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
+                                    {
+                                        <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
+                                            <i class="fa fa-edit"></i> Edit Game Server
+                                        </a>
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditFileMonitor)).Succeeded)
+                                    {
+                                        <a type="button" class="btn btn-primary" asp-controller="FileMonitors" asp-action="Edit" asp-route-id="@item.FileMonitorId">
+                                            <i class="fa fa-edit"></i> Edit File Monitor
+                                        </a>
+                                    }
+                                </div>
                             </p>
                         </div>
                     </div>

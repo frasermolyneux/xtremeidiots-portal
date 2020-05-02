@@ -10,7 +10,7 @@ namespace XI.Portal.Auth.BanFileMonitors.Extensions
     {
         public static BanFileMonitorFilterModel ApplyAuth(this BanFileMonitorFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {
-            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.BanFileMonitor};
+            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor};
             var (gameTypes, banFileMonitorIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
 
             filterModel.GameTypes = gameTypes;

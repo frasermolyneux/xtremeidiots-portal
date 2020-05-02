@@ -1,6 +1,5 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Authorization
-@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
 @model List<XI.Portal.Servers.Dto.PortalGameServerStatusDto>
 
@@ -65,23 +64,19 @@
                                     <strong>Player Count: </strong>@item.PlayerCount
                                 </text>
                                 <br/>
-                                <br/>
 
                                 @if (DateTime.UtcNow.AddMinutes(-15) > item.Timestamp)
                                 {
                                     <div class="alert alert-danger">Server has not been queried in the past 15 minutes</div>
                                 }
+                                else
+                                {
+                                    <div class="alert alert-success">Everything looks OK, on the surface at least.</div>
+                                }
 
                                 @if (string.IsNullOrWhiteSpace(item.Map))
                                 {
                                     <div class="alert alert-danger">Map could not be retrieved from the server</div>
-                                }
-
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditGameServer)).Succeeded)
-                                {
-                                    <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.ServerId">
-                                        <i class="fa fa-edit"></i> Edit Game Server
-                                    </a>
                                 }
                             </p>
                         </div>

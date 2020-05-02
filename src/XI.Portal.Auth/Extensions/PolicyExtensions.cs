@@ -18,16 +18,16 @@ namespace XI.Portal.Auth.Extensions
     {
         public static void AddXtremeIdiotsPolicies(this AuthorizationOptions options)
         {
-            options.AddPolicy(XtremeIdiotsPolicy.RootPolicy, policy =>
+            options.AddPolicy(AuthPolicies.RootPolicy, policy =>
                 policy.RequireClaim(XtremeIdiotsClaimTypes.SeniorAdmin)
             );
 
-            options.AddPolicy(XtremeIdiotsPolicy.ServersManagement, policy =>
+            options.AddPolicy(AuthPolicies.ServersManagement, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Type == XtremeIdiotsClaimTypes.HeadAdmin
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.PlayersManagement, policy =>
+            options.AddPolicy(AuthPolicies.PlayersManagement, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -35,7 +35,7 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.Moderator
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.UserHasCredentials, policy =>
+            options.AddPolicy(AuthPolicies.UserHasCredentials, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                         claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                                  claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -46,7 +46,7 @@ namespace XI.Portal.Auth.Extensions
                 )
             );
 
-            options.AddPolicy(XtremeIdiotsPolicy.ViewServiceStatus, policy =>
+            options.AddPolicy(AuthPolicies.ViewServiceStatus, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                         claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                                  claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -55,7 +55,7 @@ namespace XI.Portal.Auth.Extensions
                 )
             );
 
-            options.AddPolicy(XtremeIdiotsPolicy.AccessServerAdmin, policy =>
+            options.AddPolicy(AuthPolicies.AccessServerAdmin, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -63,21 +63,21 @@ namespace XI.Portal.Auth.Extensions
                              claim.Type == XtremeIdiotsClaimTypes.Moderator
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.AccessGlobalChatLog, policy =>
+            options.AddPolicy(AuthPolicies.AccessGlobalChatLog, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.CanAccessGameChatLog, policy =>
+            options.AddPolicy(AuthPolicies.CanAccessGameChatLog, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.GameAdmin
                 )));
 
-            options.AddPolicy(XtremeIdiotsPolicy.AccessLiveRcon, policy =>
+            options.AddPolicy(AuthPolicies.AccessLiveRcon, policy =>
                 policy.RequireAssertion(context => context.User.HasClaim(
                     claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
                              claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
@@ -86,65 +86,65 @@ namespace XI.Portal.Auth.Extensions
                 )));
 
             // Admin Actions
-            options.AddPolicy(XtremeIdiotsPolicy.AccessAdminActionsController, policy => { policy.Requirements.Add(new AccessAdminActions()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ChangeAdminActionAdmin, policy => { policy.Requirements.Add(new ChangeAdminActionAdmin()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ClaimAdminAction, policy => { policy.Requirements.Add(new ClaimAdminAction()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminAction, policy => { policy.Requirements.Add(new CreateAdminAction()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateAdminActionTopic, policy => { policy.Requirements.Add(new CreateAdminActionTopic()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteAdminAction, policy => { policy.Requirements.Add(new DeleteAdminAction()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditAdminAction, policy => { policy.Requirements.Add(new EditAdminAction()); });
-            options.AddPolicy(XtremeIdiotsPolicy.LiftAdminAction, policy => { policy.Requirements.Add(new LiftAdminAction()); });
+            options.AddPolicy(AuthPolicies.AccessAdminActionsController, policy => { policy.Requirements.Add(new AccessAdminActions()); });
+            options.AddPolicy(AuthPolicies.ChangeAdminActionAdmin, policy => { policy.Requirements.Add(new ChangeAdminActionAdmin()); });
+            options.AddPolicy(AuthPolicies.ClaimAdminAction, policy => { policy.Requirements.Add(new ClaimAdminAction()); });
+            options.AddPolicy(AuthPolicies.CreateAdminAction, policy => { policy.Requirements.Add(new CreateAdminAction()); });
+            options.AddPolicy(AuthPolicies.CreateAdminActionTopic, policy => { policy.Requirements.Add(new CreateAdminActionTopic()); });
+            options.AddPolicy(AuthPolicies.DeleteAdminAction, policy => { policy.Requirements.Add(new DeleteAdminAction()); });
+            options.AddPolicy(AuthPolicies.EditAdminAction, policy => { policy.Requirements.Add(new EditAdminAction()); });
+            options.AddPolicy(AuthPolicies.LiftAdminAction, policy => { policy.Requirements.Add(new LiftAdminAction()); });
 
             // Ban File Monitors
-            options.AddPolicy(XtremeIdiotsPolicy.AccessBanFileMonitors, policy => { policy.Requirements.Add(new AccessBanFileMonitors()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateBanFileMonitor, policy => { policy.Requirements.Add(new CreateBanFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewBanFileMonitor, policy => { policy.Requirements.Add(new ViewBanFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditBanFileMonitor, policy => { policy.Requirements.Add(new EditBanFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteBanFileMonitor, policy => { policy.Requirements.Add(new DeleteBanFileMonitor()); });
+            options.AddPolicy(AuthPolicies.AccessBanFileMonitors, policy => { policy.Requirements.Add(new AccessBanFileMonitors()); });
+            options.AddPolicy(AuthPolicies.CreateBanFileMonitor, policy => { policy.Requirements.Add(new CreateBanFileMonitor()); });
+            options.AddPolicy(AuthPolicies.ViewBanFileMonitor, policy => { policy.Requirements.Add(new ViewBanFileMonitor()); });
+            options.AddPolicy(AuthPolicies.EditBanFileMonitor, policy => { policy.Requirements.Add(new EditBanFileMonitor()); });
+            options.AddPolicy(AuthPolicies.DeleteBanFileMonitor, policy => { policy.Requirements.Add(new DeleteBanFileMonitor()); });
 
             // Credentials
-            options.AddPolicy(XtremeIdiotsPolicy.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });
+            options.AddPolicy(AuthPolicies.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });
 
             // Demos
-            options.AddPolicy(XtremeIdiotsPolicy.AccessDemos, policy => { policy.Requirements.Add(new AccessDemos()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteDemo, policy => { policy.Requirements.Add(new DeleteDemo()); });
+            options.AddPolicy(AuthPolicies.AccessDemos, policy => { policy.Requirements.Add(new AccessDemos()); });
+            options.AddPolicy(AuthPolicies.DeleteDemo, policy => { policy.Requirements.Add(new DeleteDemo()); });
 
             // Ban File Monitors
-            options.AddPolicy(XtremeIdiotsPolicy.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateFileMonitor, policy => { policy.Requirements.Add(new CreateFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewFileMonitor, policy => { policy.Requirements.Add(new ViewFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditFileMonitor, policy => { policy.Requirements.Add(new EditFileMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteFileMonitor, policy => { policy.Requirements.Add(new DeleteFileMonitor()); });
+            options.AddPolicy(AuthPolicies.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });
+            options.AddPolicy(AuthPolicies.CreateFileMonitor, policy => { policy.Requirements.Add(new CreateFileMonitor()); });
+            options.AddPolicy(AuthPolicies.ViewFileMonitor, policy => { policy.Requirements.Add(new ViewFileMonitor()); });
+            options.AddPolicy(AuthPolicies.EditFileMonitor, policy => { policy.Requirements.Add(new EditFileMonitor()); });
+            options.AddPolicy(AuthPolicies.DeleteFileMonitor, policy => { policy.Requirements.Add(new DeleteFileMonitor()); });
 
             // Game Servers
-            options.AddPolicy(XtremeIdiotsPolicy.AccessGameServers, policy => { policy.Requirements.Add(new AccessGameServers()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateGameServer, policy => { policy.Requirements.Add(new CreateGameServer()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteGameServer, policy => { policy.Requirements.Add(new DeleteGameServer()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditGameServer, policy => { policy.Requirements.Add(new EditGameServer()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditGameServerFtp, policy => { policy.Requirements.Add(new EditGameServerFtp()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditGameServerRcon, policy => { policy.Requirements.Add(new EditGameServerRcon()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewGameServer, policy => { policy.Requirements.Add(new ViewGameServer()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
+            options.AddPolicy(AuthPolicies.AccessGameServers, policy => { policy.Requirements.Add(new AccessGameServers()); });
+            options.AddPolicy(AuthPolicies.CreateGameServer, policy => { policy.Requirements.Add(new CreateGameServer()); });
+            options.AddPolicy(AuthPolicies.DeleteGameServer, policy => { policy.Requirements.Add(new DeleteGameServer()); });
+            options.AddPolicy(AuthPolicies.EditGameServer, policy => { policy.Requirements.Add(new EditGameServer()); });
+            options.AddPolicy(AuthPolicies.EditGameServerFtp, policy => { policy.Requirements.Add(new EditGameServerFtp()); });
+            options.AddPolicy(AuthPolicies.EditGameServerRcon, policy => { policy.Requirements.Add(new EditGameServerRcon()); });
+            options.AddPolicy(AuthPolicies.ViewFtpCredential, policy => { policy.Requirements.Add(new ViewFtpCredential()); });
+            options.AddPolicy(AuthPolicies.ViewGameServer, policy => { policy.Requirements.Add(new ViewGameServer()); });
+            options.AddPolicy(AuthPolicies.ViewRconCredential, policy => { policy.Requirements.Add(new ViewRconCredential()); });
 
             // Home
-            options.AddPolicy(XtremeIdiotsPolicy.AccessHome, policy => { policy.Requirements.Add(new AccessHome()); });
+            options.AddPolicy(AuthPolicies.AccessHome, policy => { policy.Requirements.Add(new AccessHome()); });
 
             // Maps
-            options.AddPolicy(XtremeIdiotsPolicy.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
+            options.AddPolicy(AuthPolicies.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
 
             // Players
-            options.AddPolicy(XtremeIdiotsPolicy.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
+            options.AddPolicy(AuthPolicies.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
 
             // Rcon Monitors
-            options.AddPolicy(XtremeIdiotsPolicy.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });
-            options.AddPolicy(XtremeIdiotsPolicy.CreateRconMonitor, policy => { policy.Requirements.Add(new CreateRconMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.ViewRconMonitor, policy => { policy.Requirements.Add(new ViewRconMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
-            options.AddPolicy(XtremeIdiotsPolicy.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
+            options.AddPolicy(AuthPolicies.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });
+            options.AddPolicy(AuthPolicies.CreateRconMonitor, policy => { policy.Requirements.Add(new CreateRconMonitor()); });
+            options.AddPolicy(AuthPolicies.ViewRconMonitor, policy => { policy.Requirements.Add(new ViewRconMonitor()); });
+            options.AddPolicy(AuthPolicies.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
+            options.AddPolicy(AuthPolicies.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
 
             // Servers
-            options.AddPolicy(XtremeIdiotsPolicy.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });
+            options.AddPolicy(AuthPolicies.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });
         }
     }
 }

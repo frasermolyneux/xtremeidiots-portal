@@ -9,7 +9,7 @@ using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessCredentials)]
+    [Authorize(Policy = AuthPolicies.AccessCredentials)]
     public class CredentialsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -33,7 +33,7 @@ namespace XI.Portal.Web.Controllers
 
             foreach (var gameServerDto in gameServerDtos)
             {
-                var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.ViewFtpCredential);
+                var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewFtpCredential);
 
                 if (!canViewFtpCredential.Succeeded)
                 {
@@ -42,7 +42,7 @@ namespace XI.Portal.Web.Controllers
                     gameServerDto.FtpPassword = string.Empty;
                 }
 
-                var canViewRconCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, XtremeIdiotsPolicy.ViewRconCredential);
+                var canViewRconCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewRconCredential);
 
                 if (!canViewRconCredential.Succeeded)
                     gameServerDto.RconPassword = string.Empty;

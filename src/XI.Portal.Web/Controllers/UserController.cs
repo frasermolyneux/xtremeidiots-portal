@@ -18,7 +18,7 @@ using XI.Portal.Users.Repository;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.RootPolicy)]
+    [Authorize(Policy = AuthPolicies.RootPolicy)]
     public class UserController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;

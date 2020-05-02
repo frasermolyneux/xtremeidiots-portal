@@ -18,7 +18,7 @@ using XI.Servers.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessServerAdmin)]
+    [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
     public class ServerAdminController : Controller
     {
         private readonly IChatLogsRepository _chatLogsRepository;
@@ -40,7 +40,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
+        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
             var filterModel = new GameServerFilterModel
@@ -70,7 +70,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
+        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> ViewRcon(Guid id)
         {
             if (id == null) return NotFound();
@@ -81,7 +81,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
+        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> GetRconPlayers(Guid? id)
         {
             if (id == null) return NotFound();
@@ -95,7 +95,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessLiveRcon)]
+        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
             if (id == null) return NotFound();
@@ -114,21 +114,21 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
+        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
         public IActionResult ChatLogIndex()
         {
             return View();
         }
 
         [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
+        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
         public async Task<IActionResult> GetChatLogAjax()
         {
             return await GetChatLogPrivate(null, null);
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public IActionResult GameChatLog(GameType id)
         {
             if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
@@ -138,7 +138,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public async Task<IActionResult> GetGameChatLogAjax(GameType id)
         {
             if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
@@ -147,7 +147,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public IActionResult ServerChatLog(Guid id)
         {
             ViewData["ServerId"] = id;
@@ -155,7 +155,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = XtremeIdiotsPolicy.CanAccessGameChatLog)]
+        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public async Task<IActionResult> GetServerChatLogAjax(Guid id)
         {
             return await GetChatLogPrivate(null, id);
@@ -217,7 +217,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = XtremeIdiotsPolicy.AccessGlobalChatLog)]
+        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
         public async Task<IActionResult> ChatLogPermaLink(Guid? id)
         {
             if (id == null) return NotFound();

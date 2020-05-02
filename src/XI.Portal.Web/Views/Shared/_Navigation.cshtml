@@ -49,13 +49,13 @@
     </div>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessHome" class="@Html.IsSelected("Home", "Index")">
+<li policy="@AuthPolicies.AccessHome" class="@Html.IsSelected("Home", "Index")">
     <a asp-controller="Home" asp-action="Index">
         <i class="fa fa-home"></i> <span class="nav-label">Home</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessServers" class="@Html.IsSelected("Servers")">
+<li policy="@AuthPolicies.AccessServers" class="@Html.IsSelected("Servers")">
     <a asp-controller="Servers" asp-action="Index">
         <i class="fa fa-server"></i> <span class="nav-label">Servers</span> <span class="fa arrow"></span>
     </a>
@@ -70,22 +70,22 @@
     </ul>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessCredentials" class="@Html.IsSelected("Credentials", "Index")">
+<li policy="@AuthPolicies.AccessCredentials" class="@Html.IsSelected("Credentials", "Index")">
     <a asp-controller="Credentials" asp-action="Index">
         <i class="fa fa-key"></i> <span class="nav-label">Credentials</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
+<li policy="@AuthPolicies.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin")">
     <a asp-controller="ServerAdmin" asp-action="Index">
         <i class="fa fa-terminal"></i> <span class="nav-label">Server Admin</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "in")">
-        <li policy="@XtremeIdiotsPolicy.AccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
+        <li policy="@AuthPolicies.AccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
             <a asp-controller="ServerAdmin" asp-action="Index">Servers</a>
         </li>
 
-        <li policy="@XtremeIdiotsPolicy.AccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
+        <li policy="@AuthPolicies.AccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
             <a asp-controller="ServerAdmin" asp-action="ChatLogIndex">Global ChatLog</a>
         </li>
 
@@ -101,7 +101,7 @@
     </ul>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessDemos" class="@Html.IsSelected("Demos")">
+<li policy="@AuthPolicies.AccessDemos" class="@Html.IsSelected("Demos")">
     <a asp-controller="Demos" asp-action="Index">
         <i class="fa fa-camera"></i> <span class="nav-label">Demo Manager</span> <span class="fa arrow"></span>
     </a>
@@ -124,7 +124,7 @@
     </ul>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessMaps" class="@Html.IsSelected("Maps")">
+<li policy="@AuthPolicies.AccessMaps" class="@Html.IsSelected("Maps")">
     <a asp-controller="Maps" asp-action="Index">
         <i class="fa fa-map"></i> <span class="nav-label">Maps</span> <span class="fa arrow"></span>
     </a>
@@ -154,7 +154,7 @@
             </ul>
         </li>*@
 
-<li policy="@XtremeIdiotsPolicy.AccessPlayers" class="@Html.IsSelected("Players")">
+<li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players")">
     <a asp-controller="Players" asp-action="Index">
         <i class="fa fa-users"></i> <span class="nav-label">Players</span> <span class="fa arrow"></span>
     </a>
@@ -188,7 +188,7 @@
     </ul>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.ViewServiceStatus" class="@Html.IsSelected("Status")">
+<li policy="@AuthPolicies.ViewServiceStatus" class="@Html.IsSelected("Status")">
     <a asp-controller="Status" asp-action="GameServerStatus">
         <i class="fa fa-desktop"></i> <span class="nav-label">Status</span><span class="fa arrow"></span>
     </a>
@@ -208,37 +208,37 @@
     </ul>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessGameServers" class="@Html.IsSelected("GameServers", "Index")">
+<li policy="@AuthPolicies.AccessGameServers" class="@Html.IsSelected("GameServers", "Index")">
     <a asp-controller="GameServers" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessRconMonitors" class="@Html.IsSelected("RconMonitors", "Index")">
+<li policy="@AuthPolicies.AccessRconMonitors" class="@Html.IsSelected("RconMonitors", "Index")">
     <a asp-controller="RconMonitors" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Rcon Monitors</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessFileMonitors" class="@Html.IsSelected("FileMonitors", "Index")">
+<li policy="@AuthPolicies.AccessFileMonitors" class="@Html.IsSelected("FileMonitors", "Index")">
     <a asp-controller="FileMonitors" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">File Monitors</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.AccessBanFileMonitors" class="@Html.IsSelected("BanFileMonitors", "Index")">
+<li policy="@AuthPolicies.AccessBanFileMonitors" class="@Html.IsSelected("BanFileMonitors", "Index")">
     <a asp-controller="BanFileMonitors" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Ban File Monitors</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Users", "Index")">
+<li policy="@AuthPolicies.RootPolicy" class="@Html.IsSelected("Users", "Index")">
     <a asp-controller="User" asp-action="Index">
         <i class="fa fa-user"></i> <span class="nav-label">Manage Users</span>
     </a>
 </li>
 
-<li policy="@XtremeIdiotsPolicy.RootPolicy" class="@Html.IsSelected("Migration")">
+<li policy="@AuthPolicies.RootPolicy" class="@Html.IsSelected("Migration")">
     <a asp-controller="Migration" asp-action="ProcessMigrateUsers">
         <i class="fa fa-arrow-right"></i> <span class="nav-label">Migration</span> <span class="fa arrow"></span>
     </a>

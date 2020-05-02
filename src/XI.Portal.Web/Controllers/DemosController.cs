@@ -27,7 +27,7 @@ using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessDemos)]
+    [Authorize(Policy = AuthPolicies.AccessDemos)]
     public class DemosController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -145,7 +145,7 @@ namespace XI.Portal.Web.Controllers
             var portalDemoEntries = new List<PortalDemoDto>();
             foreach (var demoDto in demoDtos)
             {
-                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, demoDto, XtremeIdiotsPolicy.DeleteDemo);
+                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
 
                 var portalDemoDto = new PortalDemoDto(demoDto);
 
@@ -178,7 +178,7 @@ namespace XI.Portal.Web.Controllers
             var demoDto = await _demosRepository.GetDemo(id);
             if (demoDto == null) return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, XtremeIdiotsPolicy.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
@@ -196,7 +196,7 @@ namespace XI.Portal.Web.Controllers
             var demoDto = await _demosRepository.GetDemo(id);
             if (demoDto == null) return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, XtremeIdiotsPolicy.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();

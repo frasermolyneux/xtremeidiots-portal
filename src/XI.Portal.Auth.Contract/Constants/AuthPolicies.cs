@@ -1,6 +1,6 @@
 ﻿namespace XI.Portal.Auth.Contract.Constants
 {
-    public static class XtremeIdiotsPolicy
+    public static class AuthPolicies
     {
         public const string RootPolicy = nameof(RootPolicy);
         public const string ServersManagement = nameof(ServersManagement);

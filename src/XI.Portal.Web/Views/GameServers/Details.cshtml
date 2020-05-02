@@ -39,7 +39,7 @@
                                 @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
                             </dd>
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.ViewFtpCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.ViewFtpCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.FtpHostname)
@@ -61,7 +61,7 @@
                                 </dd>
                             }
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.ViewRconCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.ViewRconCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.RconPassword)

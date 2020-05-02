@@ -48,8 +48,8 @@
         </row>
 
         @{
-            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.EditGameServerFtp)).Succeeded;
-            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, Model, XtremeIdiotsPolicy.EditGameServerRcon)).Succeeded;
+            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.EditGameServerFtp)).Succeeded;
+            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.EditGameServerRcon)).Succeeded;
         }
 
         @if (canEditFtpCredentials || canEditRconCredentials)

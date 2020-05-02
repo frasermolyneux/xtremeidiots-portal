@@ -72,7 +72,7 @@
 
                                         @if (ChatLogSupportedGames.Games.Contains(item.GameServer.GameType))
                                         {
-                                            <span policy="@XtremeIdiotsPolicy.CanAccessGameChatLog">|</span>
+                                            <span policy="@AuthPolicies.CanAccessGameChatLog">|</span>
                                             <a asp-action="ServerChatLog" asp-route-id="@item.GameServer.ServerId">View ChatLog</a>
                                         }
                                     </td>

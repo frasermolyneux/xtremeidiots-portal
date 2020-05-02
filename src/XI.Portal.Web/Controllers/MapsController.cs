@@ -13,7 +13,7 @@ using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessMaps)]
+    [Authorize(Policy = AuthPolicies.AccessMaps)]
     public class MapsController : Controller
     {
         private readonly IMapFileRepository _mapFileRepository;

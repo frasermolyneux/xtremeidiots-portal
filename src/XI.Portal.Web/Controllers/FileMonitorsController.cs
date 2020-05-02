@@ -16,7 +16,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessFileMonitors)]
+    [Authorize(Policy = AuthPolicies.AccessFileMonitors)]
     public class FileMonitorsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -69,7 +69,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var fileMonitorDto = new FileMonitorDto().WithServerDto(gameServerDto);
-            var canCreateFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.CreateFileMonitor);
+            var canCreateFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.CreateFileMonitor);
 
             if (!canCreateFileMonitor.Succeeded)
                 return Unauthorized();
@@ -90,7 +90,7 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canViewFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.ViewFileMonitor);
+            var canViewFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.ViewFileMonitor);
 
             if (!canViewFileMonitor.Succeeded)
                 return Unauthorized();
@@ -104,7 +104,7 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.EditFileMonitor);
+            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.EditFileMonitor);
 
             if (!canEditFileMonitor.Succeeded)
                 return Unauthorized();
@@ -127,7 +127,7 @@ namespace XI.Portal.Web.Controllers
                 return View(fileMonitorDto);
             }
 
-            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.EditFileMonitor);
+            var canEditFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.EditFileMonitor);
 
             if (!canEditFileMonitor.Succeeded)
                 return Unauthorized();
@@ -148,7 +148,7 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.DeleteFileMonitor);
+            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.DeleteFileMonitor);
 
             if (!canDeleteFileMonitor.Succeeded)
                 return Unauthorized();
@@ -166,7 +166,7 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _fileMonitorsRepository.GetFileMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.DeleteFileMonitor);
+            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.DeleteFileMonitor);
 
             if (!canDeleteFileMonitor.Succeeded)
                 return Unauthorized();

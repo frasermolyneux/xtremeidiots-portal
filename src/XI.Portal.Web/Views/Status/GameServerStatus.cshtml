@@ -77,7 +77,7 @@
                                     <div class="alert alert-danger">Map could not be retrieved from the server</div>
                                 }
 
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.EditGameServer)).Succeeded)
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditGameServer)).Succeeded)
                                 {
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server

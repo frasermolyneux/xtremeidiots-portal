@@ -14,7 +14,7 @@ using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessServers)]
+    [Authorize(Policy = AuthPolicies.AccessServers)]
     public class ServersController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;

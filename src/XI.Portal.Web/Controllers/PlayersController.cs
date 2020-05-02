@@ -18,7 +18,7 @@ using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessPlayers)]
+    [Authorize(Policy = AuthPolicies.AccessPlayers)]
     public class PlayersController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;

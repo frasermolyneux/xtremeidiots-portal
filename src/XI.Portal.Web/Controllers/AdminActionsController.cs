@@ -13,7 +13,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessAdminActionsController)]
+    [Authorize(Policy = AuthPolicies.AccessAdminActionsController)]
     public class AdminActionController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
@@ -44,7 +44,7 @@ namespace XI.Portal.Web.Controllers
             if (playerDto == null) return NotFound();
 
             var adminActionDto = new AdminActionDto().OfType(adminActionType).WithPlayerDto(playerDto);
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -69,7 +69,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var adminActionDto = new AdminActionDto().OfType(model.Type).WithPlayerDto(playerDto);
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminAction);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -96,7 +96,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.EditAdminAction);
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -117,7 +117,7 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.EditAdminAction);
+            var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -127,7 +127,7 @@ namespace XI.Portal.Web.Controllers
             if (model.Type == AdminActionType.TempBan)
                 adminActionDto.Expires = model.Expires;
 
-            var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ChangeAdminActionAdmin);
+            var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ChangeAdminActionAdmin);
 
             if (canChangeAdminActionAdmin.Succeeded)
                 adminActionDto.AdminId = model.AdminId;
@@ -149,7 +149,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.LiftAdminAction);
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -165,7 +165,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.LiftAdminAction);
+            var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -189,7 +189,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ClaimAdminAction);
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -205,7 +205,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.ClaimAdminAction);
+            var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -229,7 +229,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.CreateAdminActionTopic);
+            var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminActionTopic);
 
             if (!canCreateAdminActionDiscussionTopic.Succeeded)
                 return Unauthorized();
@@ -250,7 +250,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.DeleteAdminAction);
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
@@ -266,7 +266,7 @@ namespace XI.Portal.Web.Controllers
             var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
             if (adminActionDto == null) return NotFound();
 
-            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, XtremeIdiotsPolicy.DeleteAdminAction);
+            var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();

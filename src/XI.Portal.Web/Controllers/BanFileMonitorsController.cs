@@ -16,7 +16,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessBanFileMonitors)]
+    [Authorize(Policy = AuthPolicies.AccessBanFileMonitors)]
     public class BanFileMonitorsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -69,7 +69,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var banFileMonitorDto = new BanFileMonitorDto().WithServerDto(gameServerDto);
-            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.CreateBanFileMonitor);
+            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.CreateBanFileMonitor);
 
             if (!canCreateBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -90,7 +90,7 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.ViewBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.ViewBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -104,7 +104,7 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -127,7 +127,7 @@ namespace XI.Portal.Web.Controllers
                 return View(banFileMonitorDto);
             }
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -148,7 +148,7 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -166,7 +166,7 @@ namespace XI.Portal.Web.Controllers
             var banFileMonitorDto = await _banFileMonitorsRepository.GetBanFileMonitor(id);
             if (banFileMonitorDto == null) return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, XtremeIdiotsPolicy.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();

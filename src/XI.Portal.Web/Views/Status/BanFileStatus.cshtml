@@ -66,14 +66,14 @@
                                     <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                                 }
 
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, XtremeIdiotsPolicy.EditGameServer)).Succeeded)
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
                                 {
                                     <a asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
                                         <i class="fa fa-edit"></i> Edit Game Server
                                     </a>
                                 }
 
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.EditBanFileMonitor)).Succeeded)
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditBanFileMonitor)).Succeeded)
                                 {
                                     <a asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId">
                                         <i class="fa fa-edit"></i> Edit Ban File Monitor

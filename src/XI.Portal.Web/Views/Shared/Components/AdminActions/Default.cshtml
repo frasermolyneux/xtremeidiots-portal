@@ -90,14 +90,14 @@
                     </div>
 
                     <p>
-                        @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.EditAdminAction)).Succeeded)
+                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditAdminAction)).Succeeded)
                         {
                             <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit @item.Type</a>
                         }
 
                         @if (item.Type == AdminActionType.Ban && item.Expires == null || item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.LiftAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.LiftAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
                             }
@@ -105,7 +105,7 @@
 
                         @if (item.Type == AdminActionType.Ban && item.AdminId == null)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.ClaimAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ClaimAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
                             }
@@ -113,13 +113,13 @@
 
                         @if (item.ForumTopicId == 0)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.CreateAdminActionTopic)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.CreateAdminActionTopic)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
                             }
                         }
 
-                        @if ((await AuthorizationService.AuthorizeAsync(User, item, XtremeIdiotsPolicy.DeleteAdminAction)).Succeeded)
+                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteAdminAction)).Succeeded)
                         {
                             <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Delete @item.Type</a>
                         }

@@ -16,7 +16,7 @@ using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = XtremeIdiotsPolicy.AccessRconMonitors)]
+    [Authorize(Policy = AuthPolicies.AccessRconMonitors)]
     public class RconMonitorsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
@@ -71,7 +71,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var rconMonitorDto = new RconMonitorDto().WithServerDto(gameServerDto);
-            var canCreateRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, XtremeIdiotsPolicy.CreateRconMonitor);
+            var canCreateRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, AuthPolicies.CreateRconMonitor);
 
             if (!canCreateRconMonitor.Succeeded)
                 return Unauthorized();
@@ -94,7 +94,7 @@ namespace XI.Portal.Web.Controllers
             var rconMonitorDto = await _rconMonitorsRepository.GetRconMonitor(id);
             if (rconMonitorDto == null) return NotFound();
 
-            var canViewRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, XtremeIdiotsPolicy.ViewRconMonitor);
+            var canViewRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, AuthPolicies.ViewRconMonitor);
 
             if (!canViewRconMonitor.Succeeded)
                 return Unauthorized();
@@ -108,7 +108,7 @@ namespace XI.Portal.Web.Controllers
             var rconMonitorDto = await _rconMonitorsRepository.GetRconMonitor(id);
             if (rconMonitorDto == null) return NotFound();
 
-            var canEditRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, XtremeIdiotsPolicy.EditRconMonitor);
+            var canEditRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, AuthPolicies.EditRconMonitor);
 
             if (!canEditRconMonitor.Succeeded)
                 return Unauthorized();
@@ -131,7 +131,7 @@ namespace XI.Portal.Web.Controllers
                 return View(rconMonitorDto);
             }
 
-            var canEditRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, XtremeIdiotsPolicy.EditRconMonitor);
+            var canEditRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, AuthPolicies.EditRconMonitor);
 
             if (!canEditRconMonitor.Succeeded)
                 return Unauthorized();
@@ -154,7 +154,7 @@ namespace XI.Portal.Web.Controllers
             var rconMonitorDto = await _rconMonitorsRepository.GetRconMonitor(id);
             if (rconMonitorDto == null) return NotFound();
 
-            var canDeleteRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, XtremeIdiotsPolicy.DeleteRconMonitor);
+            var canDeleteRconMonitor = await _authorizationService.AuthorizeAsync(User, rconMonitorDto, AuthPolicies.DeleteRconMonitor);
 
             if (!canDeleteRconMonitor.Succeeded)
                 return Unauthorized();
@@ -172,7 +172,7 @@ namespace XI.Portal.Web.Controllers
             var fileMonitorDto = await _rconMonitorsRepository.GetRconMonitor(id);
             if (fileMonitorDto == null) return NotFound();
 
-            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, XtremeIdiotsPolicy.DeleteRconMonitor);
+            var canDeleteFileMonitor = await _authorizationService.AuthorizeAsync(User, fileMonitorDto, AuthPolicies.DeleteRconMonitor);
 
             if (!canDeleteFileMonitor.Succeeded)
                 return Unauthorized();

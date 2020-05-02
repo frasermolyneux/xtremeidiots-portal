@@ -57,6 +57,9 @@
         // Home
         public const string AccessHome = nameof(AccessHome);
 
+        // Maps
+        public const string AccessMaps = nameof(AccessMaps);
+
         // Rcon Monitors
         public const string AccessRconMonitors = nameof(AccessRconMonitors);
         public const string CreateRconMonitor = nameof(CreateRconMonitor);

@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
+using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
 using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [AllowAnonymous]
+    [Authorize(Policy = XtremeIdiotsPolicy.AccessMaps)]
     public class MapsController : Controller
     {
         private readonly IMapFileRepository _mapFileRepository;
@@ -98,7 +99,6 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> DownloadFullRotation(Guid? id)
         {
             if (id == null) return NotFound();

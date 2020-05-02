@@ -124,7 +124,7 @@
     </ul>
 </li>
 
-<li class="@Html.IsSelected("Maps")">
+<li policy="@XtremeIdiotsPolicy.AccessMaps" class="@Html.IsSelected("Maps")">
     <a asp-controller="Maps" asp-action="Index">
         <i class="fa fa-map"></i> <span class="nav-label">Maps</span> <span class="fa arrow"></span>
     </a>

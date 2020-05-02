@@ -298,7 +298,9 @@ namespace XI.Portal.Data.Legacy
 
                 entity.Property(e => e.ServerId).HasDefaultValueSql("(newsequentialid())");
 
+#pragma warning disable 618
                 entity.Property(e => e.LiveLastUpdated).HasColumnType("datetime");
+#pragma warning restore 618
 
                 entity.Property(e => e.Title).HasMaxLength(60);
             });

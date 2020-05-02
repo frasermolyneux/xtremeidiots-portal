@@ -9,20 +9,23 @@ using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
 
+// ReSharper disable StringLiteralTypo
+
 namespace XI.Portal.FuncApp
 {
+    // ReSharper disable once UnusedMember.Global
     public class MapRedirectSync
     {
-        private readonly IMapRedirectRepository _mapRedirectRepository;
-        private readonly IMapsRepository _mapsRepository;
-
-        private readonly string[] defaultMaps =
+        private readonly string[] _defaultMaps =
         {
             "mp_ambush", "mp_backlot", "mp_bloc", "mp_bog", "mp_broadcast", "mp_chinatown", "mp_countdown", "mp_crash", "mp_creek", "mp_crossfire",
             "mp_district", "mp_downpour", "mp_killhouse", "mp_overgrown", "mp_pipeline", "mp_shipment", "mp_showdown", "mp_strike", "mp_vacant", "mp_cargoship",
             "mp_airfield", "mp_asylum", "mp_castle", "mp_cliffside", "mp_courtyard", "mp_dome", "mp_downfall", "mp_hanger", "mp_makin", "mp_outskirts", "mp_roundhouse",
             "mp_seelow", "mp_upheaval"
         };
+
+        private readonly IMapRedirectRepository _mapRedirectRepository;
+        private readonly IMapsRepository _mapsRepository;
 
         public MapRedirectSync(IMapsRepository mapsRepository, IMapRedirectRepository mapRedirectRepository)
         {
@@ -72,7 +75,7 @@ namespace XI.Portal.FuncApp
                     }
                     else
                     {
-                        if (!defaultMaps.Contains(mapDto.MapName))
+                        if (!_defaultMaps.Contains(mapDto.MapName))
                             try
                             {
                                 if (mapDto.TotalVotes > 0)

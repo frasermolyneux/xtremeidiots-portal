@@ -75,14 +75,16 @@
                     {
                         data: 'mapFiles',
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function(data) {
                             if (data === undefined || data === null || data.length === 0) {
                                 return "No Map Files";
                             }
 
                             var outputText = "";
                             for (var key in data) {
-                                outputText += "<li><a href='" + data[key]["fileUrl"] + "'>" + data[key]["fileName"] + "</a></li>";
+                                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                                    outputText += "<li><a href='" + data[key]["fileUrl"] + "'>" + data[key]["fileName"] + "</a></li>";
+                                }
                             }
 
                             return outputText;

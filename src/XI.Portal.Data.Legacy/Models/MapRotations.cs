@@ -6,8 +6,8 @@ namespace XI.Portal.Data.Legacy.Models
     {
         public Guid MapRotationId { get; set; }
         public string GameMode { get; set; }
-        public Guid? GameServerServerId { get; set; }
-        public Guid? MapMapId { get; set; }
+        public Guid GameServerServerId { get; set; }
+        public Guid MapMapId { get; set; }
 
         public virtual GameServers GameServerServer { get; set; }
         public virtual Maps MapMap { get; set; }

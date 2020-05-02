@@ -34,7 +34,7 @@ namespace XI.Portal.Servers.Helpers
             {
                 using (var responseStream = response.GetResponseStream())
                 {
-                    using (var streamReader = new StreamReader(responseStream))
+                    using (var streamReader = new StreamReader(responseStream ?? throw new InvalidOperationException()))
                     {
                         return streamReader.ReadToEnd();
                     }

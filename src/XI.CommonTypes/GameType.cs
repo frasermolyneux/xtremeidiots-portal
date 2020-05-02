@@ -33,8 +33,8 @@ namespace XI.CommonTypes
         [Display(Name = "World Of Warships")] WorldOfWarships = 18,
         [Display(Name = "World War 3")] WorldWar3 = 19,
         [Display(Name = "Unreal Tournament")] UnrealTournament2004 = 20,
-        [Display(Name = "ARMA")] ARMA = 21,
-        [Display(Name = "ARMA 2")] ARMA2 = 22,
-        [Display(Name = "ARMA 3")] ARMA3 = 23
+        [Display(Name = "ARMA")] Arma = 21,
+        [Display(Name = "ARMA 2")] Arma2 = 22,
+        [Display(Name = "ARMA 3")] Arma3 = 23
     }
 }

@@ -9,6 +9,7 @@ using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.FuncApp
 {
+    // ReSharper disable once UnusedMember.Global
     public class UpdateGameServerStatus
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;

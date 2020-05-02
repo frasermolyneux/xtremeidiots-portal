@@ -24,9 +24,7 @@ namespace XI.Demos
         /// </exception>
         public DemoReader(Stream demoStream, GameType gameVersion)
         {
-            if (demoStream == null) throw new ArgumentNullException("demoStream");
-
-            _demoStream = demoStream;
+            _demoStream = demoStream ?? throw new ArgumentNullException(nameof(demoStream));
             _gameVersion = gameVersion;
 
             // Initialize the huffman tree.

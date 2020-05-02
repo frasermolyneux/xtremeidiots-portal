@@ -6,6 +6,7 @@ using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.FuncApp
 {
+    // ReSharper disable once UnusedMember.Global
     public class PlayerLocationsMaintenance
     {
         private readonly IPlayerLocationsRepository _playerLocationsRepository;

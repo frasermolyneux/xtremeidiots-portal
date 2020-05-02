@@ -36,7 +36,7 @@ namespace XI.Portal.Web.Extensions
 
         public static HtmlString HlswIcon(this IHtmlHelper html, GameType gameType, string hostname, int port)
         {
-            var link = "";
+            string link;
             switch (gameType)
             {
                 case GameType.CallOfDuty2:

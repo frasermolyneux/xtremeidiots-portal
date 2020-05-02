@@ -55,7 +55,6 @@ namespace XI.Portal.Web.Controllers
                     return RedirectToLocal(returnUrl);
                 case XtremeIdiotsAuthResult.Locked:
                     return IdentityError("Your account is currently locked");
-                case XtremeIdiotsAuthResult.Failed:
                 default:
                     return IdentityError("There has been an issue logging you in");
             }

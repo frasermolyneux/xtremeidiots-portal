@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy.Models;
 
+// ReSharper disable UnusedMember.Global
+
 namespace XI.Portal.Data.Legacy
 {
     public class LegacyPortalContext : DbContext

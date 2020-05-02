@@ -24,8 +24,6 @@ namespace XI.Portal.Web.Controllers
         private readonly ILogger<RconMonitorsController> _logger;
         private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin};
-
         public RconMonitorsController(
             ILogger<RconMonitorsController> logger,
             IAuthorizationService authorizationService,

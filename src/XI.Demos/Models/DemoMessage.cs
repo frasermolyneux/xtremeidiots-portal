@@ -7,7 +7,7 @@ namespace XI.Demos.Models
     internal struct DemoMessage
     {
         private int _bit;
-        private int _readcount;
+        private int _readCount;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DemoMessage" /> struct.
@@ -17,9 +17,7 @@ namespace XI.Demos.Models
         public DemoMessage(byte[] data)
             : this()
         {
-            if (data == null) throw new ArgumentNullException("data");
-
-            Data = data;
+            Data = data ?? throw new ArgumentNullException(nameof(data));
             CurrentSize = data.Length;
         }
 
@@ -32,7 +30,7 @@ namespace XI.Demos.Models
             : this()
         {
             if (length <= 0)
-                throw new ArgumentOutOfRangeException("length", length, "must be greater than 0");
+                throw new ArgumentOutOfRangeException(nameof(length), length, "must be greater than 0");
 
             Data = new byte[length];
             CurrentSize = length;
@@ -41,7 +39,7 @@ namespace XI.Demos.Models
         public int CurrentSize { get; set; }
         public byte[] Data { get; set; }
 
-        public bool IsAtEndOfData => _readcount >= CurrentSize;
+        public bool IsAtEndOfData => _readCount >= CurrentSize;
 
         /// <summary>
         ///     Decodes this message using the specified huffman tree.
@@ -69,24 +67,24 @@ namespace XI.Demos.Models
                     throw new Exception("Read failure");
 
                 // Pick the remaining bits of the current byte, up to the required number of bits.
-                var curbits = Math.Min(bits, 8 - _bit);
+                var remainingBits = Math.Min(bits, 8 - _bit);
 
                 // Read the bits from the data and shift them into the result.
-                var read = Data[_readcount] & ((int) Math.Pow(2, curbits) - 1);
+                var read = Data[_readCount] & ((int) Math.Pow(2, remainingBits) - 1);
 
                 value <<= readBits;
                 value |= read;
 
                 // Keep track of read bits.
-                bits -= curbits;
-                readBits += curbits;
+                bits -= remainingBits;
+                readBits += remainingBits;
 
-                _bit += curbits;
+                _bit += remainingBits;
 
                 // If the bit index is at the end of the byte, move the bit index to the start of the next file.
                 if (_bit != 8) continue;
                 _bit = 0;
-                _readcount++;
+                _readCount++;
             }
 
             return value;

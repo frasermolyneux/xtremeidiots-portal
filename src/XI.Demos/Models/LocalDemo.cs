@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using XI.CommonTypes;
 
+// ReSharper disable StringLiteralTypo
+
 namespace XI.Demos.Models
 {
     public class LocalDemo : IDemo
@@ -32,8 +34,8 @@ namespace XI.Demos.Models
                     config.TryGetValue("fs_game", out var mod);
                     config.TryGetValue("g_gametype", out var gameType);
                     config.TryGetValue("sv_hostname", out var server);
-                    config.TryGetValue("sv_referencedIwdNames", out var iwds);
-                    config.TryGetValue("sv_referencedFFNames", out var ffs);
+                    config.TryGetValue("sv_referencedIwdNames", out var iwdNames);
+                    config.TryGetValue("sv_referencedFFNames", out var ffNames);
 
                     if (!string.IsNullOrWhiteSpace(mod) && mod.ToLower().StartsWith("mods/"))
                         mod = mod.Substring(5);
@@ -42,10 +44,10 @@ namespace XI.Demos.Models
                     Mod = mod;
                     GameType = gameType;
                     Server = server;
-                    IWDs = iwds == null ? new string[0] : iwds.Split(' ');
-                    FFs = ffs == null
+                    IWDs = iwdNames == null ? new string[0] : iwdNames.Split(' ');
+                    FFs = ffNames == null
                         ? new string[0]
-                        : ffs.Split(' ').Select(ff =>
+                        : ffNames.Split(' ').Select(ff =>
                         {
                             // Change path of usermaps files to full paths. 
                             // e.g. usermaps/mp_caen2_load -> usermaps/mp_caen2/mp_caen2_load
@@ -79,11 +81,12 @@ namespace XI.Demos.Models
         /// <summary>
         ///     Gets the path to the demo file.
         /// </summary>
-        public string Path { get; private set; }
+        public string Path { get; set; }
 
         /// <summary>
         ///     Gets a collection of IWD files referenced by the demo.
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public IEnumerable<string> IWDs { get; }
 
         /// <summary>
@@ -128,7 +131,7 @@ namespace XI.Demos.Models
             get => System.IO.Path.GetFileNameWithoutExtension(Path);
             set
             {
-                var newPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path),
+                var newPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path) ?? throw new InvalidOperationException(),
                     $"{value}{System.IO.Path.GetExtension(Path)}");
 
                 File.Move(Path, newPath);
@@ -209,6 +212,7 @@ namespace XI.Demos.Models
         /// </returns>
         public override int GetHashCode()
         {
+            // ReSharper disable NonReadonlyMemberInGetHashCode
             return Path != null ? Path.GetHashCode() : 0;
         }
 

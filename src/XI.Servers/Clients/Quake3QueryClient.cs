@@ -11,6 +11,8 @@ using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
 
+// ReSharper disable StringLiteralTypo
+
 namespace XI.Servers.Clients
 {
     public class Quake3QueryClient : IQueryClient
@@ -61,7 +63,7 @@ namespace XI.Servers.Clients
             return Task.FromResult((IQueryResponse) new Quake3QueryResponse(serverParams, players));
         }
 
-        private byte[] GetStatusPacket()
+        private static byte[] GetStatusPacket()
         {
             //ÿÿÿÿgetstatus
             return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x67, 0x65, 0x74, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73};

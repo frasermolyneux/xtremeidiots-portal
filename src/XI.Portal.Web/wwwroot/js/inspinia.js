@@ -5,13 +5,18 @@
  *
  */
 
+// ReSharper disable UseOfImplicitGlobalInFunctionScope
+// ReSharper disable UnusedLocals
+// ReSharper disable StringLiteralTypo
+// ReSharper disable CoercedEqualsUsing
+
 
 $(document).ready(function() {
 
-    // Fast fix bor position issue with Propper.js
+    // Fast fix bor position issue with Popper.js
     // Will be fixed in Bootstrap 4.1 - https://github.com/twbs/bootstrap/pull/24092
-    Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
 
+    Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
 
     // Add body-small class if window less than 768px
     if (window.innerWidth < 769) {

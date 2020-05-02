@@ -50,11 +50,11 @@ namespace XI.CommonTypes.Extensions
                     break;
                 case GameType.UnrealTournament2004:
                     break;
-                case GameType.ARMA:
+                case GameType.Arma:
                     break;
-                case GameType.ARMA2:
+                case GameType.Arma2:
                     break;
-                case GameType.ARMA3:
+                case GameType.Arma3:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(gameType), gameType, null);
@@ -109,11 +109,11 @@ namespace XI.CommonTypes.Extensions
                     break;
                 case GameType.UnrealTournament2004:
                     break;
-                case GameType.ARMA:
+                case GameType.Arma:
                     break;
-                case GameType.ARMA2:
+                case GameType.Arma2:
                     break;
-                case GameType.ARMA3:
+                case GameType.Arma3:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(gameType), gameType, null);

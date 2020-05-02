@@ -15,11 +15,9 @@ namespace XI.Portal.Users.Repository
     {
         private readonly CloudTable _additionalClaimsTable;
         private readonly ApplicationAuthDbContext _authContext;
-        private readonly IUsersRepositoryOptions _options;
 
         public UsersRepository(IUsersRepositoryOptions options, ApplicationAuthDbContext authContext)
         {
-            _options = options ?? throw new ArgumentNullException(nameof(options));
             _authContext = authContext ?? throw new ArgumentNullException(nameof(authContext));
 
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);

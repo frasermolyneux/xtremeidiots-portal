@@ -129,8 +129,6 @@ namespace XI.Portal.Auth.XtremeIdiots
 
         private static IEnumerable<Claim> GetClaimsForMember(Member member)
         {
-            var primaryGroup = member.PrimaryGroup.Name.Replace("+", "").Trim();
-
             var claims = new List<Claim>
             {
                 new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
@@ -213,19 +211,19 @@ namespace XI.Portal.Auth.XtremeIdiots
 
                 //ARMA
                 case "ARMA Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.ARMA3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma3.ToString()));
                     break;
                 case "ARMA Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.ARMA3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma3.ToString()));
                     break;
                 case "ARMA Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.ARMA3.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma2.ToString()));
+                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma3.ToString()));
                     break;
 
                 //Battlefield

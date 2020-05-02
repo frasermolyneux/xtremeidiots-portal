@@ -20,9 +20,9 @@ namespace XI.Portal.Players.Extensions
                     return 265;
                 case GameType.Rust:
                     return 256;
-                case GameType.ARMA:
-                case GameType.ARMA2:
-                case GameType.ARMA3:
+                case GameType.Arma:
+                case GameType.Arma2:
+                case GameType.Arma3:
                     return 252;
                 default:
                     return 28;
@@ -45,9 +45,9 @@ namespace XI.Portal.Players.Extensions
                     return 265;
                 case GameType.Rust:
                     return 256;
-                case GameType.ARMA:
-                case GameType.ARMA2:
-                case GameType.ARMA3:
+                case GameType.Arma:
+                case GameType.Arma2:
+                case GameType.Arma3:
                     return 252;
                 default:
                     return 28;
@@ -70,9 +70,9 @@ namespace XI.Portal.Players.Extensions
                     return 265;
                 case GameType.Rust:
                     return 256;
-                case GameType.ARMA:
-                case GameType.ARMA2:
-                case GameType.ARMA3:
+                case GameType.Arma:
+                case GameType.Arma2:
+                case GameType.Arma3:
                     return 252;
                 default:
                     return 28;
@@ -95,9 +95,9 @@ namespace XI.Portal.Players.Extensions
                     return 144;
                 case GameType.Rust:
                     return 260;
-                case GameType.ARMA:
-                case GameType.ARMA2:
-                case GameType.ARMA3:
+                case GameType.Arma:
+                case GameType.Arma2:
+                case GameType.Arma3:
                     return 259;
                 default:
                     return 28;
@@ -120,9 +120,9 @@ namespace XI.Portal.Players.Extensions
                     return 144;
                 case GameType.Rust:
                     return 260;
-                case GameType.ARMA:
-                case GameType.ARMA2:
-                case GameType.ARMA3:
+                case GameType.Arma:
+                case GameType.Arma2:
+                case GameType.Arma3:
                     return 259;
                 default:
                     return 28;

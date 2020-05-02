@@ -9,7 +9,7 @@ namespace XI.Portal.Maps.Extensions
         {
             double totalLikes = map.MapVotes.Count(mv => mv.Like);
             double totalDislikes = map.MapVotes.Count(mv => !mv.Like);
-            var totalVotes = map.MapVotes.Count();
+            var totalVotes = map.MapVotes.Count;
             double likePercentage = 0;
             double dislikePercentage = 0;
 

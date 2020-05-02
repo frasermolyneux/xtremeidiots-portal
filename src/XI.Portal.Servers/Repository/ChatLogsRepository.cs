@@ -38,7 +38,7 @@ namespace XI.Portal.Servers.Repository
                 results.Add(new ChatLogDto
                 {
                     ChatLogId = chatLog.ChatLogId,
-                    PlayerId = (Guid) chatLog.PlayerPlayerId,
+                    PlayerId = chatLog.PlayerPlayerId,
                     GameType = chatLog.GameServerServer.GameType.ToString(),
                     Timestamp = chatLog.Timestamp,
                     Username = chatLog.Username,
@@ -56,7 +56,7 @@ namespace XI.Portal.Servers.Repository
             return new ChatLogDto
             {
                 ChatLogId = chatLog.ChatLogId,
-                PlayerId = (Guid) chatLog.PlayerPlayerId,
+                PlayerId = chatLog.PlayerPlayerId,
                 GameType = chatLog.GameServerServer.GameType.ToString(),
                 Timestamp = chatLog.Timestamp,
                 Username = chatLog.Username,

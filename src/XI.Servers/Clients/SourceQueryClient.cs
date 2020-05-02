@@ -11,6 +11,8 @@ using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
 
+// ReSharper disable StringLiteralTypo
+
 namespace XI.Servers.Clients
 {
     public class SourceQueryClient : IQueryClient
@@ -39,30 +41,30 @@ namespace XI.Servers.Clients
 
         public Task<IQueryResponse> GetServerStatus()
         {
-            var (infoQuery, infoQueryBytes) = Query(A2S_INFO());
+            var (_, infoQueryBytes) = Query(A2S_INFO());
             var serverParams = GetParams(infoQueryBytes);
 
-            var (playersPreQuery, playersPreQueryBytes) = Query(A2S_PLAYERS_PRE());
+            var (_, playersPreQueryBytes) = Query(A2S_PLAYERS_PRE());
             var challengeResponse = playersPreQueryBytes.Skip(5).ToArray();
-            var (playersQuery, playersQueryBytes) = Query(A2S_PLAYERS(challengeResponse));
+            var (_, playersQueryBytes) = Query(A2S_PLAYERS(challengeResponse));
 
             var players = ParsePlayers(playersQueryBytes);
 
             return Task.FromResult((IQueryResponse) new SourceQueryResponse(serverParams, players));
         }
 
-        private byte[] A2S_INFO()
+        private static byte[] A2S_INFO()
         {
             //ÿÿÿÿTSource Engine Query
             return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00};
         }
 
-        private byte[] A2S_PLAYERS_PRE()
+        private static byte[] A2S_PLAYERS_PRE()
         {
             return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF};
         }
 
-        private byte[] A2S_PLAYERS(byte[] challengeResponse)
+        private static byte[] A2S_PLAYERS(IEnumerable<byte> challengeResponse)
         {
             var start = new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55};
             return start.Concat(challengeResponse).ToArray();

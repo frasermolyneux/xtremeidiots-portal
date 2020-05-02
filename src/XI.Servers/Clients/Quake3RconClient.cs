@@ -106,7 +106,7 @@ namespace XI.Servers.Clients
             return responseText.ToString();
         }
 
-        private Regex GameTypeRegex(GameType gameType)
+        private static Regex GameTypeRegex(GameType gameType)
         {
             switch (gameType)
             {
@@ -124,7 +124,7 @@ namespace XI.Servers.Clients
             }
         }
 
-        private byte[] ExecuteCommandPacket(string rconPassword, string command)
+        private static byte[] ExecuteCommandPacket(string rconPassword, string command)
         {
             //ÿÿÿÿrcon {rconPassword} {command}
             var prefix = new byte[] {0xFF, 0xFF, 0xFF, 0xFF};
@@ -170,7 +170,7 @@ namespace XI.Servers.Clients
             }
         }
 
-        private IEnumerable<TimeSpan> GetRetryTimeSpans()
+        private static IEnumerable<TimeSpan> GetRetryTimeSpans()
         {
             var random = new Random();
 

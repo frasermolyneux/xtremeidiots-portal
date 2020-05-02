@@ -9,7 +9,7 @@ namespace XI.Portal.Data.Legacy.Models
         public long RemoteFileSize { get; set; }
         public DateTime LastSync { get; set; }
         [Obsolete] public string LastError { get; set; }
-        public Guid? GameServerServerId { get; set; }
+        public Guid GameServerServerId { get; set; }
         public virtual GameServers GameServerServer { get; set; }
     }
 }

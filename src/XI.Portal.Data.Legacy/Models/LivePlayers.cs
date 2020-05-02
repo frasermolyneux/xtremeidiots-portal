@@ -10,7 +10,7 @@ namespace XI.Portal.Data.Legacy.Models
         public int Ping { get; set; }
         public string Team { get; set; }
         public TimeSpan Time { get; set; }
-        public Guid? GameServerServerId { get; set; }
+        public Guid GameServerServerId { get; set; }
 
         public virtual GameServers GameServerServer { get; set; }
     }

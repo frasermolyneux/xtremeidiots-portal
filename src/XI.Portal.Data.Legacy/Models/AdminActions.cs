@@ -12,7 +12,7 @@ namespace XI.Portal.Data.Legacy.Models
         public DateTime? Expires { get; set; }
         public int ForumTopicId { get; set; }
         public string AdminId { get; set; }
-        public Guid? PlayerPlayerId { get; set; }
+        public Guid PlayerPlayerId { get; set; }
 
         public virtual AspNetUsers Admin { get; set; }
         public virtual Player2 PlayerPlayer { get; set; }

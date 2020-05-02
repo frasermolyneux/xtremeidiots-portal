@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 
+// ReSharper disable StringLiteralTypo
+
 namespace XI.Servers.Models
 {
     internal class Quake3QueryResponse : IQueryResponse

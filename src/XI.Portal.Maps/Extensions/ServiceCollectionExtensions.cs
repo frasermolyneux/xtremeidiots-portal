@@ -50,6 +50,17 @@ namespace XI.Portal.Maps.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IMapsRepository, MapsRepository>();
             }
+
+            if (options.MapRedirectRepositoryOptions != null)
+            {
+                IMapRedirectRepositoryOptions subOptions = new MapRedirectRepositoryOptions();
+                options.MapRedirectRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IMapRedirectRepository, MapRedirectRepository>();
+            }
         }
     }
 }

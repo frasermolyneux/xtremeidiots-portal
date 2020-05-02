@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using XI.AzureTableLogging.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
+using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 
@@ -68,6 +69,17 @@ namespace XI.Portal.FuncApp
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["PlayerLocationsRepository:StorageTableName"];
+                });
+            });
+
+            builder.Services.AddMapsModule(options =>
+            {
+                options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"]; });
+
+                options.ConfigureMapRedirectRepository(repositoryOptions =>
+                {
+                    repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"];
+                    repositoryOptions.ApiKey = config["MapsRedirect:ApiKey"];
                 });
             });
 

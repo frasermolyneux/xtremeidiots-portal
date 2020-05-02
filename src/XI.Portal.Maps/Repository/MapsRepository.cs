@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Maps.Configuration;
+using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Interfaces;
@@ -31,46 +31,15 @@ namespace XI.Portal.Maps.Repository
             return await _legacyContext.Maps.ApplyFilter(filterModel).CountAsync();
         }
 
-        public async Task<List<MapsListEntryViewModel>> GetMapList(MapsFilterModel filterModel)
+        public async Task<List<MapDto>> GetMapList(MapsFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new MapsFilterModel();
 
-            var maps = await _legacyContext.Maps.ApplyFilter(filterModel).Include(m => m.MapFiles).Include(m => m.MapVotes).ToListAsync();
+            var maps = await _legacyContext.Maps.ApplyFilter(filterModel).ToListAsync();
 
-            var mapsResult = new List<MapsListEntryViewModel>();
+            var results = maps.Select(m => m.ToDto(_options.MapRedirectBaseUrl)).ToList();
 
-            foreach (var map in maps)
-            {
-                double totalLikes = map.MapVotes.Count(mv => mv.Like);
-                double totalDislikes = map.MapVotes.Count(mv => !mv.Like);
-                var totalVotes = map.MapVotes.Count();
-                double likePercentage = 0;
-                double dislikePercentage = 0;
-
-                if (totalVotes > 0)
-                {
-                    likePercentage = totalLikes / totalVotes * 100;
-                    dislikePercentage = totalDislikes / totalVotes * 100;
-                }
-
-                var mapListEntryViewModel = new MapsListEntryViewModel
-                {
-                    GameType = map.GameType.ToString(),
-                    MapName = map.MapName,
-                    TotalVotes = totalVotes,
-                    TotalLikes = totalLikes,
-                    TotalDislikes = totalDislikes,
-                    LikePercentage = likePercentage,
-                    DislikePercentage = dislikePercentage,
-                    MapFiles = new Dictionary<string, string>()
-                };
-
-                foreach (var mapFile in map.MapFiles) mapListEntryViewModel.MapFiles.Add(mapFile.FileName, $"{_options.MapRedirectBaseUrl}/redirect/{map.GameType.ToRedirectShortName()}/usermaps/{map.MapName}/{mapFile.FileName}");
-
-                mapsResult.Add(mapListEntryViewModel);
-            }
-
-            return mapsResult;
+            return results;
         }
 
         public async Task<MapDto> GetMap(GameType gameType, string mapName)
@@ -80,25 +49,7 @@ namespace XI.Portal.Maps.Repository
                 .Include(m => m.MapVotes)
                 .SingleOrDefaultAsync(m => m.MapName == mapName && m.GameType == gameType);
 
-            if (map == null) return null;
-
-            var mapDto = new MapDto
-            {
-                MapId = map.MapId,
-                GameType = map.GameType,
-                MapName = map.MapName,
-                MapFiles = map.MapFiles.Select(mf => new MapFileDto
-                {
-                    FileName = mf.FileName,
-                    FileUrl = $"{_options.MapRedirectBaseUrl}/redirect/{map.GameType.ToRedirectShortName()}/usermaps/{map.MapName}/{mf.FileName}"
-                }).ToList(),
-                MapVotes = map.MapVotes.Select(mv => new MapVoteDto
-                {
-                    Like = mv.Like
-                }).ToList()
-            };
-
-            return mapDto;
+            return map?.ToDto(_options.MapRedirectBaseUrl);
         }
 
         public async Task<List<MapRotationDto>> GetMapRotation(Guid serverId)
@@ -113,39 +64,7 @@ namespace XI.Portal.Maps.Repository
 
             foreach (var mapRotation in mapRotations)
             {
-                double totalLikes = mapRotation.MapMap.MapVotes.Count(mv => mv.Like);
-                double totalDislikes = mapRotation.MapMap.MapVotes.Count(mv => !mv.Like);
-                var totalVotes = mapRotation.MapMap.MapVotes.Count();
-                double likePercentage = 0;
-                double dislikePercentage = 0;
-
-                if (totalVotes > 0)
-                {
-                    likePercentage = totalLikes / totalVotes * 100;
-                    dislikePercentage = totalDislikes / totalVotes * 100;
-                }
-
-                var mapDto = new MapDto
-                {
-                    MapId = mapRotation.MapMap.MapId,
-                    GameType = mapRotation.MapMap.GameType,
-                    MapName = mapRotation.MapMap.MapName,
-                    MapFiles = mapRotation.MapMap.MapFiles.Select(mf => new MapFileDto
-                    {
-                        FileName = mf.FileName,
-                        FileUrl = $"{_options.MapRedirectBaseUrl}/redirect/{mapRotation.MapMap.GameType.ToRedirectShortName()}/usermaps/{mapRotation.MapMap.MapName}/{mf.FileName}"
-                    }).ToList(),
-                    MapVotes = mapRotation.MapMap.MapVotes.Select(mv => new MapVoteDto
-                    {
-                        Like = mv.Like
-                    }).ToList(),
-
-                    LikePercentage = likePercentage,
-                    DislikePercentage = dislikePercentage,
-                    TotalLikes = totalLikes,
-                    TotalDislikes = totalDislikes,
-                    TotalVotes = totalVotes
-                };
+                var mapDto = mapRotation.MapMap.ToDto(_options.MapRedirectBaseUrl);
 
                 var mapRotationDto = new MapRotationDto
                 {
@@ -157,6 +76,69 @@ namespace XI.Portal.Maps.Repository
             }
 
             return results;
+        }
+
+        public async Task CreateMap(MapDto mapDto)
+        {
+            if (mapDto == null) throw new ArgumentNullException(nameof(mapDto));
+
+            var map = new Data.Legacy.Models.Maps
+            {
+                MapId = Guid.NewGuid(),
+                GameType = mapDto.GameType,
+                MapName = mapDto.MapName,
+                MapFiles = mapDto.MapFiles.Select(mf => new MapFiles
+                {
+                    MapFileId = Guid.NewGuid(),
+                    FileName = mf.FileName
+                }).ToList()
+            };
+
+            _legacyContext.Maps.Add(map);
+            await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateMap(MapDto mapDto)
+        {
+            if (mapDto == null) throw new ArgumentNullException(nameof(mapDto));
+
+            var map = await _legacyContext.Maps
+                .Include(m => m.MapFiles)
+                .Include(m => m.MapVotes)
+                .SingleOrDefaultAsync(m => m.MapId == mapDto.MapId);
+
+            if (map == null) throw new NullReferenceException(nameof(map));
+
+            var mapFiles = await _legacyContext.MapFiles.Where(mf => mf.MapMapId == mapDto.MapId).ToListAsync();
+            _legacyContext.MapFiles.RemoveRange(mapFiles);
+
+            var newMapFiles = mapDto.MapFiles.Select(mf => new MapFiles
+            {
+                MapFileId = Guid.NewGuid(),
+                FileName = mf.FileName,
+                MapMap = map
+            }).ToList();
+            _legacyContext.MapFiles.AddRange(newMapFiles);
+            
+            await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteMap(Guid mapId)
+        {
+            var map = await _legacyContext.Maps
+                .Include(m => m.MapFiles)
+                .Include(m => m.MapVotes)
+                .Include(m => m.MapRotations)
+                .SingleOrDefaultAsync(m => m.MapId == mapId);
+
+            if (map == null)
+                throw new NullReferenceException(nameof(map));
+
+            if (map.MapVotes.Count > 0)
+                throw new Exception("Cannot delete map when it has votes");
+
+            _legacyContext.Maps.Remove(map);
+            await _legacyContext.SaveChangesAsync();
         }
     }
 }

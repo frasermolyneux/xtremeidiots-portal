@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
 using XI.Portal.Web.Models;
@@ -87,14 +89,15 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-            var mapListEntries = await _mapsRepository.GetMapList(filterModel);
+            var mapDtos = await _mapsRepository.GetMapList(filterModel);
+            var portalMapDtos = mapDtos.Select(m => new PortalMapDto(m)).ToList(); 
 
             return Json(new
             {
                 model.Draw,
                 recordsTotal,
                 recordsFiltered,
-                data = mapListEntries
+                data = portalMapDtos
             });
         }
 
@@ -117,6 +120,32 @@ namespace XI.Portal.Web.Controllers
             var mapImage = await _mapImageRepository.GetMapImage(gameType, mapName);
 
             return Redirect(mapImage.ToString());
+        }
+
+        public class PortalMapDto
+        {
+            public PortalMapDto(MapDto mapDto)
+            {
+                MapId = mapDto.MapId;
+                GameType = mapDto.GameType.ToString();
+                MapName = mapDto.MapName;
+                LikePercentage = mapDto.LikePercentage;
+                DislikePercentage = mapDto.DislikePercentage;
+                TotalLikes = mapDto.TotalLikes;
+                TotalDislikes = mapDto.TotalDislikes;
+                TotalVotes = mapDto.TotalVotes;
+                MapFiles = mapDto.MapFiles;
+            }
+
+            public Guid MapId { get; set; }
+            public string GameType { get; set; }
+            public string MapName { get; set; }
+            public double LikePercentage { get; set; }
+            public double DislikePercentage { get; set; }
+            public double TotalLikes { get; set; }
+            public double TotalDislikes { get; set; }
+            public int TotalVotes { get; set; }
+            public IList<MapFileDto> MapFiles { get; set; }
         }
     }
 }

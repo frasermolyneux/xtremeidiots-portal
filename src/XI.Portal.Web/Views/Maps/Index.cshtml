@@ -82,7 +82,7 @@
 
                             var outputText = "";
                             for (var key in data) {
-                                outputText += "<li><a href='" + data[key] + "'>" + key + "</a></li>";
+                                outputText += "<li><a href='" + data[key]["fileUrl"] + "'>" + data[key]["fileName"] + "</a></li>";
                             }
 
                             return outputText;
@@ -120,7 +120,7 @@
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/Maps/MapImage?gameType=" +
                                 row['gameType'] +
                                 "&mapName=" +

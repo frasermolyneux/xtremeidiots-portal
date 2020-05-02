@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using XI.CommonTypes;
 using XI.Portal.Maps.Models;
 
@@ -9,6 +10,8 @@ namespace XI.Portal.Maps.Extensions
     {
         public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this IQueryable<Data.Legacy.Models.Maps> maps, MapsFilterModel filterModel)
         {
+            maps = maps.Include(m => m.MapFiles).Include(m => m.MapVotes).AsQueryable();
+
             if (filterModel.GameType != GameType.Unknown) maps = maps.Where(m => m.GameType == filterModel.GameType).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filterModel.FilterString)) maps = maps.Where(m => m.MapName.Contains(filterModel.FilterString)).AsQueryable();

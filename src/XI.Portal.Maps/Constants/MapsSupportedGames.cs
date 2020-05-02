@@ -9,7 +9,6 @@ namespace XI.Portal.Maps.Constants
         {
             get
             {
-                yield return GameType.CallOfDuty2;
                 yield return GameType.CallOfDuty4;
                 yield return GameType.CallOfDuty5;
             }

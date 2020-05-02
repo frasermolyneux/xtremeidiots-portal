@@ -8,13 +8,9 @@ namespace XI.Portal.Maps.Dto
     public class MapDto
     {
         public Guid MapId { get; set; }
-
         [DisplayName("Game")] public GameType GameType { get; set; }
-
         [DisplayName("Map Name")] public string MapName { get; set; }
-
         [DisplayName("Map File")] public IList<MapFileDto> MapFiles { get; set; }
-
         [DisplayName("Map Votes")] public IList<MapVoteDto> MapVotes { get; set; }
         public double LikePercentage { get; set; }
         public double DislikePercentage { get; set; }

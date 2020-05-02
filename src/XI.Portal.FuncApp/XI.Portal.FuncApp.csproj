@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\XI.AzureTableLogging\XI.AzureTableLogging.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
+    <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />
   </ItemGroup>
   <ItemGroup>

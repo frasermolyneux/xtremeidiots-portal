@@ -1,5 +1,5 @@
 ﻿using System;
-using XI.Portal.Maps.Configuration;
+using XI.Portal.Maps.Interfaces;
 
 namespace XI.Portal.Maps.Extensions
 {
@@ -18,6 +18,11 @@ namespace XI.Portal.Maps.Extensions
         public static void ConfigureMapsRepository(this IMapsModuleOptions options, Action<IMapsRepositoryOptions> repositoryOptions)
         {
             options.MapsRepositoryOptions = repositoryOptions;
+        }
+
+        public static void ConfigureMapRedirectRepository(this IMapsModuleOptions options, Action<IMapRedirectRepositoryOptions> repositoryOptions)
+        {
+            options.MapRedirectRepositoryOptions = repositoryOptions;
         }
     }
 }

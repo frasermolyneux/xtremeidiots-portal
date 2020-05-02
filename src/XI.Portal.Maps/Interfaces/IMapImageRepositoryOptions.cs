@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Maps.Configuration
+﻿namespace XI.Portal.Maps.Interfaces
 {
     public interface IMapImageRepositoryOptions
     {

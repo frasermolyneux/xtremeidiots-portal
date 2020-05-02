@@ -8,9 +8,13 @@ using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 using XI.Portal.Auth.Home.AuthorizationRequirements;
 using XI.Portal.Auth.Maps.AuthorizationRequirements;
+using XI.Portal.Auth.Migration.AuthorizationRequirements;
 using XI.Portal.Auth.Players.AuthorizationRequirements;
 using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
+using XI.Portal.Auth.ServerAdmin.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
+using XI.Portal.Auth.Status.AuthorizationRequirements;
+using XI.Portal.Auth.Users.AuthorizationRequirements;
 
 namespace XI.Portal.Auth.Extensions
 {
@@ -18,73 +22,6 @@ namespace XI.Portal.Auth.Extensions
     {
         public static void AddXtremeIdiotsPolicies(this AuthorizationOptions options)
         {
-            options.AddPolicy(AuthPolicies.RootPolicy, policy =>
-                policy.RequireClaim(XtremeIdiotsClaimTypes.SeniorAdmin)
-            );
-
-            options.AddPolicy(AuthPolicies.ServersManagement, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Type == XtremeIdiotsClaimTypes.HeadAdmin
-                )));
-
-            options.AddPolicy(AuthPolicies.PlayersManagement, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.Moderator
-                )));
-
-            options.AddPolicy(AuthPolicies.UserHasCredentials, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                        claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                                 claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
-                                 claim.Type == PortalClaimTypes.FtpCredentials ||
-                                 claim.Type == PortalClaimTypes.RconCredentials
-                    )
-                )
-            );
-
-            options.AddPolicy(AuthPolicies.ViewServiceStatus, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                        claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                                 claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                                 claim.Type == XtremeIdiotsClaimTypes.GameAdmin
-                    )
-                )
-            );
-
-            options.AddPolicy(AuthPolicies.AccessServerAdmin, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.Moderator
-                )));
-
-            options.AddPolicy(AuthPolicies.AccessGlobalChatLog, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin
-                )));
-
-            options.AddPolicy(AuthPolicies.CanAccessGameChatLog, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin
-                )));
-
-            options.AddPolicy(AuthPolicies.AccessLiveRcon, policy =>
-                policy.RequireAssertion(context => context.User.HasClaim(
-                    claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.HeadAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.GameAdmin ||
-                             claim.Type == XtremeIdiotsClaimTypes.Moderator
-                )));
-
             // Admin Actions
             options.AddPolicy(AuthPolicies.AccessAdminActionsController, policy => { policy.Requirements.Add(new AccessAdminActions()); });
             options.AddPolicy(AuthPolicies.ChangeAdminActionAdmin, policy => { policy.Requirements.Add(new ChangeAdminActionAdmin()); });
@@ -133,8 +70,13 @@ namespace XI.Portal.Auth.Extensions
             // Maps
             options.AddPolicy(AuthPolicies.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
 
+            // Migration
+            options.AddPolicy(AuthPolicies.AccessMigration, policy => { policy.Requirements.Add(new AccessMigration()); });
+
             // Players
             options.AddPolicy(AuthPolicies.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
+            options.AddPolicy(AuthPolicies.DeletePlayer, policy => { policy.Requirements.Add(new DeletePlayer()); });
+            options.AddPolicy(AuthPolicies.ViewPlayers, policy => { policy.Requirements.Add(new ViewPlayers()); });
 
             // Rcon Monitors
             options.AddPolicy(AuthPolicies.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });
@@ -143,8 +85,22 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(AuthPolicies.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
             options.AddPolicy(AuthPolicies.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
 
+            // Server Admin
+            options.AddPolicy(AuthPolicies.AccessLiveRcon, policy => { policy.Requirements.Add(new AccessLiveRcon()); });
+            options.AddPolicy(AuthPolicies.AccessServerAdmin, policy => { policy.Requirements.Add(new AccessServerAdmin()); });
+            options.AddPolicy(AuthPolicies.ViewGameChatLog, policy => { policy.Requirements.Add(new ViewGameChatLog()); });
+            options.AddPolicy(AuthPolicies.ViewGlobalChatLog, policy => { policy.Requirements.Add(new ViewGlobalChatLog()); });
+            options.AddPolicy(AuthPolicies.ViewLiveRcon, policy => { policy.Requirements.Add(new ViewLiveRcon()); });
+            options.AddPolicy(AuthPolicies.ViewServerChatLog, policy => { policy.Requirements.Add(new ViewServerChatLog()); });
+
             // Servers
             options.AddPolicy(AuthPolicies.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });
+
+            // Status
+            options.AddPolicy(AuthPolicies.AccessStatus, policy => { policy.Requirements.Add(new AccessStatus()); });
+
+            // Users
+            options.AddPolicy(AuthPolicies.AccessUsers, policy => { policy.Requirements.Add(new AccessUsers()); });
         }
     }
 }

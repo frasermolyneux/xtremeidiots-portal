@@ -8,9 +8,13 @@ using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.Home.AuthorizationHandlers;
 using XI.Portal.Auth.Maps.AuthorizationHandlers;
+using XI.Portal.Auth.Migration.AuthorizationHandlers;
 using XI.Portal.Auth.Players.AuthorizationHandlers;
 using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
+using XI.Portal.Auth.ServerAdmin.AuthorizationHandlers;
 using XI.Portal.Auth.Servers.AuthorizationHandlers;
+using XI.Portal.Auth.Status.AuthorizationHandlers;
+using XI.Portal.Auth.Users.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 
 namespace XI.Portal.Auth.Extensions
@@ -69,8 +73,13 @@ namespace XI.Portal.Auth.Extensions
             // Maps
             services.AddSingleton<IAuthorizationHandler, AccessMapsHandler>();
 
+            // Migration
+            services.AddSingleton<IAuthorizationHandler, AccessMigrationHandler>();
+
             // Players
             services.AddSingleton<IAuthorizationHandler, AccessPlayersHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeletePlayerHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewPlayersHandler>();
 
             // Rcon Monitors
             services.AddSingleton<IAuthorizationHandler, AccessRconMonitorsHandler>();
@@ -79,8 +88,22 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, EditRconMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewRconMonitorHandler>();
 
+            // Server Admin
+            services.AddSingleton<IAuthorizationHandler, AccessLiveRconHandler>();
+            services.AddSingleton<IAuthorizationHandler, AccessServerAdminHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewGameChatLogHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewGlobalChatLogHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewLiveRconHandler>();
+            services.AddSingleton<IAuthorizationHandler, ViewServerChatLogHandler>();
+
             // Servers
             services.AddSingleton<IAuthorizationHandler, AccessServersHandler>();
+
+            // Status
+            services.AddSingleton<IAuthorizationHandler, AccessStatusHandler>();
+
+            // Users
+            services.AddSingleton<IAuthorizationHandler, AccessUsersHandler>();
         }
     }
 }

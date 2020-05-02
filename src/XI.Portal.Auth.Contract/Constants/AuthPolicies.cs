@@ -2,16 +2,6 @@
 {
     public static class AuthPolicies
     {
-        public const string RootPolicy = nameof(RootPolicy);
-        public const string ServersManagement = nameof(ServersManagement);
-        public const string PlayersManagement = nameof(PlayersManagement);
-        public const string UserHasCredentials = nameof(UserHasCredentials);
-        public const string ViewServiceStatus = nameof(ViewServiceStatus);
-        public const string AccessLiveRcon = nameof(AccessLiveRcon);
-        public const string AccessServerAdmin = nameof(AccessServerAdmin);
-        public const string AccessGlobalChatLog = nameof(AccessGlobalChatLog);
-        public const string CanAccessGameChatLog = nameof(CanAccessGameChatLog);
-
         // Admin Actions
         public const string AccessAdminActionsController = nameof(AccessAdminActionsController);
         public const string ChangeAdminActionAdmin = nameof(ChangeAdminActionAdmin);
@@ -61,7 +51,12 @@
         public const string AccessMaps = nameof(AccessMaps);
 
         // Maps
+        public const string AccessMigration = nameof(AccessMigration);
+
+        // Players
         public const string AccessPlayers = nameof(AccessPlayers);
+        public const string DeletePlayer = nameof(DeletePlayer);
+        public const string ViewPlayers = nameof(ViewPlayers);
 
         // Rcon Monitors
         public const string AccessRconMonitors = nameof(AccessRconMonitors);
@@ -70,7 +65,21 @@
         public const string EditRconMonitor = nameof(EditRconMonitor);
         public const string DeleteRconMonitor = nameof(DeleteRconMonitor);
 
+        // Server Admin
+        public const string AccessLiveRcon = nameof(AccessLiveRcon);
+        public const string AccessServerAdmin = nameof(AccessServerAdmin);
+        public const string ViewGameChatLog = nameof(ViewGameChatLog);
+        public const string ViewGlobalChatLog = nameof(ViewGlobalChatLog);
+        public const string ViewLiveRcon = nameof(ViewLiveRcon);
+        public const string ViewServerChatLog = nameof(ViewServerChatLog);
+
         // Servers
         public const string AccessServers = nameof(AccessServers);
+
+        // Status
+        public const string AccessStatus = nameof(AccessStatus);
+
+        // Users
+        public const string AccessUsers = nameof(AccessUsers);
     }
 }

@@ -1,4 +1,6 @@
-﻿@using XI.Portal.Auth.Contract.Constants
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
 @model IEnumerable<XI.Portal.Servers.Dto.GameServerDto>
 
@@ -67,10 +69,20 @@
                                         @Html.DisplayFor(modelItem => item.ShowChatLog)
                                     </td>
                                     <td>
-                                        <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a> |
-                                        <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
-                                        <span policy="@AuthPolicies.RootPolicy">|</span>
-                                        <a policy="@AuthPolicies.RootPolicy" asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditGameServer)).Succeeded)
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.ServerId">Edit</a>
+                                        }
+
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewGameServer)).Succeeded)
+                                        {
+                                            <a asp-action="Details" asp-route-id="@item.ServerId">Details</a>
+                                        }
+
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteGameServer)).Succeeded)
+                                        {
+                                            <a asp-action="Delete" asp-route-id="@item.ServerId">Delete</a>
+                                        }
                                     </td>
                                 </tr>
                             }

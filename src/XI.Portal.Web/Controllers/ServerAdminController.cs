@@ -9,8 +9,6 @@ using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.ServerAdmin.Extensions;
-using XI.Portal.Data.Legacy.Models;
-using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
@@ -21,6 +19,7 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
     public class ServerAdminController : Controller
     {
+        private readonly IAuthorizationService _authorizationService;
         private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
@@ -28,11 +27,14 @@ namespace XI.Portal.Web.Controllers
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
-        public ServerAdminController(IGameServersRepository gameServersRepository,
+        public ServerAdminController(
+            IAuthorizationService authorizationService,
+            IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory,
             IChatLogsRepository chatLogsRepository)
         {
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
@@ -40,7 +42,6 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> Index()
         {
             var filterModel = new GameServerFilterModel
@@ -70,35 +71,45 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> ViewRcon(Guid id)
         {
-            if (id == null) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
 
-            var model = await _gameServersRepository.GetGameServer(id);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
 
-            return View(model);
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            return View(gameServerDto);
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
-        public async Task<IActionResult> GetRconPlayers(Guid? id)
+        public async Task<IActionResult> GetRconPlayers(Guid id)
         {
-            if (id == null) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
 
-            var model = await _gameServerStatusRepository.GetStatus((Guid) id, User, _requiredClaims, TimeSpan.FromSeconds(15));
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            var portalGameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, User, _requiredClaims, TimeSpan.FromSeconds(15));
 
             return Json(new
             {
-                data = model.Players
+                data = portalGameServerStatusDto.Players
             });
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessLiveRcon)]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
-            if (id == null) return NotFound();
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
 
             if (string.IsNullOrWhiteSpace(num))
                 return NotFound();
@@ -114,54 +125,75 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
+        [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
         public IActionResult ChatLogIndex()
         {
             return View();
         }
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
+        [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
         public async Task<IActionResult> GetChatLogAjax()
         {
             return await GetChatLogPrivate(null, null);
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
-        public IActionResult GameChatLog(GameType id)
+        public async Task<IActionResult> GameChatLog(GameType id)
         {
-            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
+
+            if (!canViewGameChatLog.Succeeded)
+                return Unauthorized();
 
             ViewData["GameType"] = id;
             return View(nameof(ChatLogIndex));
         }
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public async Task<IActionResult> GetGameChatLogAjax(GameType id)
         {
-            if (!User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == id.ToString())) return Unauthorized();
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
+
+            if (!canViewGameChatLog.Succeeded)
+                return Unauthorized();
 
             return await GetChatLogPrivate(id, null);
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
-        public IActionResult ServerChatLog(Guid id)
+        public async Task<IActionResult> ServerChatLog(Guid id)
         {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            if (gameServerDto == null)
+                return NotFound();
+
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewServerChatLog);
+
+            if (!canViewServerChatLog.Succeeded)
+                return Unauthorized();
+
             ViewData["ServerId"] = id;
             return View(nameof(ChatLogIndex));
         }
 
         [HttpPost]
-        [Authorize(Policy = AuthPolicies.CanAccessGameChatLog)]
         public async Task<IActionResult> GetServerChatLogAjax(Guid id)
         {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            if (gameServerDto == null)
+                return NotFound();
+
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewServerChatLog);
+
+            if (!canViewServerChatLog.Succeeded)
+                return Unauthorized();
+
             return await GetChatLogPrivate(null, id);
         }
 
-        [HttpGet]
         private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId)
         {
             var reader = new StreamReader(Request.Body);
@@ -217,19 +249,14 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = AuthPolicies.AccessGlobalChatLog)]
-        public async Task<IActionResult> ChatLogPermaLink(Guid? id)
+        public async Task<IActionResult> ChatLogPermaLink(Guid id)
         {
-            if (id == null) return NotFound();
+            var chatLog = await _chatLogsRepository.GetChatLog(id);
 
-            var chatLog = await _chatLogsRepository.GetChatLog((Guid) id);
+            if (chatLog == null)
+                return NotFound();
+
             return View(chatLog);
-        }
-
-        public class ServerInfoViewModel
-        {
-            public GameServers GameServer { get; set; }
-            public PortalGameServerStatusDto GameServerStatus { get; set; }
         }
     }
 }

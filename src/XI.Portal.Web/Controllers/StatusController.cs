@@ -11,7 +11,7 @@ using XI.Portal.Servers.Models;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = AuthPolicies.ViewServiceStatus)]
+    [Authorize(Policy = AuthPolicies.AccessStatus)]
     public class StatusController : Controller
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;

@@ -1,5 +1,6 @@
-﻿@using XI.Portal.Auth.Contract.Constants
-@using XI.Portal.Servers.Constants
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Extensions
 @model IEnumerable<XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel>
 
@@ -68,11 +69,13 @@
                                         @item.GameServerStatus?.Mod
                                     </td>
                                     <td>
-                                        <a asp-action="ViewRcon" asp-route-id="@item.GameServer.ServerId">View Rcon</a>
-
-                                        @if (ChatLogSupportedGames.Games.Contains(item.GameServer.GameType))
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewLiveRcon)).Succeeded)
                                         {
-                                            <span policy="@AuthPolicies.CanAccessGameChatLog">|</span>
+                                            <a asp-action="ViewRcon" asp-route-id="@item.GameServer.ServerId">View Rcon</a>
+                                        }
+
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewServerChatLog)).Succeeded)
+                                        {
                                             <a asp-action="ServerChatLog" asp-route-id="@item.GameServer.ServerId">View ChatLog</a>
                                         }
                                     </td>

@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
 @using XI.CommonTypes.Extensions
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Auth.Contract.Extensions
@@ -8,6 +9,7 @@
 @using XI.Portal.Players.Constants
 @using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Extensions
+@inject IAuthorizationService AuthorizationService
 @inject SignInManager<PortalIdentityUser> SignInManager
 <nav class="navbar-default navbar-static-side" role="navigation">
 <div class="sidebar-collapse">
@@ -81,17 +83,17 @@
         <i class="fa fa-terminal"></i> <span class="nav-label">Server Admin</span> <span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "in")">
-        <li policy="@AuthPolicies.AccessLiveRcon" class="@Html.IsSelected("ServerAdmin", "Index")">
+        <li class="@Html.IsSelected("ServerAdmin", "Index")">
             <a asp-controller="ServerAdmin" asp-action="Index">Servers</a>
         </li>
 
-        <li policy="@AuthPolicies.AccessGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
+        <li policy="@AuthPolicies.ViewGlobalChatLog" class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
             <a asp-controller="ServerAdmin" asp-action="ChatLogIndex">Global ChatLog</a>
         </li>
 
         @foreach (var game in ChatLogSupportedGames.Games)
         {
-            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))
+            @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
             {
                 <li class="@Html.IsSelected(action: "GameChatLog", id: game.ToString())">
                     <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game) @game.ShortDisplayName() ChatLog</a>
@@ -144,15 +146,15 @@
 </li>
 
 @*<li class="@Html.IsSelected("Analytics")">
-            <a asp-controller="Analytics">
-                <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
-            </a>
-            <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
-                <li class="@Html.IsSelected(action: "Index")">
-                    <a asp-controller="Analytics" asp-action="Index">High-Level</a>
-                </li>
-            </ul>
-        </li>*@
+                    <a asp-controller="Analytics">
+                        <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
+                        <li class="@Html.IsSelected(action: "Index")">
+                            <a asp-controller="Analytics" asp-action="Index">High-Level</a>
+                        </li>
+                    </ul>
+                </li>*@
 
 <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players")">
     <a asp-controller="Players" asp-action="Index">
@@ -177,18 +179,17 @@
 
         @foreach (var game in PlayersSupportedGames.Games)
         {
-            @if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin || claim.Value == game.ToString()))
+            @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewPlayers)).Succeeded)
             {
                 <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
                     <a asp-controller="Players" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
                 </li>
             }
         }
-
     </ul>
 </li>
 
-<li policy="@AuthPolicies.ViewServiceStatus" class="@Html.IsSelected("Status")">
+<li policy="@AuthPolicies.AccessStatus" class="@Html.IsSelected("Status")">
     <a asp-controller="Status" asp-action="GameServerStatus">
         <i class="fa fa-desktop"></i> <span class="nav-label">Status</span><span class="fa arrow"></span>
     </a>
@@ -232,13 +233,13 @@
     </a>
 </li>
 
-<li policy="@AuthPolicies.RootPolicy" class="@Html.IsSelected("Users", "Index")">
+<li policy="@AuthPolicies.AccessUsers" class="@Html.IsSelected("Users", "Index")">
     <a asp-controller="User" asp-action="Index">
         <i class="fa fa-user"></i> <span class="nav-label">Manage Users</span>
     </a>
 </li>
 
-<li policy="@AuthPolicies.RootPolicy" class="@Html.IsSelected("Migration")">
+<li policy="@AuthPolicies.AccessMigration" class="@Html.IsSelected("Migration")">
     <a asp-controller="Migration" asp-action="ProcessMigrateUsers">
         <i class="fa fa-arrow-right"></i> <span class="nav-label">Migration</span> <span class="fa arrow"></span>
     </a>

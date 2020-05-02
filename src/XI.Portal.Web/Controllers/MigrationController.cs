@@ -13,7 +13,7 @@ using XI.Portal.Demos.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
-    [Authorize(Policy = AuthPolicies.RootPolicy)]
+    [Authorize(Policy = AuthPolicies.AccessMigration)]
     public class MigrationController : Controller
     {
         private readonly IDemoAuthRepository _demoAuthRepository;

@@ -144,7 +144,7 @@
             </div>
 
             @{
-                var mapTimelineHeight = Model.MapTimelineDataPoints.GroupBy(m => m.MapName).ToList().Count * 40 + 50;
+                var mapTimelineHeight = Model.MapTimelineDataPoints.GroupBy(m => m.MapName).ToList().Count * 41 + 50;
             }
 
             <div id="mapsTimeline" style="height: @(mapTimelineHeight)px; width: 100%;"></div>

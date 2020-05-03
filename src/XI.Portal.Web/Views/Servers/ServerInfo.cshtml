@@ -7,198 +7,211 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-    <div class="row">
-        <div class="col-sm-3">
+<div class="row">
+    <div class="col-sm-3">
 
-            <div class="ibox">
-                <div class="ibox-title">
-                    <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServerStatus?.ServerName)</h5>
-                </div>
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServerStatus?.ServerName)</h5>
+            </div>
 
-                <div class="ibox-content">
+            <div class="ibox-content">
 
-                    @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
+                @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
 
-                    @if (Model.Map != null)
-                    {
-                        <hr/>
+                @if (Model.Map != null)
+                {
+                    <hr/>
 
-                        <h5>@Model.Map.MapName Files:</h5>
-                        <ul>
-                            @foreach (var mapFile in Model.Map.MapFiles)
-                            {
-                                <li>
-                                    <a href="@mapFile.FileUrl">@mapFile.FileName</a>
-                                </li>
-                            }
-                        </ul>
-
-                        <hr/>
-
-                        <h5>Download Full Rotation:</h5>
-                        <ul>
-                            @if (User.Identity.IsAuthenticated)
-                            {
-                                <li>
-                                    <a asp-controller="Maps" asp-action="DownloadFullRotation" asp-route-id="@Model.GameServer.ServerId">Full Rotation</a>
-                                </li>
-                            }
-                            else
-                            {
-                                <li>
-                                    You must sign in to be able to download the full rotation.
-                                </li>
-                            }
-                        </ul>
-                    }
+                    <h5>@Model.Map.MapName Files:</h5>
+                    <ul>
+                        @foreach (var mapFile in Model.Map.MapFiles)
+                        {
+                            <li>
+                                <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                            </li>
+                        }
+                    </ul>
 
                     <hr/>
 
-                    <div id="playerCountChart" style="height: 200px; width: 100%;"></div>
+                    <h5>Download Full Rotation:</h5>
+                    <ul>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li>
+                                <a asp-controller="Maps" asp-action="DownloadFullRotation" asp-route-id="@Model.GameServer.ServerId">Full Rotation</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li>
+                                You must sign in to be able to download the full rotation.
+                            </li>
+                        }
+                    </ul>
+                }
 
-                </div>
+                <hr/>
+
+                <div id="playerCountChart" style="height: 200px; width: 100%;"></div>
+
             </div>
-
         </div>
 
-        <div class="col-sm-9">
+    </div>
+
+    <div class="col-sm-9">
+
+        <div class="ibox">
+            <div class="ibox-content">
+
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#home">Players</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane container active" id="home">
+                        @if (Model.GameServerStatus == null)
+                        {
+                            <h2 style="text-align: center">The players data could not be retrieved from the server</h2>
+                        }
+                        else if (Model.GameServerStatus?.Players.Count == 0)
+                        {
+                            <h2 style="text-align: center">There are currently no connected players</h2>
+                        }
+                        else
+                        {
+                            <table class="table">
+                                <tr>
+                                    <th>
+                                        @Html.Label("Num")
+                                    </th>
+                                    <th>
+                                        @Html.Label("Name")
+                                    </th>
+                                    <th>
+                                        @Html.Label("Score")
+                                    </th>
+                                </tr>
+
+                                @foreach (var item in Model.GameServerStatus.Players)
+                                {
+                                    <tr>
+                                        <td>
+                                            @Html.DisplayFor(model => item.Num)
+                                        </td>
+                                        <td>
+                                            @if (item.GeoLocation != null)
+                                            {
+                                                @item.GeoLocation.FlagImage()
+                                            }
+
+                                            @Html.PlayerName(item.Name)
+
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(model => item.Score)
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </table>
+                        }
+                    </div>
+                    <div class="tab-pane container fade" id="menu1">
+                        <div id="map" style="height: 600px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Map Timeline</h5>
+            </div>
+            <div id="mapsTimeline" style="height: 200px; width: 100%;"></div>
+        </div>
+    </div>
+</div>
+
+
+@if (Model.MapRotation.Any())
+{
+    <div class="row">
+        <div class="col-12">
 
             <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Current Map Rotation</h5>
+                </div>
+
                 <div class="ibox-content">
 
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#home">Players</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
-                        </li>
-                    </ul>
+                    <table class="table">
+                        <tr>
+                            <th>
+                                @Html.Label("Name")
+                            </th>
+                            <th>
+                                @Html.Label("Game Mode")
+                            </th>
+                            <th>
+                                @Html.Label("Files")
+                            </th>
+                            <th>
+                                @Html.Label("Popularity")
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
 
-                    <div class="tab-content">
-                        <div class="tab-pane container active" id="home">
-                            @if (Model.GameServerStatus == null)
-                            {
-                                <h2 style="text-align: center">The players data could not be retrieved from the server</h2>
-                            }
-                            else if (Model.GameServerStatus?.Players.Count == 0)
-                            {
-                                <h2 style="text-align: center">There are currently no connected players</h2>
-                            }
-                            else
-                            {
-                                <table class="table">
-                                    <tr>
-                                        <th>
-                                            @Html.Label("Num")
-                                        </th>
-                                        <th>
-                                            @Html.Label("Name")
-                                        </th>
-                                        <th>
-                                            @Html.Label("Score")
-                                        </th>
-                                    </tr>
-
-                                    @foreach (var item in Model.GameServerStatus.Players)
+                        @foreach (var item in Model.MapRotation)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Map.MapName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.GameMode)
+                                </td>
+                                <td>
+                                    @foreach (var mapFile in item.Map.MapFiles)
                                     {
-                                        <tr>
-                                            <td>
-                                                @Html.DisplayFor(model => item.Num)
-                                            </td>
-                                            <td>
-                                                @if (item.GeoLocation != null)
-                                                {
-                                                    @item.GeoLocation.FlagImage()
-                                                }
-
-                                                @Html.PlayerName(item.Name)
-
-                                            </td>
-                                            <td>
-                                                @Html.DisplayFor(model => item.Score)
-                                            </td>
-
-                                        </tr>
+                                        <li>
+                                            <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                                        </li>
                                     }
+                                </td>
+                                <td>
+                                    @Html.MapPopularity(item.Map.MapName, item.Map.LikePercentage, item.Map.DislikePercentage, item.Map.TotalLikes, item.Map.TotalDislikes, item.Map.TotalVotes)
+                                </td>
+                                <td>
+                                    @Html.MapImage(Model.GameServer.GameType, item.Map.MapName)
+                                </td>
+                            </tr>
+                        }
 
-                                </table>
-                            }
-                        </div>
-                        <div class="tab-pane container fade" id="menu1">
-                            <div id="map" style="height: 600px; width: 100%;"></div>
-                        </div>
-                    </div>
+                    </table>
+
                 </div>
             </div>
 
         </div>
     </div>
-
-    @if (Model.MapRotation.Any())
-    {
-        <div class="row">
-            <div class="col-12">
-
-                <div class="ibox">
-                    <div class="ibox-title">
-                        <h5>Current Map Rotation</h5>
-                    </div>
-
-                    <div class="ibox-content">
-
-                        <table class="table">
-                            <tr>
-                                <th>
-                                    @Html.Label("Name")
-                                </th>
-                                <th>
-                                    @Html.Label("Game Mode")
-                                </th>
-                                <th>
-                                    @Html.Label("Files")
-                                </th>
-                                <th>
-                                    @Html.Label("Popularity")
-                                </th>
-                                <th>
-                                </th>
-                            </tr>
-
-                            @foreach (var item in Model.MapRotation)
-                            {
-                                <tr>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.Map.MapName)
-                                    </td>
-                                    <td>
-                                        @Html.DisplayFor(modelItem => item.GameMode)
-                                    </td>
-                                    <td>
-                                        @foreach (var mapFile in item.Map.MapFiles)
-                                        {
-                                            <li>
-                                                <a href="@mapFile.FileUrl">@mapFile.FileName</a>
-                                            </li>
-                                        }
-                                    </td>
-                                    <td>
-                                        @Html.MapPopularity(item.Map.MapName, item.Map.LikePercentage, item.Map.DislikePercentage, item.Map.TotalLikes, item.Map.TotalDislikes, item.Map.TotalVotes)
-                                    </td>
-                                    <td>
-                                        @Html.MapImage(Model.GameServer.GameType, item.Map.MapName)
-                                    </td>
-                                </tr>
-                            }
-
-                        </table>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    }
+}
 
 </div>
 
@@ -248,33 +261,87 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
         google.charts.load('current', { 'packages': ['corechart'] });
-        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawPlayerCountChart);
 
-        function drawChart() {
-            var data = new google.visualization.DataTable();
-            data.addColumn('date', 'Timestamp');
-            data.addColumn('number', 'Player Count');
+        function drawPlayerCountChart() {
+            var playerCountData = new google.visualization.DataTable();
+            playerCountData.addColumn('date', 'Timestamp');
+            playerCountData.addColumn('number', 'Player Count');
 
-            data.addRows([
+            playerCountData.addRows([
 
-                @foreach (var stat in Model.GameServerStatusStats)
+                @foreach (var item in Model.GameServerStatusStats)
                 {
                     <text>
-                        [new Date(@stat.Timestamp.Year, @stat.Timestamp.Month, @stat.Timestamp.Day, @stat.Timestamp.Hour, @stat.Timestamp.Minute, @stat.Timestamp.Second), @stat.PlayerCount],
+                        [new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second), @item.PlayerCount],
                     </text>
                 }
 
             ]);
 
-            var options = {
+            var playerCountOptions = {
                 title: 'Player Count',
                 curveType: 'function',
-                legend: { position: 'bottom' }
+                legend: { position: 'bottom' },
+                seriesType: 'line'
             };
 
             var chart = new google.visualization.LineChart(document.getElementById('playerCountChart'));
+            chart.draw(playerCountData, playerCountOptions);
+        }
+    </script>
 
-            chart.draw(data, options);
+    <script type="text/javascript">
+        google.charts.load("current", { packages: ["timeline"] });
+        google.charts.setOnLoadCallback(drawMapTimelineChart);
+
+        function drawMapTimelineChart() {
+
+            var container = document.getElementById('mapsTimeline');
+            var chart = new google.visualization.Timeline(container);
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn({ type: 'string', id: 'Map Name' });
+            dataTable.addColumn({ type: 'date', id: 'Start' });
+            dataTable.addColumn({ type: 'date', id: 'End' });
+            dataTable.addRows([
+
+                @{
+                    DateTimeOffset? timestamp = null;
+                    string map = null;
+
+                    foreach (var item in Model.GameServerStatusStats)
+                    {
+                        if (map == null)
+                        {
+                            map = item.MapName;
+                            timestamp = item.Timestamp;
+                        }
+                        else
+                        {
+                            if (map == item.MapName)
+                            {
+                                continue;
+                            }
+
+                            // We have changed maps
+
+                            <text>
+                                [
+                                    '@map',
+                                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
+                                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
+                                ],
+                            </text>
+
+                            timestamp = item.Timestamp;
+                            map = item.MapName;
+                        }
+                    }
+
+                }
+            ]);
+
+            chart.draw(dataTable);
         }
     </script>
 }

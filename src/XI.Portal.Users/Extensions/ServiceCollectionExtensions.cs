@@ -15,8 +15,6 @@ namespace XI.Portal.Users.Extensions
             IUsersModuleOptions options = new UsersModuleOptions();
             configureOptions.Invoke(options);
 
-            options.Validate();
-
             if (options.UsersRepositoryOptions != null)
             {
                 IUsersRepositoryOptions subOptions = new UsersRepositoryOptions();

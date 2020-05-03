@@ -6,7 +6,5 @@ namespace XI.Portal.Demos.Interfaces
     {
         Action<IDemoAuthRepositoryOptions> DemoAuthRepositoryOptions { get; set; }
         Action<IDemosRepositoryOptions> DemosRepositoryOptions { get; set; }
-
-        void Validate();
     }
 }

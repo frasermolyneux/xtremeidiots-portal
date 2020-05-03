@@ -52,19 +52,21 @@ namespace XI.Portal.FuncApp
 
             builder.Services.AddServersModule(options =>
             {
-                options.ConfigureFileMonitorsRepository(repositoryOptions => { });
-                options.ConfigureRconMonitorsRepository(repositoryOptions => { });
                 options.ConfigureGameServerStatusRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["GameServerStatusRepository:StorageTableName"];
                 });
-                options.ConfigureChatLogsRepository(repositoryOptions => { });
+
+                options.ConfigureGameServerStatusStatsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["GameServerStatusStatsRepository:StorageTableName"];
+                });
             });
 
             builder.Services.AddPlayersModule(options =>
             {
-                options.ConfigurePlayersRepository(repositoryOptions => { });
                 options.ConfigurePlayerLocationsRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];

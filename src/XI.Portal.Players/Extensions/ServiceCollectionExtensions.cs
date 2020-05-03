@@ -17,21 +17,6 @@ namespace XI.Portal.Players.Extensions
             IPlayersModuleOptions options = new PlayersModuleOptions();
             configureOptions.Invoke(options);
 
-            options.Validate();
-
-            if (options.PlayersRepositoryOptions != null)
-            {
-                IPlayersRepositoryOptions subOptions = new PlayersRepositoryOptions();
-                options.PlayersRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
-            }
-
-            serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
-
             if (options.PlayerLocationsRepositoryOptions != null)
             {
                 IPlayerLocationsRepositoryOptions subOptions = new PlayerLocationsRepositoryOptions();
@@ -42,6 +27,9 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
             }
+
+            serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
+            serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
 
             serviceCollection.AddSingleton<IPlayersForumsClient, PlayersForumsClient>();
         }

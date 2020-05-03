@@ -51,6 +51,11 @@
                             }
                         </ul>
                     }
+
+                    <hr/>
+
+                    <div id="playerCountChart" style="height: 200px; width: 100%;"></div>
+
                 </div>
             </div>
 
@@ -197,43 +202,79 @@
 
 </div>
 
-@if (Model.GameServerStatus != null)
-{
+
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    <script>
-        function initMap() {
 
-            var map = new google.maps.Map(document.getElementById('map'),
-                {
-                    zoom: 2,
-                    center: { lat: 0.00, lng: 0.00 }
-                });
+    @if (Model.GameServerStatus != null)
+    {
+        <script>
+            function initMap() {
 
-            var locations = [
-                @foreach (var location in Model.GameServerStatus.Players)
-                {
-                    if (location.GeoLocation == null)
+                var map = new google.maps.Map(document.getElementById('map'),
                     {
-                        continue;
-                    }
+                        zoom: 2,
+                        center: { lat: 0.00, lng: 0.00 }
+                    });
 
+                var locations = [
+                    @foreach (var location in Model.GameServerStatus.Players)
+                    {
+                        if (location.GeoLocation == null)
+                        {
+                            continue;
+                        }
+
+                        <text>
+                            ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude],
+                        </text>
+                    }
+                ];
+
+                for (var count = 0; count < locations.length; count++) {
+                    new google.maps.Marker({
+                        position: new google.maps.LatLng(locations[count][1], locations[count][2]),
+                        map: map,
+                        title: locations[count][0]
+                    });
+                }
+            }
+        </script>
+
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initMap"></script>
+    }
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = new google.visualization.DataTable();
+            data.addColumn('date', 'Timestamp');
+            data.addColumn('number', 'Player Count');
+
+            data.addRows([
+
+                @foreach (var stat in Model.GameServerStatusStats)
+                {
                     <text>
-                        ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude],
+                        [new Date(@stat.Timestamp.Year, @stat.Timestamp.Month, @stat.Timestamp.Day, @stat.Timestamp.Hour, @stat.Timestamp.Minute, @stat.Timestamp.Second), @stat.PlayerCount],
                     </text>
                 }
-            ];
 
-            for (var count = 0; count < locations.length; count++) {
-                new google.maps.Marker({
-                    position: new google.maps.LatLng(locations[count][1], locations[count][2]),
-                    map: map,
-                    title: locations[count][0]
-                });
-            }
+            ]);
+
+            var options = {
+                title: 'Player Count',
+                curveType: 'function',
+                legend: { position: 'bottom' }
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('playerCountChart'));
+
+            chart.draw(data, options);
         }
     </script>
-
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initMap"></script>
-}}
+}

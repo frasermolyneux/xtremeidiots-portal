@@ -19,34 +19,6 @@ namespace XI.Portal.Servers.Extensions
             IServersModuleOptions options = new ServersModuleOptions();
             configureOptions.Invoke(options);
 
-            options.Validate();
-
-            serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
-
-            serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
-
-            if (options.FileMonitorsRepositoryOptions != null)
-            {
-                IFileMonitorsRepositoryOptions subOptions = new FileMonitorsRepositoryOptions();
-                options.FileMonitorsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IFileMonitorsRepository, FileMonitorsRepository>();
-            }
-
-            if (options.RconMonitorsRepositoryOptions != null)
-            {
-                IRconMonitorsRepositoryOptions subOptions = new RconMonitorsRepositoryOptions();
-                options.RconMonitorsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IRconMonitorsRepository, RconMonitorsRepository>();
-            }
-
             if (options.GameServerStatusRepositoryOptions != null)
             {
                 IGameServerStatusRepositoryOptions subOptions = new GameServerStatusRepositoryOptions();
@@ -58,16 +30,22 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddScoped<IGameServerStatusRepository, GameServerStatusRepository>();
             }
 
-            if (options.ChatLogsRepositoryOptions != null)
+            if (options.GameServerStatusStatsRepositoryOptions != null)
             {
-                IChatLogsRepositoryOptions subOptions = new ChatLogsRepositoryOptions();
-                options.ChatLogsRepositoryOptions.Invoke(subOptions);
+                IGameServerStatusStatsRepositoryOptions subOptions = new GameServerStatusStatsRepositoryOptions();
+                options.GameServerStatusStatsRepositoryOptions.Invoke(subOptions);
 
                 subOptions.Validate();
 
                 serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IChatLogsRepository, ChatLogsRepository>();
+                serviceCollection.AddScoped<IGameServerStatusStatsRepository, GameServerStatusStatsRepository>();
             }
+
+            serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
+            serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
+            serviceCollection.AddScoped<IFileMonitorsRepository, FileMonitorsRepository>();
+            serviceCollection.AddScoped<IRconMonitorsRepository, RconMonitorsRepository>();
+            serviceCollection.AddScoped<IChatLogsRepository, ChatLogsRepository>();
 
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();

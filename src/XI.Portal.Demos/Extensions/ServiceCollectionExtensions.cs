@@ -17,8 +17,6 @@ namespace XI.Portal.Demos.Extensions
             IDemoModuleOptions options = new DemoModuleOptions();
             configureOptions.Invoke(options);
 
-            options.Validate();
-
             if (options.DemoAuthRepositoryOptions != null)
             {
                 IDemoAuthRepositoryOptions subOptions = new DemoAuthRepositoryOptions();

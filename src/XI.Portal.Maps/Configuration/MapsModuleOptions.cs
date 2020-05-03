@@ -9,10 +9,5 @@ namespace XI.Portal.Maps.Configuration
         public Action<IMapImageRepositoryOptions> MapImageRepositoryOptions { get; set; }
         public Action<IMapsRepositoryOptions> MapsRepositoryOptions { get; set; }
         public Action<IMapRedirectRepositoryOptions> MapRedirectRepositoryOptions { get; set; }
-
-        public void Validate()
-        {
-
-        }
     }
 }

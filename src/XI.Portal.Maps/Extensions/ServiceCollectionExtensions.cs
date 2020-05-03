@@ -16,8 +16,6 @@ namespace XI.Portal.Maps.Extensions
             IMapsModuleOptions options = new MapsModuleOptions();
             configureOptions.Invoke(options);
 
-            options.Validate();
-
             if (options.MapFileRepositoryOptions != null)
             {
                 IMapFileRepositoryOptions supOptions = new MapFileRepositoryOptions();

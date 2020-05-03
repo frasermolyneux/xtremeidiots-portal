@@ -172,7 +172,6 @@ namespace XI.Portal.Web
 
             services.AddPlayersModule(options =>
             {
-                options.ConfigurePlayersRepository(repositoryOptions => { });
                 options.ConfigurePlayerLocationsRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
@@ -194,14 +193,17 @@ namespace XI.Portal.Web
 
             services.AddServersModule(options =>
             {
-                options.ConfigureFileMonitorsRepository(repositoryOptions => { });
-                options.ConfigureRconMonitorsRepository(repositoryOptions => { });
                 options.ConfigureGameServerStatusRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusRepository:StorageTableName"];
                 });
-                options.ConfigureChatLogsRepository(repositoryOptions => { });
+
+                options.ConfigureGameServerStatusStatsRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["GameServerStatusStatsRepository:StorageTableName"];
+                });
             });
 
             services.AddDbContext<LegacyPortalContext>(options =>

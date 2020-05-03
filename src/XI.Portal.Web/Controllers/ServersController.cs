@@ -19,18 +19,22 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
+        private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IMapsRepository _mapsRepository;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
 
-        public ServersController(IGameServersRepository gameServersRepository,
+        public ServersController(
+            IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IMapsRepository mapsRepository,
-            IPlayerLocationsRepository playerLocationsRepository)
+            IPlayerLocationsRepository playerLocationsRepository,
+            IGameServerStatusStatsRepository gameServerStatusStatsRepository)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
+            _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
         }
 
         [HttpGet]
@@ -71,6 +75,14 @@ namespace XI.Portal.Web.Controllers
             var gameServer = await _gameServersRepository.GetGameServer(id);
             var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, null, null, TimeSpan.Zero);
 
+            var filterModel = new GameServerStatusStatsFilterModel
+            {
+                ServerId = gameServer.ServerId,
+                Cutoff = DateTime.UtcNow.AddHours(-12),
+                Order = GameServerStatusStatsFilterModel.OrderBy.TimestampAsc
+            };
+            var gameServerStatusStatsDtos = await _gameServerStatusStatsRepository.GetGameServerStatusStats(filterModel);
+
             MapDto map = null;
             if (gameServerStatusDto != null)
                 map = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
@@ -82,7 +94,8 @@ namespace XI.Portal.Web.Controllers
                 GameServer = gameServer,
                 GameServerStatus = gameServerStatusDto,
                 Map = map,
-                MapRotation = mapRotation
+                MapRotation = mapRotation,
+                GameServerStatusStats = gameServerStatusStatsDtos
             });
         }
 
@@ -92,6 +105,7 @@ namespace XI.Portal.Web.Controllers
             public PortalGameServerStatusDto GameServerStatus { get; set; }
             public MapDto Map { get; set; }
             public List<MapRotationDto> MapRotation { get; set; }
+            public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
         }
     }
 }

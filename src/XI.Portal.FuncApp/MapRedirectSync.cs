@@ -51,7 +51,7 @@ namespace XI.Portal.FuncApp
                 {
                     GameType = game.Key
                 };
-                var mapDatabaseEntries = await _mapsRepository.GetMapList(mapsFilterModel);
+                var mapDatabaseEntries = await _mapsRepository.GetMaps(mapsFilterModel);
 
                 log.LogInformation("Total maps retrieved from redirect for {game} is {redirectMapCount} and database is {databaseMapCount}", game, mapRedirectEntries.Count, mapDatabaseEntries.Count);
 

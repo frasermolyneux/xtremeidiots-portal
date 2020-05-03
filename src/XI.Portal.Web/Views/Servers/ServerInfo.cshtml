@@ -153,7 +153,7 @@
 </div>
 
 
-@if (Model.MapRotation.Any())
+@if (Model.Maps.Any())
 {
     <div class="row">
         <div class="col-12">
@@ -171,9 +171,6 @@
                                 @Html.Label("Name")
                             </th>
                             <th>
-                                @Html.Label("Game Mode")
-                            </th>
-                            <th>
                                 @Html.Label("Files")
                             </th>
                             <th>
@@ -183,17 +180,14 @@
                             </th>
                         </tr>
 
-                        @foreach (var item in Model.MapRotation)
+                        @foreach (var item in Model.Maps)
                         {
                             <tr>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.Map.MapName)
+                                    @Html.DisplayFor(modelItem => item.MapName)
                                 </td>
                                 <td>
-                                    @Html.DisplayFor(modelItem => item.GameMode)
-                                </td>
-                                <td>
-                                    @foreach (var mapFile in item.Map.MapFiles)
+                                    @foreach (var mapFile in item.MapFiles)
                                     {
                                         <li>
                                             <a href="@mapFile.FileUrl">@mapFile.FileName</a>
@@ -201,10 +195,10 @@
                                     }
                                 </td>
                                 <td>
-                                    @Html.MapPopularity(item.Map.MapName, item.Map.LikePercentage, item.Map.DislikePercentage, item.Map.TotalLikes, item.Map.TotalDislikes, item.Map.TotalVotes)
+                                    @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage, item.TotalLikes, item.TotalDislikes, item.TotalVotes)
                                 </td>
                                 <td>
-                                    @Html.MapImage(Model.GameServer.GameType, item.Map.MapName)
+                                    @Html.MapImage(Model.GameServer.GameType, item.MapName)
                                 </td>
                             </tr>
                         }

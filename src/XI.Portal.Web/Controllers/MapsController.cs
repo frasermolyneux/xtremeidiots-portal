@@ -58,10 +58,10 @@ namespace XI.Portal.Web.Controllers
             if (id != null)
                 filterModel.GameType = (GameType) id;
 
-            var recordsTotal = await _mapsRepository.GetMapListCount(filterModel);
+            var recordsTotal = await _mapsRepository.GetMapsCount(filterModel);
 
             filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _mapsRepository.GetMapListCount(filterModel);
+            var recordsFiltered = await _mapsRepository.GetMapsCount(filterModel);
 
             filterModel.TakeEntries = model.Length;
             filterModel.SkipEntries = model.Start;
@@ -89,7 +89,7 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-            var mapDtos = await _mapsRepository.GetMapList(filterModel);
+            var mapDtos = await _mapsRepository.GetMaps(filterModel);
             var portalMapDtos = mapDtos.Select(m => new PortalMapDto(m)).ToList(); 
 
             return Json(new

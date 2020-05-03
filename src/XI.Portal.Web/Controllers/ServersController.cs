@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
+using XI.Portal.Maps.Models;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
@@ -75,13 +76,13 @@ namespace XI.Portal.Web.Controllers
             var gameServer = await _gameServersRepository.GetGameServer(id);
             var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, null, null, TimeSpan.Zero);
 
-            var filterModel = new GameServerStatusStatsFilterModel
+            var serversFilterModel = new GameServerStatusStatsFilterModel
             {
                 ServerId = gameServer.ServerId,
                 Cutoff = DateTime.UtcNow.AddDays(-7),
                 Order = GameServerStatusStatsFilterModel.OrderBy.TimestampAsc
             };
-            var gameServerStatusStatsDtos = await _gameServerStatusStatsRepository.GetGameServerStatusStats(filterModel);
+            var gameServerStatusStatsDtos = await _gameServerStatusStatsRepository.GetGameServerStatusStats(serversFilterModel);
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
 
@@ -121,19 +122,23 @@ namespace XI.Portal.Web.Controllers
                     trackMap = item.MapName;
                 }
 
-
             MapDto map = null;
             if (gameServerStatusDto != null)
                 map = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
-            var mapRotation = await _mapsRepository.GetMapRotation(id);
+            var mapsFilterModel = new MapsFilterModel
+            {
+                GameType = gameServer.GameType,
+                MapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToList()
+            };
+            var maps = await _mapsRepository.GetMaps(mapsFilterModel);
 
             return View(new ServerInfoViewModel
             {
                 GameServer = gameServer,
                 GameServerStatus = gameServerStatusDto,
                 Map = map,
-                MapRotation = mapRotation,
+                Maps = maps,
                 GameServerStatusStats = gameServerStatusStatsDtos,
                 MapTimelineDataPoints = mapTimelineDataPoints
             });
@@ -144,9 +149,9 @@ namespace XI.Portal.Web.Controllers
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
             public MapDto Map { get; set; }
-            public List<MapRotationDto> MapRotation { get; set; }
             public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
             public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
+            public List<MapDto> Maps { get; set; }
         }
 
         public class MapTimelineDataPoint

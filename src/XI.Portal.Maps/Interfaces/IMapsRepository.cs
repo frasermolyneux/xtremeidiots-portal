@@ -9,10 +9,9 @@ namespace XI.Portal.Maps.Interfaces
 {
     public interface IMapsRepository
     {
-        Task<int> GetMapListCount(MapsFilterModel filterModel);
-        Task<List<MapDto>> GetMapList(MapsFilterModel filterModel);
+        Task<int> GetMapsCount(MapsFilterModel filterModel);
+        Task<List<MapDto>> GetMaps(MapsFilterModel filterModel);
         Task<MapDto> GetMap(GameType gameType, string mapName);
-        Task<List<MapRotationDto>> GetMapRotation(Guid serverId);
         Task CreateMap(MapDto mapDto);
         Task UpdateMap(MapDto mapDto);
         Task DeleteMap(Guid mapId);

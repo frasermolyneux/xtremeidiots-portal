@@ -24,14 +24,14 @@ namespace XI.Portal.Maps.Repository
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
         }
 
-        public async Task<int> GetMapListCount(MapsFilterModel filterModel)
+        public async Task<int> GetMapsCount(MapsFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new MapsFilterModel();
 
             return await _legacyContext.Maps.ApplyFilter(filterModel).CountAsync();
         }
 
-        public async Task<List<MapDto>> GetMapList(MapsFilterModel filterModel)
+        public async Task<List<MapDto>> GetMaps(MapsFilterModel filterModel)
         {
             if (filterModel == null) filterModel = new MapsFilterModel();
 
@@ -50,32 +50,6 @@ namespace XI.Portal.Maps.Repository
                 .SingleOrDefaultAsync(m => m.MapName == mapName && m.GameType == gameType);
 
             return map?.ToDto(_options.MapRedirectBaseUrl);
-        }
-
-        public async Task<List<MapRotationDto>> GetMapRotation(Guid serverId)
-        {
-            var mapRotations = await _legacyContext.MapRotations
-                .Include(m => m.MapMap)
-                .Include(m => m.MapMap.MapFiles)
-                .Include(m => m.MapMap.MapVotes)
-                .Where(m => m.GameServerServer.ServerId == serverId).ToListAsync();
-
-            var results = new List<MapRotationDto>();
-
-            foreach (var mapRotation in mapRotations)
-            {
-                var mapDto = mapRotation.MapMap.ToDto(_options.MapRedirectBaseUrl);
-
-                var mapRotationDto = new MapRotationDto
-                {
-                    GameMode = mapRotation.GameMode,
-                    Map = mapDto
-                };
-
-                results.Add(mapRotationDto);
-            }
-
-            return results;
         }
 
         public async Task CreateMap(MapDto mapDto)

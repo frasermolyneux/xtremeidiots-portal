@@ -16,6 +16,8 @@ namespace XI.Portal.Maps.Extensions
 
             if (!string.IsNullOrWhiteSpace(filterModel.FilterString)) maps = maps.Where(m => m.MapName.Contains(filterModel.FilterString)).AsQueryable();
 
+            if (filterModel.MapNames != null) maps = maps.Where(m => filterModel.MapNames.Contains(m.MapName)).AsQueryable();
+
             switch (filterModel.Order)
             {
                 case MapsFilterModel.OrderBy.MapNameAsc:

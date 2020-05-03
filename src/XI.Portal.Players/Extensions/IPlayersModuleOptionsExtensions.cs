@@ -9,5 +9,9 @@ namespace XI.Portal.Players.Extensions
         {
             options.PlayerLocationsRepositoryOptions = repositoryOptions;
         }
+        public static void ConfigurePlayersCacheRepository(this IPlayersModuleOptions options, Action<IPlayersCacheRepositoryOptions> repositoryOptions)
+        {
+            options.PlayersCacheRepositoryOptions = repositoryOptions;
+        }
     }
 }

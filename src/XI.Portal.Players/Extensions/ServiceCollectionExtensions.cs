@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Forums;
+using XI.Portal.Players.Ingest;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Repository;
 
@@ -28,8 +29,20 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
             }
 
+            if (options.PlayersCacheRepositoryOptions != null)
+            {
+                IPlayersCacheRepositoryOptions subOptions = new PlayersCacheRepositoryOptions();
+                options.PlayersCacheRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IPlayersCacheRepository, PlayersCacheRepository>();
+            }
+
             serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
+            serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
 
             serviceCollection.AddSingleton<IPlayersForumsClient, PlayersForumsClient>();
         }

@@ -6,5 +6,6 @@ namespace XI.Portal.Players.Configuration
     internal class PlayersModuleOptions : IPlayersModuleOptions
     {
         public Action<IPlayerLocationsRepositoryOptions> PlayerLocationsRepositoryOptions { get; set; }
+        public Action<IPlayersCacheRepositoryOptions> PlayersCacheRepositoryOptions { get; set; }
     }
 }

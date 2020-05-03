@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -37,6 +38,9 @@ namespace XI.Portal.FuncApp
         public async Task Run([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"Starting map redirect sync: {DateTime.Now}");
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
 
             var gamesToSync = new Dictionary<GameType, string>
             {
@@ -116,7 +120,8 @@ namespace XI.Portal.FuncApp
                     }
             }
 
-            log.LogInformation("Map Redirect Sync Completed");
+            stopWatch.Stop();
+            log.LogInformation($"C# Timer completed after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

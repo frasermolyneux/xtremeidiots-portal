@@ -72,6 +72,12 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["PlayerLocationsRepository:StorageTableName"];
                 });
+
+                options.ConfigurePlayersCacheRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["PlayerCacheRepository:StorageTableName"];
+                });
             });
 
             builder.Services.AddMapsModule(options =>

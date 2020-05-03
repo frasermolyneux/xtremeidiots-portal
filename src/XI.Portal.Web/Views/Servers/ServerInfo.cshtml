@@ -309,6 +309,8 @@
                     DateTimeOffset? timestamp = null;
                     string map = null;
 
+                    var lastItem = Model.GameServerStatusStats.Last();
+
                     foreach (var item in Model.GameServerStatusStats)
                     {
                         if (map == null)
@@ -318,6 +320,18 @@
                         }
                         else
                         {
+                            if (item == lastItem)
+                            {
+                                <text>
+                [
+                    '@map',
+                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
+                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
+                ]
+                                </text>
+                                continue;
+                            }
+
                             if (map == item.MapName)
                             {
                                 continue;
@@ -326,11 +340,11 @@
                             // We have changed maps
 
                             <text>
-                                [
-                                    '@map',
-                                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
-                                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
-                                ],
+                [
+                    '@map',
+                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
+                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
+                ],
                             </text>
 
                             timestamp = item.Timestamp;

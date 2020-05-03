@@ -142,7 +142,12 @@
             <div class="ibox-title">
                 <h5>Map Timeline</h5>
             </div>
-            <div id="mapsTimeline" style="height: 600px; width: 100%;"></div>
+
+            @{
+                var mapTimelineHeight = Model.MapTimelineDataPoints.Count * 50 + 50;
+            }
+
+            <div id="mapsTimeline" style="height: @(mapTimelineHeight)px; width: 100%;"></div>
         </div>
     </div>
 </div>
@@ -305,54 +310,17 @@
             dataTable.addColumn({ type: 'date', id: 'End' });
             dataTable.addRows([
 
-                @{
-                    DateTimeOffset? timestamp = null;
-                    string map = null;
-
-                    var lastItem = Model.GameServerStatusStats.Last();
-
-                    foreach (var item in Model.GameServerStatusStats)
-                    {
-                        if (map == null)
-                        {
-                            map = item.MapName;
-                            timestamp = item.Timestamp;
-                        }
-                        else
-                        {
-                            if (item == lastItem)
-                            {
-                                <text>
-                [
-                    '@map',
-                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
-                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
-                ]
-                                </text>
-                                continue;
-                            }
-
-                            if (map == item.MapName)
-                            {
-                                continue;
-                            }
-
-                            // We have changed maps
-
-                            <text>
-                [
-                    '@map',
-                    new Date(@timestamp.Value.Year, @timestamp.Value.Month, @timestamp.Value.Day, @timestamp.Value.Hour, @timestamp.Value.Minute, @timestamp.Value.Second),
-                    new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second)
-                ],
-                            </text>
-
-                            timestamp = item.Timestamp;
-                            map = item.MapName;
-                        }
-                    }
-
+                @foreach (var item in Model.MapTimelineDataPoints)
+                {
+                    <text>      
+                        [
+                            '@item.MapName',
+                            new Date(@item.Start.Year, @item.Start.Month, @item.Start.Day, @item.Start.Hour, @item.Start.Minute, @item.Start.Second),
+                            new Date(@item.Stop.Year, @item.Stop.Month, @item.Stop.Day, @item.Stop.Hour, @item.Stop.Minute, @item.Stop.Second)
+                        ],
+                    </text>
                 }
+
             ]);
 
             chart.draw(dataTable);

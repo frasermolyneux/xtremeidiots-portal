@@ -34,7 +34,7 @@ namespace XI.Portal.FuncApp
 
                 try
                 {
-                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-10));
+                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-5));
                     log.LogInformation($"{model.ServerName} is online running {model.Map} with {model.PlayerCount} players connected");
                 }
                 catch (Exception ex)

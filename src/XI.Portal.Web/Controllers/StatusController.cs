@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.FileMonitors.Extensions;
-using XI.Portal.Auth.RconMonitors.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
@@ -17,18 +16,16 @@ namespace XI.Portal.Web.Controllers
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly IRconMonitorsRepository _rconMonitorsRepository;
 
         private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
 
-        public StatusController(IBanFileMonitorsRepository banFileMonitorsRepository,
+        public StatusController(
+            IBanFileMonitorsRepository banFileMonitorsRepository,
             IFileMonitorsRepository fileMonitorsRepository,
-            IRconMonitorsRepository rconMonitorsRepository,
             IGameServerStatusRepository gameServerStatusRepository)
         {
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
-            _rconMonitorsRepository = rconMonitorsRepository ?? throw new ArgumentNullException(nameof(rconMonitorsRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
         }
 
@@ -52,17 +49,6 @@ namespace XI.Portal.Web.Controllers
 
             var fileMonitorDtos = await _fileMonitorsRepository.GetFileMonitors(filterModel);
             return View(fileMonitorDtos);
-        }
-
-        public async Task<IActionResult> RconStatus()
-        {
-            var filterModel = new RconMonitorFilterModel
-            {
-                Order = RconMonitorFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuth(User);
-
-            var rconMonitorDtos = await _rconMonitorsRepository.GetRconMonitors(filterModel);
-            return View(rconMonitorDtos);
         }
 
         public async Task<IActionResult> GameServerStatus()

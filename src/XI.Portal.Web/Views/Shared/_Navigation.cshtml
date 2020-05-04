@@ -203,21 +203,12 @@
         <li class="@Html.IsSelected(action: "LogFileStatus")">
             <a asp-controller="Status" asp-action="LogFileStatus">Log File Status</a>
         </li>
-        <li class="@Html.IsSelected(action: "RconStatus")">
-            <a asp-controller="Status" asp-action="RconStatus">Rcon Status</a>
-        </li>
     </ul>
 </li>
 
 <li policy="@AuthPolicies.AccessGameServers" class="@Html.IsSelected("GameServers", "Index")">
     <a asp-controller="GameServers" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>
-    </a>
-</li>
-
-<li policy="@AuthPolicies.AccessRconMonitors" class="@Html.IsSelected("RconMonitors", "Index")">
-    <a asp-controller="RconMonitors" asp-action="Index">
-        <i class="fa fa-cog"></i> <span class="nav-label">Rcon Monitors</span>
     </a>
 </li>
 

@@ -44,7 +44,6 @@ namespace XI.Portal.Servers.Extensions
             serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
             serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
             serviceCollection.AddScoped<IFileMonitorsRepository, FileMonitorsRepository>();
-            serviceCollection.AddScoped<IRconMonitorsRepository, RconMonitorsRepository>();
             serviceCollection.AddScoped<IChatLogsRepository, ChatLogsRepository>();
 
             serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();

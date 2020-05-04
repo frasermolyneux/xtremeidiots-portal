@@ -58,13 +58,6 @@
         public const string DeletePlayer = nameof(DeletePlayer);
         public const string ViewPlayers = nameof(ViewPlayers);
 
-        // Rcon Monitors
-        public const string AccessRconMonitors = nameof(AccessRconMonitors);
-        public const string CreateRconMonitor = nameof(CreateRconMonitor);
-        public const string ViewRconMonitor = nameof(ViewRconMonitor);
-        public const string EditRconMonitor = nameof(EditRconMonitor);
-        public const string DeleteRconMonitor = nameof(DeleteRconMonitor);
-
         // Server Admin
         public const string AccessLiveRcon = nameof(AccessLiveRcon);
         public const string AccessServerAdmin = nameof(AccessServerAdmin);

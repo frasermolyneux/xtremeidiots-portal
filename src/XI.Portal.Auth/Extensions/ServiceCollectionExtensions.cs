@@ -10,7 +10,6 @@ using XI.Portal.Auth.Home.AuthorizationHandlers;
 using XI.Portal.Auth.Maps.AuthorizationHandlers;
 using XI.Portal.Auth.Migration.AuthorizationHandlers;
 using XI.Portal.Auth.Players.AuthorizationHandlers;
-using XI.Portal.Auth.RconMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.ServerAdmin.AuthorizationHandlers;
 using XI.Portal.Auth.Servers.AuthorizationHandlers;
 using XI.Portal.Auth.Status.AuthorizationHandlers;
@@ -80,13 +79,6 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, AccessPlayersHandler>();
             services.AddSingleton<IAuthorizationHandler, DeletePlayerHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewPlayersHandler>();
-
-            // Rcon Monitors
-            services.AddSingleton<IAuthorizationHandler, AccessRconMonitorsHandler>();
-            services.AddSingleton<IAuthorizationHandler, CreateRconMonitorHandler>();
-            services.AddSingleton<IAuthorizationHandler, DeleteRconMonitorHandler>();
-            services.AddSingleton<IAuthorizationHandler, EditRconMonitorHandler>();
-            services.AddSingleton<IAuthorizationHandler, ViewRconMonitorHandler>();
 
             // Server Admin
             services.AddSingleton<IAuthorizationHandler, AccessLiveRconHandler>();

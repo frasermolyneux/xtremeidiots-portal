@@ -10,7 +10,6 @@ using XI.Portal.Auth.Home.AuthorizationRequirements;
 using XI.Portal.Auth.Maps.AuthorizationRequirements;
 using XI.Portal.Auth.Migration.AuthorizationRequirements;
 using XI.Portal.Auth.Players.AuthorizationRequirements;
-using XI.Portal.Auth.RconMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.ServerAdmin.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
 using XI.Portal.Auth.Status.AuthorizationRequirements;
@@ -77,13 +76,6 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(AuthPolicies.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
             options.AddPolicy(AuthPolicies.DeletePlayer, policy => { policy.Requirements.Add(new DeletePlayer()); });
             options.AddPolicy(AuthPolicies.ViewPlayers, policy => { policy.Requirements.Add(new ViewPlayers()); });
-
-            // Rcon Monitors
-            options.AddPolicy(AuthPolicies.AccessRconMonitors, policy => { policy.Requirements.Add(new AccessRconMonitors()); });
-            options.AddPolicy(AuthPolicies.CreateRconMonitor, policy => { policy.Requirements.Add(new CreateRconMonitor()); });
-            options.AddPolicy(AuthPolicies.ViewRconMonitor, policy => { policy.Requirements.Add(new ViewRconMonitor()); });
-            options.AddPolicy(AuthPolicies.EditRconMonitor, policy => { policy.Requirements.Add(new EditRconMonitor()); });
-            options.AddPolicy(AuthPolicies.DeleteRconMonitor, policy => { policy.Requirements.Add(new DeleteRconMonitor()); });
 
             // Server Admin
             options.AddPolicy(AuthPolicies.AccessLiveRcon, policy => { policy.Requirements.Add(new AccessLiveRcon()); });

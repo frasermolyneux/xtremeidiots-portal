@@ -38,11 +38,11 @@ namespace XI.Portal.Players.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IPlayersCacheRepository, PlayersCacheRepository>();
+                serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
             }
 
             serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
-            serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
 
             serviceCollection.AddSingleton<IPlayersForumsClient, PlayersForumsClient>();
         }

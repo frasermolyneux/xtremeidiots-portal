@@ -93,7 +93,7 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
             gameServerDto.ShowChatLog = model.ShowChatLog;
 
-            await _gameServersRepository.UpdateGameServer(gameServerDto);
+            await _gameServersRepository.CreateGameServer(gameServerDto);
 
             _logger.LogInformation(EventIds.Management, "User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
             this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");

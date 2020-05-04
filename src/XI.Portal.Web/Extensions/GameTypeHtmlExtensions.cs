@@ -11,5 +11,10 @@ namespace XI.Portal.Web.Extensions
             return new HtmlString(
                 $"<img src=\"/images/game-icons/{gameType}.png\" alt=\"{gameType}\" width=\"16\" height=\"16\" />");
         }
+
+        public static HtmlString GameTypeIconExternal(this IHtmlHelper html, GameType gameType)
+        {
+            return new HtmlString($"<img src=\"https://portal.xtremeidiots.com/images/game-icons/{gameType}.png\" alt=\"{gameType}\" width=\"16\" height=\"16\" />");
+        }
     }
 }

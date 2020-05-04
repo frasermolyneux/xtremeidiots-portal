@@ -229,6 +229,8 @@ namespace XI.Portal.Web.Controllers
             if (userId == null) return Content("AuthError: Auth key supplied but invalid. Try re-entering the auth key on your client");
 
             var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return Content($"AuthError: An internal auth error occured processing your request for userId: {userId}");
+
             var claimsPrincipal = await _signInManager.ClaimsFactory.CreateAsync(user);
 
             var filterModel = new DemosFilterModel().ApplyAuth(claimsPrincipal, null);

@@ -6,6 +6,7 @@ using System.Text.Json;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -72,7 +73,7 @@ namespace XI.Portal.Web
 
             services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });
 
-            services.AddAuthentication(options => options.DefaultChallengeScheme = "XtremeIdiots")
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddOAuth("XtremeIdiots", options =>
                 {
                     options.ClientId = Configuration["XtremeIdiotsAuth:ClientId"];
@@ -110,6 +111,17 @@ namespace XI.Portal.Web
                         }
                     };
                 });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.AccessDeniedPath = "/Errors/Display/401";
+                options.Cookie.Name = "XIPortal";
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.LoginPath = "/Identity/Login";
+                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+                options.SlidingExpiration = true;
+            });
 
             services.AddLogging(
                 logging =>

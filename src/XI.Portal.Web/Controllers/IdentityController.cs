@@ -20,6 +20,13 @@ namespace XI.Portal.Web.Controllers
             _xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]

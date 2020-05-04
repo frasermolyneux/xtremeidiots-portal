@@ -46,6 +46,7 @@ namespace XI.Portal.Auth.Contract.Extensions
                 if (Guid.TryParse(claim.Value, out var guid)) servers.Add(guid);
             }
 
+            gameTypes = gameTypes.Distinct().OrderBy(g => g).ToList();
             return new Tuple<List<GameType>, List<Guid>>(gameTypes, servers);
         }
 
@@ -62,7 +63,7 @@ namespace XI.Portal.Auth.Contract.Extensions
                 if (Enum.TryParse(claim.Value, out GameType gameType))
                     gameTypes.Add(gameType);
 
-            return gameTypes;
+            return gameTypes.Distinct().OrderBy(g => g).ToList();
         }
     }
 }

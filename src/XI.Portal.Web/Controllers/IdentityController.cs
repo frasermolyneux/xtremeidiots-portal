@@ -22,8 +22,10 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login()
+        public IActionResult Login(string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
+
             return View();
         }
 

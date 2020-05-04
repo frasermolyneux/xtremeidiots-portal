@@ -25,8 +25,6 @@ namespace XI.Portal.Web.Controllers
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayersRepository _playersRepository;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
-
         public PlayersController(IPlayersRepository playersRepository,
             IGeoLocationClient geoLocationClient,
             IAdminActionsRepository adminActionsRepository)

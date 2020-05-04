@@ -13,7 +13,7 @@ namespace XI.Portal.Web.Controllers
             {
                 var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
 
-                if (context.Error != null)
+                if (context?.Error != null)
                 {
                     return Problem(
                         context.Error.StackTrace,

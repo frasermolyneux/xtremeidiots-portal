@@ -117,7 +117,7 @@ namespace XI.Portal.Web
                 options.AccessDeniedPath = "/Errors/Display/401";
                 options.Cookie.Name = "XIPortal";
                 options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
                 options.LoginPath = "/Identity/Login";
                 options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
                 options.SlidingExpiration = true;

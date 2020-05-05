@@ -90,7 +90,7 @@ namespace XI.Portal.Web.Controllers
             string trackMap = null;
 
             var lastItem = gameServerStatusStatsDtos.Last();
-            foreach (var item in gameServerStatusStatsDtos)
+            foreach (var item in gameServerStatusStatsDtos.Where(gss => gss.Timestamp > DateTime.UtcNow.AddDays(-1)))
                 if (trackMap == null)
                 {
                     trackMap = item.MapName;

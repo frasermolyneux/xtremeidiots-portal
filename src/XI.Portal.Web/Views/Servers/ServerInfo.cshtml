@@ -19,6 +19,41 @@
 
                 @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
 
+                <br/>
+
+                <table class="table table-responsive w-100 d-block d-md-table">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>Hostname</strong>
+                        </td>
+                        <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
+                    </tr>
+                    @if (Model.GameServerStatus != null)
+                    {
+                        <tr>
+                            <td>
+                                <strong>Player Count</strong>
+                            </td>
+                            <td>@Model.GameServerStatus.PlayerCount / @Model.GameServerStatus.MaxPlayers</td>
+                        </tr>
+                    }
+
+                    <tr>
+                        <td>
+                            <strong>Connect</strong>
+                        </td>
+                        <td>
+                            @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.SteamIcon(Model.GameServer.GameType, Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.HlswIcon(Model.GameServer.GameType, Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                        </td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+
                 @if (Model.Map != null)
                 {
                     <hr/>

@@ -292,11 +292,12 @@ namespace XI.Portal.Web.Controllers
             }
 
             var localDemo = new LocalDemo(path, gameType);
+            var frontEndFileName = Path.GetFileNameWithoutExtension(file.FileName);
 
             var demoDto = new DemoDto
             {
                 Game = gameType,
-                Name = file.FileName,
+                Name = frontEndFileName,
                 FileName = fileName,
                 Date = localDemo.Date,
                 Map = localDemo.Map,

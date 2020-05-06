@@ -32,24 +32,6 @@
                             </li>
                         }
                     </ul>
-
-                    <hr/>
-
-                    <h5>Download Full Rotation:</h5>
-                    <ul>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li>
-                                <a asp-controller="Maps" asp-action="DownloadFullRotation" asp-route-id="@Model.GameServer.ServerId">Full Rotation</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li>
-                                You must sign in to be able to download the full rotation.
-                            </li>
-                        }
-                    </ul>
                 }
 
                 <hr/>

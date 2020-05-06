@@ -67,6 +67,7 @@
             $('#dataTable').DataTable({
                 processing: true,
                 pageLength: 50,
+                stateSave: true,
                 order: [[0, "asc"]],
                 ajax: {
                     url: '/ServerAdmin/GetRconPlayers/@Model.ServerId',

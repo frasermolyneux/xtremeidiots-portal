@@ -233,7 +233,10 @@ namespace XI.Portal.Web.Controllers
 
             var claimsPrincipal = await _signInManager.ClaimsFactory.CreateAsync(user);
 
-            var filterModel = new DemosFilterModel().ApplyAuth(claimsPrincipal, null);
+            var filterModel = new DemosFilterModel
+            {
+                Order = DemosFilterModel.OrderBy.DateDesc
+            }.ApplyAuth(claimsPrincipal, null);
             var demoDtos = await _demosRepository.GetDemos(filterModel);
 
             var demos = demoDtos.Select(demo => new

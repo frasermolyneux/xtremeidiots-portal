@@ -79,7 +79,7 @@ namespace XI.Portal.Web.Controllers
             var serversFilterModel = new GameServerStatusStatsFilterModel
             {
                 ServerId = gameServer.ServerId,
-                Cutoff = DateTime.UtcNow.AddDays(-7),
+                Cutoff = DateTime.UtcNow.AddDays(-2),
                 Order = GameServerStatusStatsFilterModel.OrderBy.TimestampAsc
             };
             var gameServerStatusStatsDtos = await _gameServerStatusStatsRepository.GetGameServerStatusStats(serversFilterModel);

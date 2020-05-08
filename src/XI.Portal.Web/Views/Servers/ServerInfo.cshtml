@@ -17,9 +17,11 @@
 
             <div class="ibox-content">
 
-                @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
-
-                <br/>
+                @if (Model.GameServerStatus?.Map != null)
+                {
+                    @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
+                    <br/>
+                }
 
                 <table class="table table-responsive w-100 d-block d-md-table">
                     <tbody>
@@ -87,9 +89,12 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#home">Players</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
-                    </li>
+                    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
+                        </li>
+                    }
                 </ul>
 
                 <div class="tab-content">
@@ -142,9 +147,12 @@
                             </table>
                         }
                     </div>
-                    <div class="tab-pane container fade" id="menu1">
-                        <div id="map" style="height: 600px; width: 100%;"></div>
-                    </div>
+                    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
+                    {
+                        <div class="tab-pane container fade" id="menu1">
+                            <div id="map" style="height: 600px; width: 100%;"></div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -152,23 +160,25 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12">
+@if (Model.MapTimelineDataPoints.Any())
+{
+    <div class="row">
+        <div class="col-12">
 
-        <div class="ibox">
-            <div class="ibox-title">
-                <h5>Map Timeline (Last 24 hours)</h5>
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Map Timeline (Last 24 hours)</h5>
+                </div>
+
+                @{
+                    var mapTimelineHeight = Model.MapTimelineDataPoints.GroupBy(m => m.MapName).ToList().Count * 41 + 50;
+                }
+
+                <div id="mapsTimeline" style="height: @(mapTimelineHeight)px; width: 100%;"></div>
             </div>
-
-            @{
-                var mapTimelineHeight = Model.MapTimelineDataPoints.GroupBy(m => m.MapName).ToList().Count * 41 + 50;
-            }
-
-            <div id="mapsTimeline" style="height: @(mapTimelineHeight)px; width: 100%;"></div>
         </div>
     </div>
-</div>
-
+}
 
 @if (Model.Maps.Any())
 {
@@ -236,7 +246,7 @@
 
 @section Scripts {
 
-    @if (Model.GameServerStatus != null)
+    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
     {
         <script>
             function initMap() {
@@ -307,34 +317,37 @@
         }
     </script>
 
-    <script type="text/javascript">
-        google.charts.load("current", { packages: ["timeline"] });
-        google.charts.setOnLoadCallback(drawMapTimelineChart);
+    @if (Model.MapTimelineDataPoints.Any())
+    {
+        <script type="text/javascript">
+            google.charts.load("current", { packages: ["timeline"] });
+            google.charts.setOnLoadCallback(drawMapTimelineChart);
 
-        function drawMapTimelineChart() {
+            function drawMapTimelineChart() {
 
-            var container = document.getElementById('mapsTimeline');
-            var chart = new google.visualization.Timeline(container);
-            var dataTable = new google.visualization.DataTable();
-            dataTable.addColumn({ type: 'string', id: 'Map Name' });
-            dataTable.addColumn({ type: 'date', id: 'Start' });
-            dataTable.addColumn({ type: 'date', id: 'End' });
-            dataTable.addRows([
+                var container = document.getElementById('mapsTimeline');
+                var chart = new google.visualization.Timeline(container);
+                var dataTable = new google.visualization.DataTable();
+                dataTable.addColumn({ type: 'string', id: 'Map Name' });
+                dataTable.addColumn({ type: 'date', id: 'Start' });
+                dataTable.addColumn({ type: 'date', id: 'End' });
+                dataTable.addRows([
 
-                @foreach (var item in Model.MapTimelineDataPoints)
-                {
-                    <text>      
-                        [
-                            '@item.MapName',
-                            new Date(@item.Start.Year, @item.Start.Month, @item.Start.Day, @item.Start.Hour, @item.Start.Minute, @item.Start.Second),
-                            new Date(@item.Stop.Year, @item.Stop.Month, @item.Stop.Day, @item.Stop.Hour, @item.Stop.Minute, @item.Stop.Second)
-                        ],
-                    </text>
-                }
+                    @foreach (var item in Model.MapTimelineDataPoints)
+                    {
+                        <text>
+                            [
+                                '@item.MapName',
+                                new Date(@item.Start.Year, @item.Start.Month, @item.Start.Day, @item.Start.Hour, @item.Start.Minute, @item.Start.Second),
+                                new Date(@item.Stop.Year, @item.Stop.Month, @item.Stop.Day, @item.Stop.Hour, @item.Stop.Minute, @item.Stop.Second)
+                            ],
+                        </text>
+                    }
 
-            ]);
+                ]);
 
-            chart.draw(dataTable);
-        }
-    </script>
+                chart.draw(dataTable);
+            }
+        </script>
+    }
 }

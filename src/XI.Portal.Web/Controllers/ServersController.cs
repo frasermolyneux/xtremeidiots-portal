@@ -89,38 +89,41 @@ namespace XI.Portal.Web.Controllers
             DateTime? timestamp = null;
             string trackMap = null;
 
-            var lastItem = gameServerStatusStatsDtos.Last();
-            foreach (var item in gameServerStatusStatsDtos.Where(gss => gss.Timestamp > DateTime.UtcNow.AddDays(-1)))
-                if (trackMap == null)
-                {
-                    trackMap = item.MapName;
-                    timestamp = item.Timestamp.UtcDateTime;
-                }
-                else
-                {
-                    if (item == lastItem)
+            if (gameServerStatusStatsDtos.Any())
+            {
+                var lastItem = gameServerStatusStatsDtos.Last();
+                foreach (var item in gameServerStatusStatsDtos.Where(gss => gss.Timestamp > DateTime.UtcNow.AddDays(-1)))
+                    if (trackMap == null)
                     {
+                        trackMap = item.MapName;
+                        timestamp = item.Timestamp.UtcDateTime;
+                    }
+                    else
+                    {
+                        if (item == lastItem)
+                        {
+                            mapTimelineDataPoints.Add(new MapTimelineDataPoint
+                            {
+                                MapName = trackMap,
+                                Start = (DateTime)timestamp,
+                                Stop = item.Timestamp.UtcDateTime
+                            });
+                            continue;
+                        }
+
+                        if (trackMap == item.MapName) continue;
+
                         mapTimelineDataPoints.Add(new MapTimelineDataPoint
                         {
                             MapName = trackMap,
-                            Start = (DateTime) timestamp,
+                            Start = (DateTime)timestamp,
                             Stop = item.Timestamp.UtcDateTime
                         });
-                        continue;
+
+                        timestamp = item.Timestamp.UtcDateTime;
+                        trackMap = item.MapName;
                     }
-
-                    if (trackMap == item.MapName) continue;
-
-                    mapTimelineDataPoints.Add(new MapTimelineDataPoint
-                    {
-                        MapName = trackMap,
-                        Start = (DateTime) timestamp,
-                        Stop = item.Timestamp.UtcDateTime
-                    });
-
-                    timestamp = item.Timestamp.UtcDateTime;
-                    trackMap = item.MapName;
-                }
+            }
 
             MapDto map = null;
             if (gameServerStatusDto != null)

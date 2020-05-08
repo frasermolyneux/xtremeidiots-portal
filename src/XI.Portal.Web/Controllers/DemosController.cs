@@ -215,18 +215,18 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ClientDemoList()
         {
             if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
-                return Content("AuthError: No auth key provided in the request");
+                return Content("AuthError: No auth key provided in the request. This should be set in the client.");
 
             var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientDemoList - Auth key header supplied but invalid");
-                return Content("AuthError: Auth key header supplied but invalid");
+                _logger.LogDebug(EventIds.DemoManager, "ClientDemoList - Auth key header supplied but was empty");
+                return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
             var userId = await _demoAuthRepository.GetUserId(authKey);
-            if (userId == null) return Content("AuthError: Auth key supplied but invalid. Try re-entering the auth key on your client");
+            if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Content($"AuthError: An internal auth error occured processing your request for userId: {userId}");
@@ -261,18 +261,18 @@ namespace XI.Portal.Web.Controllers
         public async Task<ActionResult> ClientUploadDemo(IFormFile file)
         {
             if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
-                return Content("AuthError: No auth key provided in the request");
+                return Content("AuthError: No auth key provided in the request. This should be set in the client.");
 
             var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientDemoList - Auth key header supplied but invalid");
-                return Content("AuthError: Auth key header supplied but invalid");
+                _logger.LogDebug(EventIds.DemoManager, "ClientUploadDemo - Auth key header supplied was empty");
+                return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
             var userId = await _demoAuthRepository.GetUserId(authKey);
-            if (userId == null) return Content("AuthError: Auth key supplied but invalid. Try re-entering the auth key on your client");
+            if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -321,18 +321,18 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ClientDownload(Guid id)
         {
             if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
-                return Content("AuthError: No auth key provided in the request");
+                return Content("AuthError: No auth key provided in the request. This should be set in the client.");
 
             var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientDemoList - Auth key header supplied but invalid");
-                return Content("AuthError: Auth key header supplied but invalid");
+                _logger.LogDebug(EventIds.DemoManager, "ClientDownload - Auth key header supplied but was empty");
+                return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
             var userId = await _demoAuthRepository.GetUserId(authKey);
-            if (userId == null) return Content("AuthError: Auth key supplied but invalid. Try re-entering the auth key on your client");
+            if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var demoUrl = await _demosRepository.GetDemoUrl(id);
 

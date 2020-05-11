@@ -1,4 +1,5 @@
-﻿@model List<string>
+﻿@using Microsoft.CodeAnalysis
+@model List<string>
 
 @{
     Layout = null;
@@ -6,4 +7,27 @@
 
 <!DOCTYPE html>
 
-@await Component.InvokeAsync("GameServerList")
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<div id="server-list">
+    <div>Loading Servers..</div>
+</div>
+
+@*@await Component.InvokeAsync("GameServerList")*@
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $.getJSON("/Banners/GetGameServers",
+            function (data) {
+                var items = [];
+                $.each(data,
+                    function (key, val) {
+                        items.push(val);
+                    });
+
+                $("#server-list").html(items.join(""));
+            });
+
+    })
+</script>

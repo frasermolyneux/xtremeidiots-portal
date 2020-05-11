@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -21,6 +22,7 @@ namespace XI.Portal.Web.Controllers
             return View();
         }
 
+        [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
             var filterModel = new GameServerFilterModel

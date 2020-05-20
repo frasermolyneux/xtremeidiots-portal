@@ -11,7 +11,7 @@ namespace XI.Portal.Auth.Demos.Extensions
     {
         public static DemosFilterModel ApplyAuth(this DemosFilterModel filterModel, ClaimsPrincipal claimsPrincipal, GameType? gameType)
         {
-            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
+            var requiredClaims = new[] {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator};
             var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
 
             if (gameType != null)

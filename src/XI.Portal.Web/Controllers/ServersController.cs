@@ -48,7 +48,7 @@ namespace XI.Portal.Web.Controllers
             };
 
             var servers = await _gameServersRepository.GetGameServers(filterModel);
-            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(null, null, TimeSpan.Zero);
+            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
 
             var results = new List<ServerInfoViewModel>();
 
@@ -74,7 +74,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> ServerInfo(Guid id)
         {
             var gameServer = await _gameServersRepository.GetGameServer(id);
-            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, null, null, TimeSpan.Zero);
+            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id,TimeSpan.Zero);
 
             var serversFilterModel = new GameServerStatusStatsFilterModel
             {

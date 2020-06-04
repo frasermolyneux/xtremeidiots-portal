@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using FM.GeoLocation.Contract.Interfaces;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
@@ -41,25 +39,21 @@ namespace XI.Portal.Servers.Repository
             _statusTable.CreateIfNotExists();
         }
 
-        public async Task<PortalGameServerStatusDto> GetStatus(Guid serverId, ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff)
+        public async Task<PortalGameServerStatusDto> GetStatus(Guid serverId, TimeSpan cacheCutoff)
         {
             var tableOperation = TableOperation.Retrieve<PortalGameServerStatusEntity>("status", serverId.ToString());
             var result = await _statusTable.ExecuteAsync(tableOperation);
 
             if (result.HttpStatusCode == 404)
             {
-                var gameServerDto = await RefreshGameServerStatus(serverId);
-
-                return !UserHasRequiredPermission(user, requiredClaims, gameServerDto) ? null : gameServerDto;
+                return await RefreshGameServerStatus(serverId);
             }
 
             var storedGameServerStatus = (PortalGameServerStatusEntity) result.Result;
 
             if (cacheCutoff != TimeSpan.Zero && storedGameServerStatus.Timestamp < DateTime.UtcNow + cacheCutoff)
             {
-                var gameServerDto = await RefreshGameServerStatus(serverId);
-
-                return !UserHasRequiredPermission(user, requiredClaims, gameServerDto) ? null : gameServerDto;
+                return await RefreshGameServerStatus(serverId);
             }
 
             var gameServerStatusDto = new PortalGameServerStatusDto
@@ -77,7 +71,7 @@ namespace XI.Portal.Servers.Repository
                 Timestamp = storedGameServerStatus.Timestamp
             };
 
-            return !UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto) ? null : gameServerStatusDto;
+            return gameServerStatusDto;
         }
 
         public async Task UpdateStatus(Guid id, PortalGameServerStatusDto model)
@@ -88,7 +82,7 @@ namespace XI.Portal.Servers.Repository
             await _statusTable.ExecuteAsync(operation);
         }
 
-        public async Task<List<PortalGameServerStatusDto>> GetAllStatusModels(ClaimsPrincipal user, string[] requiredClaims, TimeSpan cacheCutoff)
+        public async Task<List<PortalGameServerStatusDto>> GetAllStatusModels(GameServerStatusFilterModel filterModel, TimeSpan cacheCutoff)
         {
             var query = new TableQuery<PortalGameServerStatusEntity>().AsTableQuery();
 
@@ -103,10 +97,7 @@ namespace XI.Portal.Servers.Repository
                     if (cacheCutoff != TimeSpan.Zero && entity.Timestamp < DateTime.UtcNow + cacheCutoff)
                     {
                         var refreshedGameServerStatusDto = await RefreshGameServerStatus(entity.ServerId);
-
-                        if (UserHasRequiredPermission(user, requiredClaims, refreshedGameServerStatusDto))
-                            results.Add(refreshedGameServerStatusDto);
-
+                        results.Add(refreshedGameServerStatusDto);
                         continue;
                     }
 
@@ -125,14 +116,25 @@ namespace XI.Portal.Servers.Repository
                         Timestamp = entity.Timestamp
                     };
 
-                    if (UserHasRequiredPermission(user, requiredClaims, gameServerStatusDto))
-                        results.Add(gameServerStatusDto);
+                    results.Add(gameServerStatusDto);
                 }
 
                 continuationToken = queryResult.ContinuationToken;
             } while (continuationToken != null);
 
-            return results.Where(server => server != null).ToList();
+            var toReturn = results.Where(server => server != null).AsQueryable();
+
+            if (filterModel.GameTypes != null && filterModel.GameTypes.Any())
+            {
+                toReturn = toReturn.Where(server => filterModel.GameTypes.Contains(server.GameType)).AsQueryable();
+            }
+
+            if (filterModel.ServerIds != null && filterModel.ServerIds.Any())
+            {
+                toReturn = toReturn.Where(server => filterModel.ServerIds.Contains(server.ServerId)).AsQueryable();
+            }
+
+            return toReturn.ToList();
         }
 
         private async Task<PortalGameServerStatusDto> RefreshGameServerStatus(Guid serverId)
@@ -199,24 +201,10 @@ namespace XI.Portal.Servers.Repository
                 await UpdateStatus(serverId, model);
                 return model;
             }
-            catch
+            catch (Exception ex)
             {
                 return null;
             }
-        }
-
-        private bool UserHasRequiredPermission(ClaimsPrincipal claimsPrincipal, string[] requiredClaims, PortalGameServerStatusDto gameServerStatusDto)
-        {
-            if (claimsPrincipal == null && requiredClaims == null) return true;
-
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
-
-            if (serverIds.Contains(gameServerStatusDto.ServerId)) return true;
-
-            if (gameTypes.Contains(gameServerStatusDto.GameType))
-                return true;
-
-            return false;
         }
     }
 }

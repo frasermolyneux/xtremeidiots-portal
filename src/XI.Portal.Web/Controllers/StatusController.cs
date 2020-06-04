@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.FileMonitors.Extensions;
+using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
@@ -53,7 +54,9 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> GameServerStatus()
         {
-            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
+            var filterModel = new GameServerStatusFilterModel().ApplyAuthForGameServerStatus(User);
+
+            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(filterModel, TimeSpan.Zero);
             return View(statusModel);
         }
     }

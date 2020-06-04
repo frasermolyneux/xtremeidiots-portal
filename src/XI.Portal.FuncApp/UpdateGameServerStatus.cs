@@ -34,7 +34,7 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("UpdateGameServerStatus")]
-        public async Task Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -51,7 +51,7 @@ namespace XI.Portal.FuncApp
 
                 try
                 {
-                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, null, null, TimeSpan.FromMinutes(-5));
+                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId,TimeSpan.FromMinutes(-1));
                     log.LogInformation($"{model.ServerName} is online running {model.Map} with {model.PlayerCount} players connected");
 
                     await _gameServerStatusStatsRepository.UpdateEntry(new GameServerStatusStatsDto

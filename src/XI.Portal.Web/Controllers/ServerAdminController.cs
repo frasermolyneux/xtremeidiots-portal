@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Auth.ServerAdmin.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -44,14 +45,14 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel
+            var gameServerFilterModel = new GameServerFilterModel
             {
                 Order = GameServerFilterModel.OrderBy.BannerServerListPosition
             }.ApplyAuthForServerAdmin(User);
+            var servers = await _gameServersRepository.GetGameServers(gameServerFilterModel);
 
-            var servers = await _gameServersRepository.GetGameServers(filterModel);
-
-            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(User, _requiredClaims, TimeSpan.Zero);
+            var gameServerStatusFilterModel = new GameServerStatusFilterModel().ApplyAuthForGameServerStatus(User);
+            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(gameServerStatusFilterModel, TimeSpan.Zero);
 
             var results = new List<ServersController.ServerInfoViewModel>();
 
@@ -93,7 +94,7 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var portalGameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, User, _requiredClaims, TimeSpan.FromSeconds(15));
+            var portalGameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, TimeSpan.FromSeconds(15));
 
             return Json(new
             {

@@ -165,8 +165,13 @@ namespace XI.Portal.Players.Repository
 
             if (player.Username != playerDto.Username)
             {
-                var existingUsernameAlias = player.PlayerAlias.SingleOrDefault(a => a.Name == player.Username);
-                if (existingUsernameAlias == null)
+                if (player.PlayerAlias.Any(a => a.Name == player.Username))
+                {
+                    var existingUsernameAlias = player.PlayerAlias.First(a => a.Name == player.Username);
+                    existingUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
                     _legacyContext.PlayerAlias.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
@@ -175,11 +180,15 @@ namespace XI.Portal.Players.Repository
                         LastUsed = DateTime.UtcNow,
                         PlayerPlayer = player
                     });
-                else
-                    existingUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
 
-                var existingNewUsernameAlias = player.PlayerAlias.SingleOrDefault(a => a.Name == playerDto.Username);
-                if (existingNewUsernameAlias == null)
+                if (player.PlayerAlias.Any(a => a.Name == playerDto.Username))
+                {
+                    var existingNewUsernameAlias = player.PlayerAlias.First(a => a.Name == playerDto.Username);
+                    existingNewUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
                     _legacyContext.PlayerAlias.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
@@ -188,35 +197,26 @@ namespace XI.Portal.Players.Repository
                         LastUsed = DateTime.UtcNow,
                         PlayerPlayer = player
                     });
-                else
-                    existingNewUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
 
                 player.Username = playerDto.Username;
             }
             else
             {
-                var existingUsernameAlias = player.PlayerAlias.SingleOrDefault(a => a.Name == player.Username);
+                var existingUsernameAlias = player.PlayerAlias.FirstOrDefault(a => a.Name == player.Username);
                 if (existingUsernameAlias != null)
                     existingUsernameAlias.LastUsed = DateTime.UtcNow;
             }
 
             if (!string.IsNullOrWhiteSpace(playerDto.IpAddress) && player.IpAddress != playerDto.IpAddress)
             {
-                var existingIpAddressAlias = player.PlayerIpAddresses.SingleOrDefault(ip => ip.Address == player.IpAddress);
-                if (existingIpAddressAlias == null)
-                    _legacyContext.PlayerIpAddresses.Add(new PlayerIpAddresses
-                    {
-                        PlayerIpAddressId = Guid.NewGuid(),
-                        Address = player.IpAddress,
-                        Added = DateTime.UtcNow,
-                        LastUsed = DateTime.UtcNow,
-                        PlayerPlayer = player
-                    });
-                else
+                if (player.PlayerIpAddresses.Any(ip => ip.Address == player.IpAddress))
+                {
+                    var existingIpAddressAlias = player.PlayerIpAddresses.First(ip => ip.Address == player.IpAddress);
                     existingIpAddressAlias.LastUsed = DateTime.UtcNow;
-
-                var existingNewIpAddressAlias = player.PlayerIpAddresses.SingleOrDefault(ip => ip.Address == playerDto.IpAddress);
-                if (existingNewIpAddressAlias == null)
+                }
+                else
+                {
                     _legacyContext.PlayerIpAddresses.Add(new PlayerIpAddresses
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
@@ -225,14 +225,30 @@ namespace XI.Portal.Players.Repository
                         LastUsed = DateTime.UtcNow,
                         PlayerPlayer = player
                     });
-                else
+                }
+
+                if (player.PlayerIpAddresses.Any(ip => ip.Address == playerDto.IpAddress))
+                {
+                    var existingNewIpAddressAlias = player.PlayerIpAddresses.First(ip => ip.Address == playerDto.IpAddress);
                     existingNewIpAddressAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
+                    _legacyContext.PlayerIpAddresses.Add(new PlayerIpAddresses
+                    {
+                        PlayerIpAddressId = Guid.NewGuid(),
+                        Address = player.IpAddress,
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow,
+                        PlayerPlayer = player
+                    });
+                }
 
                 player.IpAddress = playerDto.IpAddress;
             }
             else
             {
-                var existingIpAddressAlias = player.PlayerIpAddresses.SingleOrDefault(ip => ip.Address == player.IpAddress);
+                var existingIpAddressAlias = player.PlayerIpAddresses.FirstOrDefault(ip => ip.Address == player.IpAddress);
                 if (existingIpAddressAlias != null)
                     player.IpAddress = playerDto.IpAddress;
             }

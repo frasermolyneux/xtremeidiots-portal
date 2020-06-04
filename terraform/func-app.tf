@@ -32,7 +32,7 @@ resource "azurerm_function_app" "xi-portal-funcapp" {
     app_service_plan_id = azurerm_app_service_plan.funcapp-service-plan.id
     version = "~3"
     app_settings {
-        "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.app-insights.instrumentation_key
+        APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.app-insights.instrumentation_key
     }
     
 }

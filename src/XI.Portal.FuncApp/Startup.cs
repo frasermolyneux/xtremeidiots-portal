@@ -5,6 +5,7 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
@@ -96,17 +97,6 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.ApiKey = config["MapsRedirect:ApiKey"];
                 });
             });
-
-            builder.Services.AddLogging(
-                logging =>
-                {
-                    logging.AddAzureTableLogger(options =>
-                    {
-                        options.CreateTableIfNotExists = true;
-                        options.StorageTableName = config["Logging:AzureTableLogger:StorageTableName"];
-                        options.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    });
-                });
         }
 
         private bool IsDevelopmentEnvironment()

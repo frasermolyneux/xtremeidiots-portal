@@ -145,7 +145,7 @@ namespace XI.Portal.FuncApp
                                 {
                                     var request = (FtpWebRequest) WebRequest.Create(requestPath);
                                     request.KeepAlive = false;
-                                    request.UsePassive = false;
+                                    request.UsePassive = true;
                                     request.Credentials = new NetworkCredential(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword);
                                     request.ContentOffset = fileMonitorStateDto.RemoteSize;
                                     request.Method = WebRequestMethods.Ftp.DownloadFile;
@@ -262,7 +262,7 @@ namespace XI.Portal.FuncApp
         private static long GetFileSize(string username, string password, string requestPath)
         {
             var request = (FtpWebRequest) WebRequest.Create(requestPath);
-            request.KeepAlive = false;
+            request.KeepAlive = true;
             request.UsePassive = false;
             request.Credentials = new NetworkCredential(username, password);
             request.Method = WebRequestMethods.Ftp.GetFileSize;

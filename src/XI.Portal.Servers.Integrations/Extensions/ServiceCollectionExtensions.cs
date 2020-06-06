@@ -7,9 +7,9 @@ namespace XI.Portal.Servers.Integrations.Extensions
     {
         public static void AddChatCommands(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddSingleton<IChatCommand, DucCommand>();
-            serviceCollection.AddSingleton<IChatCommand, FuckYouCommand>();
-            serviceCollection.AddSingleton<IChatCommand, LikeMapCommand>();
+            serviceCollection.AddScoped<IChatCommand, DucCommand>();
+            serviceCollection.AddScoped<IChatCommand, FuckYouCommand>();
+            serviceCollection.AddScoped<IChatCommand, LikeMapCommand>();
         }
     }
 }

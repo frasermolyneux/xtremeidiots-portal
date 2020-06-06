@@ -150,84 +150,82 @@ namespace XI.Portal.FuncApp
                                     request.ContentOffset = fileMonitorStateDto.RemoteSize;
                                     request.Method = WebRequestMethods.Ftp.DownloadFile;
 
-                                    using (var stream = request.GetResponse().GetResponseStream())
+                                    using var response = await request.GetResponseAsync();
+                                    using var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
+                                    var prev = -1;
+
+                                    var byteList = new List<byte>();
+
+                                    while (true)
                                     {
-                                        using (var sr = new StreamReader(stream ?? throw new InvalidOperationException()))
+                                        var cur = streamReader.Read();
+
+                                        if (cur == -1) break;
+
+                                        byteList.Add((byte) cur);
+
+                                        if (prev == '\r' && cur == '\n')
                                         {
-                                            var prev = -1;
+                                            fileMonitorStateDto.RemoteSize += byteList.Count;
+                                            fileMonitorStateDto.LastRead = DateTime.UtcNow;
 
-                                            var byteList = new List<byte>();
+                                            await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
 
-                                            while (true)
+                                            var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
+                                            try
                                             {
-                                                var cur = sr.Read();
+                                                line = line.Replace("\r\n", "");
+                                                line = line.Trim();
+                                                line = line.Substring(line.IndexOf(' ') + 1);
 
-                                                if (cur == -1) break;
-
-                                                byteList.Add((byte) cur);
-
-                                                if (prev == '\r' && cur == '\n')
+                                                if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
                                                 {
-                                                    fileMonitorStateDto.RemoteSize += byteList.Count;
-                                                    fileMonitorStateDto.LastRead = DateTime.UtcNow;
+                                                    log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
 
-                                                    await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
-
-                                                    var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
                                                     try
                                                     {
-                                                        line = line.Replace("\r\n", "");
-                                                        line = line.Trim();
-                                                        line = line.Substring(line.IndexOf(' ') + 1);
+                                                        var parts = line.Split(';');
+                                                        var guid = parts[1];
+                                                        var name = parts[3];
+                                                        var message = parts[4];
 
-                                                        if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
+                                                        var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
+
+                                                        foreach (var chatCommandHandler in chatCommandHandlers)
                                                         {
-                                                            log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
-
-                                                            try
+                                                            if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
                                                             {
-                                                                var parts = line.Split(';');
-                                                                var guid = parts[1];
-                                                                var name = parts[3];
-                                                                var message = parts[4];
-
-                                                                var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
-
-                                                                foreach (var chatCommandHandler in chatCommandHandlers)
-                                                                {
-                                                                    if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
-                                                                    {
-                                                                        log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
-                                                                        await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
-                                                                    }
-                                                                }
-                                                            }
-                                                            catch (Exception ex)
-                                                            {
-                                                                log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
-                                                                log.LogWarning(ex.Message);
-
-                                                                if (ex.InnerException != null)
-                                                                    log.LogWarning(ex.InnerException.Message);
+                                                                log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
+                                                                await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
                                                             }
                                                         }
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        log.LogWarning(ex, $"Failed to process chat message for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                        log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
                                                         log.LogWarning(ex.Message);
 
                                                         if (ex.InnerException != null)
                                                             log.LogWarning(ex.InnerException.Message);
                                                     }
-
-                                                    byteList = new List<byte>();
                                                 }
-
-                                                prev = cur;
                                             }
+                                            catch (Exception ex)
+                                            {
+                                                log.LogWarning(ex, $"Failed to process chat message for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                log.LogWarning(ex.Message);
+
+                                                if (ex.InnerException != null)
+                                                    log.LogWarning(ex.InnerException.Message);
+                                            }
+
+                                            byteList = new List<byte>();
                                         }
+
+                                        prev = cur;
                                     }
+
+                                    response?.Dispose();
                                 }
                                 catch (Exception ex)
                                 {

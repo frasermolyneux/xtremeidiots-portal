@@ -7,7 +7,7 @@
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": true
+        "isEnabled": false
       }
     }
   }

@@ -172,8 +172,6 @@ namespace XI.Portal.FuncApp
                                                     await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
 
                                                     var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
-                                                    log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
-
                                                     try
                                                     {
                                                         line = line.Replace("\r\n", "");
@@ -182,26 +180,43 @@ namespace XI.Portal.FuncApp
 
                                                         if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
                                                         {
-                                                            var parts = line.Split(';');
-                                                            var guid = parts[1];
-                                                            var name = parts[3];
-                                                            var message = parts[4];
+                                                            log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
 
-                                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
-
-                                                            foreach (var chatCommandHandler in chatCommandHandlers)
+                                                            try
                                                             {
-                                                                if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
+                                                                var parts = line.Split(';');
+                                                                var guid = parts[1];
+                                                                var name = parts[3];
+                                                                var message = parts[4];
+
+                                                                var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
+
+                                                                foreach (var chatCommandHandler in chatCommandHandlers)
                                                                 {
-                                                                    log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
-                                                                    await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
+                                                                    if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
+                                                                    {
+                                                                        log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
+                                                                        await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
+                                                                    }
                                                                 }
+                                                            }
+                                                            catch (Exception ex)
+                                                            {
+                                                                log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                                log.LogWarning(ex.Message);
+
+                                                                if (ex.InnerException != null)
+                                                                    log.LogWarning(ex.InnerException.Message);
                                                             }
                                                         }
                                                     }
                                                     catch (Exception ex)
                                                     {
-                                                        log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                        log.LogWarning(ex, $"Failed to process chat message for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                        log.LogWarning(ex.Message);
+
+                                                        if (ex.InnerException != null)
+                                                            log.LogWarning(ex.InnerException.Message);
                                                     }
 
                                                     byteList = new List<byte>();

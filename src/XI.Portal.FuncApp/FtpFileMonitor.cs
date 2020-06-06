@@ -31,7 +31,7 @@ namespace XI.Portal.FuncApp
         [FunctionName("SyncLogFileMonitorState")]
         public async Task SyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"Start SyncLogFileMonitorState @ {DateTime.Now}");
+            log.LogDebug($"Start SyncLogFileMonitorState @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -58,6 +58,8 @@ namespace XI.Portal.FuncApp
                         RemoteSize = -1,
                         LastRead = DateTime.UtcNow
                     });
+
+                    log.LogInformation($"Creating new log file monitor state object for {fileMonitorDto.GameServer.Title} against path {fileMonitorDto.FilePath}");
                 }
                 else
                 {
@@ -72,13 +74,13 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogInformation($"Stop SyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop SyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         [FunctionName("MonitorLogFile")]
         public async Task MonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"Start MonitorLogFile @ {DateTime.Now}");
+            log.LogDebug($"Start MonitorLogFile @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -106,14 +108,14 @@ namespace XI.Portal.FuncApp
 
                         if (statusModel.PlayerCount > 0)
                         {
-                            log.LogInformation($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
+                            log.LogDebug($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
 
                             if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-5))
                             {
-                                log.LogWarning($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in five minutes");
+                                log.LogDebug($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in five minutes");
 
                                 var fileSize = GetFileSize(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword, requestPath);
-                                log.LogInformation($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
+                                log.LogDebug($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
 
                                 fileMonitorStateDto.LastRead = DateTime.UtcNow;
                                 fileMonitorStateDto.RemoteSize = fileSize;
@@ -122,7 +124,7 @@ namespace XI.Portal.FuncApp
                             }
                             else
                             {
-                                log.LogInformation("TODO - Read offset of file here and process the new data");
+                                log.LogDebug("TODO - Read offset of file here and process the new data");
                             }
                         }
                         else
@@ -142,7 +144,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogInformation($"Stop MonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop MonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         private static long GetFileSize(string username, string password, string requestPath)

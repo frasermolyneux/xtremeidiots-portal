@@ -19,7 +19,7 @@ namespace XI.Portal.FuncApp
         private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
 
         public FtpFileMonitor(
-            IFileMonitorsRepository fileMonitorsRepository, 
+            IFileMonitorsRepository fileMonitorsRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             ILogFileMonitorStateRepository logFileMonitorStateRepository)
         {
@@ -83,55 +83,62 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
-            var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
-
-            log.LogDebug($"Processing {fileMonitorStates.Count} file monitor states");
-
-            foreach (var fileMonitorStateDto in fileMonitorStates)
+            try
             {
-                var requestPath = $"ftp://{fileMonitorStateDto.FtpHostname}{fileMonitorStateDto.FilePath}";
+                var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
+                var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
 
-                try
+                log.LogDebug($"Processing {fileMonitorStates.Count} file monitor states");
+
+                foreach (var fileMonitorStateDto in fileMonitorStates)
                 {
-                    var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorStateDto.ServerId);
+                    var requestPath = $"ftp://{fileMonitorStateDto.FtpHostname}{fileMonitorStateDto.FilePath}";
 
-                    if (statusModel == null)
+                    try
                     {
-                        log.LogWarning($"There is no game server status model for {fileMonitorStateDto.ServerTitle}");
-                        continue;
-                    }
+                        var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorStateDto.ServerId);
 
-                    if (statusModel.PlayerCount > 0)
-                    {
-                        log.LogInformation($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
-
-                        if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-5))
+                        if (statusModel == null)
                         {
-                            log.LogWarning($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in five minutes");
+                            log.LogWarning($"There is no game server status model for {fileMonitorStateDto.ServerTitle}");
+                            continue;
+                        }
 
-                            var fileSize = GetFileSize(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword, requestPath);
-                            log.LogInformation($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
+                        if (statusModel.PlayerCount > 0)
+                        {
+                            log.LogInformation($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
 
-                            fileMonitorStateDto.LastRead = DateTime.UtcNow;
-                            fileMonitorStateDto.RemoteSize = fileSize;
+                            if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-5))
+                            {
+                                log.LogWarning($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in five minutes");
 
-                            await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
+                                var fileSize = GetFileSize(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword, requestPath);
+                                log.LogInformation($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
+
+                                fileMonitorStateDto.LastRead = DateTime.UtcNow;
+                                fileMonitorStateDto.RemoteSize = fileSize;
+
+                                await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
+                            }
+                            else
+                            {
+                                log.LogInformation("TODO - Read offset of file here and process the new data");
+                            }
                         }
                         else
                         {
-                            log.LogInformation("TODO - Read offset of file here and process the new data");
+                            log.LogDebug($"Skipping monitor as the player count is 0 for {fileMonitorStateDto.ServerTitle}");
                         }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        log.LogDebug($"Skipping monitor as the player count is 0 for {fileMonitorStateDto.ServerTitle}");
+                        log.LogError(ex, $"Exception processing request for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
                     }
                 }
-                catch (Exception ex)
-                {
-                    log.LogError(ex, $"Exception processing request for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
-                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Top-level exception processing the MonitorLogFile function");
             }
 
             stopWatch.Stop();
@@ -140,11 +147,11 @@ namespace XI.Portal.FuncApp
 
         private static long GetFileSize(string username, string password, string requestPath)
         {
-            var request = (FtpWebRequest)WebRequest.Create(requestPath);
+            var request = (FtpWebRequest) WebRequest.Create(requestPath);
             request.Credentials = new NetworkCredential(username, password);
             request.Method = WebRequestMethods.Ftp.GetFileSize;
 
-            var fileSize = ((FtpWebResponse)request.GetResponse()).ContentLength;
+            var fileSize = ((FtpWebResponse) request.GetResponse()).ContentLength;
             return fileSize;
         }
     }

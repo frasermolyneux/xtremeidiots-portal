@@ -230,6 +230,10 @@ namespace XI.Portal.FuncApp
                                 catch (Exception ex)
                                 {
                                     log.LogError(ex, $"Failed to read log file for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
+                                    log.LogError(ex.Message);
+
+                                    if (ex.InnerException != null)
+                                        log.LogError(ex.InnerException.Message);
                                 }
                             }
                         }

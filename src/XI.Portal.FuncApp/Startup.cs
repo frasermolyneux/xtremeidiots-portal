@@ -63,6 +63,12 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["GameServerStatusStatsRepository:StorageTableName"];
                 });
+
+                options.ConfigureLogFileMonitorStateRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["LogFileMonitorState:StorageTableName"];
+                });
             });
 
             builder.Services.AddPlayersModule(options =>

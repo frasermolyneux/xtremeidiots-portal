@@ -41,6 +41,17 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddScoped<IGameServerStatusStatsRepository, GameServerStatusStatsRepository>();
             }
 
+            if (options.LogFileMonitorStateRepositoryOptions != null)
+            {
+                ILogFileMonitorStateRepositoryOptions subOptions = new LogFileMonitorStateRepositoryOptions();
+                options.LogFileMonitorStateRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<ILogFileMonitorStateRepository, LogFileMonitorStateRepository>();
+            }
+
             serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
             serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
             serviceCollection.AddScoped<IFileMonitorsRepository, FileMonitorsRepository>();

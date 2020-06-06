@@ -14,5 +14,10 @@ namespace XI.Portal.Servers.Extensions
         {
             options.GameServerStatusStatsRepositoryOptions = repositoryOptions;
         }
+
+        public static void ConfigureLogFileMonitorStateRepository(this IServersModuleOptions options, Action<ILogFileMonitorStateRepositoryOptions> repositoryOptions)
+        {
+            options.LogFileMonitorStateRepositoryOptions = repositoryOptions;
+        }
     }
 }

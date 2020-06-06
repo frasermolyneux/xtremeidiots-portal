@@ -29,10 +29,8 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("SyncLogFileMonitorState")]
-        public async Task SyncLogFileMonitorState([TimerTrigger("* */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task SyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-
-            
             log.LogInformation($"Start SyncLogFileMonitorState @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();

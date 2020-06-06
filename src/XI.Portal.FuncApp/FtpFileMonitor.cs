@@ -7,9 +7,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
 using XI.Portal.Servers.Dto;
+using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
@@ -21,15 +22,18 @@ namespace XI.Portal.FuncApp
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
+        private readonly IServiceProvider _serviceProvider;
 
         public FtpFileMonitor(
             IFileMonitorsRepository fileMonitorsRepository,
             IGameServerStatusRepository gameServerStatusRepository,
-            ILogFileMonitorStateRepository logFileMonitorStateRepository)
+            ILogFileMonitorStateRepository logFileMonitorStateRepository,
+            IServiceProvider serviceProvider)
         {
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _logFileMonitorStateRepository = logFileMonitorStateRepository ?? throw new ArgumentNullException(nameof(logFileMonitorStateRepository));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         [FunctionName("SyncLogFileMonitorState")]
@@ -169,6 +173,37 @@ namespace XI.Portal.FuncApp
 
                                                     var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
                                                     log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
+
+                                                    try
+                                                    {
+                                                        line = line.Replace("\r\n", "");
+                                                        line = line.Trim();
+                                                        line = line.Substring(line.IndexOf(' ') + 1);
+
+                                                        if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
+                                                        {
+                                                            var parts = line.Split(';');
+                                                            var guid = parts[1];
+                                                            var name = parts[3];
+                                                            var message = parts[4];
+
+                                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
+
+                                                            foreach (var chatCommandHandler in chatCommandHandlers)
+                                                            {
+                                                                if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
+                                                                {
+                                                                    log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
+                                                                    await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
+                                                    }
+
                                                     byteList = new List<byte>();
                                                 }
 

@@ -10,6 +10,7 @@ using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
+using XI.Portal.Servers.Integrations.Extensions;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -95,6 +96,8 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.ApiKey = config["MapsRedirect:ApiKey"];
                 });
             });
+
+            builder.Services.AddChatCommands();
         }
 
         private bool IsDevelopmentEnvironment()

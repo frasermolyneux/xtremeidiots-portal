@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Servers.Interfaces;
@@ -84,6 +85,11 @@ namespace XI.Servers.Clients
             }
 
             return players;
+        }
+
+        public Task Say(string message)
+        {
+            return Task.CompletedTask;
         }
 
         private string PlayerStatus()

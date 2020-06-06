@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Polly;
 using XI.CommonTypes;
@@ -83,6 +84,17 @@ namespace XI.Servers.Clients
             }
 
             return players;
+        }
+
+        public Task Say(string message)
+        {
+            _logger.LogDebug("[{ServerId}] Attempting to send '{message]' to the server", _serverId, message);
+
+            Policy.Handle<Exception>()
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
+                .Execute(() => GetCommandPackets($"say \"{message}\""));
+
+            return Task.CompletedTask;
         }
 
         private string PlayerStatus()

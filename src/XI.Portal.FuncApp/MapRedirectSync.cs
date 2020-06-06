@@ -35,9 +35,10 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("MapRedirectSync")]
-        public async Task Run([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
+        // ReSharper disable once UnusedMember.Global
+        public async Task RunMapRedirectSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"Starting map redirect sync: {DateTime.Now}");
+            log.LogDebug($"Start RunMapRedirectSync @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -57,7 +58,7 @@ namespace XI.Portal.FuncApp
                 };
                 var mapDatabaseEntries = await _mapsRepository.GetMaps(mapsFilterModel);
 
-                log.LogInformation("Total maps retrieved from redirect for {game} is {redirectMapCount} and database is {databaseMapCount}", game, mapRedirectEntries.Count, mapDatabaseEntries.Count);
+                log.LogDebug("Total maps retrieved from redirect for {game} is {redirectMapCount} and database is {databaseMapCount}", game, mapRedirectEntries.Count, mapDatabaseEntries.Count);
 
                 foreach (var mapDto in mapDatabaseEntries)
                     if (mapRedirectEntries.Any(mre => mre.MapName == mapDto.MapName))
@@ -67,7 +68,7 @@ namespace XI.Portal.FuncApp
 
                         if (mapFiles.Count != mapDto.MapFiles.Count)
                         {
-                            log.LogInformation("Map {MapName} map file count differs", mapDto.MapName);
+                            log.LogDebug("Map {MapName} map file count differs", mapDto.MapName);
 
                             mapDto.MapFiles = mapFiles.Select(mf => new MapFileDto
                             {
@@ -89,7 +90,7 @@ namespace XI.Portal.FuncApp
                                 }
                                 else
                                 {
-                                    log.LogInformation("Deleting {MapName} as it is not on the redirect", mapDto.MapName);
+                                    log.LogDebug("Deleting {MapName} as it is not on the redirect", mapDto.MapName);
                                     await _mapsRepository.DeleteMap(mapDto.MapId);
                                 }
                             }
@@ -102,7 +103,7 @@ namespace XI.Portal.FuncApp
                 foreach (var mapRedirectEntry in mapRedirectEntries)
                     if (mapDatabaseEntries.All(mde => mde.MapName != mapRedirectEntry.MapName))
                     {
-                        log.LogInformation("Map {MapName} is missing from the database", mapRedirectEntry.MapName);
+                        log.LogDebug("Map {MapName} is missing from the database", mapRedirectEntry.MapName);
 
                         var mapFiles = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).ToList();
 
@@ -121,7 +122,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogInformation($"C# Timer completed after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunMapRedirectSync @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

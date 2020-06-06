@@ -20,9 +20,10 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("DataMaintenance")]
-        public async Task Run([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
+        // ReSharper disable once UnusedMember.Global
+        public async Task RunDataMaintenance([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"Starting player locations maintenance: {DateTime.Now}");
+            log.LogDebug($"Start RunDataMaintenance @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -31,7 +32,7 @@ namespace XI.Portal.FuncApp
             await _playersCache.RemoveOldEntries();
 
             stopWatch.Stop();
-            log.LogInformation($"C# Timer completed after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunDataMaintenance @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

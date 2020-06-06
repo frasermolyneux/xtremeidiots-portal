@@ -5,8 +5,6 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;

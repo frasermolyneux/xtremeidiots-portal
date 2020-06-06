@@ -29,9 +29,10 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("SyncLogFileMonitorState")]
-        public async Task SyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        // ReSharper disable once UnusedMember.Global
+        public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start SyncLogFileMonitorState @ {DateTime.Now}");
+            log.LogDebug($"Start RunSyncLogFileMonitorState @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -74,13 +75,14 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop SyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         [FunctionName("MonitorLogFile")]
-        public async Task MonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
+        // ReSharper disable once UnusedMember.Global
+        public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start MonitorLogFile @ {DateTime.Now}");
+            log.LogDebug($"Start RunMonitorLogFile @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -144,7 +146,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop MonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         private static long GetFileSize(string username, string password, string requestPath)

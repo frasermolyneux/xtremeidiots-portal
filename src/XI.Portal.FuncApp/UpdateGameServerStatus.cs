@@ -34,9 +34,10 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("UpdateGameServerStatus")]
-        public async Task Run([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
+        // ReSharper disable once UnusedMember.Global
+        public async Task RunUpdateGameServerStatus([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+            log.LogDebug($"Start RunUpdateGameServerStatus @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -47,7 +48,7 @@ namespace XI.Portal.FuncApp
 
             foreach (var server in servers)
             {
-                log.LogInformation("Updating game server status for {Title}", server.Title);
+                log.LogDebug("Updating game server status for {Title}", server.Title);
 
                 try
                 {
@@ -84,7 +85,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogInformation($"C# Timer completed after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunUpdateGameServerStatus @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

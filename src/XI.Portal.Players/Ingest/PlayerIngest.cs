@@ -39,13 +39,13 @@ namespace XI.Portal.Players.Ingest
                 return;
             }
 
-            _logger.LogInformation("Ingesting gameType '{GameType}', guid '{Guid}', username '{Username}', ipAddress '{IpAddress}'", gameType, guid, username, ipAddress);
+            _logger.LogDebug("Ingesting gameType '{GameType}', guid '{Guid}', username '{Username}', ipAddress '{IpAddress}'", gameType, guid, username, ipAddress);
 
             var cachedPlayer = await _playersCacheRepository.GetPlayer(gameType, guid);
 
             if (cachedPlayer != null)
             {
-                _logger.LogInformation("Player {Username} with Guid {Guid} for {GameType} exists in cache", cachedPlayer.Username, cachedPlayer.Guid, cachedPlayer.GameType);
+                _logger.LogDebug("Player {Username} with Guid {Guid} for {GameType} exists in cache", cachedPlayer.Username, cachedPlayer.Guid, cachedPlayer.GameType);
 
                 var playerDto = new PlayerDto
                 {
@@ -77,7 +77,7 @@ namespace XI.Portal.Players.Ingest
 
                 if (update)
                 {
-                    _logger.LogInformation("Updating database player information for {Guid}", guid);
+                    _logger.LogDebug("Updating database player information for {Guid}", guid);
 
                     await _playersRepository.UpdatePlayer(playerDto);
 
@@ -112,7 +112,7 @@ namespace XI.Portal.Players.Ingest
                 }
                 else
                 {
-                    _logger.LogInformation("Adding the player to the cache with guid {Guid}", guid);
+                    _logger.LogDebug("Adding the player to the cache with guid {Guid}", guid);
 
                     var playerCacheEntity = new PlayerCacheEntity
                     {

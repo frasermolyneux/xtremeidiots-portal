@@ -4,6 +4,11 @@
     "logLevel": {
       "default": "Debug",
       "Microsoft": "Information"
+    },
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": false
+      }
     }
   }
 }

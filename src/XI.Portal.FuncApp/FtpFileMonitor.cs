@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -65,7 +69,14 @@ namespace XI.Portal.FuncApp
                 else
                 {
                     fileMonitorState.ServerTitle = fileMonitorDto.GameServer.Title;
-                    fileMonitorState.FilePath = fileMonitorDto.FilePath;
+
+                    if (fileMonitorState.FilePath != fileMonitorDto.FilePath)
+                    {
+                        fileMonitorState.FilePath = fileMonitorDto.FilePath;
+                        fileMonitorState.RemoteSize = -1;
+                        fileMonitorState.LastRead = DateTime.UtcNow;
+                    }
+
                     fileMonitorState.FtpHostname = fileMonitorDto.GameServer.FtpHostname;
                     fileMonitorState.FtpUsername = fileMonitorDto.GameServer.FtpUsername;
                     fileMonitorState.FtpPassword = fileMonitorDto.GameServer.FtpPassword;
@@ -97,8 +108,8 @@ namespace XI.Portal.FuncApp
                 foreach (var fileMonitorStateDto in fileMonitorStates)
                 {
                     var requestPath = $"ftp://{fileMonitorStateDto.FtpHostname}{fileMonitorStateDto.FilePath}";
-
                     try
+
                     {
                         var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorStateDto.ServerId);
 
@@ -112,9 +123,9 @@ namespace XI.Portal.FuncApp
                         {
                             log.LogDebug($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
 
-                            if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-5))
+                            if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-1))
                             {
-                                log.LogDebug($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in five minutes");
+                                log.LogDebug($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in the past minute");
 
                                 var fileSize = GetFileSize(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword, requestPath);
                                 log.LogDebug($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
@@ -126,7 +137,50 @@ namespace XI.Portal.FuncApp
                             }
                             else
                             {
-                                log.LogDebug("TODO - Read offset of file here and process the new data");
+                                try
+                                {
+                                    var request = (FtpWebRequest) WebRequest.Create(requestPath);
+                                    request.Credentials = new NetworkCredential(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword);
+                                    request.ContentOffset = fileMonitorStateDto.RemoteSize;
+                                    request.Method = WebRequestMethods.Ftp.DownloadFile;
+
+                                    using (var stream = request.GetResponse().GetResponseStream())
+                                    {
+                                        using (var sr = new StreamReader(stream ?? throw new InvalidOperationException()))
+                                        {
+                                            var prev = -1;
+
+                                            var byteList = new List<byte>();
+
+                                            while (true)
+                                            {
+                                                var cur = sr.Read();
+
+                                                if (cur == -1) break;
+
+                                                byteList.Add((byte) cur);
+
+                                                if (prev == '\r' && cur == '\n')
+                                                {
+                                                    fileMonitorStateDto.RemoteSize += byteList.Count;
+                                                    fileMonitorStateDto.LastRead = DateTime.UtcNow;
+
+                                                    await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
+
+                                                    var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
+                                                    log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
+                                                    byteList = new List<byte>();
+                                                }
+
+                                                prev = cur;
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    log.LogError(ex, $"Failed to read log file for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
+                                }
                             }
                         }
                         else

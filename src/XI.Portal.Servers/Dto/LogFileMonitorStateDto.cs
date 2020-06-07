@@ -14,6 +14,7 @@ namespace XI.Portal.Servers.Dto
         public string FtpUsername { get; set; }
         public string FtpPassword { get; set; }
         public long RemoteSize { get; set; }
+        public DateTime LastReadAttempt { get; set; }
         public DateTime LastRead { get; set; }
     }
 }

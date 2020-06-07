@@ -45,6 +45,7 @@ namespace XI.Portal.Servers.Repository
                         FtpUsername = entity.FtpUsername,
                         FtpPassword = entity.FtpPassword,
                         RemoteSize = entity.RemoteSize,
+                        LastReadAttempt = entity.LastReadAttempt,
                         LastRead = entity.LastRead
                     };
 

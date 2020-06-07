@@ -27,6 +27,7 @@ namespace XI.Portal.Servers.Models
             FtpUsername = model.FtpUsername;
             FtpPassword = model.FtpPassword;
             RemoteSize = model.RemoteSize;
+            LastReadAttempt = model.LastReadAttempt;
             LastRead = model.LastRead;
         }
 
@@ -38,6 +39,7 @@ namespace XI.Portal.Servers.Models
         public string FtpUsername { get; set; }
         public string FtpPassword { get; set; }
         public long RemoteSize { get; set; }
+        public DateTime LastReadAttempt { get; set; }
         public DateTime LastRead { get; set; }
     }
 }

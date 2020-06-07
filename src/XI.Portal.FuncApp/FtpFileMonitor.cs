@@ -38,7 +38,7 @@ namespace XI.Portal.FuncApp
 
         [FunctionName("SyncLogFileMonitorState")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */15 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start RunSyncLogFileMonitorState @ {DateTime.Now}");
 
@@ -65,6 +65,7 @@ namespace XI.Portal.FuncApp
                         FtpUsername = fileMonitorDto.GameServer.FtpUsername,
                         FtpPassword = fileMonitorDto.GameServer.FtpPassword,
                         RemoteSize = -1,
+                        LastReadAttempt = DateTime.UtcNow,
                         LastRead = DateTime.UtcNow
                     });
 
@@ -78,6 +79,7 @@ namespace XI.Portal.FuncApp
                     {
                         fileMonitorState.FilePath = fileMonitorDto.FilePath;
                         fileMonitorState.RemoteSize = -1;
+                        fileMonitorState.LastReadAttempt = DateTime.UtcNow;
                         fileMonitorState.LastRead = DateTime.UtcNow;
                     }
 
@@ -93,168 +95,43 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
-        [FunctionName("MonitorLogFile")]
+        [FunctionName("MonitorLogFileOrchestrator")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunMonitorLogFileOrchestrator([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunMonitorLogFile @ {DateTime.Now}");
+            log.LogDebug($"Start RunMonitorLogFileOrchestrator @ {DateTime.Now}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            try
+            var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
+            var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
+
+            log.LogDebug($"Processing {fileMonitorStates.Count} file monitor states");
+
+            foreach (var fileMonitorStateDto in fileMonitorStates)
             {
-                var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
-                var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
+                var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorStateDto.ServerId);
 
-                log.LogDebug($"Processing {fileMonitorStates.Count} file monitor states");
-
-                foreach (var fileMonitorStateDto in fileMonitorStates)
+                if (statusModel == null)
                 {
-                    var requestPath = $"ftp://{fileMonitorStateDto.FtpHostname}{fileMonitorStateDto.FilePath}";
-                    try
-
-                    {
-                        var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorStateDto.ServerId);
-
-                        if (statusModel == null)
-                        {
-                            log.LogWarning($"There is no game server status model for {fileMonitorStateDto.ServerTitle}");
-                            continue;
-                        }
-
-                        if (statusModel.PlayerCount > 0)
-                        {
-                            log.LogDebug($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
-
-                            if (fileMonitorStateDto.RemoteSize == -1 || fileMonitorStateDto.LastRead < DateTime.UtcNow.AddMinutes(-1))
-                            {
-                                log.LogDebug($"The remote file for {fileMonitorStateDto.ServerTitle} ({requestPath}) has not been read in the past minute");
-
-                                var fileSize = GetFileSize(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword, requestPath);
-                                log.LogDebug($"The remote file size for {fileMonitorStateDto.ServerTitle} is {fileSize} bytes");
-
-                                fileMonitorStateDto.LastRead = DateTime.UtcNow;
-                                fileMonitorStateDto.RemoteSize = fileSize;
-
-                                await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    var request = (FtpWebRequest) WebRequest.Create(requestPath);
-                                    request.KeepAlive = false;
-                                    request.UsePassive = true;
-                                    request.Credentials = new NetworkCredential(fileMonitorStateDto.FtpUsername, fileMonitorStateDto.FtpPassword);
-                                    request.ContentOffset = fileMonitorStateDto.RemoteSize;
-                                    request.Method = WebRequestMethods.Ftp.DownloadFile;
-
-                                    using var response = await request.GetResponseAsync();
-                                    using var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
-                                    var prev = -1;
-
-                                    var byteList = new List<byte>();
-
-                                    while (true)
-                                    {
-                                        var cur = streamReader.Read();
-
-                                        if (cur == -1) break;
-
-                                        byteList.Add((byte) cur);
-
-                                        if (prev == '\r' && cur == '\n')
-                                        {
-                                            fileMonitorStateDto.RemoteSize += byteList.Count;
-                                            fileMonitorStateDto.LastRead = DateTime.UtcNow;
-
-                                            await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
-
-                                            var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
-                                            try
-                                            {
-                                                line = line.Replace("\r\n", "");
-                                                line = line.Trim();
-                                                line = line.Substring(line.IndexOf(' ') + 1);
-
-                                                if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
-                                                {
-                                                    log.LogDebug($"[{fileMonitorStateDto.ServerTitle}] {line}");
-
-                                                    try
-                                                    {
-                                                        var parts = line.Split(';');
-                                                        var guid = parts[1];
-                                                        var name = parts[3];
-                                                        var message = parts[4];
-
-                                                        var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
-
-                                                        foreach (var chatCommandHandler in chatCommandHandlers)
-                                                        {
-                                                            if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
-                                                            {
-                                                                log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
-                                                                await chatCommandHandler.ProcessMessage(fileMonitorStateDto.ServerId, name, guid, message);
-                                                            }
-                                                        }
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-                                                        log.LogWarning(ex, $"Failed to execute chat command for {fileMonitorStateDto.ServerTitle} with data {line}");
-                                                        log.LogWarning(ex.Message);
-
-                                                        if (ex.InnerException != null)
-                                                            log.LogWarning(ex.InnerException.Message);
-                                                    }
-                                                }
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                log.LogWarning(ex, $"Failed to process chat message for {fileMonitorStateDto.ServerTitle} with data {line}");
-                                                log.LogWarning(ex.Message);
-
-                                                if (ex.InnerException != null)
-                                                    log.LogWarning(ex.InnerException.Message);
-                                            }
-
-                                            byteList = new List<byte>();
-                                        }
-
-                                        prev = cur;
-                                    }
-
-                                    response?.Dispose();
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.LogError(ex, $"Failed to read log file for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
-                                    log.LogError(ex.Message);
-
-                                    if (ex.InnerException != null)
-                                        log.LogError(ex.InnerException.Message);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            log.LogDebug($"Skipping monitor as the player count is 0 for {fileMonitorStateDto.ServerTitle}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.LogError(ex, $"Exception processing request for {fileMonitorStateDto.ServerTitle} against file {requestPath}");
-                    }
+                    log.LogWarning($"There is no game server status model for {fileMonitorStateDto.ServerTitle}");
+                    continue;
                 }
-            }
-            catch (Exception ex)
-            {
-                log.LogError(ex, "Top-level exception processing the MonitorLogFile function");
+
+                if (statusModel.PlayerCount > 0)
+                {
+                    fileMonitorStateDto.LastReadAttempt = DateTime.UtcNow;
+                    await _logFileMonitorStateRepository.UpdateState(fileMonitorStateDto);
+
+                    var requestPath = $"ftp://{fileMonitorStateDto.FtpHostname}{fileMonitorStateDto.FilePath}";
+                    log.LogDebug($"Performing request for {fileMonitorStateDto.ServerTitle} against file {requestPath} as player count is {statusModel.PlayerCount}");
+                    log.LogInformation("TODO - Call a function that will perform the FTP request");
+                }
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunMonitorLogFileOrchestrator @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         private static long GetFileSize(string username, string password, string requestPath)

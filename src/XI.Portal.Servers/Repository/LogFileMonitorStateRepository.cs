@@ -46,7 +46,8 @@ namespace XI.Portal.Servers.Repository
                         FtpPassword = entity.FtpPassword,
                         RemoteSize = entity.RemoteSize,
                         LastReadAttempt = entity.LastReadAttempt,
-                        LastRead = entity.LastRead
+                        LastRead = entity.LastRead,
+                        PlayerCount = entity.PlayerCount
                     };
 
                     results.Add(fileMonitorStateDto);

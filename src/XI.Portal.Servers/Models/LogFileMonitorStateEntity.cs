@@ -29,6 +29,7 @@ namespace XI.Portal.Servers.Models
             RemoteSize = model.RemoteSize;
             LastReadAttempt = model.LastReadAttempt;
             LastRead = model.LastRead;
+            PlayerCount = model.PlayerCount;
         }
 
         public Guid ServerId { get; set; }
@@ -41,5 +42,6 @@ namespace XI.Portal.Servers.Models
         public long RemoteSize { get; set; }
         public DateTime LastReadAttempt { get; set; }
         public DateTime LastRead { get; set; }
+        public int PlayerCount { get; set; }
     }
 }

@@ -16,5 +16,6 @@ namespace XI.Portal.Servers.Dto
         public long RemoteSize { get; set; }
         public DateTime LastReadAttempt { get; set; }
         public DateTime LastRead { get; set; }
+        public int PlayerCount { get; set; }
     }
 }

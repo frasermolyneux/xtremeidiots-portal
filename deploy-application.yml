@@ -46,7 +46,7 @@ stages:
             inputs:
               command: plan
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              commandOptions: '-var="environment=$(environment)"'
+              commandOptions: '-var="environment=$(environment)" -var="hostname=$(hostname)" -var="hostname_zone_id=$(hostname_zone_id)" -var="cloudflare_api_token=$(cloudflare_api_token)"'
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
 
           - task: TerraformTaskV1@0
@@ -55,7 +55,7 @@ stages:
             inputs:
               command: apply
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              commandOptions: '-var="environment=$(environment)"'
+              commandOptions: '-var="environment=$(environment)" -var="hostname=$(hostname)" -var="hostname_zone_id=$(hostname_zone_id)" -var="cloudflare_api_token=$(cloudflare_api_token)"'
               environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
 
           - powershell: |

@@ -34,7 +34,7 @@ resource "cloudflare_record" "frontend-dns" {
   name = var.hostname
   value = azurerm_app_service.app-service.default_site_hostname
   type = "CNAME"
-  proxied = false
+  proxied = true
 }
 
 #This is buggy as shit. Can do it manually through portal.azure.com but fails through here.

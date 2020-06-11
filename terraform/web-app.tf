@@ -15,8 +15,6 @@ resource "azurerm_app_service_plan" "app-service-plan" {
     name = "XI-Portal-Web-AppPlan-${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
-    kind = "Linux"
-    reserved = true
 
     sku {
         tier = "Basic"

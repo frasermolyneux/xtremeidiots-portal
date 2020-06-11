@@ -88,7 +88,7 @@ namespace XI.Servers.Clients
 
         public Task Say(string message)
         {
-            _logger.LogDebug("[{ServerId}] Attempting to send '{message]' to the server", _serverId, message);
+            _logger.LogDebug("[{ServerId}] Attempting to send '{message}' to the server", _serverId, message);
 
             Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })

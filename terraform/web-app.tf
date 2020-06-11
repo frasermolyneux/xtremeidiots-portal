@@ -45,8 +45,8 @@ resource "cloudflare_record" "verify-dns" {
   proxied = false
 }
 
-resource "azurerm_app_service_custom_hostname_binding" "portal-xtremeidiots-com" {
-  hostname = "portal.xtremeidiots.com"
+resource "azurerm_app_service_custom_hostname_binding" "custom-hostname" {
+  hostname = var.environment
   app_service_name = azurerm_app_service.app-service.name
   resource_group_name = azurerm_resource_group.resource-group.name
 }

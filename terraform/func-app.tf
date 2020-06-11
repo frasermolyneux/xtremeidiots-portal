@@ -29,7 +29,7 @@ resource "azurerm_function_app" "xi-portal-funcapp" {
     location = azurerm_resource_group.resource-group.location
     resource_group_name = azurerm_resource_group.resource-group.name
     storage_connection_string = azurerm_storage_account.funcapp-storage-account.primary_connection_string
-    app_service_plan_id = azurerm_app_service_plan.funcapp-service-plan-plan.id
+    app_service_plan_id = azurerm_app_service_plan.funcapp-service-plan.id
     version = "~3"
     app_settings = {
         APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.app-insights.instrumentation_key

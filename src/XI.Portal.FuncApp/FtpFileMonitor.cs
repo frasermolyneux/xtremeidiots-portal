@@ -120,119 +120,121 @@ namespace XI.Portal.FuncApp
             if (!fileMonitorStates.Any())
                 return;
 
-            var selectedLogFileMonitor = fileMonitorStates.OrderBy(fm => fm.LastReadAttempt).First();
-            selectedLogFileMonitor.LastReadAttempt = DateTime.UtcNow;
-            await _logFileMonitorStateRepository.UpdateState(selectedLogFileMonitor);
-
-            var requestPath = $"ftp://{selectedLogFileMonitor.FtpHostname}{selectedLogFileMonitor.FilePath}";
-            log.LogDebug($"Performing request for {selectedLogFileMonitor.ServerTitle} against file {requestPath} as player count is {selectedLogFileMonitor.PlayerCount}");
-
-            if (selectedLogFileMonitor.RemoteSize == -1 || selectedLogFileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-1))
+            foreach (var logFileMonitor in fileMonitorStates)
             {
-                log.LogDebug($"The remote file for {selectedLogFileMonitor.ServerTitle} ({requestPath}) has not been read in the past minute");
+                logFileMonitor.LastReadAttempt = DateTime.UtcNow;
+                await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
 
-                var fileSize = GetFileSize(selectedLogFileMonitor.FtpUsername, selectedLogFileMonitor.FtpPassword, requestPath);
-                log.LogDebug($"The remote file size for {selectedLogFileMonitor.ServerTitle} is {fileSize} bytes");
+                var requestPath = $"ftp://{logFileMonitor.FtpHostname}{logFileMonitor.FilePath}";
+                log.LogDebug($"Performing request for {logFileMonitor.ServerTitle} against file {requestPath} as player count is {logFileMonitor.PlayerCount}");
 
-                selectedLogFileMonitor.LastRead = DateTime.UtcNow;
-                selectedLogFileMonitor.RemoteSize = fileSize;
-
-                await _logFileMonitorStateRepository.UpdateState(selectedLogFileMonitor);
-            }
-            else
-            {
-                try
+                if (logFileMonitor.RemoteSize == -1 || logFileMonitor.LastRead < DateTime.UtcNow.AddMinutes(-1))
                 {
-                    var request = (FtpWebRequest) WebRequest.Create(requestPath);
-                    request.KeepAlive = false;
-                    request.UsePassive = true;
-                    request.Credentials = new NetworkCredential(selectedLogFileMonitor.FtpUsername, selectedLogFileMonitor.FtpPassword);
-                    request.ContentOffset = selectedLogFileMonitor.RemoteSize;
-                    request.Method = WebRequestMethods.Ftp.DownloadFile;
+                    log.LogDebug($"The remote file for {logFileMonitor.ServerTitle} ({requestPath}) has not been read in the past minute");
 
-                    using var response = await request.GetResponseAsync();
-                    using var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
-                    var prev = -1;
+                    var fileSize = GetFileSize(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword, requestPath);
+                    log.LogDebug($"The remote file size for {logFileMonitor.ServerTitle} is {fileSize} bytes");
 
-                    var byteList = new List<byte>();
+                    logFileMonitor.LastRead = DateTime.UtcNow;
+                    logFileMonitor.RemoteSize = fileSize;
 
-                    while (true)
+                    await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                }
+                else
+                {
+                    try
                     {
-                        var cur = streamReader.Read();
+                        var request = (FtpWebRequest)WebRequest.Create(requestPath);
+                        request.KeepAlive = false;
+                        request.UsePassive = true;
+                        request.Credentials = new NetworkCredential(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword);
+                        request.ContentOffset = logFileMonitor.RemoteSize;
+                        request.Method = WebRequestMethods.Ftp.DownloadFile;
 
-                        if (cur == -1) break;
+                        using var response = await request.GetResponseAsync();
+                        using var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
+                        var prev = -1;
 
-                        byteList.Add((byte) cur);
+                        var byteList = new List<byte>();
 
-                        if (prev == '\r' && cur == '\n')
+                        while (true)
                         {
-                            selectedLogFileMonitor.RemoteSize += byteList.Count;
-                            selectedLogFileMonitor.LastRead = DateTime.UtcNow;
+                            var cur = streamReader.Read();
 
-                            await _logFileMonitorStateRepository.UpdateState(selectedLogFileMonitor);
+                            if (cur == -1) break;
 
-                            var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
-                            try
+                            byteList.Add((byte)cur);
+
+                            if (prev == '\r' && cur == '\n')
                             {
-                                line = line.Replace("\r\n", "");
-                                line = line.Trim();
-                                line = line.Substring(line.IndexOf(' ') + 1);
-                                line = line.Replace("\u0015", "");
+                                logFileMonitor.RemoteSize += byteList.Count;
+                                logFileMonitor.LastRead = DateTime.UtcNow;
 
-                                if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
+                                await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+
+                                var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
+                                try
                                 {
-                                    log.LogDebug($"[{selectedLogFileMonitor.ServerTitle}] {line}");
+                                    line = line.Replace("\r\n", "");
+                                    line = line.Trim();
+                                    line = line.Substring(line.IndexOf(' ') + 1);
+                                    line = line.Replace("\u0015", "");
 
-                                    try
+                                    if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
                                     {
-                                        var parts = line.Split(';');
-                                        var guid = parts[1];
-                                        var name = parts[3];
-                                        var message = parts[4].Trim();
+                                        log.LogDebug($"[{logFileMonitor.ServerTitle}] {line}");
 
-                                        var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
+                                        try
+                                        {
+                                            var parts = line.Split(';');
+                                            var guid = parts[1];
+                                            var name = parts[3];
+                                            var message = parts[4].Trim();
 
-                                        foreach (var chatCommandHandler in chatCommandHandlers)
-                                            if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
-                                            {
-                                                log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
-                                                await chatCommandHandler.ProcessMessage(selectedLogFileMonitor.ServerId, name, guid, message);
-                                            }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        log.LogWarning(ex, $"Failed to execute chat command for {selectedLogFileMonitor.ServerTitle} with data {line}");
-                                        log.LogWarning(ex.Message);
+                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
 
-                                        if (ex.InnerException != null)
-                                            log.LogWarning(ex.InnerException.Message);
+                                            foreach (var chatCommandHandler in chatCommandHandlers)
+                                                if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
+                                                {
+                                                    log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
+                                                    await chatCommandHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
+                                                }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.LogWarning(ex, $"Failed to execute chat command for {logFileMonitor.ServerTitle} with data {line}");
+                                            log.LogWarning(ex.Message);
+
+                                            if (ex.InnerException != null)
+                                                log.LogWarning(ex.InnerException.Message);
+                                        }
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.LogWarning(ex, $"Failed to process chat message for {selectedLogFileMonitor.ServerTitle} with data {line}");
-                                log.LogWarning(ex.Message);
+                                catch (Exception ex)
+                                {
+                                    log.LogWarning(ex, $"Failed to process chat message for {logFileMonitor.ServerTitle} with data {line}");
+                                    log.LogWarning(ex.Message);
 
-                                if (ex.InnerException != null)
-                                    log.LogWarning(ex.InnerException.Message);
+                                    if (ex.InnerException != null)
+                                        log.LogWarning(ex.InnerException.Message);
+                                }
+
+                                byteList = new List<byte>();
                             }
 
-                            byteList = new List<byte>();
+                            prev = cur;
                         }
 
-                        prev = cur;
+                        response?.Dispose();
                     }
+                    catch (Exception ex)
+                    {
+                        log.LogError(ex, $"Failed to read log file for {logFileMonitor.ServerTitle} against file {requestPath}");
+                        log.LogError(ex.Message);
 
-                    response?.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    log.LogError(ex, $"Failed to read log file for {selectedLogFileMonitor.ServerTitle} against file {requestPath}");
-                    log.LogError(ex.Message);
-
-                    if (ex.InnerException != null)
-                        log.LogError(ex.InnerException.Message);
+                        if (ex.InnerException != null)
+                            log.LogError(ex.InnerException.Message);
+                    }
                 }
             }
 

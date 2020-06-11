@@ -37,6 +37,14 @@ resource "cloudflare_record" "frontend-dns" {
   proxied = false
 }
 
+resource "cloudflare_record" "verify-dns" {
+  zone_id = var.hostname_zone_id
+  name = "awverify.${var.hostname}"
+  value = "awverify.${azurerm_app_service.app-service.default_site_hostname}"
+  type = "CNAME"
+  proxied = false
+}
+
 resource "azurerm_app_service_custom_hostname_binding" "portal-xtremeidiots-com" {
   hostname = "portal.xtremeidiots.com"
   app_service_name = azurerm_app_service.app-service.name

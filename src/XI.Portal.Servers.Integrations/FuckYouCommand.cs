@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using XI.Portal.Servers.Integrations.Interfaces;
@@ -10,20 +11,23 @@ namespace XI.Portal.Servers.Integrations
     public class FuckYouCommand : IChatCommand
     {
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly ILogger<FuckYouCommand> _logger;
         private readonly IRconClientFactory _rconClientFactory;
 
         public FuckYouCommand(
             ILogger<FuckYouCommand> logger,
             IGameServersRepository gameServersRepository,
+            IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public string CommandText => "!poo";
+        public string CommandText => "!fu";
 
         public async Task ProcessMessage(Guid serverId, string name, string guid, string message)
         {
@@ -32,9 +36,27 @@ namespace XI.Portal.Servers.Integrations
 
             var server = await _gameServersRepository.GetGameServer(serverId);
 
+            var gameServerStatus = await _gameServerStatusRepository.GetStatus(serverId, TimeSpan.Zero);
+
+            var targetName = name;
+            if (gameServerStatus != null)
+            {
+                var splits = message.Replace("!fu", "").Trim().Split(' ');
+                if (splits.Any())
+                {
+                    var potentialTarget = splits.First().ToLower();
+                    var potentialMatch = gameServerStatus.Players.Where(p => p.Name.ToLower().Contains(potentialTarget)).ToList();
+
+                    if (potentialMatch.Count == 1)
+                    {
+                        targetName = potentialMatch.First().Name;
+                    }
+                }
+            }
+
             _logger.LogInformation("FuckYou initiated for {name} on {server}", name, server.Title);
 
-            var responseMessage = GenerateResponseMessage(name);
+            var responseMessage = GenerateResponseMessage(targetName);
             _logger.LogInformation("Executing FuckYou response '{response}' for {name} on {server}", responseMessage, name, server.Title);
 
             var rconClient = _rconClientFactory.CreateInstance(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);

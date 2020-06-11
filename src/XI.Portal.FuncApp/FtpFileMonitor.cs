@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.FtpClient;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
@@ -104,6 +105,8 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
+        static Dictionary<Guid, FtpClient> ftpClients = new Dictionary<Guid, FtpClient>();
+
         [FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
@@ -144,15 +147,28 @@ namespace XI.Portal.FuncApp
                 {
                     try
                     {
-                        var request = (FtpWebRequest)WebRequest.Create(requestPath);
-                        request.KeepAlive = false;
-                        request.UsePassive = true;
-                        request.Credentials = new NetworkCredential(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword);
-                        request.ContentOffset = logFileMonitor.RemoteSize;
-                        request.Method = WebRequestMethods.Ftp.DownloadFile;
+                        FtpClient ftpClient;
+                        if (ftpClients.ContainsKey(logFileMonitor.ServerId))
+                            ftpClient = ftpClients[logFileMonitor.ServerId];
+                        else
+                        {
+                            ftpClient = new FtpClient
+                            {
+                                Host = logFileMonitor.FtpHostname,
+                                Port = 21,
+                                Credentials = new NetworkCredential(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword)
+                            };
 
-                        using var response = await request.GetResponseAsync();
-                        using var streamReader = new StreamReader(response.GetResponseStream() ?? throw new InvalidOperationException());
+                            ftpClients.Add(logFileMonitor.ServerId, ftpClient);
+                        }
+
+                        if (!ftpClient.IsConnected)
+                        {
+                            ftpClient.Connect();
+                        }
+
+
+                        using var streamReader = new StreamReader(ftpClient.OpenRead(logFileMonitor.FilePath, FtpDataType.ASCII, logFileMonitor.RemoteSize));
                         var prev = -1;
 
                         var byteList = new List<byte>();
@@ -224,8 +240,6 @@ namespace XI.Portal.FuncApp
 
                             prev = cur;
                         }
-
-                        response?.Dispose();
                     }
                     catch (Exception ex)
                     {

@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.3" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.3" />
+    <PackageReference Include="System.Net.FtpClient" Version="1.0.5824.34026" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XI.AzureTableLogging\XI.AzureTableLogging.csproj" />

@@ -177,6 +177,7 @@ namespace XI.Portal.FuncApp
                                 line = line.Replace("\r\n", "");
                                 line = line.Trim();
                                 line = line.Substring(line.IndexOf(' ') + 1);
+                                line = line.Replace("\u0015", "");
 
                                 if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
                                 {
@@ -187,7 +188,7 @@ namespace XI.Portal.FuncApp
                                         var parts = line.Split(';');
                                         var guid = parts[1];
                                         var name = parts[3];
-                                        var message = parts[4];
+                                        var message = parts[4].Trim();
 
                                         var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
 

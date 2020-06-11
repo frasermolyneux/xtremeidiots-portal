@@ -37,16 +37,10 @@ resource "cloudflare_record" "frontend-dns" {
   proxied = false
 }
 
-#resource "cloudflare_record" "verify-dns" {
-#  zone_id = var.hostname_zone_id
-#  name = "awverify.${var.environment}.${var.hostname}"
-#  value = "awverify.${azurerm_app_service.app-service.default_site_hostname}"
-#  type = "CNAME"
-#  proxied = false
-#}
+#This is buggy as shit. Can do it manually through portal.azure.com but fails through here.
 
-resource "azurerm_app_service_custom_hostname_binding" "custom-hostname" {
-  hostname = var.environment
-  app_service_name = azurerm_app_service.app-service.name
-  resource_group_name = azurerm_resource_group.resource-group.name
-}
+#resource "azurerm_app_service_custom_hostname_binding" "custom-hostname" {
+#  hostname = var.environment
+#  app_service_name = azurerm_app_service.app-service.name
+#  resource_group_name = azurerm_resource_group.resource-group.name
+#}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,7 +21,7 @@ namespace XI.Portal.FuncApp
     // ReSharper disable once UnusedMember.Global
     public class FtpFileMonitor
     {
-        private static readonly Dictionary<Guid, FtpClient> ftpClients = new Dictionary<Guid, FtpClient>();
+        private static readonly ConcurrentDictionary<Guid, FtpClient> FtpClients = new ConcurrentDictionary<Guid, FtpClient>();
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
@@ -51,7 +52,7 @@ namespace XI.Portal.FuncApp
             var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
             var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
 
-            foreach (var fileMonitorDto in fileMonitors)
+            Parallel.ForEach(fileMonitors, fileMonitorDto =>
             {
                 var fileMonitorState = fileMonitorStates.SingleOrDefault(fm => fm.FileMonitorId == fileMonitorDto.FileMonitorId);
                 var statusModel = gameServerStatus.SingleOrDefault(s => s.ServerId == fileMonitorDto.ServerId);
@@ -62,7 +63,7 @@ namespace XI.Portal.FuncApp
 
                 if (fileMonitorState == null)
                 {
-                    await _logFileMonitorStateRepository.UpdateState(new LogFileMonitorStateDto
+                    _logFileMonitorStateRepository.UpdateState(new LogFileMonitorStateDto
                     {
                         FileMonitorId = fileMonitorDto.FileMonitorId,
                         ServerId = fileMonitorDto.ServerId,
@@ -98,9 +99,9 @@ namespace XI.Portal.FuncApp
 
                     fileMonitorState.PlayerCount = playerCount;
 
-                    await _logFileMonitorStateRepository.UpdateState(fileMonitorState);
+                    _logFileMonitorStateRepository.UpdateState(fileMonitorState);
                 }
-            }
+            });
 
             stopWatch.Stop();
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
@@ -122,10 +123,10 @@ namespace XI.Portal.FuncApp
             if (!fileMonitorStates.Any())
                 return;
 
-            foreach (var logFileMonitor in fileMonitorStates)
+            Parallel.ForEach(fileMonitorStates, logFileMonitor =>
             {
                 logFileMonitor.LastReadAttempt = DateTime.UtcNow;
-                await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                _logFileMonitorStateRepository.UpdateState(logFileMonitor);
 
                 var requestPath = $"ftp://{logFileMonitor.FtpHostname}{logFileMonitor.FilePath}";
                 log.LogDebug($"Performing request for {logFileMonitor.ServerTitle} against file {requestPath} as player count is {logFileMonitor.PlayerCount}");
@@ -140,16 +141,16 @@ namespace XI.Portal.FuncApp
                     logFileMonitor.LastRead = DateTime.UtcNow;
                     logFileMonitor.RemoteSize = fileSize;
 
-                    await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                    _logFileMonitorStateRepository.UpdateState(logFileMonitor);
                 }
                 else
                 {
                     try
                     {
                         FtpClient ftpClient;
-                        if (ftpClients.ContainsKey(logFileMonitor.ServerId))
+                        if (FtpClients.ContainsKey(logFileMonitor.ServerId))
                         {
-                            ftpClient = ftpClients[logFileMonitor.ServerId];
+                            ftpClient = FtpClients[logFileMonitor.ServerId];
                         }
                         else
                         {
@@ -160,7 +161,7 @@ namespace XI.Portal.FuncApp
                                 Credentials = new NetworkCredential(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword)
                             };
 
-                            ftpClients.Add(logFileMonitor.ServerId, ftpClient);
+                            FtpClients.TryAdd(logFileMonitor.ServerId, ftpClient);
                         }
 
                         if (!ftpClient.IsConnected) ftpClient.Connect();
@@ -184,7 +185,7 @@ namespace XI.Portal.FuncApp
                                 logFileMonitor.RemoteSize += byteList.Count;
                                 logFileMonitor.LastRead = DateTime.UtcNow;
 
-                                await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                                _logFileMonitorStateRepository.UpdateState(logFileMonitor);
 
                                 var line = Encoding.UTF8.GetString(byteList.ToArray()).TrimEnd('\n');
                                 try
@@ -217,7 +218,7 @@ namespace XI.Portal.FuncApp
                                                 foreach (var matchingHandler in matchingHandlers)
                                                 {
                                                     log.LogDebug($"ChatCommand handler {nameof(matchingHandler)} matched command");
-                                                    await matchingHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
+                                                    matchingHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
                                                 }
                                             }
                                         }
@@ -255,7 +256,7 @@ namespace XI.Portal.FuncApp
                             log.LogError(ex.InnerException.Message);
                     }
                 }
-            }
+            });
 
             stopWatch.Stop();
             log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");

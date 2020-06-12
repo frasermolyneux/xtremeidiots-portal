@@ -6,7 +6,7 @@ namespace XI.Portal.Servers.Integrations
 {
     public class DucCommand : IChatCommand
     {
-        public string CommandText => "!duc";
+        public string[] CommandAliases { get; } = {"!duc"};
 
         public Task ProcessMessage(Guid serverId, string name, string guid, string message)
         {

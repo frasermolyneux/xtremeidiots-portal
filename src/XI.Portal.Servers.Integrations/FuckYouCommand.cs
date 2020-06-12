@@ -27,7 +27,7 @@ namespace XI.Portal.Servers.Integrations
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public string CommandText => "!fu";
+        public string[] CommandAliases { get; } = {"!fu"};
 
         public async Task ProcessMessage(Guid serverId, string name, string guid, string message)
         {
@@ -47,10 +47,7 @@ namespace XI.Portal.Servers.Integrations
                     var potentialTarget = splits.First().ToLower();
                     var potentialMatch = gameServerStatus.Players.Where(p => p.Name.ToLower().Contains(potentialTarget)).ToList();
 
-                    if (potentialMatch.Count == 1)
-                    {
-                        targetName = potentialMatch.First().Name;
-                    }
+                    if (potentialMatch.Count == 1) targetName = potentialMatch.First().Name;
                 }
             }
 

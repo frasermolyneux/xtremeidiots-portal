@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Repository;
+using XI.Portal.Servers.Configuration;
 
 namespace XI.Portal.Maps.Extensions
 {
@@ -58,6 +59,17 @@ namespace XI.Portal.Maps.Extensions
 
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IMapRedirectRepository, MapRedirectRepository>();
+            }
+
+            if (options.MapPopularityRepositoryOptions != null)
+            {
+                IMapPopularityRepositoryOptions subOptions = new MapPopularityRepositoryOptions();
+                options.MapPopularityRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IMapPopularityRepository, MapPopularityRepository>();
             }
         }
     }

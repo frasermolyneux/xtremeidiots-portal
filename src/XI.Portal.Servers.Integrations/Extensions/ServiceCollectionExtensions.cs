@@ -9,7 +9,7 @@ namespace XI.Portal.Servers.Integrations.Extensions
         {
             serviceCollection.AddScoped<IChatCommand, DucCommand>();
             serviceCollection.AddScoped<IChatCommand, FuckYouCommand>();
-            serviceCollection.AddScoped<IChatCommand, LikeMapCommand>();
+            serviceCollection.AddScoped<IChatCommand, MapPopularityCommand>();
         }
     }
 }

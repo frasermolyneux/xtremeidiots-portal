@@ -95,6 +95,12 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"];
                     repositoryOptions.ApiKey = config["MapsRedirect:ApiKey"];
                 });
+
+                options.ConfigureMapPopularityRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = config["MapPopularity:StorageTableName"];
+                });
             });
 
             builder.Services.AddChatCommands();

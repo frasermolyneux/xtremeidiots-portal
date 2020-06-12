@@ -20,6 +20,7 @@ namespace XI.Portal.FuncApp
     // ReSharper disable once UnusedMember.Global
     public class FtpFileMonitor
     {
+        private static readonly Dictionary<Guid, FtpClient> ftpClients = new Dictionary<Guid, FtpClient>();
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
@@ -105,8 +106,6 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
-        static Dictionary<Guid, FtpClient> ftpClients = new Dictionary<Guid, FtpClient>();
-
         [FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
@@ -149,7 +148,9 @@ namespace XI.Portal.FuncApp
                     {
                         FtpClient ftpClient;
                         if (ftpClients.ContainsKey(logFileMonitor.ServerId))
+                        {
                             ftpClient = ftpClients[logFileMonitor.ServerId];
+                        }
                         else
                         {
                             ftpClient = new FtpClient
@@ -162,10 +163,7 @@ namespace XI.Portal.FuncApp
                             ftpClients.Add(logFileMonitor.ServerId, ftpClient);
                         }
 
-                        if (!ftpClient.IsConnected)
-                        {
-                            ftpClient.Connect();
-                        }
+                        if (!ftpClient.IsConnected) ftpClient.Connect();
 
 
                         using var streamReader = new StreamReader(ftpClient.OpenRead(logFileMonitor.FilePath, FtpDataType.ASCII, logFileMonitor.RemoteSize));
@@ -179,7 +177,7 @@ namespace XI.Portal.FuncApp
 
                             if (cur == -1) break;
 
-                            byteList.Add((byte)cur);
+                            byteList.Add((byte) cur);
 
                             if (prev == '\r' && cur == '\n')
                             {
@@ -207,14 +205,21 @@ namespace XI.Portal.FuncApp
                                             var name = parts[3];
                                             var message = parts[4].Trim();
 
-                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>();
+                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>().ToList();
 
-                                            foreach (var chatCommandHandler in chatCommandHandlers)
-                                                if (message.ToLower().StartsWith(chatCommandHandler.CommandText))
+                                            var messageParts = message.ToLower().Split(' ');
+                                            if (messageParts.Any())
+                                            {
+                                                var commandPart = messageParts.First();
+
+                                                var matchingHandlers = chatCommandHandlers.Where(h => h.CommandAliases.Contains(commandPart));
+
+                                                foreach (var matchingHandler in matchingHandlers)
                                                 {
-                                                    log.LogDebug($"ChatCommand handler {nameof(chatCommandHandler)} matched command");
-                                                    await chatCommandHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
+                                                    log.LogDebug($"ChatCommand handler {nameof(matchingHandler)} matched command");
+                                                    await matchingHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
                                                 }
+                                            }
                                         }
                                         catch (Exception ex)
                                         {

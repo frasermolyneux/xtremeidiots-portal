@@ -16,6 +16,7 @@ namespace XI.Portal.Maps.Models
         {
             RowKey = model.MapName;
             PartitionKey = model.GameType.ToString();
+            MapVotes = model.MapVotes;
         }
 
         [EntityJsonPropertyConverter] public List<MapPopularityVoteDto> MapVotes { get; set; } = new List<MapPopularityVoteDto>();

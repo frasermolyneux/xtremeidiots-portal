@@ -93,9 +93,18 @@ namespace XI.Portal.FuncApp
                         fileMonitorState.LastRead = DateTime.UtcNow;
                     }
 
-                    fileMonitorState.FtpHostname = fileMonitorDto.GameServer.FtpHostname;
-                    fileMonitorState.FtpUsername = fileMonitorDto.GameServer.FtpUsername;
-                    fileMonitorState.FtpPassword = fileMonitorDto.GameServer.FtpPassword;
+                    if (fileMonitorState.FtpUsername != fileMonitorDto.GameServer.FtpUsername || fileMonitorState.FtpPassword != fileMonitorDto.GameServer.FtpPassword)
+                    {
+                        fileMonitorState.FtpHostname = fileMonitorDto.GameServer.FtpHostname;
+                        fileMonitorState.FtpUsername = fileMonitorDto.GameServer.FtpUsername;
+                        fileMonitorState.FtpPassword = fileMonitorDto.GameServer.FtpPassword;
+
+                        if (FtpClients.ContainsKey(fileMonitorState.ServerId))
+                        {
+                            FtpClients.TryRemove(fileMonitorState.ServerId, out var ftpClient);
+                            ftpClient?.Dispose();
+                        }
+                    }
 
                     fileMonitorState.PlayerCount = playerCount;
 

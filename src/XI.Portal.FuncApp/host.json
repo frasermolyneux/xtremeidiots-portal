@@ -2,12 +2,13 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Debug",
+      "default": "Information",
       "Microsoft": "Information"
     },
     "applicationInsights": {
       "samplingSettings": {
-        "isEnabled": false
+        "isEnabled": true,
+        "excludedTypes": "Dependency;Event;Trace"
       }
     }
   }

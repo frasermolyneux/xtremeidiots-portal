@@ -11,6 +11,7 @@ resource "azurerm_application_insights" "app-insights" {
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
     application_type = "web"
+    retention_in_days = 30
 }
 
 resource "azurerm_app_service_plan" "funcapp-service-plan" {

@@ -2,24 +2,23 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Servers.Interfaces;
 
-namespace XI.Portal.Servers.Integrations
+namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
 {
-    public class FuckYouCommand : IChatCommand
+    public class FuckYouCommandHandler : ChatCommandHandlerBase
     {
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly ILogger<FuckYouCommand> _logger;
+        private readonly ILogger<FuckYouCommandHandler> _logger;
         private readonly IRconClientFactory _rconClientFactory;
 
-        public FuckYouCommand(
-            ILogger<FuckYouCommand> logger,
+        public FuckYouCommandHandler(
+            ILogger<FuckYouCommandHandler> logger,
             IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
-            IRconClientFactory rconClientFactory)
+            IRconClientFactory rconClientFactory) : base(new []{ "!fu" })
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
@@ -27,10 +26,11 @@ namespace XI.Portal.Servers.Integrations
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public string[] CommandAliases { get; } = {"!fu"};
-
-        public async Task ProcessMessage(Guid serverId, string name, string guid, string message)
+        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message)
         {
+            if (!IsMatchingCommand(message))
+                return;
+
             if (!name.Contains(">XI<"))
                 return;
 

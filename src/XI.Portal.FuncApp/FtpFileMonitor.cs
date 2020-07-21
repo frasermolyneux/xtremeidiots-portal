@@ -215,25 +215,16 @@ namespace XI.Portal.FuncApp
                                             var name = parts[3];
                                             var message = parts[4].Trim();
 
-                                            var chatCommandHandlers = _serviceProvider.GetServices<IChatCommand>().ToList();
+                                            var chatMessageHandlers = _serviceProvider.GetServices<IChatMessageHandler>().ToList();
 
-                                            var messageParts = message.ToLower().Split(' ');
-                                            if (messageParts.Any())
+                                            foreach (var handler in chatMessageHandlers)
                                             {
-                                                var commandPart = messageParts.First();
-
-                                                var matchingHandlers = chatCommandHandlers.Where(h => h.CommandAliases.Contains(commandPart));
-
-                                                foreach (var matchingHandler in matchingHandlers)
-                                                {
-                                                    log.LogDebug($"ChatCommand handler {nameof(matchingHandler)} matched command");
-                                                    await matchingHandler.ProcessMessage(logFileMonitor.ServerId, name, guid, message);
-                                                }
+                                                await handler.HandleChatMessage(logFileMonitor.ServerId, name, guid, message);
                                             }
                                         }
                                         catch (Exception ex)
                                         {
-                                            log.LogWarning(ex, $"Failed to execute chat command for {logFileMonitor.ServerTitle} with data {line}");
+                                            log.LogWarning(ex, $"Failed to handle chat message for {logFileMonitor.ServerTitle} with data {line}");
                                             log.LogWarning(ex.Message);
 
                                             if (ex.InnerException != null)

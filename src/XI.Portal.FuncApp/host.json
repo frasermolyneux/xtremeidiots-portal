@@ -3,7 +3,8 @@
   "logging": {
     "logLevel": {
       "default": "Information",
-      "Microsoft": "Information"
+      "Microsoft": "Warning",
+      "System": "Warning"
     },
     "applicationInsights": {
       "samplingSettings": {

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using XI.Portal.Servers.Integrations.ChatMessageHandlers;
 using XI.Portal.Servers.Integrations.Interfaces;
 
 namespace XI.Portal.Servers.Integrations.Extensions
@@ -7,9 +8,10 @@ namespace XI.Portal.Servers.Integrations.Extensions
     {
         public static void AddChatCommands(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IChatCommand, DucCommand>();
-            serviceCollection.AddScoped<IChatCommand, FuckYouCommand>();
-            serviceCollection.AddScoped<IChatCommand, MapPopularityCommand>();
+            serviceCollection.AddScoped<IChatMessageHandler, ChatLogHandler>();
+            serviceCollection.AddScoped<IChatMessageHandler, DucCommandHandler>();
+            serviceCollection.AddScoped<IChatMessageHandler, FuckYouCommandHandler>();
+            serviceCollection.AddScoped<IChatMessageHandler, MapPopularityCommandHandler>();
         }
     }
 }

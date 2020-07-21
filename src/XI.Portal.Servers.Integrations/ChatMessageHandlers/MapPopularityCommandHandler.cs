@@ -6,28 +6,27 @@ using Microsoft.Extensions.Logging;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Players.Interfaces;
-using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Servers.Interfaces;
 
-namespace XI.Portal.Servers.Integrations
+namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
 {
-    public class MapPopularityCommand : IChatCommand
+    public class MapPopularityCommandHandler : ChatCommandHandlerBase
     {
-        private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly IPlayersRepository _playersRepository;
-        private readonly ILogger<MapPopularityCommand> _logger;
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IGameServerStatusRepository _gameServerStatusRepository;
+        private readonly ILogger<MapPopularityCommandHandler> _logger;
         private readonly IMapPopularityRepository _mapPopularityRepository;
+        private readonly IPlayersRepository _playersRepository;
         private readonly IRconClientFactory _rconClientFactory;
 
-        public MapPopularityCommand(
-            ILogger<MapPopularityCommand> logger,
+        public MapPopularityCommandHandler(
+            ILogger<MapPopularityCommandHandler> logger,
             IGameServersRepository gameServersRepository,
             IMapPopularityRepository mapPopularityRepository,
             IRconClientFactory rconClientFactory,
             IGameServerStatusRepository gameServerStatusRepository,
-            IPlayersRepository playersRepository)
+            IPlayersRepository playersRepository) : base(new[] {"!like", "!dislike"})
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
@@ -37,10 +36,11 @@ namespace XI.Portal.Servers.Integrations
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
         }
 
-        public string[] CommandAliases { get; } = {"!like", "!dislike"};
-
-        public async Task ProcessMessage(Guid serverId, string name, string guid, string message)
+        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message)
         {
+            if (!IsMatchingCommand(message))
+                return;
+
             var server = await _gameServersRepository.GetGameServer(serverId);
 
             var gameServerStatus = await _gameServerStatusRepository.GetStatus(serverId, TimeSpan.Zero);
@@ -75,7 +75,7 @@ namespace XI.Portal.Servers.Integrations
                 {
                     GameType = gameServerStatus.GameType,
                     MapName = gameServerStatus.Map,
-                    MapVotes = new List<MapPopularityVoteDto>()
+                    MapVotes = new List<MapPopularityVoteDto>
                     {
                         new MapPopularityVoteDto
                         {
@@ -125,7 +125,7 @@ namespace XI.Portal.Servers.Integrations
             if (!like)
                 globalMessage = $"^6{name} ^1dislikes ^6this map - thanks for the feedback!";
 
-            var totalLikes = mapPopularityDto.MapVotes.Count(mv => mv.ServerId == gameServerStatus.ServerId && mv.ModName == gameServerStatus.Mod && mv.Like == true);
+            var totalLikes = mapPopularityDto.MapVotes.Count(mv => mv.ServerId == gameServerStatus.ServerId && mv.ModName == gameServerStatus.Mod && mv.Like);
             var totalDislikes = mapPopularityDto.MapVotes.Count(mv => mv.ServerId == gameServerStatus.ServerId && mv.ModName == gameServerStatus.Mod && mv.Like == false);
 
             var overall = $"^6Overall there are ^2{totalLikes} likes ^6and ^1{totalDislikes} dislikes ^6for this map";

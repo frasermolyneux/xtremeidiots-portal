@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
 using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Players.Interfaces;
@@ -36,7 +37,7 @@ namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
         }
 
-        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message)
+        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message, ChatType chatType)
         {
             if (!IsMatchingCommand(message))
                 return;

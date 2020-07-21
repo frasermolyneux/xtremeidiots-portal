@@ -105,7 +105,8 @@ namespace XI.Servers.Clients
 
         private string Query(byte[] commandBytes)
         {
-            _logger.LogInformation("Executing {command} command against server");
+            var commandAsString = Encoding.UTF8.GetString(commandBytes);
+            _logger.LogInformation("Executing {command} command against {hostname}:{port}", commandAsString, Hostname, QueryPort);
 
             UdpClient udpClient = null;
 
@@ -143,7 +144,7 @@ namespace XI.Servers.Clients
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to execute command");
+                _logger.LogError(ex, "Failed to execute {command} against {hostname}:{port}", commandAsString, Hostname, QueryPort);
                 throw;
             }
             finally

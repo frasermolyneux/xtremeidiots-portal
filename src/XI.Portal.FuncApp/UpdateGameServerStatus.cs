@@ -48,11 +48,18 @@ namespace XI.Portal.FuncApp
 
             foreach (var server in servers)
             {
-                log.LogDebug("Updating game server status for {Title}", server.Title);
+                log.LogDebug($"Updating game server status for {server.Title}");
 
                 try
                 {
                     var model = await _gameServerStatusRepository.GetStatus(server.ServerId,TimeSpan.FromMinutes(-1));
+
+                    if (model == null)
+                    {
+                        log.LogWarning($"Failed to update game server status for {server.Title}");
+                        continue;
+                    }
+
                     log.LogInformation($"{model.ServerName} is online running {model.Map} with {model.PlayerCount} players connected");
 
                     await _gameServerStatusStatsRepository.UpdateEntry(new GameServerStatusStatsDto

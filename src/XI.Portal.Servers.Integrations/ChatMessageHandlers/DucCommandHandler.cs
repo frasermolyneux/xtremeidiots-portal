@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using XI.CommonTypes;
 using XI.Portal.Servers.Interfaces;
 using XI.Servers.Interfaces;
 
@@ -18,7 +19,7 @@ namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message)
+        public override async Task HandleChatMessage(Guid serverId, string name, string guid, string message, ChatType chatType)
         {
             if (!IsMatchingCommand(message))
                 return;

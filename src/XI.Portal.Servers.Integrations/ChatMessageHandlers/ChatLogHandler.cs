@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
+using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
 
@@ -12,17 +14,20 @@ namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
         private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<ChatLogHandler> _logger;
         private readonly IPlayersRepository _playersRepository;
+        private readonly IChatLogsRepository _chatLogsRepository;
 
         public ChatLogHandler(ILogger<ChatLogHandler> logger,
             IGameServersRepository gameServersRepository,
-            IPlayersRepository playersRepository)
+            IPlayersRepository playersRepository,
+            IChatLogsRepository chatLogsRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
-            _playersRepository = playersRepository;
+            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
+            _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
         }
 
-        public async Task HandleChatMessage(Guid serverId, string name, string guid, string message)
+        public async Task HandleChatMessage(Guid serverId, string name, string guid, string message, ChatType chatType)
         {
             var server = await _gameServersRepository.GetGameServer(serverId);
 
@@ -34,6 +39,15 @@ namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
             }
 
             _logger.Log(LogLevel.Information, $"[{server.Title}] {name} :: {message}");
+
+            await _chatLogsRepository.CreateChatLog(new ChatLogDto()
+            {
+                PlayerId = databasePlayer.PlayerId,
+                ServerId = serverId,
+                Username = name,
+                ChatType = chatType.ToString(),
+                Message = message
+            });
         }
     }
 }

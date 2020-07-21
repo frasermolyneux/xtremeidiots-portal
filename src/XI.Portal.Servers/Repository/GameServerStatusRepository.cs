@@ -146,6 +146,9 @@ namespace XI.Portal.Servers.Repository
 
                 var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
 
+                if (gameServerStatus == null)
+                    return null;
+
                 var model = new PortalGameServerStatusDto
                 {
                     ServerId = serverId,

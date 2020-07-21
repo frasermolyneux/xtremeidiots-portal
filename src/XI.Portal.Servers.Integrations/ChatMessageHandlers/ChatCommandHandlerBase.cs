@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using XI.CommonTypes;
 using XI.Portal.Servers.Integrations.Interfaces;
 
 namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
@@ -26,7 +27,7 @@ namespace XI.Portal.Servers.Integrations.ChatMessageHandlers
             return CommandAliases.Contains(commandPart);
         }
 
-        public virtual Task HandleChatMessage(Guid serverId, string name, string guid, string message)
+        public virtual Task HandleChatMessage(Guid serverId, string name, string guid, string message, ChatType chatType)
         {
             return Task.CompletedTask;
         }

@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using XI.CommonTypes;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
@@ -206,6 +207,10 @@ namespace XI.Portal.FuncApp
 
                                     if (line.StartsWith("say;") || line.StartsWith("sayteam;"))
                                     {
+                                        var chatType = ChatType.All;
+                                        if (line.StartsWith("sayteam;"))
+                                            chatType = ChatType.Team;
+
                                         log.LogDebug($"[{logFileMonitor.ServerTitle}] {line}");
 
                                         try
@@ -219,7 +224,7 @@ namespace XI.Portal.FuncApp
 
                                             foreach (var handler in chatMessageHandlers)
                                             {
-                                                await handler.HandleChatMessage(logFileMonitor.ServerId, name, guid, message);
+                                                await handler.HandleChatMessage(logFileMonitor.ServerId, name, guid, message, chatType);
                                             }
                                         }
                                         catch (Exception ex)

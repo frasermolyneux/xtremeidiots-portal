@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FM.GeoLocation.Client" Version="1.0.3887" />
+    <PackageReference Include="FM.GeoLocation.Client" Version="1.0.4150" />
     <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.6" />
   </ItemGroup>

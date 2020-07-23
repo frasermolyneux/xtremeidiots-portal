@@ -145,13 +145,24 @@ namespace XI.Portal.FuncApp
                 {
                     log.LogDebug($"The remote file for {logFileMonitor.ServerTitle} ({requestPath}) has not been read in the past minute");
 
-                    var fileSize = GetFileSize(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword, requestPath);
-                    log.LogDebug($"The remote file size for {logFileMonitor.ServerTitle} is {fileSize} bytes");
+                    try
+                    {
+                        var fileSize = GetFileSize(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword, requestPath);
+                        log.LogDebug($"The remote file size for {logFileMonitor.ServerTitle} is {fileSize} bytes");
 
-                    logFileMonitor.LastRead = DateTime.UtcNow;
-                    logFileMonitor.RemoteSize = fileSize;
+                        logFileMonitor.LastRead = DateTime.UtcNow;
+                        logFileMonitor.RemoteSize = fileSize;
 
-                    await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                        await _logFileMonitorStateRepository.UpdateState(logFileMonitor);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.LogError(ex, $"Failed to read log file for {logFileMonitor.ServerTitle} against file {requestPath}");
+                        log.LogError(ex.Message);
+
+                        if (ex.InnerException != null)
+                            log.LogError(ex.InnerException.Message);
+                    }
                 }
                 else
                 {

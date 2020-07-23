@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
+using Microsoft.Extensions.Logging;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
@@ -12,10 +14,14 @@ namespace XI.Portal.Players.Repository
     public class PlayerLocationsRepository : IPlayerLocationsRepository
     {
         private readonly CloudTable _locationsTable;
+        private readonly ILogger<IPlayerLocationsRepository> _logger;
 
-        public PlayerLocationsRepository(IPlayerLocationsRepositoryOptions options)
+        public PlayerLocationsRepository(
+            ILogger<IPlayerLocationsRepository> logger,
+            IPlayerLocationsRepositoryOptions options)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
@@ -83,6 +89,9 @@ namespace XI.Portal.Players.Repository
             do
             {
                 var queryResult = await _locationsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+
+                _logger.LogInformation($"Removing {queryResult.Count()} cached entries from the players location repository");
+
                 foreach (var entity in queryResult)
                 {
                     var deleteOperation = TableOperation.Delete(entity);

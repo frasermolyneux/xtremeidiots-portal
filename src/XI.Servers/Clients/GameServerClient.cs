@@ -144,7 +144,7 @@ namespace XI.Servers.Clients
                 }
                 else
                 {
-                    _logger.LogWarning("Could not find Query Player to sync with Rcon Player");
+                    _logger.LogDebug("Could not find Query Player to sync with Rcon Player with name {username}", rconPlayer.NormalizedName);
                 }
             }
         }

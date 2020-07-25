@@ -9,8 +9,11 @@
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
-        "excludedTypes": "Dependency;Event;Trace"
+        "excludedTypes": "Event;Trace"
       }
-    }
+    },
+    "enableLiveMetrics": false,
+    "enableDependencyTracking": false,
+    "enablePerformanceCountersCollection": false
   }
 }

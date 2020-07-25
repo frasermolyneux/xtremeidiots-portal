@@ -94,7 +94,7 @@ namespace XI.Portal.Players.Ingest
 
                 if (player == null)
                 {
-                    _logger.LogInformation("Creating new player in the database with guid {Guid}", guid);
+                    _logger.LogInformation("Creating new player in the database with username {Username} guid {Guid}", username, guid);
 
                     var playerDto = new PlayerDto
                     {

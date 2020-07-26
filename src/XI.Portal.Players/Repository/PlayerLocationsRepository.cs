@@ -74,7 +74,7 @@ namespace XI.Portal.Players.Repository
                 GeoLocation = model.GeoLocation
             };
 
-            if (string.IsNullOrWhiteSpace(playerLocationEntity.RowKey)) playerLocationEntity.RowKey = Guid.NewGuid().ToString();
+            if (string.IsNullOrWhiteSpace(playerLocationEntity.RowKey)) playerLocationEntity.RowKey = GenerateRowKeyForPlayerLocation(model);
 
             var operation = TableOperation.InsertOrMerge(playerLocationEntity);
             await _locationsTable.ExecuteAsync(operation);
@@ -100,6 +100,11 @@ namespace XI.Portal.Players.Repository
 
                 continuationToken = queryResult.ContinuationToken;
             } while (continuationToken != null);
+        }
+
+        private static string GenerateRowKeyForPlayerLocation(PlayerLocationDto playerLocationDto)
+        {
+            return $"{playerLocationDto.GameType}-{playerLocationDto.ServerId}-{playerLocationDto.Guid}";
         }
     }
 }

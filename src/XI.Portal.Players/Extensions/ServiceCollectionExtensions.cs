@@ -5,6 +5,7 @@ using XI.Portal.Players.Forums;
 using XI.Portal.Players.Ingest;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Repository;
+using XI.Portal.Players.Validators;
 
 namespace XI.Portal.Players.Extensions
 {
@@ -41,8 +42,21 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
             }
 
+            if (options.ExternalBansRepositoryOptions != null)
+            {
+                IExternalBansRepositoryOptions subOptions = new ExternalBansRepositoryOptions();
+                options.ExternalBansRepositoryOptions.Invoke(subOptions);
+
+                subOptions.Validate();
+
+                serviceCollection.AddSingleton(subOptions);
+                serviceCollection.AddScoped<IExternalBansRepository, ExternalBansRepository>();
+            }
+
             serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
+            serviceCollection.AddScoped<IBanFileIngest, BanFileIngest>();
+            serviceCollection.AddScoped<IGuidValidator, GuidValidator>();
 
             serviceCollection.AddSingleton<IPlayersForumsClient, PlayersForumsClient>();
         }

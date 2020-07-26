@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Servers.Configuration;
-using XI.Portal.Servers.Helpers;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Repository;
 using XI.Servers.Factories;
@@ -57,7 +56,6 @@ namespace XI.Portal.Servers.Extensions
             serviceCollection.AddScoped<IFileMonitorsRepository, FileMonitorsRepository>();
             serviceCollection.AddScoped<IChatLogsRepository, ChatLogsRepository>();
 
-            serviceCollection.AddSingleton<IFtpHelper, FtpHelper>();
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();
             serviceCollection.AddSingleton<IRconClientFactory, RconClientFactory>();
             serviceCollection.AddSingleton<IGameServerClientFactory, GameServerClientFactory>();

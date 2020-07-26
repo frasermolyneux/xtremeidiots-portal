@@ -34,6 +34,7 @@ namespace XI.Portal.FuncApp
             _mapRedirectRepository = mapRedirectRepository ?? throw new ArgumentNullException(nameof(mapRedirectRepository));
         }
 
+        [Disable]
         [FunctionName("MapRedirectSync")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMapRedirectSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)

@@ -6,5 +6,6 @@ namespace XI.Portal.Players.Interfaces
     {
         Action<IPlayerLocationsRepositoryOptions> PlayerLocationsRepositoryOptions { get; set; }
         Action<IPlayersCacheRepositoryOptions> PlayersCacheRepositoryOptions { get; set; }
+        Action<IExternalBansRepositoryOptions> ExternalBansRepositoryOptions { get; set; }
     }
 }

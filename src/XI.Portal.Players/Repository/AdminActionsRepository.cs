@@ -60,10 +60,11 @@ namespace XI.Portal.Players.Repository
             if (player == null)
                 throw new NullReferenceException(nameof(player));
 
-            var admin = await _legacyContext.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
-
-            if (admin == null)
-                throw new NullReferenceException(nameof(admin));
+            AspNetUsers admin = null;
+            if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
+            {
+                admin = await _legacyContext.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+            }
 
             var adminAction = new AdminActions
             {

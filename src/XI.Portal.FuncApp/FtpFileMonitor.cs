@@ -16,6 +16,7 @@ using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Integrations.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XI.Utilities.FtpHelper;
 
 namespace XI.Portal.FuncApp
 {
@@ -27,19 +28,23 @@ namespace XI.Portal.FuncApp
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IFtpHelper _ftpHelper;
 
         public FtpFileMonitor(
             IFileMonitorsRepository fileMonitorsRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             ILogFileMonitorStateRepository logFileMonitorStateRepository,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider, 
+            IFtpHelper ftpHelper)
         {
             _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _logFileMonitorStateRepository = logFileMonitorStateRepository ?? throw new ArgumentNullException(nameof(logFileMonitorStateRepository));
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _ftpHelper = ftpHelper ?? throw new ArgumentNullException(nameof(ftpHelper));
         }
 
+        [Disable]
         [FunctionName("SyncLogFileMonitorState")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
@@ -117,6 +122,7 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
+        [Disable]
         [FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
@@ -147,7 +153,7 @@ namespace XI.Portal.FuncApp
 
                     try
                     {
-                        var fileSize = GetFileSize(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword, requestPath);
+                        var fileSize = _ftpHelper.GetFileSize(logFileMonitor.FtpHostname, logFileMonitor.FilePath, logFileMonitor.FtpUsername, logFileMonitor.FtpPassword);
                         log.LogDebug($"The remote file size for {logFileMonitor.ServerTitle} is {fileSize} bytes");
 
                         logFileMonitor.LastRead = DateTime.UtcNow;
@@ -276,18 +282,6 @@ namespace XI.Portal.FuncApp
 
             stopWatch.Stop();
             log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
-        }
-
-        private static long GetFileSize(string username, string password, string requestPath)
-        {
-            var request = (FtpWebRequest) WebRequest.Create(requestPath);
-            request.KeepAlive = true;
-            request.UsePassive = false;
-            request.Credentials = new NetworkCredential(username, password);
-            request.Method = WebRequestMethods.Ftp.GetFileSize;
-
-            var fileSize = ((FtpWebResponse) request.GetResponse()).ContentLength;
-            return fileSize;
         }
     }
 }

@@ -19,6 +19,7 @@ namespace XI.Portal.FuncApp
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
         }
 
+        [Disable]
         [FunctionName("DataMaintenance")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunDataMaintenance([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)

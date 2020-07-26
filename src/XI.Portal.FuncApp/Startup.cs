@@ -5,12 +5,14 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using XI.Forums.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Integrations.Extensions;
+using XI.Utilities.FtpHelper;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -84,6 +86,12 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["PlayerCacheRepository:StorageTableName"];
                 });
+
+                options.ConfigureExternalBansRepositoryOptions(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageContainerName = config["ExternalBansRepository:StorageContainerName"];
+                });
             });
 
             builder.Services.AddMapsModule(options =>
@@ -103,7 +111,15 @@ namespace XI.Portal.FuncApp
                 });
             });
 
+            builder.Services.AddForumsClient(options =>
+            {
+                options.BaseUrl = config["XtremeIdiotsForums:BaseUrl"];
+                options.ApiKey = config["XtremeIdiotsForums:ApiKey"];
+            });
+
             builder.Services.AddChatCommands();
+
+            builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
         }
 
         private bool IsDevelopmentEnvironment()

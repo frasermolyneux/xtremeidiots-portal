@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.Servers.Helpers
+namespace XI.Utilities.FtpHelper
 {
     public interface IFtpHelper
     {

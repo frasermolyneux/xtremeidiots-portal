@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace XI.Portal.Servers.Helpers
+namespace XI.Utilities.FtpHelper
 {
     public class FtpHelper : IFtpHelper
     {

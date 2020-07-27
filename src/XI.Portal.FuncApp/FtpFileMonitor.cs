@@ -49,7 +49,7 @@ namespace XI.Portal.FuncApp
         // ReSharper disable once UnusedMember.Global
         public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunSyncLogFileMonitorState @ {DateTime.Now}");
+            log.LogDebug($"Start RunSyncLogFileMonitorState @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -119,7 +119,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
         [Disable]
@@ -127,7 +127,7 @@ namespace XI.Portal.FuncApp
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunMonitorLogFile @ {DateTime.Now}");
+            log.LogDebug($"Start RunMonitorLogFile @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -281,7 +281,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunMonitorLogFile @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

@@ -39,7 +39,7 @@ namespace XI.Portal.FuncApp
         // ReSharper disable once UnusedMember.Global
         public async Task RunMapRedirectSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunMapRedirectSync @ {DateTime.Now}");
+            log.LogDebug($"Start RunMapRedirectSync @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -123,7 +123,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunMapRedirectSync @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunMapRedirectSync @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

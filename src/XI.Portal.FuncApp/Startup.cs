@@ -87,10 +87,10 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.StorageTableName = config["PlayerCacheRepository:StorageTableName"];
                 });
 
-                options.ConfigureExternalBansRepositoryOptions(repositoryOptions =>
+                options.ConfigureBanFilesRepositoryOptions(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageContainerName = config["ExternalBansRepository:StorageContainerName"];
+                    repositoryOptions.StorageContainerName = config["BanFilesRepository:StorageContainerName"];
                 });
             });
 

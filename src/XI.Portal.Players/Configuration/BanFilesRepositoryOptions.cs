@@ -3,7 +3,7 @@ using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.Players.Configuration
 {
-    internal class ExternalBansRepositoryOptions : IExternalBansRepositoryOptions
+    internal class BanFilesRepositoryOptions : IBanFilesRepositoryOptions
     {
         public string StorageConnectionString { get; set; }
         public string StorageContainerName { get; set; }

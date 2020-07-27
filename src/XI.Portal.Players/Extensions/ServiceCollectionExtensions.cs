@@ -42,15 +42,15 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
             }
 
-            if (options.ExternalBansRepositoryOptions != null)
+            if (options.BanFilesRepositoryOptions != null)
             {
-                IExternalBansRepositoryOptions subOptions = new ExternalBansRepositoryOptions();
-                options.ExternalBansRepositoryOptions.Invoke(subOptions);
+                IBanFilesRepositoryOptions subOptions = new BanFilesRepositoryOptions();
+                options.BanFilesRepositoryOptions.Invoke(subOptions);
 
                 subOptions.Validate();
 
                 serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IExternalBansRepository, ExternalBansRepository>();
+                serviceCollection.AddScoped<IBanFilesRepository, BanFilesRepository>();
             }
 
             serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();

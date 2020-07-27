@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace XI.Utilities.FtpHelper
 {
@@ -9,11 +10,22 @@ namespace XI.Utilities.FtpHelper
     {
         public long GetFileSize(string hostname, string filePath, string username, string password)
         {
-            var request = (FtpWebRequest) WebRequest.Create($"ftp://{hostname}/{filePath}");
-            request.Method = WebRequestMethods.Ftp.GetFileSize;
-            request.Credentials = new NetworkCredential(username, password);
+            try
+            {
+                var request = (FtpWebRequest)WebRequest.Create($"ftp://{hostname}/{filePath}");
+                request.Method = WebRequestMethods.Ftp.GetFileSize;
+                request.Credentials = new NetworkCredential(username, password);
 
-            return ((FtpWebResponse) request.GetResponse()).ContentLength;
+                return ((FtpWebResponse)request.GetResponse()).ContentLength;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("(550) File unavailable"))
+                    return 0;
+
+                throw;
+            }
+
         }
 
         public DateTime GetLastModified(string hostname, string filePath, string username, string password)
@@ -54,6 +66,22 @@ namespace XI.Utilities.FtpHelper
                 using (var requestStream = request.GetRequestStream())
                 {
                     requestStream.Write(fileContents, 0, fileContents.Length);
+                }
+            }
+        }
+
+        public async Task UpdateRemoteFileFromStream(string hostname, string filePath, string username, string password, Stream data)
+        {
+            var request = CreateWebRequest(hostname, filePath, username, password);
+            request.Method = WebRequestMethods.Ftp.UploadFile;
+
+            using (var streamReader = new StreamReader(data))
+            {
+                var fileContents = Encoding.UTF8.GetBytes(streamReader.ReadToEnd());
+
+                using (var requestStream = request.GetRequestStream())
+                {
+                    await requestStream.WriteAsync(fileContents, 0, fileContents.Length);
                 }
             }
         }

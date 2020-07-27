@@ -40,7 +40,7 @@ namespace XI.AzureTableLogging.Logger
                 LogLevel = logLevel.ToString(),
                 Message = formatter(state, exception),
                 Exception = exception,
-                PartitionKey = DateTime.Now.ToString("yyyyMMdd"),
+                PartitionKey = DateTime.UtcNow.ToString("yyyyMMdd"),
                 RowKey = Guid.NewGuid().ToString()
             };
 

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace XI.Utilities.FtpHelper
 {
@@ -8,5 +10,6 @@ namespace XI.Utilities.FtpHelper
         DateTime GetLastModified(string hostname, string filePath, string username, string password);
         string GetRemoteFileData(string hostname, string filePath, string username, string password);
         void UpdateRemoteFile(string hostname, string filePath, string username, string password, string dataPath);
+        Task UpdateRemoteFileFromStream(string hostname, string filePath, string username, string password, Stream data);
     }
 }

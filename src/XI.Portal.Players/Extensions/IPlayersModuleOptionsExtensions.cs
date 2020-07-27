@@ -15,9 +15,9 @@ namespace XI.Portal.Players.Extensions
             options.PlayersCacheRepositoryOptions = repositoryOptions;
         }
 
-        public static void ConfigureExternalBansRepositoryOptions(this IPlayersModuleOptions options, Action<IExternalBansRepositoryOptions> repositoryOptions)
+        public static void ConfigureBanFilesRepositoryOptions(this IPlayersModuleOptions options, Action<IBanFilesRepositoryOptions> repositoryOptions)
         {
-            options.ExternalBansRepositoryOptions = repositoryOptions;
+            options.BanFilesRepositoryOptions = repositoryOptions;
         }
     }
 }

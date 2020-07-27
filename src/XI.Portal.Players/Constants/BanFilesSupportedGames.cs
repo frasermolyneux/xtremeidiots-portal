@@ -12,7 +12,6 @@ namespace XI.Portal.Players.Constants
                 yield return GameType.CallOfDuty2;
                 yield return GameType.CallOfDuty4;
                 yield return GameType.CallOfDuty5;
-                yield return GameType.Insurgency;
             }
         }
     }

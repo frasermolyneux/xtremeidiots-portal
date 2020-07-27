@@ -83,7 +83,7 @@ namespace XI.Portal.Players.Repository
         public async Task RemoveOldEntries()
         {
             var query = new TableQuery<PlayerLocationEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.Now.AddHours(-24)));
+                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-24)));
 
             TableContinuationToken continuationToken = null;
             do

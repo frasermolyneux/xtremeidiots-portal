@@ -24,7 +24,7 @@ namespace XI.Portal.FuncApp
         // ReSharper disable once UnusedMember.Global
         public async Task RunDataMaintenance([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunDataMaintenance @ {DateTime.Now}");
+            log.LogDebug($"Start RunDataMaintenance @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -33,7 +33,7 @@ namespace XI.Portal.FuncApp
             await _playersCache.RemoveOldEntries();
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunDataMaintenance @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunDataMaintenance @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

@@ -83,6 +83,8 @@ namespace XI.Portal.Servers.Repository
                 throw new NullReferenceException(nameof(banFileMonitor));
 
             banFileMonitor.FilePath = banFileMonitorDto.FilePath;
+            banFileMonitor.RemoteFileSize = banFileMonitorDto.RemoteFileSize;
+            banFileMonitor.LastSync = banFileMonitorDto.LastSync;
 
             await _legacyContext.SaveChangesAsync();
         }

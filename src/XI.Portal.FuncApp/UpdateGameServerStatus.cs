@@ -38,7 +38,7 @@ namespace XI.Portal.FuncApp
         // ReSharper disable once UnusedMember.Global
         public async Task RunUpdateGameServerStatus([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start RunUpdateGameServerStatus @ {DateTime.Now}");
+            log.LogDebug($"Start RunUpdateGameServerStatus @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -93,7 +93,7 @@ namespace XI.Portal.FuncApp
             }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop RunUpdateGameServerStatus @ {DateTime.Now} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop RunUpdateGameServerStatus @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

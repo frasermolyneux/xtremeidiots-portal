@@ -1,6 +1,6 @@
 ﻿namespace XI.Portal.Players.Interfaces
 {
-    public interface IExternalBansRepositoryOptions
+    public interface IBanFilesRepositoryOptions
     {
         string StorageConnectionString { get; set; }
         string StorageContainerName { get; set; }

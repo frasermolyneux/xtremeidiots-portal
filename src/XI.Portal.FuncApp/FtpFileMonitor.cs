@@ -44,7 +44,6 @@ namespace XI.Portal.FuncApp
             _ftpHelper = ftpHelper ?? throw new ArgumentNullException(nameof(ftpHelper));
         }
 
-        [Disable]
         [FunctionName("SyncLogFileMonitorState")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunSyncLogFileMonitorState([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
@@ -122,7 +121,6 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
-        [Disable]
         [FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)

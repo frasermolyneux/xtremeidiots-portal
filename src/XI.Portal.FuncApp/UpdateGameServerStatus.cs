@@ -33,7 +33,6 @@ namespace XI.Portal.FuncApp
             _playerIngest = playerIngest ?? throw new ArgumentNullException(nameof(playerIngest));
         }
 
-        [Disable]
         [FunctionName("UpdateGameServerStatus")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunUpdateGameServerStatus([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)

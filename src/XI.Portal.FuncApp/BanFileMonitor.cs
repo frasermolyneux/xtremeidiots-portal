@@ -33,10 +33,10 @@ namespace XI.Portal.FuncApp
             _banFilesRepository = banFilesRepository ?? throw new ArgumentNullException(nameof(banFilesRepository));
         }
 
-        [FunctionName("ImportLatestBanFiles")]
+        [FunctionName("BanFileImportAndUpdate")]
         public async Task ImportLatestBanFiles([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            log.LogDebug($"Start ImportLatestBanFiles @ {DateTime.UtcNow}");
+            log.LogDebug($"Start BanFileImportAndUpdate @ {DateTime.UtcNow}");
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -45,13 +45,15 @@ namespace XI.Portal.FuncApp
             foreach (var banFileMonitor in banFileMonitors)
                 try
                 {
-                    _logger.LogDebug("Importing latest ban file for {server}", banFileMonitor.GameServer.Title);
+                    _logger.LogDebug("Checking ban file for {server}", banFileMonitor.GameServer.Title);
 
                     var remoteFileSize = _ftpHelper.GetFileSize(
                         banFileMonitor.GameServer.FtpHostname,
                         banFileMonitor.FilePath + ".test",
                         banFileMonitor.GameServer.FtpUsername,
                         banFileMonitor.GameServer.FtpPassword);
+
+                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(banFileMonitor.GameServer.GameType);
 
                     if (remoteFileSize == 0)
                     {
@@ -62,7 +64,7 @@ namespace XI.Portal.FuncApp
 
                     if (remoteFileSize != banFileMonitor.RemoteFileSize)
                     {
-                        _logger.LogInformation("Remote ban file on {server} has changed since last sync: {current} != {last}", banFileMonitor.GameServer.Title, remoteFileSize, banFileMonitor.RemoteFileSize);
+                        _logger.LogInformation("Remote ban file on {server} at {path} has changed since last sync: {current} != {last}", banFileMonitor.GameServer.Title, banFileMonitor.FilePath, remoteFileSize, banFileMonitor.RemoteFileSize);
 
                         var remoteBanFileData = _ftpHelper.GetRemoteFileData(
                             banFileMonitor.GameServer.FtpHostname,
@@ -78,62 +80,8 @@ namespace XI.Portal.FuncApp
                     }
                     else
                     {
-                        _logger.LogDebug("Remote ban file on {server} has not been modified since last sync", banFileMonitor.GameServer.Title);
+                        _logger.LogDebug("Remote ban file on {server} at {path} has not been modified since last sync", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
                     }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to import latest ban file for {server}", banFileMonitor.GameServer.Title);
-                }
-
-            stopWatch.Stop();
-            log.LogDebug($"Stop ImportLatestBanFiles @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
-        }
-
-        [FunctionName("GenerateLatestBansFile")]
-        public async Task GenerateLatestBansFile([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, ILogger log)
-        {
-            log.LogDebug($"Start GenerateLatestBansFile @ {DateTime.UtcNow}");
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            foreach (var gameType in BanFilesSupportedGames.Games)
-                try
-                {
-                    await _banFilesRepository.RegenerateBanFileForGame(gameType);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to regenerate latest ban file for {game}", gameType);
-                }
-
-
-            stopWatch.Stop();
-            log.LogDebug($"Stop GenerateLatestBansFile @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
-        }
-
-        [FunctionName("UpdateRemotesWithLatestBanFiles")]
-        public async Task UpdateRemotesWithLatestBanFiles([TimerTrigger("30 */10 * * * *")] TimerInfo myTimer, ILogger log)
-        {
-            log.LogDebug($"Start UpdateRemotesWithLatestBanFiles @ {DateTime.UtcNow}");
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            var banFileMonitors = await _banFileMonitorsRepository.GetBanFileMonitors(new BanFileMonitorFilterModel());
-            foreach (var banFileMonitor in banFileMonitors)
-                try
-                {
-                    _logger.LogDebug("Updating {server} with latest ban file", banFileMonitor.GameServer.Title);
-
-                    var remoteFileSize = _ftpHelper.GetFileSize(
-                        banFileMonitor.GameServer.FtpHostname,
-                        banFileMonitor.FilePath + ".test",
-                        banFileMonitor.GameServer.FtpUsername,
-                        banFileMonitor.GameServer.FtpPassword);
-
-                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(banFileMonitor.GameServer.GameType);
 
                     if (remoteFileSize != banFileSize && remoteFileSize == banFileMonitor.RemoteFileSize)
                     {
@@ -159,11 +107,34 @@ namespace XI.Portal.FuncApp
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to update {server} with the latest ban file", banFileMonitor.GameServer.Title);
+                    _logger.LogError(ex, "Failed to check ban file for {server}", banFileMonitor.GameServer.Title);
                 }
 
             stopWatch.Stop();
-            log.LogDebug($"Stop UpdateRemotesWithLatestBanFiles @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
+            log.LogDebug($"Stop BanFileImportAndUpdate @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
+        }
+
+        [FunctionName("GenerateLatestBansFile")]
+        public async Task GenerateLatestBansFile([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, ILogger log)
+        {
+            log.LogDebug($"Start GenerateLatestBansFile @ {DateTime.UtcNow}");
+
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            foreach (var gameType in BanFilesSupportedGames.Games)
+                try
+                {
+                    await _banFilesRepository.RegenerateBanFileForGame(gameType);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to regenerate latest ban file for {game}", gameType);
+                }
+
+
+            stopWatch.Stop();
+            log.LogDebug($"Stop GenerateLatestBansFile @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
     }
 }

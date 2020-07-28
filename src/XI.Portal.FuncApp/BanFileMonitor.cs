@@ -115,7 +115,7 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("GenerateLatestBansFile")]
-        public async Task GenerateLatestBansFile([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task GenerateLatestBansFile([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start GenerateLatestBansFile @ {DateTime.UtcNow}");
 

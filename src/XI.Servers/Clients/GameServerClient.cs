@@ -59,6 +59,9 @@ namespace XI.Servers.Clients
 
             foreach (var queryPlayer in queryResponse.Players)
             {
+                if (string.IsNullOrWhiteSpace(queryPlayer.NormalizedName))
+                    continue;
+
                 var existingPlayer = (GameServerPlayer) Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);
 
                 if (existingPlayer == null)
@@ -118,6 +121,9 @@ namespace XI.Servers.Clients
 
             foreach (var queryPlayer in queryResponse.Players)
             {
+                if (string.IsNullOrWhiteSpace(queryPlayer.NormalizedName))
+                    continue;
+
                 var newPlayer = new GameServerPlayer(queryPlayer);
 
                 var existing = (GameServerPlayer) Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);

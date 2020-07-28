@@ -47,18 +47,17 @@ namespace XI.Portal.Players.Repository
                 Order = AdminActionsFilterModel.OrderBy.CreatedAsc
             });
 
-            await using (var banEntryStream = new MemoryStream())
+            var externalBansStream = await GetExternalBanFileForGame(gameType);
+            externalBansStream.Seek(externalBansStream.Length, SeekOrigin.Begin);
+
+            await using (var streamWriter = new StreamWriter(externalBansStream))
             {
-                await using (var streamWriter = new StreamWriter(banEntryStream))
-                {
-                    foreach (var adminActionDto in adminActions)
-                        streamWriter.WriteLine($"{adminActionDto.Guid} [BANSYNC]-{adminActionDto.Username}");
+                foreach (var adminActionDto in adminActions)
+                    streamWriter.WriteLine($"{adminActionDto.Guid} [BANSYNC]-{adminActionDto.Username}");
 
-                    streamWriter.Flush();
-                    banEntryStream.Seek(0, SeekOrigin.Begin);
-
-                    await blobClient.UploadAsync(banEntryStream, true);
-                }
+                streamWriter.Flush();
+                externalBansStream.Seek(0, SeekOrigin.Begin);
+                await blobClient.UploadAsync(externalBansStream, true);
             }
         }
 
@@ -84,8 +83,22 @@ namespace XI.Portal.Players.Repository
         {
             var blobKey = $"{gameType}-bans.txt";
 
+            _logger.LogInformation($"Retrieving ban file for {gameType} using blob key {blobKey}");
+
+            return await GetFileStream(blobKey);
+        }
+
+        private async Task<Stream> GetExternalBanFileForGame(GameType gameType)
+        {
+            var blobKey = $"{gameType}-external.txt";
+
             _logger.LogInformation($"Retrieving ban file size for {gameType} using blob key {blobKey}");
 
+            return await GetFileStream(blobKey);
+        }
+
+        private async Task<Stream> GetFileStream(string blobKey)
+        {
             var blobServiceClient = new BlobServiceClient(_options.StorageConnectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_options.StorageContainerName);
 

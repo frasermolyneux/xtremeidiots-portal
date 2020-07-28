@@ -49,7 +49,7 @@ namespace XI.Portal.FuncApp
 
                     var remoteFileSize = _ftpHelper.GetFileSize(
                         banFileMonitor.GameServer.FtpHostname,
-                        banFileMonitor.FilePath + ".test",
+                        banFileMonitor.FilePath,
                         banFileMonitor.GameServer.FtpUsername,
                         banFileMonitor.GameServer.FtpPassword);
 
@@ -68,7 +68,7 @@ namespace XI.Portal.FuncApp
 
                         var remoteBanFileData = _ftpHelper.GetRemoteFileData(
                             banFileMonitor.GameServer.FtpHostname,
-                            banFileMonitor.FilePath + ".test",
+                            banFileMonitor.FilePath,
                             banFileMonitor.GameServer.FtpUsername,
                             banFileMonitor.GameServer.FtpPassword);
 
@@ -91,7 +91,7 @@ namespace XI.Portal.FuncApp
 
                         await _ftpHelper.UpdateRemoteFileFromStream(
                             banFileMonitor.GameServer.FtpHostname,
-                            banFileMonitor.FilePath + ".test",
+                            banFileMonitor.FilePath,
                             banFileMonitor.GameServer.FtpUsername,
                             banFileMonitor.GameServer.FtpPassword,
                             banFileStream);
@@ -115,7 +115,7 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("GenerateLatestBansFile")]
-        public async Task GenerateLatestBansFile([TimerTrigger("0 */10 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task GenerateLatestBansFile([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start GenerateLatestBansFile @ {DateTime.UtcNow}");
 

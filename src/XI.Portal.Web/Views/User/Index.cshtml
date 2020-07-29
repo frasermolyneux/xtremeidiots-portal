@@ -68,7 +68,7 @@
                     {
                         data: 'portalClaims',
                         name: 'portalClaims',
-                        sortable: false,
+                        sortable: true,
                         render: function(data, type, row) {
                             var claims = "";
 
@@ -82,13 +82,7 @@
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return '<form class="form-inline" method="post" action="/User/LogUserOut" method="post">' +
-                                '<input id="id" name="id" type="hidden" value="' +
-                                row['id'] +
-                                '\"/>' +
-                                '<button class="btn btn-link" type="submit">Logout User</button>' +
-                                '@Html.AntiForgeryToken()' +
-                                '</form>';
+                            return logOutUserLink(row['id'], '@Html.AntiForgeryToken()');
                         }
                     },
                     {

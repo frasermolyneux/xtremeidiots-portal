@@ -15,6 +15,7 @@ using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Users.Models;
 using XI.Portal.Users.Repository;
+using XI.Portal.Web.Extensions;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -80,7 +81,7 @@ namespace XI.Portal.Web.Controllers
             var user = await _userManager.FindByIdAsync(id);
             await _userManager.UpdateSecurityStampAsync(user);
 
-            TempData["Success"] = $"User {user.UserName} has been force logged out (this may take up to 15 minutes)";
+            this.AddAlertSuccess($"User {user.UserName} has been force logged out (this may take up to 15 minutes)");
             _logger.LogInformation(EventIds.Management, "User {User} have force logged out {TargetUser}", User.Username(), user.UserName);
 
             return RedirectToAction(nameof(Index));
@@ -103,12 +104,12 @@ namespace XI.Portal.Web.Controllers
                     ClaimValue = claimValue
                 });
 
-                TempData["Success"] = $"The {claimType} claim has been added to {user.UserName}";
+                this.AddAlertSuccess($"The {claimType} claim has been added to {user.UserName}");
                 _logger.LogInformation(EventIds.Management, "User {User} has added a {ClaimType} with {ClaimValue} to {TargetUser}", User.Username(), claimType, claimValue, user.UserName);
             }
             else
             {
-                TempData["Info"] = $"Nothing to do - {user.UserName} already has the {claimType} claim";
+                this.AddAlertSuccess($"Nothing to do - {user.UserName} already has the {claimType} claim");
             }
 
             return RedirectToAction(nameof(ManagePortalClaims), new {id});
@@ -125,7 +126,7 @@ namespace XI.Portal.Web.Controllers
             await _usersRepository.RemoveUserClaim(id, claimId);
             await _userManager.UpdateSecurityStampAsync(user);
 
-            TempData["Success"] = $"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)";
+            this.AddAlertSuccess($"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)");
             _logger.LogInformation(EventIds.Management, "User {User} has removed a claim from {TargetUser}", User.Username(), user.UserName);
 
             return RedirectToAction(nameof(ManagePortalClaims), new {id});

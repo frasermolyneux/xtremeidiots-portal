@@ -19,8 +19,8 @@ namespace XI.Portal.Web.Controllers
         private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<AdminActionController> _logger;
-        private readonly IPlayersRepository _playersRepository;
         private readonly IPlayersForumsClient _playersForumsClient;
+        private readonly IPlayersRepository _playersRepository;
 
 
         public AdminActionController(

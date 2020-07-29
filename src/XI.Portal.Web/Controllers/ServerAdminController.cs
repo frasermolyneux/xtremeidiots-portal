@@ -26,8 +26,6 @@ namespace XI.Portal.Web.Controllers
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRconClientFactory _rconClientFactory;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
-
         public ServerAdminController(
             IAuthorizationService authorizationService,
             IGameServersRepository gameServersRepository,

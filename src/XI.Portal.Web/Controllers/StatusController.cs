@@ -18,8 +18,6 @@ namespace XI.Portal.Web.Controllers
         private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
 
-        private readonly string[] _requiredClaims = {XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin};
-
         public StatusController(
             IBanFileMonitorsRepository banFileMonitorsRepository,
             IFileMonitorsRepository fileMonitorsRepository,

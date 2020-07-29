@@ -64,3 +64,13 @@ function manageClaimsLink(userId) {
         '?filterGame=true"><i class="fa fa-key"></i> Manage Claims</a>' +
         "</div>";
 }
+
+function logOutUserLink(userId, antiForgeryToken) {
+    return '<form class="form-inline" method="post" action="/User/LogUserOut" method="post">' +
+        '<input id="id" name="id" type="hidden" value="' +
+        userId +
+        '\"/>' +
+        '<button class="btn btn-primary" type="submit">Logout User</button>' +
+        antiForgeryToken +
+        '</form>';
+}

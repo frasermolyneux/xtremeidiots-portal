@@ -10,9 +10,62 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-    <div class="alert alert-danger" role="alert">
-        <i class="fa fa-warning"></i> THIS FEATURE HAS BEEN DISCONTINUED AND THIS PAGE WILL SHORTLY BE REPLACED WITH NEW FUNCTIONALITY!
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> This confirms that the ban files on the game servers have been updated with the latest bans and any new bans have been imported.
     </div>
+
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-warning"></i> This page is used for monitoring but at present does not alert. If there is an error displaying below then please contact Sitting-Duc.
+    </div>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h2>Ban File Monitor Status</h2>
+
+                        <hr />
+
+                        <p>
+                            This feature is where the portal gets its bans data from the game servers and ensures the servers have the latest bans.
+                            There is a process that runs every five minutes that will:
+                            <ul>
+                                <li>Import any new bans from the game servers placed through RCON</li>
+                                <li>Update the remote ban file on the server if new bans have been added or imported</li>
+                            </ul>
+                        </p>
+
+                        <p>
+                            Additionally there is a process that runs every 10 minutes that:
+                            <ul>
+                                <li>Regenerates the ban file for each game including a static PBBans list and database bans</li>
+                            </ul>
+                        </p>
+
+                        <hr />
+
+                        <h3>When stuff goes wrong</h3>
+                        <p>
+                            This is a pretty solid process and rarely fails in it's execution. The more common issue is the mod changing and this configuration not being updated.
+                        </p>
+                        <p>
+                            If this page shows an error then contact Sitting-Duc for a resolution.
+                        </p>
+
+                        <hr />
+
+                        <h3>Conditions for this page showing an error:</h3>
+                        <ul>
+                            <li>The ban file has not been checked in 15 minutes.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
 
     <row class="row">
         <div class="col-12">
@@ -25,7 +78,7 @@
                     <div class="ibox-content">
                         A ban file will be considered out of sync if:
                         <ul>
-                            <li>The last sync has been more than 30 minutes ago</li>
+                            <li>The last sync has been more than 15 minutes ago</li>
                         </ul>
                     </div>
                 </div>
@@ -53,14 +106,11 @@
                                     <strong>Last Recorded Sync: </strong>@item.LastSync
                                 </text><br/>
                                 <text>
-                                    <strong>Remote Modified: </strong>@item.LastSync
-                                </text><br/>
-                                <text>
                                     <strong>Last Recorded Size: </strong>@item.RemoteFileSize
                                 </text>
                                 <br/>
 
-                                @if (item.LastSync < DateTime.UtcNow.AddMinutes(-30))
+                                @if (item.LastSync < DateTime.UtcNow.AddMinutes(-15))
                                 {
                                     <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                                 }

@@ -104,6 +104,9 @@ namespace XI.Portal.FuncApp
                     {
                         _logger.LogDebug("Remote ban file on {server} at {path} has the latest ban file", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
                     }
+
+                    banFileMonitor.LastSync = DateTime.UtcNow;
+                    await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
                 }
                 catch (Exception ex)
                 {

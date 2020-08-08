@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Players.Dto;
+using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
 
@@ -64,15 +65,11 @@ namespace XI.Portal.Players.Ingest
 
                     player = await _playersRepository.GetPlayer(gameType, guid);
 
-                    var adminActionDto = new AdminActionDto
-                    {
-                        PlayerId = player.PlayerId,
-                        Type = AdminActionType.Ban,
-                        Username = name,
-                        Text = "Imported from server",
-                        Created = DateTime.UtcNow
-                    };
+                    var adminActionDto = new AdminActionDto()
+                        .OfType(AdminActionType.Ban)
+                        .WithPlayerDto(player);
 
+                    adminActionDto.Text = "Imported from server";
                     adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
                     await _adminActionsRepository.CreateAdminAction(adminActionDto);
@@ -89,15 +86,11 @@ namespace XI.Portal.Players.Ingest
                     {
                         _logger.LogInformation($"BanFileImport - adding import ban to existing player {player.Username} - {player.Guid} ({player.GameType})");
 
-                        var adminActionDto = new AdminActionDto
-                        {
-                            PlayerId = player.PlayerId,
-                            Type = AdminActionType.Ban,
-                            Username = name,
-                            Text = "Imported from server",
-                            Created = DateTime.UtcNow
-                        };
+                        var adminActionDto = new AdminActionDto()
+                            .OfType(AdminActionType.Ban)
+                            .WithPlayerDto(player);
 
+                        adminActionDto.Text = "Imported from server";
                         adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
                         await _adminActionsRepository.CreateAdminAction(adminActionDto);

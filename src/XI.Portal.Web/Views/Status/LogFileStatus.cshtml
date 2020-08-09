@@ -35,6 +35,11 @@
                                     <li>Get the latest data written to the log file, parse and ingest it</li>
                                 </ul>
                             </p>
+                            
+                            <p>
+                                To reduce cost and strain on server and the database etc. This process only runs against servers that have active players on them. This is determined by the
+                                'Game Server Status' feature.
+                            </p>
 
                             <hr />
 
@@ -51,6 +56,7 @@
                             <h3>Conditions for this page showing an error:</h3>
                             <ul>
                                 <li>The log file has not been read in the past 5 minutes.</li>
+                                <li>The player count is not equal to zero</li>
                             </ul>
                         </div>
                     </div>
@@ -80,7 +86,7 @@
                                     <br />
                                     <br />
 
-                                    @if (item.LastRead < DateTime.UtcNow.AddMinutes(-5))
+                                    @if (item.LastRead < DateTime.UtcNow.AddMinutes(-5) && item.PlayerCount != 0)
                                     {
                                         <div class="alert alert-danger">Log file monitor has not run in the past 5 minutes</div>
                                     }

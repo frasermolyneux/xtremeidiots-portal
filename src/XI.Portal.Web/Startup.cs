@@ -222,6 +222,12 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusStatsRepository:StorageTableName"];
                 });
+
+                options.ConfigureLogFileMonitorStateRepository(repositoryOptions =>
+                {
+                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
+                    repositoryOptions.StorageTableName = Configuration["LogFileMonitorState:StorageTableName"];
+                });
             });
 
             services.AddDbContext<LegacyPortalContext>(options =>

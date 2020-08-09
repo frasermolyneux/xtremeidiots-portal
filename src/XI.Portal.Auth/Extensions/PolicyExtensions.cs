@@ -45,7 +45,7 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(AuthPolicies.AccessDemos, policy => { policy.Requirements.Add(new AccessDemos()); });
             options.AddPolicy(AuthPolicies.DeleteDemo, policy => { policy.Requirements.Add(new DeleteDemo()); });
 
-            // Ban File Monitors
+            // File Monitors
             options.AddPolicy(AuthPolicies.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });
             options.AddPolicy(AuthPolicies.CreateFileMonitor, policy => { policy.Requirements.Add(new CreateFileMonitor()); });
             options.AddPolicy(AuthPolicies.ViewFileMonitor, policy => { policy.Requirements.Add(new ViewFileMonitor()); });

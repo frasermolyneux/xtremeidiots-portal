@@ -15,17 +15,17 @@ namespace XI.Portal.Web.Controllers
     public class StatusController : Controller
     {
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
-        private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
+        private readonly ILogFileMonitorStateRepository _logFileMonitorStateRepository;
 
         public StatusController(
             IBanFileMonitorsRepository banFileMonitorsRepository,
-            IFileMonitorsRepository fileMonitorsRepository,
-            IGameServerStatusRepository gameServerStatusRepository)
+            IGameServerStatusRepository gameServerStatusRepository,
+            ILogFileMonitorStateRepository logFileMonitorStateRepository)
         {
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
-            _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
+            _logFileMonitorStateRepository = logFileMonitorStateRepository ?? throw new ArgumentNullException(nameof(logFileMonitorStateRepository));
         }
 
         public async Task<IActionResult> BanFileStatus()
@@ -41,13 +41,11 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> LogFileStatus()
         {
-            var filterModel = new FileMonitorFilterModel
-            {
-                Order = FileMonitorFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuth(User);
+            var filterModel = new FileMonitorFilterModel().ApplyAuth(User);
 
-            var fileMonitorDtos = await _fileMonitorsRepository.GetFileMonitors(filterModel);
-            return View(fileMonitorDtos);
+            var logFileMonitorStateDtos = await _logFileMonitorStateRepository.GetLogFileMonitorStates(filterModel);
+
+            return View(logFileMonitorStateDtos);
         }
 
         public async Task<IActionResult> GameServerStatus()

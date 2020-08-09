@@ -53,6 +53,7 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, CreateFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, DeleteFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, EditFileMonitorHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditFileMonitorHandlerByGameType>();
             services.AddSingleton<IAuthorizationHandler, ViewFileMonitorHandler>();
 
             // Game Servers
@@ -61,6 +62,7 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteGameServerHandler>();
             services.AddSingleton<IAuthorizationHandler, EditGameServerFtpHandler>();
             services.AddSingleton<IAuthorizationHandler, EditGameServerHandler>();
+            services.AddSingleton<IAuthorizationHandler, EditGameServerHandlerByGameType>();
             services.AddSingleton<IAuthorizationHandler, EditGameServerRconHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewFtpCredentialHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewGameServerHandler>();

@@ -53,8 +53,9 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var fileMonitors = await _fileMonitorsRepository.GetFileMonitors(new FileMonitorFilterModel());
-            var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates();
+            var filterModel = new FileMonitorFilterModel();
+            var fileMonitors = await _fileMonitorsRepository.GetFileMonitors(filterModel);
+            var fileMonitorStates = await _logFileMonitorStateRepository.GetLogFileMonitorStates(filterModel);
             var gameServerStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
 
             foreach (var fileMonitorDto in fileMonitors)
@@ -130,7 +131,8 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var fileMonitorStates = (await _logFileMonitorStateRepository.GetLogFileMonitorStates())
+            var filterModel = new FileMonitorFilterModel();
+            var fileMonitorStates = (await _logFileMonitorStateRepository.GetLogFileMonitorStates(filterModel))
                 .Where(fm => fm.PlayerCount > 0)
                 .ToList();
 

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Servers.Dto;
+using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 
@@ -22,10 +24,9 @@ namespace XI.Portal.Servers.Repository
             _stateTable.CreateIfNotExists();
         }
 
-        public async Task<List<LogFileMonitorStateDto>> GetLogFileMonitorStates()
+        public async Task<List<LogFileMonitorStateDto>> GetLogFileMonitorStates(FileMonitorFilterModel filterModel)
         {
-            var query = new TableQuery<LogFileMonitorStateEntity>().AsTableQuery();
-
+            var query = new TableQuery<LogFileMonitorStateEntity>().AsTableQuery().ApplyFilter(filterModel);
             var results = new List<LogFileMonitorStateDto>();
 
             TableContinuationToken continuationToken = null;

@@ -7,6 +7,7 @@ namespace XI.Portal.Servers.Dto
         public Guid ChatLogId { get; set; }
         public Guid PlayerId { get; set; }
         public Guid ServerId { get; set; }
+        public string ServerName { get; set; }
         public string GameType { get; set; }
         public DateTime Timestamp { get; set; }
         public string Username { get; set; }

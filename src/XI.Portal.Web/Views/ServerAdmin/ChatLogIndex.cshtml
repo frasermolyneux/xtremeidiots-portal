@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Global ChatLog";
     var dataUrl = "/ServerAdmin/GetChatLogAjax";
+    var showServer = true;
 
     if (ViewData["GameType"] != null)
     {
@@ -14,6 +15,7 @@
     {
         ViewData["Title"] = "Server ChatLog Index";
         dataUrl = "/ServerAdmin/GetServerChatLogAjax/" + ViewData["ServerId"];
+        showServer = false;
     }
 }
 
@@ -35,6 +37,10 @@
                                 <td>Username</td>
                                 <td>Type</td>
                                 <td>Message</td>
+                                @if (showServer)
+                                {
+                                    <td>Server</td>
+                                }
                                 <td>Link</td>
                             </tr>
                             </thead>
@@ -94,6 +100,16 @@
                         name: 'message',
                         sortable: false
                     },
+                    @if (showServer)
+                    {
+                        <text>
+                            {
+                                data: 'serverName',
+                                name: 'serverName',
+                                sortable: false
+                            },
+                        </text>
+                    }
                     {
                         data: 'chatLogId',
                         name: 'chatLogId',

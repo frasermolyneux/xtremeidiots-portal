@@ -139,6 +139,9 @@
                             <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
                         </li>
                     }
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#chatLog">ChatLog</a>
+                    </li>
                 </ul>
 
                 <div class="tab-content">
@@ -150,17 +153,17 @@
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
                         <table id="aliasesTable" style="width: 100%;">
                             <thead>
-                            <tr>
-                                <th>
-                                    Name
-                                </th>
-                                <th>
-                                    Added
-                                </th>
-                                <th>
-                                    Last Used
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Added
+                                    </th>
+                                    <th>
+                                        Last Used
+                                    </th>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -168,17 +171,17 @@
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
                         <table id="ipAddressesTable" style="width: 100%;">
                             <thead>
-                            <tr>
-                                <th>
-                                    Address
-                                </th>
-                                <th>
-                                    Added
-                                </th>
-                                <th>
-                                    Last Used
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        Address
+                                    </th>
+                                    <th>
+                                        Added
+                                    </th>
+                                    <th>
+                                        Last Used
+                                    </th>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -188,18 +191,45 @@
                         <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
                             <table id="relatedPlayersTable" style="width: 100%;">
                                 <thead>
-                                <tr>
-                                    <th>
-                                        Player Name
-                                    </th>
-                                    <th>
-                                        Connected By IP
-                                    </th>
-                                </tr>
+                                    <tr>
+                                        <th>
+                                            Player Name
+                                        </th>
+                                        <th>
+                                            Connected By IP
+                                        </th>
+                                    </tr>
                                 </thead>
                             </table>
                         </div>
                     }
+
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="chatLog">
+                        <table id="chatLogTable" style="width: 100%;">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Type
+                                </th>
+                                <th>
+                                    Message
+                                </th>
+                                <th>
+                                    Server
+                                </th> 
+                                <th>
+                                    Link
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
 
                 </div>
             </div>
@@ -305,6 +335,61 @@
 
                 </text>
             }
+
+            $('#chatLogTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searchDelay: 1000,
+                stateSave: true,
+                order: [[1, "desc"]],
+                ajax: {
+                    url: '/ServerAdmin/GetPlayerChatLog/@Model.Player.PlayerId',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'timestamp',
+                        name: 'timestamp',
+                        sortable: true
+                    },
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username'], row['playerId']);
+                        }
+                    },
+                    {
+                        data: 'chatType',
+                        name: 'chatType',
+                        sortable: false
+                    },
+                    {
+                        data: 'message',
+                        name: 'message',
+                        sortable: false
+                    },
+                    {
+                        data: 'serverName',
+                        name: 'serverName',
+                        sortable: false
+                    },
+                    {
+                        data: 'chatLogId',
+                        name: 'chatLogId',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return chatLogUrl(row['chatLogId']);
+                        }
+                    }
+                ]
+            });
 
         });
 

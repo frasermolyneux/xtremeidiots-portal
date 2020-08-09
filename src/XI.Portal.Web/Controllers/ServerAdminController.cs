@@ -10,6 +10,7 @@ using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Auth.ServerAdmin.Extensions;
+using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
@@ -22,6 +23,7 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly IChatLogsRepository _chatLogsRepository;
+        private readonly IPlayersRepository _playersRepository;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRconClientFactory _rconClientFactory;
@@ -31,13 +33,15 @@ namespace XI.Portal.Web.Controllers
             IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory,
-            IChatLogsRepository chatLogsRepository)
+            IChatLogsRepository chatLogsRepository,
+            IPlayersRepository playersRepository)
         {
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
             _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
+            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
         }
 
         [HttpGet]
@@ -134,7 +138,7 @@ namespace XI.Portal.Web.Controllers
         [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
         public async Task<IActionResult> GetChatLogAjax()
         {
-            return await GetChatLogPrivate(null, null);
+            return await GetChatLogPrivate(null, null, null);
         }
 
         [HttpGet]
@@ -157,7 +161,7 @@ namespace XI.Portal.Web.Controllers
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(id, null);
+            return await GetChatLogPrivate(id, null, null);
         }
 
         [HttpGet]
@@ -190,10 +194,26 @@ namespace XI.Portal.Web.Controllers
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(null, id);
+            return await GetChatLogPrivate(null, id, null);
         }
 
-        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId)
+        [HttpPost]
+        public async Task<IActionResult> GetPlayerChatLog(Guid id)
+        {
+            var playerDto = await _playersRepository.GetPlayer(id);
+
+            if (playerDto == null)
+                return NotFound();
+
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerDto.GameType, AuthPolicies.ViewGameChatLog);
+
+            if (!canViewGameChatLog.Succeeded)
+                return Unauthorized();
+
+            return await GetChatLogPrivate(playerDto.GameType, null, playerDto.PlayerId);
+        }
+
+        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -210,6 +230,9 @@ namespace XI.Portal.Web.Controllers
 
             if (serverId != null)
                 filterModel.ServerId = (Guid) serverId;
+
+            if (playerId != null)
+                filterModel.PlayerId = (Guid) playerId;
 
             var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
 

@@ -17,6 +17,8 @@ namespace XI.Portal.Servers.Extensions
 
             if (filterModel.ServerId != Guid.Empty) chatLogs = chatLogs.Where(m => m.GameServerServerId == filterModel.ServerId).AsQueryable();
 
+            if (filterModel.PlayerId != Guid.Empty) chatLogs = chatLogs.Where(m => m.PlayerPlayerId == filterModel.PlayerId).AsQueryable();
+
             if (!string.IsNullOrWhiteSpace(filterModel.FilterString))
                 chatLogs = chatLogs.Where(m => m.Message.Contains(filterModel.FilterString)
                                                || m.Username.Contains(filterModel.FilterString)).AsQueryable();

@@ -76,22 +76,11 @@
                         </div>
                         <div class="ibox-content">
                             <p>
-                                <text>
-                                    <strong>Server Hostname: </strong>@item.Hostname
-                                </text><br/>
-                                <text>
-                                    <strong>Last Queried: </strong>@item.Timestamp
-                                </text><br/>
-                                <text>
-                                    <strong>Mod: </strong>@item.Mod
-                                </text><br/>
-                                <text>
-                                    <strong>Map: </strong>@item.Map
-                                </text><br/>
-                                <text>
-                                    <strong>Player Count: </strong>@item.PlayerCount
-                                </text>
-                                <br/>
+                                <strong>Server Hostname: </strong>@item.Hostname<br/>
+                                <strong>Last Queried: </strong>@item.Timestamp<br/>
+                                <strong>Mod: </strong>@item.Mod<br/>
+                                <strong>Map: </strong>@item.Map<br/>
+                                <strong>Player Count: </strong>@item.PlayerCount<br/>
 
                                 @if (DateTime.UtcNow.AddMinutes(-20) > item.Timestamp)
                                 {

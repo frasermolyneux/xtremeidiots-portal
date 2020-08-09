@@ -81,14 +81,9 @@
                         </div>
                         <div class="ibox-content">
                             <p>
-                                <text><strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FilePath</text><br/>
-                                <text>
-                                    <strong>Last Recorded Sync: </strong>@item.LastSync
-                                </text><br/>
-                                <text>
-                                    <strong>Last Recorded Size: </strong>@item.RemoteFileSize
-                                </text>
-                                <br/>
+                                <strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FilePath<br/>
+                                <strong>Last Recorded Sync: </strong>@item.LastSync<br/>
+                                <strong>Last Recorded Size: </strong>@item.RemoteFileSize<br/>
 
                                 @if (item.LastSync < DateTime.UtcNow.AddMinutes(-15))
                                 {

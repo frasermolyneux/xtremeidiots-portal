@@ -54,6 +54,7 @@ namespace XI.Portal.Players.Extensions
             }
 
             serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
+            serviceCollection.AddScoped<IPlayerAnalyticsRepository, PlayerAnalyticsRepository>();
             serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
             serviceCollection.AddScoped<IBanFileIngest, BanFileIngest>();
             serviceCollection.AddScoped<IGuidValidator, GuidValidator>();

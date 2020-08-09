@@ -145,17 +145,6 @@
     </ul>
 </li>
 
-@*<li class="@Html.IsSelected("Analytics")">
-                    <a asp-controller="Analytics">
-                        <i class="fa fa-line-chart"></i> <span class="nav-label">Analytics</span> <span class="fa arrow"></span>
-                    </a>
-                    <ul class="nav nav-second-level collapse @Html.IsSelected("Analytics", cssClass: "in")">
-                        <li class="@Html.IsSelected(action: "Index")">
-                            <a asp-controller="Analytics" asp-action="Index">High-Level</a>
-                        </li>
-                    </ul>
-                </li>*@
-
 <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players")">
     <a asp-controller="Players" asp-action="Index">
         <i class="fa fa-users"></i> <span class="nav-label">Players</span> <span class="fa arrow"></span>
@@ -163,6 +152,10 @@
     <ul class="nav nav-second-level collapse @Html.IsSelected("Players", cssClass: "in")">
         <li class="@Html.IsSelected(action: "Index")">
             <a asp-controller="Players" asp-action="Index">Global Player Index</a>
+        </li>
+
+        <li class="@Html.IsSelected(action: "Analytics")">
+            <a asp-controller="Players" asp-action="Analytics">Analytics</a>
         </li>
 
         <li class="@Html.IsSelected(action: "IpIndex")">

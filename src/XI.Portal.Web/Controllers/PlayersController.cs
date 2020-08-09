@@ -22,16 +22,20 @@ namespace XI.Portal.Web.Controllers
     public class PlayersController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
+        private readonly IPlayerAnalyticsRepository _playerAnalyticsRepository;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayersRepository _playersRepository;
 
-        public PlayersController(IPlayersRepository playersRepository,
+        public PlayersController(
+            IPlayersRepository playersRepository,
             IGeoLocationClient geoLocationClient,
-            IAdminActionsRepository adminActionsRepository)
+            IAdminActionsRepository adminActionsRepository,
+            IPlayerAnalyticsRepository playerAnalyticsRepository)
         {
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
+            _playerAnalyticsRepository = playerAnalyticsRepository ?? throw new ArgumentNullException(nameof(playerAnalyticsRepository));
         }
 
         [HttpGet]
@@ -234,6 +238,36 @@ namespace XI.Portal.Web.Controllers
             var adminActions = await _adminActionsRepository.GetAdminActions(filterModel);
 
             return View(adminActions);
+        }
+
+        [HttpGet]
+        public IActionResult Analytics()
+        {
+            var cutoff = DateTime.UtcNow.AddMonths(-3);
+            ViewBag.DateFilterRange = cutoff;
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff)
+        {
+            var data = await _playerAnalyticsRepository.GetCumulativeDailyPlayers(cutoff);
+            return Json(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff)
+        {
+            var data = await _playerAnalyticsRepository.GetNewDailyPlayersPerGame(cutoff);
+            return Json(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
+        {
+            var data = await _playerAnalyticsRepository.GetPlayersDropOffPerGameJson(cutoff);
+            return Json(data);
         }
 
         public class PlayerDetailsViewModel

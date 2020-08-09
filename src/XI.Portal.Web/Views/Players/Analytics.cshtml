@@ -1,0 +1,267 @@
+﻿@{
+    ViewData["Title"] = "Player Analytics";
+}
+
+@{
+    var dateFilterRange = ViewBag.DateFilterRange;
+
+    DateTime filterRange;
+    if (dateFilterRange == null)
+    {
+        filterRange = DateTime.UtcNow.AddYears(-1);
+    }
+    else
+    {
+        filterRange = (DateTime) dateFilterRange;
+    }
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <h1>Player Analytics</h1>
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="ibox">
+                <div class="form-group" id="data_1">
+                    <div class="input-group date">
+                        <span class="input-group-addon">
+                            <i class="fa fa-calendar"></i>
+                        </span><input readonly="readonly" id="filterDate" type="text" class="form-control" value="@filterRange.ToString("MM/dd/yyyy")">
+                    </div>
+                    <label class="font-normal">Select the cutoff date for analytics</label>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div id="PlayersPerGameAnalytics"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div id="PlayersDropOffPerGameAnalytics"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <div id="PlayersAnalytics"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Styles
+{
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/datepicker3.css"/>
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/datepicker3.css"/>
+    </environment>
+}
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    <environment names="Development">
+        <script src="~/lib/moment/moment.js"></script>
+        <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/lib/moment/min/moment.min.js"></script>
+        <script src="~/lib/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+    </environment>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawPlayersPerGameChart);
+        google.charts.setOnLoadCallback(drawPlayerDropOffPerGameChart);
+        google.charts.setOnLoadCallback(drawPlayersChart);
+
+        function drawPlayersPerGameChart() {
+
+            var cutoff = $("#filterDate").val();
+
+            $.getJSON("/Players/GetNewDailyPlayersPerGameJson?cutoff=" + cutoff,
+                function(jsonData) {
+
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('date', 'Date');
+                    data.addColumn('number', 'CallOfDuty2');
+                    data.addColumn('number', 'CallOfDuty4');
+                    data.addColumn('number', 'CallOfDuty5');
+                    data.addColumn('number', 'Insurgency');
+
+                    $.each(jsonData,
+                        function(key, val) {
+
+                            var cod2 = val.gameCounts.CallOfDuty2;
+                            var cod4 = val.gameCounts.CallOfDuty4;
+                            var cod5 = val.gameCounts.CallOfDuty5;
+                            var insurgency = val.gameCounts.Insurgency;
+
+                            data.addRow([
+                                moment(val.created).toDate(),
+                                cod2,
+                                cod4,
+                                cod5,
+                                insurgency
+                            ]);
+                        });
+
+                    var chartWidth = $('#PlayersPerGameAnalytics').width();
+
+                    var options = {
+                        title: 'New players per day since ' + cutoff,
+                        width: chartWidth,
+                        height: 500,
+                        hAxis: {
+                            format: 'M/d/yy',
+                            gridlines: { count: 30 }
+                        },
+                        vAxis: {
+                            gridlines: { color: 'none' },
+                            minValue: 0
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('PlayersPerGameAnalytics'));
+                    chart.draw(data, options);
+                });
+        }
+
+        function drawPlayerDropOffPerGameChart() {
+
+            var cutoff = $("#filterDate").val();
+
+            $.getJSON("/Players/GetPlayersDropOffPerGameJson?cutoff=" + cutoff,
+                function(jsonData) {
+
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('date', 'Date');
+                    data.addColumn('number', 'CallOfDuty2');
+                    data.addColumn('number', 'CallOfDuty4');
+                    data.addColumn('number', 'CallOfDuty5');
+                    data.addColumn('number', 'Insurgency');
+
+                    $.each(jsonData,
+                        function(key, val) {
+
+                            var cod2 = val.gameCounts.CallOfDuty2;
+                            var cod4 = val.gameCounts.CallOfDuty4;
+                            var cod5 = val.gameCounts.CallOfDuty5;
+                            var insurgency = val.gameCounts.Insurgency;
+
+                            data.addRow([
+                                moment(val.created).toDate(),
+                                cod2,
+                                cod4,
+                                cod5,
+                                insurgency
+                            ]);
+                        });
+
+                    var chartWidth = $('#PlayersDropOffPerGameAnalytics').width();
+
+                    var options = {
+                        title: 'Drop off players per day since ' + cutoff,
+                        width: chartWidth,
+                        height: 500,
+                        hAxis: {
+                            format: 'M/d/yy',
+                            gridlines: { count: 30 }
+                        },
+                        vAxis: {
+                            gridlines: { color: 'none' },
+                            minValue: 0
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('PlayersDropOffPerGameAnalytics'));
+                    chart.draw(data, options);
+                });
+        }
+
+        function drawPlayersChart() {
+
+            var cutoff = $("#filterDate").val();
+            var dt = new Date(cutoff);
+
+            $.getJSON("/Players/GetCumulativeDailyPlayersJson?cutoff=" + dt.toISOString(),
+                function(jsonData) {
+
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('date', 'Created');
+                    data.addColumn('number', 'Count');
+
+                    $.each(jsonData,
+                        function(key, val) {
+                            data.addRow([
+                                moment(val.created).toDate(),
+                                val.count
+                            ]);
+                        });
+
+                    var chartWidth = $('#PlayersPerGameAnalytics').width();
+
+                    var options = {
+                        title: 'Cumulative player count across all games since ' + cutoff,
+                        width: chartWidth,
+                        height: 500,
+                        hAxis: {
+                            format: 'M/d/yy',
+                            gridlines: { count: 30 }
+                        },
+                        vAxis: {
+                            gridlines: { color: 'none' },
+                            minValue: 0
+                        }
+                    };
+
+                    var chart = new google.visualization.LineChart(document.getElementById('PlayersAnalytics'));
+                    chart.draw(data, options);
+                });
+        }
+
+        window.onload = function() {
+            $('#data_1 .input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+            });
+
+            $('#filterDate').change(function() {
+                drawPlayersChart();
+                drawPlayersPerGameChart();
+                drawPlayerDropOffPerGameChart();
+            });
+        };
+
+
+    </script>
+}

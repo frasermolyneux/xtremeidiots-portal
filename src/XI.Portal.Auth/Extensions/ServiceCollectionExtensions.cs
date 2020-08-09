@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Auth.AdminActions.AuthorizationHandlers;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
+using XI.Portal.Auth.ChangeLog.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
 using XI.Portal.Auth.Demos.AuthorizationHandlers;
 using XI.Portal.Auth.FileMonitors.AuthorizationHandlers;
@@ -40,6 +41,9 @@ namespace XI.Portal.Auth.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteBanFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, EditBanFileMonitorHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewBanFileMonitorHandler>();
+
+            // Change Log
+            services.AddSingleton<IAuthorizationHandler, AccessChangeLogHandler>();
 
             // Credentials
             services.AddSingleton<IAuthorizationHandler, AccessCredentialsHandler>();

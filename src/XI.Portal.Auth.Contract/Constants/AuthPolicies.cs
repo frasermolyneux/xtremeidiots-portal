@@ -19,6 +19,9 @@
         public const string EditBanFileMonitor = nameof(EditBanFileMonitor);
         public const string DeleteBanFileMonitor = nameof(DeleteBanFileMonitor);
 
+        // Change Log
+        public static string AccessChangeLog = nameof(AccessChangeLog);
+
         // Credentials
         public const string AccessCredentials = nameof(AccessCredentials);
 

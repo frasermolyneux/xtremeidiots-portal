@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
+using XI.Portal.Auth.ChangeLog.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Credentials.AuthorizationRequirements;
 using XI.Portal.Auth.Demos.AuthorizationRequirements;
@@ -37,6 +38,9 @@ namespace XI.Portal.Auth.Extensions
             options.AddPolicy(AuthPolicies.ViewBanFileMonitor, policy => { policy.Requirements.Add(new ViewBanFileMonitor()); });
             options.AddPolicy(AuthPolicies.EditBanFileMonitor, policy => { policy.Requirements.Add(new EditBanFileMonitor()); });
             options.AddPolicy(AuthPolicies.DeleteBanFileMonitor, policy => { policy.Requirements.Add(new DeleteBanFileMonitor()); });
+
+            // Change Log
+            options.AddPolicy(AuthPolicies.AccessChangeLog, policy => { policy.Requirements.Add(new AccessChangeLog()); });
 
             // Credentials
             options.AddPolicy(AuthPolicies.AccessCredentials, policy => { policy.Requirements.Add(new AccessCredentials()); });

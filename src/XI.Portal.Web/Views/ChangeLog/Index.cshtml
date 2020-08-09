@@ -1,0 +1,51 @@
+﻿@{
+    ViewData["Title"] = "Portal Change Log";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> This page displays the change log for the XI.Portal website - the GitHub repository can be found <a target="_blank" href="https://github.com/frasermolyneux/XI.PortalV2">here</a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Latest Change Log</h5>
+                </div>
+
+                <div id="activityStream" class="ibox-content"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            function addEntryToActivityStream(date, author, authorUrl, message, commitUrl) {
+                $("#activityStream").append("<div class=\"stream-small\">" +
+                    "<span class=\"label label-primary\"> Commit</span>" +
+                    "<span class=\"text-muted\"> " + date + " </span> / <a target=_blank href=\"" + authorUrl + "\">" + author + "</a> - " +
+                    escapeHtml(message) +
+                    "<a target=_blank href=\"" + commitUrl + "\"> <i class=\"fa fa-external-link\"></i></a>" +
+                    "</div>");
+            }
+
+            $.getJSON( "https://api.github.com/repos/frasermolyneux/XI.PortalV2/commits", function( data ) {
+                $.each(data, function (key, val) {
+                    addEntryToActivityStream(val.commit.author.date, val.author.login, val.author.html_url, val.commit.message, val.html_url);
+                });
+            });
+
+        });
+
+    </script>
+
+}

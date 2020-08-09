@@ -206,6 +206,12 @@
     </ul>
 </li>
 
+<li policy="@AuthPolicies.AccessChangeLog" class="@Html.IsSelected("ChangeLog", "Index")">
+    <a asp-controller="ChangeLog" asp-action="Index">
+        <i class="fa fa-clipboard"></i> <span class="nav-label">Change Log</span>
+    </a>
+</li>
+
 <li policy="@AuthPolicies.AccessGameServers" class="@Html.IsSelected("GameServers", "Index")">
     <a asp-controller="GameServers" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>

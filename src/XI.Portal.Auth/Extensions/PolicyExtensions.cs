@@ -97,6 +97,8 @@ namespace XI.Portal.Auth.Extensions
 
             // Users
             options.AddPolicy(AuthPolicies.AccessUsers, policy => { policy.Requirements.Add(new AccessUsers()); });
+            options.AddPolicy(AuthPolicies.CreateUserClaim, policy => { policy.Requirements.Add(new CreateUserClaim()); });
+            options.AddPolicy(AuthPolicies.DeleteUserClaim, policy => { policy.Requirements.Add(new DeleteUserClaim()); });
         }
     }
 }

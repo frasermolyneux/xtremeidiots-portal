@@ -23,21 +23,23 @@ namespace XI.Portal.Web.Controllers
     public class UserController : Controller
     {
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<UserController> _logger;
         private readonly UserManager<PortalIdentityUser> _userManager;
         private readonly IUsersRepository _usersRepository;
-
 
         public UserController(
             IUsersRepository usersRepository,
             UserManager<PortalIdentityUser> userManager,
             ILogger<UserController> logger,
-            IGameServersRepository gameServersRepository)
+            IGameServersRepository gameServersRepository,
+            IAuthorizationService authorizationService)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
 
         [HttpGet]
@@ -47,7 +49,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ManagePortalClaims(string id)
+        public async Task<IActionResult> ManageProfile(string id)
         {
             var user = await _usersRepository.GetUser(id);
             var filterModel = new GameServerFilterModel
@@ -89,12 +91,19 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddUserClaim(string id, string claimType, string claimValue)
+        public async Task<IActionResult> CreateUserClaim(string id, string claimType, string claimValue)
         {
             if (id == null) return NotFound();
 
             var user = await _userManager.FindByIdAsync(id);
             var portalClaims = await _usersRepository.GetUserClaims(id);
+
+            var gameServerDto = await _gameServersRepository.GetGameServer(Guid.Parse(claimValue));
+
+            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateUserClaim);
+
+            if (!canCreateUserClaim.Succeeded)
+                return Unauthorized();
 
             if (!portalClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
             {
@@ -112,7 +121,7 @@ namespace XI.Portal.Web.Controllers
                 this.AddAlertSuccess($"Nothing to do - {user.UserName} already has the {claimType} claim");
             }
 
-            return RedirectToAction(nameof(ManagePortalClaims), new {id});
+            return RedirectToAction(nameof(ManageProfile), new {id});
         }
 
         [HttpPost]
@@ -123,13 +132,26 @@ namespace XI.Portal.Web.Controllers
 
             var user = await _userManager.FindByIdAsync(id);
 
+            var userClaims = await _usersRepository.GetUserClaims(id);
+            var claim = userClaims.SingleOrDefault(c => c.RowKey == claimId);
+
+            if (claim == null)
+                return NotFound();
+
+            var gameServerDto = await _gameServersRepository.GetGameServer(Guid.Parse(claim.ClaimValue));
+
+            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteUserClaim);
+
+            if (!canDeleteUserClaim.Succeeded)
+                return Unauthorized();
+
             await _usersRepository.RemoveUserClaim(id, claimId);
             await _userManager.UpdateSecurityStampAsync(user);
 
             this.AddAlertSuccess($"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)");
             _logger.LogInformation(EventIds.Management, "User {User} has removed a claim from {TargetUser}", User.Username(), user.UserName);
 
-            return RedirectToAction(nameof(ManagePortalClaims), new {id});
+            return RedirectToAction(nameof(ManageProfile), new {id});
         }
     }
 }

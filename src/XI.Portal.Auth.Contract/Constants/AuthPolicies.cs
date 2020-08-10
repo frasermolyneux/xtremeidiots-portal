@@ -77,5 +77,7 @@
 
         // Users
         public const string AccessUsers = nameof(AccessUsers);
+        public const string CreateUserClaim = nameof(CreateUserClaim);
+        public const string DeleteUserClaim = nameof(DeleteUserClaim);
     }
 }

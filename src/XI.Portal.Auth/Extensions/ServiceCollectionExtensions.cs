@@ -102,6 +102,8 @@ namespace XI.Portal.Auth.Extensions
 
             // Users
             services.AddSingleton<IAuthorizationHandler, AccessUsersHandler>();
+            services.AddSingleton<IAuthorizationHandler, CreateUserClaimHandler>();
+            services.AddSingleton<IAuthorizationHandler, DeleteUserClaimHandler>();
         }
     }
 }

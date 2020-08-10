@@ -1,0 +1,182 @@
+﻿@using XI.Portal.Servers.Dto
+@model XI.Portal.Users.Models.UserListEntryViewModel
+
+@{
+    ViewData["Title"] = "Manage User Profile - " + Model.Username;
+
+    var gameServers = (List<GameServerDto>) ViewData["GameServers"];
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <h2>Permissions Overview</h2>
+
+                        <hr/>
+
+                        <p>
+                            Head admins have the ability to manage additional permissions for portal users. They can only be for the servers that
+                            you are a head admin for. You can see all permissions but only delete permissions against your servers.
+                            <ul>
+                                <li>These additional permissions are separate to the main website, if the group is changed on the main website these permissions remain</li>
+                                <li>The GameServer permission must be granted in addition for the FileMonitor, BanFileMonitor or RconMonitor permissions</li>
+                                <li>The head admins are responsible for removing additional permissions when no longer needed</li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="col-6">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Username)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Username)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.Email)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.Email)
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-6">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Add Additional Portal Permission
+                    </div>
+                    <div class="ibox-content">
+                        <form asp-action="CreateUserClaim">
+                            <input id="id" name="id" type="hidden" value="@Model.Id"/>
+
+                            <div class="form-group">
+                                <label class="control-label">Permission Type</label>
+                                <select name="claimType" id="claimType" class="form-control">
+                                    <option value="FtpCredentials">FtpCredentials</option>
+                                    <option value="RconCredentials">RconCredentials</option>
+                                    <option value="GameServer">GameServer</option>
+                                    <option value="BanFileMonitor">BanFileMonitor</option>
+                                    <option value="FileMonitor">FileMonitor</option>
+                                    <option value="RconMonitor">RconMonitor</option>
+                                    <option value="ServerAdmin">ServerAdmin</option>
+                                    <option value="LiveRcon">LiveRcon</option>
+                                </select>
+                            </div>
+
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label class="control-label">Game Server</label>
+                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServersSelect"></select>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-plus"> Add Additional Permission</i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Additional Portal Permission
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                            <tr>
+                                <td>Permission Type</td>
+                                <td>Game Server</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var claim in Model.PortalClaims)
+                            {
+                                <tr>
+                                    @{
+                                        Guid.TryParse(claim.ClaimValue, out var serverId);
+                                        var server = gameServers.FirstOrDefault(s => s.ServerId == serverId);
+                                    }
+
+                                    <td>@claim.ClaimType</td>
+                                    <td>
+                                        @{
+                                            if (server == null)
+                                            {
+                                                <text>Invalid Claim or you do not have permissions over this claim</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@server.Title</text>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            if (server != null)
+                                            {
+                                                <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
+                                                    <input id="id" name="id" type="hidden" value="@Model.Id" />
+                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.RowKey" />
+
+                                                    <button class="btn btn-danger" type="submit">
+                                                        <i class="fa fa-trash"></i> Delete Permission
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

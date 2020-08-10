@@ -59,7 +59,7 @@ function geoLocationIpLink(ipAddress) {
 
 function manageClaimsLink(userId) {
     return '<div class="btn-group btn-group-sm" role="group">' +
-        '<a type="button" class="btn btn-primary"  href="/User/ManagePortalClaims/' +
+        '<a type="button" class="btn btn-primary"  href="/User/ManageProfile/' +
         userId +
         '?filterGame=true"><i class="fa fa-key"></i> Manage Claims</a>' +
         "</div>";

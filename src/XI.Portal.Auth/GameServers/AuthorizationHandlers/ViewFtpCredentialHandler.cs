@@ -13,6 +13,9 @@ namespace XI.Portal.Auth.GameServers.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
 
+            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == resource.GameType.ToString()))
+                context.Succeed(requirement);
+
             if (context.User.HasClaim(PortalClaimTypes.FtpCredentials, resource.ServerId.ToString()))
                 context.Succeed(requirement);
 

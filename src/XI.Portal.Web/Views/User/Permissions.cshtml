@@ -1,0 +1,397 @@
+﻿@{
+    ViewData["Title"] = "Permissions Overview";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+<row class="row">
+    <div class="col-12">
+
+        <div class="container-fluid">
+            <div class="ibox">
+                <div class="ibox-content">
+                    <h2>Permissions Overview</h2>
+
+                    <p>
+                        The standard permissions that are granted are determined from the website groups that a user is a member of. 
+                        The details of these groups are listed below.
+                        <ul>
+                            <li>In general the name of the permission matches the menu option</li>
+                            <li>These permissions can be changed if needed</li>
+                            <li>Permissions are generally applied against a resource that is 'owned' by a game type</li>
+                        </ul>
+                    </p>
+
+                    <hr />
+
+                    <h3>Additional Permissions</h3>
+
+                    <p>
+                        Head admins have the ability to manage additional permissions for portal users. They can only be for the servers that
+                        you are a head admin for. You can see all permissions but only delete permissions against your servers.
+                        <ul>
+                            <li>These additional permissions are separate to the main website, if the group is changed on the main website these permissions remain</li>
+                            <li>The GameServer permission must be granted in addition for the FileMonitor, BanFileMonitor or RconMonitor permissions</li>
+                            <li>The head admins are responsible for removing additional permissions when no longer needed</li>
+                            <li>Additional permissions are listed below under the standard group ones, they are applied to servers and not the game type</li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</row>
+
+<hr/>
+
+<row class="row">
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-danger float-right">Senior Admin</span>
+                </div>
+                <h5>Senior Admin</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>No Restrictions</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">ALL</span>
+                </div>
+                <h5>Misc ALL Permissions</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>View the website change log</li>
+                        <li>Access home page</li>
+                        <li>Access maps page</li>
+                        <li>Access servers page</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">ALL Logged In</span>
+                </div>
+                <h5>Misc ALL Logged In Permissions</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access the demos page</li>
+                        <li>Delete their own demos</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</row>
+
+<hr/>
+
+<row class="row">
+
+    <div class="col-md-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-warning float-right">Head Admin</span>
+                </div>
+                <h5>All Head Admins</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access admin actions</li>
+                        <li>Change the admin on an admin action</li>
+                        <li>Claim an admin action for their game type</li>
+                        <li>Create any type of admin action for their game type</li>
+                        <li>Force create an admin action topic for their game type</li>
+                        <li>Edit any admin action for their game type</li>
+                        <li>Lift any ban admin action for their game type</li>
+                        <li>Access ban file monitors</li>
+                        <li>View ban file monitors for their game type</li>
+                        <li>Create ban file monitors for their game type</li>
+                        <li>Delete ban file monitors for their game type</li>
+                        <li>Edit ban file monitors for their game type</li>
+                        <li>Access the credentials page</li>
+                        <li>View FTP credentials for their game type</li>
+                        <li>View RCON credentials for their game type</li>
+                        <li>Delete any demo for their game type</li>
+                        <li>Access file monitors</li>
+                        <li>View file monitors for their game type</li>
+                        <li>Create file monitors for their game type</li>
+                        <li>Delete file monitors for their game type</li>
+                        <li>Edit file monitors for their game type</li>
+                        <li>Access game servers</li>
+                        <li>View game servers for their game type</li>
+                        <li>Create game servers for their game type</li>
+                        <li>Edit game servers (excl. FTP/Rcon) for their game type</li>
+                        <li>Access players</li>
+                        <li>Access live rcon</li>
+                        <li>View live rcon for their game type</li>
+                        <li>Access server admin</li>
+                        <li>View global chat log</li>
+                        <li>View game chat log for their game type</li>
+                        <li>View server chat log for their game type</li>
+                        <li>Access status page</li>
+                        <li>Access users page</li>
+                        <li>Create a user permission claim for their game type</li>
+                        <li>Delete a user permission claim for their game type</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-success float-right">Game Admin</span>
+                </div>
+                <h5>All Game Admins</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access admin actions</li>
+                        <li>Claim an admin action for their game type</li>
+                        <li>Create any type of admin action for their game type</li>
+                        <li>Force create an admin action topic for their game type</li>
+                        <li>Edit their own observation admin actions for their game type</li>
+                        <li>Edit their own warning admin actions for their game type</li>
+                        <li>Edit their own kick admin actions for their game type</li>
+                        <li>Edit their own temp ban admin actions for their game type</li>
+                        <li>Edit their own ban admin actions for their game type</li>
+                        <li>Lift their own ban admin action for their game type</li>
+                        <li>Access the credentials page</li>
+                        <li>View RCON credentials for their game type</li>
+                        <li>Access game servers</li>
+                        <li>Access players</li>
+                        <li>Access live rcon</li>
+                        <li>View live rcon for their game type</li>
+                        <li>Access server admin</li>
+                        <li>View global chat log</li>
+                        <li>View game chat log for their game type</li>
+                        <li>View server chat log for their game type</li>
+                        <li>Access status page</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label float-right">Moderator</span>
+                </div>
+                <h5>All Moderators</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access admin actions</li>
+                        <li>Create a observation admin action for their game type</li>
+                        <li>Create a warning admin action for their game type</li>
+                        <li>Create a kick admin action for their game type</li>
+                        <li>Edit their own observation admin actions for their game type</li>
+                        <li>Edit their own warning admin actions for their game type</li>
+                        <li>Edit their own kick admin actions for their game type</li>
+                        <li>Access players</li>
+                        <li>Access server admin</li>
+                        <li>View server chat log for their game type</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</row>
+
+<hr/>
+
+<row class="row">
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>FtpCredentials</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access the credentials page</li>
+                        <li>View FTP credentials for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>RconCredentials</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access the credentials page</li>
+                        <li>View RCON credentials for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>GameServer</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access game servers</li>
+                        <li>View game servers for their server</li>
+                        <li>Edit game servers (excl. FTP/Rcon) for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>BanFileMonitor</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access ban file monitors</li>
+                        <li>View ban file monitors for their server</li>
+                        <li>Create ban file monitors for their server</li>
+                        <li>Delete ban file monitors for their server</li>
+                        <li>Edit ban file monitors for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>FileMonitor</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access file monitors</li>
+                        <li>View file monitors for their server</li>
+                        <li>Create file monitors for their server</li>
+                        <li>Delete file monitors for their server</li>
+                        <li>Edit file monitors for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>RconMonitor</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Not currently in use</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>ServerAdmin</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access server admin</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="ibox ">
+            <div class="ibox-title">
+                <div class="ibox-tools">
+                    <span class="label label-primary float-right">Additional Permission</span>
+                </div>
+                <h5>LiveRcon</h5>
+            </div>
+            <div class="ibox-content">
+                <p>
+                    <ul>
+                        <li>Access live rcon</li>
+                        <li>View live rcon for their server</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</row>
+
+</div>

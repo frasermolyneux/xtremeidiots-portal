@@ -21,6 +21,9 @@ namespace XI.Portal.Auth.ServerAdmin.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.Moderator))
                 context.Succeed(requirement);
 
+            if (context.User.HasClaim(claim => claim.Type == PortalClaimTypes.ServerAdmin))
+                context.Succeed(requirement);
+
             return Task.CompletedTask;
         }
     }

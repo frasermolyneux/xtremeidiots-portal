@@ -22,8 +22,8 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessUsers)]
     public class UserController : Controller
     {
-        private readonly IGameServersRepository _gameServersRepository;
         private readonly IAuthorizationService _authorizationService;
+        private readonly IGameServersRepository _gameServersRepository;
         private readonly ILogger<UserController> _logger;
         private readonly UserManager<PortalIdentityUser> _userManager;
         private readonly IUsersRepository _usersRepository;
@@ -44,6 +44,12 @@ namespace XI.Portal.Web.Controllers
 
         [HttpGet]
         public IActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Permissions()
         {
             return View();
         }

@@ -9,31 +9,9 @@
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-    <row class="row">
-        <div class="col-12">
-
-            <div class="container-fluid">
-                <div class="ibox">
-                    <div class="ibox-content">
-                        <h2>Permissions Overview</h2>
-
-                        <hr/>
-
-                        <p>
-                            Head admins have the ability to manage additional permissions for portal users. They can only be for the servers that
-                            you are a head admin for. You can see all permissions but only delete permissions against your servers.
-                            <ul>
-                                <li>These additional permissions are separate to the main website, if the group is changed on the main website these permissions remain</li>
-                                <li>The GameServer permission must be granted in addition for the FileMonitor, BanFileMonitor or RconMonitor permissions</li>
-                                <li>The head admins are responsible for removing additional permissions when no longer needed</li>
-                            </ul>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </row>
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> To understand how the permissions work and what the additional permissions mean please see the <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
+    </div>
 
     <row class="row">
         <div class="col-6">
@@ -152,8 +130,8 @@
                                             if (server != null)
                                             {
                                                 <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
-                                                    <input id="id" name="id" type="hidden" value="@Model.Id" />
-                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.RowKey" />
+                                                    <input id="id" name="id" type="hidden" value="@Model.Id"/>
+                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.RowKey"/>
 
                                                     <button class="btn btn-danger" type="submit">
                                                         <i class="fa fa-trash"></i> Delete Permission

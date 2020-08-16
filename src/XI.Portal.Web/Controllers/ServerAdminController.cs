@@ -104,6 +104,110 @@ namespace XI.Portal.Web.Controllers
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> RestartServer(Guid id)
+        {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            var rconClient = _rconClientFactory.CreateInstance(
+                gameServerDto.GameType, 
+                gameServerDto.ServerId, 
+                gameServerDto.Hostname, 
+                gameServerDto.QueryPort,
+                gameServerDto.RconPassword);
+
+            var result = await rconClient.Restart();
+
+            return Json(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RestartMap(Guid id)
+        {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            var rconClient = _rconClientFactory.CreateInstance(
+                gameServerDto.GameType,
+                gameServerDto.ServerId,
+                gameServerDto.Hostname,
+                gameServerDto.QueryPort,
+                gameServerDto.RconPassword);
+
+            var result = await rconClient.RestartMap();
+
+            return Json(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FastRestartMap(Guid id)
+        {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            var rconClient = _rconClientFactory.CreateInstance(
+                gameServerDto.GameType,
+                gameServerDto.ServerId,
+                gameServerDto.Hostname,
+                gameServerDto.QueryPort,
+                gameServerDto.RconPassword);
+
+            var result = await rconClient.FastRestartMap();
+
+            return Json(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NextMap(Guid id)
+        {
+            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+
+            if (!canViewLiveRcon.Succeeded)
+                return Unauthorized();
+
+            var rconClient = _rconClientFactory.CreateInstance(
+                gameServerDto.GameType,
+                gameServerDto.ServerId,
+                gameServerDto.Hostname,
+                gameServerDto.QueryPort,
+                gameServerDto.RconPassword);
+
+            var result = await rconClient.NextMap();
+
+            return Json(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
         [HttpGet]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {

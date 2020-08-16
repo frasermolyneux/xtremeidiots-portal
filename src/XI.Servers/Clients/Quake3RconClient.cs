@@ -97,17 +97,66 @@ namespace XI.Servers.Clients
             return Task.CompletedTask;
         }
 
+        public Task<string> Restart()
+        {
+            _logger.LogDebug("[{ServerId}] Attempting to send restart the server", _serverId);
+
+            var packets = Policy.Handle<Exception>()
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
+                .Execute(() => GetCommandPackets("quit", true));
+
+            return Task.FromResult("Restart command sent to the server");
+        }
+
+        public Task<string> RestartMap()
+        {
+            _logger.LogDebug("[{ServerId}] Attempting to restart the current map", _serverId);
+
+            var packets = Policy.Handle<Exception>()
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
+                .Execute(() => GetCommandPackets("map_restart"));
+
+            return Task.FromResult(GetStringFromPackets(packets));
+        }
+
+        public Task<string> FastRestartMap()
+        {
+            _logger.LogDebug("[{ServerId}] Attempting to fast restart the current map", _serverId);
+
+            var packets = Policy.Handle<Exception>()
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
+                .Execute(() => GetCommandPackets("fast_restart"));
+
+            return Task.FromResult(GetStringFromPackets(packets));
+        }
+
+        public Task<string> NextMap()
+        {
+            _logger.LogDebug("[{ServerId}] Attempting to rotate to the next map", _serverId);
+
+            var packets = Policy.Handle<Exception>()
+                .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
+                .Execute(() => GetCommandPackets("map_rotate"));
+
+            return Task.FromResult(GetStringFromPackets(packets));
+        }
+
         private string PlayerStatus()
         {
-            var statusPackets = Policy.Handle<Exception>()
+            var packets = Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
                 .Execute(() => GetCommandPackets("status"));
 
-            _logger.LogDebug("[{ServerId}] Total status packets retrieved from server: {Count}", _serverId, statusPackets.Count);
+            _logger.LogDebug("[{ServerId}] Total status packets retrieved from server: {Count}", _serverId, packets.Count);
 
+            return GetStringFromPackets(packets);
+        }
+
+        private string GetStringFromPackets(List<byte[]> packets)
+        {
             var responseText = new StringBuilder();
 
-            foreach (var packet in statusPackets)
+            foreach (var packet in packets)
             {
                 var text = Encoding.Default.GetString(packet);
                 if (text.IndexOf("print", StringComparison.Ordinal) == 4) text = text.Substring(10);
@@ -146,7 +195,7 @@ namespace XI.Servers.Clients
             return prefix.Concat(commandBytes).ToArray();
         }
 
-        private List<byte[]> GetCommandPackets(string command)
+        private List<byte[]> GetCommandPackets(string command, bool skipReceive = false)
         {
             UdpClient udpClient = null;
 
@@ -160,14 +209,17 @@ namespace XI.Servers.Clients
                 udpClient.Send(commandBytes, commandBytes.Length);
 
                 var datagrams = new List<byte[]>();
-                do
+                if (!skipReceive)
                 {
-                    var datagramBytes = udpClient.Receive(ref remoteIpEndPoint);
-                    datagrams.Add(datagramBytes);
+                    do
+                    {
+                        var datagramBytes = udpClient.Receive(ref remoteIpEndPoint);
+                        datagrams.Add(datagramBytes);
 
-                    if (udpClient.Available == 0)
-                        Thread.Sleep(500);
-                } while (udpClient.Available > 0);
+                        if (udpClient.Available == 0)
+                            Thread.Sleep(500);
+                    } while (udpClient.Available > 0);
+                }
 
                 return datagrams;
             }

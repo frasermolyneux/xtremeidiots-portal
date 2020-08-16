@@ -92,6 +92,26 @@ namespace XI.Servers.Clients
             return Task.CompletedTask;
         }
 
+        public Task<string> Restart()
+        {
+            return Task.FromResult("Not Implemented");
+        }
+
+        public Task<string> RestartMap()
+        {
+            return Task.FromResult("Not Implemented");
+        }
+
+        public Task<string> FastRestartMap()
+        {
+            return Task.FromResult("Not Implemented");
+        }
+
+        public Task<string> NextMap()
+        {
+            return Task.FromResult("Not Implemented");
+        }
+
         private string PlayerStatus()
         {
             CreateConnection();

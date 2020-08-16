@@ -5,64 +5,175 @@
     ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, null);
 }
 
-    <div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight">
 
-        <div class="alert alert-warning" role="alert">
-            <i class="fa fa-info-circle"></i> THIS FEATURE IS CURRENTLY UNDER DEVELOPMENT AND IS EXPERIMENTAL
-        </div>
+    <div class="alert alert-warning" role="alert">
+        <i class="fa fa-info-circle"></i> THIS FEATURE IS CURRENTLY UNDER DEVELOPMENT AND IS EXPERIMENTAL
+    </div>
 
-        <row class="row">
-            <div class="col-12">
+    <row class="row">
 
-                <div class="container-fluid">
-                    <div class="ibox">
-                        <div class="ibox-title">
-                            @ViewData["Title"]
-                        </div>
-                        <div class="ibox-content">
-                            <table id="dataTable">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            #
-                                        </th>
-                                        <th>
-                                            Username
-                                        </th>
-                                        <th>
-                                            Guid
-                                        </th>
-                                        <th>
-                                            Ip Address
-                                        </th>
-                                        <th>
-                                            Score
-                                        </th>
-                                        <th>
-                                            Rate
-                                        </th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
+        <div class="col-8">
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <table id="dataTable">
+                            <thead>
+                            <tr>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Guid
+                                </th>
+                                <th>
+                                    Ip Address
+                                </th>
+                                <th>
+                                    Score
+                                </th>
+                                <th>
+                                    Rate
+                                </th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
             </div>
-        </row>
+        </div>
 
-    </div>
+        <div class="col-4">
+
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Server Control</h5>
+                </div>
+                <div class="ibox-content">
+                    <button id="restartServer" class="btn btn-primary" type="submit">
+                        <i class="fa fa-refresh"></i> Restart Server
+                    </button>
+                </div>
+            </div>
+
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>Map Control</h5>
+                </div>
+                <div class="ibox-content">
+
+                    <button id="restartMap" class="btn btn-primary" type="submit">
+                        <i class="fa fa-refresh"></i> Restart Map
+                    </button>
+
+                    <button id="fastRestartMap" class="btn btn-primary" type="submit">
+                        <i class="fa fa-refresh"></i> Fast Restart Map
+                    </button>
+
+                    <button id="nextMap" class="btn btn-primary" type="submit">
+                        <i class="fa fa-forward"></i> Next Map
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </row>
+
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Styles {
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/toastr/toastr.css"/>
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/toastr/toastr.min.css"/>
+    </environment>
+}
 
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
 
+    <environment names="Development">
+        <script src="~/lib/toastr/toastr.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/lib/toastr/toastr.min.js"></script>
+    </environment>
+
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
+
+            $("#restartServer").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/ServerAdmin/RestartServer/@Model.ServerId",
+                    success: function(result) {
+                        alert("Success: " + result.message);
+                    },
+                    error: function(result) {
+                        alert("Error: " + result.message);
+                    }
+                });
+            });
+
+            $("#restartMap").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/ServerAdmin/RestartMap/@Model.ServerId",
+                    success: function(result) {
+                        alert("Success: " + result.message);
+                    },
+                    error: function(result) {
+                        alert("Error: " + result.message);
+                    }
+                });
+            });
+
+            $("#fastRestartMap").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/ServerAdmin/FastRestartMap/@Model.ServerId",
+                    success: function(result) {
+                        alert("Success: " + result.message);
+                    },
+                    error: function(result) {
+                        alert("Error: " + result.message);
+                    }
+                });
+            });
+
+            $("#nextMap").click(function(e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/ServerAdmin/NextMap/@Model.ServerId",
+                    success: function(result) {
+                        alert("Success: " + result.message);
+                    },
+                    error: function(result) {
+                        alert("Error: " + result.message);
+                    }
+                });
+            });
 
             $('#dataTable').DataTable({
                 processing: true,
@@ -122,7 +233,7 @@
         setInterval(function() {
                 $('#dataTable').DataTable().ajax.reload();
             },
-            20000);
+            10000);
 
     </script>
 }

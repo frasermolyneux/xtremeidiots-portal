@@ -99,7 +99,9 @@ namespace XI.Portal.FuncApp
                         fileMonitorState.LastRead = DateTime.UtcNow;
                     }
 
-                    if (fileMonitorState.FtpUsername != fileMonitorDto.GameServer.FtpUsername || fileMonitorState.FtpPassword != fileMonitorDto.GameServer.FtpPassword)
+                    if (fileMonitorState.FtpHostname != fileMonitorDto.GameServer.FtpHostname ||
+                        fileMonitorState.FtpUsername != fileMonitorDto.GameServer.FtpUsername || 
+                        fileMonitorState.FtpPassword != fileMonitorDto.GameServer.FtpPassword)
                     {
                         fileMonitorState.FtpHostname = fileMonitorDto.GameServer.FtpHostname;
                         fileMonitorState.FtpUsername = fileMonitorDto.GameServer.FtpUsername;
@@ -181,10 +183,20 @@ namespace XI.Portal.FuncApp
                         }
                         else
                         {
+                            var ftpHostname = logFileMonitor.FtpHostname;
+                            var ftpPort = 21;
+
+                            var ftpParts = logFileMonitor.FtpHostname.Split(":");
+                            if (ftpParts.Count() > 1)
+                            {
+                                ftpHostname = ftpParts[0];
+                                ftpPort = Convert.ToInt32(ftpParts[1]);
+                            }
+
                             ftpClient = new FtpClient
                             {
-                                Host = logFileMonitor.FtpHostname,
-                                Port = 21,
+                                Host = ftpHostname,
+                                Port = ftpPort,
                                 Credentials = new NetworkCredential(logFileMonitor.FtpUsername, logFileMonitor.FtpPassword)
                             };
 

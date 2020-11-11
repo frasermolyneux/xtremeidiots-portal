@@ -60,7 +60,12 @@
                                         <div class="btn-group btn-group-sm" role="group">
                                             @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditBanFileMonitor)).Succeeded)
                                             {
-                                                <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit</a>
+                                                <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit Monitor</a>
+                                            }
+
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
+                                            {
+                                                <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId"><i class="fa fa-edit"></i> Edit Game Server</a>
                                             }
 
                                             @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewBanFileMonitor)).Succeeded)

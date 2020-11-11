@@ -44,7 +44,14 @@
                                         @Html.ServerName(item.GameServer.Title, null)
                                     </td>
                                     <td>
-                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.ViewFtpCredential)).Succeeded)
+                                        {
+                                            @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                                        }
+                                        else
+                                        {
+                                            @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)
+                                        }
                                     </td>
                                     <td>
                                         @Html.DisplayFor(modelItem => item.LastRead)

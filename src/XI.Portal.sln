@@ -46,7 +46,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.AzureTableExtensions", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Servers.Integrations", "XI.Portal.Servers.Integrations\XI.Portal.Servers.Integrations.csproj", "{D34A0FCE-8E20-453B-8B2D-21472A126791}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XI.Utilities", "XI.Utilities\XI.Utilities.csproj", "{9CAB181C-5624-4128-B77C-F16D893E4095}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Utilities", "XI.Utilities\XI.Utilities.csproj", "{9CAB181C-5624-4128-B77C-F16D893E4095}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,10 +3,15 @@ trigger:
     include:
     - '*'
 
+pool:
+  vmImage: 'ubuntu-latest'
+
 variables:
+  TerraformVersion: '0.13.0'
   AzTerraformRegion: 'uksouth'
-  AzTerraformResourceGroup: 'XI-Portal-Web-Terraform'
-  AzTerraformStorageAccount: 'xiportal'
+  AzTerraformResourceGroup: 'xi-portal-terraform'
+  AzTerraformStorageAccount: 'xiportaltfstate'
+  AzSubscription: 'XI-Pay-As-You-Go'
 
 stages:
 - stage: build
@@ -25,10 +30,10 @@ stages:
 
     - task: NuGetCommand@2
       inputs:
-          command: 'restore'
-          feedsToUse: 'config'
-          restoreSolution: '$(solution)'
-          nugetConfigPath: './src/nuget.config'
+        restoreSolution: '$(solution)'
+        command: 'restore'
+        feedsToUse: 'config'
+        nugetConfigPath: './src/nuget.config'
 
     - task: VSBuild@1
       inputs:
@@ -65,7 +70,7 @@ stages:
       displayName: 'Publish website source artifact'
       artifact: webapp
 
-- stage: pre_deploy
+- stage: terraform_state_backend
   jobs:
   - job: create_terraform_backend
     pool:
@@ -78,7 +83,7 @@ stages:
     - task: AzureCLI@1
       displayName: 'Create terraform backend in Azure storage'
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: '$(AzSubscription)'
         scriptLocation: inlineScript
         inlineScript: |
           call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
@@ -88,4 +93,4 @@ stages:
 - ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
   - template: deploy-application.yml
     parameters:
-      environment: 'hera'
+      environment: 'leo'

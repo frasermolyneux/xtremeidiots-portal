@@ -3,10 +3,9 @@ parameters:
   default: 'dev'
 
 stages:
-- stage: ${{ parameters.environment }}_deploy
+- stage: ${{ parameters.environment }}
 
   variables:
-  - group: 'xi-portal-${{ parameters.environment }}'
   - name: 'environment'
     value: ${{ parameters.environment }}
 
@@ -26,16 +25,22 @@ stages:
             displayName: 'Download terraform source artifact'
             artifact: terraform
 
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: '$(AzSubscription)'
+              keyVaultName: 'xi-portal-${{ parameters.environment }}'
+              secretsFilter: '*'
+
           - task: TerraformInstaller@0
             displayName: 'Install terraform'
             inputs:
-              terraformVersion: '0.12.24'
+              terraformVersion: '$(TerraformVersion)'
 
           - task: TerraformTaskV1@0
             displayName: 'Terraform: azurerm init'
             inputs:
               workingDirectory: '$(Pipeline.Workspace)/terraform'
-              backendServiceArm: 'XI-Pay-As-You-Go'
+              backendServiceArm: '$(AzSubscription)'
               backendAzureRmResourceGroupName: '$(AzTerraformResourceGroup)'
               backendAzureRmStorageAccountName: '$(AzTerraformStorageAccount)'
               backendAzureRmContainerName: terraform
@@ -47,7 +52,7 @@ stages:
               command: plan
               workingDirectory: '$(Pipeline.Workspace)/terraform'
               commandOptions: '-var="environment=$(environment)" -var="hostname=$(hostname)" -var="hostname_zone_id=$(hostname_zone_id)" -var="cloudflare_api_token=$(cloudflare_api_token)"'
-              environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+              environmentServiceNameAzureRM: '$(AzSubscription)'
 
           - task: TerraformTaskV1@0
             name: terraform_validate_and_apply
@@ -56,7 +61,7 @@ stages:
               command: apply
               workingDirectory: '$(Pipeline.Workspace)/terraform'
               commandOptions: '-var="environment=$(environment)" -var="hostname=$(hostname)" -var="hostname_zone_id=$(hostname_zone_id)" -var="cloudflare_api_token=$(cloudflare_api_token)"'
-              environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+              environmentServiceNameAzureRM: '$(AzSubscription)'
 
           - powershell: |
               $terraformOutput = Get-Content "$(terraform_validate_and_apply.jsonOutputVariablesPath)" | ConvertFrom-Json
@@ -85,15 +90,21 @@ stages:
             displayName: 'Download webapp artifact'
             artifact: webapp
 
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: '$(AzSubscription)'
+              keyVaultName: 'xi-portal-${{ parameters.environment }}'
+              secretsFilter: '*'
+
           - task: AzureRmWebAppDeployment@4
             displayName: 'Azure App Service Deploy: XI-Portal-WebApp-$(environment)'
             inputs:
-              azureSubscription: 'XI-Pay-As-You-Go'
-              WebAppName: 'XI-Portal-WebApp-$(environment)'
+              azureSubscription: '$(AzSubscription)'
+              WebAppName: 'portal-app-$(environment)'
               deployToSlotOrASE: true
-              ResourceGroupName: 'XI-Portal-Web-$(environment)'
+              ResourceGroupName: 'xi-portal-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -XtremeIdiotsAuth:ClientId "$(XtremeIdiotsAuth:ClientId)" -XtremeIdiotsAuth:ClientSecret "$(XtremeIdiotsAuth:ClientSecret)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)"  -GeoLocation:BaseUrl "$(GeoLocation:BaseUrl)" -GeoLocation:ApiKey "$(GeoLocation:ApiKey)"'
+              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsAuth:ClientId "$(xtremeidiotsauth-clientid)" -XtremeIdiotsAuth:ClientSecret "$(xtremeidiotsauth-clientsecret)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)"'
 
   - deployment: 'funcapp_deploy'
     dependsOn: 'terraform_deploy'
@@ -114,14 +125,20 @@ stages:
             displayName: 'Download funcapp artifact'
             artifact: funcapp
 
+          - task: AzureKeyVault@1
+            inputs:
+              azureSubscription: '$(AzSubscription)'
+              keyVaultName: 'xi-portal-${{ parameters.environment }}'
+              secretsFilter: '*'
+
           - task: AzureFunctionApp@1
             displayName: 'Azure Function App Deploy: XI-Portal-FuncApp-$(Environment)'
             inputs:
-              azureSubscription: 'XI-Pay-As-You-Go'
+              azureSubscription: '$(AzSubscription)'
               appType: functionAppLinux
-              appName: 'XI-Portal-FuncApp-$(environment)'
+              appName: 'portal-funcapp-$(environment)'
               deployToSlotOrASE: true
-              resourceGroupName: 'XI-Portal-Web-$(environment)'
+              resourceGroupName: 'xi-portal-$(environment)'
               package: '$(Pipeline.Workspace)/funcapp/XI.Portal.FuncApp.zip'
               runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'
-              AppSettings: '-AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(LegacyPortalContext:ConnectionString)" -GeoLocation:BaseUrl "$(GeoLocation:BaseUrl)" -GeoLocation:ApiKey "$(GeoLocation:ApiKey)" -MapsRedirect:ApiKey "$(MapsRedirect:ApiKey)" -XtremeIdiotsForums:ApiKey "$(XtremeIdiotsForums:ApiKey)"'
+              AppSettings: '-AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)" -MapsRedirect:ApiKey "$(mapsredirect-apikey)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)"'

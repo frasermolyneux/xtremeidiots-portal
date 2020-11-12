@@ -1,14 +1,14 @@
 resource "azurerm_resource_group" "resource-group" {
-    name = "XI-Portal-Web-${var.environment}"
-    location = var.region
+  name = "xi-portal-${var.environment}"
+  location = var.region
 }
 
 resource "azurerm_storage_account" "appdata-storage" {
-    name = "appdata${var.environment}"
-    resource_group_name = azurerm_resource_group.resource-group.name
-    location = azurerm_resource_group.resource-group.location
-    account_tier = "Standard"
-    account_replication_type = "LRS"
+  name = "portalappdata${var.environment}"
+  resource_group_name = azurerm_resource_group.resource-group.name
+  location = azurerm_resource_group.resource-group.location
+  account_tier = "Standard"
+  account_replication_type = "LRS"
 }
 
 output "appdata_storage_connection" {

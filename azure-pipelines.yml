@@ -90,7 +90,6 @@ stages:
           call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
           call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
 
-- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
-  - template: deploy-application.yml
-    parameters:
-      environment: 'leo'
+- template: deploy-application.yml
+  parameters:
+    environment: 'leo'

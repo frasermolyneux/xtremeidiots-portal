@@ -12,7 +12,7 @@ output "identity_storage_connection" {
 }
 
 resource "azurerm_app_service_plan" "app-service-plan" {
-  name = "portal-appsvcplan-${var.environment}"
+  name = "portalweb-appsvcplan-${var.environment}"
   resource_group_name = azurerm_resource_group.resource-group.name
   location = azurerm_resource_group.resource-group.location
   sku {

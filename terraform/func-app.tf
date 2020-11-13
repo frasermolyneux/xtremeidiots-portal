@@ -7,7 +7,7 @@ resource "azurerm_storage_account" "funcapp-storage-account" {
 }
 
 resource "azurerm_app_service_plan" "funcapp-service-plan" {
-    name = "portal-appsvcplan-${var.environment}"
+    name = "portalfunc-appsvcplan-${var.environment}"
     resource_group_name = azurerm_resource_group.resource-group.name
     location = azurerm_resource_group.resource-group.location
     kind = "FunctionApp"

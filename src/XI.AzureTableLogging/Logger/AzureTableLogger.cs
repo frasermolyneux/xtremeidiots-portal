@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Interfaces;
@@ -46,6 +47,26 @@ namespace XI.AzureTableLogging.Logger
 
             var insertOp = TableOperation.Insert(log);
             _loggingTable.ExecuteAsync(insertOp).GetAwaiter().GetResult();
+        }
+
+        public async Task RemoveOldEntries(int hoursToKeep)
+        {
+            var query = new TableQuery<LogEntity>()
+                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-hoursToKeep)));
+
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResult = await _loggingTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+
+                foreach (var entity in queryResult)
+                {
+                    var deleteOperation = TableOperation.Delete(entity);
+                    await _loggingTable.ExecuteAsync(deleteOperation);
+                }
+
+                continuationToken = queryResult.ContinuationToken;
+            } while (continuationToken != null);
         }
     }
 }

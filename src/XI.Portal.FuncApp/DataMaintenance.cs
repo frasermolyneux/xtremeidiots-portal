@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using XI.AzureTableLogging.Logger;
 using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.FuncApp
@@ -12,11 +13,13 @@ namespace XI.Portal.FuncApp
     {
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
+        private readonly AzureTableLogger _azureTableLogger;
 
-        public DataMaintenance(IPlayerLocationsRepository playerLocationsRepository, IPlayersCacheRepository playersCache)
+        public DataMaintenance(IPlayerLocationsRepository playerLocationsRepository, IPlayersCacheRepository playersCache, AzureTableLogger azureTableLogger)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
+            _azureTableLogger = azureTableLogger ?? throw new ArgumentNullException(nameof(azureTableLogger));
         }
 
         [FunctionName("DataMaintenance")]
@@ -30,6 +33,7 @@ namespace XI.Portal.FuncApp
 
             await _playerLocationsRepository.RemoveOldEntries();
             await _playersCache.RemoveOldEntries();
+            await _azureTableLogger.RemoveOldEntries(48);
 
             stopWatch.Stop();
             log.LogDebug($"Stop RunDataMaintenance @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");

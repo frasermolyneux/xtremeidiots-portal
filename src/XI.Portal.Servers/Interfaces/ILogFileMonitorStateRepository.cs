@@ -9,5 +9,6 @@ namespace XI.Portal.Servers.Interfaces
     {
         Task<List<LogFileMonitorStateDto>> GetLogFileMonitorStates(FileMonitorFilterModel filterModel);
         Task UpdateState(LogFileMonitorStateDto model);
+        Task DeleteLogFileMonitorState(LogFileMonitorStateDto model);
     }
 }

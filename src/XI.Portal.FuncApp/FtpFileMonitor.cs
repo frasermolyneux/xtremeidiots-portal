@@ -120,6 +120,17 @@ namespace XI.Portal.FuncApp
                 }
             }
 
+            foreach (var fileMonitorState in fileMonitorStates)
+            {
+                var fileMonitor = fileMonitors.SingleOrDefault(fm => fm.FileMonitorId == fileMonitorState.FileMonitorId);
+
+                if (fileMonitor == null)
+                {
+                    log.LogInformation($"Removing file monitor state object as file monitor no longer exists for {fileMonitorState.ServerTitle} against path {fileMonitorState.FilePath}");
+                    await _logFileMonitorStateRepository.DeleteLogFileMonitorState(fileMonitorState);
+                }
+            }
+
             stopWatch.Stop();
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }

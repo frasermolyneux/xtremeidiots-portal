@@ -64,9 +64,9 @@ namespace XI.Portal.Servers.Repository
         {
             try
             {
-                var gameServerStatusEntity = new LogFileMonitorStateEntity(model);
+                var logFileMonitorStateEntity = new LogFileMonitorStateEntity(model);
 
-                var operation = TableOperation.InsertOrMerge(gameServerStatusEntity);
+                var operation = TableOperation.InsertOrMerge(logFileMonitorStateEntity);
                 await _stateTable.ExecuteAsync(operation);
             }
             catch (Exception e)
@@ -75,6 +75,20 @@ namespace XI.Portal.Servers.Repository
                 throw;
             }
 
+        }
+
+        public async Task DeleteLogFileMonitorState(LogFileMonitorStateDto model)
+        {
+            var tableOperation = TableOperation.Retrieve<LogFileMonitorStateEntity>("state", model.FileMonitorId.ToString());
+            var result = await _stateTable.ExecuteAsync(tableOperation);
+
+            if (result.HttpStatusCode == 404)
+                return;
+
+            var logFileMonitorStateEntity = (LogFileMonitorStateEntity)result.Result;
+            var operation = TableOperation.Delete(logFileMonitorStateEntity);
+
+            await _stateTable.ExecuteAsync(operation);
         }
     }
 }

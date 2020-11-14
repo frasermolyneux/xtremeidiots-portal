@@ -57,7 +57,19 @@ namespace XI.Portal.FuncApp
 
                     if (remoteFileSize == 0)
                     {
-                        banFileMonitor.RemoteFileSize = remoteFileSize;
+                        _logger.LogInformation("Remote ban file on {server} at {path} is zero - updating file", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
+
+                        var banFileStream = await _banFilesRepository.GetBanFileForGame(banFileMonitor.GameServer.GameType);
+
+                        await _ftpHelper.UpdateRemoteFileFromStream(
+                            banFileMonitor.GameServer.FtpHostname,
+                            banFileMonitor.FilePath,
+                            banFileMonitor.GameServer.FtpUsername,
+                            banFileMonitor.GameServer.FtpPassword,
+                            banFileStream);
+
+                        banFileMonitor.RemoteFileSize = banFileSize;
+
                         await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
                         continue;
                     }

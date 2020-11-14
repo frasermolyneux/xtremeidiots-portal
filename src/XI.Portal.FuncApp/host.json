@@ -5,15 +5,6 @@
       "default": "Debug",
       "Microsoft": "Warning",
       "System": "Warning"
-    },
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Event;Trace"
-      }
-    },
-    "enableLiveMetrics": false,
-    "enableDependencyTracking": false,
-    "enablePerformanceCountersCollection": false
+    }
   }
 }

@@ -204,10 +204,24 @@ namespace XI.Portal.Servers.Repository
                 await UpdateStatus(serverId, model);
                 return model;
             }
-            catch (Exception ex)
+            catch
             {
                 return null;
             }
+        }
+
+        public async Task DeleteStatusModel(PortalGameServerStatusDto model)
+        {
+            var tableOperation = TableOperation.Retrieve<PortalGameServerStatusEntity>("status", model.ServerId.ToString());
+            var result = await _statusTable.ExecuteAsync(tableOperation);
+
+            if (result.HttpStatusCode == 404)
+                return;
+
+            var logFileMonitorStateEntity = (PortalGameServerStatusEntity)result.Result;
+            var operation = TableOperation.Delete(logFileMonitorStateEntity);
+
+            await _statusTable.ExecuteAsync(operation);
         }
     }
 }

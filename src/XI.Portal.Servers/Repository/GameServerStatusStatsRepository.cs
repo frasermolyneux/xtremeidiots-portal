@@ -83,24 +83,42 @@ namespace XI.Portal.Servers.Repository
             return results;
         }
 
-        // Experiment: - I want to get an idea of cost of the data before determining retention policy
-        //public async Task RemoveOldEntries()
-        //{
-        //    var query = new TableQuery<GameServerStatusStatsEntity>()
-        //        .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.Now.AddMonths(-1)));
+        public async Task DeleteGameServerStatusStats(Guid serverId)
+        {
+            var query = new TableQuery<GameServerStatusStatsEntity>()
+                .Where(TableQuery.GenerateFilterCondition("ServerId", QueryComparisons.Equal, serverId.ToString()));
 
-        //    TableContinuationToken continuationToken = null;
-        //    do
-        //    {
-        //        var queryResult = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
-        //        foreach (var entity in queryResult)
-        //        {
-        //            var deleteOperation = TableOperation.Delete(entity);
-        //            await _statsTable.ExecuteAsync(deleteOperation);
-        //        }
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResult = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                foreach (var entity in queryResult)
+                {
+                    var deleteOperation = TableOperation.Delete(entity);
+                    await _statsTable.ExecuteAsync(deleteOperation);
+                }
 
-        //        continuationToken = queryResult.ContinuationToken;
-        //    } while (continuationToken != null);
-        //}
+                continuationToken = queryResult.ContinuationToken;
+            } while (continuationToken != null);
+        }
+
+        public async Task RemoveOldEntries()
+        {
+            var query = new TableQuery<GameServerStatusStatsEntity>()
+                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.Now.AddMonths(-6)));
+
+            TableContinuationToken continuationToken = null;
+            do
+            {
+                var queryResult = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                foreach (var entity in queryResult)
+                {
+                    var deleteOperation = TableOperation.Delete(entity);
+                    await _statsTable.ExecuteAsync(deleteOperation);
+                }
+
+                continuationToken = queryResult.ContinuationToken;
+            } while (continuationToken != null);
+        }
     }
 }

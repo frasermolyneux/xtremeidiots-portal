@@ -91,6 +91,18 @@ namespace XI.Portal.FuncApp
                 }
             }
 
+            foreach (var gameServerStatus in await _gameServerStatusRepository.GetAllStatusModels(new Servers.Models.GameServerStatusFilterModel(), TimeSpan.Zero))
+            {
+                var server = servers.SingleOrDefault(server => server.ServerId == gameServerStatus.ServerId);
+
+                if (server == null)
+                {
+                    log.LogInformation($"Removing game server status as server is no longer being queried {gameServerStatus.ServerName}");
+                    await _gameServerStatusRepository.DeleteStatusModel(gameServerStatus);
+                    await _gameServerStatusStatsRepository.DeleteGameServerStatusStats(gameServerStatus.ServerId);
+                }
+            }
+
             stopWatch.Stop();
             log.LogDebug($"Stop RunUpdateGameServerStatus @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }

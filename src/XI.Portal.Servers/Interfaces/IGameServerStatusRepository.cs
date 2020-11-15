@@ -11,5 +11,6 @@ namespace XI.Portal.Servers.Interfaces
         Task<PortalGameServerStatusDto> GetStatus(Guid serverId, TimeSpan cacheCutoff);
         Task UpdateStatus(Guid id, PortalGameServerStatusDto model);
         Task<List<PortalGameServerStatusDto>> GetAllStatusModels(GameServerStatusFilterModel filterModel, TimeSpan cacheCutoff);
+        Task DeleteStatusModel(PortalGameServerStatusDto model);
     }
 }

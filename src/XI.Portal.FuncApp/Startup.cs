@@ -59,6 +59,7 @@ namespace XI.Portal.FuncApp
                 options.BaseUrl = config["GeoLocation:BaseUrl"];
                 options.ApiKey = config["GeoLocation:ApiKey"];
                 options.UseMemoryCache = true;
+                options.BubbleExceptions = false;
                 options.CacheEntryLifeInMinutes = 60;
                 options.RetryTimespans = new[]
                 {

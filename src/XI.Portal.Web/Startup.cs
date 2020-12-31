@@ -141,6 +141,7 @@ namespace XI.Portal.Web
                 options.BaseUrl = Configuration["GeoLocation:BaseUrl"];
                 options.ApiKey = Configuration["GeoLocation:ApiKey"];
                 options.UseMemoryCache = true;
+                options.BubbleExceptions = false;
                 options.CacheEntryLifeInMinutes = 60;
                 options.RetryTimespans = new[]
                 {

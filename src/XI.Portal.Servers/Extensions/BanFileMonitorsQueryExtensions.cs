@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Models;
@@ -13,6 +14,9 @@ namespace XI.Portal.Servers.Extensions
 
             if (filterModel.GameTypes != null)
                 banFileMonitors = banFileMonitors.Where(bfm => filterModel.GameTypes.Contains(bfm.GameServerServer.GameType)).AsQueryable();
+
+            if (filterModel.ServerId != Guid.Empty)
+                banFileMonitors = banFileMonitors.Where(bfm => bfm.GameServerServerId == filterModel.ServerId).AsQueryable();
 
             banFileMonitors = banFileMonitors.Skip(filterModel.SkipEntries).AsQueryable();
 

@@ -25,6 +25,7 @@ namespace XI.Portal.Servers.Extensions
                 ShowChatLog = gameServer.ShowChatLog
             };
 
+
             return gameServerDto;
         }
     }

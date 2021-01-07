@@ -1,7 +1,7 @@
 ﻿@inject IAuthorizationService AuthorizationService
+@using XI.Portal.Web.Extensions
 @using Microsoft.AspNetCore.Authorization
 @using XI.Portal.Auth.Contract.Constants
-@using XI.Portal.Web.Extensions
 @model List<XI.Portal.Servers.Dto.BanFileMonitorDto>
 
 @{
@@ -26,7 +26,7 @@
                     <div class="ibox-content">
                         <h2>Ban File Monitor Status</h2>
 
-                        <hr />
+                        <hr/>
 
                         <p>
                             This feature is where the portal gets its bans data from the game servers and ensures the servers have the latest bans.
@@ -44,7 +44,7 @@
                             </ul>
                         </p>
 
-                        <hr />
+                        <hr/>
 
                         <h3>When stuff goes wrong</h3>
                         <p>
@@ -54,7 +54,7 @@
                             If this page shows an error then contact Sitting-Duc for a resolution.
                         </p>
 
-                        <hr />
+                        <hr/>
 
                         <h3>Conditions for this page showing an error:</h3>
                         <ul>
@@ -81,7 +81,17 @@
                         </div>
                         <div class="ibox-content">
                             <p>
-                                <strong>File Path: </strong>ftp://@item.GameServer.FtpHostname@item.FilePath<br/>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.ViewFtpCredential)).Succeeded)
+                                {
+                                    <strong>File Path: </strong>
+                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)<br/>
+                                }
+                                else
+                                {
+                                    <strong>File Path: </strong>
+                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)<br/>
+                                }
+
                                 <strong>Last Recorded Sync: </strong>@item.LastSync<br/>
                                 <strong>Last Recorded Size: </strong>@item.RemoteFileSize<br/>
 

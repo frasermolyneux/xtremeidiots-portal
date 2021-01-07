@@ -3,6 +3,13 @@ trigger:
     include:
     - '*'
 
+schedules:
+  - cron: "0 3 * * 0"
+    displayName: Weekly Build
+    branches:
+      include:
+      - master
+
 pool:
   vmImage: 'ubuntu-latest'
 

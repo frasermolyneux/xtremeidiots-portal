@@ -2,9 +2,15 @@
 
 XtremeIdiots Portal solution that provides player and server management for the XtremeIdiots community.
 
+* [Documentation](docs/index.md)
+
+---
+
 ## Build Status
 
 [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/frasermolyneux.XI.PortalV2?branchName=master&stageName=build)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=97&branchName=master)
+
+---
 
 ## Deployment Status
 

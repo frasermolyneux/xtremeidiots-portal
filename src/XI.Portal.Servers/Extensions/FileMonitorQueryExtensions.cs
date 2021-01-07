@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Models;
@@ -12,17 +13,20 @@ namespace XI.Portal.Servers.Extensions
             fileMonitors = fileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
 
             if (filterModel.GameTypes != null)
-                fileMonitors = fileMonitors.Where(bfm => filterModel.GameTypes.Contains(bfm.GameServerServer.GameType)).AsQueryable();
+                fileMonitors = fileMonitors.Where(fm => filterModel.GameTypes.Contains(fm.GameServerServer.GameType)).AsQueryable();
+
+            if (filterModel.ServerId != Guid.Empty)
+                fileMonitors = fileMonitors.Where(fm => fm.GameServerServerId == filterModel.ServerId).AsQueryable();
 
             fileMonitors = fileMonitors.Skip(filterModel.SkipEntries).AsQueryable();
 
             switch (filterModel.Order)
             {
                 case FileMonitorFilterModel.OrderBy.BannerServerListPosition:
-                    fileMonitors = fileMonitors.OrderBy(bfm => bfm.GameServerServer.BannerServerListPosition).AsQueryable();
+                    fileMonitors = fileMonitors.OrderBy(fm => fm.GameServerServer.BannerServerListPosition).AsQueryable();
                     break;
                 case FileMonitorFilterModel.OrderBy.GameType:
-                    fileMonitors = fileMonitors.OrderBy(bfm => bfm.GameServerServer.GameType).AsQueryable();
+                    fileMonitors = fileMonitors.OrderBy(fm => fm.GameServerServer.GameType).AsQueryable();
                     break;
             }
 

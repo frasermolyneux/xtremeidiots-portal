@@ -7,5 +7,6 @@ namespace XI.Portal.Web.Models
     {
         public GameServerDto GameServerDto { get; set; }
         public List<BanFileMonitorDto> BanFileMonitorDtos { get; set; }
+        public List<FileMonitorDto> FileMonitorDtos { get; set; }
     }
 }

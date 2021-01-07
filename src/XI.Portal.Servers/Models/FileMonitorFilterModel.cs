@@ -15,6 +15,7 @@ namespace XI.Portal.Servers.Models
 
         public List<GameType> GameTypes { get; set; }
         public List<Guid> FileMonitorIds { get; set; }
+        public Guid ServerId { get; set; } = Guid.Empty;
         public OrderBy Order { get; set; } = OrderBy.None;
         public int SkipEntries { get; set; } = 0;
         public int TakeEntries { get; set; } = 0;

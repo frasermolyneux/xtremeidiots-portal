@@ -8,6 +8,7 @@ using XI.CommonTypes;
 using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
+using XI.Portal.Auth.FileMonitors.Extensions;
 using XI.Portal.Auth.GameServers.Extensions;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
@@ -24,16 +25,19 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
+        private readonly IFileMonitorsRepository _fileMonitorsRepository;
         private readonly ILogger<GameServersController> _logger;
 
         public GameServersController(
             ILogger<GameServersController> logger,
             IAuthorizationService authorizationService,
             IGameServersRepository gameServersRepository,
-            IBanFileMonitorsRepository banFileMonitorsRepository)
+            IBanFileMonitorsRepository banFileMonitorsRepository,
+            IFileMonitorsRepository fileMonitorsRepository)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
+            _fileMonitorsRepository = fileMonitorsRepository ?? throw new ArgumentNullException(nameof(fileMonitorsRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         }
@@ -124,10 +128,18 @@ namespace XI.Portal.Web.Controllers
             }.ApplyAuth(User);
             var banFileMonitorDtos = await _banFileMonitorsRepository.GetBanFileMonitors(banFileMonitorFilterModel);
 
+            var fileMonitorFilterModel = new FileMonitorFilterModel
+            {
+                Order = FileMonitorFilterModel.OrderBy.BannerServerListPosition,
+                ServerId = id
+            }.ApplyAuth(User);
+            var fileMonitorsDtos = await _fileMonitorsRepository.GetFileMonitors(fileMonitorFilterModel);
+
             var model = new GameServerDetailsViewModel
             {
                 GameServerDto = gameServerDto,
-                BanFileMonitorDtos = banFileMonitorDtos
+                BanFileMonitorDtos = banFileMonitorDtos,
+                FileMonitorDtos = fileMonitorsDtos
             };
 
             return View(model);

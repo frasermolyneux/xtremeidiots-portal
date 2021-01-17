@@ -1,5 +1,5 @@
-﻿using FM.GeoLocation.Contract.Models;
-using XI.AzureTableExtensions.Attributes;
+﻿using FM.AzureTableExtensions.Library.Attributes;
+using FM.GeoLocation.Contract.Models;
 
 namespace XI.Portal.Servers.Dto
 {

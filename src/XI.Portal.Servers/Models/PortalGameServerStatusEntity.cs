@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using XI.AzureTableExtensions;
-using XI.AzureTableExtensions.Attributes;
+using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 using XI.CommonTypes;
 using XI.Portal.Servers.Dto;
 

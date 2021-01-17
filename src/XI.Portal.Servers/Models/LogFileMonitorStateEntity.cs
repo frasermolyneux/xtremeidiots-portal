@@ -1,6 +1,6 @@
 ﻿using System;
-using XI.AzureTableExtensions;
-using XI.AzureTableExtensions.Attributes;
+using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 using XI.CommonTypes;
 using XI.Portal.Servers.Dto;
 
@@ -11,7 +11,6 @@ namespace XI.Portal.Servers.Models
         // ReSharper disable once UnusedMember.Global - required for ExecuteQuerySegmentedAsync
         public LogFileMonitorStateEntity()
         {
-            
         }
 
         public LogFileMonitorStateEntity(LogFileMonitorStateDto model)

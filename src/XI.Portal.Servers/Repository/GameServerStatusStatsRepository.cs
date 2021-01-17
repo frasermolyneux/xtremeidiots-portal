@@ -22,7 +22,7 @@ namespace XI.Portal.Servers.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _statsTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _statsTable.CreateIfNotExists();
+            _statsTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task UpdateEntry(GameServerStatusStatsDto model)

@@ -24,7 +24,7 @@ namespace XI.Portal.Users.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _additionalClaimsTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _additionalClaimsTable.CreateIfNotExists();
+            _additionalClaimsTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<List<UserListEntryViewModel>> GetUsers()

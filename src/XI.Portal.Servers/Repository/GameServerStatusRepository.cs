@@ -36,7 +36,7 @@ namespace XI.Portal.Servers.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _statusTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _statusTable.CreateIfNotExists();
+            _statusTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<PortalGameServerStatusDto> GetStatus(Guid serverId, TimeSpan cacheCutoff)

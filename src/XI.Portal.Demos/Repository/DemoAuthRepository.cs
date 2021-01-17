@@ -16,7 +16,7 @@ namespace XI.Portal.Demos.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _demoAuthTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _demoAuthTable.CreateIfNotExists();
+            _demoAuthTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<string> GetAuthKey(string userId)

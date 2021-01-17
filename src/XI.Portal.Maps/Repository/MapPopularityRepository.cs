@@ -17,7 +17,7 @@ namespace XI.Portal.Maps.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _mapPopularityTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _mapPopularityTable.CreateIfNotExists();
+            _mapPopularityTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<MapPopularityDto> GetMapPopularity(GameType gameType, string mapName)

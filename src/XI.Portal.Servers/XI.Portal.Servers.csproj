@@ -5,12 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4402" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XI.AzureTableExtensions\XI.AzureTableExtensions.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth.Contract\XI.Portal.Auth.Contract.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />

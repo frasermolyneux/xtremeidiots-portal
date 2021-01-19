@@ -6,13 +6,13 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.4.4" />
+    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4402" />
     <PackageReference Include="FM.GeoLocation.Client" Version="1.0.4389" />
-    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.7" />
+    <PackageReference Include="Microsoft.Azure.Cosmos.Table" Version="1.0.8" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XI.AzureTableExtensions\XI.AzureTableExtensions.csproj" />
     <ProjectReference Include="..\XI.CommonTypes\XI.CommonTypes.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />

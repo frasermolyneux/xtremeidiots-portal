@@ -1,6 +1,6 @@
 ﻿using System;
-using XI.AzureTableExtensions;
-using XI.AzureTableExtensions.Attributes;
+using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 
 namespace XI.AzureTableLogging.Models
 {
@@ -12,7 +12,6 @@ namespace XI.AzureTableLogging.Models
         public string EventId { get; set; }
         public string Message { get; set; }
 
-        [EntityJsonPropertyConverter]
-        public Exception Exception { get; set; }
+        [EntityJsonPropertyConverter] public Exception Exception { get; set; }
     }
 }

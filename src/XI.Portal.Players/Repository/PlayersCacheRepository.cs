@@ -25,7 +25,7 @@ namespace XI.Portal.Players.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _playersCache = cloudTableClient.GetTableReference(options.StorageTableName);
-            _playersCache.CreateIfNotExists();
+            _playersCache.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<PlayerCacheEntity> GetPlayer(GameType gameType, string guid)

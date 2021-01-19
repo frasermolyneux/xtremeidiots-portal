@@ -21,7 +21,7 @@ namespace XI.Portal.Servers.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _stateTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _stateTable.CreateIfNotExists();
+            _stateTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<List<LogFileMonitorStateDto>> GetLogFileMonitorStates(FileMonitorFilterModel filterModel)

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using XI.AzureTableExtensions;
-using XI.AzureTableExtensions.Attributes;
+using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 using XI.Portal.Maps.Dto;
 
 namespace XI.Portal.Maps.Models

@@ -19,7 +19,7 @@ namespace XI.AzureTableLogging.Logger
             _loggingTable = cloudTableClient.GetTableReference(options.StorageTableName);
 
             if (options.CreateTableIfNotExists)
-                _loggingTable.CreateIfNotExists();
+                _loggingTable.CreateIfNotExistsAsync().Wait();
         }
 
         public IDisposable BeginScope<TState>(TState state)

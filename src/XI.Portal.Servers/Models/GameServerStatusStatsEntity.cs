@@ -1,5 +1,5 @@
-﻿using XI.AzureTableExtensions;
-using XI.AzureTableExtensions.Attributes;
+﻿using FM.AzureTableExtensions.Library;
+using FM.AzureTableExtensions.Library.Attributes;
 using XI.CommonTypes;
 
 namespace XI.Portal.Servers.Models

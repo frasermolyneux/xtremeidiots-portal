@@ -27,7 +27,7 @@ namespace XI.Portal.Players.Repository
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
             _locationsTable = cloudTableClient.GetTableReference(options.StorageTableName);
-            _locationsTable.CreateIfNotExists();
+            _locationsTable.CreateIfNotExistsAsync().Wait();
         }
 
         public async Task<List<PlayerLocationDto>> GetLocations()

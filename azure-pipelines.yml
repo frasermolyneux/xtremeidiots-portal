@@ -14,7 +14,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  TerraformVersion: '0.13.0'
+  TerraformVersion: '0.14.8'
   AzTerraformRegion: 'uksouth'
   AzTerraformResourceGroup: 'xi-portal-terraform'
   AzTerraformStorageAccount: 'xiportaltfstate'

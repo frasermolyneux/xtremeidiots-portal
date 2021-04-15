@@ -44,7 +44,7 @@ namespace XI.Portal.FuncApp
 
             _playerIngest.OverrideLogger(log);
 
-            var servers = await _legacyContext.GameServers.Where(server => server.ShowOnPortalServerList).ToListAsync();
+            var servers = await _legacyContext.GameServers.AsQueryable().Where(server => server.ShowOnPortalServerList).ToListAsync();
 
             foreach (var server in servers)
             {

@@ -64,7 +64,7 @@ namespace XI.Portal.Servers.Repository
                 FileMonitorId = Guid.NewGuid(),
                 FilePath = fileMonitorDto.FilePath,
                 BytesRead = fileMonitorDto.BytesRead,
-                LastRead = fileMonitorDto.LastRead,
+                LastRead = DateTime.UtcNow.AddHours(-4),
                 //LastError = string.Empty;
                 GameServerServer = server
             };

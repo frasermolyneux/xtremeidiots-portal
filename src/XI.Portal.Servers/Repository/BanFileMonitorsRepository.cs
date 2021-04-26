@@ -64,7 +64,7 @@ namespace XI.Portal.Servers.Repository
                 BanFileMonitorId = Guid.NewGuid(),
                 FilePath = banFileMonitorDto.FilePath,
                 //RemoteFileSize = banFileMonitorDto.RemoteFileSize,
-                LastSync = DateTime.UtcNow,
+                LastSync = DateTime.UtcNow.AddHours(-4),
                 //LastError = string.Empty,
                 GameServerServer = server
             };

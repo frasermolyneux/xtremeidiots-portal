@@ -90,5 +90,20 @@ namespace XI.Forums.Client
                 return JsonConvert.DeserializeObject<DownloadFile>(result);
             }
         }
+
+        public async Task<CoreHello> GetCoreHello()
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_forumsOptions.BaseUrl);
+
+                var byteArray = Encoding.ASCII.GetBytes(_forumsOptions.ApiKey);
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+
+                var result = await client.GetStringAsync("/api/core/hello");
+                return JsonConvert.DeserializeObject<CoreHello>(result);
+            }
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using XI.Portal.Players.Dto;
 
@@ -8,6 +9,6 @@ namespace XI.Portal.Players.Interfaces
     {
         Task<List<PlayerLocationDto>> GetLocations();
         Task UpdateEntry(PlayerLocationDto model);
-        Task RemoveOldEntries();
+        Task RemoveOldEntries(List<Guid> serverIds);
     }
 }

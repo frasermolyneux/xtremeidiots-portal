@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
@@ -49,27 +48,32 @@ namespace XI.Portal.Players.Repository
 
         public async Task RemoveOldEntries()
         {
-            var query = new TableQuery<PlayerLocationEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-1)));
-
-            TableContinuationToken continuationToken = null;
-            do
+            foreach (var gameType in Enum.GetValues(typeof(GameType)))
             {
-                var entries = await _playersCache.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var query = new TableQuery<TableEntity>()
+                    .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, gameType.ToString()), TableOperators.And,
+                        TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-1))))
+                    .Select(new[] {"PartitionKey", "RowKey"});
 
-                continuationToken = entries.ContinuationToken;
-
-                var deleteBatches = entries.Batch(100);
-
-                foreach (var deleteBatch in deleteBatches)
+                TableContinuationToken continuationToken = null;
+                do
                 {
-                    var batchOperation = new TableBatchOperation();
+                    var entries = await _playersCache.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+                    continuationToken = entries.ContinuationToken;
 
-                    await _playersCache.ExecuteBatchAsync(batchOperation);
-                }
-            } while (continuationToken != null);
+                    var deleteBatches = entries.Batch(100);
+
+                    foreach (var deleteBatch in deleteBatches)
+                    {
+                        var batchOperation = new TableBatchOperation();
+
+                        foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                        await _playersCache.ExecuteBatchAsync(batchOperation);
+                    }
+                } while (continuationToken != null);
+            }
         }
     }
 }

@@ -51,29 +51,36 @@ namespace XI.AzureTableLogging.Logger
             _loggingTable.ExecuteAsync(insertOp).GetAwaiter().GetResult();
         }
 
-        public async Task RemoveOldEntries(int hoursToKeep)
+        public async Task RemoveOldEntries(int daysToKeep)
         {
-            var query = new TableQuery<LogEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-hoursToKeep)));
-
-            TableContinuationToken continuationToken = null;
-            do
+            var dateOffset = DateTime.UtcNow.AddDays(-daysToKeep);
+            for (var i = 0; i < 7; i++)
             {
-                var entries = await _loggingTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var query = new TableQuery<TableEntity>()
+                    .Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, dateOffset.ToString("yyyyMMdd")))
+                    .Select(new[] {"PartitionKey", "RowKey"});
 
-                continuationToken = entries.ContinuationToken;
-
-                var deleteBatches = entries.Batch(100);
-
-                foreach (var deleteBatch in deleteBatches)
+                TableContinuationToken continuationToken = null;
+                do
                 {
-                    var batchOperation = new TableBatchOperation();
+                    var entries = await _loggingTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+                    continuationToken = entries.ContinuationToken;
 
-                    await _loggingTable.ExecuteBatchAsync(batchOperation);
-                }
-            } while (continuationToken != null);
+                    var deleteBatches = entries.Batch(100);
+
+                    foreach (var deleteBatch in deleteBatches)
+                    {
+                        var batchOperation = new TableBatchOperation();
+
+                        foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                        await _loggingTable.ExecuteBatchAsync(batchOperation);
+                    }
+                } while (continuationToken != null);
+
+                dateOffset = dateOffset.AddDays(-1);
+            }
         }
     }
 }

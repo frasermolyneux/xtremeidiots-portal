@@ -11,6 +11,6 @@ namespace XI.Portal.Servers.Interfaces
         Task<List<GameServerStatusStatsDto>> GetGameServerStatusStats(GameServerStatusStatsFilterModel filterModel);
         Task UpdateEntry(GameServerStatusStatsDto model);
         Task DeleteGameServerStatusStats(Guid serverId);
-        Task RemoveOldEntries();
+        Task RemoveOldEntries(List<Guid> serverIds);
     }
 }

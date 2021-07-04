@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
@@ -81,29 +80,34 @@ namespace XI.Portal.Players.Repository
             await _locationsTable.ExecuteAsync(operation);
         }
 
-        public async Task RemoveOldEntries()
+        public async Task RemoveOldEntries(List<Guid> serverIds)
         {
-            var query = new TableQuery<PlayerLocationEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-24)));
-
-            TableContinuationToken continuationToken = null;
-            do
+            foreach (var serverId in serverIds)
             {
-                var entries = await _locationsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var query = new TableQuery<TableEntity>()
+                    .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, serverId.ToString()), TableOperators.And,
+                        TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-24))))
+                    .Select(new[] {"PartitionKey", "RowKey"});
 
-                continuationToken = entries.ContinuationToken;
-
-                var deleteBatches = entries.Batch(100);
-
-                foreach (var deleteBatch in deleteBatches)
+                TableContinuationToken continuationToken = null;
+                do
                 {
-                    var batchOperation = new TableBatchOperation();
+                    var entries = await _locationsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+                    continuationToken = entries.ContinuationToken;
 
-                    await _locationsTable.ExecuteBatchAsync(batchOperation);
-                }
-            } while (continuationToken != null);
+                    var deleteBatches = entries.Batch(100);
+
+                    foreach (var deleteBatch in deleteBatches)
+                    {
+                        var batchOperation = new TableBatchOperation();
+
+                        foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                        await _locationsTable.ExecuteBatchAsync(batchOperation);
+                    }
+                } while (continuationToken != null);
+            }
         }
 
         private static string GenerateRowKeyForPlayerLocation(PlayerLocationDto playerLocationDto)

@@ -103,29 +103,34 @@ namespace XI.Portal.Servers.Repository
             } while (continuationToken != null);
         }
 
-        public async Task RemoveOldEntries()
+        public async Task RemoveOldEntries(List<Guid> serverIds)
         {
-            var query = new TableQuery<GameServerStatusStatsEntity>()
-                .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.Now.AddMonths(-6)));
-
-            TableContinuationToken continuationToken = null;
-            do
+            foreach (var serverId in serverIds)
             {
-                var entries = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var query = new TableQuery<TableEntity>()
+                    .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, serverId.ToString()), TableOperators.And,
+                        TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddMonths(-1))))
+                    .Select(new[] { "PartitionKey", "RowKey" });
 
-                continuationToken = entries.ContinuationToken;
-
-                var deleteBatches = entries.Batch(100);
-
-                foreach (var deleteBatch in deleteBatches)
+                TableContinuationToken continuationToken = null;
+                do
                 {
-                    var batchOperation = new TableBatchOperation();
+                    var entries = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+                    continuationToken = entries.ContinuationToken;
 
-                    await _statsTable.ExecuteBatchAsync(batchOperation);
-                }
-            } while (continuationToken != null);
+                    var deleteBatches = entries.Batch(100);
+
+                    foreach (var deleteBatch in deleteBatches)
+                    {
+                        var batchOperation = new TableBatchOperation();
+
+                        foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                        await _statsTable.ExecuteBatchAsync(batchOperation);
+                    }
+                } while (continuationToken != null);
+            }
         }
     }
 }

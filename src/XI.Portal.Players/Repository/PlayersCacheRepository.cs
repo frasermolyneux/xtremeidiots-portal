@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
@@ -48,23 +49,26 @@ namespace XI.Portal.Players.Repository
 
         public async Task RemoveOldEntries()
         {
-            var query = new TableQuery<PlayerCacheEntity>()
+            var query = new TableQuery<PlayerLocationEntity>()
                 .Where(TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-1)));
 
             TableContinuationToken continuationToken = null;
             do
             {
-                var queryResult = await _playersCache.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var entries = await _playersCache.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                _logger.LogInformation($"Removing {queryResult.Count()} cached entries from the players cache repository");
+                continuationToken = entries.ContinuationToken;
 
-                foreach (var entity in queryResult)
+                var deleteBatches = entries.Batch(100);
+
+                foreach (var deleteBatch in deleteBatches)
                 {
-                    var deleteOperation = TableOperation.Delete(entity);
-                    await _playersCache.ExecuteAsync(deleteOperation);
-                }
+                    var batchOperation = new TableBatchOperation();
 
-                continuationToken = queryResult.ContinuationToken;
+                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                    await _playersCache.ExecuteBatchAsync(batchOperation);
+                }
             } while (continuationToken != null);
         }
     }

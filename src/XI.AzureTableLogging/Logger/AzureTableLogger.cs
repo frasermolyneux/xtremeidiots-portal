@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
 using XI.AzureTableLogging.Interfaces;
@@ -58,15 +59,20 @@ namespace XI.AzureTableLogging.Logger
             TableContinuationToken continuationToken = null;
             do
             {
-                var queryResult = await _loggingTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var entries = await _loggingTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                foreach (var entity in queryResult)
+                continuationToken = entries.ContinuationToken;
+
+                var deleteBatches = entries.Batch(100);
+
+                foreach (var deleteBatch in deleteBatches)
                 {
-                    var deleteOperation = TableOperation.Delete(entity);
-                    await _loggingTable.ExecuteAsync(deleteOperation);
-                }
+                    var batchOperation = new TableBatchOperation();
 
-                continuationToken = queryResult.ContinuationToken;
+                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                    await _loggingTable.ExecuteBatchAsync(batchOperation);
+                }
             } while (continuationToken != null);
         }
     }

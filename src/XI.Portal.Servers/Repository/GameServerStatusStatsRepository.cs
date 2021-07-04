@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
@@ -110,14 +111,20 @@ namespace XI.Portal.Servers.Repository
             TableContinuationToken continuationToken = null;
             do
             {
-                var queryResult = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
-                foreach (var entity in queryResult)
-                {
-                    var deleteOperation = TableOperation.Delete(entity);
-                    await _statsTable.ExecuteAsync(deleteOperation);
-                }
+                var entries = await _statsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                continuationToken = queryResult.ContinuationToken;
+                continuationToken = entries.ContinuationToken;
+
+                var deleteBatches = entries.Batch(100);
+
+                foreach (var deleteBatch in deleteBatches)
+                {
+                    var batchOperation = new TableBatchOperation();
+
+                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                    await _statsTable.ExecuteBatchAsync(batchOperation);
+                }
             } while (continuationToken != null);
         }
     }

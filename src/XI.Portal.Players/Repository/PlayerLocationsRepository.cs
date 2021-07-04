@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using Microsoft.Extensions.Logging;
@@ -88,17 +89,20 @@ namespace XI.Portal.Players.Repository
             TableContinuationToken continuationToken = null;
             do
             {
-                var queryResult = await _locationsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
+                var entries = await _locationsTable.ExecuteQuerySegmentedAsync(query, continuationToken);
 
-                _logger.LogInformation($"Removing {queryResult.Count()} cached entries from the players location repository");
+                continuationToken = entries.ContinuationToken;
 
-                foreach (var entity in queryResult)
+                var deleteBatches = entries.Batch(100);
+
+                foreach (var deleteBatch in deleteBatches)
                 {
-                    var deleteOperation = TableOperation.Delete(entity);
-                    await _locationsTable.ExecuteAsync(deleteOperation);
-                }
+                    var batchOperation = new TableBatchOperation();
 
-                continuationToken = queryResult.ContinuationToken;
+                    foreach (var entity in deleteBatch) batchOperation.Add(TableOperation.Delete(entity));
+
+                    await _locationsTable.ExecuteBatchAsync(batchOperation);
+                }
             } while (continuationToken != null);
         }
 

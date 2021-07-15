@@ -18,7 +18,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging.Extensions;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
@@ -128,12 +127,6 @@ namespace XI.Portal.Web
                 {
                     logging.ClearProviders();
                     logging.AddConsole();
-                    logging.AddAzureTableLogger(options =>
-                    {
-                        options.CreateTableIfNotExists = true;
-                        options.StorageTableName = Configuration["Logging:AzureTableLogger:StorageTableName"];
-                        options.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    });
                 });
 
             services.AddGeoLocationClient(options =>

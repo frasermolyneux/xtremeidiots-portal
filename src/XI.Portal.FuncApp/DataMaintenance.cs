@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
-using XI.AzureTableLogging.Logger;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -14,7 +13,6 @@ namespace XI.Portal.FuncApp
     // ReSharper disable once UnusedMember.Global
     public class DataMaintenance
     {
-        private readonly AzureTableLogger _azureTableLogger;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
@@ -24,14 +22,12 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IGameServersRepository gameServersRepository,
-            AzureTableLogger azureTableLogger)
+            IGameServersRepository gameServersRepository)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
-            _azureTableLogger = azureTableLogger ?? throw new ArgumentNullException(nameof(azureTableLogger));
         }
 
         [FunctionName("DataMaintenance")]
@@ -48,7 +44,6 @@ namespace XI.Portal.FuncApp
 
             await _playerLocationsRepository.RemoveOldEntries(serverIds);
             await _playersCache.RemoveOldEntries();
-            await _azureTableLogger.RemoveOldEntries(2);
             await _gameServerStatusStatsRepository.RemoveOldEntries(serverIds);
 
             stopWatch.Stop();

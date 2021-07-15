@@ -20,7 +20,6 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\XI.AzureTableLogging\XI.AzureTableLogging.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth\XI.Portal.Auth.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />

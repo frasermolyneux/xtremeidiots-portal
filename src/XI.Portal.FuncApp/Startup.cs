@@ -13,8 +13,6 @@ using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Integrations.Extensions;
 using XI.Utilities.FtpHelper;
-using XI.AzureTableLogging.Extensions;
-using XI.AzureTableLogging.Interfaces;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -39,20 +37,6 @@ namespace XI.Portal.FuncApp
 
             builder.Services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(config["LegacyPortalContext:ConnectionString"]));
-
-            Action<IAzureTableLoggerOptions> azureTableLoggerOptions = options =>
-            {
-                options.CreateTableIfNotExists = true;
-                options.StorageTableName = config["AzureTableLogger:StorageTableName"];
-                options.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-            };
-
-            builder.Services.AddLogging(logging =>
-            {
-                logging.AddAzureTableLogger(azureTableLoggerOptions);
-            });
-
-            builder.Services.AddDirectAzureTableLogger(azureTableLoggerOptions);
 
             builder.Services.AddGeoLocationClient(options =>
             {

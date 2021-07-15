@@ -21,6 +21,10 @@ variables:
   AzSubscription: 'XI-Pay-As-You-Go'
 
 stages:
+- stage: dependency_check
+  jobs:
+  - template: dependency-check.yml
+  
 - stage: build
   jobs:
   - job: build

@@ -1,0 +1,18 @@
+jobs:
+- job:
+  pool:
+    vmImage: windows-latest
+  steps:
+  - checkout: self
+  - task: dependency-check-build-task@6
+    displayName: Dependency Check
+    inputs:
+      projectName: $(Build.Repository.Name)-$(Build.SourceBranchName)
+      scanPath: '**/*.csproj'
+      format: HTML,JUNIT
+  - task: PublishTestResults@2
+    displayName: Publish Dependency Check Results
+    inputs:
+      testResultsFiles: '*.xml'
+      searchFolder: $(Common.TestResultsDirectory)\dependency-check
+      testRunTitle: $(Build.Repository.Name)-$(Build.SourceBranchName)

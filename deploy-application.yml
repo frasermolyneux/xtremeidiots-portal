@@ -81,6 +81,8 @@ stages:
       value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.identity_storage_connection'] ]
     - name: appdata_storage_connection
       value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.appdata_storage_connection'] ]
+    - name: appinsights_instrumentation_key
+      value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.instrumentation_key'] ]
 
     strategy:
      runOnce:
@@ -104,7 +106,7 @@ stages:
               deployToSlotOrASE: true
               ResourceGroupName: 'xi-portal-$(environment)'
               packageForLinux: '$(Pipeline.Workspace)/webapp/XI.Portal.Web.zip'
-              AppSettings: '-ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsAuth:ClientId "$(xtremeidiotsauth-clientid)" -XtremeIdiotsAuth:ClientSecret "$(xtremeidiotsauth-clientsecret)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)"'
+              AppSettings: '-ApplicationInsights:InstrumentationKey "$(appinsights_instrumentation_key)" -ApplicationAuthDbContext:StorageConnectionString "$(identity_storage_connection)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -XtremeIdiotsAuth:ClientId "$(xtremeidiotsauth-clientid)" -XtremeIdiotsAuth:ClientSecret "$(xtremeidiotsauth-clientsecret)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)"'
 
   - deployment: 'funcapp_deploy'
     dependsOn: 'terraform_deploy'

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
@@ -20,20 +21,25 @@ namespace XI.Portal.FuncApp
 {
     public class Startup : FunctionsStartup
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
         {
-            var basePath = IsDevelopmentEnvironment() ? Environment.GetEnvironmentVariable("AzureWebJobsScriptRoot") : $"{Environment.GetEnvironmentVariable("HOME")}\\site\\wwwroot";
+            var context = builder.GetContext();
 
-            var config = new ConfigurationBuilder()
-                .SetBasePath(basePath)
-                .AddJsonFile("appsettings.json", false, false)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT")}.json", true, false)
+            builder.ConfigurationBuilder
+                .AddJsonFile(Path.Combine(context.ApplicationRootPath, "appsettings.json"), true, false)
+                .AddJsonFile(Path.Combine(context.ApplicationRootPath, $"appsettings.{context.EnvironmentName}.json"),
+                    true, false)
                 .AddJsonFile("local.settings.json", true, false)
                 .AddUserSecrets(Assembly.GetExecutingAssembly(), false)
-                .AddEnvironmentVariables()
-                .Build();
+                .AddEnvironmentVariables();
 
-            builder.Services.AddSingleton<IConfiguration>(config);
+            base.ConfigureAppConfiguration(builder);
+        }
+
+
+        public override void Configure(IFunctionsHostBuilder builder)
+        {
+            var config = builder.GetContext().Configuration;
 
             builder.Services.AddDbContext<LegacyPortalContext>(options =>
                 options.UseSqlServer(config["LegacyPortalContext:ConnectionString"]));

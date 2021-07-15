@@ -12,5 +12,6 @@ namespace XI.Portal.Servers.Interfaces
         Task<List<ChatLogDto>> GetChatLogs(ChatLogFilterModel filterModel);
         Task<ChatLogDto> GetChatLog(Guid id);
         Task CreateChatLog(ChatLogDto chatLogDto);
+        Task RemoveOldEntries();
     }
 }

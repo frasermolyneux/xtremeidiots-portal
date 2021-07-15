@@ -14,6 +14,7 @@ namespace XI.Portal.FuncApp
     public class DataMaintenance
     {
         private readonly IGameServersRepository _gameServersRepository;
+        private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
@@ -22,12 +23,14 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IGameServersRepository gameServersRepository)
+            IGameServersRepository gameServersRepository, 
+            IChatLogsRepository chatLogsRepository)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
         }
 
         [FunctionName("DataMaintenance")]
@@ -42,6 +45,7 @@ namespace XI.Portal.FuncApp
             var servers = await _gameServersRepository.GetGameServers(new GameServerFilterModel {Filter = GameServerFilterModel.FilterBy.None});
             var serverIds = servers.Select(s => s.ServerId).ToList();
 
+            await _chatLogsRepository.RemoveOldEntries();
             await _playerLocationsRepository.RemoveOldEntries(serverIds);
             await _playersCache.RemoveOldEntries();
             await _gameServerStatusStatsRepository.RemoveOldEntries(serverIds);

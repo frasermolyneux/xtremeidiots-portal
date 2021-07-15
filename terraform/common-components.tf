@@ -15,3 +15,18 @@ output "appdata_storage_connection" {
   value = azurerm_storage_account.appdata-storage.primary_connection_string
   sensitive = true
 }
+
+resource "azurerm_application_insights" "app-insights" {
+  name = "xi-portal-appinsights-${var.environment}"
+  location = azurerm_resource_group.resource-group.location
+  resource_group_name = azurerm_resource_group.resource-group.name
+  application_type = "web"
+}
+
+output "instrumentation_key" {
+  value = azurerm_application_insights.example.instrumentation_key
+}
+
+output "app_id" {
+  value = azurerm_application_insights.example.app_id
+}

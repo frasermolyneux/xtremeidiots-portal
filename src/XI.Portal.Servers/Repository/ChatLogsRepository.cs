@@ -87,7 +87,12 @@ namespace XI.Portal.Servers.Repository
             };
 
             _legacyContext.ChatLogs.Add(chatLog);
-            _legacyContext.SaveChanges();
+            await _legacyContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveOldEntries()
+        {
+            await _legacyContext.Database.ExecuteSqlRawAsync($"SELECT COUNT(*) FROM dbo.ChatLogs WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
         }
     }
 }

@@ -116,6 +116,8 @@ stages:
     variables:
     - name: appdata_storage_connection
       value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.appdata_storage_connection'] ]
+    - name: appinsights_connection_string
+      value: $[ dependencies.terraform_deploy.outputs['terraform_deploy.terraform_output.instrumentation_key'] ]
 
     strategy:
      runOnce:
@@ -141,4 +143,4 @@ stages:
               resourceGroupName: 'xi-portal-$(environment)'
               package: '$(Pipeline.Workspace)/funcapp/XI.Portal.FuncApp.zip'
               runtimeStack: 'DOCKER|microsoft/azure-functions-dotnet-core2.0:2.0'
-              AppSettings: '-AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)" -MapsRedirect:ApiKey "$(mapsredirect-apikey)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)"'
+              AppSettings: '-APPLICATIONINSIGHTS_CONNECTION_STRING "$(appinsights_connection_string)" -AppDataContainer:StorageConnectionString "$(appdata_storage_connection)" -LegacyPortalContext:ConnectionString "$(legacyportalcontext-connectionstring)" -GeoLocation:BaseUrl "$(geolocation-baseurl)" -GeoLocation:ApiKey "$(geolocation-apikey)" -MapsRedirect:ApiKey "$(mapsredirect-apikey)" -XtremeIdiotsForums:ApiKey "$(xtremeidiotsforums-apikey)"'

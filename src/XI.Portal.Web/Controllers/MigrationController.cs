@@ -52,13 +52,19 @@ namespace XI.Portal.Web.Controllers
                     continue;
 
                 foreach (var vote in otherVotes.MapVotes)
-                    await _portalServiceBusClient.PostMapVote(new MapVote
+                {
+                    var playerGuid = (await _legacyContext.Player2.SingleAsync(p => p.PlayerId == vote.PlayerId)).Guid;
+
+                    var mapVote = new MapVote
                     {
                         GameType = map.GameType,
-                        Guid = _legacyContext.Player2.Single(p => p.PlayerId == vote.PlayerId).Guid,
+                        Guid = playerGuid,
                         MapName = map.MapName,
                         Like = vote.Like
-                    });
+                    };
+
+                    await _portalServiceBusClient.PostMapVote(mapVote);
+                }
             }
 
             return RedirectToAction("Index", "Home");

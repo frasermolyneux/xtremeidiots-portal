@@ -30,7 +30,7 @@ namespace XI.Portal.Repository
             foreach (var (gameType, mapName) in maps)
             {
                 var mapVotesQuery = new TableQuery<MapVoteCloudEntity>()
-                    .Where(TableQuery.GenerateFilterCondition(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, gameType.ToString()), TableOperators.And,
+                    .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, gameType.ToString()), TableOperators.And,
                         TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, mapName)));
 
                 var mapVotes = new List<MapVoteCloudEntity>();

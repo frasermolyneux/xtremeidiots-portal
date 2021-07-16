@@ -40,7 +40,7 @@ resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-bot-authrul
   send   = true
   manage = false
 
-    depends_on = [
+  depends_on = [
     azurerm_servicebus_namespace.servicebus
   ]
 }

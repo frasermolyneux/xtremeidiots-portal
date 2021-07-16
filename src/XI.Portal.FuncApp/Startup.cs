@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.Azure.WebJobs.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +13,8 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
+using XI.Portal.Repository.Config;
+using XI.Portal.Repository.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Integrations.Extensions;
 using XI.Utilities.FtpHelper;
@@ -133,6 +134,9 @@ namespace XI.Portal.FuncApp
 
             builder.Services.Configure<PortalServiceBusOptions>(config.GetSection("ServiceBus"));
             builder.Services.AddServiceBus();
+
+            builder.Services.Configure<AppDataOptions>(config.GetSection("AppData"));
+            builder.Services.AddAppData();
         }
     }
 }

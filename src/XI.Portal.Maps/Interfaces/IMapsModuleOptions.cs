@@ -8,6 +8,6 @@ namespace XI.Portal.Maps.Interfaces
         Action<IMapImageRepositoryOptions> MapImageRepositoryOptions { get; set; }
         Action<IMapsRepositoryOptions> MapsRepositoryOptions { get; set; }
         Action<IMapRedirectRepositoryOptions> MapRedirectRepositoryOptions { get; set; }
-        Action<IMapPopularityRepositoryOptions> MapPopularityRepositoryOptions { get; set; }
+        Action<ILegacyMapPopularityRepositoryOptions> MapPopularityRepositoryOptions { get; set; }
     }
 }

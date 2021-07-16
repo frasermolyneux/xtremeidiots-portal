@@ -1,6 +1,6 @@
 ﻿namespace XI.Portal.Maps.Dto
 {
-    public class MapVoteDto
+    public class LegacyMapVoteDto
     {
         public bool Like { get; set; }
     }

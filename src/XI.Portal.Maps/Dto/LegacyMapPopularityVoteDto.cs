@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace XI.Portal.Maps.Dto
 {
-    public class MapPopularityVoteDto
+    public class LegacyMapPopularityVoteDto
     {
         public Guid ServerId { get; set; }
         public string ServerName { get; set; }

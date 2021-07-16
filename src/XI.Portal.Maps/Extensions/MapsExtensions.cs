@@ -29,7 +29,7 @@ namespace XI.Portal.Maps.Extensions
                     FileName = mf.FileName,
                     FileUrl = $"{baseUrl}/redirect/{map.GameType.ToRedirectShortName()}/usermaps/{map.MapName}/{mf.FileName}"
                 }).ToList(),
-                MapVotes = map.MapVotes.Select(mv => new MapVoteDto
+                MapVotes = map.MapVotes.Select(mv => new LegacyMapVoteDto
                 {
                     Like = mv.Like
                 }).ToList(),

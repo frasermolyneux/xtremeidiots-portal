@@ -12,13 +12,13 @@ namespace XI.Portal.Maps.Models
         {
         }
 
-        public MapPopularityEntity(MapPopularityDto model)
+        public MapPopularityEntity(LegacyMapPopularityDto model)
         {
             RowKey = model.MapName;
             PartitionKey = model.GameType.ToString();
             MapVotes = model.MapVotes;
         }
 
-        [EntityJsonPropertyConverter] public List<MapPopularityVoteDto> MapVotes { get; set; } = new List<MapPopularityVoteDto>();
+        [EntityJsonPropertyConverter] public List<LegacyMapPopularityVoteDto> MapVotes { get; set; } = new List<LegacyMapPopularityVoteDto>();
     }
 }

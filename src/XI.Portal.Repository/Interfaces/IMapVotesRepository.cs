@@ -1,0 +1,13 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using XI.CommonTypes;
+using XI.Portal.Bus.Models;
+
+namespace XI.Portal.Repository.Interfaces
+{
+    public interface IMapVotesRepository
+    {
+        Task UpdateMapVote(MapVote mapVote);
+        Task RebuildIndex(Dictionary<GameType, string> maps);
+    }
+}

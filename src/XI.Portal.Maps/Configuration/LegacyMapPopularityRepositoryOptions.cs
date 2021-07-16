@@ -1,9 +1,9 @@
 ﻿using System;
 using XI.Portal.Maps.Interfaces;
 
-namespace XI.Portal.Servers.Configuration
+namespace XI.Portal.Maps.Configuration
 {
-    public class MapPopularityRepositoryOptions : IMapPopularityRepositoryOptions
+    public class LegacyMapPopularityRepositoryOptions : ILegacyMapPopularityRepositoryOptions
     {
         public string StorageConnectionString { get; set; }
         public string StorageTableName { get; set; }

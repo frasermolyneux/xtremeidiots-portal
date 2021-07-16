@@ -25,7 +25,7 @@ namespace XI.Portal.Maps.Extensions
             options.MapRedirectRepositoryOptions = repositoryOptions;
         }
 
-        public static void ConfigureMapPopularityRepository(this IMapsModuleOptions options, Action<IMapPopularityRepositoryOptions> repositoryOptions)
+        public static void ConfigureMapPopularityRepository(this IMapsModuleOptions options, Action<ILegacyMapPopularityRepositoryOptions> repositoryOptions)
         {
             options.MapPopularityRepositoryOptions = repositoryOptions;
         }

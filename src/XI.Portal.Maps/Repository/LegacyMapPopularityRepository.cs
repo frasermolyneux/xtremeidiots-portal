@@ -7,11 +7,11 @@ using XI.Portal.Maps.Models;
 
 namespace XI.Portal.Maps.Repository
 {
-    public class MapPopularityRepository : IMapPopularityRepository
+    public class LegacyMapPopularityRepository : ILegacyMapPopularityRepository
     {
         private readonly CloudTable _mapPopularityTable;
 
-        public MapPopularityRepository(IMapPopularityRepositoryOptions options)
+        public LegacyMapPopularityRepository(ILegacyMapPopularityRepositoryOptions options)
         {
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
@@ -20,7 +20,7 @@ namespace XI.Portal.Maps.Repository
             _mapPopularityTable.CreateIfNotExistsAsync().Wait();
         }
 
-        public async Task<MapPopularityDto> GetMapPopularity(GameType gameType, string mapName)
+        public async Task<LegacyMapPopularityDto> GetMapPopularity(GameType gameType, string mapName)
         {
             var tableOperation = TableOperation.Retrieve<MapPopularityEntity>(gameType.ToString(), mapName);
             var result = await _mapPopularityTable.ExecuteAsync(tableOperation);
@@ -30,7 +30,7 @@ namespace XI.Portal.Maps.Repository
 
             var mapPopularity = (MapPopularityEntity) result.Result;
 
-            var mapPopularityDto = new MapPopularityDto
+            var mapPopularityDto = new LegacyMapPopularityDto
             {
                 GameType = gameType,
                 MapName = mapPopularity.RowKey,
@@ -40,9 +40,9 @@ namespace XI.Portal.Maps.Repository
             return mapPopularityDto;
         }
 
-        public async Task UpdateMapPopularity(MapPopularityDto mapPopularityDto)
+        public async Task UpdateMapPopularity(LegacyMapPopularityDto legacyMapPopularityDto)
         {
-            var mapPopularityEntity = new MapPopularityEntity(mapPopularityDto);
+            var mapPopularityEntity = new MapPopularityEntity(legacyMapPopularityDto);
 
             var operation = TableOperation.InsertOrMerge(mapPopularityEntity);
             await _mapPopularityTable.ExecuteAsync(operation);

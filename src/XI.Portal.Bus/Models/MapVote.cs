@@ -1,5 +1,4 @@
-﻿using System;
-using XI.CommonTypes;
+﻿using XI.CommonTypes;
 
 namespace XI.Portal.Bus.Models
 {
@@ -9,6 +8,5 @@ namespace XI.Portal.Bus.Models
         public string MapName { get; set; }
         public string Guid { get; set; }
         public bool Like { get; set; }
-        public DateTime Timestamp { get; set; }
     }
 }

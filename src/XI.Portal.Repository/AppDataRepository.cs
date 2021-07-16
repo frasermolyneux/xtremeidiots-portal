@@ -26,6 +26,7 @@ namespace XI.Portal.Repository
         public async Task CreateTablesIfNotExist()
         {
             await MapVotesTable.CreateIfNotExistsAsync();
+            await MapVotesIndexTable.CreateIfNotExistsAsync();
         }
 
         public async Task<Tuple<bool, string>> HealthCheck()

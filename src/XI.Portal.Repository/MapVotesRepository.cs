@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos.Table;
@@ -24,14 +25,14 @@ namespace XI.Portal.Repository
             await MapVotesTable.ExecuteAsync(operation);
         }
 
-        public async Task RebuildIndex(Dictionary<GameType, string> maps)
+        public async Task RebuildIndex(IEnumerable<Tuple<GameType, string>> maps)
         {
             foreach (var (gameType, mapName) in maps)
             {
                 var mapVotesQuery = new TableQuery<MapVoteCloudEntity>()
                     .Where(TableQuery.GenerateFilterCondition(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, gameType.ToString()), TableOperators.And,
                         TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, mapName)))
-                    .Select(new[] {"PartitionKey", "RowKey", "Like"});
+                    .Select(new[] { "PartitionKey", "RowKey", "Like" });
 
                 var mapVotes = new List<MapVoteCloudEntity>();
 
@@ -43,8 +44,7 @@ namespace XI.Portal.Repository
                     continuationToken = tableQueryResult.ContinuationToken;
                 } while (continuationToken != null);
 
-                var mapVoteIndexCloudEntity = await GetMapVoteIndexCloudEntity(gameType, mapName);
-                if (mapVoteIndexCloudEntity == null) mapVoteIndexCloudEntity = new MapVoteIndexCloudEntity(gameType, mapName, 0, 0, 0);
+                var mapVoteIndexCloudEntity = await GetMapVoteIndexCloudEntity(gameType, mapName) ?? new MapVoteIndexCloudEntity(gameType, mapName, 0, 0, 0);
 
                 mapVoteIndexCloudEntity.TotalVotes = mapVotes.Count;
                 mapVoteIndexCloudEntity.PositiveVotes = mapVotes.Count(v => v.Like);

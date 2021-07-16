@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -47,7 +47,11 @@ namespace XI.Portal.FuncApp
         public async Task RunMapVotingRebuildIndex([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer, ILogger log)
         {
             var maps = await _legacyPortalContext.Maps.ToListAsync();
-            await _mapVotesRepository.RebuildIndex(maps.ToDictionary(m => m.GameType, m => m.MapName));
+            var rebuildMaps = maps.Select(m => new Tuple<GameType, string>(m.GameType, m.MapName)).ToList();
+
+            log.LogInformation($"Rebuilding map vote index for {rebuildMaps.Count} maps");
+
+            await _mapVotesRepository.RebuildIndex(rebuildMaps);
         }
     }
 }

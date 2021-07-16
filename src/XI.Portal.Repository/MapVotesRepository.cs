@@ -66,7 +66,7 @@ namespace XI.Portal.Repository
         private async Task UpdateMapVoteIndex(MapVoteIndexCloudEntity mapVoteIndexCloudEntity)
         {
             var operation = TableOperation.InsertOrMerge(mapVoteIndexCloudEntity);
-            await MapVotesTable.ExecuteAsync(operation);
+            await MapVotesIndexTable.ExecuteAsync(operation);
         }
     }
 }

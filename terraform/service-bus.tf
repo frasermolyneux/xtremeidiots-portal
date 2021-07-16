@@ -16,7 +16,6 @@ resource "azurerm_servicebus_queue" "servicebus-queue" {
 resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-function-authrule" {
   name                = "function-authrule"
   namespace_name      = azurerm_servicebus_namespace.servicebus.name
-  queue_name          = azurerm_servicebus_queue.servicebus-queue.name
   resource_group_name = azurerm_resource_group.resource-group.name
 
   listen = true
@@ -25,13 +24,12 @@ resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-function-au
 }
 
 output "servicebus_connection_string" {
-  value = azurerm_application_insights.servicebus-function-authrule.primary_connection_string
+  value = azurerm_eventhub_namespace_authorization_rule.servicebus-function-authrule.primary_connection_string
 }
 
 resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-bot-authrule" {
   name                = "bot-authrule"
   namespace_name      = azurerm_servicebus_namespace.servicebus.name
-  queue_name          = azurerm_servicebus_queue.servicebus-queue.name
   resource_group_name = azurerm_resource_group.resource-group.name
 
   listen = false

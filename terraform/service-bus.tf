@@ -1,5 +1,5 @@
 resource "azurerm_servicebus_namespace" "servicebus" {
-  name = "tfex-servicebus-namespace"
+  name = "xi-portal-sbns-${var.environment}"
   location = azurerm_resource_group.resource-group.location
   resource_group_name = azurerm_resource_group.resource-group.name
   sku = "Basic"

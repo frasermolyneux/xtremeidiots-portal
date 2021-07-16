@@ -137,7 +137,7 @@ namespace XI.Portal.FuncApp
 
         [FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunMonitorLogFile([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunMonitorLogFile([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start RunMonitorLogFile @ {DateTime.UtcNow}");
 
@@ -214,10 +214,10 @@ namespace XI.Portal.FuncApp
                             FtpClients.TryAdd(logFileMonitor.ServerId, ftpClient);
                         }
 
-                        if (!ftpClient.IsConnected) ftpClient.Connect();
+                        if (!ftpClient.IsConnected) await ftpClient.ConnectAsync();
 
 
-                        using var streamReader = new StreamReader(ftpClient.OpenRead(logFileMonitor.FilePath, FtpDataType.ASCII, logFileMonitor.RemoteSize));
+                        using var streamReader = new StreamReader(await ftpClient.OpenReadAsync(logFileMonitor.FilePath, FtpDataType.ASCII, logFileMonitor.RemoteSize));
                         var prev = -1;
 
                         var byteList = new List<byte>();

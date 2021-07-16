@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using XI.Portal.Data.Legacy;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
+using XI.Portal.Servers.Models;
 
 namespace XI.Portal.FuncApp
 {
@@ -35,7 +35,7 @@ namespace XI.Portal.FuncApp
 
         [FunctionName("UpdateGameServerStatus")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunUpdateGameServerStatus([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunUpdateGameServerStatus([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start RunUpdateGameServerStatus @ {DateTime.UtcNow}");
 
@@ -52,7 +52,7 @@ namespace XI.Portal.FuncApp
 
                 try
                 {
-                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId,TimeSpan.FromMinutes(-1));
+                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, TimeSpan.FromMinutes(-1));
 
                     if (model == null)
                     {
@@ -83,7 +83,6 @@ namespace XI.Portal.FuncApp
                     {
                         log.LogError(ex, "Failed to ingest player data for guid: {Guid}", playerGuid);
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -91,9 +90,9 @@ namespace XI.Portal.FuncApp
                 }
             }
 
-            foreach (var gameServerStatus in await _gameServerStatusRepository.GetAllStatusModels(new Servers.Models.GameServerStatusFilterModel(), TimeSpan.Zero))
+            foreach (var gameServerStatus in await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero))
             {
-                var server = servers.SingleOrDefault(server => server.ServerId == gameServerStatus.ServerId);
+                var server = servers.SingleOrDefault(s => s.ServerId == gameServerStatus.ServerId);
 
                 if (server == null)
                 {

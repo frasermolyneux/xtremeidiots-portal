@@ -26,6 +26,7 @@ namespace XI.Portal.Data.Legacy.Models
 
         [DisplayName("Map Rotations")] public virtual ICollection<MapRotations> MapRotations { get; set; }
 
+        [Obsolete("Deprecated Feature")]
         [DisplayName("Map Votes")] public virtual ICollection<MapVotes> MapVotes { get; set; }
     }
 }

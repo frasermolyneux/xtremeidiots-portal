@@ -11,7 +11,6 @@ namespace XI.Portal.Maps.Dto
         [DisplayName("Game")] public GameType GameType { get; set; }
         [DisplayName("Map Name")] public string MapName { get; set; }
         [DisplayName("Map File")] public IList<MapFileDto> MapFiles { get; set; }
-        [DisplayName("Map Votes")] public IList<LegacyMapVoteDto> MapVotes { get; set; }
         public double LikePercentage { get; set; }
         public double DislikePercentage { get; set; }
         public double TotalLikes { get; set; }

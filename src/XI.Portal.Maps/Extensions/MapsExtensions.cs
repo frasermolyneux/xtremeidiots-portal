@@ -1,24 +1,13 @@
 ﻿using System.Linq;
 using XI.Portal.Maps.Dto;
+using XI.Portal.Repository.CloudEntities;
 
 namespace XI.Portal.Maps.Extensions
 {
     public static class MapsExtensions
     {
-        public static MapDto ToDto(this Data.Legacy.Models.Maps map, string baseUrl)
+        public static MapDto ToDto(this Data.Legacy.Models.Maps map, MapVoteIndexCloudEntity mapVoteIndexCloudEntity, string baseUrl)
         {
-            double totalLikes = map.MapVotes.Count(mv => mv.Like);
-            double totalDislikes = map.MapVotes.Count(mv => !mv.Like);
-            var totalVotes = map.MapVotes.Count;
-            double likePercentage = 0;
-            double dislikePercentage = 0;
-
-            if (totalVotes > 0)
-            {
-                likePercentage = totalLikes / totalVotes * 100;
-                dislikePercentage = totalDislikes / totalVotes * 100;
-            }
-
             var mapDto = new MapDto
             {
                 MapId = map.MapId,
@@ -28,17 +17,26 @@ namespace XI.Portal.Maps.Extensions
                 {
                     FileName = mf.FileName,
                     FileUrl = $"{baseUrl}/redirect/{map.GameType.ToRedirectShortName()}/usermaps/{map.MapName}/{mf.FileName}"
-                }).ToList(),
-                MapVotes = map.MapVotes.Select(mv => new LegacyMapVoteDto
-                {
-                    Like = mv.Like
-                }).ToList(),
-                LikePercentage = likePercentage,
-                DislikePercentage = dislikePercentage,
-                TotalLikes = totalLikes,
-                TotalDislikes = totalDislikes,
-                TotalVotes = totalVotes
+                }).ToList()
             };
+
+            if (mapVoteIndexCloudEntity != null)
+            {
+                double likePercentage = 0;
+                double dislikePercentage = 0;
+
+                if (mapVoteIndexCloudEntity.TotalVotes > 0)
+                {
+                    likePercentage = mapVoteIndexCloudEntity.PositiveVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
+                    dislikePercentage = mapVoteIndexCloudEntity.NegativeVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
+                }
+
+                mapDto.LikePercentage = likePercentage;
+                mapDto.DislikePercentage = dislikePercentage;
+                mapDto.TotalLikes = mapVoteIndexCloudEntity.PositiveVotes;
+                mapDto.TotalDislikes = mapVoteIndexCloudEntity.NegativeVotes;
+                mapDto.TotalVotes = mapVoteIndexCloudEntity.TotalVotes;
+            }
 
             return mapDto;
         }

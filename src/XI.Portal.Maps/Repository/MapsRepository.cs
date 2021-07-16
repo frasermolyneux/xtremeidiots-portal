@@ -10,18 +10,24 @@ using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Models;
+using XI.Portal.Repository.Interfaces;
 
 namespace XI.Portal.Maps.Repository
 {
     public class MapsRepository : IMapsRepository
     {
         private readonly LegacyPortalContext _legacyContext;
+        private readonly IMapVotesRepository _mapVotesRepository;
         private readonly IMapsRepositoryOptions _options;
 
-        public MapsRepository(IMapsRepositoryOptions options, LegacyPortalContext legacyContext)
+        public MapsRepository(
+            IMapsRepositoryOptions options,
+            LegacyPortalContext legacyContext,
+            IMapVotesRepository mapVotesRepository)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            _mapVotesRepository = mapVotesRepository ?? throw new ArgumentNullException(nameof(mapVotesRepository));
         }
 
         public async Task<int> GetMapsCount(MapsFilterModel filterModel)
@@ -37,7 +43,13 @@ namespace XI.Portal.Maps.Repository
 
             var maps = await _legacyContext.Maps.ApplyFilter(filterModel).ToListAsync();
 
-            var results = maps.Select(m => m.ToDto(_options.MapRedirectBaseUrl)).ToList();
+            var results = new List<MapDto>();
+            foreach (var map in maps)
+            {
+                var mapVoteIndexCloudEntity = await _mapVotesRepository.GetMapVoteIndex(map.GameType, map.MapName);
+                var mapDto = map.ToDto(mapVoteIndexCloudEntity, _options.MapRedirectBaseUrl);
+                results.Add(mapDto);
+            }
 
             return results;
         }
@@ -46,10 +58,11 @@ namespace XI.Portal.Maps.Repository
         {
             var map = await _legacyContext.Maps
                 .Include(m => m.MapFiles)
-                .Include(m => m.MapVotes)
                 .SingleOrDefaultAsync(m => m.MapName == mapName && m.GameType == gameType);
 
-            return map?.ToDto(_options.MapRedirectBaseUrl);
+            var mapVoteIndexCloudEntity = await _mapVotesRepository.GetMapVoteIndex(gameType, mapName);
+
+            return map?.ToDto(mapVoteIndexCloudEntity, _options.MapRedirectBaseUrl);
         }
 
         public async Task CreateMap(MapDto mapDto)
@@ -93,7 +106,7 @@ namespace XI.Portal.Maps.Repository
                 MapMap = map
             }).ToList();
             _legacyContext.MapFiles.AddRange(newMapFiles);
-            
+
             await _legacyContext.SaveChangesAsync();
         }
 

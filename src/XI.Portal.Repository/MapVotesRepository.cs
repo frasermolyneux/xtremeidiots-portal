@@ -43,7 +43,7 @@ namespace XI.Portal.Repository
                     continuationToken = tableQueryResult.ContinuationToken;
                 } while (continuationToken != null);
 
-                var mapVoteIndexCloudEntity = await GetMapVoteIndexCloudEntity(gameType, mapName) ?? new MapVoteIndexCloudEntity(gameType, mapName, 0, 0, 0);
+                var mapVoteIndexCloudEntity = await GetMapVoteIndex(gameType, mapName) ?? new MapVoteIndexCloudEntity(gameType, mapName, 0, 0, 0);
 
                 mapVoteIndexCloudEntity.TotalVotes = mapVotes.Count;
                 mapVoteIndexCloudEntity.PositiveVotes = mapVotes.Count(v => v.Like);
@@ -53,14 +53,14 @@ namespace XI.Portal.Repository
             }
         }
 
-        private async Task<MapVoteIndexCloudEntity> GetMapVoteIndexCloudEntity(GameType gameType, string mapName)
+        public async Task<MapVoteIndexCloudEntity> GetMapVoteIndex(GameType gameType, string mapName)
         {
             var tableOperation = TableOperation.Retrieve<MapVoteIndexCloudEntity>(gameType.ToString(), mapName);
             var result = await MapVotesIndexTable.ExecuteAsync(tableOperation);
 
             if (result.HttpStatusCode == 404) return null;
 
-            return (MapVoteIndexCloudEntity) result.Result;
+            return (MapVoteIndexCloudEntity)result.Result;
         }
 
         private async Task UpdateMapVoteIndex(MapVoteIndexCloudEntity mapVoteIndexCloudEntity)

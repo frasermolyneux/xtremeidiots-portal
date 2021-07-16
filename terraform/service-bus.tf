@@ -13,7 +13,7 @@ resource "azurerm_servicebus_queue" "servicebus-queue" {
   enable_partitioning = true
 }
 
-resource "azurerm_servicebus_queue_authorization_rule" "servicebus-function-authrule" {
+resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-function-authrule" {
   name                = "function-authrule"
   namespace_name      = azurerm_servicebus_namespace.servicebus.name
   queue_name          = azurerm_servicebus_queue.servicebus-queue.name
@@ -24,7 +24,11 @@ resource "azurerm_servicebus_queue_authorization_rule" "servicebus-function-auth
   manage = true
 }
 
-resource "azurerm_servicebus_queue_authorization_rule" "servicebus-bot-authrule" {
+output "servicebus_connection_string" {
+  value = azurerm_application_insights.servicebus-function-authrule.primary_connection_string
+}
+
+resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-bot-authrule" {
   name                = "bot-authrule"
   namespace_name      = azurerm_servicebus_namespace.servicebus.name
   queue_name          = azurerm_servicebus_queue.servicebus-queue.name

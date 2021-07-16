@@ -3,10 +3,13 @@ using System.IO;
 using System.Reflection;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.WebJobs.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using XI.Forums.Extensions;
+using XI.Portal.Bus.Client;
+using XI.Portal.Bus.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
@@ -127,11 +130,9 @@ namespace XI.Portal.FuncApp
             builder.Services.AddChatCommands();
 
             builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
-        }
 
-        private bool IsDevelopmentEnvironment()
-        {
-            return "Development".Equals(Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT"), StringComparison.OrdinalIgnoreCase);
+            builder.Services.Configure<PortalServiceBusOptions>(config.GetSection("ServiceBus"));
+            builder.Services.AddServiceBus();
         }
     }
 }

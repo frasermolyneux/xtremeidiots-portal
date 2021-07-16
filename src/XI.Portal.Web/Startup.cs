@@ -21,6 +21,8 @@ using Microsoft.Extensions.Logging;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
+using XI.Portal.Bus.Client;
+using XI.Portal.Bus.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
@@ -240,6 +242,9 @@ namespace XI.Portal.Web
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
+
+            services.Configure<PortalServiceBusOptions>(Configuration.GetSection("ServiceBus"));
+            services.AddServiceBus();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

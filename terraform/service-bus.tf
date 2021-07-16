@@ -21,6 +21,10 @@ resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-function-au
   listen = true
   send   = true
   manage = true
+
+  depends_on = [
+    azurerm_servicebus_namespace.servicebus
+  ]
 }
 
 output "servicebus_connection_string" {
@@ -35,4 +39,8 @@ resource "azurerm_eventhub_namespace_authorization_rule" "servicebus-bot-authrul
   listen = false
   send   = true
   manage = false
+
+    depends_on = [
+    azurerm_servicebus_namespace.servicebus
+  ]
 }

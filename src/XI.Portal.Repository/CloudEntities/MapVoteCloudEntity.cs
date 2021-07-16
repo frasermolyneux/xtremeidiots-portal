@@ -14,10 +14,12 @@ namespace XI.Portal.Repository.CloudEntities
             PartitionKey = gameType.ToString();
             RowKey = $"{mapName}-{playerGuid}";
 
+            MapName = mapName;
             Guid = playerGuid;
             Like = like;
         }
 
+        public string MapName { get; set; }
         public string Guid { get; set; }
         public bool Like { get; set; }
     }

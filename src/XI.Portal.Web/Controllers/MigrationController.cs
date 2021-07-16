@@ -42,7 +42,7 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ExportMapVotes()
         {
-            var maps = _legacyContext.Maps;
+            var maps = await _legacyContext.Maps.ToListAsync();
 
             foreach (var map in maps)
             {

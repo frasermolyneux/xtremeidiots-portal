@@ -113,7 +113,8 @@ namespace XI.Portal.FuncApp
                             MapName = mapRedirectEntry.MapName,
                             MapFiles = mapFiles.Select(mf => new MapFileDto
                             {
-                                FileName = mf
+                                FileName = mf,
+                                Url = $"https://redirect.xtremeidiots.net/redirect/{game.Key.ToRedirectShortName()}/usermaps/{mapRedirectEntry.MapName}/{mf}"
                             }).ToList()
                         };
 

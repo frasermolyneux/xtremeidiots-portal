@@ -59,17 +59,6 @@ namespace XI.Portal.Maps.Extensions
                 serviceCollection.AddSingleton(subOptions);
                 serviceCollection.AddScoped<IMapRedirectRepository, MapRedirectRepository>();
             }
-
-            if (options.MapPopularityRepositoryOptions != null)
-            {
-                ILegacyMapPopularityRepositoryOptions subOptions = new LegacyMapPopularityRepositoryOptions();
-                options.MapPopularityRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<ILegacyMapPopularityRepository, LegacyMapPopularityRepository>();
-            }
         }
     }
 }

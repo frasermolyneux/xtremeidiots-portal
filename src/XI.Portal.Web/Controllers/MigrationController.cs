@@ -8,11 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Models;
-using XI.Portal.Bus.Client;
-using XI.Portal.Bus.Models;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Interfaces;
-using XI.Portal.Maps.Interfaces;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -21,53 +18,16 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IDemoAuthRepository _demoAuthRepository;
         private readonly LegacyPortalContext _legacyContext;
-        private readonly ILegacyMapPopularityRepository _mapPopularityRepository;
-        private readonly IPortalServiceBusClient _portalServiceBusClient;
         private readonly UserManager<PortalIdentityUser> _userManager;
 
         public MigrationController(
             LegacyPortalContext legacyContext,
             UserManager<PortalIdentityUser> userManager,
-            IDemoAuthRepository demoAuthRepository,
-            ILegacyMapPopularityRepository mapPopularityRepository,
-            IPortalServiceBusClient portalServiceBusClient)
+            IDemoAuthRepository demoAuthRepository)
         {
             _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _demoAuthRepository = demoAuthRepository ?? throw new ArgumentNullException(nameof(demoAuthRepository));
-            _mapPopularityRepository = mapPopularityRepository;
-            _portalServiceBusClient = portalServiceBusClient;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> ExportMapVotes()
-        {
-            var maps = await _legacyContext.Maps.ToListAsync();
-
-            foreach (var map in maps)
-            {
-                var otherVotes = await _mapPopularityRepository.GetMapPopularity(map.GameType, map.MapName);
-
-                if (otherVotes?.MapVotes == null)
-                    continue;
-
-                foreach (var vote in otherVotes.MapVotes)
-                {
-                    var playerGuid = (await _legacyContext.Player2.SingleAsync(p => p.PlayerId == vote.PlayerId)).Guid;
-
-                    var mapVote = new MapVote
-                    {
-                        GameType = map.GameType,
-                        Guid = playerGuid,
-                        MapName = map.MapName,
-                        Like = vote.Like
-                    };
-
-                    await _portalServiceBusClient.PostMapVote(mapVote);
-                }
-            }
-
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

@@ -10,7 +10,7 @@ namespace XI.Portal.Maps.Extensions
     {
         public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this IQueryable<Data.Legacy.Models.Maps> maps, MapsFilterModel filterModel)
         {
-            maps = maps.Include(m => m.MapFiles).Include(m => m.MapVotes).AsQueryable();
+            maps = maps.Include(m => m.MapFiles).AsQueryable();
 
             if (filterModel.GameType != GameType.Unknown) maps = maps.Where(m => m.GameType == filterModel.GameType).AsQueryable();
 
@@ -25,12 +25,6 @@ namespace XI.Portal.Maps.Extensions
                     break;
                 case MapsFilterModel.OrderBy.MapNameDesc:
                     maps = maps.OrderByDescending(m => m.MapName).AsQueryable();
-                    break;
-                case MapsFilterModel.OrderBy.LikeDislikeAsc:
-                    maps = maps.Where(m => m.MapVotes.Any()).OrderBy(m => m.MapVotes.Count(mv => mv.Like)).AsQueryable();
-                    break;
-                case MapsFilterModel.OrderBy.LikeDislikeDesc:
-                    maps = maps.Where(m => m.MapVotes.Any()).OrderByDescending(m => m.MapVotes.Count(mv => mv.Like)).AsQueryable();
                     break;
                 case MapsFilterModel.OrderBy.GameTypeAsc:
                     maps = maps.OrderBy(m => m.GameType).AsQueryable();

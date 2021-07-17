@@ -166,12 +166,6 @@ namespace XI.Portal.Web
                 });
 
                 options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
-
-                options.ConfigureMapPopularityRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = Configuration["MapPopularity:StorageTableName"];
-                });
             });
 
             services.AddDemosModule(options =>

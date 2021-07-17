@@ -27,8 +27,8 @@ namespace XI.Portal.Maps.Extensions
 
                 if (mapVoteIndexCloudEntity.TotalVotes > 0)
                 {
-                    likePercentage = mapVoteIndexCloudEntity.PositiveVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
-                    dislikePercentage = mapVoteIndexCloudEntity.NegativeVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
+                    likePercentage = (double)mapVoteIndexCloudEntity.PositiveVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
+                    dislikePercentage = (double)mapVoteIndexCloudEntity.NegativeVotes / mapVoteIndexCloudEntity.TotalVotes * 100;
                 }
 
                 mapDto.LikePercentage = likePercentage;

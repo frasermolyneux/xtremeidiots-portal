@@ -9,8 +9,8 @@ namespace XI.Portal.Maps.Models
         {
             MapNameAsc,
             MapNameDesc,
-            LikeDislikeAsc,
-            LikeDislikeDesc,
+            //LikeDislikeAsc,
+            //LikeDislikeDesc,
             GameTypeAsc,
             GameTypeDesc
         }

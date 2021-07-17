@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
@@ -22,22 +23,29 @@ namespace XI.Portal.FuncApp
         public async Task RunMapVoting([ServiceBusTrigger("map-votes", Connection = "ServiceBus:ServiceBusConnectionString")]
             string myQueueItem, ILogger log)
         {
-            var mapVote = JsonConvert.DeserializeObject<MapVote>(myQueueItem);
+            try
+            {
+                var mapVote = JsonConvert.DeserializeObject<MapVote>(myQueueItem);
 
-            if (mapVote == null)
-            {
-                log.LogError($"Could not process map vote: {myQueueItem}");
-            }
-            else
-            {
-                log.LogInformation($"Updating map vote {mapVote.GameType} - {mapVote.MapName} for {mapVote.Guid} as {mapVote.Like}");
-                await _mapsRepository.InsertOrMergeMapVote(new MapVoteDto
+                if (mapVote == null)
                 {
-                    GameType = mapVote.GameType,
-                    MapName = mapVote.MapName,
-                    Guid = mapVote.Guid,
-                    Like = mapVote.Like
-                });
+                    log.LogError($"Could not process map vote: {myQueueItem}");
+                }
+                else
+                {
+                    log.LogInformation($"Updating map vote {mapVote.GameType} - {mapVote.MapName} for {mapVote.Guid} as {mapVote.Like}");
+                    await _mapsRepository.InsertOrMergeMapVote(new MapVoteDto
+                    {
+                        GameType = mapVote.GameType,
+                        MapName = mapVote.MapName,
+                        Guid = mapVote.Guid,
+                        Like = mapVote.Like
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, $"Failed to process map vote: {myQueueItem}");
             }
         }
 

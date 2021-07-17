@@ -20,11 +20,11 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IMapFileRepository _mapFileRepository;
         private readonly IMapImageRepository _mapImageRepository;
-        private readonly IMapsRepository _mapsRepository;
+        private readonly ILegacyMapsRepository _legacyMapsRepository;
 
-        public MapsController(IMapsRepository mapsRepository, IMapImageRepository mapImageRepository, IMapFileRepository mapFileRepository)
+        public MapsController(ILegacyMapsRepository legacyMapsRepository, IMapImageRepository mapImageRepository, IMapFileRepository mapFileRepository)
         {
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
+            _legacyMapsRepository = legacyMapsRepository ?? throw new ArgumentNullException(nameof(legacyMapsRepository));
             _mapImageRepository = mapImageRepository ?? throw new ArgumentNullException(nameof(mapImageRepository));
             _mapFileRepository = mapFileRepository ?? throw new ArgumentNullException(nameof(mapFileRepository));
         }
@@ -53,22 +53,22 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var filterModel = new MapsFilterModel();
+            var filterModel = new LegacyMapsFilterModel();
 
             if (id != null)
                 filterModel.GameType = (GameType) id;
 
-            var recordsTotal = await _mapsRepository.GetMapsCount(filterModel);
+            var recordsTotal = await _legacyMapsRepository.GetMapsCount(filterModel);
 
             filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _mapsRepository.GetMapsCount(filterModel);
+            var recordsFiltered = await _legacyMapsRepository.GetMapsCount(filterModel);
 
             filterModel.TakeEntries = model.Length;
             filterModel.SkipEntries = model.Start;
 
             if (model.Order == null)
             {
-                filterModel.Order = MapsFilterModel.OrderBy.MapNameAsc;
+                filterModel.Order = LegacyMapsFilterModel.OrderBy.MapNameAsc;
             }
             else
             {
@@ -78,18 +78,18 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "mapName":
-                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.MapNameAsc : MapsFilterModel.OrderBy.MapNameDesc;
+                        filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.MapNameAsc : LegacyMapsFilterModel.OrderBy.MapNameDesc;
                         break;
                     //case "popularity":
-                    //    filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.LikeDislikeAsc : MapsFilterModel.OrderBy.LikeDislikeDesc;
+                    //    filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.LikeDislikeAsc : LegacyMapsFilterModel.OrderBy.LikeDislikeDesc;
                     //    break;
                     case "gameType":
-                        filterModel.Order = searchOrder == "asc" ? MapsFilterModel.OrderBy.GameTypeAsc : MapsFilterModel.OrderBy.GameTypeDesc;
+                        filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.GameTypeAsc : LegacyMapsFilterModel.OrderBy.GameTypeDesc;
                         break;
                 }
             }
 
-            var mapDtos = await _mapsRepository.GetMaps(filterModel);
+            var mapDtos = await _legacyMapsRepository.GetMaps(filterModel);
             var portalMapDtos = mapDtos.Select(m => new PortalMapDto(m)).ToList(); 
 
             return Json(new
@@ -124,17 +124,17 @@ namespace XI.Portal.Web.Controllers
 
         public class PortalMapDto
         {
-            public PortalMapDto(MapDto mapDto)
+            public PortalMapDto(LegacyMapDto legacyMapDto)
             {
-                MapId = mapDto.MapId;
-                GameType = mapDto.GameType.ToString();
-                MapName = mapDto.MapName;
-                LikePercentage = mapDto.LikePercentage;
-                DislikePercentage = mapDto.DislikePercentage;
-                TotalLikes = mapDto.TotalLikes;
-                TotalDislikes = mapDto.TotalDislikes;
-                TotalVotes = mapDto.TotalVotes;
-                MapFiles = mapDto.MapFiles;
+                MapId = legacyMapDto.MapId;
+                GameType = legacyMapDto.GameType.ToString();
+                MapName = legacyMapDto.MapName;
+                LikePercentage = legacyMapDto.LikePercentage;
+                DislikePercentage = legacyMapDto.DislikePercentage;
+                TotalLikes = legacyMapDto.TotalLikes;
+                TotalDislikes = legacyMapDto.TotalDislikes;
+                TotalVotes = legacyMapDto.TotalVotes;
+                MapFiles = legacyMapDto.MapFiles;
             }
 
             public Guid MapId { get; set; }

@@ -6,9 +6,9 @@ namespace XI.Portal.Maps.Extensions
 {
     public static class MapsExtensions
     {
-        public static MapDto ToDto(this Data.Legacy.Models.Maps map, MapVoteIndexCloudEntity mapVoteIndexCloudEntity, string baseUrl)
+        public static LegacyMapDto ToDto(this Data.Legacy.Models.Maps map, MapVoteIndexCloudEntity mapVoteIndexCloudEntity, string baseUrl)
         {
-            var mapDto = new MapDto
+            var mapDto = new LegacyMapDto
             {
                 MapId = map.MapId,
                 GameType = map.GameType,

@@ -40,13 +40,13 @@ namespace XI.Portal.Maps.Extensions
 
             if (options.MapsRepositoryOptions != null)
             {
-                IMapsRepositoryOptions subOptions = new MapsRepositoryOptions();
+                ILegacyMapsRepositoryOptions subOptions = new LegacyMapsRepositoryOptions();
                 options.MapsRepositoryOptions.Invoke(subOptions);
 
                 subOptions.Validate();
 
                 serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IMapsRepository, MapsRepository>();
+                serviceCollection.AddScoped<ILegacyMapsRepository, LegacyMapsRepository>();
             }
 
             if (options.MapRedirectRepositoryOptions != null)

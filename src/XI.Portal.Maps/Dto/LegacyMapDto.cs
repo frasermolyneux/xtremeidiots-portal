@@ -5,7 +5,7 @@ using XI.CommonTypes;
 
 namespace XI.Portal.Maps.Dto
 {
-    public class MapDto
+    public class LegacyMapDto
     {
         public Guid MapId { get; set; }
         [DisplayName("Game")] public GameType GameType { get; set; }

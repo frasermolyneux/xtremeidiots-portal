@@ -26,11 +26,11 @@ namespace XI.Portal.FuncApp
         };
 
         private readonly IMapRedirectRepository _mapRedirectRepository;
-        private readonly IMapsRepository _mapsRepository;
+        private readonly ILegacyMapsRepository _legacyMapsRepository;
 
-        public MapRedirectSync(IMapsRepository mapsRepository, IMapRedirectRepository mapRedirectRepository)
+        public MapRedirectSync(ILegacyMapsRepository legacyMapsRepository, IMapRedirectRepository mapRedirectRepository)
         {
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
+            _legacyMapsRepository = legacyMapsRepository ?? throw new ArgumentNullException(nameof(legacyMapsRepository));
             _mapRedirectRepository = mapRedirectRepository ?? throw new ArgumentNullException(nameof(mapRedirectRepository));
         }
 
@@ -52,11 +52,11 @@ namespace XI.Portal.FuncApp
             foreach (var game in gamesToSync)
             {
                 var mapRedirectEntries = _mapRedirectRepository.GetMapEntriesForGame(game.Value);
-                var mapsFilterModel = new MapsFilterModel
+                var mapsFilterModel = new LegacyMapsFilterModel
                 {
                     GameType = game.Key
                 };
-                var mapDatabaseEntries = await _mapsRepository.GetMaps(mapsFilterModel);
+                var mapDatabaseEntries = await _legacyMapsRepository.GetMaps(mapsFilterModel);
 
                 log.LogDebug("Total maps retrieved from redirect for {game} is {redirectMapCount} and database is {databaseMapCount}", game, mapRedirectEntries.Count, mapDatabaseEntries.Count);
 
@@ -75,7 +75,7 @@ namespace XI.Portal.FuncApp
                                 FileName = mf
                             }).ToList();
 
-                            await _mapsRepository.UpdateMap(mapDto);
+                            await _legacyMapsRepository.UpdateMap(mapDto);
                         }
                     }
                     else
@@ -86,12 +86,12 @@ namespace XI.Portal.FuncApp
                                 if (mapDto.TotalVotes > 0)
                                 {
                                     mapDto.MapFiles = new List<MapFileDto>();
-                                    await _mapsRepository.UpdateMap(mapDto);
+                                    await _legacyMapsRepository.UpdateMap(mapDto);
                                 }
                                 else
                                 {
                                     log.LogDebug("Deleting {MapName} as it is not on the redirect", mapDto.MapName);
-                                    await _mapsRepository.DeleteMap(mapDto.MapId);
+                                    await _legacyMapsRepository.DeleteMap(mapDto.MapId);
                                 }
                             }
                             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace XI.Portal.FuncApp
 
                         var mapFiles = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).ToList();
 
-                        var mapDto = new MapDto
+                        var mapDto = new LegacyMapDto
                         {
                             GameType = game.Key,
                             MapName = mapRedirectEntry.MapName,
@@ -117,7 +117,7 @@ namespace XI.Portal.FuncApp
                             }).ToList()
                         };
 
-                        await _mapsRepository.CreateMap(mapDto);
+                        await _legacyMapsRepository.CreateMap(mapDto);
                     }
             }
 

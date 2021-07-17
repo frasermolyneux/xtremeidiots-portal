@@ -21,19 +21,19 @@ namespace XI.Portal.Web.Controllers
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
-        private readonly IMapsRepository _mapsRepository;
+        private readonly ILegacyMapsRepository _legacyMapsRepository;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
 
         public ServersController(
             IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
-            IMapsRepository mapsRepository,
+            ILegacyMapsRepository legacyMapsRepository,
             IPlayerLocationsRepository playerLocationsRepository,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository)
         {
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
+            _legacyMapsRepository = legacyMapsRepository ?? throw new ArgumentNullException(nameof(legacyMapsRepository));
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
         }
@@ -125,22 +125,22 @@ namespace XI.Portal.Web.Controllers
                     }
             }
 
-            MapDto map = null;
+            LegacyMapDto legacyMap = null;
             if (gameServerStatusDto != null)
-                map = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
+                legacyMap = await _legacyMapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
-            var mapsFilterModel = new MapsFilterModel
+            var mapsFilterModel = new LegacyMapsFilterModel
             {
                 GameType = gameServer.GameType,
                 MapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToList()
             };
-            var maps = await _mapsRepository.GetMaps(mapsFilterModel);
+            var maps = await _legacyMapsRepository.GetMaps(mapsFilterModel);
 
             return View(new ServerInfoViewModel
             {
                 GameServer = gameServer,
                 GameServerStatus = gameServerStatusDto,
-                Map = map,
+                LegacyMap = legacyMap,
                 Maps = maps,
                 GameServerStatusStats = gameServerStatusStatsDtos,
                 MapTimelineDataPoints = mapTimelineDataPoints
@@ -151,10 +151,10 @@ namespace XI.Portal.Web.Controllers
         {
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
-            public MapDto Map { get; set; }
+            public LegacyMapDto LegacyMap { get; set; }
             public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
             public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
-            public List<MapDto> Maps { get; set; }
+            public List<LegacyMapDto> Maps { get; set; }
         }
 
         public class MapTimelineDataPoint

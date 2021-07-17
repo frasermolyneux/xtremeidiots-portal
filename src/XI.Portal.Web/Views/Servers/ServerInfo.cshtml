@@ -56,13 +56,13 @@
                     </tbody>
                 </table>
 
-                @if (Model.Map != null)
+                @if (Model.LegacyMap != null)
                 {
                     <hr/>
 
-                    <h5>@Model.Map.MapName Files:</h5>
+                    <h5>@Model.LegacyMap.MapName Files:</h5>
                     <ul>
-                        @foreach (var mapFile in Model.Map.MapFiles)
+                        @foreach (var mapFile in Model.LegacyMap.MapFiles)
                         {
                             <li>
                                 <a href="@mapFile.FileUrl">@mapFile.FileName</a>
@@ -92,7 +92,7 @@
                     @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
                     {
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
+                            <a class="nav-link" data-toggle="tab" href="#menu1">Player LegacyMap</a>
                         </li>
                     }
                 </ul>
@@ -281,7 +281,7 @@
             }
         </script>
 
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initLegacyMap"></script>
     }
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>

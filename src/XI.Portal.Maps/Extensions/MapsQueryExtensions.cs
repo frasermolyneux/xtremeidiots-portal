@@ -8,7 +8,7 @@ namespace XI.Portal.Maps.Extensions
 {
     public static class MapsQueryExtensions
     {
-        public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this IQueryable<Data.Legacy.Models.Maps> maps, MapsFilterModel filterModel)
+        public static IQueryable<Data.Legacy.Models.Maps> ApplyFilter(this IQueryable<Data.Legacy.Models.Maps> maps, LegacyMapsFilterModel filterModel)
         {
             maps = maps.Include(m => m.MapFiles).AsQueryable();
 
@@ -20,16 +20,16 @@ namespace XI.Portal.Maps.Extensions
 
             switch (filterModel.Order)
             {
-                case MapsFilterModel.OrderBy.MapNameAsc:
+                case LegacyMapsFilterModel.OrderBy.MapNameAsc:
                     maps = maps.OrderBy(m => m.MapName).AsQueryable();
                     break;
-                case MapsFilterModel.OrderBy.MapNameDesc:
+                case LegacyMapsFilterModel.OrderBy.MapNameDesc:
                     maps = maps.OrderByDescending(m => m.MapName).AsQueryable();
                     break;
-                case MapsFilterModel.OrderBy.GameTypeAsc:
+                case LegacyMapsFilterModel.OrderBy.GameTypeAsc:
                     maps = maps.OrderBy(m => m.GameType).AsQueryable();
                     break;
-                case MapsFilterModel.OrderBy.GameTypeDesc:
+                case LegacyMapsFilterModel.OrderBy.GameTypeDesc:
                     maps = maps.OrderByDescending(m => m.GameType).AsQueryable();
                     break;
                 default:

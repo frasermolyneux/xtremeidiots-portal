@@ -3,7 +3,7 @@ using XI.CommonTypes;
 
 namespace XI.Portal.Maps.Models
 {
-    public class MapsFilterModel
+    public class LegacyMapsFilterModel
     {
         public enum OrderBy
         {

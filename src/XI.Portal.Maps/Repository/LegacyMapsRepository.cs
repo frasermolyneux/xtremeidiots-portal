@@ -14,14 +14,14 @@ using XI.Portal.Repository.Interfaces;
 
 namespace XI.Portal.Maps.Repository
 {
-    public class MapsRepository : IMapsRepository
+    public class LegacyMapsRepository : ILegacyMapsRepository
     {
         private readonly LegacyPortalContext _legacyContext;
         private readonly IMapVotesRepository _mapVotesRepository;
-        private readonly IMapsRepositoryOptions _options;
+        private readonly ILegacyMapsRepositoryOptions _options;
 
-        public MapsRepository(
-            IMapsRepositoryOptions options,
+        public LegacyMapsRepository(
+            ILegacyMapsRepositoryOptions options,
             LegacyPortalContext legacyContext,
             IMapVotesRepository mapVotesRepository)
         {
@@ -30,20 +30,20 @@ namespace XI.Portal.Maps.Repository
             _mapVotesRepository = mapVotesRepository ?? throw new ArgumentNullException(nameof(mapVotesRepository));
         }
 
-        public async Task<int> GetMapsCount(MapsFilterModel filterModel)
+        public async Task<int> GetMapsCount(LegacyMapsFilterModel filterModel)
         {
-            if (filterModel == null) filterModel = new MapsFilterModel();
+            if (filterModel == null) filterModel = new LegacyMapsFilterModel();
 
             return await _legacyContext.Maps.ApplyFilter(filterModel).CountAsync();
         }
 
-        public async Task<List<MapDto>> GetMaps(MapsFilterModel filterModel)
+        public async Task<List<LegacyMapDto>> GetMaps(LegacyMapsFilterModel filterModel)
         {
-            if (filterModel == null) filterModel = new MapsFilterModel();
+            if (filterModel == null) filterModel = new LegacyMapsFilterModel();
 
             var maps = await _legacyContext.Maps.ApplyFilter(filterModel).ToListAsync();
 
-            var results = new List<MapDto>();
+            var results = new List<LegacyMapDto>();
             foreach (var map in maps)
             {
                 var mapVoteIndexCloudEntity = await _mapVotesRepository.GetMapVoteIndex(map.GameType, map.MapName);
@@ -54,7 +54,7 @@ namespace XI.Portal.Maps.Repository
             return results;
         }
 
-        public async Task<MapDto> GetMap(GameType gameType, string mapName)
+        public async Task<LegacyMapDto> GetMap(GameType gameType, string mapName)
         {
             var map = await _legacyContext.Maps
                 .Include(m => m.MapFiles)
@@ -65,16 +65,16 @@ namespace XI.Portal.Maps.Repository
             return map?.ToDto(mapVoteIndexCloudEntity, _options.MapRedirectBaseUrl);
         }
 
-        public async Task CreateMap(MapDto mapDto)
+        public async Task CreateMap(LegacyMapDto legacyMapDto)
         {
-            if (mapDto == null) throw new ArgumentNullException(nameof(mapDto));
+            if (legacyMapDto == null) throw new ArgumentNullException(nameof(legacyMapDto));
 
             var map = new Data.Legacy.Models.Maps
             {
                 MapId = Guid.NewGuid(),
-                GameType = mapDto.GameType,
-                MapName = mapDto.MapName,
-                MapFiles = mapDto.MapFiles.Select(mf => new MapFiles
+                GameType = legacyMapDto.GameType,
+                MapName = legacyMapDto.MapName,
+                MapFiles = legacyMapDto.MapFiles.Select(mf => new MapFiles
                 {
                     MapFileId = Guid.NewGuid(),
                     FileName = mf.FileName
@@ -85,21 +85,21 @@ namespace XI.Portal.Maps.Repository
             await _legacyContext.SaveChangesAsync();
         }
 
-        public async Task UpdateMap(MapDto mapDto)
+        public async Task UpdateMap(LegacyMapDto legacyMapDto)
         {
-            if (mapDto == null) throw new ArgumentNullException(nameof(mapDto));
+            if (legacyMapDto == null) throw new ArgumentNullException(nameof(legacyMapDto));
 
             var map = await _legacyContext.Maps
                 .Include(m => m.MapFiles)
                 .Include(m => m.MapVotes)
-                .SingleOrDefaultAsync(m => m.MapId == mapDto.MapId);
+                .SingleOrDefaultAsync(m => m.MapId == legacyMapDto.MapId);
 
             if (map == null) throw new NullReferenceException(nameof(map));
 
-            var mapFiles = await _legacyContext.MapFiles.Where(mf => mf.MapMapId == mapDto.MapId).ToListAsync();
+            var mapFiles = await _legacyContext.MapFiles.Where(mf => mf.MapMapId == legacyMapDto.MapId).ToListAsync();
             _legacyContext.MapFiles.RemoveRange(mapFiles);
 
-            var newMapFiles = mapDto.MapFiles.Select(mf => new MapFiles
+            var newMapFiles = legacyMapDto.MapFiles.Select(mf => new MapFiles
             {
                 MapFileId = Guid.NewGuid(),
                 FileName = mf.FileName,
@@ -122,7 +122,7 @@ namespace XI.Portal.Maps.Repository
                 throw new NullReferenceException(nameof(map));
 
             if (map.MapVotes.Count > 0)
-                throw new Exception("Cannot delete map when it has votes");
+                throw new Exception("Cannot delete legacyMap when it has votes");
 
             _legacyContext.Maps.Remove(map);
             await _legacyContext.SaveChangesAsync();

@@ -15,7 +15,7 @@ namespace XI.Portal.Maps.Extensions
             options.MapImageRepositoryOptions = repositoryOptions;
         }
 
-        public static void ConfigureMapsRepository(this IMapsModuleOptions options, Action<IMapsRepositoryOptions> repositoryOptions)
+        public static void ConfigureMapsRepository(this IMapsModuleOptions options, Action<ILegacyMapsRepositoryOptions> repositoryOptions)
         {
             options.MapsRepositoryOptions = repositoryOptions;
         }

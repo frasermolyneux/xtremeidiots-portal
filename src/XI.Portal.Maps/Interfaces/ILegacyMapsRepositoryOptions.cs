@@ -1,6 +1,6 @@
 ﻿namespace XI.Portal.Maps.Interfaces
 {
-    public interface IMapsRepositoryOptions
+    public interface ILegacyMapsRepositoryOptions
     {
         string MapRedirectBaseUrl { get; set; }
 

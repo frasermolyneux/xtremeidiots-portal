@@ -3,7 +3,7 @@ using XI.Portal.Maps.Interfaces;
 
 namespace XI.Portal.Maps.Configuration
 {
-    internal class MapsRepositoryOptions : IMapsRepositoryOptions
+    internal class LegacyMapsRepositoryOptions : ILegacyMapsRepositoryOptions
     {
         public string MapRedirectBaseUrl { get; set; }
 

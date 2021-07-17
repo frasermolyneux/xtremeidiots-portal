@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Maps.Dto;
 using XI.Portal.Maps.Interfaces;
-using XI.Portal.Maps.Models;
+using XI.Portal.Repository.Interfaces;
+using XI.Portal.Repository.Models;
 using XI.Portal.Web.Models;
 
 namespace XI.Portal.Web.Controllers
@@ -20,11 +19,14 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IMapFileRepository _mapFileRepository;
         private readonly IMapImageRepository _mapImageRepository;
-        private readonly ILegacyMapsRepository _legacyMapsRepository;
+        private readonly IMapsRepository _mapsRepository;
 
-        public MapsController(ILegacyMapsRepository legacyMapsRepository, IMapImageRepository mapImageRepository, IMapFileRepository mapFileRepository)
+        public MapsController(
+            IMapsRepository mapsRepository,
+            IMapImageRepository mapImageRepository,
+            IMapFileRepository mapFileRepository)
         {
-            _legacyMapsRepository = legacyMapsRepository ?? throw new ArgumentNullException(nameof(legacyMapsRepository));
+            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
             _mapImageRepository = mapImageRepository ?? throw new ArgumentNullException(nameof(mapImageRepository));
             _mapFileRepository = mapFileRepository ?? throw new ArgumentNullException(nameof(mapFileRepository));
         }
@@ -53,22 +55,22 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var filterModel = new LegacyMapsFilterModel();
+            var queryOptions = new MapsQueryOptions();
 
             if (id != null)
-                filterModel.GameType = (GameType) id;
+                queryOptions.GameType = (GameType) id;
 
-            var recordsTotal = await _legacyMapsRepository.GetMapsCount(filterModel);
+            var recordsTotal = await _mapsRepository.GetMapsCount(queryOptions);
 
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _legacyMapsRepository.GetMapsCount(filterModel);
+            queryOptions.FilterString = model.Search?.Value;
+            var recordsFiltered = await _mapsRepository.GetMapsCount(queryOptions);
 
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
+            queryOptions.TakeEntries = model.Length;
+            queryOptions.SkipEntries = model.Start;
 
             if (model.Order == null)
             {
-                filterModel.Order = LegacyMapsFilterModel.OrderBy.MapNameAsc;
+                queryOptions.Order = MapsQueryOptions.OrderBy.MapNameAsc;
             }
             else
             {
@@ -78,26 +80,25 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "mapName":
-                        filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.MapNameAsc : LegacyMapsFilterModel.OrderBy.MapNameDesc;
+                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.MapNameAsc : MapsQueryOptions.OrderBy.MapNameDesc;
                         break;
-                    //case "popularity":
-                    //    filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.LikeDislikeAsc : LegacyMapsFilterModel.OrderBy.LikeDislikeDesc;
-                    //    break;
+                    case "popularity":
+                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.LikeDislikeAsc : MapsQueryOptions.OrderBy.LikeDislikeDesc;
+                        break;
                     case "gameType":
-                        filterModel.Order = searchOrder == "asc" ? LegacyMapsFilterModel.OrderBy.GameTypeAsc : LegacyMapsFilterModel.OrderBy.GameTypeDesc;
+                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.GameTypeAsc : MapsQueryOptions.OrderBy.GameTypeDesc;
                         break;
                 }
             }
 
-            var mapDtos = await _legacyMapsRepository.GetMaps(filterModel);
-            var portalMapDtos = mapDtos.Select(m => new PortalMapDto(m)).ToList(); 
+            var mapDtos = await _mapsRepository.GetMaps(queryOptions);
 
             return Json(new
             {
                 model.Draw,
                 recordsTotal,
                 recordsFiltered,
-                data = portalMapDtos
+                data = mapDtos
             });
         }
 
@@ -120,32 +121,6 @@ namespace XI.Portal.Web.Controllers
             var mapImage = await _mapImageRepository.GetMapImage(gameType, mapName);
 
             return Redirect(mapImage.ToString());
-        }
-
-        public class PortalMapDto
-        {
-            public PortalMapDto(LegacyMapDto legacyMapDto)
-            {
-                MapId = legacyMapDto.MapId;
-                GameType = legacyMapDto.GameType.ToString();
-                MapName = legacyMapDto.MapName;
-                LikePercentage = legacyMapDto.LikePercentage;
-                DislikePercentage = legacyMapDto.DislikePercentage;
-                TotalLikes = legacyMapDto.TotalLikes;
-                TotalDislikes = legacyMapDto.TotalDislikes;
-                TotalVotes = legacyMapDto.TotalVotes;
-                MapFiles = legacyMapDto.MapFiles;
-            }
-
-            public Guid MapId { get; set; }
-            public string GameType { get; set; }
-            public string MapName { get; set; }
-            public double LikePercentage { get; set; }
-            public double DislikePercentage { get; set; }
-            public double TotalLikes { get; set; }
-            public double TotalDislikes { get; set; }
-            public int TotalVotes { get; set; }
-            public IList<MapFileDto> MapFiles { get; set; }
         }
     }
 }

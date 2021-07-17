@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
-using XI.Portal.Maps.Dto;
+using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Interfaces;
-using XI.Portal.Maps.Models;
+using XI.Portal.Repository.Dtos;
+using XI.Portal.Repository.Interfaces;
+using XI.Portal.Repository.Models;
 
 // ReSharper disable StringLiteralTypo
 
@@ -26,12 +28,14 @@ namespace XI.Portal.FuncApp
         };
 
         private readonly IMapRedirectRepository _mapRedirectRepository;
-        private readonly ILegacyMapsRepository _legacyMapsRepository;
+        private readonly IMapsRepository _mapsRepository;
 
-        public MapRedirectSync(ILegacyMapsRepository legacyMapsRepository, IMapRedirectRepository mapRedirectRepository)
+        public MapRedirectSync(
+            IMapRedirectRepository mapRedirectRepository,
+            IMapsRepository mapsRepository)
         {
-            _legacyMapsRepository = legacyMapsRepository ?? throw new ArgumentNullException(nameof(legacyMapsRepository));
             _mapRedirectRepository = mapRedirectRepository ?? throw new ArgumentNullException(nameof(mapRedirectRepository));
+            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
         }
 
         [FunctionName("MapRedirectSync")]
@@ -52,11 +56,11 @@ namespace XI.Portal.FuncApp
             foreach (var game in gamesToSync)
             {
                 var mapRedirectEntries = _mapRedirectRepository.GetMapEntriesForGame(game.Value);
-                var mapsFilterModel = new LegacyMapsFilterModel
+                var queryOptions = new MapsQueryOptions
                 {
                     GameType = game.Key
                 };
-                var mapDatabaseEntries = await _legacyMapsRepository.GetMaps(mapsFilterModel);
+                var mapDatabaseEntries = await _mapsRepository.GetMaps(queryOptions);
 
                 log.LogDebug("Total maps retrieved from redirect for {game} is {redirectMapCount} and database is {databaseMapCount}", game, mapRedirectEntries.Count, mapDatabaseEntries.Count);
 
@@ -72,10 +76,11 @@ namespace XI.Portal.FuncApp
 
                             mapDto.MapFiles = mapFiles.Select(mf => new MapFileDto
                             {
-                                FileName = mf
+                                FileName = mf,
+                                Url = $"https://redirect.xtremeidiots.net/redirect/{mapDto.GameType.ToRedirectShortName()}/usermaps/{mapDto.MapName}/{mf}"
                             }).ToList();
 
-                            await _legacyMapsRepository.UpdateMap(mapDto);
+                            await _mapsRepository.InsertOrMergeMap(mapDto);
                         }
                     }
                     else
@@ -86,12 +91,7 @@ namespace XI.Portal.FuncApp
                                 if (mapDto.TotalVotes > 0)
                                 {
                                     mapDto.MapFiles = new List<MapFileDto>();
-                                    await _legacyMapsRepository.UpdateMap(mapDto);
-                                }
-                                else
-                                {
-                                    log.LogDebug("Deleting {MapName} as it is not on the redirect", mapDto.MapName);
-                                    await _legacyMapsRepository.DeleteMap(mapDto.MapId);
+                                    await _mapsRepository.InsertOrMergeMap(mapDto);
                                 }
                             }
                             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace XI.Portal.FuncApp
 
                         var mapFiles = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).ToList();
 
-                        var mapDto = new LegacyMapDto
+                        var mapDto = new MapDto
                         {
                             GameType = game.Key,
                             MapName = mapRedirectEntry.MapName,
@@ -117,7 +117,7 @@ namespace XI.Portal.FuncApp
                             }).ToList()
                         };
 
-                        await _legacyMapsRepository.CreateMap(mapDto);
+                        await _mapsRepository.InsertOrMergeMap(mapDto);
                     }
             }
 

@@ -135,7 +135,7 @@ namespace XI.Portal.FuncApp
             log.LogDebug($"Stop RunSyncLogFileMonitorState @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
         }
 
-        [FunctionName("MonitorLogFile")]
+        //[FunctionName("MonitorLogFile")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMonitorLogFile([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer, ILogger log)
         {

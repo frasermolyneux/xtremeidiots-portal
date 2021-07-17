@@ -16,17 +16,17 @@ namespace XI.Portal.Repository
             var storageAccount = CloudStorageAccount.Parse(options.Value.StorageConnectionString);
             _cloudTableClient = storageAccount.CreateCloudTableClient();
 
+            MapsTable = _cloudTableClient.GetTableReference(options.Value.MapsTableName);
             MapVotesTable = _cloudTableClient.GetTableReference(options.Value.MapVotesTableName);
-            MapVotesIndexTable = _cloudTableClient.GetTableReference(options.Value.MapVotesIndexTableName);
         }
 
+        public CloudTable MapsTable { get; }
         public CloudTable MapVotesTable { get; }
-        public CloudTable MapVotesIndexTable { get; }
 
         public async Task CreateTablesIfNotExist()
         {
+            await MapsTable.CreateIfNotExistsAsync();
             await MapVotesTable.CreateIfNotExistsAsync();
-            await MapVotesIndexTable.CreateIfNotExistsAsync();
         }
 
         public async Task<Tuple<bool, string>> HealthCheck()

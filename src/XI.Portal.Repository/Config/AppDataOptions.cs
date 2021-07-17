@@ -4,6 +4,6 @@
     {
         public string StorageConnectionString { get; set; }
         public string MapVotesTableName { get; set; }
-        public string MapVotesIndexTableName { get; set; }
+        public string MapsTableName { get; set; }
     }
 }

@@ -65,7 +65,7 @@
                         name: 'gameType',
                         sortable: true,
                         render: function(data, type, row) {
-                            return gameTypeIcon(row['gameType']);
+                            return gameTypeIconEnum(row['gameType']);
                         }
                     },
                     {
@@ -84,7 +84,7 @@
                             var outputText = "";
                             for (var key in data) {
                                 if (Object.prototype.hasOwnProperty.call(data, key)) {
-                                    outputText += "<li><a href='" + data[key]["fileUrl"] + "'>" + data[key]["fileName"] + "</a></li>";
+                                    outputText += "<li><a href='" + data[key]["url"] + "'>" + data[key]["fileName"] + "</a></li>";
                                 }
                             }
 
@@ -98,24 +98,24 @@
                             return "<div class=\"progress\" id=\"progress-" +
                                 row['mapName'] +
                                 "\"> <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: " +
-                                row['likePercentage'] +
+                                row['positivePercentage'] +
                                 "%\" aria-valuenow=\"" +
-                                row['totalLikes'] +
+                                row['positiveVotes'] +
                                 "\" aria-valuemin=\"0\" aria-valuemax=\"" +
                                 row['totalVotes'] +
                                 "\"></div>" +
                                 "<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: " +
-                                row['dislikePercentage'] +
+                                row['negativePercentage'] +
                                 "%\" aria-valuenow=\"" +
-                                row['totalDislikes'] +
+                                row['negativeVotes'] +
                                 "\" aria-valuemin=\"0\" aria-valuemax=\"" +
                                 row['totalVotes'] +
                                 "\"></div>" +
                                 "</div>" +
                                 "<div class=\"m-t-sm\">" +
-                                row['totalLikes'] +
+                                row['positiveVotes'] +
                                 " likes and " +
-                                row['totalDislikes'] +
+                                row['negativeVotes'] +
                                 " dislikes out of " +
                                 row['totalVotes'] +
                                 "</div>";

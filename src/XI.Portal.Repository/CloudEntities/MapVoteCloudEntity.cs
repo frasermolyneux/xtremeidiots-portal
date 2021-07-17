@@ -1,5 +1,6 @@
 ﻿using FM.AzureTableExtensions.Library;
 using XI.CommonTypes;
+using XI.Portal.Repository.Dtos;
 
 namespace XI.Portal.Repository.CloudEntities
 {
@@ -17,6 +18,16 @@ namespace XI.Portal.Repository.CloudEntities
             MapName = mapName;
             Guid = playerGuid;
             Like = like;
+        }
+
+        public MapVoteCloudEntity(MapVoteDto mapVoteDto)
+        {
+            PartitionKey = mapVoteDto.GameType.ToString();
+            RowKey = $"{mapVoteDto.MapName}-{mapVoteDto.Guid}";
+
+            MapName = mapVoteDto.MapName;
+            Guid = mapVoteDto.Guid;
+            Like = mapVoteDto.Like;
         }
 
         public string MapName { get; set; }

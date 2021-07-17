@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using XI.CommonTypes;
 
-namespace XI.Portal.Maps.Models
+namespace XI.Portal.Repository.Models
 {
-    public class LegacyMapsFilterModel
+    public class MapsQueryOptions
     {
         public enum OrderBy
         {
             MapNameAsc,
             MapNameDesc,
-            //LikeDislikeAsc,
-            //LikeDislikeDesc,
+            LikeDislikeAsc,
+            LikeDislikeDesc,
             GameTypeAsc,
             GameTypeDesc
         }

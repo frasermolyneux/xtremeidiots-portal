@@ -1,29 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using XI.CommonTypes;
 using XI.Portal.Bus.Models;
-using XI.Portal.Data.Legacy;
+using XI.Portal.Repository.Dtos;
 using XI.Portal.Repository.Interfaces;
 
 namespace XI.Portal.FuncApp
 {
     public class MapVoting
     {
-        private readonly LegacyPortalContext _legacyPortalContext;
-        private readonly IMapVotesRepository _mapVotesRepository;
+        private readonly IMapsRepository _mapsRepository;
 
         public MapVoting(
-            IMapVotesRepository mapVotesRepository,
-            LegacyPortalContext legacyPortalContext)
+            IMapsRepository mapsRepository)
         {
-            _mapVotesRepository = mapVotesRepository;
-            _legacyPortalContext = legacyPortalContext;
+            _mapsRepository = mapsRepository;
         }
 
         [FunctionName("MapVoting")]
@@ -39,19 +31,21 @@ namespace XI.Portal.FuncApp
             else
             {
                 log.LogInformation($"Updating map vote {mapVote.GameType} - {mapVote.MapName} for {mapVote.Guid} as {mapVote.Like}");
-                await _mapVotesRepository.UpdateMapVote(mapVote);
+                await _mapsRepository.InsertOrMergeMapVote(new MapVoteDto
+                {
+                    GameType = mapVote.GameType,
+                    MapName = mapVote.MapName,
+                    Guid = mapVote.Guid,
+                    Like = mapVote.Like
+                });
             }
         }
 
         [FunctionName("MapVotingRebuildIndex")]
-        public async Task RunMapVotingRebuildIndex([TimerTrigger("0 */30 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunMapVotingRebuildIndex([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
-            var maps = await _legacyPortalContext.Maps.ToListAsync();
-            var rebuildMaps = maps.Select(m => new Tuple<GameType, string>(m.GameType, m.MapName)).ToList();
-
-            log.LogInformation($"Rebuilding map vote index for {rebuildMaps.Count} maps");
-
-            await _mapVotesRepository.RebuildIndex(rebuildMaps);
+            log.LogInformation("Rebuilding map votes");
+            await _mapsRepository.RebuildMapVotes();
         }
     }
 }

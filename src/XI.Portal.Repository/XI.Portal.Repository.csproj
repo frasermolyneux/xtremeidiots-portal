@@ -5,12 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4730" />
+    <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4778" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.17" />
   </ItemGroup>
 

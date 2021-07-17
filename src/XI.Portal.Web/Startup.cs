@@ -164,8 +164,6 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
                 });
-
-                options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
             });
 
             services.AddDemosModule(options =>

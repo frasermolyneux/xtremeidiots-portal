@@ -38,17 +38,6 @@ namespace XI.Portal.Maps.Extensions
                 serviceCollection.AddScoped<IMapImageRepository, MapImageRepository>();
             }
 
-            if (options.MapsRepositoryOptions != null)
-            {
-                ILegacyMapsRepositoryOptions subOptions = new LegacyMapsRepositoryOptions();
-                options.MapsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<ILegacyMapsRepository, LegacyMapsRepository>();
-            }
-
             if (options.MapRedirectRepositoryOptions != null)
             {
                 IMapRedirectRepositoryOptions subOptions = new MapRedirectRepositoryOptions();

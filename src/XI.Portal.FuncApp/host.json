@@ -3,7 +3,8 @@
   "logging": {
     "logLevel": {
       "default": "Information",
-      "Function.MonitorLogFile": "Warning" 
+      "Function.MonitorLogFile": "Warning",
+      "Microsoft":  "Warning" 
     }
   }
 }

@@ -6,8 +6,8 @@ namespace XI.Portal.Repository.Interfaces
 {
     public interface IAppDataRepository
     {
+        CloudTable MapsTable { get; }
         CloudTable MapVotesTable { get; }
-        CloudTable MapVotesIndexTable { get; }
         Task CreateTablesIfNotExist();
         Task<Tuple<bool, string>> HealthCheck();
     }

@@ -107,8 +107,6 @@ namespace XI.Portal.FuncApp
 
             builder.Services.AddMapsModule(options =>
             {
-                options.ConfigureMapsRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"]; });
-
                 options.ConfigureMapRedirectRepository(repositoryOptions =>
                 {
                     repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"];

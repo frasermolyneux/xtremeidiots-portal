@@ -56,16 +56,16 @@
                     </tbody>
                 </table>
 
-                @if (Model.LegacyMap != null)
+                @if (Model.Map != null)
                 {
                     <hr/>
 
-                    <h5>@Model.LegacyMap.MapName Files:</h5>
+                    <h5>@Model.Map.MapName Files:</h5>
                     <ul>
-                        @foreach (var mapFile in Model.LegacyMap.MapFiles)
+                        @foreach (var mapFile in Model.Map.MapFiles)
                         {
                             <li>
-                                <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                                <a href="@mapFile.Url">@mapFile.FileName</a>
                             </li>
                         }
                     </ul>
@@ -92,7 +92,7 @@
                     @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
                     {
                         <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#menu1">Player LegacyMap</a>
+                            <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
                         </li>
                     }
                 </ul>
@@ -217,12 +217,12 @@
                                     @foreach (var mapFile in item.MapFiles)
                                     {
                                         <li>
-                                            <a href="@mapFile.FileUrl">@mapFile.FileName</a>
+                                            <a href="@mapFile.Url">@mapFile.FileName</a>
                                         </li>
                                     }
                                 </td>
                                 <td>
-                                    @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage, item.TotalLikes, item.TotalDislikes, item.TotalVotes)
+                                    @Html.MapPopularity(item.MapName, item.PositivePercentage, item.NegativePercentage, item.PositiveVotes, item.NegativeVotes, item.TotalVotes)
                                 </td>
                                 <td>
                                     @Html.MapImage(Model.GameServer.GameType, item.MapName)
@@ -281,7 +281,7 @@
             }
         </script>
 
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initLegacyMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDxwHQHY-h7uLFkRYGvoRwk1gDZRRywG1g&signed_in=false&callback=initMap"></script>
     }
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>

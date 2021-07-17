@@ -33,6 +33,28 @@ function gameTypeIcon(gameType) {
         "' width='16' height='16' />";
 }
 
+function gameTypeIconEnum(gameType) {
+    var gameTypeString = "Unknown";
+
+    switch(gameType) {
+        case 1:
+            gameTypeString = "CallOfDuty2";
+            break;
+        case 2:
+            gameTypeString = "CallOfDuty4";
+            break;
+        case 3:
+            gameTypeString = "CallOfDuty5";
+            break;
+    }
+
+    return "<img src='/images/game-icons/" +
+        gameTypeString +
+        ".png' alt='" +
+        gameTypeString +
+        "' width='16' height='16' />";
+}
+
 function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }

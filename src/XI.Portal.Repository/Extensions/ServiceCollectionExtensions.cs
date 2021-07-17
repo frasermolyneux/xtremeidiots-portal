@@ -8,7 +8,7 @@ namespace XI.Portal.Repository.Extensions
         public static void AddAppData(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddSingleton<IAppDataRepository, AppDataRepository>();
-            serviceCollection.AddSingleton<IMapVotesRepository, MapVotesRepository>();
+            serviceCollection.AddSingleton<IMapsRepository, MapsRepository>();
         }
     }
 }

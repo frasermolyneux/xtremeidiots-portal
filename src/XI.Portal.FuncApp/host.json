@@ -2,9 +2,10 @@
   "version": "2.0",
   "logging": {
     "logLevel": {
-      "default": "Information",
       "Function.MonitorLogFile": "Warning",
-      "Microsoft":  "Warning" 
+      "Function.MapVoting": "Warning",
+      "Microsoft": "Warning",
+      "default": "Information"
     }
   }
 }

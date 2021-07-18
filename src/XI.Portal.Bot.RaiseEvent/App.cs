@@ -2,8 +2,9 @@
 using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Bus.Client;
+using XI.Portal.Bus.Models;
 
-namespace XI.Portal.Bot.ExecMapVote
+namespace XI.Portal.Bot.RaiseEvent
 {
     internal class App
     {
@@ -16,15 +17,19 @@ namespace XI.Portal.Bot.ExecMapVote
 
         public async Task Run(string[] args)
         {
-            var gameTypeArg = args[0];
-            var mapName = args[1];
-            var guid = args[2];
-            var likeArg = args[3];
+            var eventType = args[0];
 
-            var gameType = Enum.Parse<GameType>(gameTypeArg);
-            var like = Convert.ToBoolean(likeArg);
+            switch (eventType)
+            {
+                case "mapvote":
+                    await RaiseMapVoteEvent(Enum.Parse<GameType>(args[1]), args[2], args[3], Convert.ToBoolean(args[4]));
+                    break;
+            }
+        }
 
-            await _portalServiceBusClient.PostMapVote(new Bus.Models.MapVote
+        public async Task RaiseMapVoteEvent(GameType gameType, string mapName, string guid, bool like)
+        {
+            await _portalServiceBusClient.PostMapVote(new MapVote
             {
                 GameType = gameType,
                 MapName = mapName,

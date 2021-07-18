@@ -4,14 +4,14 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>c98de877-a404-4e8e-9cc9-bc2488361d5d</UserSecretsId>
-    <AssemblyName>XI.Portal.Bot.ExecMapVote</AssemblyName>
-    <RootNamespace>XI.Portal.Bot.ExecMapVote</RootNamespace>
+    <AssemblyName>XI.Portal.Bot.RaiseEvent</AssemblyName>
+    <RootNamespace>XI.Portal.Bot.RaiseEvent</RootNamespace>
     <ApplicationIcon />
     <StartupObject />
-    <PackageId>XI.Portal.Bot.ExecMapVote</PackageId>
-    <Authors>XI.Portal.Bot.ExecMapVote</Authors>
-    <Product>XI.Portal.Bot.ExecMapVote</Product>
-    <Company>XI.Portal.Bot.ExecMapVote</Company>
+    <PackageId>XI.Portal.Bot.RaiseEvent</PackageId>
+    <Authors>XI.Portal.Bot.RaiseEvent</Authors>
+    <Product>XI.Portal.Bot.RaiseEvent</Product>
+    <Company>XI.Portal.Bot.RaiseEvent</Company>
   </PropertyGroup>
 
   <ItemGroup>

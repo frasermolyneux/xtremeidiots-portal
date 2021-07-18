@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using XI.Portal.Bus.Client;
 using XI.Portal.Bus.Extensions;
 
-namespace XI.Portal.Bot.ExecMapVote
+namespace XI.Portal.Bot.RaiseEvent
 {
     internal class Program
     {

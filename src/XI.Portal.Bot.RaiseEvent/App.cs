@@ -28,7 +28,7 @@ namespace XI.Portal.Bot.RaiseEvent
                     await RaisePlayerAuthEvent(Enum.Parse<GameType>(args[1]), Guid.Parse(args[2]), args[3], args[4], args[5]);
                     break;
                 case "chatmessage":
-                    await RaiseChatMessageEvent(Enum.Parse<GameType>(args[1]), Guid.Parse(args[2]), args[3], args[3], Enum.Parse<ChatType>(args[4]), args[5]);
+                    await RaiseChatMessageEvent(Enum.Parse<GameType>(args[1]), Guid.Parse(args[2]), args[3], args[4], Enum.Parse<ChatType>(args[5]), args[6]);
                     break;
             }
         }

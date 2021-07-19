@@ -92,7 +92,7 @@ namespace XI.Portal.Servers.Repository
 
         public async Task RemoveOldEntries()
         {
-            await _legacyContext.Database.ExecuteSqlRawAsync($"SELECT COUNT(*) FROM dbo.ChatLogs WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
+            await _legacyContext.Database.ExecuteSqlRawAsync($"DELETE FROM dbo.ChatLogs WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
         }
     }
 }

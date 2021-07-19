@@ -5,7 +5,7 @@ resource "azurerm_servicebus_namespace" "servicebus" {
   sku = "Basic"
 }
 
-resource "azurerm_servicebus_queue" "servicebus-queue-map-votes" {
+resource "azurerm_servicebus_queue" "servicebus-queue" {
   name = "map-votes"
   resource_group_name = azurerm_resource_group.resource-group.name
   namespace_name = azurerm_servicebus_namespace.servicebus.name

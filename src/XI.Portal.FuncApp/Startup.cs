@@ -16,7 +16,6 @@ using XI.Portal.Players.Extensions;
 using XI.Portal.Repository.Config;
 using XI.Portal.Repository.Extensions;
 using XI.Portal.Servers.Extensions;
-using XI.Portal.Servers.Integrations.Extensions;
 using XI.Utilities.FtpHelper;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -76,12 +75,6 @@ namespace XI.Portal.FuncApp
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageTableName = config["GameServerStatusStatsRepository:StorageTableName"];
                 });
-
-                options.ConfigureLogFileMonitorStateRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = config["LogFileMonitorState:StorageTableName"];
-                });
             });
 
             builder.Services.AddPlayersModule(options =>
@@ -119,8 +112,6 @@ namespace XI.Portal.FuncApp
                 options.BaseUrl = config["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = config["XtremeIdiotsForums:ApiKey"];
             });
-
-            builder.Services.AddChatCommands();
 
             builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
 

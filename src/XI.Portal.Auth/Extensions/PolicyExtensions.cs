@@ -5,7 +5,6 @@ using XI.Portal.Auth.ChangeLog.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Credentials.AuthorizationRequirements;
 using XI.Portal.Auth.Demos.AuthorizationRequirements;
-using XI.Portal.Auth.FileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
 using XI.Portal.Auth.Home.AuthorizationRequirements;
 using XI.Portal.Auth.Maps.AuthorizationRequirements;
@@ -48,13 +47,6 @@ namespace XI.Portal.Auth.Extensions
             // Demos
             options.AddPolicy(AuthPolicies.AccessDemos, policy => { policy.Requirements.Add(new AccessDemos()); });
             options.AddPolicy(AuthPolicies.DeleteDemo, policy => { policy.Requirements.Add(new DeleteDemo()); });
-
-            // File Monitors
-            options.AddPolicy(AuthPolicies.AccessFileMonitors, policy => { policy.Requirements.Add(new AccessFileMonitors()); });
-            options.AddPolicy(AuthPolicies.CreateFileMonitor, policy => { policy.Requirements.Add(new CreateFileMonitor()); });
-            options.AddPolicy(AuthPolicies.ViewFileMonitor, policy => { policy.Requirements.Add(new ViewFileMonitor()); });
-            options.AddPolicy(AuthPolicies.EditFileMonitor, policy => { policy.Requirements.Add(new EditFileMonitor()); });
-            options.AddPolicy(AuthPolicies.DeleteFileMonitor, policy => { policy.Requirements.Add(new DeleteFileMonitor()); });
 
             // Game Servers
             options.AddPolicy(AuthPolicies.AccessGameServers, policy => { policy.Requirements.Add(new AccessGameServers()); });

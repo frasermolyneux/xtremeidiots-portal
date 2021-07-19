@@ -29,13 +29,6 @@
         public const string AccessDemos = nameof(AccessDemos);
         public const string DeleteDemo = nameof(DeleteDemo);
 
-        // File Monitors
-        public const string AccessFileMonitors = nameof(AccessFileMonitors);
-        public const string CreateFileMonitor = nameof(CreateFileMonitor);
-        public const string ViewFileMonitor = nameof(ViewFileMonitor);
-        public const string EditFileMonitor = nameof(EditFileMonitor);
-        public const string DeleteFileMonitor = nameof(DeleteFileMonitor);
-
         // Game Servers
         public const string AccessGameServers = nameof(AccessGameServers);
         public const string CreateGameServer = nameof(CreateGameServer);

@@ -193,9 +193,6 @@
         <li class="@Html.IsSelected(action: "BanFileStatus")">
             <a asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
         </li>
-        <li class="@Html.IsSelected(action: "LogFileStatus")">
-            <a asp-controller="Status" asp-action="LogFileStatus">Log File Status</a>
-        </li>
     </ul>
 </li>
 
@@ -226,12 +223,6 @@
 <li policy="@AuthPolicies.AccessGameServers" class="@Html.IsSelected("GameServers", "Index")">
     <a asp-controller="GameServers" asp-action="Index">
         <i class="fa fa-cog"></i> <span class="nav-label">Game Servers</span>
-    </a>
-</li>
-
-<li policy="@AuthPolicies.AccessFileMonitors" class="@Html.IsSelected("FileMonitors", "Index")">
-    <a asp-controller="FileMonitors" asp-action="Index">
-        <i class="fa fa-cog"></i> <span class="nav-label">File Monitors</span>
     </a>
 </li>
 

@@ -35,7 +35,6 @@
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />
     <ProjectReference Include="..\XI.Portal.Repository\XI.Portal.Repository.csproj" />
-    <ProjectReference Include="..\XI.Portal.Servers.Integrations\XI.Portal.Servers.Integrations.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />
     <ProjectReference Include="..\XI.Utilities\XI.Utilities.csproj" />
   </ItemGroup>

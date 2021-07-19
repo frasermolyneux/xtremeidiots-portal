@@ -7,6 +7,5 @@ namespace XI.Portal.Servers.Configuration
     {
         public Action<IGameServerStatusRepositoryOptions> GameServerStatusRepositoryOptions { get; set; }
         public Action<IGameServerStatusStatsRepositoryOptions> GameServerStatusStatsRepositoryOptions { get; set; }
-        public Action<ILogFileMonitorStateRepositoryOptions> LogFileMonitorStateRepositoryOptions { get; set; }
     }
 }

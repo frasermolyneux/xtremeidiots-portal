@@ -5,8 +5,24 @@ resource "azurerm_servicebus_namespace" "servicebus" {
   sku = "Basic"
 }
 
-resource "azurerm_servicebus_queue" "servicebus-queue" {
+resource "azurerm_servicebus_queue" "servicebus-queue-map-votes" {
   name = "map-votes"
+  resource_group_name = azurerm_resource_group.resource-group.name
+  namespace_name = azurerm_servicebus_namespace.servicebus.name
+
+  enable_partitioning = true
+}
+
+resource "azurerm_servicebus_queue" "servicebus-queue-player-auth" {
+  name = "player-auth"
+  resource_group_name = azurerm_resource_group.resource-group.name
+  namespace_name = azurerm_servicebus_namespace.servicebus.name
+
+  enable_partitioning = true
+}
+
+resource "azurerm_servicebus_queue" "servicebus-queue-chat-message" {
+  name = "chat-message"
   resource_group_name = azurerm_resource_group.resource-group.name
   namespace_name = azurerm_servicebus_namespace.servicebus.name
 

@@ -4,5 +4,7 @@
     {
         public string ServiceBusConnectionString { get; set; }
         public string MapVotesQueueName { get; set; }
+        public string PlayerAuthQueueName { get; set; }
+        public string ChatMessageQueueName { get; set; }
     }
 }

@@ -19,8 +19,8 @@ namespace XI.Portal.FuncApp
             _mapsRepository = mapsRepository;
         }
 
-        [FunctionName("MapVoting")]
-        public async Task RunMapVoting([ServiceBusTrigger("map-votes", Connection = "ServiceBus:ServiceBusConnectionString")]
+        [FunctionName("ProcessMapVote")]
+        public async Task RunProcessMapVote([ServiceBusTrigger("map-votes", Connection = "ServiceBus:ServiceBusConnectionString")]
             string myQueueItem, ILogger log)
         {
             try

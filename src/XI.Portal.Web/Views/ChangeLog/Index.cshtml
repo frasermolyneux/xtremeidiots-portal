@@ -29,10 +29,10 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            function addEntryToActivityStream(date, author, authorUrl, message, commitUrl) {
+            function addEntryToActivityStream(date, author, message, commitUrl) {
                 $("#activityStream").append("<div class=\"stream-small\">" +
                     "<span class=\"label label-primary\"> Commit</span>" +
-                    "<span class=\"text-muted\"> " + date + " </span> / <a target=_blank href=\"" + authorUrl + "\">" + author + "</a> - " +
+                    "<span class=\"text-muted\"> " + date + " </span> / " + author + " - " +
                     escapeHtml(message) +
                     "<a target=_blank href=\"" + commitUrl + "\"> <i class=\"fa fa-external-link\"></i></a>" +
                     "</div>");
@@ -40,7 +40,7 @@
 
             $.getJSON( "https://api.github.com/repos/frasermolyneux/XI.PortalV2/commits", function( data ) {
                 $.each(data, function (key, val) {
-                    addEntryToActivityStream(val.commit.author.date, val.author.login, val.author.html_url, val.commit.message, val.html_url);
+                    addEntryToActivityStream(val.commit.author.date, val.commit.author.name, val.commit.message, val.html_url);
                 });
             });
 

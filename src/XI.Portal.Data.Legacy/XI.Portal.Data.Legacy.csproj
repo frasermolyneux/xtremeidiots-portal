@@ -7,10 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.17" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.17" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\XI.CommonTypes\XI.CommonTypes.csproj" />
+    <PackageReference Include="XI.CommonTypes" Version="1.0.4801" />
   </ItemGroup>
 
 </Project>

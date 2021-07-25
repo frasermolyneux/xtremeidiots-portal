@@ -8,10 +8,7 @@
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.2.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.17" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\XI.CommonTypes\XI.CommonTypes.csproj" />
+    <PackageReference Include="XI.CommonTypes" Version="1.0.4801" />
   </ItemGroup>
 
 </Project>

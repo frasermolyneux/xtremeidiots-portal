@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="ElCamino.AspNetCore.Identity.AzureTable" Version="3.1.0" />
-    <PackageReference Include="XI.CommonTypes" Version="1.0.4801" />
+    <PackageReference Include="XI.CommonTypes" Version="1.0.4802" />
   </ItemGroup>
 
 </Project>

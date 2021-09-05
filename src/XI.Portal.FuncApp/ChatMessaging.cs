@@ -49,7 +49,7 @@ namespace XI.Portal.FuncApp
                         return;
                     }
 
-                    log.LogInformation($"[{server.Title}] {chatMessage.Username} :: {chatMessage.Message}");
+                    log.LogInformation($"ChatMessage: [{server.Title}] {chatMessage.Username} :: {chatMessage.Message}");
 
                     var cleanedMessage = chatMessage.Message.Replace("\u0014", "");
 

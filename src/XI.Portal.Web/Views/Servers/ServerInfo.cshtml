@@ -35,9 +35,27 @@
                     {
                         <tr>
                             <td>
+                                <strong>Mod</strong>
+                            </td>
+                            <td>@Model.GameServerStatus.Mod</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Map</strong>
+                            </td>
+                            <td>@Model.GameServerStatus.Map</td>
+                        </tr>
+                        <tr>
+                            <td>
                                 <strong>Player Count</strong>
                             </td>
                             <td>@Model.GameServerStatus.PlayerCount / @Model.GameServerStatus.MaxPlayers</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Last Status Query</strong>
+                            </td>
+                            <td>@Model.GameServerStatus.Timestamp</td>
                         </tr>
                     }
 

@@ -1,0 +1,7 @@
+az login
+
+az account set --subscription 32444f38-32f4-409f-889c-8e8aa2b5b4d1
+
+az account show
+
+az deployment sub create --template-file bicep/portal.bicep --subscription '32444f38-32f4-409f-889c-8e8aa2b5b4d1' --location "uksouth" --parameters parRegion='uksouth' parEnvironment='prd'

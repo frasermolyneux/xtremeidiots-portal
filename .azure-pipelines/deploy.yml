@@ -1,15 +1,3 @@
-trigger:
-  branches:
-    include:
-    - '*'
-
-schedules:
-  - cron: "0 3 * * 0"
-    displayName: Weekly Build
-    branches:
-      include:
-      - master
-
 pool:
   vmImage: 'ubuntu-latest'
 
@@ -20,11 +8,7 @@ variables:
   AzTerraformStorageAccount: 'xiportaltfstate'
   AzSubscription: 'XI-Pay-As-You-Go'
 
-stages:
-- stage: dependency_check
-  jobs:
-  - template: dependency-check.yml
-  
+stages: 
 - stage: build
   jobs:
   - job: build
@@ -101,6 +85,6 @@ stages:
           call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
           call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
 
-- template: deploy-application.yml
+- template: templates/deploy-application.yml
   parameters:
     environment: 'leo'

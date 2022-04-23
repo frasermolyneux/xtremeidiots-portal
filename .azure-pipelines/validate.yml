@@ -1,0 +1,43 @@
+trigger:
+  branches:
+    include:
+    - 'master'
+
+schedules:
+  - cron: "0 3 * * 0"
+    displayName: Weekly Build
+    branches:
+      include:
+      - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: build
+  jobs:
+  - job: build
+    pool:
+      vmImage: 'windows-latest'
+
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'Any CPU'
+      buildConfiguration: 'Release'
+
+    steps:
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+        command: 'restore'
+        feedsToUse: 'config'
+        nugetConfigPath: './src/nuget.config'
+
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'

@@ -11,7 +11,7 @@ jobs:
       scanPath: '**/*.csproj'
       format: HTML,JUNIT
       failOnCVSS: 4
-      suppressionPath: 'dependency-suppression.xml'
+      suppressionPath: './../dependency-suppression.xml'
   - task: PublishTestResults@2
     displayName: Publish Dependency Check Results
     inputs:

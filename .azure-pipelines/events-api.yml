@@ -26,7 +26,7 @@ stages:
     steps:
     - task: AzureCLI@2
       inputs:
-        azureSubscription: $(AzSubscription)
+        azureSubscription: 'XI-Pay-As-You-Go'
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -43,4 +43,4 @@ stages:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: 'fn-events-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(AzSubscription)'
+      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'

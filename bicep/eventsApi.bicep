@@ -7,6 +7,7 @@ param parKeyVaultName string
 param parFuncAppServicePlanName string
 param parAppInsightsName string
 param parApiManagementName string
+param parEventsApiAppId string
 
 // Variables
 var varEventsFuncAppName = 'fn-events-portal-${parEnvironment}-${parLocation}-01'
@@ -49,15 +50,21 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 
   properties: {
-    httpsOnly: true
     serverFarmId: funcAppServicePlan.id
-    clientAffinityEnabled: true
+
+    httpsOnly: true
 
     siteConfig: {
+      ftpsState: 'Disabled'
+
       appSettings: [
         {
           'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+        }
+        {
+          'name': 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-prd-clientsecret)'
         }
         {
           name: 'AzureWebJobsStorage'
@@ -78,6 +85,41 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         // WEBSITE_CONTENTSHARE will also be auto-generated - https://docs.microsoft.com/en-us/azure/azure-functions/functions-app-settings#website_contentshare
         // WEBSITE_RUN_FROM_PACKAGE will be set to 1 by func azure functionapp publish
       ]
+    }
+  }
+}
+
+resource functionAppAuthSettings 'Microsoft.Web/sites/config@2021-03-01' = {
+  name: 'authsettingsV2'
+  kind: 'string'
+  parent: functionApp
+
+  properties: {
+    globalValidation: {
+      requireAuthentication: true
+      unauthenticatedClientAction: 'Return403'
+    }
+
+    httpSettings: {
+      requireHttps: true
+    }
+
+    identityProviders: {
+      azureActiveDirectory: {
+        enabled: true
+
+        registration: {
+          clientId: parEventsApiAppId
+          clientSecretSettingName: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
+          openIdIssuer: 'https://sts.windows.net/${tenant().tenantId}/v2.0'
+        }
+
+        validation: {
+          allowedAudiences: [
+            'api://portal-events-api-${parEnvironment}'
+          ]
+        }
+      }
     }
   }
 }
@@ -164,6 +206,17 @@ resource eventsApiActiveBackendNamedValue 'Microsoft.ApiManagement/service/named
   }
 }
 
+resource eventsApiAudienceNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'events-api-audience'
+  parent: apiManagement
+
+  properties: {
+    displayName: 'events-api-audience'
+    value: 'api://portal-events-api-${parEnvironment}'
+    secret: false
+  }
+}
+
 resource eventsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
   name: 'eventsApi'
   parent: apiManagement
@@ -205,7 +258,7 @@ resource eventsApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-
       <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="JWT validation was unsuccessful" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
           <openid-config url="{{tenant-login-url}}{{tenant-id}}/v2.0/.well-known/openid-configuration" />
           <audiences>
-              <audience>{2}</audience>
+              <audience>{{events-api-audience}}</audience>
           </audiences>
           <issuers>
               <issuer>https://sts.windows.net/{{tenant-id}}/</issuer>
@@ -231,5 +284,6 @@ resource eventsApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-
 
   dependsOn: [
     eventsApiActiveBackendNamedValue
+    eventsApiAudienceNamedValue
   ]
 }

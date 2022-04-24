@@ -6,4 +6,6 @@ az account show
 
 az deployment sub create --subscription '32444f38-32f4-409f-889c-8e8aa2b5b4d1' --template-file bicep/portalCore.bicep  --location "uksouth" --parameters parLocation='uksouth' parEnvironment='prd'
 
-az deployment group create --resource-group 'rg-portal-prd-uksouth-01' --template-file bicep/eventsApi.bicep  --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'
+$eventsApiName = 'portal-events-api-prd'
+$eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiName'" --query '[].appId') | ConvertFrom-Json
+az deployment group create --resource-group 'rg-portal-prd-uksouth-01' --template-file bicep/eventsApi.bicep  --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parEventsApiAppId=$eventsApiAppId

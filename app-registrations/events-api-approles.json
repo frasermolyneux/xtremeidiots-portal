@@ -1,0 +1,22 @@
+[
+    {
+        "allowedMemberTypes": [
+            "Application"
+        ],
+        "description": "Server event generators can submit server events to the API",
+        "displayName": "ServerEventGenerator",
+        "id": "85755f6f-35d9-476a-a680-b7e1a12a0e16",
+        "isEnabled": true,
+        "value": "ServerEventGenerator"
+    },
+    {
+        "allowedMemberTypes": [
+            "Application"
+        ],
+        "description": "Player event generators can submit player events to the API",
+        "displayName": "PlayerEventGenerator",
+        "id": "042608f6-317d-43b7-8fad-4618705abfcc",
+        "isEnabled": true,
+        "value": "PlayerEventGenerator"
+    }
+]

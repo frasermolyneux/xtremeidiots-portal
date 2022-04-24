@@ -67,7 +67,7 @@ stages:
       displayName: 'Publish website source artifact'
       artifact: webapp
 
-  - template: .azure-pipelines/templates/build-function-app.yml
+  - template: templates/build-function-app.yml
     parameters: 
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
@@ -148,7 +148,7 @@ stages:
 - stage: DeployApps
 
   jobs:
-  - template: .azure-pipelines/templates/deploy-function-app.yml
+  - template: templates/deploy-function-app.yml
     parameters:
       projectName: events-func
       jobName: DeployEventsFunctionApp

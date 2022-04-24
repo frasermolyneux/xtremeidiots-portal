@@ -42,7 +42,7 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
-  - template: .azure-pipelines/templates/build-function-app.yml
+  - template: templates/build-function-app.yml
     parameters: 
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'

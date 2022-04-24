@@ -1,0 +1,35 @@
+parameters:
+- name: jobName
+  type: string
+  default: DeployWebApp
+- name: dependsOn
+  type: object
+  default: []
+- name: projectName
+  type: string
+  default: 'web-app'
+- name: environmentServiceNameAzureRM
+
+jobs:
+- job: ${{ parameters.jobName }}
+  dependsOn: ${{ parameters.dependsOn }}
+
+  variables:
+  - name: web_app_name
+    value: $[ dependencies.TerraformPlanAndApply.outputs['terraform_output.${{ parameters.projectName }}_name'] ]
+  - name: web_app_resource_group
+    value: $[ dependencies.TerraformPlanAndApply.outputs['terraform_output.${{ parameters.projectName }}_resource_group'] ]
+
+  steps: 
+    - download: current
+      displayName: 'Download ${{ parameters.projectName }} artifact'
+      artifact: ${{ parameters.projectName }}
+
+    - task: AzureRmWebAppDeployment@4
+      displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
+      inputs:
+        azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+        WebAppName: '$(web_app_name)'
+        deployToSlotOrASE: true
+        ResourceGroupName: '$(web_app_resource_group)'
+        packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'

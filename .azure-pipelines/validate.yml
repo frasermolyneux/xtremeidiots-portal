@@ -41,3 +41,8 @@ stages:
         msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
+
+  - template: .azure-pipelines/templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildEventsFunctionApp'
+      projectName: 'events-func'

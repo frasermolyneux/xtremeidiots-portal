@@ -7,6 +7,7 @@ param parKeyVaultName string
 param parFuncAppServicePlanName string
 param parAppInsightsName string
 param parApiManagementName string
+param parServiceBusName string
 param parEventsApiAppId string
 
 // Variables
@@ -27,6 +28,10 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 
 resource apiManagement 'Microsoft.ApiManagement/service@2021-08-01' existing = {
   name: parApiManagementName
+}
+
+resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
+  name: parServiceBusName
 }
 
 // Module Resources
@@ -65,6 +70,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           'name': 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
           'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-prd-clientsecret)'
+        }
+        {
+          'name': 'service-bus-connection-string'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBus}-connectionstring)'
         }
         {
           name: 'AzureWebJobsStorage'

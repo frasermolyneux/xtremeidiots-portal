@@ -66,6 +66,12 @@ stages:
     - publish: '$(Build.artifactStagingDirectory)/webapp'
       displayName: 'Publish website source artifact'
       artifact: webapp
+
+  - template: .azure-pipelines/templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildEventsFunctionApp'
+      projectName: 'events-func'
+      publishArtifact: true
       
 - stage: terraform_state_backend
   jobs:
@@ -137,4 +143,13 @@ stages:
             az deployment group create `
             --resource-group 'rg-portal-prd-uksouth-01' `
             --template-file bicep/eventsApi.bicep  `
-            --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parEventsApiAppId=$eventsApiAppId
+            --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01' parEventsApiAppId=$eventsApiAppId
+
+- stage: DeployApps
+
+  jobs:
+  - template: .azure-pipelines/templates/deploy-function-app.yml
+    parameters:
+      projectName: events-func
+      jobName: DeployEventsFunctionApp
+      environmentServiceNameAzureRM: '$(AzSubscription)'

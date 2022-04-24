@@ -128,7 +128,7 @@ stages:
         displayName: Az CLI Deploy Events API Bicep
         inputs:
           azureSubscription: $(AzSubscription)
-          scriptType: 'bash'
+          scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
             $eventsApiName = 'portal-events-api-prd'

@@ -113,16 +113,16 @@ stages:
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(AzSubscription)
-          scriptType: 'ps'
+          scriptType: 'pscore'
           scriptLocation: 'scriptPath'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.azcli'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
 
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(AzSubscription)
-          scriptType: 'ps'
+          scriptType: 'pscore'
           scriptLocation: 'scriptPath'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.azcli'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
 
       - task: AzureCLI@2
         displayName: Az CLI Deploy Events API Bicep

@@ -1,0 +1,57 @@
+targetScope = 'subscription'
+
+param parLocation string
+param parEnvironment string
+
+var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}-01'
+var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}-01'
+var varLogWorkspaceName = 'log-portal-${parEnvironment}-${parLocation}-01'
+var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
+var varApimName = 'apim-portal-${parEnvironment}-${parLocation}-01'
+var varFuncAppServicePlanName = 'plan-fn-portal-${parEnvironment}-${parLocation}-01'
+
+resource portalResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: varResourceGroupName
+  location: parLocation
+  properties: {}
+}
+
+module keyVault 'modules/keyVault.bicep' = {
+  name: 'keyVault'
+  scope: resourceGroup(portalResourceGroup.name)
+  params: {
+    parKeyVaultName: varKeyVaultName
+    parLocation: parLocation
+  }
+}
+
+module logging 'modules/logging.bicep' = {
+  name: 'logging'
+  scope: resourceGroup(portalResourceGroup.name)
+  params: {
+    parLogWorkspaceName: varLogWorkspaceName
+    parAppInsightsName: varAppInsightsName
+    parKeyVaultName: keyVault.outputs.outKeyVaultName
+    parLocation: parLocation
+  }
+}
+
+module apiManagment 'modules/apiManagement.bicep' = {
+  name: 'apiManagement'
+  scope: resourceGroup(portalResourceGroup.name)
+  params: {
+    parApimName: varApimName
+    parAppInsightsName: logging.outputs.outAppInsightsName
+    parKeyVaultName: keyVault.outputs.outKeyVaultName
+    parLocation: parLocation
+  }
+}
+
+module functionsAppServicePlan 'modules/functionsAppServicePlan.bicep' = {
+  name: 'functionsAppServicePlan'
+  scope: resourceGroup(portalResourceGroup.name)
+  params: {
+    parFuncAppServicePlanName: varFuncAppServicePlanName
+    parLocation: parLocation
+  }
+}

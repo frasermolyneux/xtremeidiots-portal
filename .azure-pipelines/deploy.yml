@@ -97,13 +97,25 @@ stages:
 
     steps:
       - task: AzureCLI@2
-        displayName: Az CLI Deploy Management Bicep
+        displayName: Az CLI Deploy Portal Core Bicep
         inputs:
           azureSubscription: $(AzSubscription)
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             az deployment sub create \
-            --template-file bicep/portal.bicep \
+            --template-file bicep/portalCore.bicep \
             --location "uksouth" \
-            --parameters parRegion='uksouth' parEnvironment='prd'
+            --parameters parLocation='uksouth' parEnvironment='prd'
+
+      - task: AzureCLI@2
+        displayName: Az CLI Deploy Events API Bicep
+        inputs:
+          azureSubscription: $(AzSubscription)
+          scriptType: 'bash'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment group create \
+            --resource-group 'rg-portal-prd-uksouth-01' \
+            --template-file bicep/eventsApi.bicep  \
+            --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'

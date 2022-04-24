@@ -1,0 +1,346 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Repository",
+        "description": "",
+        "version": "1.0"
+    },
+    "paths": {
+        "/game-servers/{server-id}": {
+            "get": {
+                "summary": "game-servers/{server-id}",
+                "description": "Gets a game server entry",
+                "operationId": "get-game-servers-single",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "game-servers/{server-id}",
+                "description": "Updates a game server entry",
+                "operationId": "patch-game-servers-single",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "id": "test-server",
+                                "title": "My Test Server",
+                                "gameType": "testGame",
+                                "ipAddress": "127.0.0.1",
+                                "queryPort": 12345
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/game-servers": {
+            "post": {
+                "summary": "game-servers",
+                "description": "Creates one or more game servers",
+                "operationId": "post-game-servers",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "id": "test-server",
+                                "title": "My Test Server",
+                                "gameType": "testGame",
+                                "ipAddress": "127.0.0.1",
+                                "queryPort": 12345
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "get": {
+                "summary": "game-servers",
+                "description": "Gets a list of game servers",
+                "operationId": "get-game-servers",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players": {
+            "post": {
+                "summary": "players",
+                "description": "Creates one or more players",
+                "operationId": "post-players",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "example": {
+                                "GameType": "CallOfDuty4",
+                                "Username": "Charlie",
+                                "Guid": "AAAAA"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players/{player-id}": {
+            "patch": {
+                "summary": "players/{player-id}",
+                "description": "Updates a specified player",
+                "operationId": "post-players-single",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "get": {
+                "summary": "players/{player-id}",
+                "description": "Gets a player entry",
+                "operationId": "get-players-single",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/chat-messages": {
+            "post": {
+                "summary": "chat-messages",
+                "description": "Creates one or more chat messages",
+                "operationId": "post-chat-messages",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/game-servers/{server-id}/secrets/{secret-id}": {
+            "get": {
+                "summary": "game-servers/{server-id}/secrets/{secret-id}",
+                "description": "Gets a game server secret entry",
+                "operationId": "get-game-servers-single-secrets-single",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "secret-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "post": {
+                "summary": "game-servers/{server-id}/secrets/{secret-id}",
+                "description": "Sets a specified secret for a game server",
+                "operationId": "post-game-servers-single-secrets-single",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "secret-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-chat-messages": {
+            "delete": {
+                "summary": "data-maintenance/prune-chat-messages",
+                "description": "Prunes chat messages from the database",
+                "operationId": "prune-chat-messages",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-game-server-events": {
+            "delete": {
+                "summary": "data-maintenance/prune-game-server-events",
+                "description": "Prunes game server events from the database",
+                "operationId": "prune-game-server-events",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/game-servers/{server-id}/events": {
+            "post": {
+                "summary": "game-servers/{server-id}/events",
+                "description": "Creates one or more server events",
+                "operationId": "game-servers-server-id-events",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/players/by-game-type/{game-type}/{player-guid}": {
+            "get": {
+                "summary": "players/by-game-type/{game-type}/{player-guid}",
+                "operationId": "players-by-game-type-game-type-player-guid",
+                "parameters": [
+                    {
+                        "name": "game-type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "player-guid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKeyHeader": {
+                "type": "apiKey",
+                "name": "Ocp-Apim-Subscription-Key",
+                "in": "header"
+            },
+            "apiKeyQuery": {
+                "type": "apiKey",
+                "name": "subscription-key",
+                "in": "query"
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKeyHeader": []
+        },
+        {
+            "apiKeyQuery": []
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "allowedMemberTypes": [
+            "Application"
+        ],
+        "description": "Service Accounts can access/manage all data aspects",
+        "displayName": "ServiceAccount",
+        "id": "6f8ce341-8bfa-4af9-af46-4f868f43a0ce",
+        "isEnabled": true,
+        "value": "ServiceAccount"
+    }
+]

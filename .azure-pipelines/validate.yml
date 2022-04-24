@@ -28,12 +28,12 @@ stages:
     steps:
     - task: NuGetToolInstaller@1
 
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
-        command: 'restore'
-        feedsToUse: 'config'
-        nugetConfigPath: './src/nuget.config'
+    #- task: NuGetCommand@2
+    #  inputs:
+    #    restoreSolution: '$(solution)'
+    #    command: 'restore'
+    #    feedsToUse: 'config'
+    #    nugetConfigPath: './src/nuget.config'
 
     - task: VSBuild@1
       inputs:

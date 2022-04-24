@@ -11,11 +11,9 @@ variables:
   AzSubscription: 'XI-Pay-As-You-Go'
 
 stages: 
-#- stage: build
-#  jobs:
+- stage: build
+  jobs:
 #  - job: build
-#    pool:
-#      vmImage: 'windows-latest'
 #
 #    variables:
 #      solution: '**/*.sln'
@@ -67,12 +65,12 @@ stages:
 #      displayName: 'Publish website source artifact'
 #      artifact: webapp
 #
-#  - template: templates/build-function-app.yml
-#    parameters: 
-#      jobName: 'BuildEventsFunctionApp'
-#      projectName: 'events-func'
-#      publishArtifact: true
-#      
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildEventsFunctionApp'
+      projectName: 'events-func'
+      publishArtifact: true
+      
 #- stage: terraform_state_backend
 #  jobs:
 #  - job: create_terraform_backend

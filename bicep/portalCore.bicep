@@ -9,6 +9,7 @@ var varLogWorkspaceName = 'log-portal-${parEnvironment}-${parLocation}-01'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
 var varApimName = 'apim-portal-${parEnvironment}-${parLocation}-01'
 var varFuncAppServicePlanName = 'plan-fn-portal-${parEnvironment}-${parLocation}-01'
+var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}-01'
 
 resource portalResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: varResourceGroupName
@@ -52,6 +53,16 @@ module functionsAppServicePlan 'modules/functionsAppServicePlan.bicep' = {
   scope: resourceGroup(portalResourceGroup.name)
   params: {
     parFuncAppServicePlanName: varFuncAppServicePlanName
+    parLocation: parLocation
+  }
+}
+
+module serviceBus 'modules/serviceBus.bicep' = {
+  name: 'serviceBus'
+  scope: resourceGroup(portalResourceGroup.name)
+  params: {
+    parServiceBusName: varServiceBusName
+    parKeyVaultName: keyVault.outputs.outKeyVaultName
     parLocation: parLocation
   }
 }

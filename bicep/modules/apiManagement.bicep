@@ -74,6 +74,28 @@ resource appInsightsInstrumentationKeyNamedValue 'Microsoft.ApiManagement/servic
   }
 }
 
+resource tenantIdNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'tenant-id'
+  parent: apiManagement
+
+  properties: {
+    displayName: 'tenant-id'
+    value: tenant().tenantId
+    secret: false
+  }
+}
+
+resource tenantLoginUrlNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'tenant-login-url'
+  parent: apiManagement
+
+  properties: {
+    displayName: 'tenant-login-url'
+    value: environment().authentication.loginEndpoint
+    secret: false
+  }
+}
+
 resource apiManagementLogger 'Microsoft.ApiManagement/service/loggers@2021-08-01' = {
   name: appInsights.name
   parent: apiManagement

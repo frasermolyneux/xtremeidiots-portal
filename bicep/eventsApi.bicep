@@ -127,6 +127,43 @@ resource backendHostKeyNamedValue 'Microsoft.ApiManagement/service/namedValues@2
   }
 }
 
+resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
+  name: functionApp.name
+  parent: apiManagement
+
+  properties: {
+    title: functionApp.name
+    description: functionApp.name
+    url: 'https://${functionApp.properties.defaultHostName}/api/'
+    protocol: 'http'
+    properties: {}
+
+    credentials: {
+      query: {
+        code: [
+          '{{${functionHostKeySecret.name}}}'
+        ]
+      }
+    }
+
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+  }
+}
+
+resource eventsApiActiveBackendNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'events-api-active-backend'
+  parent: apiManagement
+
+  properties: {
+    displayName: 'events-api-active-backend'
+    value: apiBackend.name
+    secret: false
+  }
+}
+
 resource eventsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
   name: 'eventsApi'
   parent: apiManagement
@@ -154,28 +191,45 @@ resource eventsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
   }
 }
 
-resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
-  name: functionApp.name
-  parent: apiManagement
-
+resource eventsApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-01' = {
+  name: 'policy'
+  parent: eventsApi
   properties: {
-    title: functionApp.name
-    description: functionApp.name
-    url: 'https://${functionApp.properties.defaultHostName}/api/'
-    protocol: 'http'
-    properties: {}
-
-    credentials: {
-      query: {
-        code: [
-          '{{${functionHostKeySecret.name}}}'
-        ]
-      }
-    }
-
-    tls: {
-      validateCertificateChain: true
-      validateCertificateName: true
-    }
+    format: 'xml'
+    value: '''
+<policies>
+  <inbound>
+      <base/>
+      <set-backend-service backend-id="{{events-api-active-backend}}" />
+      <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" downstream-caching-type="none" />
+      <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="JWT validation was unsuccessful" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
+          <openid-config url="{{tenant-login-url}}{{tenant-id}}/v2.0/.well-known/openid-configuration" />
+          <audiences>
+              <audience>{2}</audience>
+          </audiences>
+          <issuers>
+              <issuer>https://sts.windows.net/{{tenant-id}}/</issuer>
+          </issuers>
+          <required-claims>
+              <claim name="roles" match="any">
+                  <value>ServerEventGenerator</value>
+                  <value>PlayerEventGenerator</value>
+              </claim>
+          </required-claims>
+      </validate-jwt>
+  </inbound>
+  <backend>
+      <forward-request />
+  </backend>
+  <outbound>
+      <base/>
+      <cache-store duration="3600" />
+  </outbound>
+  <on-error />
+</policies>'''
   }
+
+  dependsOn: [
+    eventsApiActiveBackendNamedValue
+  ]
 }

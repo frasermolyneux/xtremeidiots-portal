@@ -73,7 +73,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'service-bus-connection-string'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBus}-connectionstring)'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBus.name}-connectionstring)'
         }
         {
           name: 'AzureWebJobsStorage'
@@ -298,4 +298,32 @@ resource eventsApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-
     eventsApiActiveBackendNamedValue
     eventsApiAudienceNamedValue
   ]
+}
+
+resource playerConnectedServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
+  name: 'player_connected_queue'
+  parent: serviceBus
+
+  properties: {}
+}
+
+resource chatMessageServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
+  name: 'chat_message_queue'
+  parent: serviceBus
+
+  properties: {}
+}
+
+resource serverConnectedServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
+  name: 'server_connected_queue'
+  parent: serviceBus
+
+  properties: {}
+}
+
+resource mapChangeServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
+  name: 'map_change_queue'
+  parent: serviceBus
+
+  properties: {}
 }

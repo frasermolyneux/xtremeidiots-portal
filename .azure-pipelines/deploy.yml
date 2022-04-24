@@ -9,85 +9,85 @@ variables:
   AzSubscription: 'XI-Pay-As-You-Go'
 
 stages: 
-- stage: build
-  jobs:
-  - job: build
-    pool:
-      vmImage: 'windows-latest'
+#- stage: build
+#  jobs:
+#  - job: build
+#    pool:
+#      vmImage: 'windows-latest'
+#
+#    variables:
+#      solution: '**/*.sln'
+#      buildPlatform: 'Any CPU'
+#      buildConfiguration: 'Release'
+#
+#    steps:
+#    - task: NuGetToolInstaller@1
+#
+#    - task: NuGetCommand@2
+#      inputs:
+#        restoreSolution: '$(solution)'
+#        command: 'restore'
+#        feedsToUse: 'config'
+#        nugetConfigPath: './src/nuget.config'
+#
+#    - task: VSBuild@1
+#      inputs:
+#        solution: '$(solution)'
+#        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
+#        platform: '$(buildPlatform)'
+#        configuration: '$(buildConfiguration)'
+#
+#    - task: CopyFiles@2
+#      displayName: 'Copy terraform folder into staging directory'
+#      inputs: 
+#        SourceFolder: '$(Build.sourcesDirectory)/terraform'
+#        Contents: '**'
+#        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
+#
+#    - task: ArchiveFiles@2
+#      displayName: "Package XI.Portal.FuncApp to artifact staging directory"
+#      inputs:
+#        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/netcoreapp3.1/'
+#        includeRootFolder: false
+#        archiveType: 'zip'
+#        archiveFile: '$(Build.ArtifactStagingDirectory)/XI.Portal.FuncApp.zip'
+#        replaceExistingArchive: true
+#
+#    - publish: $(Build.artifactStagingDirectory)/XI.Portal.FuncApp.zip
+#      displayName: Publish XI.Portal.FuncApp artifact
+#      artifact: funcapp
+#      
+#    - publish: $(Build.artifactStagingDirectory)/terraform
+#      displayName: Publish terraform artifact
+#      artifact: terraform
+#
+#    - publish: '$(Build.artifactStagingDirectory)/webapp'
+#      displayName: 'Publish website source artifact'
+#      artifact: webapp
 
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release'
+#- stage: terraform_state_backend
+#  jobs:
+#  - job: create_terraform_backend
+#    pool:
+#      vmImage: 'windows-latest'
+#
+#    steps:
+#    - checkout: none
+#      displayName: 'Skip checking out source'
+#
+#    - task: AzureCLI@1
+#      displayName: 'Create terraform backend in Azure storage'
+#      inputs:
+#        azureSubscription: '$(AzSubscription)'
+#        scriptLocation: inlineScript
+#        inlineScript: |
+#          call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
+#          call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
+#          call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
 
-    steps:
-    - task: NuGetToolInstaller@1
-
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
-        command: 'restore'
-        feedsToUse: 'config'
-        nugetConfigPath: './src/nuget.config'
-
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-
-    - task: CopyFiles@2
-      displayName: 'Copy terraform folder into staging directory'
-      inputs: 
-        SourceFolder: '$(Build.sourcesDirectory)/terraform'
-        Contents: '**'
-        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
-
-    - task: ArchiveFiles@2
-      displayName: "Package XI.Portal.FuncApp to artifact staging directory"
-      inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/netcoreapp3.1/'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/XI.Portal.FuncApp.zip'
-        replaceExistingArchive: true
-
-    - publish: $(Build.artifactStagingDirectory)/XI.Portal.FuncApp.zip
-      displayName: Publish XI.Portal.FuncApp artifact
-      artifact: funcapp
-      
-    - publish: $(Build.artifactStagingDirectory)/terraform
-      displayName: Publish terraform artifact
-      artifact: terraform
-
-    - publish: '$(Build.artifactStagingDirectory)/webapp'
-      displayName: 'Publish website source artifact'
-      artifact: webapp
-
-- stage: terraform_state_backend
-  jobs:
-  - job: create_terraform_backend
-    pool:
-      vmImage: 'windows-latest'
-
-    steps:
-    - checkout: none
-      displayName: 'Skip checking out source'
-
-    - task: AzureCLI@1
-      displayName: 'Create terraform backend in Azure storage'
-      inputs:
-        azureSubscription: '$(AzSubscription)'
-        scriptLocation: inlineScript
-        inlineScript: |
-          call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
-          call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
-          call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
-
-- template: templates/deploy-application.yml
-  parameters:
-    environment: 'leo'
+#- template: templates/deploy-application.yml
+#  parameters:
+#    environment: 'leo'
 
 - stage: deploy_bicep
   jobs:
@@ -113,14 +113,14 @@ stages:
           azureSubscription: $(AzSubscription)
           scriptType: 'ps'
           scriptLocation: 'scriptPath'
-          scriptPath: '.azure-pipelines\scripts\createAppRegistrations.azcli'
+          scriptPath: '.azure-pipelines/scripts/createAppRegistrations.azcli'
 
       - task: AzureCLI@2
         inputs:
           azureSubscription: $(AzSubscription)
           scriptType: 'ps'
           scriptLocation: 'scriptPath'
-          scriptPath: '.azure-pipelines\scripts\appRegistrationCredentials.azcli'
+          scriptPath: '.azure-pipelines/scripts/appRegistrationCredentials.azcli'
 
       - task: AzureCLI@2
         displayName: Az CLI Deploy Events API Bicep

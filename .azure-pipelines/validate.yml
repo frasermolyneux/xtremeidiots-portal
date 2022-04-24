@@ -1,14 +1,14 @@
-trigger:
-  branches:
-    include:
-    - 'master'
+trigger: none
+  #branches:
+  #  include:
+  #  - 'master'
 
-schedules:
-  - cron: "0 3 * * 0"
-    displayName: Weekly Build
-    branches:
-      include:
-      - master
+#schedules:
+#  - cron: "0 3 * * 0"
+#    displayName: Weekly Build
+#    branches:
+#      include:
+#      - master
 
 pool:
   vmImage: 'ubuntu-latest'

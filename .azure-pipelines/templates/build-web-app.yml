@@ -11,6 +11,10 @@ parameters:
 - name: projectName
   type: string
   default: 'web-app'
+- name: nugetConfigPath
+  type: string
+  default: ''
+
 
 jobs:
 - job: ${{ parameters.jobName }}
@@ -30,6 +34,9 @@ jobs:
     inputs:
       command: 'restore'
       projects: '**/${{ parameters.projectName }}.csproj'
+      ${{ if ne(parameters.nugetConfigPath, '') }}:
+        feedsToUse: 'config'
+        nugetConfigPath: ${{ parameters.nugetConfigPath }}
 
   - task: DotNetCoreCLI@2
     inputs:

@@ -10,6 +10,7 @@ stages:
     parameters: 
       jobName: 'BuildRepositoryWebApi'
       projectName: 'repository-webapi'
+      nugetConfigPath: './src/nuget.config'
       publishArtifact: true
 
 - stage: DeployRepositoryApiPrd

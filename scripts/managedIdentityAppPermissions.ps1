@@ -1,0 +1,1 @@
+az functionapp identity show --name fn-events-portal-prd-uksouth-01 --resource-group rg-portal-prd-uksouth-01

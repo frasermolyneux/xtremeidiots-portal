@@ -135,12 +135,12 @@ stages:
           scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            $eventsApiName = 'portal-events-api-prd'
-            $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiName'" --query '[].appId') | ConvertFrom-Json
+            $eventsApiAppName = 'portal-events-api-prd'
+            $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
 
             az deployment group create `
             --resource-group 'rg-portal-prd-uksouth-01' `
-            --template-file bicep/eventsApi.bicep  `
+            --template-file bicep/eventsApp.bicep  `
             --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01' parEventsApiAppId=$eventsApiAppId
 
 - stage: DeployAppsPrd

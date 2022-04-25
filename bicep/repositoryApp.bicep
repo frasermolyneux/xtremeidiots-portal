@@ -10,7 +10,7 @@ param parApiManagementName string
 param parServiceBusName string
 
 // Variables
-var varIngestFuncAppName = 'fn-ingest-portal-${parEnvironment}-${parLocation}-01'
+var varRepositoryFuncAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}-01'
 
 // Existing Resources
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
@@ -40,13 +40,13 @@ resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscription
 
   properties: {
     allowTracing: false
-    displayName: varIngestFuncAppName
+    displayName: varRepositoryFuncAppName
     scope: '/apis'
   }
 }
 
 resource functionHostKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  name: '${apiManagement.name}-${varIngestFuncAppName}-apikey'
+  name: '${apiManagement.name}-${varRepositoryFuncAppName}-apikey'
   parent: keyVault
 
   properties: {
@@ -66,7 +66,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: varIngestFuncAppName
+  name: varRepositoryFuncAppName
   location: parLocation
   kind: 'functionapp'
 
@@ -108,16 +108,12 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
         }
         {
-          name: 'service-bus-connection-string'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBus.name}-connectionstring)'
-        }
-        {
           name: 'apim-base-url'
           value: apiManagement.properties.gatewayUrl
         }
         {
           name: 'apim-subscription-key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varIngestFuncAppName}-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varRepositoryFuncAppName}-apikey)'
         }
         {
           name: 'webapi-portal-application-audience'

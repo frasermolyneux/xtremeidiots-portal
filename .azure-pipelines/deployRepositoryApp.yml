@@ -1,0 +1,43 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildRepositoryFunctionApp'
+      projectName: 'repository-func'
+      publishArtifact: true
+
+- stage: DeployRepositoryAppPrd
+
+  variables: 
+    environment: 'prd'
+    region: 'uksouth'
+    instance: '01'
+    AzSubscription: 'XI-Pay-As-You-Go'
+
+  jobs:
+
+  - job: DeployRepositoryAppBicep
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'XI-Pay-As-You-Go'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create `
+          --resource-group 'rg-portal-prd-uksouth-01' `
+          --template-file bicep/repositoryApp.bicep  `
+          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      projectName: repository-func
+      jobName: DeployRepositoryFunctionApp
+      functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
+      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'

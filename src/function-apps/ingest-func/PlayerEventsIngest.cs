@@ -109,7 +109,7 @@ public class PlayerEventsIngest
             throw new Exception("OnChatMessage event contained null or empty 'Guid'");
 
         _log.LogInformation(
-            $"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}'");
+            $"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
 
         var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
 

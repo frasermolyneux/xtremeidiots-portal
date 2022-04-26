@@ -75,6 +75,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           'name': 'AzureAd:Audience'
           'value': 'api://portal-repository-api-${parEnvironment}'
         }
+        {
+          'name': 'sql-connection-string'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=legacy-sql-connection-string)'
+        }
       ]
     }
   }

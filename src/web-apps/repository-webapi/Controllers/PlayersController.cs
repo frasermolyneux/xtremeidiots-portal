@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
+using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XtremeIdiots.Portal.CommonLib.Models;
@@ -37,7 +38,23 @@ public class PlayersController : ControllerBase
     [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
     public async Task<IActionResult> GetPlayerByGameType(string gameType, string playerGuid)
     {
-        var player = await Context.Player2.SingleOrDefaultAsync(p => p.GameType.ToString() == gameType && p.Guid == playerGuid);
+        GameType legacyGameType;
+        switch (gameType)
+        {
+            case "CallOfDuty2":
+                legacyGameType = GameType.CallOfDuty2;
+                break;
+            case "CallOfDuty4":
+                legacyGameType = GameType.CallOfDuty4;
+                break;
+            case "CallOfDuty5":
+                legacyGameType = GameType.CallOfDuty5;
+                break;
+            default:
+                throw new Exception($"Unsupported game type {gameType}");
+        }
+
+        var player = await Context.Player2.SingleOrDefaultAsync(p => p.GameType == legacyGameType && p.Guid == playerGuid);
 
         if (player == null) return new NotFoundResult();
 

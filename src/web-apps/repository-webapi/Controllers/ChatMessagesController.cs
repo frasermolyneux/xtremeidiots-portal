@@ -46,7 +46,8 @@ public class ChatMessagesController : ControllerBase
                 GameServerServerId = Guid.Parse(chatMessage.GameServerId),
                 Username = chatMessage.Username,
                 ChatType = chatMessage.Type == "Team" ? XI.CommonTypes.ChatType.Team : XI.CommonTypes.ChatType.All,
-                Message = chatMessage.Message
+                Message = chatMessage.Message,
+                Timestamp = chatMessage.Timestamp
             });
         }
 

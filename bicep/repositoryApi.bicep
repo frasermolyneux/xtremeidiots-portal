@@ -52,8 +52,8 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
       appSettings: [
         {
-          'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+          'name': 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
         }
         {
           'name': 'ASPNETCORE_ENVIRONMENT'

@@ -123,6 +123,11 @@ public class PlayersController : ControllerBase
                 LastSeen = DateTime.UtcNow
             };
 
+            if (IPAddress.TryParse(player.IpAddress, out var ip))
+            {
+                player2.IpAddress = ip.ToString();
+            }
+
             await Context.Player2.AddAsync(player2);
         }
 

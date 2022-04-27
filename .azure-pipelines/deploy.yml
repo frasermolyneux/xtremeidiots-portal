@@ -106,22 +106,21 @@ stages:
       projectName: 'sync-func'
       publishArtifact: true
 
-- stage: DeployPrd
+- stage: DeployPrdCore
 
   variables: 
     environment: 'prd'
     region: 'uksouth'
     instance: '01'
-    AzSubscription: 'XI-Pay-As-You-Go'
+    subscription: 'XI-Pay-As-You-Go'
 
   jobs:
-
   - job: DeployAppRegistrations
     steps:
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
-          azureSubscription: $(AzSubscription)
+          azureSubscription: '$(subscription)'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
@@ -129,83 +128,164 @@ stages:
       - task: AzureCLI@2
         displayName: Create Application Credentials
         inputs:
-          azureSubscription: $(AzSubscription)
+          azureSubscription: '$(subscription)'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
 
-  - job: DeployPortalCorePrd
+  - job: DeployPortalCoreBicep
+    dependsOn: [DeployAppRegistrations]
     steps:
       - task: AzureCLI@2
-        displayName: Deploy Portal Core Bicep
+        displayName: DeployPortalCoreBicep
         inputs:
-          azureSubscription: $(AzSubscription)
+          azureSubscription: '$(subscription)'
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
             az deployment sub create \
             --template-file bicep/portalCore.bicep \
-            --location "uksouth" \
-            --parameters parLocation='uksouth' parEnvironment='prd'
+            --location $(location) \
+            --parameters parLocation=$(location) parEnvironment=$(environment)
+
+- stage: DeployPrdInfrastructure
+
+  variables: 
+    environment: 'prd'
+    subscription: 'XI-Pay-As-You-Go'
+    resourceGroup: 'rg-portal-prd-uksouth-01'
+    keyVault: 'kv-portal-prd-uksouth-01'
+    functionServicePlan: 'plan-fn-portal-prd-uksouth-01'
+    appInsights: 'ai-portal-prd-uksouth-01'
+    apiManagement: 'apim-portal-prd-uksouth-01'
+    serviceBus: 'sb-portal-prd-uksouth-01'
+    webServicePlan: 'plan-web-portal-prd-uksouth-01'
+    eventsApiAppName: 'portal-events-api-prd'
+    repositoryApiName: 'portal-repository-api-prd'
+
+  jobs:
+  - job: DeployRepositoryAppBicep
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployRepositoryAppBicep
+      inputs:
+        azureSubscription: '$(subscription)'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/repositoryApp.bicep `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parFuncAppServicePlanName=$(functionServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+  - job: DeployRepositoryApiBicep
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployRepositoryApiBicep
+      inputs:
+        azureSubscription: '$(subscription)'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+          
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/repositoryApi.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parWebAppServicePlanName=$(webServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parRepositoryApiAppId=$repositoryApiAppId
+
+  - job: DeployIngestAppBicep
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployIngestAppBicep
+      inputs:
+        azureSubscription: '$(subscription)'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/ingestApp.bicep `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parFuncAppServicePlanName=$(functionServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
 
   - job: DeployEventsAppBicep
     steps:
     - task: AzureCLI@2
+      displayName: DeployEventsAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: '$(subscription)'
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $eventsApiAppName = 'portal-events-api-prd'
           $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
 
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/eventsApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01' parEventsApiAppId=$eventsApiAppId
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/eventsApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parFuncAppServicePlanName=$(functionServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus) `
+              parEventsApiAppId=$eventsApiAppId
 
+  - job: DeploySyncAppBicep
+    steps:
+    - task: AzureCLI@2
+      displayName: DeploySyncAppBicep
+      inputs:
+        azureSubscription: '$(subscription)'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/syncApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parFuncAppServicePlanName=$(functionServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+- stage: DeployPrdApps
+
+  variables: 
+    environment: 'prd'
+    region: 'uksouth'
+    instance: '01'
+    subscription: 'XI-Pay-As-You-Go'
+
+  jobs:
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: 'fn-events-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
-
-  - job: DeployIngestAppBicep
-    steps:
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/ingestApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+      environmentServiceNameAzureRM: '$(subscription)'
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: 'fn-ingest-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
-
-  - job: DeployRepositoryApiBicep
-    steps:
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $repositoryApiAppName = 'portal-repository-api-prd'
-          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiAppName'" --query '[].appId') | ConvertFrom-Json
-
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/repositoryApi.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parWebAppServicePlanName='plan-web-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parRepositoryApiAppId=$repositoryApiAppId
+      environmentServiceNameAzureRM: '$(subscription)'
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -213,44 +293,18 @@ stages:
       jobName: DeployRepositoryWebApp
       webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
       webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
-
-  - job: DeployRepositoryAppBicep
-    steps:
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/repositoryApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+      environmentServiceNameAzureRM: '$(subscription)'
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
-
-  - job: DeploySyncAppBicep
-    steps:
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/syncApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+      environmentServiceNameAzureRM: '$(subscription)'
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: 'fn-sync-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: '$(subscription)'

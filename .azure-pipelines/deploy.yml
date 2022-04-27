@@ -9,6 +9,18 @@ variables:
   AzTerraformResourceGroup: 'xi-portal-terraform'
   AzTerraformStorageAccount: 'xiportaltfstate'
   AzSubscription: 'XI-Pay-As-You-Go'
+  environment: 'prd'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  functionServicePlan: 'plan-fn-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  serviceBus: 'sb-portal-prd-uksouth-01'
+  webServicePlan: 'plan-web-portal-prd-uksouth-01'
+  eventsApiAppName: 'portal-events-api-prd'
+  repositoryApiName: 'portal-repository-api-prd'
+
 
 stages: 
 - stage: LegacyBuild
@@ -109,12 +121,6 @@ stages:
 - stage: DeployPrdCore
 
   jobs:
-    variables: 
-      environment: 'prd'
-      region: 'uksouth'
-      instance: '01'
-      subscription: 'XI-Pay-As-You-Go'
-
   - job: DeployAppRegistrations
     steps:
       - task: AzureCLI@2
@@ -151,19 +157,6 @@ stages:
 - stage: DeployPrdInfrastructure
 
   jobs:
-    variables: 
-      environment: 'prd'
-      subscription: 'XI-Pay-As-You-Go'
-      resourceGroup: 'rg-portal-prd-uksouth-01'
-      keyVault: 'kv-portal-prd-uksouth-01'
-      functionServicePlan: 'plan-fn-portal-prd-uksouth-01'
-      appInsights: 'ai-portal-prd-uksouth-01'
-      apiManagement: 'apim-portal-prd-uksouth-01'
-      serviceBus: 'sb-portal-prd-uksouth-01'
-      webServicePlan: 'plan-web-portal-prd-uksouth-01'
-      eventsApiAppName: 'portal-events-api-prd'
-      repositoryApiName: 'portal-repository-api-prd'
-
   - job: DeployRepositoryAppBicep
     steps:
     - task: AzureCLI@2
@@ -267,12 +260,6 @@ stages:
 - stage: DeployPrdApps
 
   jobs:
-    variables: 
-      environment: 'prd'
-      region: 'uksouth'
-      instance: '01'
-      subscription: 'XI-Pay-As-You-Go'
-
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: events-func

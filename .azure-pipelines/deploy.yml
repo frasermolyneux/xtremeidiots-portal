@@ -140,12 +140,12 @@ stages:
         displayName: DeployPortalCoreBicep
         inputs:
           azureSubscription: $(subscription)
-          scriptType: 'bash'
+          scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            az deployment sub create \
-            --template-file bicep/portalCore.bicep \
-            --location $(location) \
+            az deployment sub create `
+            --template-file bicep/portalCore.bicep `
+            --location $(location) `
             --parameters parLocation=$(location) parEnvironment=$(environment)
 
 - stage: DeployPrdInfrastructure

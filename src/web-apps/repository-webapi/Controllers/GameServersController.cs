@@ -47,11 +47,11 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<GameServerDto> gameServers;
+        List<GameServerApiDto> gameServers;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServers = JsonConvert.DeserializeObject<List<GameServerDto>>(requestBody);
+            gameServers = JsonConvert.DeserializeObject<List<GameServerApiDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -84,11 +84,11 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerDto gameServer;
+        GameServerApiDto gameServer;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServer = JsonConvert.DeserializeObject<GameServerDto>(requestBody);
+            gameServer = JsonConvert.DeserializeObject<GameServerApiDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)

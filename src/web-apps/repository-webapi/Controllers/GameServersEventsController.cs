@@ -23,11 +23,11 @@ public class GameServersEventsController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerEventDto gameServerEvent;
+        GameServerEventApiDto gameServerEvent;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServerEvent = JsonConvert.DeserializeObject<GameServerEventDto>(requestBody);
+            gameServerEvent = JsonConvert.DeserializeObject<GameServerEventApiDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)

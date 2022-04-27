@@ -12,13 +12,13 @@ public class GameServersApiClient : BaseApiClient, IGameServersApiClient
     {
     }
 
-    public async Task<List<GameServerDto>?> GetGameServers(string accessToken)
+    public async Task<List<GameServerApiDto>?> GetGameServers(string accessToken)
     {
         var request = CreateRequest("repository/game-servers", Method.Get, accessToken);
         var response = await ExecuteAsync(request);
 
         if (response.IsSuccessful && response.Content != null)
-            return JsonConvert.DeserializeObject<List<GameServerDto>>(response.Content);
+            return JsonConvert.DeserializeObject<List<GameServerApiDto>>(response.Content);
 
         if (response.ErrorException != null)
             throw response.ErrorException;
@@ -26,28 +26,28 @@ public class GameServersApiClient : BaseApiClient, IGameServersApiClient
         throw new Exception($"Failed to execute 'repository/game-servers' with '{response.StatusCode}'");
     }
 
-    public async Task<GameServerDto?> GetGameServer(string accessToken, string id)
+    public async Task<GameServerApiDto?> GetGameServer(string accessToken, string id)
     {
         var request = CreateRequest($"repository/game-servers/{id}", Method.Get, accessToken);
 
         var response = await ExecuteAsync(request);
 
         if (response.IsSuccessful && response.Content != null)
-            return JsonConvert.DeserializeObject<GameServerDto>(response.Content);
+            return JsonConvert.DeserializeObject<GameServerApiDto>(response.Content);
         if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
         throw new Exception($"Failed to execute 'repository/game-servers/{id}'");
     }
 
-    public async Task CreateGameServer(string accessToken, GameServerDto gameServer)
+    public async Task CreateGameServer(string accessToken, GameServerApiDto gameServer)
     {
         var request = CreateRequest("repository/game-servers", Method.Post, accessToken);
-        request.AddJsonBody(new List<GameServerDto> {gameServer});
+        request.AddJsonBody(new List<GameServerApiDto> {gameServer});
 
         await ExecuteAsync(request);
     }
 
-    public async Task UpdateGameServer(string accessToken, GameServerDto gameServer)
+    public async Task UpdateGameServer(string accessToken, GameServerApiDto gameServer)
     {
         var request = CreateRequest($"repository/game-servers/{gameServer.Id}", Method.Patch, accessToken);
         request.AddJsonBody(gameServer);

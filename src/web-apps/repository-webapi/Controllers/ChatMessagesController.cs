@@ -24,11 +24,11 @@ public class ChatMessagesController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<ChatMessageDto> chatMessages;
+        List<ChatMessageApiDto> chatMessages;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            chatMessages = JsonConvert.DeserializeObject<List<ChatMessageDto>>(requestBody);
+            chatMessages = JsonConvert.DeserializeObject<List<ChatMessageApiDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)

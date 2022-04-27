@@ -108,19 +108,19 @@ stages:
 
 - stage: DeployPrdCore
 
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    subscription: 'XI-Pay-As-You-Go'
-
   jobs:
+    variables: 
+      environment: 'prd'
+      region: 'uksouth'
+      instance: '01'
+      subscription: 'XI-Pay-As-You-Go'
+
   - job: DeployAppRegistrations
     steps:
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
-          azureSubscription: 'XI-Pay-As-You-Go'
+          azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
@@ -128,7 +128,7 @@ stages:
       - task: AzureCLI@2
         displayName: Create Application Credentials
         inputs:
-          azureSubscription: 'XI-Pay-As-You-Go'
+          azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
@@ -139,7 +139,7 @@ stages:
       - task: AzureCLI@2
         displayName: DeployPortalCoreBicep
         inputs:
-          azureSubscription: 'XI-Pay-As-You-Go'
+          azureSubscription: $(subscription)
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
@@ -150,26 +150,26 @@ stages:
 
 - stage: DeployPrdInfrastructure
 
-  variables: 
-    environment: 'prd'
-    subscription: 'XI-Pay-As-You-Go'
-    resourceGroup: 'rg-portal-prd-uksouth-01'
-    keyVault: 'kv-portal-prd-uksouth-01'
-    functionServicePlan: 'plan-fn-portal-prd-uksouth-01'
-    appInsights: 'ai-portal-prd-uksouth-01'
-    apiManagement: 'apim-portal-prd-uksouth-01'
-    serviceBus: 'sb-portal-prd-uksouth-01'
-    webServicePlan: 'plan-web-portal-prd-uksouth-01'
-    eventsApiAppName: 'portal-events-api-prd'
-    repositoryApiName: 'portal-repository-api-prd'
-
   jobs:
+    variables: 
+      environment: 'prd'
+      subscription: 'XI-Pay-As-You-Go'
+      resourceGroup: 'rg-portal-prd-uksouth-01'
+      keyVault: 'kv-portal-prd-uksouth-01'
+      functionServicePlan: 'plan-fn-portal-prd-uksouth-01'
+      appInsights: 'ai-portal-prd-uksouth-01'
+      apiManagement: 'apim-portal-prd-uksouth-01'
+      serviceBus: 'sb-portal-prd-uksouth-01'
+      webServicePlan: 'plan-web-portal-prd-uksouth-01'
+      eventsApiAppName: 'portal-events-api-prd'
+      repositoryApiName: 'portal-repository-api-prd'
+
   - job: DeployRepositoryAppBicep
     steps:
     - task: AzureCLI@2
       displayName: DeployRepositoryAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -188,7 +188,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployRepositoryApiBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -209,7 +209,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployIngestAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -228,7 +228,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployEventsAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -250,7 +250,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeploySyncAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -266,26 +266,26 @@ stages:
 
 - stage: DeployPrdApps
 
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    subscription: 'XI-Pay-As-You-Go'
-
   jobs:
+    variables: 
+      environment: 'prd'
+      region: 'uksouth'
+      instance: '01'
+      subscription: 'XI-Pay-As-You-Go'
+
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: 'fn-events-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: 'fn-ingest-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -293,18 +293,18 @@ stages:
       jobName: DeployRepositoryWebApp
       webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
       webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: 'fn-sync-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      environmentServiceNameAzureRM: $(subscription)

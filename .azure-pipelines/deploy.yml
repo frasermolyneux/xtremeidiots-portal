@@ -167,7 +167,7 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/repositoryApp.bicep `
               --parameters parLocation=$(location) `
               parEnvironment=$(environment) `
@@ -188,7 +188,7 @@ stages:
         inlineScript: |
           $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
           
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/repositoryApi.bicep  `
               --parameters parLocation=$(location) `
               parEnvironment=$(environment) `
@@ -207,7 +207,7 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/ingestApp.bicep `
               --parameters parLocation=$(location) `
               parEnvironment=$(environment) `
@@ -228,7 +228,7 @@ stages:
         inlineScript: |
           $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
 
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/eventsApp.bicep  `
               --parameters parLocation=$(location) `
               parEnvironment=$(environment) `
@@ -248,7 +248,7 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/syncApp.bicep  `
               --parameters parLocation=$(location) `
               parEnvironment=$(environment) `

@@ -17,6 +17,5 @@ namespace XI.Portal.Players.Interfaces
         Task<List<IpAddressDto>> GetPlayerIpAddresses(Guid id);
         Task<List<RelatedPlayerDto>> GetRelatedPlayers(Guid id, string ipAddress);
         Task CreatePlayer(PlayerDto playerDto);
-        Task UpdatePlayer(PlayerDto playerDto);
     }
 }

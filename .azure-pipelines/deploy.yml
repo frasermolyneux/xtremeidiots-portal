@@ -21,6 +21,11 @@ variables:
   webServicePlan: 'plan-web-portal-prd-uksouth-01'
   eventsApiAppName: 'portal-events-api-prd'
   repositoryApiName: 'portal-repository-api-prd'
+  eventsFunctionAppName: 'fn-events-portal-prd-uksouth-01'
+  ingestFunctionAppName: 'fn-ingest-portal-prd-uksouth-01'
+  repositoryWebAppName: 'webapi-repository-portal-prd-uksouth-01'
+  repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
+  syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
 
 
 stages: 
@@ -265,34 +270,34 @@ stages:
     parameters:
       projectName: events-func
       jobName: DeployEventsFunctionApp
-      functionAppName: 'fn-events-portal-$(environment)-$(region)-$(instance)'
+      functionAppName: '$(eventsFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
-      functionAppName: 'fn-ingest-portal-$(environment)-$(region)-$(instance)'
+      functionAppName: '$(ingestFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-web-app.yml
     parameters:
       projectName: repository-webapi
       jobName: DeployRepositoryWebApp
-      webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
-      webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
+      webAppName: '$(repositoryWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
-      functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
+      functionAppName: '$(repositoryFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
-      functionAppName: 'fn-sync-portal-$(environment)-$(region)-$(instance)'
+      functionAppName: '$(syncFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)

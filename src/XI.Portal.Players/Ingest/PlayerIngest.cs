@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using XI.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
@@ -78,8 +78,6 @@ namespace XI.Portal.Players.Ingest
                 if (update)
                 {
                     _logger.LogDebug("Updating database player information for {Guid}", guid);
-
-                    await _playersRepository.UpdatePlayer(playerDto);
 
                     cachedPlayer.Username = username;
                     cachedPlayer.IpAddress = ipAddress;

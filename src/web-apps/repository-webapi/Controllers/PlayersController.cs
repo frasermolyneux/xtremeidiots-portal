@@ -93,11 +93,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<PlayerApiDto> players;
+        List<PlayerApiDto> playerDtos;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            players = JsonConvert.DeserializeObject<List<PlayerApiDto>>(requestBody);
+            playerDtos = JsonConvert.DeserializeObject<List<PlayerApiDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -105,9 +105,9 @@ public class PlayersController : ControllerBase
             return new BadRequestObjectResult(ex);
         }
 
-        if (players == null) return new BadRequestResult();
+        if (playerDtos == null) return new BadRequestResult();
 
-        foreach (var player in players)
+        foreach (var player in playerDtos)
         {
             var existingPlayer =
                 await Context.Player2.SingleOrDefaultAsync(p => p.GameType.ToString() == player.GameType && p.Guid == player.Guid);
@@ -133,7 +133,7 @@ public class PlayersController : ControllerBase
 
         await Context.SaveChangesAsync();
 
-        return new OkObjectResult(players);
+        return new OkObjectResult(playerDtos);
     }
 
     [HttpPatch]
@@ -142,11 +142,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        PlayerApiDto player;
+        PlayerApiDto playerDto;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            player = JsonConvert.DeserializeObject<PlayerApiDto>(requestBody);
+            playerDto = JsonConvert.DeserializeObject<PlayerApiDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -154,37 +154,134 @@ public class PlayersController : ControllerBase
             return new BadRequestObjectResult(ex);
         }
 
-        if (player == null) return new BadRequestResult();
-        if (player.Id != playerId) return new BadRequestResult();
+        if (playerDto == null) return new BadRequestResult();
+        if (playerDto.Id != playerId) return new BadRequestResult();
 
-        var playerToUpdate = await Context.Player2.SingleOrDefaultAsync(p => p.PlayerId == player.Id);
+        playerDto.Username = playerDto.Username.Trim();
 
-        if (playerToUpdate == null) return new NotFoundResult();
+        var player = await Context.Player2
+                .Include(p => p.PlayerAlias)
+                .Include(p => p.PlayerIpAddresses)
+                .SingleOrDefaultAsync(p => p.PlayerId == playerDto.Id);
 
-        if (!string.IsNullOrWhiteSpace(player.Username)) playerToUpdate.Username = player.Username.Trim();
+        if (player == null) return new NotFoundResult();
 
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        if (IPAddress.TryParse(playerToUpdate.IpAddress, out var ip))
+        bool entityWorthUpdating = false;
+        if (!string.IsNullOrWhiteSpace(playerDto.Username) && playerDto.Username != player.Username)
+            entityWorthUpdating = true;
+
+        if (IPAddress.TryParse(player.IpAddress, out var ip) && playerDto.IpAddress != player.IpAddress)
+            entityWorthUpdating = true;
+
+        if (DateTime.UtcNow - player.LastSeen > TimeSpan.FromMinutes(5))
+            entityWorthUpdating = true;
+
+        if (entityWorthUpdating)
         {
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            playerToUpdate.IpAddress = ip.ToString();
+            if (player.Username != playerDto.Username)
+            {
+                if (player.PlayerAlias.Any(a => a.Name == player.Username))
+                {
+                    var existingUsernameAlias = player.PlayerAlias.First(a => a.Name == player.Username);
+                    existingUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
+                    Context.PlayerAlias.Add(new PlayerAlias
+                    {
+                        PlayerAliasId = Guid.NewGuid(),
+                        Name = player.Username,
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow,
+                        PlayerPlayer = player
+                    });
+                }
+
+                if (player.PlayerAlias.Any(a => a.Name == playerDto.Username))
+                {
+                    var existingNewUsernameAlias = player.PlayerAlias.First(a => a.Name == playerDto.Username);
+                    existingNewUsernameAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
+                    Context.PlayerAlias.Add(new PlayerAlias
+                    {
+                        PlayerAliasId = Guid.NewGuid(),
+                        Name = playerDto.Username,
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow,
+                        PlayerPlayer = player
+                    });
+                }
+
+                player.Username = playerDto.Username;
+            }
+            else
+            {
+                var existingUsernameAlias = player.PlayerAlias.FirstOrDefault(a => a.Name == player.Username);
+                if (existingUsernameAlias != null)
+                    existingUsernameAlias.LastUsed = DateTime.UtcNow;
+            }
+
+            if (IPAddress.TryParse(player.IpAddress, out var ip2) && player.IpAddress != playerDto.IpAddress)
+            {
+                if (player.PlayerIpAddresses.Any(ip => ip.Address == player.IpAddress))
+                {
+                    var existingIpAddressAlias = player.PlayerIpAddresses.First(ip => ip.Address == player.IpAddress);
+                    existingIpAddressAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
+                    Context.PlayerIpAddresses.Add(new PlayerIpAddresses
+                    {
+                        PlayerIpAddressId = Guid.NewGuid(),
+                        Address = player.IpAddress,
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow,
+                        PlayerPlayer = player
+                    });
+                }
+
+                if (player.PlayerIpAddresses.Any(ip => ip.Address == playerDto.IpAddress))
+                {
+                    var existingNewIpAddressAlias = player.PlayerIpAddresses.First(ip => ip.Address == playerDto.IpAddress);
+                    existingNewIpAddressAlias.LastUsed = DateTime.UtcNow;
+                }
+                else
+                {
+                    Context.PlayerIpAddresses.Add(new PlayerIpAddresses
+                    {
+                        PlayerIpAddressId = Guid.NewGuid(),
+                        Address = player.IpAddress,
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow,
+                        PlayerPlayer = player
+                    });
+                }
+
+                player.IpAddress = playerDto.IpAddress;
+            }
+            else
+            {
+                var existingIpAddressAlias = player.PlayerIpAddresses.FirstOrDefault(ip => ip.Address == player.IpAddress);
+                if (existingIpAddressAlias != null)
+                    player.IpAddress = playerDto.IpAddress;
+            }
+
+            player.LastSeen = DateTime.UtcNow;
+
+            await Context.SaveChangesAsync();
         }
 
-        playerToUpdate.LastSeen = DateTime.UtcNow;
-
-        await Context.SaveChangesAsync();
-
-        var playerDto = new PlayerApiDto
+        return new OkObjectResult(new PlayerApiDto
         {
-            Id = playerToUpdate.PlayerId,
-            GameType = playerToUpdate.GameType.ToString(),
-            Username = playerToUpdate.Username,
-            Guid = playerToUpdate.Guid,
-            FirstSeen = playerToUpdate.FirstSeen,
-            LastSeen = playerToUpdate.LastSeen,
-            IpAddress = playerToUpdate.IpAddress
-        };
-
-        return new OkObjectResult(playerDto);
+            Id = player.PlayerId,
+            GameType = player.GameType.ToString(),
+            Username = player.Username,
+            Guid = player.Guid,
+            FirstSeen = player.FirstSeen,
+            LastSeen = player.LastSeen,
+            IpAddress = player.IpAddress
+        });
     }
 }

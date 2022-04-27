@@ -10,6 +10,7 @@ variables:
   AzTerraformStorageAccount: 'xiportaltfstate'
   AzSubscription: 'XI-Pay-As-You-Go'
   environment: 'prd'
+  location: 'uksouth'
   subscription: 'XI-Pay-As-You-Go'
   resourceGroup: 'rg-portal-prd-uksouth-01'
   keyVault: 'kv-portal-prd-uksouth-01'

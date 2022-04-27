@@ -10,10 +10,10 @@ public class GameServersEventsApiClient : BaseApiClient, IGameServersEventsApiCl
     {
     }
 
-    public async Task CreateGameServerEvent(string accessToken, string id, GameServerEvent gameServerEvent)
+    public async Task CreateGameServerEvent(string accessToken, string id, GameServerEventDto gameServerEvent)
     {
         var request = CreateRequest($"repository/game-servers/{id}/events", Method.Post, accessToken);
-        request.AddJsonBody(new List<GameServerEvent> {gameServerEvent});
+        request.AddJsonBody(new List<GameServerEventDto> {gameServerEvent});
 
         await ExecuteAsync(request);
     }

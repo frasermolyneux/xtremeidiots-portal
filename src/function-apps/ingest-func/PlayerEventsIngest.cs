@@ -61,7 +61,7 @@ public class PlayerEventsIngest
 
         if (existingPlayer == null)
         {
-            var player = new Player
+            var player = new PlayerDto
             {
                 GameType = onPlayerConnected.GameType,
                 Guid = onPlayerConnected.Guid,
@@ -119,7 +119,7 @@ public class PlayerEventsIngest
 
         if (player != null)
         {
-            var chatMessage = new ChatMessage
+            var chatMessage = new ChatMessageDto
             {
                 GameServerId = onChatMessage.ServerId,
                 PlayerId = player.Id,

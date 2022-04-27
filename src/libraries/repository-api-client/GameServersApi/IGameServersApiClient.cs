@@ -4,8 +4,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
 
 public interface IGameServersApiClient
 {
-    Task<List<GameServer>?> GetGameServers(string accessToken);
-    Task<GameServer?> GetGameServer(string accessToken, string id);
-    Task CreateGameServer(string accessToken, GameServer gameServer);
-    Task UpdateGameServer(string accessToken, GameServer gameServer);
+    Task<List<GameServerDto>?> GetGameServers(string accessToken);
+    Task<GameServerDto?> GetGameServer(string accessToken, string id);
+    Task CreateGameServer(string accessToken, GameServerDto gameServer);
+    Task UpdateGameServer(string accessToken, GameServerDto gameServer);
 }

@@ -10,10 +10,10 @@ public class ChatMessagesApiClient : BaseApiClient, IChatMessagesApiClient
     {
     }
 
-    public async Task CreateChatMessage(string accessToken, ChatMessage chatMessage)
+    public async Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage)
     {
         var request = CreateRequest("repository/chat-messages", Method.Post, accessToken);
-        request.AddJsonBody(new List<ChatMessage> { chatMessage });
+        request.AddJsonBody(new List<ChatMessageDto> { chatMessage });
 
         await ExecuteAsync(request);
     }

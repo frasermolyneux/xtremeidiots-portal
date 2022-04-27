@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.CommonLib.Models
 {
-    public class GameServerEvent
+    public class GameServerEventDto
     {
         public Guid Id { get; set; }
         public string GameServerId { get; set; }

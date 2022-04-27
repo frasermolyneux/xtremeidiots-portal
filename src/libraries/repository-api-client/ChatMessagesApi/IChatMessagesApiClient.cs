@@ -4,5 +4,5 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
 
 public interface IChatMessagesApiClient
 {
-    Task CreateChatMessage(string accessToken, ChatMessage chatMessage);
+    Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage);
 }

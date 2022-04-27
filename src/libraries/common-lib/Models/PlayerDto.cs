@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.CommonLib.Models
 {
-    public class Player
+    public class PlayerDto
     {
         public Guid Id { get; set; }
         public string GameType { get; set; }

@@ -31,7 +31,18 @@ public class PlayersController : ControllerBase
 
         if (player == null) return new NotFoundResult();
 
-        return new OkObjectResult(player);
+        var playerDto = new PlayerDto
+        {
+            Id = player.PlayerId,
+            GameType = player.GameType.ToString(),
+            Username = player.Username,
+            Guid = player.Guid,
+            FirstSeen = player.FirstSeen,
+            LastSeen = player.LastSeen,
+            IpAddress = player.IpAddress
+        };
+
+        return new OkObjectResult(playerDto);
     }
 
     [HttpGet]
@@ -58,7 +69,18 @@ public class PlayersController : ControllerBase
 
         if (player == null) return new NotFoundResult();
 
-        return new OkObjectResult(player);
+        var playerDto = new PlayerDto
+        {
+            Id = player.PlayerId,
+            GameType = player.GameType.ToString(),
+            Username = player.Username,
+            Guid = player.Guid,
+            FirstSeen = player.FirstSeen,
+            LastSeen = player.LastSeen,
+            IpAddress = player.IpAddress
+        };
+
+        return new OkObjectResult(playerDto);
     }
 
     [HttpPost]
@@ -67,11 +89,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<Player> players;
+        List<PlayerDto> players;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            players = JsonConvert.DeserializeObject<List<Player>>(requestBody);
+            players = JsonConvert.DeserializeObject<List<PlayerDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -111,11 +133,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        Player player;
+        PlayerDto player;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            player = JsonConvert.DeserializeObject<Player>(requestBody);
+            player = JsonConvert.DeserializeObject<PlayerDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -143,6 +165,17 @@ public class PlayersController : ControllerBase
 
         await Context.SaveChangesAsync();
 
-        return new OkObjectResult(playerToUpdate);
+        var playerDto = new PlayerDto
+        {
+            Id = playerToUpdate.PlayerId,
+            GameType = playerToUpdate.GameType.ToString(),
+            Username = playerToUpdate.Username,
+            Guid = playerToUpdate.Guid,
+            FirstSeen = playerToUpdate.FirstSeen,
+            LastSeen = playerToUpdate.LastSeen,
+            IpAddress = playerToUpdate.IpAddress
+        };
+
+        return new OkObjectResult(playerDto);
     }
 }

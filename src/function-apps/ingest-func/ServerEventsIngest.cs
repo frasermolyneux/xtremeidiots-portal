@@ -55,7 +55,7 @@ public class ServerEventsIngest
 
         if (existingServer == null)
         {
-            var gameServer = new GameServer
+            var gameServer = new GameServerDto
             {
                 Id = onServerConnected.Id,
                 GameType = onServerConnected.GameType
@@ -90,7 +90,7 @@ public class ServerEventsIngest
         _log.LogInformation(
             $"ProcessOnMapChange :: GameName: '{onMapChange.GameName}', GameType: '{onMapChange.GameType}', MapName: '{onMapChange.MapName}'");
 
-        var gameServerEvent = new GameServerEvent
+        var gameServerEvent = new GameServerEventDto
         {
             GameServerId = onMapChange.ServerId,
             Timestamp = onMapChange.EventGeneratedUtc,

@@ -4,8 +4,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
 
 public interface IPlayersApiClient
 {
-    Task<Player?> GetPlayer(string accessToken, Guid id);
-    Task<Player?> GetPlayerByGameType(string accessToken, string gameType, string guid);
-    Task CreatePlayer(string accessToken, Player player);
-    Task UpdatePlayer(string accessToken, Player player);
+    Task<PlayerDto?> GetPlayer(string accessToken, Guid id);
+    Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid);
+    Task CreatePlayer(string accessToken, PlayerDto player);
+    Task UpdatePlayer(string accessToken, PlayerDto player);
 }

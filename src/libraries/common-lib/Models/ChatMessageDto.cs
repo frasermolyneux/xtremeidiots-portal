@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.CommonLib.Models
 {
-    public class ChatMessage
+    public class ChatMessageDto
     {
         public Guid Id { get; set; }
         public string GameServerId { get; set; }

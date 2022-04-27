@@ -32,15 +32,14 @@ $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiNa
 
 # Deploy Apps
 az deployment group create --resource-group $resourceGroup `
-    --template-file bicep/eventsApp.bicep  `
+    --template-file bicep/repositoryApp.bicep `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
     parFuncAppServicePlanName=$functionServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
-    parServiceBusName=$serviceBus `
-    parEventsApiAppId=$eventsApiAppId
+    parServiceBusName=$serviceBus
 
 az deployment group create --resource-group $resourceGroup `
     --template-file bicep/repositoryApi.bicep  `
@@ -63,14 +62,15 @@ az deployment group create --resource-group $resourceGroup `
     parServiceBusName=$serviceBus
 
 az deployment group create --resource-group $resourceGroup `
-    --template-file bicep/repositoryApp.bicep `
+    --template-file bicep/eventsApp.bicep  `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
     parFuncAppServicePlanName=$functionServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
-    parServiceBusName=$serviceBus
+    parServiceBusName=$serviceBus `
+    parEventsApiAppId=$eventsApiAppId
 
 az deployment group create --resource-group $resourceGroup `
     --template-file bicep/syncApp.bicep  `

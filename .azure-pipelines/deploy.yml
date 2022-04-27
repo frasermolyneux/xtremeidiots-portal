@@ -120,7 +120,7 @@ stages:
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
-          azureSubscription: '$(subscription)'
+          azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
@@ -128,7 +128,7 @@ stages:
       - task: AzureCLI@2
         displayName: Create Application Credentials
         inputs:
-          azureSubscription: '$(subscription)'
+          azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
@@ -139,7 +139,7 @@ stages:
       - task: AzureCLI@2
         displayName: DeployPortalCoreBicep
         inputs:
-          azureSubscription: '$(subscription)'
+          azureSubscription: $(subscription)
           scriptType: 'bash'
           scriptLocation: 'inlineScript'
           inlineScript: |
@@ -169,7 +169,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployRepositoryAppBicep
       inputs:
-        azureSubscription: '$(subscription)'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -188,7 +188,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployRepositoryApiBicep
       inputs:
-        azureSubscription: '$(subscription)'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -209,7 +209,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployIngestAppBicep
       inputs:
-        azureSubscription: '$(subscription)'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -228,7 +228,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeployEventsAppBicep
       inputs:
-        azureSubscription: '$(subscription)'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -250,7 +250,7 @@ stages:
     - task: AzureCLI@2
       displayName: DeploySyncAppBicep
       inputs:
-        azureSubscription: '$(subscription)'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
@@ -278,14 +278,14 @@ stages:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: 'fn-events-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(subscription)'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: 'fn-ingest-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(subscription)'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -293,18 +293,18 @@ stages:
       jobName: DeployRepositoryWebApp
       webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
       webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(subscription)'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(subscription)'
+      environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: 'fn-sync-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: '$(subscription)'
+      environmentServiceNameAzureRM: $(subscription)

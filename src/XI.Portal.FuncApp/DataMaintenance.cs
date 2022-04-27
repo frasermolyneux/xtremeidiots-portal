@@ -1,9 +1,9 @@
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
@@ -23,7 +23,7 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IGameServersRepository gameServersRepository, 
+            IGameServersRepository gameServersRepository,
             IChatLogsRepository chatLogsRepository)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
@@ -42,10 +42,9 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var servers = await _gameServersRepository.GetGameServers(new GameServerFilterModel {Filter = GameServerFilterModel.FilterBy.None});
+            var servers = await _gameServersRepository.GetGameServers(new GameServerFilterModel { Filter = GameServerFilterModel.FilterBy.None });
             var serverIds = servers.Select(s => s.ServerId).ToList();
 
-            await _chatLogsRepository.RemoveOldEntries();
             await _playerLocationsRepository.RemoveOldEntries(serverIds);
             await _playersCache.RemoveOldEntries();
             await _gameServerStatusStatsRepository.RemoveOldEntries(serverIds);

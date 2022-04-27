@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;
@@ -69,30 +67,6 @@ namespace XI.Portal.Servers.Repository
                 ChatType = chatLog.ChatType.ToString(),
                 Message = chatLog.Message
             };
-        }
-
-        public async Task CreateChatLog(ChatLogDto chatLogDto)
-        {
-            var player = await _legacyContext.Player2.SingleOrDefaultAsync(p => p.PlayerId == chatLogDto.PlayerId);
-            var server = await _legacyContext.GameServers.SingleOrDefaultAsync(s => s.ServerId == chatLogDto.ServerId);
-
-            var chatLog = new ChatLogs
-            {
-                GameServerServer = server,
-                PlayerPlayer = player,
-                Username = chatLogDto.Username,
-                ChatType = (ChatType) Enum.Parse(typeof(ChatType), chatLogDto.ChatType),
-                Message = chatLogDto.Message,
-                Timestamp = DateTime.UtcNow
-            };
-
-            _legacyContext.ChatLogs.Add(chatLog);
-            await _legacyContext.SaveChangesAsync();
-        }
-
-        public async Task RemoveOldEntries()
-        {
-            await _legacyContext.Database.ExecuteSqlRawAsync($"DELETE FROM dbo.ChatLogs WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
         }
     }
 }

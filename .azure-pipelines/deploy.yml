@@ -11,9 +11,13 @@ variables:
   AzSubscription: 'XI-Pay-As-You-Go'
 
 stages: 
-- stage: build
+- stage: LegacyBuild
+
+  pool:
+    vmImage: 'windows-latest'
+
   jobs:
-  - job: build
+  - job: LegacyBuild
 
     variables:
       solution: '**/*.sln'
@@ -64,36 +68,43 @@ stages:
     - publish: '$(Build.artifactStagingDirectory)/webapp'
       displayName: 'Publish website source artifact'
       artifact: webapp
+  
+- template: templates/deploy-application.yml
+  parameters:
+    environment: 'leo'
 
+- stage: Build
+  jobs:
   - template: templates/build-function-app.yml
     parameters: 
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
       publishArtifact: true
-      
-- stage: terraform_state_backend
-  jobs:
-  - job: create_terraform_backend
-    pool:
-      vmImage: 'windows-latest'
 
-    steps:
-    - checkout: none
-      displayName: 'Skip checking out source'
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildIngestFunctionApp'
+      projectName: 'ingest-func'
+      publishArtifact: true
 
-    - task: AzureCLI@1
-      displayName: 'Create terraform backend in Azure storage'
-      inputs:
-        azureSubscription: '$(AzSubscription)'
-        scriptLocation: inlineScript
-        inlineScript: |
-          call az group create --location "$(AzTerraformRegion)" --name "$(AzTerraformResourceGroup)"
-          call az storage account create --name "$(AzTerraformStorageAccount)" --resource-group "$(AzTerraformResourceGroup)" --location "$(AzTerraformRegion)" --sku "Standard_LRS"
-          call az storage container create --name "terraform" --account-name "$(AzTerraformStorageAccount)"
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildRepositoryWebApi'
+      projectName: 'repository-webapi'
+      nugetConfigPath: './src/nuget.config'
+      publishArtifact: true
 
-- template: templates/deploy-application.yml
-  parameters:
-    environment: 'leo'
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildRepositoryFunctionApp'
+      projectName: 'repository-func'
+      publishArtifact: true
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildSyncFunctionApp'
+      projectName: 'sync-func'
+      publishArtifact: true
 
 - stage: DeployPrd
 

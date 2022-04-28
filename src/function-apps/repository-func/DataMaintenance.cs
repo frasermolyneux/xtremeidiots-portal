@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -8,12 +8,12 @@ namespace XtremeIdiots.Portal.RepositoryFunc;
 
 public class DataMaintenance
 {
-    private readonly ILogger _log;
+    private readonly ILogger<DataMaintenance> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
     private readonly IRepositoryTokenProvider _repositoryTokenProvider;
 
     public DataMaintenance(
-        ILogger log,
+        ILogger<DataMaintenance> log,
         IRepositoryTokenProvider repositoryTokenProvider,
         IRepositoryApiClient repositoryApiClient)
     {

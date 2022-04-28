@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestSharp;
+using System.Net;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -33,20 +34,20 @@ public class BaseApiClient
     {
         var response = await RestClient.ExecuteAsync(request);
 
-        if (response.ResponseStatus == ResponseStatus.Completed)
+        if (response.ErrorException != null)
         {
-            if (response.ErrorException != null)
-            {
-                Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-                throw response.ErrorException;
-            }
+            Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+            throw response.ErrorException;
+        }
+
+        if (new[] { HttpStatusCode.OK, HttpStatusCode.NotFound }.Contains(response.StatusCode))
+        {
+            return response;
         }
         else
         {
             Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
             throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
         }
-
-        return response;
     }
 }

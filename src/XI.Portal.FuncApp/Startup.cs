@@ -1,11 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using FM.GeoLocation.Client.Extensions;
+﻿using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.IO;
+using System.Reflection;
 using XI.Forums.Extensions;
 using XI.Portal.Bus.Client;
 using XI.Portal.Bus.Extensions;
@@ -17,6 +17,7 @@ using XI.Portal.Repository.Config;
 using XI.Portal.Repository.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Utilities.FtpHelper;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -60,6 +61,12 @@ namespace XI.Portal.FuncApp
                     TimeSpan.FromSeconds(3),
                     TimeSpan.FromSeconds(5)
                 };
+            });
+
+            builder.Services.AddRepositoryApiClient(options =>
+            {
+                options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
+                options.ApimSubscriptionKey = config["apimsubscriptionkey"];
             });
 
             builder.Services.AddServersModule(options =>

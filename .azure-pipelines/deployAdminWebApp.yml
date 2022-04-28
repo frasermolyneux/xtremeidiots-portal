@@ -1,0 +1,45 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+#- stage: Build
+#  jobs:
+#  - template: templates/build-web-app.yml
+#    parameters: 
+#      jobName: 'BuildAdminWebApp'
+#      projectName: 'admin-webapp'
+#      nugetConfigPath: './src/nuget.config'
+#      publishArtifact: true
+
+- stage: DeployAdminWebAppPrd
+
+  variables: 
+    environment: 'prd'
+    region: 'uksouth'
+    instance: '01'
+    AzSubscription: 'XI-Pay-As-You-Go'
+
+  jobs:
+
+  - job: DeployAdminWebAppBicep
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'XI-Pay-As-You-Go'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create `
+          --resource-group 'rg-portal-prd-uksouth-01' `
+          --template-file bicep/adminWebApp.bicep  `
+          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parWebAppServicePlanName='plan-web-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'
+
+  #- template: templates/deploy-web-app.yml
+  #  parameters:
+  #    projectName: repository-webapi
+  #    jobName: DeployRepositoryWebApp
+  #    webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
+  #    webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
+  #    environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'

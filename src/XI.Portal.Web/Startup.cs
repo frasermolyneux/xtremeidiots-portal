@@ -1,8 +1,3 @@
-using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Json;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.AspNetCore.Authentication;
@@ -18,6 +13,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
+using System.Text.Json;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
@@ -33,6 +33,7 @@ using XI.Portal.Repository.Interfaces;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Data;
 using XI.Portal.Users.Extensions;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 
 namespace XI.Portal.Web
@@ -153,6 +154,12 @@ namespace XI.Portal.Web
             {
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
+            });
+
+            services.AddRepositoryApiClient(options =>
+            {
+                options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
+                options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
             });
 
             services.AddMapsModule(options =>

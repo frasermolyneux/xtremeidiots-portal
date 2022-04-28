@@ -45,7 +45,7 @@ resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscription
   }
 }
 
-resource functionHostKeySecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+resource functionAppApiMgmtKey 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   name: '${apiManagement.name}-${varIngestFuncAppName}-apikey'
   parent: keyVault
 

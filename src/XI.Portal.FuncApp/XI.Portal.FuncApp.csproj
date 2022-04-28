@@ -31,6 +31,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.13" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
     <ProjectReference Include="..\XI.Portal.Bus\XI.Portal.Bus.csproj" />
     <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />

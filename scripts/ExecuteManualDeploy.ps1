@@ -81,3 +81,13 @@ az deployment group create --resource-group $resourceGroup `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus
+
+az deployment group create --resource-group $resourceGroup `
+    --template-file bicep/adminWebApp.bicep  `
+    --parameters parLocation=$location `
+    parEnvironment=$environment `
+    parKeyVaultName=$keyVault `
+    parWebAppServicePlanName=$webServicePlan `
+    parAppInsightsName=$appInsights `
+    parApiManagementName=$apiManagement `
+    parServiceBusName=$serviceBus

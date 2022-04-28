@@ -26,6 +26,7 @@ variables:
   repositoryWebAppName: 'webapi-repository-portal-prd-uksouth-01'
   repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
   syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
+  adminWebAppName: 'webapp-admin-portal-prd-uksouth-01'
 
 
 stages: 
@@ -123,6 +124,13 @@ stages:
       jobName: 'BuildSyncFunctionApp'
       projectName: 'sync-func'
       publishArtifact: true
+
+  #- template: templates/build-web-app.yml
+  #  parameters: 
+  #    jobName: 'BuildAdminWebApp'
+  #    projectName: 'admin-webapp'
+  #    nugetConfigPath: './src/nuget.config'
+  #    publishArtifact: true
 
 - stage: DeployPrdCore
 
@@ -263,6 +271,24 @@ stages:
               parApiManagementName=$(apiManagement) `
               parServiceBusName=$(serviceBus)
 
+  - job: DeployAdmiNWebAppBicep
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployAdminWebAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/adminWebApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parWebAppServicePlanName=$(webServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement)
+
 - stage: DeployPrdApps
 
   jobs:
@@ -283,7 +309,7 @@ stages:
   - template: templates/deploy-web-app.yml
     parameters:
       projectName: repository-webapi
-      jobName: DeployRepositoryWebApp
+      jobName: DeployRepositoryWebApi
       webAppName: '$(repositoryWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
@@ -301,3 +327,11 @@ stages:
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)
+
+  #- template: templates/deploy-web-app.yml
+  #  parameters:
+  #    projectName: admin-webapp
+  #    jobName: DeployAdminWebApp
+  #    webAppName: '$(adminWebAppName)'
+  #    webAppNameResourceGroup: '$(resourceGroup)'
+  #    environmentServiceNameAzureRM: $(subscription)

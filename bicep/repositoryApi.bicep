@@ -56,6 +56,14 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
         }
         {
+          'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+        }
+        {
+          'name': 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          'value': '~2'
+        }
+        {
           'name': 'ASPNETCORE_ENVIRONMENT'
           'value': 'Production'
         }

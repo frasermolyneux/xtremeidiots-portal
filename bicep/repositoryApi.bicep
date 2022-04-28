@@ -215,3 +215,24 @@ resource repositoryApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021
     repositoryApiAudienceNamedValue
   ]
 }
+
+resource repositoryApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2021-08-01' = {
+  name: 'applicationinsights'
+  parent: repositoryApi
+
+  properties: {
+    alwaysLog: 'allErrors'
+
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: resourceId('Microsoft.ApiManagement/service/loggers', apiManagement.name, appInsights.name)
+    operationNameFormat: 'Name'
+
+    sampling: {
+      percentage: 100
+      samplingType: 'fixed'
+    }
+
+    verbosity: 'information'
+  }
+}

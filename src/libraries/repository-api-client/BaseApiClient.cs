@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RestSharp;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient;
@@ -7,13 +8,15 @@ public class BaseApiClient
 {
     private readonly string _apimSubscriptionKey;
 
-    public BaseApiClient(IOptions<RepositoryApiClientOptions> options)
+    public BaseApiClient(ILogger logger, IOptions<RepositoryApiClientOptions> options)
     {
         _apimSubscriptionKey = options.Value.ApimSubscriptionKey;
 
         RestClient = new RestClient(options.Value.ApimBaseUrl);
+        Logger = logger;
     }
 
+    public ILogger Logger { get; }
     private RestClient RestClient { get; }
 
     public RestRequest CreateRequest(string resource, Method method, string accessToken)
@@ -28,6 +31,30 @@ public class BaseApiClient
 
     public async Task<RestResponse> ExecuteAsync(RestRequest request)
     {
-        return await RestClient.ExecuteAsync(request);
+        var response = await RestClient.ExecuteAsync(request);
+
+        if (response.ResponseStatus == ResponseStatus.Completed)
+        {
+            if (!response.IsSuccessful)
+            {
+                if (response.ErrorException != null)
+                {
+                    Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+                    throw response.ErrorException;
+                }
+                else
+                {
+                    Logger.LogError($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+                    throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+                }
+            }
+        }
+        else
+        {
+            Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
+            throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+        }
+
+        return response;
     }
 }

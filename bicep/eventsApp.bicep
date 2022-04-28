@@ -299,6 +299,27 @@ resource eventsApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-
   ]
 }
 
+resource eventsApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2021-08-01' = {
+  name: 'applicationinsights'
+  parent: eventsApi
+
+  properties: {
+    alwaysLog: 'allErrors'
+
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: resourceId('Microsoft.ApiManagement/service/loggers', apiManagement.name, appInsights.name)
+    operationNameFormat: 'Name'
+
+    sampling: {
+      percentage: 100
+      samplingType: 'fixed'
+    }
+
+    verbosity: 'information'
+  }
+}
+
 resource playerConnectedServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
   name: 'player_connected_queue'
   parent: serviceBus

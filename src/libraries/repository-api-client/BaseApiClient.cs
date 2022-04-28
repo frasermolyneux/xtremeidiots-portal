@@ -35,18 +35,10 @@ public class BaseApiClient
 
         if (response.ResponseStatus == ResponseStatus.Completed)
         {
-            if (!response.IsSuccessful)
+            if (response.ErrorException != null)
             {
-                if (response.ErrorException != null)
-                {
-                    Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-                    throw response.ErrorException;
-                }
-                else
-                {
-                    Logger.LogError($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-                    throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-                }
+                Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+                throw response.ErrorException;
             }
         }
         else

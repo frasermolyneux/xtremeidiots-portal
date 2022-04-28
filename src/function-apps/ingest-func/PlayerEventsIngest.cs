@@ -108,8 +108,7 @@ public class PlayerEventsIngest
         if (string.IsNullOrWhiteSpace(onChatMessage.Guid))
             throw new Exception("OnChatMessage event contained null or empty 'Guid'");
 
-        _log.LogInformation(
-            $"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
+        _log.LogInformation($"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
 
         var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
 
@@ -130,6 +129,10 @@ public class PlayerEventsIngest
             };
 
             await _repositoryApiClient.ChatMessages.CreateChatMessage(accessToken, chatMessage);
+        }
+        else
+        {
+            _log.LogWarning($"ProcessOnChatMessage :: NOPLAYER :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
         }
     }
 }

@@ -84,6 +84,9 @@ public class ChatMessagesController : ControllerBase
         if (string.IsNullOrWhiteSpace(order))
             order = "TimestampDesc";
 
+        if (filterString == null)
+            filterString = string.Empty;
+
         var query = Context.ChatLogs.AsQueryable();
         query = ApplySearchFilter(query, legacyGameType, serverId, playerId, string.Empty);
         var totalCount = await query.CountAsync();
@@ -119,7 +122,7 @@ public class ChatMessagesController : ControllerBase
         return new OkObjectResult(response);
     }
 
-    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string? filterString)
+    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string filterString)
     {
         //chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
 {

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.GameServerStatus.Extensions;
@@ -15,6 +15,9 @@ using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
 using XI.Servers.Interfaces;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -24,6 +27,8 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IPlayersRepository _playersRepository;
+        private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRconClientFactory _rconClientFactory;
@@ -34,7 +39,9 @@ namespace XI.Portal.Web.Controllers
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory,
             IChatLogsRepository chatLogsRepository,
-            IPlayersRepository playersRepository)
+            IPlayersRepository playersRepository,
+            IRepositoryApiClient repositoryApiClient,
+            IRepositoryTokenProvider repositoryTokenProvider)
         {
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
@@ -42,6 +49,8 @@ namespace XI.Portal.Web.Controllers
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
             _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         [HttpGet]
@@ -115,9 +124,9 @@ namespace XI.Portal.Web.Controllers
                 return Unauthorized();
 
             var rconClient = _rconClientFactory.CreateInstance(
-                gameServerDto.GameType, 
-                gameServerDto.ServerId, 
-                gameServerDto.Hostname, 
+                gameServerDto.GameType,
+                gameServerDto.ServerId,
+                gameServerDto.Hostname,
                 gameServerDto.QueryPort,
                 gameServerDto.RconPassword);
 
@@ -228,7 +237,7 @@ namespace XI.Portal.Web.Controllers
             //rconClient.KickPlayer(num);
 
             TempData["Success"] = $"Player in slot {num} has been kicked";
-            return RedirectToAction(nameof(ViewRcon), new {id});
+            return RedirectToAction(nameof(ViewRcon), new { id });
         }
 
         [HttpGet]
@@ -327,30 +336,8 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var filterModel = new ChatLogFilterModel();
-
-            if (gameType != null)
-                filterModel.GameType = (GameType) gameType;
-
-            if (serverId != null)
-                filterModel.ServerId = (Guid) serverId;
-
-            if (playerId != null)
-                filterModel.PlayerId = (Guid) playerId;
-
-            var recordsTotal = await _chatLogsRepository.GetChatLogCount(filterModel);
-
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _chatLogsRepository.GetChatLogCount(filterModel);
-
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
-
-            if (model.Order == null)
-            {
-                filterModel.Order = ChatLogFilterModel.OrderBy.TimestampDesc;
-            }
-            else
+            string order = "TimestampDesc";
+            if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
                 var searchOrder = model.Order.First().Dir;
@@ -358,19 +345,20 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "timestamp":
-                        filterModel.Order = searchOrder == "asc" ? ChatLogFilterModel.OrderBy.TimestampAsc : ChatLogFilterModel.OrderBy.TimestampDesc;
+                        order = searchOrder == "asc" ? "TimestampAsc" : "TimestampDesc";
                         break;
                 }
             }
 
-            var mapListEntries = await _chatLogsRepository.GetChatLogs(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            ChatMessageSearchResponseDto searchResponse = await repositoryApiClient.ChatMessages.SearchChatMessages(accessToken, gameType.ToString(), serverId, playerId, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal,
-                recordsFiltered,
-                data = mapListEntries
+                recordsTotal = searchResponse.TotalRecords,
+                recordsFiltered = searchResponse.FilteredRecords,
+                data = searchResponse.Entries
             });
         }
 

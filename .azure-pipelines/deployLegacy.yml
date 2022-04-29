@@ -1,0 +1,74 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  TerraformVersion: '0.14.8'
+  AzTerraformRegion: 'uksouth'
+  AzTerraformResourceGroup: 'xi-portal-terraform'
+  AzTerraformStorageAccount: 'xiportaltfstate'
+  AzSubscription: 'XI-Pay-As-You-Go'
+
+stages: 
+- stage: LegacyBuild
+
+  pool:
+    vmImage: 'windows-latest'
+
+  jobs:
+  - job: LegacyBuild
+
+    variables:
+      solution: '**/*.sln'
+      buildPlatform: 'Any CPU'
+      buildConfiguration: 'Release'
+
+    steps:
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+        command: 'restore'
+        feedsToUse: 'config'
+        nugetConfigPath: './src/nuget.config'
+
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: CopyFiles@2
+      displayName: 'Copy terraform folder into staging directory'
+      inputs: 
+        SourceFolder: '$(Build.sourcesDirectory)/terraform'
+        Contents: '**'
+        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
+
+    - task: ArchiveFiles@2
+      displayName: "Package XI.Portal.FuncApp to artifact staging directory"
+      inputs:
+        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/netcoreapp3.1/'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/XI.Portal.FuncApp.zip'
+        replaceExistingArchive: true
+
+    - publish: $(Build.artifactStagingDirectory)/XI.Portal.FuncApp.zip
+      displayName: Publish XI.Portal.FuncApp artifact
+      artifact: funcapp
+      
+    - publish: $(Build.artifactStagingDirectory)/terraform
+      displayName: Publish terraform artifact
+      artifact: terraform
+
+    - publish: '$(Build.artifactStagingDirectory)/webapp'
+      displayName: 'Publish website source artifact'
+      artifact: webapp
+  
+- template: templates/deploy-application.yml
+  parameters:
+    environment: 'leo'

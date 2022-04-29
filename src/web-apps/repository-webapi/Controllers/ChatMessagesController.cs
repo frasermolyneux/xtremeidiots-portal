@@ -107,8 +107,6 @@ public class ChatMessagesController : ControllerBase
             Message = cl.Message
         }).ToList();
 
-
-
         var response = new ChatMessageSearchResponseDto
         {
             TotalRecords = totalCount,
@@ -116,7 +114,7 @@ public class ChatMessagesController : ControllerBase
             Entries = entries
         };
 
-        Logger.LogInformation(JsonConvert.SerializeObject(response));
+        Logger.LogInformation($"SearchChatMessages :: {JsonConvert.SerializeObject(response)}");
 
         return new OkObjectResult(response);
     }

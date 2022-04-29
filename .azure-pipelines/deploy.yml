@@ -271,7 +271,7 @@ stages:
               parApiManagementName=$(apiManagement) `
               parServiceBusName=$(serviceBus)
 
-  - job: DeployAdmiNWebAppBicep
+  - job: DeployAdminWebAppBicep
     steps:
     - task: AzureCLI@2
       displayName: DeployAdminWebAppBicep
@@ -287,7 +287,8 @@ stages:
               parKeyVaultName=$(keyVault) `
               parWebAppServicePlanName=$(webServicePlan) `
               parAppInsightsName=$(appInsights) `
-              parApiManagementName=$(apiManagement)
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
 
 - stage: DeployPrdApps
 

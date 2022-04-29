@@ -124,7 +124,7 @@ public class ChatMessagesController : ControllerBase
 
     private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string filterString)
     {
-        //chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+        chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 
         if (gameType != GameType.Unknown) chatLogs = chatLogs.Where(m => m.GameServerServer.GameType == gameType).AsQueryable();
 

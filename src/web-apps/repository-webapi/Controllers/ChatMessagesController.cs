@@ -84,7 +84,7 @@ public class ChatMessagesController : ControllerBase
         if (string.IsNullOrWhiteSpace(order))
             order = "TimestampDesc";
 
-        var query = Context.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+        var query = Context.ChatLogs.AsQueryable();
         query = ApplySearchFilter(query, legacyGameType, serverId, playerId, order, string.Empty, 0, 0);
         var totalCount = await query.CountAsync();
 

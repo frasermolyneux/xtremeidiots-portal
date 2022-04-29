@@ -135,8 +135,6 @@ public class ChatMessagesController : ControllerBase
             case "TimestampDesc":
                 chatLogs = chatLogs.OrderByDescending(cl => cl.Timestamp).AsQueryable();
                 break;
-            default:
-                throw new ArgumentOutOfRangeException();
         }
 
         chatLogs = chatLogs.Skip(skipEntries).AsQueryable();

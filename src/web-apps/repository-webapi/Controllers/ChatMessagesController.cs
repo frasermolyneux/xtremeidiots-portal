@@ -85,13 +85,13 @@ public class ChatMessagesController : ControllerBase
             order = "TimestampDesc";
 
         var query = Context.ChatLogs.AsQueryable();
-        query = ApplySearchFilter(query, legacyGameType, serverId, playerId, order, string.Empty, 0, 0);
+        query = ApplySearchFilter(query, legacyGameType, serverId, playerId, string.Empty);
         var totalCount = await query.CountAsync();
 
-        query = ApplySearchFilter(query, legacyGameType, serverId, playerId, order, filterString, 0, 0);
+        query = ApplySearchFilter(query, legacyGameType, serverId, playerId, filterString);
         var filteredCount = await query.CountAsync();
 
-        query = ApplySearchFilter(query, legacyGameType, serverId, playerId, order, filterString, skipEntries, takeEntries);
+        query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
         var searchResults = await query.ToListAsync();
 
         var entries = searchResults.Select(cl => new ChatMessageSearchEntryDto()
@@ -119,9 +119,9 @@ public class ChatMessagesController : ControllerBase
         return new OkObjectResult(response);
     }
 
-    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string? filterString, string order, int skipEntries, int takeEntries)
+    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string? filterString)
     {
-        chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+        //chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 
         if (gameType != GameType.Unknown) chatLogs = chatLogs.Where(m => m.GameServerServer.GameType == gameType).AsQueryable();
 
@@ -133,6 +133,11 @@ public class ChatMessagesController : ControllerBase
             chatLogs = chatLogs.Where(m => m.Message.Contains(filterString)
                                            || m.Username.Contains(filterString)).AsQueryable();
 
+        return chatLogs;
+    }
+
+    private IQueryable<ChatLogs> ApplySearchOrderAndLimits(IQueryable<ChatLogs> chatLogs, string order, int skipEntries, int takeEntries)
+    {
         switch (order)
         {
             case "TimestampAsc":

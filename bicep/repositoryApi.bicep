@@ -69,6 +69,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           'value': 'Production'
         }
         {
+          'name': 'WEBSITE_RUN_FROM_PACKAGE'
+          'value': '1'
+        }
+        {
           'name': 'AzureAd:TenantId'
           'value': tenant().tenantId
         }

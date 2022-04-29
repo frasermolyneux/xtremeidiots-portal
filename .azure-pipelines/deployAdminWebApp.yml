@@ -34,7 +34,7 @@ stages:
           az deployment group create `
           --resource-group 'rg-portal-prd-uksouth-01' `
           --template-file bicep/adminWebApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parWebAppServicePlanName='plan-web-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'
+          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'
 
   #- template: templates/deploy-web-app.yml
   #  parameters:

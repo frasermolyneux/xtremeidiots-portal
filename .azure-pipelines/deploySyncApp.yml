@@ -33,7 +33,7 @@ stages:
           az deployment group create `
           --resource-group 'rg-portal-prd-uksouth-01' `
           --template-file bicep/syncApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parFuncAppServicePlanName='plan-fn-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
 
   - template: templates/deploy-function-app.yml
     parameters:

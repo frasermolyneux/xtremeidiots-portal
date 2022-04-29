@@ -16,11 +16,10 @@ az deployment sub create --subscription $subscription `
 # Core Resource Names
 $resourceGroup = "rg-portal-$environment-$location-01"
 $keyVault = "kv-portal-$environment-$location-01"
-$functionServicePlan = "plan-fn-portal-$environment-$location-01"
+$appServicePlan = "plan-portal-$environment-$location-01"
 $appInsights = "ai-portal-$environment-$location-01"
 $apiManagement = "apim-portal-$environment-$location-01"
 $serviceBus = "sb-portal-$environment-$location-01"
-$webServicePlan = "plan-web-portal-$environment-$location-01"
 
 # Application Names
 $eventsApiAppName = "portal-events-api-$environment"
@@ -36,7 +35,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parFuncAppServicePlanName=$functionServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus
@@ -46,7 +45,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parWebAppServicePlanName=$webServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parRepositoryApiAppId=$repositoryApiAppId
@@ -56,7 +55,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parFuncAppServicePlanName=$functionServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus
@@ -66,7 +65,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parFuncAppServicePlanName=$functionServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus `
@@ -77,7 +76,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parFuncAppServicePlanName=$functionServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus
@@ -87,7 +86,7 @@ az deployment group create --resource-group $resourceGroup `
     --parameters parLocation=$location `
     parEnvironment=$environment `
     parKeyVaultName=$keyVault `
-    parWebAppServicePlanName=$webServicePlan `
+    parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
     parServiceBusName=$serviceBus

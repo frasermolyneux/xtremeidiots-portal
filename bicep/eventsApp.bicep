@@ -4,7 +4,7 @@ targetScope = 'resourceGroup'
 param parLocation string
 param parEnvironment string
 param parKeyVaultName string
-param parFuncAppServicePlanName string
+param parAppServicePlanName string
 param parAppInsightsName string
 param parApiManagementName string
 param parServiceBusName string
@@ -18,8 +18,8 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
   name: parKeyVaultName
 }
 
-resource funcAppServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
-  name: parFuncAppServicePlanName
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
+  name: parAppServicePlanName
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
@@ -55,11 +55,12 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 
   properties: {
-    serverFarmId: funcAppServicePlan.id
+    serverFarmId: appServicePlan.id
 
     httpsOnly: true
 
     siteConfig: {
+      alwaysOn: true
       ftpsState: 'Disabled'
 
       appSettings: [

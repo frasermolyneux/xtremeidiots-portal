@@ -1,14 +1,15 @@
 targetScope = 'resourceGroup'
 
-param parFuncAppServicePlanName string
+param parAppServicePlanName string
 param parLocation string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' = {
-  name: parFuncAppServicePlanName
+  name: parAppServicePlanName
   location: parLocation
+
   sku: {
-    name: 'Y1'
-    tier: 'Dynamic'
+    name: 'B1'
+    tier: 'Basic'
   }
 }
 

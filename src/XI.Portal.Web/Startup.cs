@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -130,12 +129,7 @@ namespace XI.Portal.Web
                 options.SlidingExpiration = true;
             });
 
-            services.AddLogging(
-                logging =>
-                {
-                    logging.ClearProviders();
-                    logging.AddConsole();
-                });
+            services.AddLogging();
 
             services.AddGeoLocationClient(options =>
             {

@@ -8,12 +8,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers
 {
     public class RepositoryTokenProvider : IRepositoryTokenProvider
     {
-        public RepositoryTokenProvider(ILogger log)
+        public RepositoryTokenProvider(ILogger<RepositoryTokenProvider> log)
         {
             Log = log;
         }
 
-        private ILogger Log { get; }
+        private ILogger<RepositoryTokenProvider> Log { get; }
 
         public async Task<string> GetRepositoryAccessToken()
         {

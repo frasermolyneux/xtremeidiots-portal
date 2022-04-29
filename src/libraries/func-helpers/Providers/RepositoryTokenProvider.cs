@@ -6,12 +6,12 @@ namespace XtremeIdiots.Portal.FuncHelpers.Providers;
 
 public class RepositoryTokenProvider : IRepositoryTokenProvider
 {
-    public RepositoryTokenProvider(ILogger log)
+    public RepositoryTokenProvider(ILogger<RepositoryTokenProvider> log)
     {
         Log = log;
     }
 
-    private ILogger Log { get; }
+    private ILogger<RepositoryTokenProvider> Log { get; }
 
     private string WebApiPortalApplicationAudience =>
         Environment.GetEnvironmentVariable("webapi-portal-application-audience");
@@ -24,7 +24,7 @@ public class RepositoryTokenProvider : IRepositoryTokenProvider
         try
         {
             accessToken = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext(new[] {$"{WebApiPortalApplicationAudience}/.default"}));
+                new TokenRequestContext(new[] { $"{WebApiPortalApplicationAudience}/.default" }));
         }
         catch (Exception ex)
         {

@@ -119,15 +119,15 @@ public class ChatMessagesController : ControllerBase
         return new OkObjectResult(response);
     }
 
-    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, string order, int skipEntries, int takeEntries)
+    private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string? filterString, string order, int skipEntries, int takeEntries)
     {
         chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
 
         if (gameType != GameType.Unknown) chatLogs = chatLogs.Where(m => m.GameServerServer.GameType == gameType).AsQueryable();
 
-        if (serverId != Guid.Empty) chatLogs = chatLogs.Where(m => m.GameServerServerId == serverId).AsQueryable();
+        if (serverId != null) chatLogs = chatLogs.Where(m => m.GameServerServerId == serverId).AsQueryable();
 
-        if (playerId != Guid.Empty) chatLogs = chatLogs.Where(m => m.PlayerPlayerId == playerId).AsQueryable();
+        if (playerId != null) chatLogs = chatLogs.Where(m => m.PlayerPlayerId == playerId).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filterString))
             chatLogs = chatLogs.Where(m => m.Message.Contains(filterString)

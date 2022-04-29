@@ -13,11 +13,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class ChatMessagesController : ControllerBase
 {
-    public ChatMessagesController(LegacyPortalContext context)
+    public ChatMessagesController(ILogger<ChatMessagesController> logger, LegacyPortalContext context)
     {
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
+    public ILogger<ChatMessagesController> Logger { get; }
     public LegacyPortalContext Context { get; }
 
     [HttpPost]
@@ -105,12 +107,18 @@ public class ChatMessagesController : ControllerBase
             Message = cl.Message
         }).ToList();
 
-        return new OkObjectResult(new ChatMessageSearchResponseDto
+
+
+        var response = new ChatMessageSearchResponseDto
         {
             TotalRecords = totalCount,
             FilteredRecords = filteredCount,
             Entries = entries
-        });
+        };
+
+        Logger.LogInformation(JsonConvert.SerializeObject(response));
+
+        return new OkObjectResult(response);
     }
 
     private IQueryable<ChatLogs> ApplySearchFilter(IQueryable<ChatLogs> chatLogs, GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, string order, int skipEntries, int takeEntries)

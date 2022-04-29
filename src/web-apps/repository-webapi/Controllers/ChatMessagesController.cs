@@ -133,8 +133,7 @@ public class ChatMessagesController : ControllerBase
         if (playerId != null) chatLogs = chatLogs.Where(m => m.PlayerPlayerId == playerId).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filterString))
-            chatLogs = chatLogs.Where(m => m.Message.Contains(filterString)
-                                           || m.Username.Contains(filterString)).AsQueryable();
+            chatLogs = chatLogs.Where(m => m.Message.Contains(filterString)).AsQueryable();
 
         return chatLogs;
     }

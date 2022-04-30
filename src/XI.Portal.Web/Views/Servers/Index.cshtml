@@ -42,7 +42,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServer.GameType)
+                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString())
                                     </td>
                                     <td>
                                         @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)

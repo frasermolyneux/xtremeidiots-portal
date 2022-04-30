@@ -43,7 +43,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
+                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString()) @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
                                     </td>
                                     <td>
                                         @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)

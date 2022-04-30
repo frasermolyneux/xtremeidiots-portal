@@ -66,17 +66,17 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayersAjax(GameType? id)
         {
-            return await GetPlayersAjaxPrivate(PlayersFilterModel.FilterType.UsernameAndGuid, id);
+            return await GetPlayersAjaxPrivate("UsernameAndGuid", id);
         }
 
         [HttpPost]
         public async Task<IActionResult> GetIpSearchListAjax()
         {
-            return await GetPlayersAjaxPrivate(PlayersFilterModel.FilterType.IpAddress, null);
+            return await GetPlayersAjaxPrivate("IpAddress", null);
         }
 
         [HttpPost]
-        private async Task<IActionResult> GetPlayersAjaxPrivate(PlayersFilterModel.FilterType filterType, GameType? id)
+        private async Task<IActionResult> GetPlayersAjaxPrivate(string filterType, GameType? id)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -110,7 +110,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            PlayersSearchResponseDto searchResponse = await repositoryApiClient.PlayersApiClient.SearchPlayers(accessToken, id.ToString(), filterType.ToString(), model.Search?.Value, model.Length, model.Start, order);
+            PlayersSearchResponseDto searchResponse = await repositoryApiClient.PlayersApiClient.SearchPlayers(accessToken, id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {
@@ -139,10 +139,10 @@ namespace XI.Portal.Web.Controllers
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = new Players.Dto.PlayerDto
+                Player = new PlayerDto
                 {
-                    PlayerId = player.Id,
-                    GameType = Enum.Parse<GameType>(player.GameType),
+                    Id = player.Id,
+                    GameType = player.GameType,
                     Username = player.Username,
                     Guid = player.Guid,
                     IpAddress = player.IpAddress,
@@ -273,7 +273,7 @@ namespace XI.Portal.Web.Controllers
 
         public class PlayerDetailsViewModel
         {
-            public Players.Dto.PlayerDto Player { get; set; }
+            public PlayerDto Player { get; set; }
             public GeoLocationDto GeoLocation { get; set; }
             public List<AdminActionDto> AdminActions { get; set; }
         }

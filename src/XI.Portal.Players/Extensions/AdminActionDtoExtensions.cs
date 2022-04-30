@@ -1,5 +1,7 @@
-﻿using XI.CommonTypes;
+﻿using System;
+using XI.CommonTypes;
 using XI.Portal.Players.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Players.Extensions
 {
@@ -14,8 +16,8 @@ namespace XI.Portal.Players.Extensions
 
         public static AdminActionDto WithPlayerDto(this AdminActionDto adminActionDto, PlayerDto playerDto)
         {
-            adminActionDto.PlayerId = playerDto.PlayerId;
-            adminActionDto.GameType = playerDto.GameType;
+            adminActionDto.PlayerId = playerDto.Id;
+            adminActionDto.GameType = Enum.Parse<GameType>(playerDto.GameType);
             adminActionDto.Username = playerDto.Username;
             adminActionDto.Guid = playerDto.Guid;
 

@@ -3,9 +3,9 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using XI.CommonTypes;
-using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -56,8 +56,8 @@ namespace XI.Portal.Players.Ingest
 
                 var playerDto = new PlayerDto
                 {
-                    PlayerId = cachedPlayer.PlayerId,
-                    GameType = cachedPlayer.GameType,
+                    Id = cachedPlayer.PlayerId,
+                    GameType = cachedPlayer.GameType.ToString(),
                     Username = cachedPlayer.Username,
                     Guid = cachedPlayer.Guid,
                     IpAddress = cachedPlayer.IpAddress,

@@ -31,10 +31,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task CreateChatMessage(string accessToken, ChatMessageApiDto chatMessage)
+        public async Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage)
         {
             var request = CreateRequest("repository/chat-messages", Method.POST, accessToken);
-            request.AddJsonBody(new List<ChatMessageApiDto> { chatMessage });
+            request.AddJsonBody(new List<ChatMessageDto> { chatMessage });
 
             await ExecuteAsync(request);
         }

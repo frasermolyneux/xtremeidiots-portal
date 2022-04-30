@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
     public interface IChatMessagesApiClient
     {
         Task<ChatMessageSearchEntryDto> GetChatMessage(string accessToken, Guid id);
-        Task CreateChatMessage(string accessToken, ChatMessageApiDto chatMessage);
+        Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage);
         Task<ChatMessageSearchResponseDto> SearchChatMessages(string accessToken, string? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order);
     }
 }

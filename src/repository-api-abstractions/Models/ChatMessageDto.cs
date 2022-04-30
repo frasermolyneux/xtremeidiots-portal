@@ -2,7 +2,7 @@
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
-    public class ChatMessageApiDto
+    public class ChatMessageDto
     {
         public Guid Id { get; set; }
         public string GameServerId { get; set; }

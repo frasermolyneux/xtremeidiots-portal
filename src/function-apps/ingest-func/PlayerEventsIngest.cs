@@ -119,7 +119,7 @@ public class PlayerEventsIngest
 
         if (playerId != Guid.Empty)
         {
-            var chatMessage = new ChatMessageApiDto
+            var chatMessage = new ChatMessageDto
             {
                 GameServerId = onChatMessage.ServerId,
                 PlayerId = playerId,

@@ -208,7 +208,7 @@ stages:
               parAppServicePlanName=$(appServicePlan) `
               parAppInsightsName=$(appInsights) `
               parApiManagementName=$(apiManagement) `
-              parRepositoryApiAppId=$repositoryApiAppId
+              parRepositoryApiAppId=$(repositoryApiAppId)
 
   - job: DeployIngestAppBicep
     steps:

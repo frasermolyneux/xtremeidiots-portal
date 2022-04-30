@@ -61,6 +61,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
         public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(string accessToken, Guid id, string ipAddress)
         {
             var request = CreateRequest($"repository/players/{id}/related-players", Method.GET, accessToken);
+            request.AddQueryParameter("IpAddress", ipAddress);
+
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)

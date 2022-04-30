@@ -88,21 +88,9 @@ public class ChatMessagesController : ControllerBase
     [Route("api/chat-messages/search")]
     public async Task<IActionResult> SearchChatMessages(string? gameType, Guid? serverId, Guid? playerId, string? order, string? filterString, int skipEntries, int takeEntries)
     {
-        GameType legacyGameType;
-        switch (gameType)
+        if (!Enum.TryParse(gameType, out GameType legacyGameType))
         {
-            case "CallOfDuty2":
-                legacyGameType = GameType.CallOfDuty2;
-                break;
-            case "CallOfDuty4":
-                legacyGameType = GameType.CallOfDuty4;
-                break;
-            case "CallOfDuty5":
-                legacyGameType = GameType.CallOfDuty5;
-                break;
-            default:
-                legacyGameType = GameType.Unknown;
-                break;
+            legacyGameType = GameType.Unknown;
         }
 
         if (string.IsNullOrWhiteSpace(order))
@@ -140,8 +128,6 @@ public class ChatMessagesController : ControllerBase
             FilteredRecords = filteredCount,
             Entries = entries
         };
-
-        Logger.LogInformation($"SearchChatMessages :: {JsonConvert.SerializeObject(response)}");
 
         return new OkObjectResult(response);
     }

@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Forums;
 using XI.Portal.Players.Ingest;
@@ -53,7 +53,6 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IBanFilesRepository, BanFilesRepository>();
             }
 
-            serviceCollection.AddScoped<IPlayersRepository, PlayersRepository>();
             serviceCollection.AddScoped<IPlayerAnalyticsRepository, PlayerAnalyticsRepository>();
             serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
             serviceCollection.AddScoped<IBanFileIngest, BanFileIngest>();

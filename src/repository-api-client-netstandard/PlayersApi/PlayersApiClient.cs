@@ -101,5 +101,35 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
 
             await ExecuteAsync(request);
         }
+
+        public async Task<PlayersSearchResponseDto> SearchPlayers(string accessToken, string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
+        {
+            var request = CreateRequest("repository/players/search", Method.GET, accessToken);
+
+            if (!string.IsNullOrWhiteSpace(gameType))
+                request.AddQueryParameter("gameType", gameType);
+
+            if (!string.IsNullOrWhiteSpace(filterType))
+                request.AddQueryParameter("filterType", filterType);
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                request.AddQueryParameter("filterString", filterString);
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                request.AddQueryParameter("filterString", filterString);
+
+            request.AddQueryParameter("takeEntries", takeEntries.ToString());
+            request.AddQueryParameter("skipEntries", skipEntries.ToString());
+
+            if (!string.IsNullOrWhiteSpace(order))
+                request.AddQueryParameter("order", order);
+
+            var response = await ExecuteAsync(request);
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<PlayersSearchResponseDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
     }
 }

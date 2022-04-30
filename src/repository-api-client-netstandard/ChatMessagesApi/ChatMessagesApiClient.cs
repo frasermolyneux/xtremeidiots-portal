@@ -43,7 +43,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
         {
             var request = CreateRequest("repository/chat-messages/search", Method.GET, accessToken);
 
-            if (!string.IsNullOrEmpty(gameType))
+            if (!string.IsNullOrWhiteSpace(gameType))
                 request.AddQueryParameter("gameType", gameType);
 
             if (serverId != null)

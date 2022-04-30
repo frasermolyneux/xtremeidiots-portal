@@ -29,7 +29,6 @@ namespace XI.Portal.Web.Controllers
         public AdminActionController(
             ILogger<AdminActionController> logger,
             IAuthorizationService authorizationService,
-            IPlayersRepository playersRepository,
             IAdminActionsRepository adminActionsRepository,
             IPlayersForumsClient playersForumsClient,
             IRepositoryApiClient repositoryApiClient,

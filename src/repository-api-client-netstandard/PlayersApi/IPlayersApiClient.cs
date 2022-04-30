@@ -14,5 +14,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
         Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid);
         Task CreatePlayer(string accessToken, PlayerDto player);
         Task UpdatePlayer(string accessToken, PlayerDto player);
+        Task<PlayersSearchResponseDto> SearchPlayers(string accessToken, string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order);
     }
 }

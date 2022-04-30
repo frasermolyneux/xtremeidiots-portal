@@ -14,7 +14,6 @@ namespace XI.Portal.Players.Ingest
     public class PlayerIngest : IPlayerIngest
     {
         private readonly IPlayersCacheRepository _playersCacheRepository;
-        private readonly IPlayersRepository _playersRepository;
         private ILogger _logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
@@ -22,13 +21,11 @@ namespace XI.Portal.Players.Ingest
         public PlayerIngest(
             ILogger<PlayerIngest> logger,
             IPlayersCacheRepository playersCacheRepository,
-            IPlayersRepository playersRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playersCacheRepository = playersCacheRepository ?? throw new ArgumentNullException(nameof(playersCacheRepository));
-            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             this.repositoryApiClient = repositoryApiClient;
             this.repositoryTokenProvider = repositoryTokenProvider;
         }

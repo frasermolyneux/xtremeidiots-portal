@@ -16,7 +16,6 @@ namespace XI.Portal.Players.Ingest
     {
         private readonly ILogger<BanFileIngest> _logger;
         private readonly IGuidValidator _guidValidator;
-        private readonly IPlayersRepository _playersRepository;
         private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IPlayersForumsClient _playersForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
@@ -25,7 +24,6 @@ namespace XI.Portal.Players.Ingest
         public BanFileIngest(
             ILogger<BanFileIngest> logger,
             IGuidValidator guidValidator,
-            IPlayersRepository playersRepository,
             IAdminActionsRepository adminActionsRepository,
             IPlayersForumsClient playersForumsClient,
             IRepositoryApiClient repositoryApiClient,
@@ -33,7 +31,6 @@ namespace XI.Portal.Players.Ingest
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _guidValidator = guidValidator ?? throw new ArgumentNullException(nameof(guidValidator));
-            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _playersForumsClient = playersForumsClient ?? throw new ArgumentNullException(nameof(playersForumsClient));
             this.repositoryApiClient = repositoryApiClient;

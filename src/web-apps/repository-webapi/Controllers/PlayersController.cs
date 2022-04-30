@@ -377,4 +377,116 @@ public class PlayersController : ControllerBase
             IpAddress = player.IpAddress
         });
     }
+
+    [HttpGet]
+    [Route("api/players/search")]
+    public async Task<IActionResult> SearchPlayers(string? gameType, string? filterType, string? filterString, int takeEntries, int skipEntries, string? order)
+    {
+        if (!Enum.TryParse(gameType, out GameType legacyGameType))
+        {
+            legacyGameType = GameType.Unknown;
+        }
+
+        if (string.IsNullOrWhiteSpace(order))
+            order = "LastSeenDesc";
+
+        if (filterType == null)
+            filterType = string.Empty;
+
+        if (filterString == null)
+            filterString = string.Empty;
+
+        var query = Context.Player2.AsQueryable();
+        query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
+        var totalCount = await query.CountAsync();
+
+        query = ApplySearchFilter(query, legacyGameType, filterType, filterString);
+        var filteredCount = await query.CountAsync();
+
+        query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
+        var searchResults = await query.ToListAsync();
+
+        var entries = searchResults.Select(p => new PlayerDto()
+        {
+            Id = p.PlayerId,
+            GameType = p.GameType.ToString(),
+            Username = p.Username,
+            Guid = p.Guid,
+            FirstSeen = p.FirstSeen,
+            LastSeen = p.LastSeen,
+            IpAddress = p.IpAddress
+        }).ToList();
+
+        var response = new PlayersSearchResponseDto
+        {
+            TotalRecords = totalCount,
+            FilteredRecords = filteredCount,
+            Entries = entries
+        };
+
+        return new OkObjectResult(response);
+    }
+
+    private IQueryable<Player2> ApplySearchFilter(IQueryable<Player2> players, GameType gameType, string filterType, string filterString)
+    {
+        players = players.AsQueryable();
+
+        if (gameType != GameType.Unknown) players = players.Where(p => p.GameType == gameType).AsQueryable();
+
+        if (filterType != "None" && !string.IsNullOrWhiteSpace(filterString))
+            switch (filterType)
+            {
+                case "UsernameAndGuid":
+                    players = players.Where(p => p.Username.Contains(filterString) ||
+                                                 p.Guid.Contains(filterString) ||
+                                                 p.PlayerAlias.Any(a => a.Name.Contains(filterString)))
+                        .AsQueryable();
+                    break;
+                case "IpAddress":
+                    players = players.Where(p => p.IpAddress.Contains(filterString) ||
+                                                 p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString)))
+                        .AsQueryable();
+                    break;
+            }
+        else if (filterType == "IpAddress") players = players.Where(p => p.IpAddress != "" && p.IpAddress != null).AsQueryable();
+
+        return players;
+    }
+
+    private IQueryable<Player2> ApplySearchOrderAndLimits(IQueryable<Player2> players, string order, int skipEntries, int takeEntries)
+    {
+        switch (order)
+        {
+            case "UsernameAsc":
+                players = players.OrderBy(p => p.Username).AsQueryable();
+                break;
+            case "UsernameDesc":
+                players = players.OrderByDescending(p => p.Username).AsQueryable();
+                break;
+            case "FirstSeenAsc":
+                players = players.OrderBy(p => p.FirstSeen).AsQueryable();
+                break;
+            case "FirstSeenDesc":
+                players = players.OrderByDescending(p => p.FirstSeen).AsQueryable();
+                break;
+            case "LastSeenAsc":
+                players = players.OrderBy(p => p.LastSeen).AsQueryable();
+                break;
+            case "LastSeenDesc":
+                players = players.OrderByDescending(p => p.LastSeen).AsQueryable();
+                break;
+            case "GameTypeAsc":
+                players = players.OrderBy(p => p.GameType).AsQueryable();
+                break;
+            case "GameTypeDesc":
+                players = players.OrderByDescending(p => p.GameType).AsQueryable();
+                break;
+        }
+
+        players = players.Skip(skipEntries).AsQueryable();
+
+        if (takeEntries != 0) players = players.Take(takeEntries).AsQueryable();
+
+        return players;
+    }
 }

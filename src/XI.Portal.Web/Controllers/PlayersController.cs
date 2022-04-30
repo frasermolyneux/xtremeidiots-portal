@@ -15,6 +15,7 @@ using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -26,19 +27,16 @@ namespace XI.Portal.Web.Controllers
         private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IPlayerAnalyticsRepository _playerAnalyticsRepository;
         private readonly IGeoLocationClient _geoLocationClient;
-        private readonly IPlayersRepository _playersRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayersController(
-            IPlayersRepository playersRepository,
             IGeoLocationClient geoLocationClient,
             IAdminActionsRepository adminActionsRepository,
             IPlayerAnalyticsRepository playerAnalyticsRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
-            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _playerAnalyticsRepository = playerAnalyticsRepository ?? throw new ArgumentNullException(nameof(playerAnalyticsRepository));
@@ -88,27 +86,8 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var filterModel = new PlayersFilterModel
-            {
-                Filter = filterType
-            };
-
-            if (id != null)
-                filterModel.GameType = (GameType)id;
-
-            var recordsTotal = await _playersRepository.GetPlayerListCount(filterModel);
-
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _playersRepository.GetPlayerListCount(filterModel);
-
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
-
-            if (model.Order == null)
-            {
-                filterModel.Order = PlayersFilterModel.OrderBy.LastSeenDesc;
-            }
-            else
+            string order = "LastSeenDesc";
+            if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
                 var searchOrder = model.Order.First().Dir;
@@ -116,28 +95,29 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "gameType":
-                        filterModel.Order = searchOrder == "asc" ? PlayersFilterModel.OrderBy.GameTypeAsc : PlayersFilterModel.OrderBy.GameTypeDesc;
+                        order = searchOrder == "asc" ? "GameTypeAsc" : "GameTypeDesc";
                         break;
                     case "username":
-                        filterModel.Order = searchOrder == "asc" ? PlayersFilterModel.OrderBy.UsernameAsc : PlayersFilterModel.OrderBy.UsernameDesc;
+                        order = searchOrder == "asc" ? "UsernameAsc" : "UsernameDesc";
                         break;
                     case "firstSeen":
-                        filterModel.Order = searchOrder == "asc" ? PlayersFilterModel.OrderBy.FirstSeenAsc : PlayersFilterModel.OrderBy.FirstSeenDesc;
+                        order = searchOrder == "asc" ? "FirstSeenAsc" : "FirstSeenDesc";
                         break;
                     case "lastSeen":
-                        filterModel.Order = searchOrder == "asc" ? PlayersFilterModel.OrderBy.LastSeenAsc : PlayersFilterModel.OrderBy.LastSeenDesc;
+                        order = searchOrder == "asc" ? "LastSeenAsc" : "LastSeenDesc";
                         break;
                 }
             }
 
-            var playersListEntries = await _playersRepository.GetPlayerList(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            PlayersSearchResponseDto searchResponse = await repositoryApiClient.PlayersApiClient.SearchPlayers(accessToken, id.ToString(), filterType.ToString(), model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal,
-                recordsFiltered,
-                data = playersListEntries
+                recordsTotal = searchResponse.TotalRecords,
+                recordsFiltered = searchResponse.FilteredRecords,
+                data = searchResponse.Entries
             });
         }
 
@@ -159,7 +139,7 @@ namespace XI.Portal.Web.Controllers
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = new PlayerDto
+                Player = new Players.Dto.PlayerDto
                 {
                     PlayerId = player.Id,
                     GameType = Enum.Parse<GameType>(player.GameType),
@@ -293,7 +273,7 @@ namespace XI.Portal.Web.Controllers
 
         public class PlayerDetailsViewModel
         {
-            public PlayerDto Player { get; set; }
+            public Players.Dto.PlayerDto Player { get; set; }
             public GeoLocationDto GeoLocation { get; set; }
             public List<AdminActionDto> AdminActions { get; set; }
         }

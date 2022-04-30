@@ -406,6 +406,28 @@
                 }
             }
         },
+        "/players/{player-id}/related-players": {
+            "get": {
+                "summary": "players/{player-id}/related-players",
+                "description": "Gets related players by IP Address",
+                "operationId": "get-players-player-id-related-players",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
         "/players/{player-id}/aliases": {
             "get": {
                 "summary": "players/{player-id}/aliases",
@@ -457,24 +479,61 @@
                 }
             }
         },
-        "/players/{player-id}/related-players": {
+        "/players/search": {
             "get": {
-                "summary": "players/{player-id}/related-players",
-                "description": "Gets related players by IP Address",
-                "operationId": "get-players-player-id-related-players",
+                "summary": "players/search",
+                "operationId": "get-players-search",
                 "parameters": [
                     {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
+                        "name": "gameType",
+                        "in": "query",
                         "schema": {
-                            "type": ""
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterType",
+                        "in": "query",
+                        "schema": {
+                            "enum": [
+                                "UsernameAndGuid",
+                                "IpAddress"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": null
                     }
                 }
             }

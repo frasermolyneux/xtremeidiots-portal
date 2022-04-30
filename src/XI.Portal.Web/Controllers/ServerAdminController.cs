@@ -10,7 +10,6 @@ using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Auth.ServerAdmin.Extensions;
-using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
@@ -25,7 +24,6 @@ namespace XI.Portal.Web.Controllers
     public class ServerAdminController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IPlayersRepository _playersRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IGameServersRepository _gameServersRepository;
@@ -37,7 +35,6 @@ namespace XI.Portal.Web.Controllers
             IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory,
-            IPlayersRepository playersRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
@@ -45,7 +42,6 @@ namespace XI.Portal.Web.Controllers
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
-            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.repositoryTokenProvider = repositoryTokenProvider;
         }

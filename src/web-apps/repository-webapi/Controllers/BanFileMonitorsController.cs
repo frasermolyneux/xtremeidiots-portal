@@ -120,7 +120,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (banFileMonitorDto == null) return new BadRequestResult();
             if (banFileMonitorDto.BanFileMonitorId != banFileMonitorId) return new BadRequestResult();
 
-            var banFileMonitor = await Context.BanFileMonitors.SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
+            var banFileMonitor = await Context.BanFileMonitors.Include(bfm => bfm.GameServerServer).SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
 
             if (banFileMonitor == null)
                 throw new NullReferenceException(nameof(banFileMonitor));

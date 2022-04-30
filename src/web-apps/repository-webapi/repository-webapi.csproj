@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\libraries\common-lib\common-lib.csproj" />
+    <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
     <ProjectReference Include="..\..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
   </ItemGroup>
 

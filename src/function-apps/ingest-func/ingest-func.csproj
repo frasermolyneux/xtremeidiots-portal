@@ -20,6 +20,7 @@
     <ProjectReference Include="..\..\libraries\common-lib\common-lib.csproj" />
     <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />
+    <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

@@ -64,7 +64,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sync-func", "function-apps\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "repository-func", "function-apps\repository-func\repository-func.csproj", "{2F617BB4-609B-4DA8-8145-AEBEA33AD738}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "repository-api-client-netstandard", "repository-api-client-netstandard\repository-api-client-netstandard.csproj", "{EAC3205A-B3AB-4503-B006-212901DE205F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "repository-api-client-netstandard", "repository-api-client-netstandard\repository-api-client-netstandard.csproj", "{EAC3205A-B3AB-4503-B006-212901DE205F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "abstractions", "abstractions", "{76B12390-BFC3-4599-A5F8-486AB492E3BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "repository-api-abstractions", "repository-api-abstractions\repository-api-abstractions.csproj", "{10568E17-7D24-472B-8954-193878F529CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "repository-api-abstractions-netstandard", "repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj", "{93E2AD79-819A-4317-9024-701F7C50BB8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -172,6 +178,14 @@ Global
 		{EAC3205A-B3AB-4503-B006-212901DE205F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAC3205A-B3AB-4503-B006-212901DE205F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAC3205A-B3AB-4503-B006-212901DE205F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10568E17-7D24-472B-8954-193878F529CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10568E17-7D24-472B-8954-193878F529CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10568E17-7D24-472B-8954-193878F529CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10568E17-7D24-472B-8954-193878F529CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E2AD79-819A-4317-9024-701F7C50BB8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E2AD79-819A-4317-9024-701F7C50BB8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E2AD79-819A-4317-9024-701F7C50BB8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E2AD79-819A-4317-9024-701F7C50BB8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -200,6 +214,8 @@ Global
 		{AA06A5E6-ED93-481F-8CA7-6AC8E19E2071} = {9C61BE39-0649-4034-AC6B-8F0EADCDE6FE}
 		{2F617BB4-609B-4DA8-8145-AEBEA33AD738} = {9C61BE39-0649-4034-AC6B-8F0EADCDE6FE}
 		{EAC3205A-B3AB-4503-B006-212901DE205F} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
+		{10568E17-7D24-472B-8954-193878F529CE} = {76B12390-BFC3-4599-A5F8-486AB492E3BB}
+		{93E2AD79-819A-4317-9024-701F7C50BB8B} = {76B12390-BFC3-4599-A5F8-486AB492E3BB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

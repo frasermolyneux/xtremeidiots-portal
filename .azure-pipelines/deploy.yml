@@ -198,7 +198,7 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+          $repositoryApiAppId = (az ad app list --filter "displayName eq '$(repositoryApiName)'" --query '[].appId') | ConvertFrom-Json
           
           az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/repositoryApi.bicep  `
@@ -238,7 +238,7 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
+          $eventsApiAppId = (az ad app list --filter "displayName eq '$(eventsApiAppName)'" --query '[].appId') | ConvertFrom-Json
 
           az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/eventsApp.bicep  `

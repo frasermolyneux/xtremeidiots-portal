@@ -47,8 +47,11 @@ public class GameServersController : Controller
         {
             switch (filterOption)
             {
-                case "BannerServerListPosition":
+                case "ShowOnPortalServerList":
                     query = query.Where(s => s.ShowOnPortalServerList);
+                    break;
+                case "ShowOnBannerServerList":
+                    query = query.Where(s => s.ShowOnBannerServerList);
                     break;
             }
         }

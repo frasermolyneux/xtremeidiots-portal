@@ -26,7 +26,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.GameServersApi
             if (serverIds != null)
                 request.AddQueryParameter("serverIds", string.Join(",", serverIds));
 
-            if (!string.IsNullOrEmpty(filterOption))
+            if (!string.IsNullOrWhiteSpace(filterOption))
                 request.AddQueryParameter("filterOption", filterOption);
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());

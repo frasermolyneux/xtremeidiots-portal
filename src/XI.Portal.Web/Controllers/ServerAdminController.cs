@@ -251,7 +251,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GameChatLog(GameType id)
+        public async Task<IActionResult> GameChatLog(string id)
         {
             var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
 
@@ -263,7 +263,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetGameChatLogAjax(GameType id)
+        public async Task<IActionResult> GetGameChatLogAjax(string id)
         {
             var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
 

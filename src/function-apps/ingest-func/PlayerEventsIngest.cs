@@ -1,4 +1,5 @@
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
@@ -14,16 +15,19 @@ public class PlayerEventsIngest
 {
     private readonly ILogger<PlayerEventsIngest> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
+    private readonly IMemoryCache memoryCache;
     private readonly IRepositoryTokenProvider _repositoryTokenProvider;
 
     public PlayerEventsIngest(
         ILogger<PlayerEventsIngest> log,
         IRepositoryTokenProvider repositoryTokenProvider,
-        IRepositoryApiClient repositoryApiClient)
+        IRepositoryApiClient repositoryApiClient,
+        IMemoryCache memoryCache)
     {
         _log = log;
         _repositoryTokenProvider = repositoryTokenProvider;
         _repositoryApiClient = repositoryApiClient;
+        this.memoryCache = memoryCache;
     }
 
     [FunctionName("ProcessOnPlayerConnected")]
@@ -110,29 +114,52 @@ public class PlayerEventsIngest
 
         _log.LogInformation($"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
 
-        var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
+        var playerId = await GetPlayerId(onChatMessage.GameType, onChatMessage.Guid);
 
-        var player =
-            await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, onChatMessage.GameType,
-                onChatMessage.Guid);
-
-        if (player != null)
+        if (playerId != Guid.Empty)
         {
             var chatMessage = new ChatMessageApiDto
             {
                 GameServerId = onChatMessage.ServerId,
-                PlayerId = player.Id,
+                PlayerId = playerId,
                 Username = onChatMessage.Username,
                 Message = onChatMessage.Message,
                 Type = onChatMessage.Type,
                 Timestamp = onChatMessage.EventGeneratedUtc
             };
 
+            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
             await _repositoryApiClient.ChatMessages.CreateChatMessage(accessToken, chatMessage);
         }
         else
         {
             _log.LogWarning($"ProcessOnChatMessage :: NOPLAYER :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
         }
+    }
+
+    private async Task<Guid> GetPlayerId(string gameType, string guid)
+    {
+        var cacheKey = $"{gameType}-${guid}";
+
+        if (!memoryCache.TryGetValue(cacheKey, out Guid playerId))
+        {
+            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
+
+            var player = await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, guid);
+
+            if (player != null)
+            {
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
+                memoryCache.Set(cacheKey, player.Id, cacheEntryOptions);
+
+                return playerId;
+            }
+            else
+            {
+                return Guid.Empty;
+            }
+        }
+
+        return playerId;
     }
 }

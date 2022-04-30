@@ -23,5 +23,7 @@ public class Startup : FunctionsStartup
         });
 
         builder.Services.AddLogging();
+
+        builder.Services.AddMemoryCache();
     }
 }

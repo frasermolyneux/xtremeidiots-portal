@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using XI.CommonTypes;
 
 namespace XI.Portal.Web.Extensions
 {
     public static class MapImageHtmlExtensions
     {
-        public static HtmlString MapImage(this IHtmlHelper html, GameType gameType, string mapName)
+        public static HtmlString MapImage(this IHtmlHelper html, string gameType, string mapName)
         {
             return new HtmlString(
                 $"<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/Maps/MapImage?gameType={gameType}&mapName={mapName}\" alt=\"{mapName}\" />");

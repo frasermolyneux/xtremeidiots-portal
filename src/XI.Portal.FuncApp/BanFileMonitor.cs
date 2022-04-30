@@ -1,36 +1,38 @@
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
-using XI.Portal.Players.Constants;
 using XI.Portal.Players.Interfaces;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Utilities.FtpHelper;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
     public class BanFileMonitor
     {
         private readonly IBanFileIngest _banFileIngest;
-        private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IBanFilesRepository _banFilesRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IFtpHelper _ftpHelper;
         private readonly ILogger<BanFileMonitor> _logger;
 
         public BanFileMonitor(
             ILogger<BanFileMonitor> logger,
-            IBanFileMonitorsRepository banFileMonitorsRepository,
             IFtpHelper ftpHelper,
             IBanFileIngest banFileIngest,
-            IBanFilesRepository banFilesRepository)
+            IBanFilesRepository banFilesRepository,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _ftpHelper = ftpHelper ?? throw new ArgumentNullException(nameof(ftpHelper));
             _banFileIngest = banFileIngest;
             _banFilesRepository = banFilesRepository ?? throw new ArgumentNullException(nameof(banFilesRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [FunctionName("BanFileImportAndUpdate")]
@@ -41,89 +43,95 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var banFileMonitors = await _banFileMonitorsRepository.GetBanFileMonitors(new BanFileMonitorFilterModel());
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var banFileMonitors = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, null, null, null, 0, 0, null);
+
             foreach (var banFileMonitor in banFileMonitors)
+            {
                 try
                 {
-                    _logger.LogDebug("Checking ban file for {server}", banFileMonitor.GameServer.Title);
+                    var server = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitor.ServerId);
+
+                    _logger.LogDebug("Checking ban file for {server}", server.Title);
 
                     var remoteFileSize = _ftpHelper.GetFileSize(
-                        banFileMonitor.GameServer.FtpHostname,
+                        server.FtpHostname,
                         banFileMonitor.FilePath,
-                        banFileMonitor.GameServer.FtpUsername,
-                        banFileMonitor.GameServer.FtpPassword);
+                        server.FtpUsername,
+                        server.FtpPassword);
 
-                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(banFileMonitor.GameServer.GameType);
+                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(server.GameType);
 
                     if (remoteFileSize == 0)
                     {
-                        _logger.LogInformation("Remote ban file on {server} at {path} is zero - updating file", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
+                        _logger.LogInformation("Remote ban file on {server} at {path} is zero - updating file", server.Title, banFileMonitor.FilePath);
 
-                        var banFileStream = await _banFilesRepository.GetBanFileForGame(banFileMonitor.GameServer.GameType);
+                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType);
 
                         await _ftpHelper.UpdateRemoteFileFromStream(
-                            banFileMonitor.GameServer.FtpHostname,
+                            server.FtpHostname,
                             banFileMonitor.FilePath,
-                            banFileMonitor.GameServer.FtpUsername,
-                            banFileMonitor.GameServer.FtpPassword,
+                            server.FtpUsername,
+                            server.FtpPassword,
                             banFileStream);
 
                         banFileMonitor.RemoteFileSize = banFileSize;
 
-                        await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
                         continue;
                     }
 
                     if (remoteFileSize != banFileMonitor.RemoteFileSize)
                     {
-                        _logger.LogInformation("Remote ban file on {server} at {path} has changed since last sync: {current} != {last}", banFileMonitor.GameServer.Title, banFileMonitor.FilePath, remoteFileSize, banFileMonitor.RemoteFileSize);
+                        _logger.LogInformation("Remote ban file on {server} at {path} has changed since last sync: {current} != {last}", server.Title, banFileMonitor.FilePath, remoteFileSize, banFileMonitor.RemoteFileSize);
 
                         var remoteBanFileData = _ftpHelper.GetRemoteFileData(
-                            banFileMonitor.GameServer.FtpHostname,
+                            server.FtpHostname,
                             banFileMonitor.FilePath,
-                            banFileMonitor.GameServer.FtpUsername,
-                            banFileMonitor.GameServer.FtpPassword);
+                            server.FtpUsername,
+                            server.FtpPassword);
 
-                        await _banFileIngest.IngestBanFileDataForGame(banFileMonitor.GameServer.GameType, remoteBanFileData);
+                        await _banFileIngest.IngestBanFileDataForGame(server.GameType, remoteBanFileData);
 
                         banFileMonitor.RemoteFileSize = remoteFileSize;
 
-                        await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
                     }
                     else
                     {
-                        _logger.LogDebug("Remote ban file on {server} at {path} has not been modified since last sync", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
+                        _logger.LogDebug("Remote ban file on {server} at {path} has not been modified since last sync", server.Title, banFileMonitor.FilePath);
                     }
 
                     if (remoteFileSize != banFileSize && remoteFileSize == banFileMonitor.RemoteFileSize)
                     {
-                        _logger.LogInformation("Remote ban file on {server} at {path} is not the latest version", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
+                        _logger.LogInformation("Remote ban file on {server} at {path} is not the latest version", server.Title, banFileMonitor.FilePath);
 
-                        var banFileStream = await _banFilesRepository.GetBanFileForGame(banFileMonitor.GameServer.GameType);
+                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType);
 
                         await _ftpHelper.UpdateRemoteFileFromStream(
-                            banFileMonitor.GameServer.FtpHostname,
+                            server.FtpHostname,
                             banFileMonitor.FilePath,
-                            banFileMonitor.GameServer.FtpUsername,
-                            banFileMonitor.GameServer.FtpPassword,
+                            server.FtpUsername,
+                            server.FtpPassword,
                             banFileStream);
 
                         banFileMonitor.RemoteFileSize = banFileSize;
 
-                        await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
                     }
                     else
                     {
-                        _logger.LogDebug("Remote ban file on {server} at {path} has the latest ban file", banFileMonitor.GameServer.Title, banFileMonitor.FilePath);
+                        _logger.LogDebug("Remote ban file on {server} at {path} has the latest ban file", server.Title, banFileMonitor.FilePath);
                     }
 
                     banFileMonitor.LastSync = DateTime.UtcNow;
-                    await _banFileMonitorsRepository.UpdateBanFileMonitor(banFileMonitor);
+                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to check ban file for {server}", banFileMonitor.GameServer.Title);
+                    _logger.LogError(ex, "Failed to check ban file for {server}", banFileMonitor.ServerId);
                 }
+            }
 
             stopWatch.Stop();
             log.LogDebug($"Stop BanFileImportAndUpdate @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");
@@ -137,7 +145,7 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            foreach (var gameType in BanFilesSupportedGames.Games)
+            foreach (var gameType in new string[] { "CallOfDuty2", "CallOfDuty4", "CallOfDuty5" })
                 try
                 {
                     await _banFilesRepository.RegenerateBanFileForGame(gameType);

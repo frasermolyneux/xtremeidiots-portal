@@ -40,9 +40,6 @@ namespace XI.Portal.Servers.Extensions
                 serviceCollection.AddScoped<IGameServerStatusStatsRepository, GameServerStatusStatsRepository>();
             }
 
-            serviceCollection.AddScoped<IGameServersRepository, GameServersRepository>();
-            serviceCollection.AddScoped<IBanFileMonitorsRepository, BanFileMonitorsRepository>();
-
             serviceCollection.AddSingleton<IQueryClientFactory, QueryClientFactory>();
             serviceCollection.AddSingleton<IRconClientFactory, RconClientFactory>();
             serviceCollection.AddSingleton<IGameServerClientFactory, GameServerClientFactory>();

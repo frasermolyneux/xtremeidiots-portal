@@ -3,13 +3,13 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using XI.CommonTypes;
 
-namespace XI.Portal.Servers.Dto
+namespace XI.Portal.Web.Models
 {
-    public class GameServerDto
+    public class GameServerViewModel
     {
         public Guid ServerId { get; set; }
-        [Required] [MaxLength(60)] public string Title { get; set; }
-        [Required] [DisplayName("Game")] public GameType GameType { get; set; }
+        [Required][MaxLength(60)] public string Title { get; set; }
+        [Required][DisplayName("Game")] public GameType GameType { get; set; }
         public string Hostname { get; set; }
 
         [DisplayName("Query Port")] public int QueryPort { get; set; }

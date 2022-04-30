@@ -1,9 +1,7 @@
-﻿using XI.CommonTypes;
-
-namespace XI.Portal.Players.Interfaces
+﻿namespace XI.Portal.Players.Interfaces
 {
     public interface IGuidValidator
     {
-        bool IsValid(GameType gameType, string guid);
+        bool IsValid(string gameType, string guid);
     }
 }

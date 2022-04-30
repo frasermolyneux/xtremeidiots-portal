@@ -1,21 +1,20 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
-using XI.Portal.Auth.Users.Extensions;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Portal.Users.Models;
 using XI.Portal.Users.Repository;
 using XI.Portal.Web.Extensions;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -23,7 +22,8 @@ namespace XI.Portal.Web.Controllers
     public class UserController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IGameServersRepository _gameServersRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<UserController> _logger;
         private readonly UserManager<PortalIdentityUser> _userManager;
         private readonly IUsersRepository _usersRepository;
@@ -32,14 +32,16 @@ namespace XI.Portal.Web.Controllers
             IUsersRepository usersRepository,
             UserManager<PortalIdentityUser> userManager,
             ILogger<UserController> logger,
-            IGameServersRepository gameServersRepository,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
             _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
@@ -57,12 +59,14 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageProfile(string id)
         {
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin };
+            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+
+            var gameServers = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
+
             var user = await _usersRepository.GetUser(id);
-            var filterModel = new GameServerFilterModel
-            {
-                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuthForUsers(User);
-            var gameServers = await _gameServersRepository.GetGameServers(filterModel);
 
             ViewData["GameServers"] = gameServers;
             ViewData["GameServersSelect"] = new SelectList(gameServers, "ServerId", "Title");
@@ -104,7 +108,8 @@ namespace XI.Portal.Web.Controllers
             var user = await _userManager.FindByIdAsync(id);
             var portalClaims = await _usersRepository.GetUserClaims(id);
 
-            var gameServerDto = await _gameServersRepository.GetGameServer(Guid.Parse(claimValue));
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, Guid.Parse(claimValue));
 
             var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateUserClaim);
 
@@ -127,7 +132,7 @@ namespace XI.Portal.Web.Controllers
                 this.AddAlertSuccess($"Nothing to do - {user.UserName} already has the {claimType} claim");
             }
 
-            return RedirectToAction(nameof(ManageProfile), new {id});
+            return RedirectToAction(nameof(ManageProfile), new { id });
         }
 
         [HttpPost]
@@ -144,7 +149,8 @@ namespace XI.Portal.Web.Controllers
             if (claim == null)
                 return NotFound();
 
-            var gameServerDto = await _gameServersRepository.GetGameServer(Guid.Parse(claim.ClaimValue));
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, Guid.Parse(claim.ClaimValue));
 
             var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteUserClaim);
 
@@ -157,7 +163,7 @@ namespace XI.Portal.Web.Controllers
             this.AddAlertSuccess($"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)");
             _logger.LogInformation(EventIds.Management, "User {User} has removed a claim from {TargetUser}", User.Username(), user.UserName);
 
-            return RedirectToAction(nameof(ManageProfile), new {id});
+            return RedirectToAction(nameof(ManageProfile), new { id });
         }
     }
 }

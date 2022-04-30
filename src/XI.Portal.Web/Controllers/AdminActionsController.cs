@@ -46,7 +46,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var playerDto = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, id);
+            var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, id);
 
             if (playerDto == null) return NotFound();
 
@@ -72,7 +72,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Create(AdminActionDto model)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var playerDto = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, model.PlayerId);
+            var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, model.PlayerId);
 
             if (playerDto == null) return NotFound();
 

@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using XI.CommonTypes;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace XI.Portal.Web.Extensions
 {
@@ -19,7 +18,7 @@ namespace XI.Portal.Web.Extensions
 
         public static HtmlString ServerName(this IHtmlHelper html, string title, string liveTitle)
         {
-            var toRemove = new List<string> {"^1", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9"};
+            var toRemove = new List<string> { "^1", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9" };
 
             if (string.IsNullOrWhiteSpace(liveTitle)) return new HtmlString(title);
 
@@ -34,18 +33,18 @@ namespace XI.Portal.Web.Extensions
                 $"<a style=\"margin:5px\" href=\"{link}\" target=\"_blank\"><img src=\"/images/service-icons/gametracker.png\" alt=\"gametracker\"/></a>");
         }
 
-        public static HtmlString HlswIcon(this IHtmlHelper html, GameType gameType, string hostname, int port)
+        public static HtmlString HlswIcon(this IHtmlHelper html, string gameType, string hostname, int port)
         {
             string link;
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     link = $"hlsw://{hostname}:{port}?Game=CoD2";
                     break;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     link = $"hlsw://{hostname}:{port}?Game=CoD4";
                     break;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     link = $"hlsw://{hostname}:{port}?Game=CoDWW";
                     break;
                 default:
@@ -56,7 +55,7 @@ namespace XI.Portal.Web.Extensions
                 $"<a style=\"margin:5px\" href=\"{link}\"><img src=\"/images/service-icons/hlsw.png\" alt=\"hlsw\"/></a>");
         }
 
-        public static HtmlString SteamIcon(this IHtmlHelper html, GameType gameType, string hostname, int port)
+        public static HtmlString SteamIcon(this IHtmlHelper html, string gameType, string hostname, int port)
         {
             var link = $"steam://connect/{hostname}:{port}";
             return new HtmlString(

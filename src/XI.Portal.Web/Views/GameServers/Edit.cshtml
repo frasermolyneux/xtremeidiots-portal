@@ -1,7 +1,8 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Authorization
 @using XI.Portal.Auth.Contract.Constants
-@model XI.Portal.Servers.Dto.GameServerDto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model GameServerDto
 
 @{
     ViewData["Title"] = "Edit Game Server";
@@ -11,7 +12,7 @@
 
     <form asp-action="Edit">
 
-        <input type="hidden" asp-for="ServerId" />
+        <input type="hidden" asp-for="Id" />
 
         <row class="row">
             <div class="col-12">

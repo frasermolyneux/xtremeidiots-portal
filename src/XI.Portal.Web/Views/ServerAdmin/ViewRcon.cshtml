@@ -1,5 +1,6 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Servers.Dto.GameServerDto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model GameServerDto
 
 @{
     ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, null);
@@ -123,7 +124,7 @@
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
-                    url: "/ServerAdmin/RestartServer/@Model.ServerId",
+                    url: "/ServerAdmin/RestartServer/@Model.Id",
                     success: function(result) {
                         alert("Success: " + result.message);
                     },
@@ -137,7 +138,7 @@
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
-                    url: "/ServerAdmin/RestartMap/@Model.ServerId",
+                    url: "/ServerAdmin/RestartMap/@Model.Id",
                     success: function(result) {
                         alert("Success: " + result.message);
                     },
@@ -151,7 +152,7 @@
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
-                    url: "/ServerAdmin/FastRestartMap/@Model.ServerId",
+                    url: "/ServerAdmin/FastRestartMap/@Model.Id",
                     success: function(result) {
                         alert("Success: " + result.message);
                     },
@@ -165,7 +166,7 @@
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
-                    url: "/ServerAdmin/NextMap/@Model.ServerId",
+                    url: "/ServerAdmin/NextMap/@Model.Id",
                     success: function(result) {
                         alert("Success: " + result.message);
                     },
@@ -181,7 +182,7 @@
                 stateSave: true,
                 order: [[0, "asc"]],
                 ajax: {
-                    url: '/ServerAdmin/GetRconPlayers/@Model.ServerId',
+                    url: '/ServerAdmin/GetRconPlayers/@Model.Id',
                     dataSrc: 'data',
                     error: handleAjaxError
                 },

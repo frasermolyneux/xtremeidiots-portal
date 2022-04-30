@@ -1,4 +1,5 @@
 ﻿@using XI.Portal.Servers.Dto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 @model XI.Portal.Users.Models.UserListEntryViewModel
 
 @{
@@ -108,7 +109,7 @@
                                 <tr>
                                     @{
                                         Guid.TryParse(claim.ClaimValue, out var serverId);
-                                        var server = gameServers.FirstOrDefault(s => s.ServerId == serverId);
+                                        var server = gameServers.FirstOrDefault(s => s.Id == serverId);
                                     }
 
                                     <td>@claim.ClaimType</td>

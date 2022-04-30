@@ -1,20 +1,19 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using XI.CommonTypes;
-using XI.Portal.Auth.BanFileMonitors.Extensions;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.GameServers.Extensions;
-using XI.Portal.Servers.Dto;
-using XI.Portal.Servers.Extensions;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -22,31 +21,31 @@ namespace XI.Portal.Web.Controllers
     public class GameServersController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IGameServersRepository _gameServersRepository;
-        private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<GameServersController> _logger;
 
         public GameServersController(
             ILogger<GameServersController> logger,
             IAuthorizationService authorizationService,
-            IGameServersRepository gameServersRepository,
-            IBanFileMonitorsRepository banFileMonitorsRepository)
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
-            _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel
-            {
-                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuthForGameServers(User);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
-            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.GameServer };
+            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
 
             return View(gameServerDtos);
         }
@@ -55,20 +54,24 @@ namespace XI.Portal.Web.Controllers
         public IActionResult Create()
         {
             AddGameTypeViewData();
-            return View(new GameServerDto());
+            return View(new GameServerViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(GameServerDto model)
+        public async Task<IActionResult> Create(GameServerViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                AddGameTypeViewData(model.GameType);
+                AddGameTypeViewData(model.GameType.ToString());
                 return View(model);
             }
 
-            var gameServerDto = new GameServerDto().ForGameType(model.GameType);
+            var gameServerDto = new GameServerDto()
+            {
+                GameType = model.GameType.ToString()
+            };
+
             var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateGameServer);
 
             if (!canCreateGameServer.Succeeded)
@@ -98,7 +101,8 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
             gameServerDto.ShowChatLog = model.ShowChatLog;
 
-            await _gameServersRepository.CreateGameServer(gameServerDto);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            await repositoryApiClient.GameServers.CreateGameServer(accessToken, gameServerDto);
 
             _logger.LogInformation(EventIds.Management, "User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
             this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
@@ -109,7 +113,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
+
             if (gameServerDto == null) return NotFound();
 
             var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewGameServer);
@@ -117,17 +123,29 @@ namespace XI.Portal.Web.Controllers
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var banFileMonitorFilterModel = new BanFileMonitorFilterModel
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
+            var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
+
+            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, gameTypes, banFileMonitorIds, id, 0, 0, "BannerServerListPosition");
+
+            List<BanFileMonitorViewModel> viewModels = new List<BanFileMonitorViewModel>();
+            foreach (var banFileMonitor in banFileMonitorDtos)
             {
-                Order = BanFileMonitorFilterModel.OrderBy.BannerServerListPosition,
-                ServerId = id
-            }.ApplyAuth(User);
-            var banFileMonitorDtos = await _banFileMonitorsRepository.GetBanFileMonitors(banFileMonitorFilterModel);
+                viewModels.Add(new BanFileMonitorViewModel
+                {
+                    BanFileMonitorId = banFileMonitor.BanFileMonitorId,
+                    FilePath = banFileMonitor.FilePath,
+                    RemoteFileSize = banFileMonitor.RemoteFileSize,
+                    LastSync = banFileMonitor.LastSync,
+                    ServerId = banFileMonitor.ServerId,
+                    GameServer = gameServerDto
+                });
+            }
 
             var model = new GameServerDetailsViewModel
             {
                 GameServerDto = gameServerDto,
-                BanFileMonitorDtos = banFileMonitorDtos
+                BanFileMonitors = viewModels
             };
 
             return View(model);
@@ -136,7 +154,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
+
             if (gameServerDto == null) return NotFound();
 
             AddGameTypeViewData(gameServerDto.GameType);
@@ -145,7 +165,6 @@ namespace XI.Portal.Web.Controllers
 
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
-
 
             var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerFtp);
 
@@ -166,14 +185,16 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(GameServerDto model)
+        public async Task<IActionResult> Edit(GameServerViewModel model)
         {
-            var gameServerDto = await _gameServersRepository.GetGameServer(model.ServerId);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, model.ServerId);
+
             if (gameServerDto == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                AddGameTypeViewData(model.GameType);
+                AddGameTypeViewData(model.GameType.ToString());
                 return View(model);
             }
 
@@ -206,9 +227,9 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
             gameServerDto.ShowChatLog = model.ShowChatLog;
 
-            await _gameServersRepository.UpdateGameServer(gameServerDto);
+            await repositoryApiClient.GameServers.UpdateGameServer(accessToken, gameServerDto);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerDto.ServerId, gameServerDto.GameType);
+            _logger.LogInformation(EventIds.Management, "User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
             this.AddAlertSuccess($"The game server {gameServerDto.Title} has been updated for {gameServerDto.GameType}");
 
             return RedirectToAction(nameof(Index));
@@ -217,7 +238,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
+
             if (gameServerDto == null) return NotFound();
 
             var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteGameServer);
@@ -233,7 +256,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var gameServerDto = await _gameServersRepository.GetGameServer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
+
             if (gameServerDto == null) return NotFound();
 
             var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteGameServer);
@@ -241,18 +266,18 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();
 
-            await _gameServersRepository.DeleteGameServer(id);
+            await repositoryApiClient.GameServers.DeleteGameServer(accessToken, id);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerDto.ServerId, gameServerDto.GameType);
+            _logger.LogInformation(EventIds.Management, "User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
             this.AddAlertSuccess($"The game server {gameServerDto.Title} has been deleted for {gameServerDto.GameType}");
 
             return RedirectToAction(nameof(Index));
         }
 
-        private void AddGameTypeViewData(GameType? selected = null)
+        private void AddGameTypeViewData(string selected = null)
         {
             if (selected == null)
-                selected = GameType.Unknown;
+                selected = "Unknown";
 
             var gameTypes = User.GetGameTypesForGameServers();
             ViewData["GameType"] = new SelectList(gameTypes, selected);

@@ -57,7 +57,7 @@ public class ServerEventsIngest
         {
             var gameServer = new GameServerDto
             {
-                Id = onServerConnected.Id,
+                Id = Guid.Parse(onServerConnected.Id),
                 GameType = onServerConnected.GameType
             };
 

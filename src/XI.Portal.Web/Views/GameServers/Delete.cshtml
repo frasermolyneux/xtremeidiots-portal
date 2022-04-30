@@ -1,5 +1,6 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Servers.Dto.GameServerDto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model GameServerDto
 
 @{
     ViewData["Title"] = "Delete Game Server";
@@ -40,7 +41,7 @@
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Delete">
-                            <input type="hidden" asp-for="ServerId" />
+                            <input type="hidden" asp-for="Id" />
                             <div class="btn-group btn-group-sm" role="group">
 
                                 <button class="btn btn-danger" type="submit">

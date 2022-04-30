@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
-using XI.Portal.Servers.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.GameServers.AuthorizationHandlers
 {
@@ -16,7 +16,7 @@ namespace XI.Portal.Auth.GameServers.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == resource.GameType.ToString()))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(PortalClaimTypes.FtpCredentials, resource.ServerId.ToString()))
+            if (context.User.HasClaim(PortalClaimTypes.FtpCredentials, resource.Id.ToString()))
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

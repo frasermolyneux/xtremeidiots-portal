@@ -6,15 +6,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
     // ReSharper disable once UnusedMember.Global
     public class DataMaintenance
     {
-        private readonly IGameServersRepository _gameServersRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
 
@@ -22,12 +24,14 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IGameServersRepository gameServersRepository)
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [FunctionName("DataMaintenance")]
@@ -39,8 +43,10 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var servers = await _gameServersRepository.GetGameServers(new GameServerFilterModel { Filter = GameServerFilterModel.FilterBy.None });
-            var serverIds = servers.Select(s => s.ServerId).ToList();
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var servers = await repositoryApiClient.GameServers.GetGameServers(accessToken, null, null, null, 0, 0, null);
+
+            var serverIds = servers.Select(s => s.Id).ToList();
 
             await _playerLocationsRepository.RemoveOldEntries(serverIds);
             await _playersCache.RemoveOldEntries();

@@ -1,38 +1,62 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XI.Portal.Auth.BanFileMonitors.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = AuthPolicies.AccessStatus)]
     public class StatusController : Controller
     {
-        private readonly IBanFileMonitorsRepository _banFileMonitorsRepository;
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
 
         public StatusController(
-            IBanFileMonitorsRepository banFileMonitorsRepository,
-            IGameServerStatusRepository gameServerStatusRepository)
+            IGameServerStatusRepository gameServerStatusRepository,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _banFileMonitorsRepository = banFileMonitorsRepository ?? throw new ArgumentNullException(nameof(banFileMonitorsRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> BanFileStatus()
         {
-            var filterModel = new BanFileMonitorFilterModel
-            {
-                Order = BanFileMonitorFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuth(User);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
-            var banFileMonitorDtos = await _banFileMonitorsRepository.GetBanFileMonitors(filterModel);
-            return View(banFileMonitorDtos);
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
+            var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
+
+            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
+
+            List<BanFileMonitorViewModel> models = new List<BanFileMonitorViewModel>();
+            foreach (var banFileMonitor in banFileMonitorDtos)
+            {
+                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitor.ServerId);
+
+                models.Add(new BanFileMonitorViewModel
+                {
+                    BanFileMonitorId = banFileMonitor.BanFileMonitorId,
+                    FilePath = banFileMonitor.FilePath,
+                    RemoteFileSize = banFileMonitor.RemoteFileSize,
+                    LastSync = banFileMonitor.LastSync,
+                    ServerId = banFileMonitor.ServerId,
+                    GameServer = gameServerDto
+                });
+            }
+
+            return View(models);
         }
 
         public async Task<IActionResult> GameServerStatus()

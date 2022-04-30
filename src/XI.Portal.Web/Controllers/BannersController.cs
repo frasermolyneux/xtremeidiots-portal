@@ -1,21 +1,24 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     public class BannersController : Controller
     {
-        private readonly IGameServersRepository _gameServersRepository;
-
-        public BannersController(IGameServersRepository gameServersRepository)
+        public BannersController(
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            RepositoryTokenProvider = repositoryTokenProvider;
+            RepositoryApiClient = repositoryApiClient;
         }
+
+        public IRepositoryTokenProvider RepositoryTokenProvider { get; }
+        public IRepositoryApiClient RepositoryApiClient { get; }
 
         public IActionResult GameServersList()
         {
@@ -25,14 +28,10 @@ namespace XI.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
-            var filterModel = new GameServerFilterModel
-            {
-                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
-            };
+            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
+            var gameServerDtos = await RepositoryApiClient.GameServers.GetGameServers(accessToken, null, null, null, 0, 0, "BannerServerListPosition");
 
-            var gameServerDtos = (await _gameServersRepository.GetGameServers(filterModel))
-                .Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner))
-                .ToList();
+            var filtered = gameServerDtos.Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
 
             var htmlBanners = gameServerDtos.Select(gs => gs.HtmlBanner).ToList();
 

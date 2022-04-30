@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Credentials.Extensions;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
+using XI.Portal.Auth.Contract.Extensions;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -13,23 +13,27 @@ namespace XI.Portal.Web.Controllers
     public class CredentialsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IGameServersRepository _gameServersRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
 
         public CredentialsController(
             IAuthorizationService authorizationService,
-            IGameServersRepository gameServersRepository)
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> Index()
         {
-            var filterModel = new GameServerFilterModel
-            {
-                Order = GameServerFilterModel.OrderBy.BannerServerListPosition
-            }.ApplyAuthForCredentials(User);
-            var gameServerDtos = await _gameServersRepository.GetGameServers(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.FtpCredentials, PortalClaimTypes.RconCredentials };
+            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
 
             foreach (var gameServerDto in gameServerDtos)
             {

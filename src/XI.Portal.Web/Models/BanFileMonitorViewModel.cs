@@ -1,14 +1,15 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
-namespace XI.Portal.Servers.Dto
+namespace XI.Portal.Web.Models
 {
-    public class BanFileMonitorDto
+    public class BanFileMonitorViewModel
     {
         public Guid BanFileMonitorId { get; set; }
 
-        [Required] [DisplayName("File Path")] public string FilePath { get; set; }
+        [Required][DisplayName("File Path")] public string FilePath { get; set; }
 
         [DisplayName("Remote File Size")] public long RemoteFileSize { get; set; }
 

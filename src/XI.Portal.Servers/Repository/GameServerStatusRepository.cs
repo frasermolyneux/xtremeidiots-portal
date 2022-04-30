@@ -1,37 +1,43 @@
-﻿using System;
+﻿using FM.GeoLocation.Contract.Interfaces;
+using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Cosmos.Table.Queryable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FM.GeoLocation.Contract.Interfaces;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.Cosmos.Table.Queryable;
+using XI.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Servers.Interfaces;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Servers.Repository
 {
     public class GameServerStatusRepository : IGameServerStatusRepository
     {
         private readonly IGameServerClientFactory _gameServerClientFactory;
-        private readonly IGameServersRepository _gameServersRepository;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayerLocationsRepository _playersLocationsRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly CloudTable _statusTable;
 
         public GameServerStatusRepository(IGameServerStatusRepositoryOptions options,
-            IGameServersRepository gameServersRepository,
             IGameServerClientFactory gameServerClientFactory,
             IGeoLocationClient geoLocationClient,
-            IPlayerLocationsRepository playersLocationsRepository)
+            IPlayerLocationsRepository playersLocationsRepository,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _playersLocationsRepository = playersLocationsRepository ?? throw new ArgumentNullException(nameof(playersLocationsRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
 
@@ -49,7 +55,7 @@ namespace XI.Portal.Servers.Repository
                 return await RefreshGameServerStatus(serverId);
             }
 
-            var storedGameServerStatus = (PortalGameServerStatusEntity) result.Result;
+            var storedGameServerStatus = (PortalGameServerStatusEntity)result.Result;
 
             if (cacheCutoff != TimeSpan.Zero && storedGameServerStatus.Timestamp < DateTime.UtcNow + cacheCutoff)
             {
@@ -141,8 +147,10 @@ namespace XI.Portal.Servers.Repository
         {
             try
             {
-                var server = await _gameServersRepository.GetGameServer(serverId);
-                var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.ServerId, server.Hostname, server.QueryPort, server.RconPassword);
+                var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+                var server = await repositoryApiClient.GameServers.GetGameServer(accessToken, serverId);
+
+                var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.Id, server.Hostname, server.QueryPort, server.RconPassword);
 
                 var gameServerStatus = await gameServerStatusHelper.GetServerStatus();
 
@@ -152,7 +160,7 @@ namespace XI.Portal.Servers.Repository
                 var model = new PortalGameServerStatusDto
                 {
                     ServerId = serverId,
-                    GameType = server.GameType,
+                    GameType = Enum.Parse<GameType>(server.GameType),
                     Hostname = server.Hostname,
                     QueryPort = server.QueryPort,
                     MaxPlayers = gameServerStatus.MaxPlayers,
@@ -186,8 +194,8 @@ namespace XI.Portal.Servers.Repository
 
                             await _playersLocationsRepository.UpdateEntry(new PlayerLocationDto
                             {
-                                GameType = server.GameType,
-                                ServerId = server.ServerId,
+                                GameType = Enum.Parse<GameType>(server.GameType),
+                                ServerId = server.Id,
                                 ServerName = gameServerStatus.ServerName,
                                 Guid = player.Guid,
                                 PlayerName = player.Name,

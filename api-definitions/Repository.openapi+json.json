@@ -89,6 +89,50 @@
                 "summary": "game-servers",
                 "description": "Gets a list of game servers",
                 "operationId": "get-game-servers",
+                "parameters": [
+                    {
+                        "name": "gameTypes",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "serverIds",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterOption",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "null"
@@ -482,6 +526,7 @@
         "/players/search": {
             "get": {
                 "summary": "players/search",
+                "description": "players/search",
                 "operationId": "get-players-search",
                 "parameters": [
                     {
@@ -528,6 +573,475 @@
                         "in": "query",
                         "schema": {
                             "type": "int"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/admin-actions": {
+            "get": {
+                "summary": "admin-actions",
+                "description": "admin-actions",
+                "operationId": "get-admin-actions",
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "playerId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "adminId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterType",
+                        "in": "query",
+                        "schema": {
+                            "enum": [
+                                "None",
+                                "ActiveBans",
+                                "UnclaimedBans"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "enum": [
+                                "None",
+                                "CreatedAsc",
+                                "CreatedDesc"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/admin-actions/{admin-action-id}": {
+            "get": {
+                "summary": "admin-actions/{admin-action-id}",
+                "description": "admin-actions/{admin-action-id}",
+                "operationId": "get-admin-actions-admin-action-id",
+                "parameters": [
+                    {
+                        "name": "admin-action-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "admin-actions/{admin-action-id}",
+                "description": "admin-actions/{admin-action-id}",
+                "operationId": "delete-admin-actions-admin-action-id",
+                "parameters": [
+                    {
+                        "name": "admin-action-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players/{player-id}/admin-actions": {
+            "get": {
+                "summary": "players/{player-id}/admin-actions",
+                "description": "players/{player-id}/admin-actions",
+                "operationId": "get-players-player-id-admin-actions",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "post": {
+                "summary": "players/{player-id}/admin-actions",
+                "description": "players/{player-id}/admin-actions",
+                "operationId": "post-players-player-id-admin-actions",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players/{player-id}/admin-actions/{admin-action-id}": {
+            "patch": {
+                "summary": "players/{player-id}/admin-actions/{admin-action-id}",
+                "description": "players/{player-id}/admin-actions/{admin-action-id}",
+                "operationId": "patch-players-player-id-admin-actions-admin-action-id",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "admin-action-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/maps": {
+            "get": {
+                "summary": "maps",
+                "description": "maps",
+                "operationId": "get-maps",
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "mapNames",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/maps/{game-type}/{map-name}": {
+            "get": {
+                "summary": "maps/{game-type}/{map-name}",
+                "description": "maps/{game-type}/{map-name}",
+                "operationId": "get-maps-game-type-map-name",
+                "parameters": [
+                    {
+                        "name": "game-type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "map-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/maps/{game-type}/{map-name}/popularity": {
+            "get": {
+                "summary": "maps/{game-type}/{map-name}/popularity",
+                "description": "maps/{game-type}/{map-name}/popularity",
+                "operationId": "get-maps-game-type-map-name-popularity",
+                "parameters": [
+                    {
+                        "name": "game-type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "map-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "post": {
+                "summary": "maps/{game-type}/{map-name}/popularity",
+                "description": "maps/{game-type}/{map-name}/popularity",
+                "operationId": "post-maps-game-type-map-name-popularity",
+                "parameters": [
+                    {
+                        "name": "game-type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "map-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/ban-file-monitors": {
+            "get": {
+                "summary": "ban-file-monitors",
+                "description": "ban-file-monitors",
+                "operationId": "get-ban-file-monitors",
+                "parameters": [
+                    {
+                        "name": "gameTypes",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "banFileMonitorIds",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/game-servers/{server-id}/ban-file-monitors": {
+            "post": {
+                "summary": "game-servers/{server-id}/ban-file-monitors",
+                "description": "game-servers/{server-id}/ban-file-monitors",
+                "operationId": "post-game-servers-server-id-ban-file-monitors",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/ban-file-monitors/{ban-file-monitor-id}": {
+            "get": {
+                "summary": "ban-file-monitors/{ban-file-monitor-id}",
+                "description": "ban-file-monitors/{ban-file-monitor-id}",
+                "operationId": "get-ban-file-monitors-ban-file-monitor-id",
+                "parameters": [
+                    {
+                        "name": "ban-file-monitor-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "patch": {
+                "summary": "ban-file-monitors/{ban-file-monitor-id}",
+                "operationId": "patch-ban-file-monitors-ban-file-monitor-id",
+                "parameters": [
+                    {
+                        "name": "ban-file-monitor-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "delete": {
+                "summary": "ban-file-monitors/{ban-file-monitor-id}",
+                "operationId": "delete-ban-file-monitors-ban-file-monitor-id",
+                "parameters": [
+                    {
+                        "name": "ban-file-monitor-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
                         }
                     }
                 ],

@@ -164,20 +164,9 @@ public class PlayersController : ControllerBase
 
         foreach (var player in playerDtos)
         {
-            GameType legacyGameType;
-            switch (player.GameType)
+            if (!Enum.TryParse(player.GameType, out GameType legacyGameType))
             {
-                case "CallOfDuty2":
-                    legacyGameType = GameType.CallOfDuty2;
-                    break;
-                case "CallOfDuty4":
-                    legacyGameType = GameType.CallOfDuty4;
-                    break;
-                case "CallOfDuty5":
-                    legacyGameType = GameType.CallOfDuty5;
-                    break;
-                default:
-                    throw new Exception($"Unsupported game type {player.GameType}");
+                legacyGameType = GameType.Unknown;
             }
 
             var existingPlayer =

@@ -95,13 +95,13 @@ namespace XI.Portal.Players.Ingest
             }
             else
             {
-                var player = await repositoryApiClient.PlayersApiClient.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
 
                 if (player == null)
                 {
                     _logger.LogInformation("Creating new player in the database with username {Username} guid {Guid}", username, guid);
 
-                    await repositoryApiClient.PlayersApiClient.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
                         GameType = gameType.ToString(),
                         Username = username,

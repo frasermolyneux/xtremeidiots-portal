@@ -1,13 +1,12 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 
 namespace XI.Portal.Players.Interfaces
 {
     public interface IBanFilesRepository
     {
-        Task RegenerateBanFileForGame(GameType gameType);
-        Task<long> GetBanFileSizeForGame(GameType gameType);
-        Task<Stream> GetBanFileForGame(GameType gameType);
+        Task RegenerateBanFileForGame(string gameType);
+        Task<long> GetBanFileSizeForGame(string gameType);
+        Task<Stream> GetBanFileForGame(string gameType);
     }
 }

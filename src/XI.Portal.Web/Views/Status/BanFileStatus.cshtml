@@ -2,7 +2,8 @@
 @using XI.Portal.Web.Extensions
 @using Microsoft.AspNetCore.Authorization
 @using XI.Portal.Auth.Contract.Constants
-@model List<XI.Portal.Servers.Dto.BanFileMonitorDto>
+@using XI.Portal.Web.Models
+@model List<BanFileMonitorViewModel>
 
 @{
     ViewData["Title"] = "Ban File Status";
@@ -107,7 +108,7 @@
                                 <div class="btn-group btn-group-sm" role="group">
                                     @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
                                     {
-                                        <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.ServerId">
+                                        <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.Id">
                                             <i class="fa fa-edit"></i> Edit Game Server
                                         </a>
                                     }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -15,7 +17,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
 
             serviceCollection.AddSingleton<IRepositoryTokenProvider, RepositoryTokenProvider>();
 
+            serviceCollection.AddSingleton<IBanFileMonitorsApiClient, BanFileMonitorsApiClient>();
             serviceCollection.AddSingleton<IChatMessagesApiClient, ChatMessagesApiClient>();
+            serviceCollection.AddSingleton<IGameServersApiClient, GameServersApiClient>();
             serviceCollection.AddSingleton<IPlayersApiClient, PlayersApiClient>();
 
             serviceCollection.AddSingleton<IRepositoryApiClient, RepositoryApiClient>();

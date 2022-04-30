@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
@@ -27,7 +27,7 @@ namespace XI.Portal.Players.Repository
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
         }
 
-        public async Task RegenerateBanFileForGame(GameType gameType)
+        public async Task RegenerateBanFileForGame(string gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -42,7 +42,7 @@ namespace XI.Portal.Players.Repository
 
             var adminActions = await _adminActionsRepository.GetAdminActions(new AdminActionsFilterModel
             {
-                GameType = gameType,
+                GameType = Enum.Parse<GameType>(gameType),
                 Filter = AdminActionsFilterModel.FilterType.ActiveBans,
                 Order = AdminActionsFilterModel.OrderBy.CreatedAsc
             });
@@ -61,7 +61,7 @@ namespace XI.Portal.Players.Repository
             }
         }
 
-        public async Task<long> GetBanFileSizeForGame(GameType gameType)
+        public async Task<long> GetBanFileSizeForGame(string gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -79,7 +79,7 @@ namespace XI.Portal.Players.Repository
             return 0;
         }
 
-        public async Task<Stream> GetBanFileForGame(GameType gameType)
+        public async Task<Stream> GetBanFileForGame(string gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -88,7 +88,7 @@ namespace XI.Portal.Players.Repository
             return await GetFileStream(blobKey);
         }
 
-        private async Task<Stream> GetExternalBanFileForGame(GameType gameType)
+        private async Task<Stream> GetExternalBanFileForGame(string gameType)
         {
             var blobKey = $"{gameType}-external.txt";
 

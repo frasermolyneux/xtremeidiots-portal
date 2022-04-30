@@ -37,7 +37,7 @@ namespace XI.Portal.Players.Ingest
             this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
-        public async Task IngestBanFileDataForGame(GameType gameType, string remoteBanFileData)
+        public async Task IngestBanFileDataForGame(string gameType, string remoteBanFileData)
         {
             var skipTags = new[] { "[PBBAN]", "[B3BAN]", "[BANSYNC]", "[EXTERNAL]" };
 
@@ -56,20 +56,20 @@ namespace XI.Portal.Players.Ingest
                     _logger.LogWarning($"Could not validate guid {guid} for {gameType}");
                     continue;
                 }
-                var player = await repositoryApiClient.PlayersApiClient.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
 
                 if (player == null)
                 {
                     _logger.LogInformation($"BanFileIngest - creating new player {name} with guid {guid} with import ban");
 
-                    await repositoryApiClient.PlayersApiClient.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
                         GameType = gameType.ToString(),
                         Username = name,
                         Guid = guid
                     });
 
-                    player = await repositoryApiClient.PlayersApiClient.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                    player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
 
                     var adminActionDto = new AdminActionDto()
                         .OfType(AdminActionType.Ban);

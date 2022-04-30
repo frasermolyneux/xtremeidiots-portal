@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Users.AuthorizationRequirements;
-using XI.Portal.Servers.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.Users.AuthorizationHandlers
 {

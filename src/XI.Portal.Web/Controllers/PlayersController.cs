@@ -110,7 +110,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            PlayersSearchResponseDto searchResponse = await repositoryApiClient.PlayersApiClient.SearchPlayers(accessToken, id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
+            PlayersSearchResponseDto searchResponse = await repositoryApiClient.Players.SearchPlayers(accessToken, id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {
@@ -127,7 +127,7 @@ namespace XI.Portal.Web.Controllers
             if (id == null) return NotFound();
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var player = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, (Guid)id);
+            var player = await repositoryApiClient.Players.GetPlayer(accessToken, (Guid)id);
 
             var adminActionsFilterModel = new AdminActionsFilterModel
             {
@@ -174,7 +174,7 @@ namespace XI.Portal.Web.Controllers
             if (id == null) return NotFound();
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var aliases = await repositoryApiClient.PlayersApiClient.GetPlayerAliases(accessToken, (Guid)id);
+            var aliases = await repositoryApiClient.Players.GetPlayerAliases(accessToken, (Guid)id);
 
             return Json(new
             {
@@ -188,7 +188,7 @@ namespace XI.Portal.Web.Controllers
             if (id == null) return NotFound();
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var ipAddresses = await repositoryApiClient.PlayersApiClient.GetPlayerIpAddresses(accessToken, (Guid)id);
+            var ipAddresses = await repositoryApiClient.Players.GetPlayerIpAddresses(accessToken, (Guid)id);
 
             return Json(new
             {
@@ -205,7 +205,7 @@ namespace XI.Portal.Web.Controllers
                 return BadRequest();
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var relatedPlayers = await repositoryApiClient.PlayersApiClient.GetRelatedPlayers(accessToken, (Guid)id, ipAddress);
+            var relatedPlayers = await repositoryApiClient.Players.GetRelatedPlayers(accessToken, (Guid)id, ipAddress);
 
             return Json(new
             {

@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Servers.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers
 {
@@ -13,10 +13,10 @@ namespace XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameServer.GameType.ToString()))
+            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, resource.GameServer.ServerId.ToString()))
+            if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, resource.ServerId.ToString()))
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

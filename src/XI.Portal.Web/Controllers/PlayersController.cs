@@ -25,7 +25,6 @@ namespace XI.Portal.Web.Controllers
     public class PlayersController : Controller
     {
         private readonly IAdminActionsRepository _adminActionsRepository;
-        private readonly IPlayerAnalyticsRepository _playerAnalyticsRepository;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
@@ -33,13 +32,11 @@ namespace XI.Portal.Web.Controllers
         public PlayersController(
             IGeoLocationClient geoLocationClient,
             IAdminActionsRepository adminActionsRepository,
-            IPlayerAnalyticsRepository playerAnalyticsRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
-            _playerAnalyticsRepository = playerAnalyticsRepository ?? throw new ArgumentNullException(nameof(playerAnalyticsRepository));
             this.repositoryApiClient = repositoryApiClient;
             this.repositoryTokenProvider = repositoryTokenProvider;
         }
@@ -253,21 +250,27 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff)
         {
-            var data = await _playerAnalyticsRepository.GetCumulativeDailyPlayers(cutoff);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var data = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(accessToken, cutoff);
+
             return Json(data);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff)
         {
-            var data = await _playerAnalyticsRepository.GetNewDailyPlayersPerGame(cutoff);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var data = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(accessToken, cutoff);
+
             return Json(data);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var data = await _playerAnalyticsRepository.GetPlayersDropOffPerGameJson(cutoff);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var data = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(accessToken, cutoff);
+
             return Json(data);
         }
 

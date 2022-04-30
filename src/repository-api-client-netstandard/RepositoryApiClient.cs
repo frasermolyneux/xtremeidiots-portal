@@ -1,6 +1,7 @@
 ﻿using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.GameServersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
@@ -11,17 +12,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
             IBanFileMonitorsApiClient banFileMonitorsApiClient,
             IChatMessagesApiClient chatMessagesApiClient,
             IGameServersApiClient gameServersApiClient,
+            IPlayerAnalyticsApiClient playerAnalyticsApiClient,
             IPlayersApiClient playersApiClient)
         {
             BanFileMonitors = banFileMonitorsApiClient;
             ChatMessages = chatMessagesApiClient;
             GameServers = gameServersApiClient;
+            PlayerAnalytics = playerAnalyticsApiClient;
             Players = playersApiClient;
         }
 
         public IBanFileMonitorsApiClient BanFileMonitors { get; }
         public IChatMessagesApiClient ChatMessages { get; }
         public IGameServersApiClient GameServers { get; }
+        public IPlayerAnalyticsApiClient PlayerAnalytics { get; }
         public IPlayersApiClient Players { get; }
     }
 }

@@ -1,28 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Players.Dto;
-using XI.Portal.Players.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
-namespace XI.Portal.Players.Repository
+namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
-    public class PlayerAnalyticsRepository : IPlayerAnalyticsRepository
+    [ApiController]
+    [Authorize(Roles = "ServiceAccount")]
+    public class PlayerAnalyticsController : Controller
     {
-        private readonly LegacyPortalContext _legacyContext;
-
-        public PlayerAnalyticsRepository(LegacyPortalContext legacyContext)
+        public PlayerAnalyticsController(LegacyPortalContext context)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
+            Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public async Task<List<PlayerAnalyticEntryDto>> GetCumulativeDailyPlayers(DateTime cutoff)
-        {
-            var cumulative = await _legacyContext.Player2.CountAsync(p => p.FirstSeen < cutoff);
+        public LegacyPortalContext Context { get; }
 
-            var players = await _legacyContext.Player2
+        [HttpGet]
+        [Route("api/player-analytics/cumulative-daily-players")]
+        public async Task<IActionResult> GetCumulativeDailyPlayers(DateTime cutoff)
+        {
+            var cumulative = await Context.Player2.CountAsync(p => p.FirstSeen < cutoff);
+
+            var players = await Context.Player2
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => p.FirstSeen)
                 .OrderBy(p => p)
@@ -36,12 +37,14 @@ namespace XI.Portal.Players.Repository
                 })
                 .ToList();
 
-            return groupedPlayers;
+            return new OkObjectResult(groupedPlayers);
         }
 
-        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetNewDailyPlayersPerGame(DateTime cutoff)
+        [HttpGet]
+        [Route("api/player-analytics/new-daily-players-per-game")]
+        public async Task<IActionResult> GetNewDailyPlayersPerGame(DateTime cutoff)
         {
-            var players = await _legacyContext.Player2
+            var players = await Context.Player2
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => new { p.FirstSeen, p.GameType })
                 .OrderBy(p => p.FirstSeen)
@@ -52,16 +55,18 @@ namespace XI.Portal.Players.Repository
                 {
                     Created = g.Key,
                     GameCounts = g.GroupBy(i => i.GameType.ToString())
-                        .Select(i => new {Type = i.Key, Count = i.Count()})
+                        .Select(i => new { Type = i.Key, Count = i.Count() })
                         .ToDictionary(a => a.Type, a => a.Count)
                 }).ToList();
 
-            return groupedPlayers;
+            return new OkObjectResult(groupedPlayers);
         }
 
-        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetPlayersDropOffPerGameJson(DateTime cutoff)
+        [HttpGet]
+        [Route("api/player-analytics/players-drop-off-per-game")]
+        public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var players = await _legacyContext.Player2
+            var players = await Context.Player2
                 .Where(p => p.LastSeen > cutoff)
                 .Select(p => new { p.LastSeen, p.GameType })
                 .OrderBy(p => p.LastSeen)
@@ -72,11 +77,11 @@ namespace XI.Portal.Players.Repository
                 {
                     Created = g.Key,
                     GameCounts = g.GroupBy(i => i.GameType.ToString())
-                        .Select(i => new {Type = i.Key, Count = i.Count()})
+                        .Select(i => new { Type = i.Key, Count = i.Count() })
                         .ToDictionary(a => a.Type, a => a.Count)
                 }).ToList();
 
-            return groupedPlayers;
+            return new OkObjectResult(groupedPlayers);
         }
     }
 }

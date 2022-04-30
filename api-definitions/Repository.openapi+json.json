@@ -1015,6 +1015,7 @@
             },
             "patch": {
                 "summary": "ban-file-monitors/{ban-file-monitor-id}",
+                "description": "ban-file-monitors/{ban-file-monitor-id}",
                 "operationId": "patch-ban-file-monitors-ban-file-monitor-id",
                 "parameters": [
                     {
@@ -1028,12 +1029,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "delete": {
                 "summary": "ban-file-monitors/{ban-file-monitor-id}",
+                "description": "ban-file-monitors/{ban-file-monitor-id}",
                 "operationId": "delete-ban-file-monitors-ban-file-monitor-id",
                 "parameters": [
                     {
@@ -1042,6 +1044,66 @@
                         "required": true,
                         "schema": {
                             "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/player-analytics/cumulative-daily-players": {
+            "get": {
+                "summary": "player-analytics/cumulative-daily-players",
+                "operationId": "get-player-analytics-cumulative-daily-players",
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "datetime"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/player-analytics/new-daily-players-per-game": {
+            "get": {
+                "summary": "player-analytics/new-daily-players-per-game",
+                "operationId": "get-player-analytics-new-daily-players-per-game",
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "datetime"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/player-analytics/players-drop-off-per-game": {
+            "get": {
+                "summary": "player-analytics/players-drop-off-per-game",
+                "operationId": "get-player-analytics-players-drop-off-per-game",
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "datetime"
                         }
                     }
                 ],

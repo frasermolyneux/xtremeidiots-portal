@@ -249,7 +249,7 @@ stages:
               parAppInsightsName=$(appInsights) `
               parApiManagementName=$(apiManagement) `
               parServiceBusName=$(serviceBus) `
-              parEventsApiAppId=$eventsApiAppId
+              parEventsApiAppId=$(eventsApiAppId)
 
   - job: DeploySyncAppBicep
     steps:

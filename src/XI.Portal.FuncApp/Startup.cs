@@ -7,8 +7,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using XI.Forums.Extensions;
-using XI.Portal.Bus.Client;
-using XI.Portal.Bus.Extensions;
 using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
@@ -121,9 +119,6 @@ namespace XI.Portal.FuncApp
             });
 
             builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
-
-            builder.Services.Configure<PortalServiceBusOptions>(config.GetSection("ServiceBus"));
-            builder.Services.AddServiceBus();
 
             builder.Services.Configure<AppDataOptions>(config.GetSection("AppData"));
             builder.Services.AddAppData();

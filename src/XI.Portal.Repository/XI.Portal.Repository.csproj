@@ -6,11 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4778" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.17" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\XI.Portal.Bus\XI.Portal.Bus.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
+    <PackageReference Include="XI.CommonTypes" Version="1.0.4802" />
   </ItemGroup>
 
 </Project>

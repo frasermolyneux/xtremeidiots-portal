@@ -232,32 +232,6 @@
     </a>
 </li>
 
-<li policy="@AuthPolicies.AccessMigration" class="@Html.IsSelected("Migration")">
-    <a asp-controller="Migration" asp-action="MigrateUsers">
-        <i class="fa fa-arrow-right"></i> <span class="nav-label">Migration</span> <span class="fa arrow"></span>
-    </a>
-    <ul class="nav nav-second-level collapse @Html.IsSelected("Migration", cssClass: "in")">
-        <li class="@Html.IsSelected(action: "MigrateUsers")">
-            <a asp-controller="Migration" asp-action="MigrateUsers">Legacy Users</a>
-        </li>
-        <li class="@Html.IsSelected(action: "MigrateDemoAuthKeys")">
-            <a asp-controller="Migration" asp-action="MigrateDemoAuthKeys">Demo Auth Keys</a>
-        </li>
-    </ul>
-</li>
-
-<li policy="@AuthPolicies.AccessMigration" class="@Html.IsSelected("Migration")">
-    <a asp-controller="ServiceBus" asp-action="MapVote">
-        <i class="fa fa-bolt"></i> <span class="nav-label">Service Bus</span> <span class="fa arrow"></span>
-    </a>
-    <ul class="nav nav-second-level collapse @Html.IsSelected("ServiceBus", cssClass: "in")">
-        <li class="@Html.IsSelected(action: "MapVote")">
-            <a asp-controller="ServiceBus" asp-action="MapVote">Map Vote</a>
-        </li>
-    </ul>
-</li>
-
-
 </ul>
 </div>
 </nav>

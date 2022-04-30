@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -23,7 +24,9 @@ namespace XI.Portal.Web.ViewComponents
             var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDtos = await RepositoryApiClient.GameServers.GetGameServers(accessToken, null, null, "ShowOnBannerServerList", 0, 0, "BannerServerListPosition");
 
-            return View(gameServerDtos);
+            var filtered = gameServerDtos.Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
+
+            return View(filtered);
         }
     }
 }

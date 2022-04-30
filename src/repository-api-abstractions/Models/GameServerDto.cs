@@ -1,6 +1,6 @@
-﻿namespace XtremeIdiots.Portal.CommonLib.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
-    public class GameServerApiDto
+    public class GameServerDto
     {
         public string Id { get; set; }
         public string Title { get; set; }

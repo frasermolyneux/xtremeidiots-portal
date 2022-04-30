@@ -1,8 +1,8 @@
-﻿using XtremeIdiots.Portal.CommonLib.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
 
 public interface IGameServersEventsApiClient
 {
-    Task CreateGameServerEvent(string accessToken, string id, GameServerEventApiDto gameServerEvent);
+    Task CreateGameServerEvent(string accessToken, string id, GameServerEventDto gameServerEvent);
 }

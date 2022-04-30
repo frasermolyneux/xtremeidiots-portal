@@ -1,6 +1,8 @@
-﻿namespace XtremeIdiots.Portal.CommonLib.Models
+﻿using System;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 {
-    public class PlayerApiDto
+    public class PlayerDto
     {
         public Guid Id { get; set; }
         public string GameType { get; set; }

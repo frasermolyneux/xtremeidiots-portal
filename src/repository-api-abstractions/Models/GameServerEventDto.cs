@@ -1,6 +1,6 @@
-﻿namespace XtremeIdiots.Portal.CommonLib.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
-    public class GameServerEventApiDto
+    public class GameServerEventDto
     {
         public Guid Id { get; set; }
         public string GameServerId { get; set; }

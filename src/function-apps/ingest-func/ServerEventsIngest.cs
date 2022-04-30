@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.CommonLib.Events;
-using XtremeIdiots.Portal.CommonLib.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.IngestFunc;
@@ -55,7 +55,7 @@ public class ServerEventsIngest
 
         if (existingServer == null)
         {
-            var gameServer = new GameServerApiDto
+            var gameServer = new GameServerDto
             {
                 Id = onServerConnected.Id,
                 GameType = onServerConnected.GameType
@@ -90,7 +90,7 @@ public class ServerEventsIngest
         _log.LogInformation(
             $"ProcessOnMapChange :: GameName: '{onMapChange.GameName}', GameType: '{onMapChange.GameType}', MapName: '{onMapChange.MapName}'");
 
-        var gameServerEvent = new GameServerEventApiDto
+        var gameServerEvent = new GameServerEventDto
         {
             GameServerId = onMapChange.ServerId,
             Timestamp = onMapChange.EventGeneratedUtc,

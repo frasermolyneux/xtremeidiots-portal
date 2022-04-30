@@ -6,7 +6,7 @@ using System.Net;
 using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
-using XtremeIdiots.Portal.CommonLib.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -31,7 +31,7 @@ public class PlayersController : ControllerBase
 
         if (player == null) return new NotFoundResult();
 
-        var playerDto = new PlayerApiDto
+        var playerDto = new PlayerDto
         {
             Id = player.PlayerId,
             GameType = player.GameType.ToString(),
@@ -71,7 +71,7 @@ public class PlayersController : ControllerBase
 
         if (player == null) return new NotFoundResult();
 
-        var playerDto = new PlayerApiDto
+        var playerDto = new PlayerDto
         {
             Id = player.PlayerId,
             GameType = player.GameType.ToString(),
@@ -93,11 +93,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<PlayerApiDto> playerDtos;
+        List<PlayerDto> playerDtos;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            playerDtos = JsonConvert.DeserializeObject<List<PlayerApiDto>>(requestBody);
+            playerDtos = JsonConvert.DeserializeObject<List<PlayerDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -158,11 +158,11 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        PlayerApiDto playerDto;
+        PlayerDto playerDto;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            playerDto = JsonConvert.DeserializeObject<PlayerApiDto>(requestBody);
+            playerDto = JsonConvert.DeserializeObject<PlayerDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -289,7 +289,7 @@ public class PlayersController : ControllerBase
             await Context.SaveChangesAsync();
         }
 
-        return new OkObjectResult(new PlayerApiDto
+        return new OkObjectResult(new PlayerDto
         {
             Id = player.PlayerId,
             GameType = player.GameType.ToString(),

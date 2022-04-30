@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
-using XtremeIdiots.Portal.CommonLib.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
 
@@ -13,7 +13,7 @@ public class PlayersApiClient : BaseApiClient, IPlayersApiClient
     {
     }
 
-    public async Task<PlayerApiDto?> GetPlayer(string accessToken, Guid id)
+    public async Task<PlayerDto?> GetPlayer(string accessToken, Guid id)
     {
         var request = CreateRequest($"repository/players/{id}", Method.Get, accessToken);
         var response = await ExecuteAsync(request);
@@ -22,12 +22,12 @@ public class PlayersApiClient : BaseApiClient, IPlayersApiClient
             return null;
 
         if (response.Content != null)
-            return JsonConvert.DeserializeObject<PlayerApiDto>(response.Content);
+            return JsonConvert.DeserializeObject<PlayerDto>(response.Content);
         else
             throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
     }
 
-    public async Task<PlayerApiDto?> GetPlayerByGameType(string accessToken, string gameType, string guid)
+    public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid)
     {
         var request = CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.Get, accessToken);
         var response = await ExecuteAsync(request);
@@ -36,20 +36,20 @@ public class PlayersApiClient : BaseApiClient, IPlayersApiClient
             return null;
 
         if (response.Content != null)
-            return JsonConvert.DeserializeObject<PlayerApiDto>(response.Content);
+            return JsonConvert.DeserializeObject<PlayerDto>(response.Content);
         else
             throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
     }
 
-    public async Task CreatePlayer(string accessToken, PlayerApiDto player)
+    public async Task CreatePlayer(string accessToken, PlayerDto player)
     {
         var request = CreateRequest("repository/players", Method.Post, accessToken);
-        request.AddJsonBody(new List<PlayerApiDto> { player });
+        request.AddJsonBody(new List<PlayerDto> { player });
 
         await ExecuteAsync(request);
     }
 
-    public async Task UpdatePlayer(string accessToken, PlayerApiDto player)
+    public async Task UpdatePlayer(string accessToken, PlayerDto player)
     {
         var request = CreateRequest($"repository/players/{player.Id}", Method.Patch, accessToken);
         request.AddJsonBody(player);

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using XI.Portal.Data.Legacy;
-using XtremeIdiots.Portal.CommonLib.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -23,11 +23,11 @@ public class GameServersEventsController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerEventApiDto gameServerEvent;
+        GameServerEventDto gameServerEvent;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServerEvent = JsonConvert.DeserializeObject<GameServerEventApiDto>(requestBody);
+            gameServerEvent = JsonConvert.DeserializeObject<GameServerEventDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)

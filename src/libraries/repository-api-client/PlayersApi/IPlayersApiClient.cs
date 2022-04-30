@@ -1,11 +1,11 @@
-﻿using XtremeIdiots.Portal.CommonLib.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
 
 public interface IPlayersApiClient
 {
-    Task<PlayerApiDto?> GetPlayer(string accessToken, Guid id);
-    Task<PlayerApiDto?> GetPlayerByGameType(string accessToken, string gameType, string guid);
-    Task CreatePlayer(string accessToken, PlayerApiDto player);
-    Task UpdatePlayer(string accessToken, PlayerApiDto player);
+    Task<PlayerDto?> GetPlayer(string accessToken, Guid id);
+    Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid);
+    Task CreatePlayer(string accessToken, PlayerDto player);
+    Task UpdatePlayer(string accessToken, PlayerDto player);
 }

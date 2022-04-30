@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.CommonLib.Events;
-using XtremeIdiots.Portal.CommonLib.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -66,7 +65,7 @@ public class PlayerEventsIngest
 
         if (existingPlayer == null)
         {
-            var player = new PlayerApiDto
+            var player = new PlayerDto
             {
                 GameType = onPlayerConnected.GameType,
                 Guid = onPlayerConnected.Guid,

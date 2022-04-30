@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
 using XI.Portal.Data.Legacy;
-using XtremeIdiots.Portal.CommonLib.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -47,11 +47,11 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<GameServerApiDto> gameServers;
+        List<GameServerDto> gameServers;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServers = JsonConvert.DeserializeObject<List<GameServerApiDto>>(requestBody);
+            gameServers = JsonConvert.DeserializeObject<List<GameServerDto>>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -84,11 +84,11 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerApiDto gameServer;
+        GameServerDto gameServer;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServer = JsonConvert.DeserializeObject<GameServerApiDto>(requestBody);
+            gameServer = JsonConvert.DeserializeObject<GameServerDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)

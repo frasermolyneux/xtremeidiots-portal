@@ -46,6 +46,61 @@ public class PlayersController : ControllerBase
     }
 
     [HttpGet]
+    [Route("api/players/{playerId}/aliases")]
+    public async Task<IActionResult> GetPlayerAliases(Guid playerId)
+    {
+        var player = await Context.Player2
+            .Include(p => p.PlayerAlias)
+            .SingleAsync(p => p.PlayerId == playerId);
+
+        var result = player.PlayerAlias.Select(alias => new AliasDto
+        {
+            Name = alias.Name,
+            Added = alias.Added,
+            LastUsed = alias.LastUsed
+        }).ToList();
+
+        return new OkObjectResult(result);
+    }
+
+    [HttpGet]
+    [Route("api/players/{playerId}/ip-addresses")]
+    public async Task<IActionResult> GetPlayerIpAddresses(Guid playerId)
+    {
+        var player = await Context.Player2
+            .Include(p => p.PlayerIpAddresses)
+            .SingleAsync(p => p.PlayerId == playerId);
+
+        var result = player.PlayerIpAddresses.Select(address => new IpAddressDto
+        {
+            Address = address.Address,
+            Added = address.Added,
+            LastUsed = address.LastUsed
+        }).ToList();
+
+        return new OkObjectResult(result);
+    }
+
+    [HttpGet]
+    [Route("api/players/{playerId}/related-players")]
+    public async Task<IActionResult> GetRelatedPlayers(Guid playerId, string ipAddress)
+    {
+        var playerIpAddresses = await Context.PlayerIpAddresses.Include(ip => ip.PlayerPlayer)
+            .Where(ip => ip.Address == ipAddress && ip.PlayerPlayerId != playerId)
+            .ToListAsync();
+
+        var result = playerIpAddresses.Select(pip => new RelatedPlayerDto
+        {
+            GameType = pip.PlayerPlayer.GameType.ToString(),
+            Username = pip.PlayerPlayer.Username,
+            PlayerId = pip.PlayerPlayer.PlayerId,
+            IpAddress = pip.Address
+        }).ToList();
+
+        return new OkObjectResult(result);
+    }
+
+    [HttpGet]
     [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
     public async Task<IActionResult> GetPlayerByGameType(string gameType, string playerGuid)
     {

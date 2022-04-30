@@ -30,6 +30,48 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
+        public async Task<List<AliasDto>> GetPlayerAliases(string accessToken, Guid id)
+        {
+            var request = CreateRequest($"repository/players/{id}/aliases", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<List<AliasDto>>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
+        public async Task<List<IpAddressDto>> GetPlayerIpAddresses(string accessToken, Guid id)
+        {
+            var request = CreateRequest($"repository/players/{id}/ip-addresses", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<List<IpAddressDto>>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
+        public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(string accessToken, Guid id, string ipAddress)
+        {
+            var request = CreateRequest($"repository/players/{id}/related-players", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<List<RelatedPlayerDto>>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
         public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid)
         {
             var request = CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.GET, accessToken);

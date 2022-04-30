@@ -193,7 +193,8 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var aliases = await _playersRepository.GetPlayerAliases((Guid)id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var aliases = await repositoryApiClient.PlayersApiClient.GetPlayerAliases(accessToken, (Guid)id);
 
             return Json(new
             {
@@ -206,7 +207,8 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid)id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var ipAddresses = await repositoryApiClient.PlayersApiClient.GetPlayerIpAddresses(accessToken, (Guid)id);
 
             return Json(new
             {
@@ -222,7 +224,8 @@ namespace XI.Portal.Web.Controllers
             if (string.IsNullOrWhiteSpace(ipAddress))
                 return BadRequest();
 
-            var relatedPlayers = await _playersRepository.GetRelatedPlayers((Guid)id, ipAddress);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var relatedPlayers = await repositoryApiClient.PlayersApiClient.GetRelatedPlayers(accessToken, (Guid)id, ipAddress);
 
             return Json(new
             {

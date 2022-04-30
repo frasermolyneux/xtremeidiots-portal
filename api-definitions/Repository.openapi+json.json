@@ -387,6 +387,7 @@
         "/chat-messages/{chat-message-id}": {
             "get": {
                 "summary": "chat-messages/{chat-message-id}",
+                "description": "chat-messages/{chat-message-id}",
                 "operationId": "get-chat-messages-chat-message-id",
                 "parameters": [
                     {
@@ -401,6 +402,79 @@
                 "responses": {
                     "200": {
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/players/{player-id}/aliases": {
+            "get": {
+                "summary": "players/{player-id}/aliases",
+                "description": "Gets a players aliases",
+                "operationId": "get-players-player-id-aliases",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players/{player-id}/ip-addresses": {
+            "get": {
+                "summary": "players/{player-id}/ip-addresses",
+                "description": "Gets a players IP Addresses",
+                "operationId": "get-players-player-id-ip-addresses",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "ipAddress",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/players/{player-id}/related-players": {
+            "get": {
+                "summary": "players/{player-id}/related-players",
+                "description": "Gets related players by IP Address",
+                "operationId": "get-players-player-id-related-players",
+                "parameters": [
+                    {
+                        "name": "player-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
                     }
                 }
             }

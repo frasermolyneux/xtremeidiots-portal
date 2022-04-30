@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.Players.Dto
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 {
     public class RelatedPlayerDto
     {

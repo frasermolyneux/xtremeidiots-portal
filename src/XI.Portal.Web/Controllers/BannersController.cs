@@ -29,11 +29,11 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> GetGameServers()
         {
             var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
-            var gameServerDtos = await RepositoryApiClient.GameServers.GetGameServers(accessToken, null, null, null, 0, 0, "BannerServerListPosition");
+            var gameServerDtos = await RepositoryApiClient.GameServers.GetGameServers(accessToken, null, null, "ShowOnBannerServerList", 0, 0, "BannerServerListPosition");
 
             var filtered = gameServerDtos.Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
 
-            var htmlBanners = gameServerDtos.Select(gs => gs.HtmlBanner).ToList();
+            var htmlBanners = filtered.Select(gs => gs.HtmlBanner).ToList();
 
             return Json(htmlBanners);
         }

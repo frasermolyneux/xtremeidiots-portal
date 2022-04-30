@@ -109,8 +109,24 @@ public class PlayersController : ControllerBase
 
         foreach (var player in playerDtos)
         {
+            GameType legacyGameType;
+            switch (player.GameType)
+            {
+                case "CallOfDuty2":
+                    legacyGameType = GameType.CallOfDuty2;
+                    break;
+                case "CallOfDuty4":
+                    legacyGameType = GameType.CallOfDuty4;
+                    break;
+                case "CallOfDuty5":
+                    legacyGameType = GameType.CallOfDuty5;
+                    break;
+                default:
+                    throw new Exception($"Unsupported game type {player.GameType}");
+            }
+
             var existingPlayer =
-                await Context.Player2.SingleOrDefaultAsync(p => p.GameType.ToString() == player.GameType && p.Guid == player.Guid);
+                await Context.Player2.SingleOrDefaultAsync(p => p.GameType == legacyGameType && p.Guid == player.Guid);
 
             if (existingPlayer != null) return new ConflictObjectResult(existingPlayer);
 

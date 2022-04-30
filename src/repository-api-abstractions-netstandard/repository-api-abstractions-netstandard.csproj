@@ -2,12 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <RootNamespace>repository_api_abstractions_netstandard</RootNamespace>
+    <RootNamespace>XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard</RootNamespace>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
 
 </Project>

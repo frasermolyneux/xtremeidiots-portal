@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
-using XtremeIdiots.Portal.CommonLib.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 

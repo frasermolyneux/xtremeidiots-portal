@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.CommonLib.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
 

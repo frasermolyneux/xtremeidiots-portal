@@ -1,4 +1,6 @@
-﻿namespace XtremeIdiots.Portal.CommonLib.Models
+﻿using System;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 {
     public class ChatMessageApiDto
     {

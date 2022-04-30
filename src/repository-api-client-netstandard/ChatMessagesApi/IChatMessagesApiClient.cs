@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
 {

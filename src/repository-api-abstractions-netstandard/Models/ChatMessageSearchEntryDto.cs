@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Models
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 {
     public class ChatMessageSearchEntryDto
     {

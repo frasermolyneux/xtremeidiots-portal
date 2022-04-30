@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using XtremeIdiots.Portal.CommonLib.Events;
 using XtremeIdiots.Portal.CommonLib.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.IngestFunc;

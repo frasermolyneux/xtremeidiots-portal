@@ -178,7 +178,7 @@ public class PlayersController : ControllerBase
             {
                 Username = player.Username.Trim(),
                 Guid = player.Guid.ToLower().Trim(),
-
+                GameType = legacyGameType,
                 FirstSeen = DateTime.UtcNow,
                 LastSeen = DateTime.UtcNow
             };

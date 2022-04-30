@@ -142,7 +142,29 @@ public class PlayersController : ControllerBase
             if (IPAddress.TryParse(player.IpAddress, out var ip))
             {
                 player2.IpAddress = ip.ToString();
+
+                player2.PlayerIpAddresses = new List<PlayerIpAddresses>
+                {
+                    new PlayerIpAddresses
+                    {
+                        PlayerIpAddressId = Guid.NewGuid(),
+                        Address = ip.ToString(),
+                        Added = DateTime.UtcNow,
+                        LastUsed = DateTime.UtcNow
+                    }
+                };
             }
+
+            player2.PlayerAlias = new List<PlayerAlias>
+            {
+                new PlayerAlias
+                {
+                    PlayerAliasId = Guid.NewGuid(),
+                    Name = player.Username.Trim(),
+                    Added = DateTime.UtcNow,
+                    LastUsed = DateTime.UtcNow
+                }
+            };
 
             await Context.Player2.AddAsync(player2);
         }

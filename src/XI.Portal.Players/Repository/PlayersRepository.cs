@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
@@ -90,50 +89,6 @@ namespace XI.Portal.Players.Repository
                 PlayerId = pip.PlayerPlayer.PlayerId,
                 IpAddress = pip.Address
             }).ToList();
-        }
-
-        public async Task CreatePlayer(PlayerDto playerDto)
-        {
-            var player = new Player2
-            {
-                PlayerId = Guid.NewGuid(),
-                GameType = playerDto.GameType,
-                Username = playerDto.Username,
-                Guid = playerDto.Guid,
-                FirstSeen = DateTime.UtcNow,
-                LastSeen = DateTime.UtcNow
-            };
-
-            if (!string.IsNullOrWhiteSpace(player.IpAddress))
-            {
-                player.IpAddress = playerDto.IpAddress;
-
-                player.PlayerIpAddresses = new List<PlayerIpAddresses>
-                {
-                    new PlayerIpAddresses
-                    {
-                        PlayerIpAddressId = Guid.NewGuid(),
-                        Address = playerDto.IpAddress,
-                        Added = DateTime.UtcNow,
-                        LastUsed = DateTime.UtcNow
-                    }
-                };
-            }
-
-            player.PlayerAlias = new List<PlayerAlias>
-            {
-                new PlayerAlias
-                {
-                    PlayerAliasId = Guid.NewGuid(),
-                    Name = playerDto.Username,
-                    Added = DateTime.UtcNow,
-                    LastUsed = DateTime.UtcNow
-                }
-            };
-
-            _legacyContext.Player2.Add(player);
-
-            await _legacyContext.SaveChangesAsync();
         }
     }
 }

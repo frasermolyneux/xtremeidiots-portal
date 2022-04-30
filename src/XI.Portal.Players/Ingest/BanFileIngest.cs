@@ -65,9 +65,9 @@ namespace XI.Portal.Players.Ingest
                 {
                     _logger.LogInformation($"BanFileIngest - creating new player {name} with guid {guid} with import ban");
 
-                    await _playersRepository.CreatePlayer(new PlayerDto
+                    await repositoryApiClient.PlayersApiClient.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
-                        GameType = gameType,
+                        GameType = gameType.ToString(),
                         Username = name,
                         Guid = guid
                     });

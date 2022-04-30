@@ -13,6 +13,5 @@ namespace XI.Portal.Players.Interfaces
         Task<List<AliasDto>> GetPlayerAliases(Guid id);
         Task<List<IpAddressDto>> GetPlayerIpAddresses(Guid id);
         Task<List<RelatedPlayerDto>> GetRelatedPlayers(Guid id, string ipAddress);
-        Task CreatePlayer(PlayerDto playerDto);
     }
 }

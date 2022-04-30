@@ -104,19 +104,13 @@ namespace XI.Portal.Players.Ingest
                 {
                     _logger.LogInformation("Creating new player in the database with username {Username} guid {Guid}", username, guid);
 
-                    var playerDto = new PlayerDto
+                    await repositoryApiClient.PlayersApiClient.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
-                        GameType = gameType,
+                        GameType = gameType.ToString(),
                         Username = username,
                         Guid = guid,
-                        FirstSeen = DateTime.UtcNow,
-                        LastSeen = DateTime.UtcNow
-                    };
-
-                    if (IPAddress.TryParse(ipAddress, out var address))
-                        playerDto.IpAddress = ipAddress;
-
-                    await _playersRepository.CreatePlayer(playerDto);
+                        IpAddress = ipAddress
+                    });
                 }
                 else
                 {

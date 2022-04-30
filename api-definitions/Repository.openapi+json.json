@@ -324,6 +324,7 @@
         "/chat-messages/search": {
             "get": {
                 "summary": "chat-messages/search",
+                "description": "chat-messages/search",
                 "operationId": "get-chat-messages-search",
                 "parameters": [
                     {
@@ -378,7 +379,28 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/chat-messages/{chat-message-id}": {
+            "get": {
+                "summary": "chat-messages/{chat-message-id}",
+                "operationId": "get-chat-messages-chat-message-id",
+                "parameters": [
+                    {
+                        "name": "chat-message-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
                     }
                 }
             }

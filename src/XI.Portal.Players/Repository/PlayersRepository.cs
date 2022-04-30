@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Data.Legacy;
 using XI.Portal.Data.Legacy.Models;
 using XI.Portal.Players.Dto;
@@ -48,20 +47,6 @@ namespace XI.Portal.Players.Repository
             }).ToList();
 
             return playerListEntryViewModels;
-        }
-
-        public async Task<PlayerDto> GetPlayer(Guid id)
-        {
-            var player = await _legacyContext.Player2.SingleAsync(p => p.PlayerId == id);
-
-            return player?.ToDto();
-        }
-
-        public async Task<PlayerDto> GetPlayer(GameType gameType, string guid)
-        {
-            var player = await _legacyContext.Player2.SingleOrDefaultAsync(p => p.GameType == gameType && p.Guid == guid);
-
-            return player?.ToDto();
         }
 
         public async Task<List<AliasDto>> GetPlayerAliases(Guid id)

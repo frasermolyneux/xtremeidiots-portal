@@ -271,7 +271,7 @@ namespace XI.Portal.Web.Controllers
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(id, null, null);
+            return await GetChatLogPrivate(id.ToString(), null, null);
         }
 
         [HttpGet]
@@ -310,7 +310,8 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayerChatLog(Guid id)
         {
-            var playerDto = await _playersRepository.GetPlayer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var playerDto = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, id);
 
             if (playerDto == null)
                 return NotFound();
@@ -320,10 +321,10 @@ namespace XI.Portal.Web.Controllers
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerDto.GameType, null, playerDto.PlayerId);
+            return await GetChatLogPrivate(playerDto.GameType, null, playerDto.Id);
         }
 
-        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)
+        private async Task<IActionResult> GetChatLogPrivate(string gameType, Guid? serverId, Guid? playerId)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -348,7 +349,7 @@ namespace XI.Portal.Web.Controllers
             }
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            ChatMessageSearchResponseDto searchResponse = await repositoryApiClient.ChatMessages.SearchChatMessages(accessToken, gameType.ToString(), serverId, playerId, model.Search?.Value, model.Length, model.Start, order);
+            ChatMessageSearchResponseDto searchResponse = await repositoryApiClient.ChatMessages.SearchChatMessages(accessToken, gameType, serverId, playerId, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {

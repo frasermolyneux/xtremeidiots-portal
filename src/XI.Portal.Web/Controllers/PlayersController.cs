@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using FM.GeoLocation.Contract.Interfaces;
+﻿using FM.GeoLocation.Contract.Interfaces;
 using FM.GeoLocation.Contract.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
@@ -15,6 +15,8 @@ using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -25,17 +27,23 @@ namespace XI.Portal.Web.Controllers
         private readonly IPlayerAnalyticsRepository _playerAnalyticsRepository;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayersRepository _playersRepository;
+        private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayersController(
             IPlayersRepository playersRepository,
             IGeoLocationClient geoLocationClient,
             IAdminActionsRepository adminActionsRepository,
-            IPlayerAnalyticsRepository playerAnalyticsRepository)
+            IPlayerAnalyticsRepository playerAnalyticsRepository,
+            IRepositoryApiClient repositoryApiClient,
+            IRepositoryTokenProvider repositoryTokenProvider)
         {
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _playerAnalyticsRepository = playerAnalyticsRepository ?? throw new ArgumentNullException(nameof(playerAnalyticsRepository));
+            this.repositoryApiClient = repositoryApiClient;
+            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         [HttpGet]
@@ -86,7 +94,7 @@ namespace XI.Portal.Web.Controllers
             };
 
             if (id != null)
-                filterModel.GameType = (GameType) id;
+                filterModel.GameType = (GameType)id;
 
             var recordsTotal = await _playersRepository.GetPlayerListCount(filterModel);
 
@@ -138,11 +146,12 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var player = await _playersRepository.GetPlayer((Guid) id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var player = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, (Guid)id);
 
             var adminActionsFilterModel = new AdminActionsFilterModel
             {
-                PlayerId = (Guid) id,
+                PlayerId = (Guid)id,
                 Order = AdminActionsFilterModel.OrderBy.CreatedDesc
             };
 
@@ -150,7 +159,16 @@ namespace XI.Portal.Web.Controllers
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = player,
+                Player = new PlayerDto
+                {
+                    PlayerId = player.Id,
+                    GameType = Enum.Parse<GameType>(player.GameType),
+                    Username = player.Username,
+                    Guid = player.Guid,
+                    IpAddress = player.IpAddress,
+                    FirstSeen = player.FirstSeen,
+                    LastSeen = player.LastSeen
+                },
                 AdminActions = adminActions
             };
 
@@ -175,7 +193,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var aliases = await _playersRepository.GetPlayerAliases((Guid) id);
+            var aliases = await _playersRepository.GetPlayerAliases((Guid)id);
 
             return Json(new
             {
@@ -188,7 +206,7 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid) id);
+            var ipAddresses = await _playersRepository.GetPlayerIpAddresses((Guid)id);
 
             return Json(new
             {
@@ -204,7 +222,7 @@ namespace XI.Portal.Web.Controllers
             if (string.IsNullOrWhiteSpace(ipAddress))
                 return BadRequest();
 
-            var relatedPlayers = await _playersRepository.GetRelatedPlayers((Guid) id, ipAddress);
+            var relatedPlayers = await _playersRepository.GetRelatedPlayers((Guid)id, ipAddress);
 
             return Json(new
             {

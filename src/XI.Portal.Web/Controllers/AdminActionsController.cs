@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
@@ -10,6 +10,8 @@ using XI.Portal.Players.Dto;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Extensions;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -20,7 +22,8 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<AdminActionController> _logger;
         private readonly IPlayersForumsClient _playersForumsClient;
-        private readonly IPlayersRepository _playersRepository;
+        private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
 
         public AdminActionController(
@@ -28,22 +31,32 @@ namespace XI.Portal.Web.Controllers
             IAuthorizationService authorizationService,
             IPlayersRepository playersRepository,
             IAdminActionsRepository adminActionsRepository,
-            IPlayersForumsClient playersForumsClient)
+            IPlayersForumsClient playersForumsClient,
+            IRepositoryApiClient repositoryApiClient,
+            IRepositoryTokenProvider repositoryTokenProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _playersForumsClient = playersForumsClient ?? throw new ArgumentNullException(nameof(playersForumsClient));
+            this.repositoryApiClient = repositoryApiClient;
+            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         [HttpGet]
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
-            var playerDto = await _playersRepository.GetPlayer(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var playerDto = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, id);
+
             if (playerDto == null) return NotFound();
 
-            var adminActionDto = new AdminActionDto().OfType(adminActionType).WithPlayerDto(playerDto);
+            var adminActionDto = new AdminActionDto().OfType(adminActionType);
+            adminActionDto.PlayerId = playerDto.Id;
+            adminActionDto.GameType = Enum.Parse<GameType>(playerDto.GameType);
+            adminActionDto.Username = playerDto.Username;
+            adminActionDto.Guid = playerDto.Guid;
+
             var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
@@ -59,16 +72,27 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminActionDto model)
         {
-            var playerDto = await _playersRepository.GetPlayer(model.PlayerId);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var playerDto = await repositoryApiClient.PlayersApiClient.GetPlayer(accessToken, model.PlayerId);
+
             if (playerDto == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                model = model.WithPlayerDto(playerDto);
+                model.PlayerId = playerDto.Id;
+                model.GameType = Enum.Parse<GameType>(playerDto.GameType);
+                model.Username = playerDto.Username;
+                model.Guid = playerDto.Guid;
+
                 return View(model);
             }
 
-            var adminActionDto = new AdminActionDto().OfType(model.Type).WithPlayerDto(playerDto);
+            var adminActionDto = new AdminActionDto().OfType(model.Type);
+            adminActionDto.PlayerId = playerDto.Id;
+            adminActionDto.GameType = Enum.Parse<GameType>(playerDto.GameType);
+            adminActionDto.Username = playerDto.Username;
+            adminActionDto.Guid = playerDto.Guid;
+
             var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
@@ -87,7 +111,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDto.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
 
-            return RedirectToAction("Details", "Players", new {id = model.PlayerId});
+            return RedirectToAction("Details", "Players", new { id = model.PlayerId });
         }
 
         [HttpGet]
@@ -140,7 +164,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionDto.Username}");
 
-            return RedirectToAction("Details", "Players", new {id = model.PlayerId});
+            return RedirectToAction("Details", "Players", new { id = model.PlayerId });
         }
 
         [HttpGet]
@@ -180,7 +204,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully lifted for {adminActionDto.Username}");
 
-            return RedirectToAction("Details", "Players", new {id = playerId});
+            return RedirectToAction("Details", "Players", new { id = playerId });
         }
 
         [HttpGet]
@@ -220,7 +244,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully claimed for {adminActionDto.Username}");
 
-            return RedirectToAction("Details", "Players", new {id = playerId});
+            return RedirectToAction("Details", "Players", new { id = playerId });
         }
 
         [HttpGet]
@@ -241,7 +265,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
             this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">here</a>");
 
-            return RedirectToAction("Details", "Players", new {id = adminActionDto.PlayerId});
+            return RedirectToAction("Details", "Players", new { id = adminActionDto.PlayerId });
         }
 
         [HttpGet]
@@ -276,7 +300,7 @@ namespace XI.Portal.Web.Controllers
             _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully deleted from {adminActionDto.Username}");
 
-            return RedirectToAction("Details", "Players", new {id = playerId});
+            return RedirectToAction("Details", "Players", new { id = playerId });
         }
     }
 }

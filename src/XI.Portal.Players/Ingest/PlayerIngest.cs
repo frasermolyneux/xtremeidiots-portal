@@ -6,6 +6,8 @@ using XI.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Players.Ingest
 {
@@ -14,15 +16,21 @@ namespace XI.Portal.Players.Ingest
         private readonly IPlayersCacheRepository _playersCacheRepository;
         private readonly IPlayersRepository _playersRepository;
         private ILogger _logger;
+        private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayerIngest(
             ILogger<PlayerIngest> logger,
             IPlayersCacheRepository playersCacheRepository,
-            IPlayersRepository playersRepository)
+            IPlayersRepository playersRepository,
+            IRepositoryApiClient repositoryApiClient,
+            IRepositoryTokenProvider repositoryTokenProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playersCacheRepository = playersCacheRepository ?? throw new ArgumentNullException(nameof(playersCacheRepository));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
+            this.repositoryApiClient = repositoryApiClient;
+            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         public async Task IngestData(GameType gameType, string guid, string username, string ipAddress)
@@ -40,6 +48,8 @@ namespace XI.Portal.Players.Ingest
             }
 
             _logger.LogDebug("Ingesting gameType '{GameType}', guid '{Guid}', username '{Username}', ipAddress '{IpAddress}'", gameType, guid, username, ipAddress);
+
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
             var cachedPlayer = await _playersCacheRepository.GetPlayer(gameType, guid);
 
@@ -88,7 +98,7 @@ namespace XI.Portal.Players.Ingest
             }
             else
             {
-                var player = await _playersRepository.GetPlayer(gameType, guid);
+                var player = await repositoryApiClient.PlayersApiClient.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
 
                 if (player == null)
                 {
@@ -116,8 +126,8 @@ namespace XI.Portal.Players.Ingest
                     {
                         PartitionKey = player.GameType.ToString(),
                         RowKey = player.Guid,
-                        PlayerId = player.PlayerId,
-                        GameType = player.GameType,
+                        PlayerId = player.Id,
+                        GameType = Enum.Parse<GameType>(player.GameType),
                         Username = player.Username,
                         Guid = player.Guid,
                         IpAddress = player.IpAddress,

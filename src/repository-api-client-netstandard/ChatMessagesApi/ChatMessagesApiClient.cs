@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Models;
 
@@ -14,6 +15,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
         public ChatMessagesApiClient(ILogger<ChatMessagesApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
         {
 
+        }
+
+        public async Task<ChatMessageSearchEntryDto> GetChatMessage(string accessToken, Guid id)
+        {
+            var request = CreateRequest($"repository/chat-messages/{id}", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<ChatMessageSearchEntryDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
         public async Task CreateChatMessage(string accessToken, ChatMessageApiDto chatMessage)

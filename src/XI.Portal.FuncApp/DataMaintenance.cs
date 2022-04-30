@@ -14,7 +14,6 @@ namespace XI.Portal.FuncApp
     public class DataMaintenance
     {
         private readonly IGameServersRepository _gameServersRepository;
-        private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
@@ -23,14 +22,12 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IGameServersRepository gameServersRepository,
-            IChatLogsRepository chatLogsRepository)
+            IGameServersRepository gameServersRepository)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
-            _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
         }
 
         [FunctionName("DataMaintenance")]

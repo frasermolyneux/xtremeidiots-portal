@@ -22,6 +22,30 @@ public class ChatMessagesController : ControllerBase
     public ILogger<ChatMessagesController> Logger { get; }
     public LegacyPortalContext Context { get; }
 
+    [HttpGet]
+    [Route("api/chat-messages/{chatMessageId}")]
+    public async Task<IActionResult> GetPlayer(Guid chatMessageId)
+    {
+        var chatMessage = await Context.ChatLogs.Include(cl => cl.GameServerServer).SingleOrDefaultAsync(cl => cl.ChatLogId == chatMessageId);
+
+        if (chatMessage == null) return new NotFoundResult();
+
+        var chatMessageSearchEntryDto = new ChatMessageSearchEntryDto
+        {
+            ChatLogId = chatMessage.ChatLogId,
+            PlayerId = chatMessage.PlayerPlayerId,
+            ServerId = chatMessage.GameServerServerId,
+            ServerName = chatMessage.GameServerServer.Title,
+            GameType = chatMessage.GameServerServer.GameType.ToString(),
+            Timestamp = chatMessage.Timestamp,
+            Username = chatMessage.Username,
+            ChatType = chatMessage.ChatType.ToString(),
+            Message = chatMessage.Message
+        };
+
+        return new OkObjectResult(chatMessageSearchEntryDto);
+    }
+
     [HttpPost]
     [Route("api/chat-messages")]
     public async Task<IActionResult> CreateChatMessage()

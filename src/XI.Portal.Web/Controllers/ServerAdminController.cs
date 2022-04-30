@@ -25,7 +25,6 @@ namespace XI.Portal.Web.Controllers
     public class ServerAdminController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IChatLogsRepository _chatLogsRepository;
         private readonly IPlayersRepository _playersRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
@@ -38,7 +37,6 @@ namespace XI.Portal.Web.Controllers
             IGameServersRepository gameServersRepository,
             IGameServerStatusRepository gameServerStatusRepository,
             IRconClientFactory rconClientFactory,
-            IChatLogsRepository chatLogsRepository,
             IPlayersRepository playersRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
@@ -47,7 +45,6 @@ namespace XI.Portal.Web.Controllers
             _gameServersRepository = gameServersRepository ?? throw new ArgumentNullException(nameof(gameServersRepository));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
-            _chatLogsRepository = chatLogsRepository ?? throw new ArgumentNullException(nameof(chatLogsRepository));
             _playersRepository = playersRepository ?? throw new ArgumentNullException(nameof(playersRepository));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.repositoryTokenProvider = repositoryTokenProvider;
@@ -365,12 +362,13 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ChatLogPermaLink(Guid id)
         {
-            var chatLog = await _chatLogsRepository.GetChatLog(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            ChatMessageSearchEntryDto chatMessage = await repositoryApiClient.ChatMessages.GetChatMessage(accessToken, id);
 
-            if (chatLog == null)
+            if (chatMessage == null)
                 return NotFound();
 
-            return View(chatLog);
+            return View(chatMessage);
         }
     }
 }

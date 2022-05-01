@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Players.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
 {
@@ -14,10 +14,10 @@ namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType.ToString()))
+            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString()) &&
+            if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType) &&
                 context.User.XtremeIdiotsId() == resource.AdminId)
                 context.Succeed(requirement);
 

@@ -11,9 +11,6 @@ using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Players.Dto;
-using XI.Portal.Players.Interfaces;
-using XI.Portal.Players.Models;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
@@ -24,19 +21,16 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
     public class PlayersController : Controller
     {
-        private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayersController(
             IGeoLocationClient geoLocationClient,
-            IAdminActionsRepository adminActionsRepository,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
-            _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             this.repositoryApiClient = repositoryApiClient;
             this.repositoryTokenProvider = repositoryTokenProvider;
         }
@@ -125,14 +119,7 @@ namespace XI.Portal.Web.Controllers
 
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var player = await repositoryApiClient.Players.GetPlayer(accessToken, (Guid)id);
-
-            var adminActionsFilterModel = new AdminActionsFilterModel
-            {
-                PlayerId = (Guid)id,
-                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
-            };
-
-            var adminActions = await _adminActionsRepository.GetAdminActions(adminActionsFilterModel);
+            var adminActions = await repositoryApiClient.Players.GetAdminActionsForPlayer(accessToken, (Guid)id);
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
@@ -213,13 +200,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyActions()
         {
-            var filterModel = new AdminActionsFilterModel
-            {
-                AdminId = User.XtremeIdiotsId(),
-                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
-            };
-
-            var adminActions = await _adminActionsRepository.GetAdminActions(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, User.XtremeIdiotsId(), null, 0, 0, "CreatedDesc");
 
             return View(adminActions);
         }
@@ -227,13 +209,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Unclaimed()
         {
-            var filterModel = new AdminActionsFilterModel
-            {
-                Filter = AdminActionsFilterModel.FilterType.UnclaimedBans,
-                Order = AdminActionsFilterModel.OrderBy.CreatedDesc
-            };
-
-            var adminActions = await _adminActionsRepository.GetAdminActions(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, "UnclaimedBans", 0, 0, "CreatedDesc");
 
             return View(adminActions);
         }

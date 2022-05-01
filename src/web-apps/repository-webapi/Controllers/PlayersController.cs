@@ -478,4 +478,132 @@ public class PlayersController : ControllerBase
 
         return players;
     }
+
+
+    [HttpGet]
+    [Route("api/players/{playerId}/admin-actions")]
+    public async Task<IActionResult> GetAdminActionsForPlayer(Guid playerId)
+    {
+        var results = await Context.AdminActions
+            .Include(aa => aa.PlayerPlayer)
+            .Include(aa => aa.Admin)
+            .Where(aa => aa.PlayerPlayerId == playerId)
+            .ToListAsync();
+
+        var result = results.Select(adminAction => new AdminActionDto
+        {
+            AdminActionId = adminAction.AdminActionId,
+            PlayerId = adminAction.PlayerPlayer.PlayerId,
+            GameType = adminAction.PlayerPlayer.GameType.ToString(),
+            Username = adminAction.PlayerPlayer.Username,
+            Guid = adminAction.PlayerPlayer.Guid,
+            Type = adminAction.Type.ToString(),
+            Text = adminAction.Text,
+            Expires = adminAction.Expires,
+            ForumTopicId = adminAction.ForumTopicId,
+            Created = adminAction.Created,
+            AdminId = adminAction.Admin?.XtremeIdiotsId,
+            AdminName = adminAction.Admin?.UserName
+        });
+
+        return new OkObjectResult(result);
+    }
+
+    [HttpGet]
+    [Route("api/players/{playerId}/admin-actions")]
+    public async Task<IActionResult> CreateAdminActionForPlayer(Guid playerId)
+    {
+        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+        AdminActionDto adminActionDto;
+        try
+        {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        }
+        catch (Exception ex)
+        {
+            return new BadRequestObjectResult(ex);
+        }
+
+        if (adminActionDto == null) return new BadRequestResult();
+        if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
+
+        var player = await Context.Player2.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
+
+        AspNetUsers admin = null;
+        if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
+        {
+            admin = await Context.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+        }
+
+        var adminAction = new AdminActions
+        {
+            PlayerPlayer = player,
+            Admin = admin,
+            Type = Enum.Parse<AdminActionType>(adminActionDto.Type),
+            Text = adminActionDto.Text,
+            Created = adminActionDto.Created,
+            Expires = adminActionDto.Expires,
+            ForumTopicId = adminActionDto.ForumTopicId
+        };
+
+        Context.AdminActions.Add(adminAction);
+        await Context.SaveChangesAsync();
+
+        return new OkObjectResult(adminActionDto);
+    }
+
+    [HttpPatch]
+    [Route("api/players/{playerId}/admin-actions/{adminActionId}")]
+    public async Task<IActionResult> UpdateAdminActionForPlayer(Guid playerId, Guid adminActionId)
+    {
+        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+        AdminActionDto adminActionDto;
+        try
+        {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+            adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+        }
+        catch (Exception ex)
+        {
+            return new BadRequestObjectResult(ex);
+        }
+
+        if (adminActionDto == null) return new BadRequestResult();
+        if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
+
+        var adminAction = await Context.AdminActions.SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionDto.AdminActionId);
+
+        if (adminAction == null)
+            throw new NullReferenceException(nameof(adminAction));
+
+        adminAction.Text = adminActionDto.Text;
+        adminAction.Expires = adminActionDto.Expires;
+
+        if (adminAction.AdminId != adminActionDto.AdminId)
+        {
+            if (string.IsNullOrWhiteSpace(adminActionDto.AdminId))
+                adminAction.Admin = null;
+            else
+            {
+                var admin = await Context.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+
+                if (admin == null)
+                    throw new NullReferenceException(nameof(admin));
+
+                adminAction.Admin = admin;
+            }
+        }
+
+        if (adminActionDto.ForumTopicId != 0)
+            adminAction.ForumTopicId = adminActionDto.ForumTopicId;
+
+        await Context.SaveChangesAsync();
+
+        return new OkObjectResult(adminActionDto);
+    }
 }

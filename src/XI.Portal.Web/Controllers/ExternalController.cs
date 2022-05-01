@@ -1,32 +1,30 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-using XI.CommonTypes;
-using XI.Portal.Players.Interfaces;
-using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     public class ExternalController : Controller
     {
-        private readonly IAdminActionsRepository _adminActionsRepository;
+        public IRepositoryTokenProvider RepositoryTokenProvider { get; }
+        public IRepositoryApiClient RepositoryApiClient { get; }
 
-        public ExternalController(IAdminActionsRepository adminActionsRepository)
+        public ExternalController(
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
+            RepositoryTokenProvider = repositoryTokenProvider;
+            RepositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> LatestAdminActions()
         {
-            var filterModel = new AdminActionsFilterModel
-            {
-                Order = AdminActionsFilterModel.OrderBy.CreatedDesc,
-                TakeEntries = 15
-            };
-
-            var adminActionDtos = await _adminActionsRepository.GetAdminActions(filterModel);
+            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, null, 0, 15, "CreatedDesc");
 
             return View(adminActionDtos);
         }
@@ -34,19 +32,14 @@ namespace XI.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions()
         {
-            var filterModel = new AdminActionsFilterModel
-            {
-                Order = AdminActionsFilterModel.OrderBy.CreatedDesc,
-                TakeEntries = 15
-            };
-
-            var adminActionDtos = await _adminActionsRepository.GetAdminActions(filterModel);
+            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, null, 0, 15, "CreatedDesc");
 
             var results = new List<dynamic>();
             foreach (var adminActionDto in adminActionDtos)
             {
                 string actionText;
-                if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
+                if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == "Ban" || adminActionDto.Type == "TempBan"))
                     actionText = $"lifted a {adminActionDto.Type} on";
                 else
                     actionText = $"added a {adminActionDto.Type} to";

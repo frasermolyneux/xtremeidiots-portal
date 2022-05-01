@@ -53,7 +53,6 @@ namespace XI.Portal.Players.Extensions
                 serviceCollection.AddScoped<IBanFilesRepository, BanFilesRepository>();
             }
 
-            serviceCollection.AddScoped<IAdminActionsRepository, AdminActionsRepository>();
             serviceCollection.AddScoped<IBanFileIngest, BanFileIngest>();
             serviceCollection.AddScoped<IGuidValidator, GuidValidator>();
 

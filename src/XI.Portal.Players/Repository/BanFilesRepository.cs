@@ -4,27 +4,30 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
-using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Players.Repository
 {
     public class BanFilesRepository : IBanFilesRepository
     {
-        private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly ILogger<BanFilesRepository> _logger;
         private readonly IBanFilesRepositoryOptions _options;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
 
         public BanFilesRepository(
             ILogger<BanFilesRepository> logger,
             IBanFilesRepositoryOptions options,
-            IAdminActionsRepository adminActionsRepository
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient
         )
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
-            _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         public async Task RegenerateBanFileForGame(string gameType)
@@ -40,12 +43,9 @@ namespace XI.Portal.Players.Repository
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 
-            var adminActions = await _adminActionsRepository.GetAdminActions(new AdminActionsFilterModel
-            {
-                GameType = Enum.Parse<GameType>(gameType),
-                Filter = AdminActionsFilterModel.FilterType.ActiveBans,
-                Order = AdminActionsFilterModel.OrderBy.CreatedAsc
-            });
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, gameType, null, null, "ActiveBans", 0, 0, "CreatedAsc");
 
             var externalBansStream = await GetExternalBanFileForGame(gameType);
             externalBansStream.Seek(externalBansStream.Length, SeekOrigin.Begin);

@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using XI.Portal.Players.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Players.Interfaces
 {

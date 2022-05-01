@@ -2,7 +2,8 @@
 @using Microsoft.AspNetCore.Authorization
 @using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
-@model XI.Portal.Players.Dto.AdminActionDto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model AdminActionDto
 
 @{
     ViewData["Title"] = "Editing " + Model.Type + " for " + Model.Username;
@@ -34,7 +35,7 @@
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
-                        @if (Model.Type == AdminActionType.TempBan)
+                        @if (Model.Type == "TempBan")
                         {
                             <div class="form-group">
                                 <label asp-for="Expires"></label>

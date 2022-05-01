@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using XI.CommonTypes;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Players.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
 {
@@ -15,36 +14,36 @@ namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType.ToString()))
+            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType))
                 context.Succeed(requirement);
 
             switch (resource.Type)
             {
-                case AdminActionType.Observation:
-                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType.ToString()) ||
-                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString())) &&
+                case "Observation":
+                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType) ||
+                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType)) &&
                         context.User.XtremeIdiotsId() == resource.AdminId)
                         context.Succeed(requirement);
                     break;
-                case AdminActionType.Warning:
-                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType.ToString()) ||
-                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString())) &&
+                case "Warning":
+                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType) ||
+                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType)) &&
                         context.User.XtremeIdiotsId() == resource.AdminId)
                         context.Succeed(requirement);
                     break;
-                case AdminActionType.Kick:
-                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType.ToString()) ||
-                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString())) &&
+                case "Kick":
+                    if ((context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, resource.GameType) ||
+                         context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType)) &&
                         context.User.XtremeIdiotsId() == resource.AdminId)
                         context.Succeed(requirement);
                     break;
-                case AdminActionType.TempBan:
-                    if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString()) &&
+                case "TempBan":
+                    if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType) &&
                         context.User.XtremeIdiotsId() == resource.AdminId)
                         context.Succeed(requirement);
                     break;
-                case AdminActionType.Ban:
-                    if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType.ToString()) &&
+                case "Ban":
+                    if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, resource.GameType) &&
                         context.User.XtremeIdiotsId() == resource.AdminId)
                         context.Succeed(requirement);
                     break;

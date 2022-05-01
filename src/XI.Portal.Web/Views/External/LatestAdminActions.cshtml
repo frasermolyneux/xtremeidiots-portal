@@ -1,6 +1,7 @@
 ﻿@using XI.CommonTypes
 @using XI.Portal.Web.Extensions
-@model List<XI.Portal.Players.Dto.AdminActionDto>
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model List<AdminActionDto>
 
 @{
     Layout = null;
@@ -21,7 +22,7 @@
                         @{
                             var text = "";
 
-                            if (item.Expires <= DateTime.UtcNow && (item.Type == AdminActionType.Ban || item.Type == AdminActionType.TempBan))
+                            if (item.Expires <= DateTime.UtcNow && (item.Type == "Ban"|| item.Type == "TempBan"))
                             {
                                 text = item.AdminName != null ? $"{item.AdminName} lifted a {item.Type} on" : $"Unknown lifted a {item.Type} on";
                             }

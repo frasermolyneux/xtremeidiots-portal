@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Players.Dto;
-using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Extensions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -18,7 +17,6 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessAdminActionsController)]
     public class AdminActionController : Controller
     {
-        private readonly IAdminActionsRepository _adminActionsRepository;
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<AdminActionController> _logger;
         private readonly IPlayersForumsClient _playersForumsClient;
@@ -29,30 +27,31 @@ namespace XI.Portal.Web.Controllers
         public AdminActionController(
             ILogger<AdminActionController> logger,
             IAuthorizationService authorizationService,
-            IAdminActionsRepository adminActionsRepository,
             IPlayersForumsClient playersForumsClient,
             IRepositoryApiClient repositoryApiClient,
             IRepositoryTokenProvider repositoryTokenProvider)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            _adminActionsRepository = adminActionsRepository ?? throw new ArgumentNullException(nameof(adminActionsRepository));
             _playersForumsClient = playersForumsClient ?? throw new ArgumentNullException(nameof(playersForumsClient));
             this.repositoryApiClient = repositoryApiClient;
             this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
+        public async Task<IActionResult> Create(Guid id, string adminActionType)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, id);
 
             if (playerDto == null) return NotFound();
 
-            var adminActionDto = new AdminActionDto().OfType(adminActionType);
+            var adminActionDto = new AdminActionDto
+            {
+                Type = adminActionType
+            };
             adminActionDto.PlayerId = playerDto.Id;
-            adminActionDto.GameType = Enum.Parse<GameType>(playerDto.GameType);
+            adminActionDto.GameType = playerDto.GameType;
             adminActionDto.Username = playerDto.Username;
             adminActionDto.Guid = playerDto.Guid;
 
@@ -61,7 +60,7 @@ namespace XI.Portal.Web.Controllers
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
-            if (adminActionType == AdminActionType.TempBan)
+            if (adminActionType == "TempBan")
                 adminActionDto.Expires = DateTime.UtcNow.AddDays(7);
 
             return View(adminActionDto);
@@ -79,16 +78,19 @@ namespace XI.Portal.Web.Controllers
             if (!ModelState.IsValid)
             {
                 model.PlayerId = playerDto.Id;
-                model.GameType = Enum.Parse<GameType>(playerDto.GameType);
+                model.GameType = playerDto.GameType;
                 model.Username = playerDto.Username;
                 model.Guid = playerDto.Guid;
 
                 return View(model);
             }
 
-            var adminActionDto = new AdminActionDto().OfType(model.Type);
+            var adminActionDto = new AdminActionDto
+            {
+                Type = model.Type
+            };
             adminActionDto.PlayerId = playerDto.Id;
-            adminActionDto.GameType = Enum.Parse<GameType>(playerDto.GameType);
+            adminActionDto.GameType = playerDto.GameType;
             adminActionDto.Username = playerDto.Username;
             adminActionDto.Guid = playerDto.Guid;
 
@@ -100,12 +102,12 @@ namespace XI.Portal.Web.Controllers
             adminActionDto.AdminId = User.XtremeIdiotsId();
             adminActionDto.Text = model.Text;
 
-            if (model.Type == AdminActionType.TempBan)
+            if (model.Type == "TempBan")
                 adminActionDto.Expires = model.Expires;
 
             adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
-            await _adminActionsRepository.CreateAdminAction(adminActionDto);
+            await repositoryApiClient.Players.CreateAdminActionForPlayer(accessToken, adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDto.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
@@ -116,7 +118,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
@@ -131,7 +135,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminActionDto model)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(model.AdminActionId);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, model.AdminActionId);
+
             if (adminActionDto == null) return NotFound();
 
             if (!ModelState.IsValid)
@@ -147,7 +153,7 @@ namespace XI.Portal.Web.Controllers
 
             adminActionDto.Text = model.Text;
 
-            if (model.Type == AdminActionType.TempBan)
+            if (model.Type == "TempBan")
                 adminActionDto.Expires = model.Expires;
 
             var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ChangeAdminActionAdmin);
@@ -155,7 +161,7 @@ namespace XI.Portal.Web.Controllers
             if (canChangeAdminActionAdmin.Succeeded)
                 adminActionDto.AdminId = model.AdminId;
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await repositoryApiClient.Players.UpdateAdminActionForPlayer(accessToken, adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
@@ -169,7 +175,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Lift(Guid id)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
@@ -185,7 +193,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canLiftAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
@@ -195,7 +205,7 @@ namespace XI.Portal.Web.Controllers
 
             adminActionDto.Expires = DateTime.UtcNow;
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await repositoryApiClient.Players.UpdateAdminActionForPlayer(accessToken, adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
@@ -209,7 +219,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Claim(Guid id)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
@@ -225,7 +237,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canClaimAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
@@ -235,7 +249,7 @@ namespace XI.Portal.Web.Controllers
 
             adminActionDto.AdminId = User.XtremeIdiotsId();
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await repositoryApiClient.Players.UpdateAdminActionForPlayer(accessToken, adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
@@ -249,7 +263,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateDiscussionTopic(Guid id)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canCreateAdminActionDiscussionTopic = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminActionTopic);
@@ -259,7 +275,7 @@ namespace XI.Portal.Web.Controllers
 
             adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
-            await _adminActionsRepository.UpdateAdminAction(adminActionDto);
+            await repositoryApiClient.Players.UpdateAdminActionForPlayer(accessToken, adminActionDto);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
             this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">here</a>");
@@ -270,7 +286,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
@@ -286,7 +304,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, Guid playerId)
         {
-            var adminActionDto = await _adminActionsRepository.GetAdminAction(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+
             if (adminActionDto == null) return NotFound();
 
             var canDeleteAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
@@ -294,7 +314,7 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
 
-            await _adminActionsRepository.DeleteAdminAction(id);
+            await repositoryApiClient.AdminActions.DeleteAdminAction(accessToken, id);
 
             _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully deleted from {adminActionDto.Username}");

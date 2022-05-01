@@ -1,5 +1,6 @@
 ﻿@using XI.CommonTypes
-@model XI.Portal.Players.Dto.AdminActionDto
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
+@model AdminActionDto
 
 @{
     ViewData["Title"] = "Lift " + Model.Type;
@@ -30,7 +31,7 @@
                                 @Html.DisplayFor(model => model.Type)
                             </dd>
 
-                            @if (Model.Type == AdminActionType.TempBan)
+                            @if (Model.Type == "TempBan")
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.Expires)

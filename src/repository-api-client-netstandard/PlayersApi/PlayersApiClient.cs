@@ -133,5 +133,42 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
+
+        public async Task<List<AdminActionDto>> GetAdminActionsForPlayer(string accessToken, Guid playerId)
+        {
+            var request = CreateRequest($"repository/players/{playerId}/admin-actions", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<List<AdminActionDto>>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
+        public async Task<AdminActionDto> CreateAdminActionForPlayer(string accessToken, AdminActionDto adminAction)
+        {
+            var request = CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions", Method.POST, accessToken);
+            request.AddJsonBody(adminAction);
+
+            var response = await ExecuteAsync(request);
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
+        public async Task<AdminActionDto> UpdateAdminActionForPlayer(string accessToken, AdminActionDto adminAction)
+        {
+            var request = CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.PATCH, accessToken);
+            request.AddJsonBody(adminAction);
+
+            var response = await ExecuteAsync(request);
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
     }
 }

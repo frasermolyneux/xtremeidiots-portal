@@ -1,128 +1,126 @@
-﻿using XI.CommonTypes;
-
-namespace XI.Portal.Players.Extensions
+﻿namespace XI.Portal.Players.Extensions
 {
     public static class GameTypeExtensions
     {
-        public static int ForumIdForObservations(this GameType gameType)
+        public static int ForumIdForObservations(this string gameType)
         {
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     return 58;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     return 59;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     return 60;
-                case GameType.Insurgency:
+                case "Insurgency":
                     return 264;
-                case GameType.Minecraft:
+                case "Minecraft":
                     return 265;
-                case GameType.Rust:
+                case "Rust":
                     return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
+                case "Arma":
+                case "Arma2":
+                case "Arma3":
                     return 252;
                 default:
                     return 28;
             }
         }
 
-        public static int ForumIdForKicks(this GameType gameType)
+        public static int ForumIdForKicks(this string gameType)
         {
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     return 58;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     return 59;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     return 60;
-                case GameType.Insurgency:
+                case "Insurgency":
                     return 264;
-                case GameType.Minecraft:
+                case "Minecraft":
                     return 265;
-                case GameType.Rust:
+                case "Rust":
                     return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
+                case "Arma":
+                case "Arma2":
+                case "Arma3":
                     return 252;
                 default:
                     return 28;
             }
         }
 
-        public static int ForumIdForWarnings(this GameType gameType)
+        public static int ForumIdForWarnings(this string gameType)
         {
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     return 58;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     return 59;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     return 60;
-                case GameType.Insurgency:
+                case "Insurgency":
                     return 264;
-                case GameType.Minecraft:
+                case "Minecraft":
                     return 265;
-                case GameType.Rust:
+                case "Rust":
                     return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
+                case "Arma":
+                case "Arma2":
+                case "Arma3":
                     return 252;
                 default:
                     return 28;
             }
         }
 
-        public static int ForumIdForTempBans(this GameType gameType)
+        public static int ForumIdForTempBans(this string gameType)
         {
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     return 68;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     return 69;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     return 70;
-                case GameType.Insurgency:
+                case "Insurgency":
                     return 169;
-                case GameType.Minecraft:
+                case "Minecraft":
                     return 144;
-                case GameType.Rust:
+                case "Rust":
                     return 260;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
+                case "Arma":
+                case "Arma2":
+                case "Arma3":
                     return 259;
                 default:
                     return 28;
             }
         }
 
-        public static int ForumIdForBans(this GameType gameType)
+        public static int ForumIdForBans(this string gameType)
         {
             switch (gameType)
             {
-                case GameType.CallOfDuty2:
+                case "CallOfDuty2":
                     return 68;
-                case GameType.CallOfDuty4:
+                case "CallOfDuty4":
                     return 69;
-                case GameType.CallOfDuty5:
+                case "CallOfDuty5":
                     return 70;
-                case GameType.Insurgency:
+                case "Insurgency":
                     return 169;
-                case GameType.Minecraft:
+                case "Minecraft":
                     return 144;
-                case GameType.Rust:
+                case "Rust":
                     return 260;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
+                case "Arma":
+                case "Arma2":
+                case "Arma3":
                     return 259;
                 default:
                     return 28;

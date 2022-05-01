@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using XI.Portal.Players.Dto;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Web.ViewComponents
 {

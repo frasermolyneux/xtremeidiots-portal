@@ -509,7 +509,7 @@ public class PlayersController : ControllerBase
         return new OkObjectResult(result);
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("api/players/{playerId}/admin-actions")]
     public async Task<IActionResult> CreateAdminActionForPlayer(Guid playerId)
     {

@@ -15,6 +15,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.AdminActionsApi
         public AdminActionsApiClient(ILogger<AdminActionsApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
         {
         }
+
         public async Task<List<AdminActionDto>> GetAdminActions(string accessToken, string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
         {
             var request = CreateRequest($"repository/admin-actions", Method.GET, accessToken);

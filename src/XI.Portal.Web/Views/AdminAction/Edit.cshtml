@@ -2,11 +2,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
-@model AdminActionDto
+@using XI.Portal.Web.Models
+@model AdminActionViewModel
 
 @{
-    ViewData["Title"] = "Editing " + Model.Type + " for " + Model.Username;
+    ViewData["Title"] = "Editing " + Model.Type + " for " + Model.PlayerDto.Username;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">

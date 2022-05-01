@@ -544,7 +544,7 @@ public class PlayersController : ControllerBase
             Admin = admin,
             Type = Enum.Parse<AdminActionType>(adminActionDto.Type),
             Text = adminActionDto.Text,
-            Created = adminActionDto.Created,
+            Created = DateTime.UtcNow,
             Expires = adminActionDto.Expires,
             ForumTopicId = adminActionDto.ForumTopicId
         };

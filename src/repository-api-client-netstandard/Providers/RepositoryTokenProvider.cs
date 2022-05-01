@@ -17,14 +17,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers
 
         public async Task<string> GetRepositoryAccessToken()
         {
-            var tokenCredential = new ManagedIdentityCredential();
+            var tokenCredential = new DefaultAzureCredential();
 
             AccessToken accessToken;
             try
             {
                 // Go away - I know this is hardcoded but this a temp hack
                 accessToken = await tokenCredential.GetTokenAsync(
-                    new TokenRequestContext(new[] { $"api://portal-repository-api-prd" }));
+                    new TokenRequestContext(new[] { $"api://portal-repository-api-prd/.default" }));
             }
             catch (Exception ex)
             {

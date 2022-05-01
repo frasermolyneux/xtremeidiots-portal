@@ -8,6 +8,7 @@ using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Extensions;
+using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -22,7 +23,6 @@ namespace XI.Portal.Web.Controllers
         private readonly IPlayersForumsClient _playersForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
-
 
         public AdminActionController(
             ILogger<AdminActionController> logger,
@@ -46,29 +46,27 @@ namespace XI.Portal.Web.Controllers
 
             if (playerDto == null) return NotFound();
 
-            var adminActionDto = new AdminActionDto
+            var viewModel = new AdminActionViewModel
             {
-                Type = adminActionType
+                Type = adminActionType,
+                PlayerId = playerDto.Id,
+                PlayerDto = playerDto
             };
-            adminActionDto.PlayerId = playerDto.Id;
-            adminActionDto.GameType = playerDto.GameType;
-            adminActionDto.Username = playerDto.Username;
-            adminActionDto.Guid = playerDto.Guid;
 
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, new AdminActionDto { GameType = playerDto.GameType }, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
             if (adminActionType == "TempBan")
-                adminActionDto.Expires = DateTime.UtcNow.AddDays(7);
+                viewModel.Expires = DateTime.UtcNow.AddDays(7);
 
-            return View(adminActionDto);
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(AdminActionDto model)
+        public async Task<IActionResult> Create(AdminActionViewModel model)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, model.PlayerId);
@@ -77,11 +75,7 @@ namespace XI.Portal.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                model.PlayerId = playerDto.Id;
-                model.GameType = playerDto.GameType;
-                model.Username = playerDto.Username;
-                model.Guid = playerDto.Guid;
-
+                model.PlayerDto = playerDto;
                 return View(model);
             }
 
@@ -94,7 +88,7 @@ namespace XI.Portal.Web.Controllers
             adminActionDto.Username = playerDto.Username;
             adminActionDto.Guid = playerDto.Guid;
 
-            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await _authorizationService.AuthorizeAsync(User, new AdminActionDto { GameType = playerDto.GameType }, AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -120,29 +114,42 @@ namespace XI.Portal.Web.Controllers
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, id);
+            var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, adminActionDto.PlayerId);
 
             if (adminActionDto == null) return NotFound();
+
+            var viewModel = new AdminActionViewModel
+            {
+                AdminActionId = adminActionDto.AdminActionId,
+                PlayerId = adminActionDto.PlayerId,
+                Type = adminActionDto.Type,
+                Text = adminActionDto.Text,
+                Expires = adminActionDto.Expires,
+                AdminId = adminActionDto.AdminId,
+                PlayerDto = playerDto
+            };
 
             var canEditAdminAction = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
 
-            return View(adminActionDto);
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(AdminActionDto model)
+        public async Task<IActionResult> Edit(AdminActionViewModel model)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(accessToken, model.AdminActionId);
+            var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, adminActionDto.PlayerId);
 
             if (adminActionDto == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                model.Username = adminActionDto.Username;
+                model.PlayerDto = playerDto;
                 return View(model);
             }
 

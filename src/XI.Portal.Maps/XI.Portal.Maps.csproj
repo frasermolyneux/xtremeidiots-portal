@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Repository\XI.Portal.Repository.csproj" />
   </ItemGroup>
 

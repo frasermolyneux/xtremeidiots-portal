@@ -25,7 +25,6 @@
     <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Auth\XI.Portal.Auth.csproj" />
-    <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Demos\XI.Portal.Demos.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />

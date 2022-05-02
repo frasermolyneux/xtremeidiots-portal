@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using XI.Portal.Maps.Configuration;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Repository;
@@ -15,17 +15,6 @@ namespace XI.Portal.Maps.Extensions
 
             IMapsModuleOptions options = new MapsModuleOptions();
             configureOptions.Invoke(options);
-
-            if (options.MapFileRepositoryOptions != null)
-            {
-                IMapFileRepositoryOptions supOptions = new MapFileRepositoryOptions();
-                options.MapFileRepositoryOptions.Invoke(supOptions);
-
-                supOptions.Validate();
-
-                serviceCollection.AddSingleton(supOptions);
-                serviceCollection.AddScoped<IMapFileRepository, MapFileRepository>();
-            }
 
             if (options.MapImageRepositoryOptions != null)
             {

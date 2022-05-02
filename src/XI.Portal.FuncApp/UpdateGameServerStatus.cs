@@ -1,15 +1,16 @@
+using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using XI.Portal.Data.Legacy;
+using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
@@ -18,19 +19,22 @@ namespace XI.Portal.FuncApp
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
-        private readonly LegacyPortalContext _legacyContext;
         private readonly IPlayerIngest _playerIngest;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
 
         public UpdateGameServerStatus(
-            LegacyPortalContext legacyContext,
             IGameServerStatusRepository gameServerStatusRepository,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IPlayerIngest playerIngest)
+            IPlayerIngest playerIngest,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _legacyContext = legacyContext ?? throw new ArgumentNullException(nameof(legacyContext));
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
             _playerIngest = playerIngest ?? throw new ArgumentNullException(nameof(playerIngest));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [FunctionName("UpdateGameServerStatus")]
@@ -44,7 +48,8 @@ namespace XI.Portal.FuncApp
 
             _playerIngest.OverrideLogger(log);
 
-            var servers = await _legacyContext.GameServers.AsQueryable().Where(server => server.ShowOnPortalServerList).ToListAsync();
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var servers = await repositoryApiClient.GameServers.GetGameServers(accessToken, null, null, "ShowOnPortalServerList", 0, 0, null);
 
             foreach (var server in servers)
             {
@@ -52,7 +57,7 @@ namespace XI.Portal.FuncApp
 
                 try
                 {
-                    var model = await _gameServerStatusRepository.GetStatus(server.ServerId, TimeSpan.FromMinutes(-1));
+                    var model = await _gameServerStatusRepository.GetStatus(server.Id, TimeSpan.FromMinutes(-1));
 
                     if (model == null)
                     {
@@ -64,8 +69,8 @@ namespace XI.Portal.FuncApp
 
                     await _gameServerStatusStatsRepository.UpdateEntry(new GameServerStatusStatsDto
                     {
-                        ServerId = server.ServerId,
-                        GameType = server.GameType,
+                        ServerId = server.Id,
+                        GameType = Enum.Parse<GameType>(server.GameType),
                         PlayerCount = model.PlayerCount,
                         MapName = model.Map
                     });
@@ -76,7 +81,7 @@ namespace XI.Portal.FuncApp
                         foreach (var player in model.Players)
                         {
                             playerGuid = player.Guid;
-                            await _playerIngest.IngestData(server.GameType, player.Guid, player.Name, player.IpAddress);
+                            await _playerIngest.IngestData(Enum.Parse<GameType>(server.GameType), player.Guid, player.Name, player.IpAddress);
                         }
                     }
                     catch (Exception ex)
@@ -92,7 +97,7 @@ namespace XI.Portal.FuncApp
 
             foreach (var gameServerStatus in await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero))
             {
-                var server = servers.SingleOrDefault(s => s.ServerId == gameServerStatus.ServerId);
+                var server = servers.SingleOrDefault(s => s.Id == gameServerStatus.ServerId);
 
                 if (server == null)
                 {

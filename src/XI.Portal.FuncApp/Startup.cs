@@ -1,13 +1,11 @@
 ﻿using FM.GeoLocation.Client.Extensions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Reflection;
 using XI.Forums.Extensions;
-using XI.Portal.Data.Legacy;
 using XI.Portal.FuncApp;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
@@ -42,9 +40,6 @@ namespace XI.Portal.FuncApp
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var config = builder.GetContext().Configuration;
-
-            builder.Services.AddDbContext<LegacyPortalContext>(options =>
-                options.UseSqlServer(config["LegacyPortalContext:ConnectionString"]));
 
             builder.Services.AddGeoLocationClient(options =>
             {

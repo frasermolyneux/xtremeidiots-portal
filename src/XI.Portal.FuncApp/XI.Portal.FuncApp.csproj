@@ -33,7 +33,6 @@
   <ItemGroup>
     <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
     <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
-    <ProjectReference Include="..\XI.Portal.Data.Legacy\XI.Portal.Data.Legacy.csproj" />
     <ProjectReference Include="..\XI.Portal.Maps\XI.Portal.Maps.csproj" />
     <ProjectReference Include="..\XI.Portal.Repository\XI.Portal.Repository.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />

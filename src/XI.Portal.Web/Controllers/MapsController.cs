@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Maps.Interfaces;
@@ -17,18 +17,15 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessMaps)]
     public class MapsController : Controller
     {
-        private readonly IMapFileRepository _mapFileRepository;
         private readonly IMapImageRepository _mapImageRepository;
         private readonly IMapsRepository _mapsRepository;
 
         public MapsController(
             IMapsRepository mapsRepository,
-            IMapImageRepository mapImageRepository,
-            IMapFileRepository mapFileRepository)
+            IMapImageRepository mapImageRepository)
         {
             _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
             _mapImageRepository = mapImageRepository ?? throw new ArgumentNullException(nameof(mapImageRepository));
-            _mapFileRepository = mapFileRepository ?? throw new ArgumentNullException(nameof(mapFileRepository));
         }
 
         [HttpGet]
@@ -58,7 +55,7 @@ namespace XI.Portal.Web.Controllers
             var queryOptions = new MapsQueryOptions();
 
             if (id != null)
-                queryOptions.GameType = (GameType) id;
+                queryOptions.GameType = (GameType)id;
 
             var recordsTotal = await _mapsRepository.GetMapsCount(queryOptions);
 
@@ -100,16 +97,6 @@ namespace XI.Portal.Web.Controllers
                 recordsFiltered,
                 data = mapDtos
             });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> DownloadFullRotation(Guid? id)
-        {
-            if (id == null) return NotFound();
-
-            var fullRotationArchive = await _mapFileRepository.GetFullRotationArchive((Guid) id);
-
-            return File(fullRotationArchive, "application/zip");
         }
 
         [HttpGet]

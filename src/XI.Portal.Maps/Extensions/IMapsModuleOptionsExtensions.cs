@@ -5,11 +5,6 @@ namespace XI.Portal.Maps.Extensions
 {
     public static class MapsModuleOptionsExtensions
     {
-        public static void ConfigureMapFileRepository(this IMapsModuleOptions options, Action<IMapFileRepositoryOptions> repositoryOptions)
-        {
-            options.MapFileRepositoryOptions = repositoryOptions;
-        }
-
         public static void ConfigureMapImageRepository(this IMapsModuleOptions options, Action<IMapImageRepositoryOptions> repositoryOptions)
         {
             options.MapImageRepositoryOptions = repositoryOptions;

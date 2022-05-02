@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,7 +19,6 @@ using System.Text.Json;
 using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
-using XI.Portal.Data.Legacy;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
@@ -156,8 +154,6 @@ namespace XI.Portal.Web
 
             services.AddMapsModule(options =>
             {
-                options.ConfigureMapFileRepository(repositoryOptions => { repositoryOptions.MapRedirectBaseUrl = Configuration["MapsRedirect:BaseUrl"]; });
-
                 options.ConfigureMapImageRepository(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
@@ -215,9 +211,6 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageTableName = Configuration["GameServerStatusStatsRepository:StorageTableName"];
                 });
             });
-
-            services.AddDbContext<LegacyPortalContext>(options =>
-                options.UseSqlServer(Configuration["LegacyPortalContext:ConnectionString"]));
 
             services.AddCors(options =>
             {

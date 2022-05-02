@@ -37,53 +37,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (string.IsNullOrWhiteSpace(order))
                 order = "DateDesc";
 
-            if (userId != null && filterByGameTypes.Count() != 0)
-                demos = demos.Where(d => filterByGameTypes.Contains(d.Game) && d.UserId == userId).AsQueryable();
-            else if (filterByGameTypes.Count() != 0)
-                demos = demos.Where(d => filterByGameTypes.Contains(d.Game)).AsQueryable();
-            else if (userId != null)
-                demos = demos.Where(d => d.UserId == userId).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filterString))
-                demos = demos.Where(d => d.Name.Contains(filterString) || d.User.UserName.Contains(filterString)).AsQueryable();
+            var query = Context.Demoes.Include(d => d.User).AsQueryable();
+            query = ApplySearchFilter(query, null, null, null);
+            var totalCount = await query.CountAsync();
 
-            switch (order)
-            {
-                case "GameTypeAsc":
-                    demos = demos.OrderBy(d => d.Game).AsQueryable();
-                    break;
-                case "GameTypeDesc":
-                    demos = demos.OrderByDescending(d => d.Game).AsQueryable();
-                    break;
-                case "NameAsc":
-                    demos = demos.OrderBy(d => d.Name).AsQueryable();
-                    break;
-                case "NameDesc":
-                    demos = demos.OrderByDescending(d => d.Name).AsQueryable();
-                    break;
-                case "DateAsc":
-                    demos = demos.OrderBy(d => d.Date).AsQueryable();
-                    break;
-                case "DateDesc":
-                    demos = demos.OrderByDescending(d => d.Date).AsQueryable();
-                    break;
-                case "UploadedByAsc":
-                    demos = demos.OrderBy(d => d.User.UserName).AsQueryable();
-                    break;
-                case "UploadedByDesc":
-                    demos = demos.OrderByDescending(d => d.User.UserName).AsQueryable();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            query = ApplySearchFilter(query, filterByGameTypes, userId, filterString);
+            var filteredCount = await query.CountAsync();
 
-            demos = demos.Skip(skipEntries).AsQueryable();
+            query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
+            var searchResults = await query.ToListAsync();
 
-            if (takeEntries != 0) demos = demos.Take(takeEntries).AsQueryable();
-
-            var results = await demos.ToListAsync();
-
-            var result = results.Select(demo => new DemoDto
+            var entries = searchResults.Select(demo => new DemoDto()
             {
                 DemoId = demo.DemoId,
                 Game = demo.Game.ToString(),
@@ -100,7 +65,68 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 UploadedBy = demo.User.UserName
             }).ToList();
 
-            return new OkObjectResult(result);
+            var response = new DemosSearchResponseDto
+            {
+                TotalRecords = totalCount,
+                FilteredRecords = filteredCount,
+                Entries = entries
+            };
+
+            return new OkObjectResult(response);
+        }
+
+        private IQueryable<Demoes> ApplySearchFilter(IQueryable<Demoes> query, GameType[] filterByGameTypes, string? userId, string? filterString)
+        {
+            if (userId != null && filterByGameTypes.Count() != 0)
+                query = query.Where(d => filterByGameTypes.Contains(d.Game) && d.UserId == userId).AsQueryable();
+            else if (filterByGameTypes.Count() != 0)
+                query = query.Where(d => filterByGameTypes.Contains(d.Game)).AsQueryable();
+            else if (userId != null)
+                query = query.Where(d => d.UserId == userId).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                query = query.Where(d => d.Name.Contains(filterString) || d.User.UserName.Contains(filterString)).AsQueryable();
+
+            return query;
+        }
+
+        private IQueryable<Demoes> ApplySearchOrderAndLimits(IQueryable<Demoes> query, string order, int skipEntries, int takeEntries)
+        {
+            switch (order)
+            {
+                case "GameTypeAsc":
+                    query = query.OrderBy(d => d.Game).AsQueryable();
+                    break;
+                case "GameTypeDesc":
+                    query = query.OrderByDescending(d => d.Game).AsQueryable();
+                    break;
+                case "NameAsc":
+                    query = query.OrderBy(d => d.Name).AsQueryable();
+                    break;
+                case "NameDesc":
+                    query = query.OrderByDescending(d => d.Name).AsQueryable();
+                    break;
+                case "DateAsc":
+                    query = query.OrderBy(d => d.Date).AsQueryable();
+                    break;
+                case "DateDesc":
+                    query = query.OrderByDescending(d => d.Date).AsQueryable();
+                    break;
+                case "UploadedByAsc":
+                    query = query.OrderBy(d => d.User.UserName).AsQueryable();
+                    break;
+                case "UploadedByDesc":
+                    query = query.OrderByDescending(d => d.User.UserName).AsQueryable();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            query = query.Skip(skipEntries).AsQueryable();
+
+            if (takeEntries != 0) query = query.Take(takeEntries).AsQueryable();
+
+            return query;
         }
 
         [HttpPost]

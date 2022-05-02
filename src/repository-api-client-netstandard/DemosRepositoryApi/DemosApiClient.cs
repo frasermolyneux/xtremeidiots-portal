@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi
 {
     public class DemosApiClient : BaseApiClient, IDemosApiClient
     {
-        public DemosApiClient(ILogger logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public DemosApiClient(ILogger<DemosApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
         {
         }
 

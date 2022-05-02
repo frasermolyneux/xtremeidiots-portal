@@ -36,7 +36,7 @@ namespace XI.Portal.Demos.Extensions
                 subOptions.Validate();
 
                 serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IDemosRepository, DemosRepository>();
+                serviceCollection.AddScoped<IDemoFileRepository, DemoFileRepository>();
             }
 
             serviceCollection.AddScoped<IDemosForumsClient, DemosForumsClient>();

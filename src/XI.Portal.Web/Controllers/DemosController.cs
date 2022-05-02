@@ -1,27 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using XI.CommonTypes;
 using XI.Demos.Models;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
-using XI.Portal.Auth.Demos.Extensions;
-using XI.Portal.Demos.Dto;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Demos.Forums;
 using XI.Portal.Demos.Interfaces;
-using XI.Portal.Demos.Models;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -30,20 +30,24 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly IDemoAuthRepository _demoAuthRepository;
-        private readonly IDemosRepository _demosRepository;
+        private readonly IDemoFileRepository _demosRepository;
         private readonly ILogger<DemosController> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
         private readonly IDemosForumsClient _demosForumsClient;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly UserManager<PortalIdentityUser> _userManager;
 
         public DemosController(
             ILogger<DemosController> logger,
             IAuthorizationService authorizationService,
-            IDemosRepository demosRepository,
+            IDemoFileRepository demosRepository,
             IDemoAuthRepository demoAuthRepository,
             UserManager<PortalIdentityUser> userManager,
             SignInManager<PortalIdentityUser> signInManager,
-            IDemosForumsClient demosForumsClient)
+            IDemosForumsClient demosForumsClient,
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger;
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
@@ -52,6 +56,8 @@ namespace XI.Portal.Web.Controllers
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
@@ -89,7 +95,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetDemoListAjax(GameType? id)
+        public async Task<IActionResult> GetDemoListAjax(string? id)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -99,24 +105,26 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var filterModel = new DemosFilterModel().ApplyAuth(User, id);
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator };
+            var gameTypes = User.ClaimedGameTypes(requiredClaims);
 
+            string filterUserId = null;
+            string[] filterGameTypes = null;
             if (id != null)
-                filterModel.GameTypes.Add((GameType) id);
-
-            var recordsTotal = await _demosRepository.GetDemosCount(filterModel);
-
-            filterModel.FilterString = model.Search?.Value;
-            var recordsFiltered = await _demosRepository.GetDemosCount(filterModel);
-
-            filterModel.TakeEntries = model.Length;
-            filterModel.SkipEntries = model.Start;
-
-            if (model.Order == null)
             {
-                filterModel.Order = DemosFilterModel.OrderBy.DateDesc;
+                // If the user has the required claims do not filter by user id
+                filterUserId = gameTypes.Contains(id) ? null : User.XtremeIdiotsId();
             }
             else
+            {
+                filterGameTypes = gameTypes.ToArray();
+
+                // If the user has any required claims for games do not filter by user id
+                if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
+            }
+
+            string order = "DateDesc";
+            if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
                 var searchOrder = model.Order.First().Dir;
@@ -124,24 +132,25 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "game":
-                        filterModel.Order = searchOrder == "asc" ? DemosFilterModel.OrderBy.GameTypeAsc : DemosFilterModel.OrderBy.GameTypeDesc;
+                        order = searchOrder == "asc" ? "GameTypeAsc" : "GameTypeDesc";
                         break;
                     case "name":
-                        filterModel.Order = searchOrder == "asc" ? DemosFilterModel.OrderBy.NameAsc : DemosFilterModel.OrderBy.NameDesc;
+                        order = searchOrder == "asc" ? "NameAsc" : "NameDesc";
                         break;
                     case "date":
-                        filterModel.Order = searchOrder == "asc" ? DemosFilterModel.OrderBy.DateAsc : DemosFilterModel.OrderBy.DateDesc;
+                        order = searchOrder == "asc" ? "DateAsc" : "DateDesc";
                         break;
                     case "uploadedBy":
-                        filterModel.Order = searchOrder == "asc" ? DemosFilterModel.OrderBy.UploadedByAsc : DemosFilterModel.OrderBy.UploadedByDesc;
+                        order = searchOrder == "asc" ? "UploadedByAsc" : "UploadedByDesc";
                         break;
                 }
             }
 
-            var demoDtos = await _demosRepository.GetDemos(filterModel);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(accessToken, filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order);
 
             var portalDemoEntries = new List<PortalDemoDto>();
-            foreach (var demoDto in demoDtos)
+            foreach (var demoDto in searchResponse.Entries)
             {
                 var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
 
@@ -156,8 +165,8 @@ namespace XI.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal,
-                recordsFiltered,
+                recordsTotal = searchResponse.TotalRecords,
+                recordsFiltered = searchResponse.FilteredRecords,
                 data = portalDemoEntries
             });
         }
@@ -165,7 +174,10 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Download(Guid id)
         {
-            var demoUrl = await _demosRepository.GetDemoUrl(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+
+            var demoUrl = await _demosRepository.GetDemoUrl(demoDto.FileName);
 
             return Redirect(demoUrl.ToString());
         }
@@ -173,7 +185,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id, bool filterGame = false)
         {
-            var demoDto = await _demosRepository.GetDemo(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+
             if (demoDto == null) return NotFound();
 
             var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
@@ -191,7 +205,9 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, bool filterGame = false)
         {
-            var demoDto = await _demosRepository.GetDemo(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+
             if (demoDto == null) return NotFound();
 
             var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
@@ -199,7 +215,7 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
 
-            await _demosRepository.DeleteDemo(id);
+            await repositoryApiClient.Demos.DeleteDemo(accessToken, id);
 
             _logger.LogInformation(EventIds.DemoManager, "User {User} has deleted {DemoId} under {GameType}", User.Username(), demoDto.DemoId, demoDto.Game);
             this.AddAlertSuccess($"The demo {demoDto.Name} has been successfully deleted from {demoDto.Game}");
@@ -231,13 +247,19 @@ namespace XI.Portal.Web.Controllers
 
             var claimsPrincipal = await _signInManager.ClaimsFactory.CreateAsync(user);
 
-            var filterModel = new DemosFilterModel
-            {
-                Order = DemosFilterModel.OrderBy.DateDesc
-            }.ApplyAuth(claimsPrincipal, null);
-            var demoDtos = await _demosRepository.GetDemos(filterModel);
+            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator };
+            var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
 
-            var demos = demoDtos.Select(demo => new
+            string filterUserId = null;
+            string[] filterGameTypes = null;
+
+            filterGameTypes = gameTypes.ToArray();
+            if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
+
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(accessToken, filterGameTypes, filterUserId, null, 0, 0, "DateDesc");
+
+            var demos = searchResponse.Entries.Select(demo => new
             {
                 demo.DemoId,
                 Version = demo.Game.ToString(),
@@ -276,7 +298,7 @@ namespace XI.Portal.Web.Controllers
 
             if (file == null || file.Length == 0) return Content("You must provide a file to be uploaded");
 
-            var whitelistedExtensions = new List<string> {".dm_1", ".dm_6"};
+            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
 
             if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
                 return Content("Invalid file type - this must be a demo file");
@@ -284,7 +306,7 @@ namespace XI.Portal.Web.Controllers
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
 
-            var fileName = $"{Guid.NewGuid().ToString()}.{gameType.DemoExtension()}";
+            var fileName = $"{Guid.NewGuid()}.{gameType.DemoExtension()}";
             var path = Path.Combine(Path.GetTempPath(), fileName);
 
             await using (var fileStream = new FileStream(path, FileMode.Create))
@@ -297,7 +319,7 @@ namespace XI.Portal.Web.Controllers
 
             var demoDto = new DemoDto
             {
-                Game = gameType,
+                Game = gameType.ToString(),
                 Name = frontEndFileName,
                 FileName = fileName,
                 Date = localDemo.Date,
@@ -309,7 +331,11 @@ namespace XI.Portal.Web.Controllers
                 UserId = user.Id
             };
 
-            await _demosRepository.CreateDemo(demoDto, path);
+            await _demosRepository.CreateDemo(demoDto.FileName, path);
+
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            await repositoryApiClient.Demos.CreateDemo(accessToken, demoDto);
+
             _logger.LogInformation(EventIds.DemoManager, "User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
 
             return Ok();
@@ -332,7 +358,10 @@ namespace XI.Portal.Web.Controllers
             var userId = await _demoAuthRepository.GetUserId(authKey);
             if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var demoUrl = await _demosRepository.GetDemoUrl(id);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+
+            var demoUrl = await _demosRepository.GetDemoUrl(demoDto.FileName);
 
             return Redirect(demoUrl.ToString());
         }

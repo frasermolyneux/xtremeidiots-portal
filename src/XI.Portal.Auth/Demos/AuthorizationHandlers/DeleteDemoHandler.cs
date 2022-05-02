@@ -4,6 +4,7 @@ using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Demos.AuthorizationRequirements;
 using XI.Portal.Demos.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.Demos.AuthorizationHandlers
 {

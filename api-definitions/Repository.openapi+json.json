@@ -1057,6 +1057,7 @@
         "/player-analytics/cumulative-daily-players": {
             "get": {
                 "summary": "player-analytics/cumulative-daily-players",
+                "description": "player-analytics/cumulative-daily-players",
                 "operationId": "get-player-analytics-cumulative-daily-players",
                 "parameters": [
                     {
@@ -1069,7 +1070,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1077,6 +1078,7 @@
         "/player-analytics/new-daily-players-per-game": {
             "get": {
                 "summary": "player-analytics/new-daily-players-per-game",
+                "description": "player-analytics/new-daily-players-per-game",
                 "operationId": "get-player-analytics-new-daily-players-per-game",
                 "parameters": [
                     {
@@ -1089,7 +1091,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1097,6 +1099,7 @@
         "/player-analytics/players-drop-off-per-game": {
             "get": {
                 "summary": "player-analytics/players-drop-off-per-game",
+                "description": "player-analytics/players-drop-off-per-game",
                 "operationId": "get-player-analytics-players-drop-off-per-game",
                 "parameters": [
                     {
@@ -1104,6 +1107,110 @@
                         "in": "query",
                         "schema": {
                             "type": "datetime"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/demos": {
+            "get": {
+                "summary": "demos",
+                "operationId": "get-demos",
+                "parameters": [
+                    {
+                        "name": "gameTypes",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "userId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "post": {
+                "summary": "demos",
+                "operationId": "demos",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/demos/{demo-id}": {
+            "get": {
+                "summary": "demos/{demo-id}",
+                "operationId": "get-demos-demo-id",
+                "parameters": [
+                    {
+                        "name": "demo-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "delete": {
+                "summary": "demos/{demo-id}",
+                "operationId": "delete-demos-demo-id",
+                "parameters": [
+                    {
+                        "name": "demo-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],

@@ -50,18 +50,17 @@ namespace XI.Portal.Auth.Contract.Extensions
             return new Tuple<string[], Guid[]>(gameTypes.ToArray(), servers.ToArray());
         }
 
-        public static List<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static List<string> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            var gameTypes = new List<GameType>();
+            var gameTypes = new List<string>();
 
             if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
-                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
+                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList().Select(gt => gt.ToString()).ToList();
 
             var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
 
             foreach (var claim in claims)
-                if (Enum.TryParse(claim.Value, out GameType gameType))
-                    gameTypes.Add(gameType);
+                gameTypes.Add(claim.Value);
 
             return gameTypes.Distinct().OrderBy(g => g).ToList();
         }

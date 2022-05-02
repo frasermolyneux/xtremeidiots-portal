@@ -1,0 +1,127 @@
+﻿{
+   "CodeGenerationMode": 2,
+   "ContextClassName": "PortalDbContext",
+   "ContextNamespace": "",
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": "",
+   "OutputContextPath": "",
+   "OutputPath": "",
+   "ProjectRootNamespace": "XtremeIdiots.Portal.DataLib",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "Name": "[dbo].[AdminActions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserLogins]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BanFileMonitors]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ChatLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Demoes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[FileMonitors]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GameServers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LivePlayerLocations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[LivePlayers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MapFiles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MapRotations]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Maps]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MapVotes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Player2]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PlayerAlias]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[PlayerIpAddresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[RconMonitors]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[SystemLogs]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[UserLogs]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "..\\database\\database.sqlproj",
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": false,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": false,
+   "UseNoConstructor": false,
+   "UseNoDefaultConstructor": false,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": false,
+   "UseSchemaFolders": false,
+   "UseSpatial": false
+}

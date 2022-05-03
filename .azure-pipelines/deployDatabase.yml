@@ -3,6 +3,15 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables: 
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  sqlServerName: 'sql-portal-prd-uksouth-01.database.windows.net'
+  sqlAdminGroupName: 'sg-sql-portal-prd-admins'
+
 stages:
 - stage: Build
   jobs:
@@ -11,15 +20,6 @@ stages:
       publishArtifact: true
 
 - stage: DeployDatabasePrd
-
-  variables: 
-    environment: 'prd'
-    location: 'uksouth'
-    subscription: 'XI-Pay-As-You-Go'
-    resourceGroup: 'rg-portal-prd-uksouth-01'
-    keyVault: 'kv-portal-prd-uksouth-01'
-    sqlServerName: 'sql-portal-prd-uksouth-01.database.windows.net'
-    sqlAdminGroupName: 'sg-sql-portal-prd-admins'
 
   jobs:
 

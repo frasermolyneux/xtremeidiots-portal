@@ -1,7 +1,7 @@
-param {
+param (
     $sqlServerName,
     $resourceGroup
-}
+)
 
 $sqlServer = az sql server show --name $sqlServerName --resource-group $resourceGroup | ConvertFrom-Json
 $principalId = $sqlServer.identity.principalId

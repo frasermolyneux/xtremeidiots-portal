@@ -45,7 +45,7 @@ stages:
               parAdminGroupOid=$adminGroupObjectId
 
     - task: AzureCLI@2
-      displayName: Create Application Registrations
+      displayName: CreateSqlServerRoleAssignment
       inputs:
         azureSubscription: $(subscription)
         scriptType: 'pscore'
@@ -56,6 +56,7 @@ stages:
   - template: templates/deploy-sql-database.yml
     parameters:
       jobName: DeploySqlDatabase
+      dependsOn: [DeployDatabasePrdBicep]
       serverName: $(sqlServerName)
       databaseName: 'portaldb'
       environmentServiceNameAzureRM: $(subscription)

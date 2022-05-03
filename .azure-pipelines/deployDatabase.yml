@@ -44,6 +44,15 @@ stages:
               parAdminGroupName=$(sqlAdminGroupName) `
               parAdminGroupOid=$adminGroupObjectId
 
+    - task: AzureCLI@2
+      displayName: Create Application Registrations
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        arguments: '$(sqlServerName) $(resourceGroup)'
+        scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
+        
   - template: templates/deploy-sql-database.yml
     parameters:
       jobName: DeploySqlDatabase

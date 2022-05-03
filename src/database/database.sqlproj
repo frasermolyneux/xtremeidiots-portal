@@ -122,6 +122,7 @@
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
     <Folder Include="Storage\" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\PlayerAlias.sql">
@@ -222,5 +223,15 @@
     </Build>
     <Build Include="Storage\fts_chatlogs.sql" />
     <Build Include="FullTextIndexes.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeploymentPermissions.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <SqlCmdVariable Include="env">
+      <DefaultValue>
+      </DefaultValue>
+      <Value>$(SqlCmdVar__1)</Value>
+    </SqlCmdVariable>
   </ItemGroup>
 </Project>

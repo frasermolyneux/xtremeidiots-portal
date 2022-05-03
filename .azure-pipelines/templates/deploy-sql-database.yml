@@ -6,6 +6,12 @@ parameters:
   type: object
   default: []
 - name: environmentServiceNameAzureRM
+- name: serverName
+  type: string
+  default: ""
+- name: databaseName
+  type: string
+  default: ""
 - name: sqlCmdArgs
   type: string
   default: ""
@@ -13,13 +19,7 @@ parameters:
 jobs:
 - job: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
-
-  variables:
-  - name: sql_server_domain_name
-    value: $[ dependencies.TerraformPlanAndApply.outputs['terraform_output.sql_server_domain_name'] ]
-  - name: sql_database_name
-    value: $[ dependencies.TerraformPlanAndApply.outputs['terraform_output.sql_database_name'] ]
-
+  
   steps: 
     - download: current
       displayName: 'Download database artifact'
@@ -28,8 +28,8 @@ jobs:
     - task: SqlAzureDacpacDeployment@1
       inputs:
         azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-        ServerName: '$(sql_server_domain_name)'
-        DatabaseName: '$(sql_database_name)'
+        ServerName: '${{ parameters.serverName }}'
+        DatabaseName: '${{ parameters.databaseName }}'
         AuthenticationType: servicePrincipal
         DacpacFile: '$(Pipeline.Workspace)/database/database.dacpac'
         AdditionalArguments: ${{ parameters.sqlCmdArgs }}

@@ -21,6 +21,9 @@ $appInsights = "ai-portal-$environment-$location-01"
 $apiManagement = "apim-portal-$environment-$location-01"
 $serviceBus = "sb-portal-$environment-$location-01"
 
+## Secret Names
+$sqlPasswordSecretName = "sql-portal-$environment-$location-01-admin-password"
+
 # Application Names
 $eventsApiAppName = "portal-events-api-$environment"
 $repositoryApiName = "portal-repository-api-$environment"
@@ -28,6 +31,24 @@ $repositoryApiName = "portal-repository-api-$environment"
 ## Application IDs
 $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
 $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+
+## AAD Groups Names
+$sqlAdminGroupName = "sg-sql-portal-$environment-admins"
+
+## AAD Group IDs 
+$adminGroupObjectId = (az ad group show --group $sqlAdminGroupName --query 'objectId')  | ConvertFrom-Json
+
+# Deploy Database
+$sqlServerAdminPassword = (az keyvault secret show --name $sqlPasswordSecretName --vault-name $keyVault --query 'value') | ConvertFrom-Json
+
+az deployment group create --resource-group $resourceGroup `
+    --template-file bicep/sqlServer.bicep  `
+    --parameters parLocation=$location `
+    parEnvironment=$environment `
+    parAdminPassword=$sqlServerAdminPassword `
+    parKeyVaultName=$keyVault `
+    parAdminGroupName=$adminGroupName `
+    parAdminGroupOid=$adminGroupObjectId
 
 # Deploy Apps
 az deployment group create --resource-group $resourceGroup `

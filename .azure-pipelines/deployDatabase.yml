@@ -1,0 +1,53 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - template: templates/build-sql-database.yml
+    parameters:
+      publishArtifact: true
+
+- stage: DeployDatabasePrd
+
+  variables: 
+    environment: 'prd'
+    location: 'uksouth'
+    subscription: 'XI-Pay-As-You-Go'
+    resourceGroup: 'rg-portal-prd-uksouth-01'
+    keyVault: 'kv-portal-prd-uksouth-01'
+    sqlServerName: 'sql-portal-prd-uksouth-01.database.windows.net'
+    sqlAdminGroupName: 'sg-sql-portal-prd-admins'
+
+  jobs:
+
+  - job: DeployDatabasePrdBicep
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $sqlPasswordSecretName = "sql-portal-$(environment)-$(location)-01-admin-password"
+          $sqlServerAdminPassword = (az keyvault secret show --name $sqlPasswordSecretName --vault-name $(keyVault) --query 'value') | ConvertFrom-Json
+          $adminGroupObjectId = (az ad group show --group $(sqlAdminGroupName) --query 'objectId')  | ConvertFrom-Json
+
+          az deployment group create --resource-group $resourceGroup `
+              --template-file bicep/sqlServer.bicep  `
+              --parameters parLocation=$location `
+              parEnvironment=$(environment) `
+              parAdminPassword=$sqlServerAdminPassword `
+              parKeyVaultName=$(keyVault) `
+              parAdminGroupName=$(sqlAdminGroupName) `
+              parAdminGroupOid=$adminGroupObjectId
+
+  - template: templates/deploy-sql-database.yml
+    parameters:
+      jobName: DeploySqlDatabase
+      serverName: $(sqlServerName)
+      databaseName: 'portaldb'
+      environmentServiceNameAzureRM: $(subscription)
+      sqlCmdArgs: '/Variables:env=$(environment)'

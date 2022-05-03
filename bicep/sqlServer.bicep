@@ -57,6 +57,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' = {
 }
 
 resource portalDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
+  parent: sqlServer
   name: varSqlDatabaseName
   location: parLocation
 
@@ -66,8 +67,6 @@ resource portalDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
     tier: 'Standard'
   }
 
-  parent: sqlServer
-
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
     maxSizeBytes: 21474836480
@@ -75,5 +74,15 @@ resource portalDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
     zoneRedundant: false
     readScale: 'Disabled'
     requestedBackupStorageRedundancy: 'Zone'
+  }
+}
+
+resource allowAzureServicesFirewallRule 'Microsoft.Sql/servers/firewallRules@2021-11-01-preview' = {
+  parent: sqlServer
+  name: 'allowAzureServicesFirewallRule'
+
+  properties: {
+    endIpAddress: '0.0.0.0'
+    startIpAddress: '0.0.0.0'
   }
 }

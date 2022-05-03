@@ -35,9 +35,9 @@ stages:
           $sqlServerAdminPassword = (az keyvault secret show --name $sqlPasswordSecretName --vault-name $(keyVault) --query 'value') | ConvertFrom-Json
           $adminGroupObjectId = (az ad group show --group $(sqlAdminGroupName) --query 'objectId')  | ConvertFrom-Json
 
-          az deployment group create --resource-group $resourceGroup `
+          az deployment group create --resource-group $(resourceGroup) `
               --template-file bicep/sqlServer.bicep  `
-              --parameters parLocation=$location `
+              --parameters parLocation=$(location) `
               parEnvironment=$(environment) `
               parAdminPassword=$sqlServerAdminPassword `
               parKeyVaultName=$(keyVault) `

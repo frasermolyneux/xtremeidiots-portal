@@ -9,7 +9,8 @@ variables:
   subscription: 'XI-Pay-As-You-Go'
   resourceGroup: 'rg-portal-prd-uksouth-01'
   keyVault: 'kv-portal-prd-uksouth-01'
-  sqlServerName: 'sql-portal-prd-uksouth-01.database.windows.net'
+  sqlServerName: 'sql-portal-prd-uksouth-01'
+  sqlServerDomainName: 'sql-portal-prd-uksouth-01.database.windows.net'
   sqlAdminGroupName: 'sg-sql-portal-prd-admins'
 
 stages:
@@ -57,7 +58,7 @@ stages:
     parameters:
       jobName: DeploySqlDatabase
       dependsOn: [DeployDatabasePrdBicep]
-      serverName: $(sqlServerName)
+      serverName: $(sqlServerDomainName)
       databaseName: 'portaldb'
       environmentServiceNameAzureRM: $(subscription)
       sqlCmdArgs: '/Variables:env=$(environment)'

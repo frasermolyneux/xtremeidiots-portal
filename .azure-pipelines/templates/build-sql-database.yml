@@ -8,10 +8,16 @@ parameters:
 - name: publishArtifact
   type: boolean
   default: false
+- name: vmImage
+  type: string
+  default: 'windows-latest'
 
 jobs:
 - job: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
+
+  pool:
+    vmImage: ${{ parameters.vmImage }}
 
   steps:
   - task: MSBuild@1

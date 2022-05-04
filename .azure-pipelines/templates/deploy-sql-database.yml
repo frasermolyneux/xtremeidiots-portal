@@ -15,10 +15,16 @@ parameters:
 - name: sqlCmdArgs
   type: string
   default: ""
+- name: vmImage
+  type: string
+  default: 'windows-latest'
 
 jobs:
 - job: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
+
+  pool:
+    vmImage: ${{ parameters.vmImage }}
   
   steps: 
     - download: current

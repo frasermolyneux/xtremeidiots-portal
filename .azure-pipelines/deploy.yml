@@ -104,12 +104,14 @@ stages:
 
   - template: templates/build-function-app.yml
     parameters: 
+      dependsOn: ['BuildEventsFunctionApp']
       jobName: 'BuildIngestFunctionApp'
       projectName: 'ingest-func'
       publishArtifact: true
 
   - template: templates/build-web-app.yml
     parameters: 
+      dependsOn: ['BuildIngestFunctionApp']
       jobName: 'BuildRepositoryWebApi'
       projectName: 'repository-webapi'
       nugetConfigPath: './src/nuget.config'
@@ -117,18 +119,21 @@ stages:
 
   - template: templates/build-function-app.yml
     parameters: 
+      dependsOn: ['BuildRepositoryWebApi']
       jobName: 'BuildRepositoryFunctionApp'
       projectName: 'repository-func'
       publishArtifact: true
 
   - template: templates/build-function-app.yml
     parameters: 
+      dependsOn: ['BuildRepositoryFunctionApp']
       jobName: 'BuildSyncFunctionApp'
       projectName: 'sync-func'
       publishArtifact: true
 
   - template: templates/build-sql-database.yml
     parameters:
+      dependsOn: ['BuildSyncFunctionApp']
       publishArtifact: true
 
 - stage: DeployPrdCore
@@ -201,6 +206,7 @@ stages:
         scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
 
   - job: DeployRepositoryAppBicep
+    dependsOn: ['DeployDatabasePrdBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployRepositoryAppBicep
@@ -220,6 +226,7 @@ stages:
               parServiceBusName=$(serviceBus)
 
   - job: DeployRepositoryApiBicep
+    dependsOn: ['DeployRepositoryAppBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployRepositoryApiBicep
@@ -242,6 +249,7 @@ stages:
               parRepositoryApiAppId=$repositoryApiAppId
 
   - job: DeployIngestAppBicep
+    dependsOn: ['DeployRepositoryApiBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployIngestAppBicep
@@ -261,6 +269,7 @@ stages:
               parServiceBusName=$(serviceBus)
 
   - job: DeployEventsAppBicep
+    dependsOn: ['DeployIngestAppBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployEventsAppBicep
@@ -283,6 +292,7 @@ stages:
               parEventsApiAppId=$eventsApiAppId
 
   - job: DeploySyncAppBicep
+    dependsOn: ['DeployEventsAppBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeploySyncAppBicep
@@ -302,6 +312,7 @@ stages:
               parServiceBusName=$(serviceBus)
 
   - job: DeployAdminWebAppBicep
+    dependsOn: ['DeploySyncAppBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployAdminWebAppBicep
@@ -333,6 +344,7 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeploySqlDatabase']
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: '$(eventsFunctionAppName)'
@@ -340,6 +352,7 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeployEventsFunctionApp']
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: '$(ingestFunctionAppName)'
@@ -347,6 +360,7 @@ stages:
 
   - template: templates/deploy-web-app.yml
     parameters:
+      dependsOn: ['DeployIngestFunctionApp']
       projectName: repository-webapi
       jobName: DeployRepositoryWebApi
       webAppName: '$(repositoryWebAppName)'
@@ -355,6 +369,7 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeployRepositoryWebApi']
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: '$(repositoryFunctionAppName)'
@@ -362,6 +377,7 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeployRepositoryFunctionApp']
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'

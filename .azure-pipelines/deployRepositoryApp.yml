@@ -20,7 +20,6 @@ stages:
   jobs:
   - template: templates/build-function-app.yml
     parameters: 
-      dependsOn: ['BuildRepositoryWebApi']=
       projectName: 'repository-func'
       publishArtifact: true
 

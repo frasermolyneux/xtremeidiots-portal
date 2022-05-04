@@ -4,22 +4,24 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  AzSubscription: 'XI-Pay-As-You-Go'
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
 
 stages: 
 - stage: DeployPortalCorePrd
 
   jobs:
-  - job: DeployPortalCorePrd
+  - job: DeployPortalCoreBicep
     steps:
       - task: AzureCLI@2
-        displayName: Az CLI Deploy Portal Core Bicep
+        displayName: DeployPortalCoreBicep
         inputs:
-          azureSubscription: $(AzSubscription)
-          scriptType: 'bash'
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
           scriptLocation: 'inlineScript'
           inlineScript: |
-            az deployment sub create \
-            --template-file bicep/portalCore.bicep \
-            --location "uksouth" \
-            --parameters parLocation='uksouth' parEnvironment='prd'
+            az deployment sub create `
+            --template-file bicep/portalCore.bicep `
+            --location $(location) `
+            --parameters parLocation=$(location) parEnvironment=$(environment)

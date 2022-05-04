@@ -3,41 +3,54 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  appServicePlan: 'plan-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  serviceBus: 'sb-portal-prd-uksouth-01'
+  repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
+
 stages:
 - stage: Build
   jobs:
   - template: templates/build-function-app.yml
     parameters: 
-      jobName: 'BuildRepositoryFunctionApp'
+      dependsOn: ['BuildRepositoryWebApi']=
       projectName: 'repository-func'
       publishArtifact: true
 
 - stage: DeployRepositoryAppPrd
-
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    AzSubscription: 'XI-Pay-As-You-Go'
 
   jobs:
 
   - job: DeployRepositoryAppBicep
     steps:
     - task: AzureCLI@2
+      displayName: DeployRepositoryAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/repositoryApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/repositoryApp.bicep `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeployRepositoryAppBicep']
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
-      functionAppName: 'fn-repository-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      functionAppName: '$(repositoryFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)

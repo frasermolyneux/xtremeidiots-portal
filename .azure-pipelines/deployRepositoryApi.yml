@@ -3,6 +3,19 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  appServicePlan: 'plan-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  repositoryApiName: 'portal-repository-api-prd'
+  repositoryWebAppName: 'webapi-repository-portal-prd-uksouth-01'
+  sqlServerName: 'sql-portal-prd-uksouth-01'
+
 stages:
 - stage: Build
   jobs:
@@ -15,34 +28,36 @@ stages:
 
 - stage: DeployRepositoryApiPrd
 
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    AzSubscription: 'XI-Pay-As-You-Go'
-
   jobs:
 
   - job: DeployRepositoryApiBicep
+    dependsOn: ['DeployRepositoryAppBicep']
     steps:
     - task: AzureCLI@2
+      displayName: DeployRepositoryApiBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          $repositoryApiAppName = 'portal-repository-api-prd'
-          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiAppName'" --query '[].appId') | ConvertFrom-Json
-
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/repositoryApi.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parRepositoryApiAppId=$repositoryApiAppId
+          $repositoryApiAppId = (az ad app list --filter "displayName eq '$(repositoryApiName)'" --query '[].appId') | ConvertFrom-Json
+          
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/repositoryApi.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parSqlServerName=$(sqlServerName) `
+              parRepositoryApiAppId=$repositoryApiAppId
 
   - template: templates/deploy-web-app.yml
     parameters:
+      dependsOn: ['DeployRepositoryApiBicep']
       projectName: repository-webapi
-      jobName: DeployRepositoryWebApp
-      webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
-      webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      jobName: DeployRepositoryWebApi
+      webAppName: '$(repositoryWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
+      environmentServiceNameAzureRM: $(subscription)

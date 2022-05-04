@@ -3,6 +3,18 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables: 
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  appServicePlan: 'plan-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  serviceBus: 'sb-portal-prd-uksouth-01'
+  syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
+
 stages:
 - stage: Build
   jobs:
@@ -14,30 +26,31 @@ stages:
 
 - stage: DeploySyncAppPrd
 
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    AzSubscription: 'XI-Pay-As-You-Go'
-
   jobs:
 
   - job: DeploySyncAppBicep
     steps:
     - task: AzureCLI@2
+      displayName: DeploySyncAppBicep
       inputs:
-        azureSubscription: 'XI-Pay-As-You-Go'
+        azureSubscription: $(subscription)
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/syncApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01' parServiceBusName='sb-portal-prd-uksouth-01'
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/syncApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
 
   - template: templates/deploy-function-app.yml
     parameters:
+      dependsOn: ['DeploySyncAppBicep']
       projectName: sync-func
       jobName: DeploySyncFunctionApp
-      functionAppName: 'fn-sync-portal-$(environment)-$(region)-$(instance)'
-      environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+      functionAppName: '$(syncFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)

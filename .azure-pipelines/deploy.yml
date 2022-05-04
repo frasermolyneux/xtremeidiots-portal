@@ -30,7 +30,6 @@ variables:
   sqlServerDomainName: 'sql-portal-prd-uksouth-01.database.windows.net'
   sqlAdminGroupName: 'sg-sql-portal-prd-admins'
 
-
 stages: 
 - stage: LegacyBuild
 

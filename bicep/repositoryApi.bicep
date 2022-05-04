@@ -7,6 +7,7 @@ param parKeyVaultName string
 param parAppServicePlanName string
 param parAppInsightsName string
 param parApiManagementName string
+param parSqlServerName string
 param parRepositoryApiAppId string
 
 // Variables
@@ -27,6 +28,10 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 
 resource apiManagement 'Microsoft.ApiManagement/service@2021-08-01' existing = {
   name: parApiManagementName
+}
+
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
+  name: parSqlServerName
 }
 
 // Module Resources
@@ -90,7 +95,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'sql-connection-string'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=legacy-sql-connection-string)'
+          'value': 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
         }
       ]
     }

@@ -26,6 +26,9 @@ variables:
   repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
   syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
   adminWebAppName: 'webapp-admin-portal-prd-uksouth-01'
+  sqlServerName: 'sql-portal-prd-uksouth-01'
+  sqlServerDomainName: 'sql-portal-prd-uksouth-01.database.windows.net'
+  sqlAdminGroupName: 'sg-sql-portal-prd-admins'
 
 
 stages: 
@@ -124,12 +127,9 @@ stages:
       projectName: 'sync-func'
       publishArtifact: true
 
-  #- template: templates/build-web-app.yml
-  #  parameters: 
-  #    jobName: 'BuildAdminWebApp'
-  #    projectName: 'admin-webapp'
-  #    nugetConfigPath: './src/nuget.config'
-  #    publishArtifact: true
+  - template: templates/build-sql-database.yml
+    parameters:
+      publishArtifact: true
 
 - stage: DeployPrdCore
 
@@ -170,6 +170,36 @@ stages:
 - stage: DeployPrdInfrastructure
 
   jobs:
+  - job: DeployDatabasePrdBicep
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $sqlPasswordSecretName = "sql-portal-$(environment)-$(location)-01-admin-password"
+          $sqlServerAdminPassword = (az keyvault secret show --name $sqlPasswordSecretName --vault-name $(keyVault) --query 'value') | ConvertFrom-Json
+          $adminGroupObjectId = (az ad group show --group $(sqlAdminGroupName) --query 'objectId')  | ConvertFrom-Json
+
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/sqlServer.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parAdminPassword=$sqlServerAdminPassword `
+              parKeyVaultName=$(keyVault) `
+              parAdminGroupName=$(sqlAdminGroupName) `
+              parAdminGroupOid=$adminGroupObjectId
+
+    - task: AzureCLI@2
+      displayName: CreateSqlServerRoleAssignment
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        arguments: '$(sqlServerName) $(resourceGroup)'
+        scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
+
   - job: DeployRepositoryAppBicep
     steps:
     - task: AzureCLI@2
@@ -208,6 +238,7 @@ stages:
               parAppServicePlanName=$(appServicePlan) `
               parAppInsightsName=$(appInsights) `
               parApiManagementName=$(apiManagement) `
+              parSqlServerName=$(sqlServerName) `
               parRepositoryApiAppId=$repositoryApiAppId
 
   - job: DeployIngestAppBicep
@@ -289,9 +320,17 @@ stages:
               parApiManagementName=$(apiManagement) `
               parServiceBusName=$(serviceBus)
 
-- stage: DeployPrdApps
+- stage: DeployPrdAppsAndDatabase
 
   jobs:
+  - template: templates/deploy-sql-database.yml
+    parameters:
+      jobName: DeploySqlDatabase
+      serverName: $(sqlServerDomainName)
+      databaseName: 'portaldb'
+      environmentServiceNameAzureRM: $(subscription)
+      sqlCmdArgs: '/Variables:env=$(environment)'
+
   - template: templates/deploy-function-app.yml
     parameters:
       projectName: events-func
@@ -327,11 +366,3 @@ stages:
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'
       environmentServiceNameAzureRM: $(subscription)
-
-  #- template: templates/deploy-web-app.yml
-  #  parameters:
-  #    projectName: admin-webapp
-  #    jobName: DeployAdminWebApp
-  #    webAppName: '$(adminWebAppName)'
-  #    webAppNameResourceGroup: '$(resourceGroup)'
-  #    environmentServiceNameAzureRM: $(subscription)

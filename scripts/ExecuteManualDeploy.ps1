@@ -20,6 +20,7 @@ $appServicePlan = "plan-portal-$environment-$location-01"
 $appInsights = "ai-portal-$environment-$location-01"
 $apiManagement = "apim-portal-$environment-$location-01"
 $serviceBus = "sb-portal-$environment-$location-01"
+$sqlServerName = "sql-portal-$environment-$location-01"
 
 ## Secret Names
 $sqlPasswordSecretName = "sql-portal-$environment-$location-01-admin-password"
@@ -69,6 +70,7 @@ az deployment group create --resource-group $resourceGroup `
     parAppServicePlanName=$appServicePlan `
     parAppInsightsName=$appInsights `
     parApiManagementName=$apiManagement `
+    parSqlServerName=$sqlServerName `
     parRepositoryApiAppId=$repositoryApiAppId
 
 az deployment group create --resource-group $resourceGroup `

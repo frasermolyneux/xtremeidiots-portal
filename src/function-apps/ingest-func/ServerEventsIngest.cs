@@ -13,11 +13,11 @@ namespace XtremeIdiots.Portal.IngestFunc;
 
 public class ServerEventsIngest
 {
-    private readonly ILogger _log;
+    private readonly ILogger<ServerEventsIngest> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
     private readonly IRepositoryTokenProvider _repositoryTokenProvider;
 
-    public ServerEventsIngest(ILogger log,
+    public ServerEventsIngest(ILogger<ServerEventsIngest> log,
         IRepositoryTokenProvider repositoryTokenProvider,
         IRepositoryApiClient repositoryApiClient)
     {

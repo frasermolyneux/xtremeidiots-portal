@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using XI.CommonTypes;
 using XI.Demos.Huffman;
 using XI.Demos.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Demos
 {

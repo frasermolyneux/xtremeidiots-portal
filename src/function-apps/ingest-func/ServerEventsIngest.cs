@@ -3,8 +3,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using XtremeIdiots.Portal.CommonLib.Events;
+using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -58,7 +59,7 @@ public class ServerEventsIngest
             var gameServer = new GameServerDto
             {
                 Id = Guid.Parse(onServerConnected.Id),
-                GameType = onServerConnected.GameType
+                GameType = onServerConnected.GameType.ToGameType()
             };
 
             await _repositoryApiClient.GameServers.CreateGameServer(accessToken, gameServer);
@@ -84,7 +85,7 @@ public class ServerEventsIngest
         if (onMapChange == null)
             throw new Exception("OnMapChange event was null");
 
-        if (string.IsNullOrWhiteSpace(onMapChange.ServerId))
+        if (onMapChange.ServerId == null)
             throw new Exception("OnMapChange event contained null or empty 'ServerId'");
 
         _log.LogInformation(
@@ -92,14 +93,13 @@ public class ServerEventsIngest
 
         var gameServerEvent = new GameServerEventDto
         {
-            GameServerId = onMapChange.ServerId,
+            GameServerId = (Guid)onMapChange.ServerId,
             Timestamp = onMapChange.EventGeneratedUtc,
             EventType = "MapChange",
             EventData = JsonConvert.SerializeObject(onMapChange)
         };
 
         var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-        await _repositoryApiClient.GameServersEvents.CreateGameServerEvent(accessToken, onMapChange.ServerId,
-            gameServerEvent);
+        await _repositoryApiClient.GameServersEvents.CreateGameServerEvent(accessToken, gameServerEvent);
     }
 }

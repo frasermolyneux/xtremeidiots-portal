@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Extensions.Options;
-using XI.CommonTypes;
 using XI.Portal.Repository.CloudEntities;
 using XI.Portal.Repository.Config;
 using XI.Portal.Repository.Dtos;
 using XI.Portal.Repository.Extensions;
 using XI.Portal.Repository.Interfaces;
 using XI.Portal.Repository.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository
 {
@@ -40,7 +40,7 @@ namespace XI.Portal.Repository
 
             if (result.HttpStatusCode == 404) return null;
 
-            var entity = (MapCloudEntity) result.Result;
+            var entity = (MapCloudEntity)result.Result;
 
             return entity.ToDto();
         }
@@ -95,8 +95,8 @@ namespace XI.Portal.Repository
 
                 if (mapDto.TotalVotes > 0)
                 {
-                    mapDto.PositivePercentage = (double) mapDto.PositiveVotes / mapDto.TotalVotes * 100;
-                    mapDto.NegativePercentage = (double) mapDto.NegativeVotes / mapDto.TotalVotes * 100;
+                    mapDto.PositivePercentage = (double)mapDto.PositiveVotes / mapDto.TotalVotes * 100;
+                    mapDto.NegativePercentage = (double)mapDto.NegativeVotes / mapDto.TotalVotes * 100;
                 }
                 else
                 {

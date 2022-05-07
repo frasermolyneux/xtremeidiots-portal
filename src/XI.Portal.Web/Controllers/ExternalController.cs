@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -39,7 +40,7 @@ namespace XI.Portal.Web.Controllers
             foreach (var adminActionDto in adminActionDtos)
             {
                 string actionText;
-                if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == "Ban" || adminActionDto.Type == "TempBan"))
+                if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
                     actionText = $"lifted a {adminActionDto.Type} on";
                 else
                     actionText = $"added a {adminActionDto.Type} to";

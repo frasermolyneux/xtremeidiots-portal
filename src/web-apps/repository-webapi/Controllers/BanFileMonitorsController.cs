@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
+using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
@@ -12,12 +13,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class BanFileMonitorsController : Controller
     {
-        public BanFileMonitorsController(LegacyPortalContext context)
+        public BanFileMonitorsController(PortalDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public LegacyPortalContext Context { get; }
+        public PortalDbContext Context { get; }
 
         [HttpGet]
         [Route("api/ban-file-monitors/{banFileMonitorId}")]
@@ -27,26 +28,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 .Include(bfm => bfm.GameServerServer)
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
 
-            var result = new BanFileMonitorDto
-            {
-                BanFileMonitorId = banFileMonitor.BanFileMonitorId,
-                FilePath = banFileMonitor.FilePath,
-                RemoteFileSize = banFileMonitor.RemoteFileSize,
-                LastSync = banFileMonitor.LastSync,
-                ServerId = banFileMonitor.GameServerServerId,
-                GameType = banFileMonitor.GameServerServer.GameType.ToString()
-            };
+            if (banFileMonitor == null)
+                return NotFound();
 
-            return new OkObjectResult(result);
+            return new OkObjectResult(banFileMonitor.ToDto());
         }
 
         [HttpGet]
         [Route("api/ban-file-monitors")]
-        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string? order)
+        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
         {
-
-            if (string.IsNullOrWhiteSpace(order))
-                order = "BannerServerListPosition";
+            if (order == null)
+                order = BanFileMonitorOrder.BannerServerListPosition;
 
             var query = Context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
 
@@ -59,7 +52,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 var split = gameTypes.Split(",");
 
-                var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
+                var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray().Select(gt => gt.ToGameTypeInt());
                 query = query.Where(bfm => filterByGameTypes.Contains(bfm.GameServerServer.GameType)).AsQueryable();
             }
 
@@ -73,10 +66,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             switch (order)
             {
-                case "BannerServerListPosition":
+                case BanFileMonitorOrder.BannerServerListPosition:
                     query = query.OrderBy(bfm => bfm.GameServerServer.BannerServerListPosition).AsQueryable();
                     break;
-                case "GameType":
+                case BanFileMonitorOrder.GameType:
                     query = query.OrderBy(bfm => bfm.GameServerServer.GameType).AsQueryable();
                     break;
             }
@@ -86,15 +79,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var results = await query.ToListAsync();
 
-            var result = results.Select(banFileMonitor => new BanFileMonitorDto
-            {
-                BanFileMonitorId = banFileMonitor.BanFileMonitorId,
-                FilePath = banFileMonitor.FilePath,
-                RemoteFileSize = banFileMonitor.RemoteFileSize,
-                LastSync = banFileMonitor.LastSync,
-                ServerId = banFileMonitor.GameServerServerId,
-                GameType = banFileMonitor.GameServerServer.GameType.ToString()
-            });
+            var result = results.Select(banFileMonitor => banFileMonitor.ToDto());
 
             return new OkObjectResult(result);
         }
@@ -123,7 +108,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var banFileMonitor = await Context.BanFileMonitors.Include(bfm => bfm.GameServerServer).SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
 
             if (banFileMonitor == null)
-                throw new NullReferenceException(nameof(banFileMonitor));
+                return NotFound();
 
             banFileMonitor.FilePath = banFileMonitorDto.FilePath;
             banFileMonitor.RemoteFileSize = banFileMonitorDto.RemoteFileSize;
@@ -131,17 +116,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             await Context.SaveChangesAsync();
 
-            var result = new BanFileMonitorDto
-            {
-                BanFileMonitorId = banFileMonitor.BanFileMonitorId,
-                FilePath = banFileMonitor.FilePath,
-                RemoteFileSize = banFileMonitor.RemoteFileSize,
-                LastSync = banFileMonitor.LastSync,
-                ServerId = banFileMonitor.GameServerServerId,
-                GameType = banFileMonitor.GameServerServer.GameType.ToString()
-            };
-
-            return new OkObjectResult(result);
+            return new OkObjectResult(banFileMonitor.ToDto());
         }
 
         [HttpDelete]
@@ -150,6 +125,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var banFileMonitor = await Context.BanFileMonitors
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
+
+            if (banFileMonitor == null)
+                return NotFound();
 
             Context.Remove(banFileMonitor);
             await Context.SaveChangesAsync();

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Data.Legacy;
+using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
@@ -10,20 +10,20 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class PlayerAnalyticsController : Controller
     {
-        public PlayerAnalyticsController(LegacyPortalContext context)
+        public PlayerAnalyticsController(PortalDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public LegacyPortalContext Context { get; }
+        public PortalDbContext Context { get; }
 
         [HttpGet]
         [Route("api/player-analytics/cumulative-daily-players")]
         public async Task<IActionResult> GetCumulativeDailyPlayers(DateTime cutoff)
         {
-            var cumulative = await Context.Player2.CountAsync(p => p.FirstSeen < cutoff);
+            var cumulative = await Context.Player2s.CountAsync(p => p.FirstSeen < cutoff);
 
-            var players = await Context.Player2
+            var players = await Context.Player2s
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => p.FirstSeen)
                 .OrderBy(p => p)
@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/player-analytics/new-daily-players-per-game")]
         public async Task<IActionResult> GetNewDailyPlayersPerGame(DateTime cutoff)
         {
-            var players = await Context.Player2
+            var players = await Context.Player2s
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => new { p.FirstSeen, p.GameType })
                 .OrderBy(p => p.FirstSeen)
@@ -66,7 +66,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/player-analytics/players-drop-off-per-game")]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var players = await Context.Player2
+            var players = await Context.Player2s
                 .Where(p => p.LastSeen > cutoff)
                 .Select(p => new { p.LastSeen, p.GameType })
                 .OrderBy(p => p.LastSeen)

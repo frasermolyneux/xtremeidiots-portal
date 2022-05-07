@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
@@ -160,7 +159,7 @@ namespace XI.Portal.Servers.Repository
                 var model = new PortalGameServerStatusDto
                 {
                     ServerId = serverId,
-                    GameType = Enum.Parse<GameType>(server.GameType),
+                    GameType = server.GameType,
                     Hostname = server.Hostname,
                     QueryPort = server.QueryPort,
                     MaxPlayers = gameServerStatus.MaxPlayers,
@@ -194,7 +193,7 @@ namespace XI.Portal.Servers.Repository
 
                             await _playersLocationsRepository.UpdateEntry(new PlayerLocationDto
                             {
-                                GameType = Enum.Parse<GameType>(server.GameType),
+                                GameType = server.GameType,
                                 ServerId = server.Id,
                                 ServerName = gameServerStatus.ServerName,
                                 Guid = player.Guid,

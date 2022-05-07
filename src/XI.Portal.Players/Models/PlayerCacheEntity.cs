@@ -1,7 +1,7 @@
-﻿using System;
-using FM.AzureTableExtensions.Library;
+﻿using FM.AzureTableExtensions.Library;
 using FM.AzureTableExtensions.Library.Attributes;
-using XI.CommonTypes;
+using System;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Players.Models
 {

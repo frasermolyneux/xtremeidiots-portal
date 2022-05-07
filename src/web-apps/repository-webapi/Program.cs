@@ -1,7 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using XI.Portal.Data.Legacy;
+using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryWebApi.Auth;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddLogging();
 builder.Services.AddApplicationInsightsTelemetry();
 
-builder.Services.AddDbContext<LegacyPortalContext>(options =>
+builder.Services.AddDbContext<PortalDbContext>(options =>
 {
     SqlAuthenticationProvider.SetProvider(
         SqlAuthenticationMethod.ActiveDirectoryDeviceCodeFlow,

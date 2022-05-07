@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using XI.CommonTypes;
 using XI.Portal.Maps.Extensions;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Maps.Properties;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Maps.Repository
 {

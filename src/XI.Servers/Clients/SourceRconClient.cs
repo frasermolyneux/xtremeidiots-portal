@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Clients
 {
@@ -150,7 +150,7 @@ namespace XI.Servers.Clients
 
                 _logger.LogDebug("[{ServerId}] Creating a new TcpClient and attempting to authenticate", _serverId);
 
-                _tcpClient = new TcpClient(_hostname, _queryPort) {ReceiveTimeout = 5000};
+                _tcpClient = new TcpClient(_hostname, _queryPort) { ReceiveTimeout = 5000 };
 
                 var authPackets = GetAuthPackets(_rconPassword);
                 var authResultPacket = authPackets.SingleOrDefault(packet => packet.Type == 2);

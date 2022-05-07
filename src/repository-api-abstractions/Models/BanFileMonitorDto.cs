@@ -1,4 +1,7 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class BanFileMonitorDto
     {
@@ -11,6 +14,8 @@
         public DateTime LastSync { get; set; }
 
         public Guid ServerId { get; set; }
-        public string GameType { get; set; } = string.Empty;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public GameType GameType { get; set; }
     }
 }

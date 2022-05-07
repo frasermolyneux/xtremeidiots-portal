@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using XI.Forums.Interfaces;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Players.Forums
@@ -31,19 +32,19 @@ namespace XI.Portal.Players.Forums
                 var forumId = 28;
                 switch (model.Type)
                 {
-                    case "Observation":
+                    case AdminActionType.Observation:
                         forumId = model.GameType.ForumIdForObservations();
                         break;
-                    case "Warning":
+                    case AdminActionType.Warning:
                         forumId = model.GameType.ForumIdForWarnings();
                         break;
-                    case "Kick":
+                    case AdminActionType.Kick:
                         forumId = model.GameType.ForumIdForKicks();
                         break;
-                    case "TempBan":
+                    case AdminActionType.TempBan:
                         forumId = model.GameType.ForumIdForTempBans();
                         break;
-                    case "Ban":
+                    case AdminActionType.Ban:
                         forumId = model.GameType.ForumIdForBans();
                         break;
                 }

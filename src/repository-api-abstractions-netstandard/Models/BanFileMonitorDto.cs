@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 {
@@ -13,6 +15,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
         public DateTime LastSync { get; set; }
 
         public Guid ServerId { get; set; }
-        public string GameType { get; set; } = string.Empty;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public GameType GameType { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using XI.CommonTypes;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Interfaces
 {

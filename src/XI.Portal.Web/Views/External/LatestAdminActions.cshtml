@@ -1,5 +1,5 @@
-﻿@using XI.CommonTypes
-@using XI.Portal.Web.Extensions
+﻿@using XI.Portal.Web.Extensions
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 @model List<AdminActionDto>
 
@@ -22,7 +22,7 @@
                         @{
                             var text = "";
 
-                            if (item.Expires <= DateTime.UtcNow && (item.Type == "Ban"|| item.Type == "TempBan"))
+                            if (item.Expires <= DateTime.UtcNow && (item.Type == AdminActionType.Ban || item.Type == AdminActionType.TempBan))
                             {
                                 text = item.AdminName != null ? $"{item.AdminName} lifted a {item.Type} on" : $"Unknown lifted a {item.Type} on";
                             }

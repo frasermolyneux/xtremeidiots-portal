@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Web.Extensions;
@@ -101,7 +100,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.GameServers.CreateBanFileMonitorForGameServer(accessToken, model.ServerId, banFileMonitorDto);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has created a new ban file monitor with Id {Id}", User.Username(), banFileMonitorDto.BanFileMonitorId);
+            _logger.LogInformation("User {User} has created a new ban file monitor with Id {Id}", User.Username(), banFileMonitorDto.BanFileMonitorId);
             this.AddAlertSuccess($"The ban file monitor has been created for {gameServerDto.Title}");
 
             return RedirectToAction(nameof(Index));
@@ -186,7 +185,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitorDto);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has updated {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
+            _logger.LogInformation("User {User} has updated {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
             this.AddAlertSuccess($"The ban file monitor has been created");
 
             return RedirectToAction(nameof(Index));
@@ -239,7 +238,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.BanFileMonitors.DeleteBanFileMonitor(accessToken, id);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has deleted {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
+            _logger.LogInformation("User {User} has deleted {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
             this.AddAlertSuccess($"The ban file monitor has been deleted");
 
             return RedirectToAction(nameof(Index));

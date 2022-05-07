@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class PlayerAnalyticEntryDto
     {

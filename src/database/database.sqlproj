@@ -223,6 +223,7 @@
     </Build>
     <Build Include="Storage\fts_chatlogs.sql" />
     <Build Include="FullTextIndexes.sql" />
+    <Build Include="dbo\Tables\GameServerEvents.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeploymentPermissions.sql" />

@@ -7,7 +7,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.17" />
     <PackageReference Include="Polly" Version="7.2.2" />
-    <PackageReference Include="XI.CommonTypes" Version="1.0.4802" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
   </ItemGroup>
 
 </Project>

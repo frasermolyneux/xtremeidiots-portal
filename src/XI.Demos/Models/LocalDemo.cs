@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using XI.CommonTypes;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 // ReSharper disable StringLiteralTypo
 
@@ -201,7 +201,7 @@ namespace XI.Demos.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((LocalDemo) obj);
+            return Equals((LocalDemo)obj);
         }
 
         /// <summary>

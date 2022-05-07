@@ -7,7 +7,10 @@
   <ItemGroup>
     <PackageReference Include="FM.AzureTableExtensions.Library" Version="1.0.4778" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-    <PackageReference Include="XI.CommonTypes" Version="1.0.4802" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
   </ItemGroup>
 
 </Project>

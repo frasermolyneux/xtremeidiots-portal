@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class PlayerAnalyticPerGameEntryDto
     {
         public DateTime Created { get; set; }
-        public Dictionary<string, int> GameCounts { get; set; }
+        public Dictionary<string, int> GameCounts { get; set; } = new Dictionary<string, int>();
     }
 }

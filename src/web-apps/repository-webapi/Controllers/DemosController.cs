@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.Models;
+using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
@@ -13,45 +13,45 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class DemosController : Controller
     {
-        public DemosController(LegacyPortalContext context)
+        public DemosController(PortalDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public LegacyPortalContext Context { get; }
+        public PortalDbContext Context { get; }
 
         [HttpGet]
         [Route("api/demos")]
-        public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
+        public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
             var demos = Context.Demoes.Include(d => d.User).AsQueryable();
 
-            GameType[] filterByGameTypes = { };
+            int[] filterByGameTypes = { };
             if (!string.IsNullOrWhiteSpace(gameTypes))
             {
                 var split = gameTypes.Split(",");
 
-                filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
+                filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).Select(gt => gt.ToGameTypeInt()).ToArray();
             }
 
-            if (string.IsNullOrWhiteSpace(order))
-                order = "DateDesc";
+            if (order == null)
+                order = DemoOrder.DateDesc;
 
 
             var query = Context.Demoes.Include(d => d.User).AsQueryable();
-            query = ApplySearchFilter(query, null, null, null);
+            query = ApplySearchFilter(query, Array.Empty<int>(), null, null);
             var totalCount = await query.CountAsync();
 
             query = ApplySearchFilter(query, filterByGameTypes, userId, filterString);
             var filteredCount = await query.CountAsync();
 
-            query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
+            query = ApplySearchOrderAndLimits(query, (DemoOrder)order, skipEntries, takeEntries);
             var searchResults = await query.ToListAsync();
 
             var entries = searchResults.Select(demo => new DemoDto()
             {
                 DemoId = demo.DemoId,
-                Game = demo.Game.ToString(),
+                Game = demo.Game.ToGameType(),
                 Name = demo.Name,
                 FileName = demo.FileName,
                 Date = demo.Date,
@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(response);
         }
 
-        private IQueryable<Demoes> ApplySearchFilter(IQueryable<Demoes> query, GameType[] filterByGameTypes, string? userId, string? filterString)
+        private IQueryable<Demo> ApplySearchFilter(IQueryable<Demo> query, int[] filterByGameTypes, string? userId, string? filterString)
         {
             if (userId != null && filterByGameTypes.Count() != 0)
                 query = query.Where(d => filterByGameTypes.Contains(d.Game) && d.UserId == userId).AsQueryable();
@@ -90,32 +90,32 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return query;
         }
 
-        private IQueryable<Demoes> ApplySearchOrderAndLimits(IQueryable<Demoes> query, string order, int skipEntries, int takeEntries)
+        private IQueryable<Demo> ApplySearchOrderAndLimits(IQueryable<Demo> query, DemoOrder order, int skipEntries, int takeEntries)
         {
             switch (order)
             {
-                case "GameTypeAsc":
+                case DemoOrder.GameTypeAsc:
                     query = query.OrderBy(d => d.Game).AsQueryable();
                     break;
-                case "GameTypeDesc":
+                case DemoOrder.GameTypeDesc:
                     query = query.OrderByDescending(d => d.Game).AsQueryable();
                     break;
-                case "NameAsc":
+                case DemoOrder.NameAsc:
                     query = query.OrderBy(d => d.Name).AsQueryable();
                     break;
-                case "NameDesc":
+                case DemoOrder.NameDesc:
                     query = query.OrderByDescending(d => d.Name).AsQueryable();
                     break;
-                case "DateAsc":
+                case DemoOrder.DateAsc:
                     query = query.OrderBy(d => d.Date).AsQueryable();
                     break;
-                case "DateDesc":
+                case DemoOrder.DateDesc:
                     query = query.OrderByDescending(d => d.Date).AsQueryable();
                     break;
-                case "UploadedByAsc":
+                case DemoOrder.UploadedByAsc:
                     query = query.OrderBy(d => d.User.UserName).AsQueryable();
                     break;
-                case "UploadedByDesc":
+                case DemoOrder.UploadedByDesc:
                     query = query.OrderByDescending(d => d.User.UserName).AsQueryable();
                     break;
                 default:
@@ -149,10 +149,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             if (demoDto == null) return new BadRequestResult();
 
-            var demo = new Demoes
+            var demo = new Demo
             {
                 DemoId = Guid.NewGuid(),
-                Game = Enum.Parse<GameType>(demoDto.Game),
+                Game = demoDto.Game.ToGameTypeInt(),
                 Name = demoDto.Name,
                 FileName = demoDto.FileName,
                 Date = demoDto.Date,
@@ -170,7 +170,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var result = new DemoDto
             {
                 DemoId = demo.DemoId,
-                Game = demo.Game.ToString(),
+                Game = demo.Game.ToGameType(),
                 Name = demo.Name,
                 FileName = demo.FileName,
                 Date = demo.Date,
@@ -196,7 +196,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var result = new DemoDto
             {
                 DemoId = demo.DemoId,
-                Game = demo.Game.ToString(),
+                Game = demo.Game.ToGameType(),
                 Name = demo.Name,
                 FileName = demo.FileName,
                 Date = demo.Date,

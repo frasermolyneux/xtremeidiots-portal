@@ -28,6 +28,7 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<Demo> Demoes { get; set; }
         public virtual DbSet<FileMonitor> FileMonitors { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
+        public virtual DbSet<GameServerEvent> GameServerEvents { get; set; }
         public virtual DbSet<LivePlayer> LivePlayers { get; set; }
         public virtual DbSet<LivePlayerLocation> LivePlayerLocations { get; set; }
         public virtual DbSet<Map> Maps { get; set; }
@@ -156,6 +157,17 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.Property(e => e.ServerId).HasDefaultValueSql("newsequentialid()");
 
                 entity.Property(e => e.LiveLastUpdated).HasDefaultValueSql("'1900-01-01t00:00:00.000'");
+            });
+
+            modelBuilder.Entity<GameServerEvent>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.GameServerEvents)
+                    .HasForeignKey(d => d.GameServerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_GameServerEvents_GameServer");
             });
 
             modelBuilder.Entity<LivePlayer>(entity =>

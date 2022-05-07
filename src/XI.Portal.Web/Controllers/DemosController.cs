@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Demos.Models;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
@@ -19,6 +18,7 @@ using XI.Portal.Demos.Forums;
 using XI.Portal.Demos.Interfaces;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -75,7 +75,7 @@ namespace XI.Portal.Web.Controllers
         {
             await _demoAuthRepository.UpdateAuthKey(User.XtremeIdiotsId(), Guid.NewGuid().ToString());
 
-            _logger.LogInformation(EventIds.DemoManager, "User {User} has regenerated their demo auth key", User.Username());
+            _logger.LogInformation("User {User} has regenerated their demo auth key", User.Username());
             this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
 
             return RedirectToAction(nameof(DemoClient));
@@ -217,7 +217,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.Demos.DeleteDemo(accessToken, id);
 
-            _logger.LogInformation(EventIds.DemoManager, "User {User} has deleted {DemoId} under {GameType}", User.Username(), demoDto.DemoId, demoDto.Game);
+            _logger.LogInformation("User {User} has deleted {DemoId} under {GameType}", User.Username(), demoDto.DemoId, demoDto.Game);
             this.AddAlertSuccess($"The demo {demoDto.Name} has been successfully deleted from {demoDto.Game}");
 
             if (filterGame)
@@ -235,7 +235,7 @@ namespace XI.Portal.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientDemoList - Auth key header supplied but was empty");
+                _logger.LogDebug("ClientDemoList - Auth key header supplied but was empty");
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
@@ -287,7 +287,7 @@ namespace XI.Portal.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientUploadDemo - Auth key header supplied was empty");
+                _logger.LogDebug("ClientUploadDemo - Auth key header supplied was empty");
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
@@ -319,7 +319,7 @@ namespace XI.Portal.Web.Controllers
 
             var demoDto = new DemoDto
             {
-                Game = gameType.ToString(),
+                Game = gameType,
                 Name = frontEndFileName,
                 FileName = fileName,
                 Date = localDemo.Date,
@@ -336,7 +336,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             await repositoryApiClient.Demos.CreateDemo(accessToken, demoDto);
 
-            _logger.LogInformation(EventIds.DemoManager, "User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
+            _logger.LogInformation("User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
 
             return Ok();
         }
@@ -351,7 +351,7 @@ namespace XI.Portal.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
-                _logger.LogDebug(EventIds.DemoManager, "ClientDownload - Auth key header supplied but was empty");
+                _logger.LogDebug("ClientDownload - Auth key header supplied but was empty");
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 

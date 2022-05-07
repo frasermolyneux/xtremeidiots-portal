@@ -1,11 +1,11 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using FM.GeoLocation.Contract
 @using Microsoft.AspNetCore.Authorization
-@using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Players.Dto
 @using XI.Portal.Players.Extensions
 @using XI.Portal.Web.Extensions
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 @model XI.Portal.Web.Controllers.PlayersController.PlayerDetailsViewModel
 
@@ -22,7 +22,7 @@
             <div class="ibox-content">
 
                 <span class="text-muted pull-right">
-                    @Html.GameTypeIcon(Model.Player.GameType)
+                    @Html.GameTypeIcon(Model.Player.GameType.ToString())
                 </span>
 
                 <div id="player" class="tab-pane active">
@@ -75,35 +75,35 @@
                         <div style="padding-bottom: 10px; padding-top: 20px">
                             <div>
                                 <ul>
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = "Observation", GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Observation, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
                                         {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Observation">Add Observation</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = "Warning", GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Warning, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Warning">Add Warning</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = "Kick", GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Kick, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Kick">Add Kick</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = "TempBan", GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.TempBan, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="TempBan">Add Temp Ban</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = "Ban", GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Ban, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Ban">Add Ban</a>

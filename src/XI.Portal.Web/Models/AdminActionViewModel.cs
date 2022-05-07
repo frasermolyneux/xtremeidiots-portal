@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Web.Models
@@ -9,7 +10,7 @@ namespace XI.Portal.Web.Models
     {
         public Guid AdminActionId { get; set; }
         public Guid PlayerId { get; set; }
-        public string Type { get; set; }
+        public AdminActionType Type { get; set; }
 
         [Required]
         [DisplayName("Reason")]

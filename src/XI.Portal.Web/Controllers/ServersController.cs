@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Repository.Dtos;
@@ -136,7 +135,7 @@ namespace XI.Portal.Web.Controllers
 
             var queryOptions = new MapsQueryOptions
             {
-                GameType = Enum.Parse<GameType>(gameServer.GameType),
+                GameType = gameServer.GameType,
                 MapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToList()
             };
             var maps = await _mapsRepository.GetMaps(queryOptions);

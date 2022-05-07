@@ -60,13 +60,13 @@ namespace XI.Portal.FuncApp
                         server.FtpUsername,
                         server.FtpPassword);
 
-                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(server.GameType);
+                    var banFileSize = await _banFilesRepository.GetBanFileSizeForGame(server.GameType.ToString());
 
                     if (remoteFileSize == 0)
                     {
                         _logger.LogInformation("Remote ban file on {server} at {path} is zero - updating file", server.Title, banFileMonitor.FilePath);
 
-                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType);
+                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType.ToString());
 
                         await _ftpHelper.UpdateRemoteFileFromStream(
                             server.FtpHostname,
@@ -91,7 +91,7 @@ namespace XI.Portal.FuncApp
                             server.FtpUsername,
                             server.FtpPassword);
 
-                        await _banFileIngest.IngestBanFileDataForGame(server.GameType, remoteBanFileData);
+                        await _banFileIngest.IngestBanFileDataForGame(server.GameType.ToString(), remoteBanFileData);
 
                         banFileMonitor.RemoteFileSize = remoteFileSize;
 
@@ -106,7 +106,7 @@ namespace XI.Portal.FuncApp
                     {
                         _logger.LogInformation("Remote ban file on {server} at {path} is not the latest version", server.Title, banFileMonitor.FilePath);
 
-                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType);
+                        var banFileStream = await _banFilesRepository.GetBanFileForGame(server.GameType.ToString());
 
                         await _ftpHelper.UpdateRemoteFileFromStream(
                             server.FtpHostname,

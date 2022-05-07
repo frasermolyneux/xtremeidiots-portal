@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -39,7 +39,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(Guid id, string adminActionType)
+        public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var playerDto = await repositoryApiClient.Players.GetPlayer(accessToken, id);
@@ -58,7 +58,7 @@ namespace XI.Portal.Web.Controllers
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
-            if (adminActionType == "TempBan")
+            if (adminActionType == AdminActionType.TempBan)
                 viewModel.Expires = DateTime.UtcNow.AddDays(7);
 
             return View(viewModel);
@@ -96,14 +96,14 @@ namespace XI.Portal.Web.Controllers
             adminActionDto.AdminId = User.XtremeIdiotsId();
             adminActionDto.Text = model.Text;
 
-            if (model.Type == "TempBan")
+            if (model.Type == AdminActionType.TempBan)
                 adminActionDto.Expires = model.Expires;
 
             adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
             await repositoryApiClient.Players.CreateAdminActionForPlayer(accessToken, adminActionDto);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
+            _logger.LogInformation("User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDto.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
 
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
@@ -160,7 +160,7 @@ namespace XI.Portal.Web.Controllers
 
             adminActionDto.Text = model.Text;
 
-            if (model.Type == "TempBan")
+            if (model.Type == AdminActionType.TempBan)
                 adminActionDto.Expires = model.Expires;
 
             var canChangeAdminActionAdmin = await _authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ChangeAdminActionAdmin);
@@ -173,7 +173,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
+            _logger.LogInformation("User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
@@ -217,7 +217,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
+            _logger.LogInformation("User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully lifted for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });
@@ -261,7 +261,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto.ForumTopicId != 0)
                 await _playersForumsClient.UpdateTopicForAdminAction(adminActionDto);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
+            _logger.LogInformation("User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully claimed for {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });
@@ -284,7 +284,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.Players.UpdateAdminActionForPlayer(accessToken, adminActionDto);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
+            _logger.LogInformation("User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
             this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">here</a>");
 
             return RedirectToAction("Details", "Players", new { id = adminActionDto.PlayerId });
@@ -323,7 +323,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.AdminActions.DeleteAdminAction(accessToken, id);
 
-            _logger.LogInformation(EventIds.AdminAction, "User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
+            _logger.LogInformation("User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
             this.AddAlertSuccess($"The {adminActionDto.Type} has been successfully deleted from {adminActionDto.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });

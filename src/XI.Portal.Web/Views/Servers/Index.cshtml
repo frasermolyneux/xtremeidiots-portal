@@ -53,8 +53,8 @@
                                     </td>
                                     <td>
                                         @Html.GameTrackerIcon(item.GameServer.Hostname, item.GameServer.QueryPort)
-                                        @Html.SteamIcon(item.GameServer.GameType, item.GameServer.Hostname, item.GameServer.QueryPort)
-                                        @Html.HlswIcon(item.GameServer.GameType, item.GameServer.Hostname, item.GameServer.QueryPort)
+                                        @Html.SteamIcon(item.GameServer.GameType.ToString(), item.GameServer.Hostname, item.GameServer.QueryPort)
+                                        @Html.HlswIcon(item.GameServer.GameType.ToString(), item.GameServer.Hostname, item.GameServer.QueryPort)
                                     </td>
                                     <td>
                                         @{

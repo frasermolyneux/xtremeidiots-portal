@@ -1,6 +1,6 @@
 ﻿using FM.AzureTableExtensions.Library;
 using FM.AzureTableExtensions.Library.Attributes;
-using XI.CommonTypes;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Servers.Models
 {

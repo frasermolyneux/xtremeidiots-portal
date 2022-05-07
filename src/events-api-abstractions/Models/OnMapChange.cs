@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.CommonLib.Events;
+﻿namespace XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 
 public class OnMapChange : OnEventBase
 {

@@ -1,8 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using XI.CommonTypes;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.GameServers.AuthorizationRequirements;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Auth.GameServers.AuthorizationHandlers
 {

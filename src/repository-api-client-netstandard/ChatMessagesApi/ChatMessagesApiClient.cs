@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
@@ -39,12 +40,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi
             await ExecuteAsync(request);
         }
 
-        public async Task<ChatMessageSearchResponseDto> SearchChatMessages(string accessToken, string? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order)
+        public async Task<ChatMessageSearchResponseDto> SearchChatMessages(string accessToken, GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order)
         {
             var request = CreateRequest("repository/chat-messages/search", Method.GET, accessToken);
 
-            if (!string.IsNullOrWhiteSpace(gameType))
-                request.AddQueryParameter("gameType", gameType);
+            if (gameType != null)
+                request.AddQueryParameter("gameType", gameType.ToString());
 
             if (serverId != null)
                 request.AddQueryParameter("serverId", serverId.ToString());

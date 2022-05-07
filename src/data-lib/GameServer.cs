@@ -16,6 +16,7 @@ namespace XtremeIdiots.Portal.DataLib
             BanFileMonitors = new HashSet<BanFileMonitor>();
             ChatLogs = new HashSet<ChatLog>();
             FileMonitors = new HashSet<FileMonitor>();
+            GameServerEvents = new HashSet<GameServerEvent>();
             LivePlayers = new HashSet<LivePlayer>();
             MapRotations = new HashSet<MapRotation>();
             RconMonitors = new HashSet<RconMonitor>();
@@ -51,6 +52,8 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<ChatLog> ChatLogs { get; set; }
         [InverseProperty("GameServerServer")]
         public virtual ICollection<FileMonitor> FileMonitors { get; set; }
+        [InverseProperty("GameServer")]
+        public virtual ICollection<GameServerEvent> GameServerEvents { get; set; }
         [InverseProperty("GameServerServer")]
         public virtual ICollection<LivePlayer> LivePlayers { get; set; }
         [InverseProperty("GameServerServer")]

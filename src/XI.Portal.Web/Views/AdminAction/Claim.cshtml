@@ -1,4 +1,4 @@
-﻿@using XI.CommonTypes
+﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 @model AdminActionDto
 
@@ -30,7 +30,7 @@
                                 @Html.DisplayFor(model => model.Type)
                             </dd>
 
-                            @if (Model.Type == "TempBan")
+                            @if (Model.Type == AdminActionType.TempBan)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.Expires)

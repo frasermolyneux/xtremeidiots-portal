@@ -3,6 +3,8 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -56,9 +58,9 @@ namespace XI.Portal.Players.Ingest
                 {
                     _logger.LogInformation($"BanFileIngest - creating new player {name} with guid {guid} with import ban");
 
-                    await repositoryApiClient.Players.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(accessToken, new PlayerDto()
                     {
-                        GameType = gameType.ToString(),
+                        GameType = gameType.ToGameType(),
                         Username = name,
                         Guid = guid
                     });
@@ -67,7 +69,7 @@ namespace XI.Portal.Players.Ingest
 
                     var adminActionDto = new AdminActionDto
                     {
-                        Type = "Ban"
+                        Type = AdminActionType.Ban
                     };
 
                     adminActionDto.PlayerId = player.Id;
@@ -84,13 +86,13 @@ namespace XI.Portal.Players.Ingest
                 {
                     var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, player.Id, null, "ActiveBans", 0, 0, null);
 
-                    if (adminActions.Count(aa => aa.Type == "Ban") == 0)
+                    if (adminActions.Count(aa => aa.Type == AdminActionType.Ban) == 0)
                     {
                         _logger.LogInformation($"BanFileImport - adding import ban to existing player {player.Username} - {player.Guid} ({player.GameType})");
 
                         var adminActionDto = new AdminActionDto
                         {
-                            Type = "Ban"
+                            Type = AdminActionType.Ban
                         };
 
                         adminActionDto.PlayerId = player.Id;

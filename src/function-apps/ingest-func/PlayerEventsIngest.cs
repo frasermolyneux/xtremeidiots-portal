@@ -4,8 +4,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
-using XtremeIdiots.Portal.CommonLib.Events;
+using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -67,7 +68,7 @@ public class PlayerEventsIngest
         {
             var player = new PlayerDto
             {
-                GameType = onPlayerConnected.GameType,
+                GameType = onPlayerConnected.GameType.ToGameType(),
                 Guid = onPlayerConnected.Guid,
                 Username = onPlayerConnected.Username,
                 IpAddress = onPlayerConnected.IpAddress
@@ -120,11 +121,11 @@ public class PlayerEventsIngest
         {
             var chatMessage = new ChatMessageDto
             {
-                GameServerId = onChatMessage.ServerId,
+                GameServerId = (Guid)onChatMessage.ServerId,
                 PlayerId = playerId,
                 Username = onChatMessage.Username,
                 Message = onChatMessage.Message,
-                Type = onChatMessage.Type,
+                Type = onChatMessage.Type.ToChatType(),
                 Timestamp = onChatMessage.EventGeneratedUtc
             };
 

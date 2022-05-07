@@ -19,7 +19,7 @@
 
                 @if (Model.GameServerStatus?.Map != null)
                 {
-                    @Html.MapImage(Model.GameServer.GameType, Model.GameServerStatus?.Map)
+                    @Html.MapImage(Model.GameServer.GameType.ToString(), Model.GameServerStatus?.Map)
                     <br/>
                 }
 
@@ -65,8 +65,8 @@
                         </td>
                         <td>
                             @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
-                            @Html.SteamIcon(Model.GameServer.GameType, Model.GameServer.Hostname, Model.GameServer.QueryPort)
-                            @Html.HlswIcon(Model.GameServer.GameType, Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.SteamIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.HlswIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname, Model.GameServer.QueryPort)
                         </td>
                     </tr>
 
@@ -243,7 +243,7 @@
                                     @Html.MapPopularity(item.MapName, item.PositivePercentage, item.NegativePercentage, item.PositiveVotes, item.NegativeVotes, item.TotalVotes)
                                 </td>
                                 <td>
-                                    @Html.MapImage(Model.GameServer.GameType, item.MapName)
+                                    @Html.MapImage(Model.GameServer.GameType.ToString(), item.MapName)
                                 </td>
                             </tr>
                         }

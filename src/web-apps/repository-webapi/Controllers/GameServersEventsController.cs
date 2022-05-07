@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using XI.Portal.Data.Legacy;
+using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -10,16 +10,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersEventsController : ControllerBase
 {
-    public GameServersEventsController(LegacyPortalContext context)
+    public GameServersEventsController(PortalDbContext context)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public LegacyPortalContext Context { get; }
+    public PortalDbContext Context { get; }
 
     [HttpPost]
     [Route("api/game-servers/{serverId}/event")]
-    public async Task<IActionResult> CreateGameServerEvent(string serverId)
+    public async Task<IActionResult> CreateGameServerEvent(Guid serverId)
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 

@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
-    <ProjectReference Include="..\common-lib\common-lib.csproj" />
   </ItemGroup>
 
 </Project>

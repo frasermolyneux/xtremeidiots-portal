@@ -2,13 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>XtremeIdiots.Portal.CommonLib</RootNamespace>
+    <RootNamespace>XtremeIdiots.Portal.EventsApi.Abstractions</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="Events\" />
-  </ItemGroup>
 
 </Project>

@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
-using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.Models;
+using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -14,27 +14,27 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class PlayersController : ControllerBase
 {
-    public PlayersController(ILogger<PlayersController> log, LegacyPortalContext context)
+    public PlayersController(ILogger<PlayersController> log, PortalDbContext context)
     {
         Log = log ?? throw new ArgumentNullException(nameof(log));
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public LegacyPortalContext Context { get; }
+    public PortalDbContext Context { get; }
     public ILogger<PlayersController> Log { get; }
 
     [HttpGet]
     [Route("api/players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId)
     {
-        var player = await Context.Player2.SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null) return new NotFoundResult();
 
         var playerDto = new PlayerDto
         {
             Id = player.PlayerId,
-            GameType = player.GameType.ToString(),
+            GameType = player.GameType.ToGameType(),
             Username = player.Username,
             Guid = player.Guid,
             FirstSeen = player.FirstSeen,
@@ -49,11 +49,11 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/aliases")]
     public async Task<IActionResult> GetPlayerAliases(Guid playerId)
     {
-        var player = await Context.Player2
-            .Include(p => p.PlayerAlias)
+        var player = await Context.Player2s
+            .Include(p => p.PlayerAliases)
             .SingleAsync(p => p.PlayerId == playerId);
 
-        var result = player.PlayerAlias.Select(alias => new AliasDto
+        var result = player.PlayerAliases.Select(alias => new AliasDto
         {
             Name = alias.Name,
             Added = alias.Added,
@@ -67,7 +67,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/ip-addresses")]
     public async Task<IActionResult> GetPlayerIpAddresses(Guid playerId)
     {
-        var player = await Context.Player2
+        var player = await Context.Player2s
             .Include(p => p.PlayerIpAddresses)
             .SingleAsync(p => p.PlayerId == playerId);
 
@@ -91,7 +91,7 @@ public class PlayersController : ControllerBase
 
         var result = playerIpAddresses.Select(pip => new RelatedPlayerDto
         {
-            GameType = pip.PlayerPlayer.GameType.ToString(),
+            GameType = pip.PlayerPlayer.GameType.ToGameType(),
             Username = pip.PlayerPlayer.Username,
             PlayerId = pip.PlayerPlayer.PlayerId,
             IpAddress = pip.Address
@@ -102,42 +102,22 @@ public class PlayersController : ControllerBase
 
     [HttpGet]
     [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
-    public async Task<IActionResult> GetPlayerByGameType(string gameType, string playerGuid)
+    public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string playerGuid)
     {
-        GameType legacyGameType;
-        switch (gameType)
-        {
-            case "CallOfDuty2":
-                legacyGameType = GameType.CallOfDuty2;
-                break;
-            case "CallOfDuty4":
-                legacyGameType = GameType.CallOfDuty4;
-                break;
-            case "CallOfDuty5":
-                legacyGameType = GameType.CallOfDuty5;
-                break;
-            default:
-                throw new Exception($"Unsupported game type {gameType}");
-        }
-
-        Log.LogInformation($"GetPlayerByGameType :: gameType: '{legacyGameType}', playerGuid: '{playerGuid}'");
-
-        var player = await Context.Player2.SingleOrDefaultAsync(p => p.GameType == legacyGameType && p.Guid == playerGuid);
+        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
 
         if (player == null) return new NotFoundResult();
 
         var playerDto = new PlayerDto
         {
             Id = player.PlayerId,
-            GameType = player.GameType.ToString(),
+            GameType = player.GameType.ToGameType(),
             Username = player.Username,
             Guid = player.Guid,
             FirstSeen = player.FirstSeen,
             LastSeen = player.LastSeen,
             IpAddress = player.IpAddress
         };
-
-        Log.LogInformation($"GetPlayerByGameType :: gameType: '{legacyGameType}', playerGuid: '{playerGuid}' - Matched with '{playerDto.Id}'");
 
         return new OkObjectResult(playerDto);
     }
@@ -164,13 +144,7 @@ public class PlayersController : ControllerBase
 
         foreach (var player in playerDtos)
         {
-            if (!Enum.TryParse(player.GameType, out GameType legacyGameType))
-            {
-                legacyGameType = GameType.Unknown;
-            }
-
-            var existingPlayer =
-                await Context.Player2.SingleOrDefaultAsync(p => p.GameType == legacyGameType && p.Guid == player.Guid);
+            var existingPlayer = await Context.Player2s.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
 
             if (existingPlayer != null) return new ConflictObjectResult(existingPlayer);
 
@@ -178,7 +152,7 @@ public class PlayersController : ControllerBase
             {
                 Username = player.Username.Trim(),
                 Guid = player.Guid.ToLower().Trim(),
-                GameType = legacyGameType,
+                GameType = player.GameType.ToGameTypeInt(),
                 FirstSeen = DateTime.UtcNow,
                 LastSeen = DateTime.UtcNow
             };
@@ -187,9 +161,9 @@ public class PlayersController : ControllerBase
             {
                 player2.IpAddress = ip.ToString();
 
-                player2.PlayerIpAddresses = new List<PlayerIpAddresses>
+                player2.PlayerIpAddresses = new List<PlayerIpAddress>
                 {
-                    new PlayerIpAddresses
+                    new PlayerIpAddress
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
                         Address = ip.ToString(),
@@ -199,7 +173,7 @@ public class PlayersController : ControllerBase
                 };
             }
 
-            player2.PlayerAlias = new List<PlayerAlias>
+            player2.PlayerAliases = new List<PlayerAlias>
             {
                 new PlayerAlias
                 {
@@ -210,7 +184,7 @@ public class PlayersController : ControllerBase
                 }
             };
 
-            await Context.Player2.AddAsync(player2);
+            await Context.Player2s.AddAsync(player2);
         }
 
         await Context.SaveChangesAsync();
@@ -241,8 +215,8 @@ public class PlayersController : ControllerBase
 
         playerDto.Username = playerDto.Username.Trim();
 
-        var player = await Context.Player2
-                .Include(p => p.PlayerAlias)
+        var player = await Context.Player2s
+                .Include(p => p.PlayerAliases)
                 .Include(p => p.PlayerIpAddresses)
                 .SingleOrDefaultAsync(p => p.PlayerId == playerDto.Id);
 
@@ -262,14 +236,14 @@ public class PlayersController : ControllerBase
         {
             if (player.Username != playerDto.Username)
             {
-                if (player.PlayerAlias.Any(a => a.Name == player.Username))
+                if (player.PlayerAliases.Any(a => a.Name == player.Username))
                 {
-                    var existingUsernameAlias = player.PlayerAlias.First(a => a.Name == player.Username);
+                    var existingUsernameAlias = player.PlayerAliases.First(a => a.Name == player.Username);
                     existingUsernameAlias.LastUsed = DateTime.UtcNow;
                 }
                 else
                 {
-                    Context.PlayerAlias.Add(new PlayerAlias
+                    Context.PlayerAliases.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
                         Name = player.Username,
@@ -279,14 +253,14 @@ public class PlayersController : ControllerBase
                     });
                 }
 
-                if (player.PlayerAlias.Any(a => a.Name == playerDto.Username))
+                if (player.PlayerAliases.Any(a => a.Name == playerDto.Username))
                 {
-                    var existingNewUsernameAlias = player.PlayerAlias.First(a => a.Name == playerDto.Username);
+                    var existingNewUsernameAlias = player.PlayerAliases.First(a => a.Name == playerDto.Username);
                     existingNewUsernameAlias.LastUsed = DateTime.UtcNow;
                 }
                 else
                 {
-                    Context.PlayerAlias.Add(new PlayerAlias
+                    Context.PlayerAliases.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
                         Name = playerDto.Username,
@@ -300,7 +274,7 @@ public class PlayersController : ControllerBase
             }
             else
             {
-                var existingUsernameAlias = player.PlayerAlias.FirstOrDefault(a => a.Name == player.Username);
+                var existingUsernameAlias = player.PlayerAliases.FirstOrDefault(a => a.Name == player.Username);
                 if (existingUsernameAlias != null)
                     existingUsernameAlias.LastUsed = DateTime.UtcNow;
             }
@@ -314,7 +288,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerIpAddresses.Add(new PlayerIpAddresses
+                    Context.PlayerIpAddresses.Add(new PlayerIpAddress
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
                         Address = player.IpAddress,
@@ -331,7 +305,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerIpAddresses.Add(new PlayerIpAddresses
+                    Context.PlayerIpAddresses.Add(new PlayerIpAddress
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
                         Address = player.IpAddress,
@@ -358,7 +332,7 @@ public class PlayersController : ControllerBase
         return new OkObjectResult(new PlayerDto
         {
             Id = player.PlayerId,
-            GameType = player.GameType.ToString(),
+            GameType = player.GameType.ToGameType(),
             Username = player.Username,
             Guid = player.Guid,
             FirstSeen = player.FirstSeen,
@@ -385,7 +359,7 @@ public class PlayersController : ControllerBase
         if (filterString == null)
             filterString = string.Empty;
 
-        var query = Context.Player2.AsQueryable();
+        var query = Context.Player2s.AsQueryable();
         query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
         var totalCount = await query.CountAsync();
 
@@ -398,7 +372,7 @@ public class PlayersController : ControllerBase
         var entries = searchResults.Select(p => new PlayerDto()
         {
             Id = p.PlayerId,
-            GameType = p.GameType.ToString(),
+            GameType = p.GameType.ToGameType(),
             Username = p.Username,
             Guid = p.Guid,
             FirstSeen = p.FirstSeen,
@@ -420,7 +394,7 @@ public class PlayersController : ControllerBase
     {
         players = players.AsQueryable();
 
-        if (gameType != GameType.Unknown) players = players.Where(p => p.GameType == gameType).AsQueryable();
+        if (gameType != GameType.Unknown) players = players.Where(p => p.GameType == gameType.ToGameTypeInt()).AsQueryable();
 
         if (filterType != "None" && !string.IsNullOrWhiteSpace(filterString))
             switch (filterType)
@@ -428,7 +402,7 @@ public class PlayersController : ControllerBase
                 case "UsernameAndGuid":
                     players = players.Where(p => p.Username.Contains(filterString) ||
                                                  p.Guid.Contains(filterString) ||
-                                                 p.PlayerAlias.Any(a => a.Name.Contains(filterString)))
+                                                 p.PlayerAliases.Any(a => a.Name.Contains(filterString)))
                         .AsQueryable();
                     break;
                 case "IpAddress":
@@ -490,21 +464,7 @@ public class PlayersController : ControllerBase
             .Where(aa => aa.PlayerPlayerId == playerId)
             .ToListAsync();
 
-        var result = results.Select(adminAction => new AdminActionDto
-        {
-            AdminActionId = adminAction.AdminActionId,
-            PlayerId = adminAction.PlayerPlayer.PlayerId,
-            GameType = adminAction.PlayerPlayer.GameType.ToString(),
-            Username = adminAction.PlayerPlayer.Username,
-            Guid = adminAction.PlayerPlayer.Guid,
-            Type = adminAction.Type.ToString(),
-            Text = adminAction.Text,
-            Expires = adminAction.Expires,
-            ForumTopicId = adminAction.ForumTopicId,
-            Created = adminAction.Created,
-            AdminId = adminAction.Admin?.XtremeIdiotsId,
-            AdminName = adminAction.Admin?.UserName
-        });
+        var result = results.Select(adminAction => adminAction.ToDto());
 
         return new OkObjectResult(result);
     }
@@ -530,19 +490,19 @@ public class PlayersController : ControllerBase
         if (adminActionDto == null) return new BadRequestResult();
         if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
 
-        var player = await Context.Player2.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
+        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
 
-        AspNetUsers admin = null;
+        AspNetUser admin = null;
         if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
         {
             admin = await Context.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
         }
 
-        var adminAction = new AdminActions
+        var adminAction = new AdminAction
         {
             PlayerPlayer = player,
             Admin = admin,
-            Type = Enum.Parse<AdminActionType>(adminActionDto.Type),
+            Type = adminActionDto.Type.ToAdminActionTypeInt(),
             Text = adminActionDto.Text,
             Created = DateTime.UtcNow,
             Expires = adminActionDto.Expires,

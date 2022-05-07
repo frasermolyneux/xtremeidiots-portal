@@ -1,8 +1,8 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Authorization
-@using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
 @using XI.Portal.Web.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @model AdminActionViewModel
 
 @{
@@ -35,7 +35,7 @@
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
-                        @if (Model.Type == "TempBan")
+                        @if (Model.Type == AdminActionType.TempBan)
                         {
                             <div class="form-group">
                                 <label asp-for="Expires"></label>

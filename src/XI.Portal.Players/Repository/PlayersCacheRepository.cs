@@ -1,11 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using FM.AzureTableExtensions.Library.Extensions;
+﻿using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
+using System;
+using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Players.Repository
 {
@@ -36,7 +36,7 @@ namespace XI.Portal.Players.Repository
             if (result.HttpStatusCode == 404)
                 return null;
 
-            var playerCacheEntity = (PlayerCacheEntity) result.Result;
+            var playerCacheEntity = (PlayerCacheEntity)result.Result;
             return playerCacheEntity;
         }
 
@@ -53,7 +53,7 @@ namespace XI.Portal.Players.Repository
                 var query = new TableQuery<TableEntity>()
                     .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, gameType.ToString()), TableOperators.And,
                         TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-1))))
-                    .Select(new[] {"PartitionKey", "RowKey"});
+                    .Select(new[] { "PartitionKey", "RowKey" });
 
                 TableContinuationToken continuationToken = null;
                 do

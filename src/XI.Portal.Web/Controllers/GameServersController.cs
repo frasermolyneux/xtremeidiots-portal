@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.GameServers.Extensions;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -63,13 +63,13 @@ namespace XI.Portal.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                AddGameTypeViewData(model.GameType.ToString());
+                AddGameTypeViewData(model.GameType);
                 return View(model);
             }
 
             var gameServerDto = new GameServerDto()
             {
-                GameType = model.GameType.ToString()
+                GameType = model.GameType
             };
 
             var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateGameServer);
@@ -104,7 +104,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             await repositoryApiClient.GameServers.CreateGameServer(accessToken, gameServerDto);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
+            _logger.LogInformation("User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
             this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
 
             return RedirectToAction(nameof(Index));
@@ -194,7 +194,7 @@ namespace XI.Portal.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                AddGameTypeViewData(model.GameType.ToString());
+                AddGameTypeViewData(model.GameType);
                 return View(model);
             }
 
@@ -229,7 +229,7 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.GameServers.UpdateGameServer(accessToken, gameServerDto);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
+            _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
             this.AddAlertSuccess($"The game server {gameServerDto.Title} has been updated for {gameServerDto.GameType}");
 
             return RedirectToAction(nameof(Index));
@@ -268,16 +268,16 @@ namespace XI.Portal.Web.Controllers
 
             await repositoryApiClient.GameServers.DeleteGameServer(accessToken, id);
 
-            _logger.LogInformation(EventIds.Management, "User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
+            _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerDto.Id, gameServerDto.GameType);
             this.AddAlertSuccess($"The game server {gameServerDto.Title} has been deleted for {gameServerDto.GameType}");
 
             return RedirectToAction(nameof(Index));
         }
 
-        private void AddGameTypeViewData(string selected = null)
+        private void AddGameTypeViewData(GameType? selected = null)
         {
             if (selected == null)
-                selected = "Unknown";
+                selected = GameType.Unknown;
 
             var gameTypes = User.GetGameTypesForGameServers();
             ViewData["GameType"] = new SelectList(gameTypes, selected);

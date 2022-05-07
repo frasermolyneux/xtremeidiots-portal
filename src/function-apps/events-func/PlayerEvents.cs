@@ -3,7 +3,7 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
-using XtremeIdiots.Portal.CommonLib.Events;
+using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.EventsFunc;
 

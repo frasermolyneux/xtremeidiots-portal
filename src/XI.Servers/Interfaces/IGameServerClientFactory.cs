@@ -1,9 +1,10 @@
 ﻿using System;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Interfaces
 {
     public interface IGameServerClientFactory
     {
-        IGameServerClient GetGameServerStatusHelper(string gameType, Guid serverId, string hostname, int queryPort, string rconPassword);
+        IGameServerClient GetGameServerStatusHelper(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword);
     }
 }

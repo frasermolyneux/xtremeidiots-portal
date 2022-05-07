@@ -1,5 +1,5 @@
-﻿@using XI.CommonTypes
-@using XI.Portal.Web.Models
+﻿@using XI.Portal.Web.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @model AdminActionViewModel
 
 @{
@@ -12,7 +12,7 @@
         <i class="fa fa-info-circle"></i> Enter the reason for your @Model.Type in the text box below, you can use rich text (bold/italic etc.) however images and video are not supported.
         When you click the create button a forum topic will automatically be posted for you in the relevant section.
 
-        @if (Model.Type == "Ban" || Model.Type == "TempBan")
+        @if (Model.Type == AdminActionType.Ban || Model.Type == AdminActionType.TempBan)
         {
             <text>
                 @Model.Type's may take up to an hour to be applied to all of the servers.
@@ -39,7 +39,7 @@
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
-                        @if (Model.Type == "TempBan")
+                        @if (Model.Type == AdminActionType.TempBan)
                         {
                             <div class="form-group">
                                 <label asp-for="Expires"></label>

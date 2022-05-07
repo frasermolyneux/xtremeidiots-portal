@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using XI.Servers.Clients;
 using XI.Servers.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Factories
 {

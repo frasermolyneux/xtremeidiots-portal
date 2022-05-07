@@ -6,7 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="XI.CommonTypes" Version="1.0.4802" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
   </ItemGroup>
 
 </Project>

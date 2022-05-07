@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Polly;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,12 +9,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Polly;
-using XI.CommonTypes;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Clients
 {
@@ -188,7 +188,7 @@ namespace XI.Servers.Clients
         private static byte[] ExecuteCommandPacket(string rconPassword, string command)
         {
             //ÿÿÿÿrcon {rconPassword} {command}
-            var prefix = new byte[] {0xFF, 0xFF, 0xFF, 0xFF};
+            var prefix = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF };
             var commandText = $"rcon {rconPassword} {command}";
             var commandBytes = Encoding.Default.GetBytes(commandText);
 
@@ -204,7 +204,7 @@ namespace XI.Servers.Clients
                 var commandBytes = ExecuteCommandPacket(_rconPassword, command);
                 var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                udpClient = new UdpClient(_queryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient = new UdpClient(_queryPort) { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
                 udpClient.Connect(_hostname, _queryPort);
                 udpClient.Send(commandBytes, commandBytes.Length);
 

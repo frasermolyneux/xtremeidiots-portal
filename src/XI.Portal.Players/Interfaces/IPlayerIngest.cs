@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
+﻿using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Players.Interfaces
 {

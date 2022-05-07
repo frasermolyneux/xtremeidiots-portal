@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
@@ -11,12 +11,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class AdminActionsController : Controller
     {
-        public AdminActionsController(LegacyPortalContext context)
+        public AdminActionsController(PortalDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public LegacyPortalContext Context { get; }
+        public PortalDbContext Context { get; }
 
         [HttpGet]
         [Route("api/admin-actions/{adminActionId}")]
@@ -27,36 +27,23 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 .Include(aa => aa.Admin)
                 .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
-            var result = new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                PlayerId = adminAction.PlayerPlayer.PlayerId,
-                GameType = adminAction.PlayerPlayer.GameType.ToString(),
-                Username = adminAction.PlayerPlayer.Username,
-                Guid = adminAction.PlayerPlayer.Guid,
-                Type = adminAction.Type.ToString(),
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                ForumTopicId = adminAction.ForumTopicId,
-                Created = adminAction.Created,
-                AdminId = adminAction.Admin?.XtremeIdiotsId,
-                AdminName = adminAction.Admin?.UserName
-            };
+            if (adminAction == null)
+                return NotFound();
 
-            return new OkObjectResult(result);
+            return new OkObjectResult(adminAction.ToDto());
         }
 
         [HttpGet]
         [Route("api/admin-actions")]
-        public async Task<IActionResult> GetAdminActions(string? gameType, Guid? playerId, string? adminId, string? filterType, int skipEntries, int takeEntries, string? order)
+        public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filterType, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
-            if (string.IsNullOrEmpty(order))
-                order = "CreatedDesc";
+            if (order == null)
+                order = AdminActionOrder.CreatedDesc;
 
             var query = Context.AdminActions.Include(aa => aa.PlayerPlayer).Include(aa => aa.Admin).AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(gameType))
-                query = query.Where(aa => aa.PlayerPlayer.GameType == Enum.Parse<GameType>(gameType)).AsQueryable();
+            if (gameType != null)
+                query = query.Where(aa => aa.PlayerPlayer.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
 
             if (playerId != null)
                 query = query.Where(aa => aa.PlayerPlayerId == playerId).AsQueryable();
@@ -66,20 +53,20 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             switch (filterType)
             {
-                case "ActiveBans":
-                    query = query.Where(aa => aa.Type == AdminActionType.Ban && aa.Expires == null || aa.Type == AdminActionType.TempBan && aa.Expires > DateTime.UtcNow).AsQueryable();
+                case AdminActionFilter.ActiveBans:
+                    query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null || aa.Type == AdminActionType.TempBan.ToAdminActionTypeInt() && aa.Expires > DateTime.UtcNow).AsQueryable();
                     break;
-                case "UnclaimedBans":
-                    query = query.Where(aa => aa.Type == AdminActionType.Ban && aa.Expires == null && aa.Admin == null).AsQueryable();
+                case AdminActionFilter.UnclaimedBans:
+                    query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null && aa.Admin == null).AsQueryable();
                     break;
             }
 
             switch (order)
             {
-                case "CreatedAsc":
+                case AdminActionOrder.CreatedAsc:
                     query = query.OrderBy(aa => aa.Created).AsQueryable();
                     break;
-                case "CreatedDesc":
+                case AdminActionOrder.CreatedDesc:
                     query = query.OrderByDescending(aa => aa.Created).AsQueryable();
                     break;
             }
@@ -90,21 +77,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var results = await query.ToListAsync();
 
-            var result = results.Select(adminAction => new AdminActionDto
-            {
-                AdminActionId = adminAction.AdminActionId,
-                PlayerId = adminAction.PlayerPlayer.PlayerId,
-                GameType = adminAction.PlayerPlayer.GameType.ToString(),
-                Username = adminAction.PlayerPlayer.Username,
-                Guid = adminAction.PlayerPlayer.Guid,
-                Type = adminAction.Type.ToString(),
-                Text = adminAction.Text,
-                Expires = adminAction.Expires,
-                ForumTopicId = adminAction.ForumTopicId,
-                Created = adminAction.Created,
-                AdminId = adminAction.Admin?.XtremeIdiotsId,
-                AdminName = adminAction.Admin?.UserName
-            });
+            var result = results.Select(adminAction => adminAction.ToDto());
 
             return new OkObjectResult(result);
         }
@@ -117,7 +90,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
             if (adminAction == null)
-                throw new NullReferenceException(nameof(adminAction));
+                return NotFound();
 
             Context.Remove(adminAction);
             await Context.SaveChangesAsync();

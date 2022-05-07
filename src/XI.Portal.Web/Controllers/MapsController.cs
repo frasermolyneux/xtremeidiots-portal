@@ -5,12 +5,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Maps.Interfaces;
 using XI.Portal.Repository.Interfaces;
 using XI.Portal.Repository.Models;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Web.Controllers
 {

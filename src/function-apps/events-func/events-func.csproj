@@ -9,7 +9,7 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libraries\common-lib\common-lib.csproj" />
+    <ProjectReference Include="..\..\events-api-abstractions\events-api-abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

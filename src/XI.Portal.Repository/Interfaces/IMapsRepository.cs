@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Repository.Dtos;
 using XI.Portal.Repository.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository.Interfaces
 {

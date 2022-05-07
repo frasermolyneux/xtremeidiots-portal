@@ -1,17 +1,17 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
 using XI.Forums.Interfaces;
 using XI.Forums.Models;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Repository;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Auth.XtremeIdiots
 {
@@ -52,7 +52,7 @@ namespace XI.Portal.Auth.XtremeIdiots
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
 
-            _logger.LogDebug(EventIds.User, "User {Username} had a {SignInResult} sign in result", username, result.ToString());
+            _logger.LogDebug("User {Username} had a {SignInResult} sign in result", username, result.ToString());
 
             switch (result.ToString())
             {
@@ -97,7 +97,7 @@ namespace XI.Portal.Auth.XtremeIdiots
 
             var member = await _forumsClient.GetMember(id);
 
-            var user = new PortalIdentityUser {Id = id, UserName = username, Email = email};
+            var user = new PortalIdentityUser { Id = id, UserName = username, Email = email };
             var createUserResult = await _userManager.CreateAsync(user);
             if (createUserResult.Succeeded)
             {
@@ -106,7 +106,7 @@ namespace XI.Portal.Auth.XtremeIdiots
                 {
                     await AddXtremeIdiotsClaims(user, member);
                     await _signInManager.SignInAsync(user, true);
-                    _logger.LogDebug(EventIds.User, "User {Username} created a new account with {Email} email", username, email);
+                    _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
                 }
             }
         }

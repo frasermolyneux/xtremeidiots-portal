@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using XI.CommonTypes;
 using XI.Servers.Clients;
 using XI.Servers.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Factories
 {
@@ -21,12 +21,12 @@ namespace XI.Servers.Factories
             _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
         }
 
-        public IGameServerClient GetGameServerStatusHelper(string gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
+        public IGameServerClient GetGameServerStatusHelper(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
         {
             if (_instances.ContainsKey(serverId)) return _instances[serverId];
 
             IGameServerClient gameServerClient = new GameServerClient(_logger, _queryClientFactory, _rconClientFactory);
-            gameServerClient.Configure(Enum.Parse<GameType>(gameType), serverId, hostname, queryPort, rconPassword);
+            gameServerClient.Configure(gameType, serverId, hostname, queryPort, rconPassword);
 
             _instances.Add(serverId, gameServerClient);
 

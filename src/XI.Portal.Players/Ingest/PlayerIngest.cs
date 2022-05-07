@@ -2,9 +2,9 @@
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -57,7 +57,7 @@ namespace XI.Portal.Players.Ingest
                 var playerDto = new PlayerDto
                 {
                     Id = cachedPlayer.PlayerId,
-                    GameType = cachedPlayer.GameType.ToString(),
+                    GameType = cachedPlayer.GameType,
                     Username = cachedPlayer.Username,
                     Guid = cachedPlayer.Guid,
                     IpAddress = cachedPlayer.IpAddress,
@@ -103,7 +103,7 @@ namespace XI.Portal.Players.Ingest
 
                     await repositoryApiClient.Players.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
-                        GameType = gameType.ToString(),
+                        GameType = gameType,
                         Username = username,
                         Guid = guid,
                         IpAddress = ipAddress
@@ -118,7 +118,7 @@ namespace XI.Portal.Players.Ingest
                         PartitionKey = player.GameType.ToString(),
                         RowKey = player.Guid,
                         PlayerId = player.Id,
-                        GameType = Enum.Parse<GameType>(player.GameType),
+                        GameType = player.GameType,
                         Username = player.Username,
                         Guid = player.Guid,
                         IpAddress = player.IpAddress,

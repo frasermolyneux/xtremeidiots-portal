@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Auth.GameServerStatus.Extensions
 {

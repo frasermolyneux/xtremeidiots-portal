@@ -4,7 +4,7 @@ using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using XI.Portal.Data.Legacy;
+using XtremeIdiots.Portal.DataLib;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -14,13 +14,13 @@ public class GameServersSecretsController : ControllerBase
 {
     private readonly IConfiguration _configuration;
 
-    public GameServersSecretsController(LegacyPortalContext context, IConfiguration configuration)
+    public GameServersSecretsController(PortalDbContext context, IConfiguration configuration)
     {
         _configuration = configuration;
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public LegacyPortalContext Context { get; }
+    public PortalDbContext Context { get; }
 
     [HttpGet]
     [Route("api/game-servers/{serverId}/secret/{secretId}")]

@@ -1,6 +1,6 @@
-﻿using System;
-using FM.GeoLocation.Contract.Models;
-using XI.CommonTypes;
+﻿using FM.GeoLocation.Contract.Models;
+using System;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Players.Dto
 {

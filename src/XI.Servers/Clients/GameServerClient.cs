@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using XI.CommonTypes;
 using XI.Servers.Dto;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Clients
 {
@@ -62,7 +62,7 @@ namespace XI.Servers.Clients
                 if (string.IsNullOrWhiteSpace(queryPlayer.NormalizedName))
                     continue;
 
-                var existingPlayer = (GameServerPlayer) Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);
+                var existingPlayer = (GameServerPlayer)Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);
 
                 if (existingPlayer == null)
                 {
@@ -126,7 +126,7 @@ namespace XI.Servers.Clients
 
                 var newPlayer = new GameServerPlayer(queryPlayer);
 
-                var existing = (GameServerPlayer) Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);
+                var existing = (GameServerPlayer)Players.SingleOrDefault(player => player.NormalizedName == queryPlayer.NormalizedName);
 
                 if (existing != null)
                     newPlayer.RconPlayer = existing.RconPlayer;
@@ -141,7 +141,7 @@ namespace XI.Servers.Clients
         {
             foreach (var rconPlayer in rconPlayers)
             {
-                var existingPlayer = (GameServerPlayer) Players.SingleOrDefault(player => player.NormalizedName == rconPlayer.NormalizedName);
+                var existingPlayer = (GameServerPlayer)Players.SingleOrDefault(player => player.NormalizedName == rconPlayer.NormalizedName);
 
                 if (existingPlayer != null)
                 {

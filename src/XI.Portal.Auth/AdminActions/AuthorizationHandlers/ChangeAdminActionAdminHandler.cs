@@ -13,7 +13,7 @@ namespace XI.Portal.Auth.AdminActions.AuthorizationHandlers
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType))
+            if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.GameType.ToString()))
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

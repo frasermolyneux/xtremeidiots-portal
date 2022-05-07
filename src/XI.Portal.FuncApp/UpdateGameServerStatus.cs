@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
@@ -70,7 +69,7 @@ namespace XI.Portal.FuncApp
                     await _gameServerStatusStatsRepository.UpdateEntry(new GameServerStatusStatsDto
                     {
                         ServerId = server.Id,
-                        GameType = Enum.Parse<GameType>(server.GameType),
+                        GameType = server.GameType,
                         PlayerCount = model.PlayerCount,
                         MapName = model.Map
                     });
@@ -81,7 +80,7 @@ namespace XI.Portal.FuncApp
                         foreach (var player in model.Players)
                         {
                             playerGuid = player.Guid;
-                            await _playerIngest.IngestData(Enum.Parse<GameType>(server.GameType), player.Guid, player.Name, player.IpAddress);
+                            await _playerIngest.IngestData(server.GameType, player.Guid, player.Name, player.IpAddress);
                         }
                     }
                     catch (Exception ex)

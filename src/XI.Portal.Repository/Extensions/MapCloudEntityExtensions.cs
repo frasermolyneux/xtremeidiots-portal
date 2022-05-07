@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.Azure.Cosmos.Table;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Azure.Cosmos.Table;
-using XI.CommonTypes;
 using XI.Portal.Repository.CloudEntities;
 using XI.Portal.Repository.Dtos;
 using XI.Portal.Repository.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository.Extensions
 {

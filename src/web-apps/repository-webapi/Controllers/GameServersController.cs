@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Net;
-using XI.CommonTypes;
-using XI.Portal.Data.Legacy;
-using XI.Portal.Data.Legacy.Models;
+using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
@@ -14,24 +14,27 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersController : Controller
 {
-    public GameServersController(LegacyPortalContext context)
+    public GameServersController(PortalDbContext context)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public LegacyPortalContext Context { get; }
+    public PortalDbContext Context { get; }
 
     [HttpGet]
     [Route("api/game-servers")]
-    public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, string? filterOption, int skipEntries, int takeEntries, string? order)
+    public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
     {
         var query = Context.GameServers.AsQueryable();
+
+        if (order == null)
+            order = GameServerOrder.BannerServerListPosition;
 
         if (!string.IsNullOrWhiteSpace(gameTypes))
         {
             var split = gameTypes.Split(",");
 
-            var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
+            var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray().Select(gt => gt.ToGameTypeInt());
             query = query.Where(gs => filterByGameTypes.Contains(gs.GameType)).AsQueryable();
         }
 
@@ -43,14 +46,14 @@ public class GameServersController : Controller
             query = query.Where(gs => filterByMonitorIds.Contains(gs.ServerId)).AsQueryable();
         }
 
-        if (!string.IsNullOrWhiteSpace(filterOption))
+        if (filterOption != null)
         {
             switch (filterOption)
             {
-                case "ShowOnPortalServerList":
+                case GameServerFilter.ShowOnPortalServerList:
                     query = query.Where(s => s.ShowOnPortalServerList);
                     break;
-                case "ShowOnBannerServerList":
+                case GameServerFilter.ShowOnBannerServerList:
                     query = query.Where(s => s.ShowOnBannerServerList);
                     break;
             }
@@ -58,10 +61,10 @@ public class GameServersController : Controller
 
         switch (order)
         {
-            case "BannerServerListPosition":
+            case GameServerOrder.BannerServerListPosition:
                 query = query.OrderBy(gs => gs.BannerServerListPosition).AsQueryable();
                 break;
-            case "GameType":
+            case GameServerOrder.GameType:
                 query = query.OrderBy(gs => gs.GameType).AsQueryable();
                 break;
         }
@@ -71,23 +74,7 @@ public class GameServersController : Controller
 
         var results = await query.ToListAsync();
 
-        var result = results.Select(gameServer => new GameServerDto
-        {
-            Id = gameServer.ServerId,
-            Title = gameServer.Title,
-            GameType = gameServer.GameType.ToString(),
-            Hostname = gameServer.Hostname,
-            QueryPort = gameServer.QueryPort,
-            FtpHostname = gameServer.FtpHostname,
-            FtpUsername = gameServer.FtpUsername,
-            FtpPassword = gameServer.FtpPassword,
-            RconPassword = gameServer.RconPassword,
-            ShowOnBannerServerList = gameServer.ShowOnBannerServerList,
-            HtmlBanner = gameServer.HtmlBanner,
-            BannerServerListPosition = gameServer.BannerServerListPosition,
-            ShowOnPortalServerList = gameServer.ShowOnPortalServerList,
-            ShowChatLog = gameServer.ShowChatLog
-        });
+        var result = results.Select(gameServer => gameServer.ToDto());
 
         return new OkObjectResult(result);
     }
@@ -96,29 +83,15 @@ public class GameServersController : Controller
     [Route("api/game-servers/{serverId}")]
     public async Task<IActionResult> GetGameServer(Guid? serverId)
     {
-        if (serverId == null) return new BadRequestResult();
+        if (serverId == null)
+            return new BadRequestResult();
 
         var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
-        if (gameServer == null) return new NotFoundResult();
+        if (gameServer == null)
+            return new NotFoundResult();
 
-        var gameServerDto = new GameServerDto
-        {
-            Id = gameServer.ServerId,
-            Title = gameServer.Title,
-            GameType = gameServer.GameType.ToString(),
-            Hostname = gameServer.Hostname,
-            QueryPort = gameServer.QueryPort,
-            FtpHostname = gameServer.FtpHostname,
-            FtpUsername = gameServer.FtpUsername,
-            FtpPassword = gameServer.FtpPassword,
-            RconPassword = gameServer.RconPassword,
-            ShowOnBannerServerList = gameServer.ShowOnBannerServerList,
-            HtmlBanner = gameServer.HtmlBanner,
-            BannerServerListPosition = gameServer.BannerServerListPosition,
-            ShowOnPortalServerList = gameServer.ShowOnPortalServerList,
-            ShowChatLog = gameServer.ShowChatLog
-        };
+        var gameServerDto = gameServer.ToDto();
 
         return new OkObjectResult(gameServerDto);
     }
@@ -228,7 +201,7 @@ public class GameServersController : Controller
         if (server == null)
             throw new NullReferenceException(nameof(server));
 
-        var banFileMonitor = new BanFileMonitors
+        var banFileMonitor = new BanFileMonitor
         {
             BanFileMonitorId = Guid.NewGuid(),
             FilePath = banFileMonitorDto.FilePath,
@@ -241,15 +214,7 @@ public class GameServersController : Controller
         Context.BanFileMonitors.Add(banFileMonitor);
         await Context.SaveChangesAsync();
 
-        var result = new BanFileMonitorDto
-        {
-            BanFileMonitorId = banFileMonitor.BanFileMonitorId,
-            FilePath = banFileMonitor.FilePath,
-            RemoteFileSize = banFileMonitor.RemoteFileSize,
-            LastSync = banFileMonitor.LastSync,
-            ServerId = banFileMonitor.GameServerServerId,
-            GameType = banFileMonitor.GameServerServer.GameType.ToString()
-        };
+        var result = banFileMonitor.ToDto();
 
         return new OkObjectResult(result);
     }

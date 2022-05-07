@@ -1,13 +1,18 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class PlayerDto
     {
         public Guid Id { get; set; }
-        public string GameType { get; set; }
-        public string Username { get; set; }
-        public string Guid { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public GameType GameType { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string Guid { get; set; } = string.Empty;
         public DateTime FirstSeen { get; set; }
         public DateTime LastSeen { get; set; }
-        public string IpAddress { get; set; }
+        public string IpAddress { get; set; } = string.Empty;
     }
 }

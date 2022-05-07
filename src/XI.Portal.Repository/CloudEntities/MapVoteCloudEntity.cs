@@ -1,6 +1,6 @@
 ﻿using FM.AzureTableExtensions.Library;
-using XI.CommonTypes;
 using XI.Portal.Repository.Dtos;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository.CloudEntities
 {

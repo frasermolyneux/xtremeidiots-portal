@@ -1,7 +1,7 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Authorization
-@using XI.CommonTypes
 @using XI.Portal.Auth.Contract.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models
 @model List<AdminActionDto>
 
@@ -35,18 +35,18 @@
                         <br/>
                         <strong>Created:</strong> @item.Created
 
-                        @if (item.Type == "TempBan" && item.Expires > DateTime.UtcNow)
+                        @if (item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
                             <br/>
                             <text><strong>Expires:</strong> @item.Expires</text>
                         }
-                        else if (item.Type == "TempBan")
+                        else if (item.Type == AdminActionType.TempBan)
                         {
                             <br/>
                             <text><strong>Expired:</strong> @item.Expires</text>
                         }
 
-                        @if (item.Type == "Ban" && item.Expires != null)
+                        @if (item.Type == AdminActionType.Ban && item.Expires != null)
                         {
                             <br/>
                             <text><strong>Ban Lifted:</strong> @item.Expires</text>
@@ -64,19 +64,19 @@
                         string style;
                         switch (item.Type)
                         {
-                            case "Observation":
+                            case AdminActionType.Observation:
                                 style = "info";
                                 break;
-                            case "Warning":
+                            case AdminActionType.Warning:
                                 style = "info";
                                 break;
-                            case "Kick":
+                            case AdminActionType.Kick:
                                 style = "warning";
                                 break;
-                            case "TempBan":
+                            case AdminActionType.TempBan:
                                 style = item.Expires < DateTime.UtcNow ? "dark" : "danger";
                                 break;
-                            case "Ban":
+                            case AdminActionType.Ban:
                                 style = item.Expires != null ? "dark" : "danger";
                                 break;
                             default:
@@ -96,7 +96,7 @@
                             <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit @item.Type</a>
                         }
 
-                        @if (item.Type == "Ban" && item.Expires == null || item.Type == "TempBan" && item.Expires > DateTime.UtcNow)
+                        @if (item.Type == AdminActionType.Ban && item.Expires == null || item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
                             @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.LiftAdminAction)).Succeeded)
                             {
@@ -104,7 +104,7 @@
                             }
                         }
 
-                        @if (item.Type == "Ban" && item.AdminId == null)
+                        @if (item.Type == AdminActionType.Ban && item.AdminId == null)
                         {
                             @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ClaimAdminAction)).Succeeded)
                             {

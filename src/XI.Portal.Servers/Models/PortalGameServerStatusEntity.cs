@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using FM.AzureTableExtensions.Library;
+﻿using FM.AzureTableExtensions.Library;
 using FM.AzureTableExtensions.Library.Attributes;
-using XI.CommonTypes;
+using System;
+using System.Collections.Generic;
 using XI.Portal.Servers.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Servers.Models
 {

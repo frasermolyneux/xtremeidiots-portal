@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using XI.CommonTypes;
 using XI.Servers.Interfaces.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Servers.Dto
 {

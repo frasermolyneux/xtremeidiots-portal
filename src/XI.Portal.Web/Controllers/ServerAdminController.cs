@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.CommonTypes;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.GameServerStatus.Extensions;
@@ -14,6 +13,7 @@ using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Models;
 using XI.Servers.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -118,7 +118,7 @@ namespace XI.Portal.Web.Controllers
                 return Unauthorized();
 
             var rconClient = _rconClientFactory.CreateInstance(
-                Enum.Parse<GameType>(gameServerDto.GameType),
+                gameServerDto.GameType,
                 gameServerDto.Id,
                 gameServerDto.Hostname,
                 gameServerDto.QueryPort,
@@ -145,7 +145,7 @@ namespace XI.Portal.Web.Controllers
                 return Unauthorized();
 
             var rconClient = _rconClientFactory.CreateInstance(
-                Enum.Parse<GameType>(gameServerDto.GameType),
+                gameServerDto.GameType,
                 gameServerDto.Id,
                 gameServerDto.Hostname,
                 gameServerDto.QueryPort,
@@ -172,7 +172,7 @@ namespace XI.Portal.Web.Controllers
                 return Unauthorized();
 
             var rconClient = _rconClientFactory.CreateInstance(
-                Enum.Parse<GameType>(gameServerDto.GameType),
+                gameServerDto.GameType,
                 gameServerDto.Id,
                 gameServerDto.Hostname,
                 gameServerDto.QueryPort,
@@ -199,7 +199,7 @@ namespace XI.Portal.Web.Controllers
                 return Unauthorized();
 
             var rconClient = _rconClientFactory.CreateInstance(
-                Enum.Parse<GameType>(gameServerDto.GameType),
+                gameServerDto.GameType,
                 gameServerDto.Id,
                 gameServerDto.Hostname,
                 gameServerDto.QueryPort,
@@ -228,7 +228,7 @@ namespace XI.Portal.Web.Controllers
             if (string.IsNullOrWhiteSpace(num))
                 return NotFound();
 
-            var rconClient = _rconClientFactory.CreateInstance(Enum.Parse<GameType>(gameServerDto.GameType), gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
+            var rconClient = _rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
 
             //rconClient.KickPlayer(num);
 
@@ -263,14 +263,14 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetGameChatLogAjax(string id)
+        public async Task<IActionResult> GetGameChatLogAjax(GameType id)
         {
             var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
 
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(id.ToString(), null, null);
+            return await GetChatLogPrivate(id, null, null);
         }
 
         [HttpGet]
@@ -325,7 +325,7 @@ namespace XI.Portal.Web.Controllers
             return await GetChatLogPrivate(playerDto.GameType, null, playerDto.Id);
         }
 
-        private async Task<IActionResult> GetChatLogPrivate(string gameType, Guid? serverId, Guid? playerId)
+        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();

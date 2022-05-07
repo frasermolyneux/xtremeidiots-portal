@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Azure.Cosmos.Table;
+﻿using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
-using XI.CommonTypes;
+using System;
 using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Servers.Extensions
 {
@@ -15,7 +15,7 @@ namespace XI.Portal.Servers.Extensions
 
             var dateTimeFilter = string.Empty;
             if (filterModel.Cutoff != null)
-                dateTimeFilter = TableQuery.GenerateFilterConditionForDate(nameof(GameServerStatusStatsEntity.Timestamp), QueryComparisons.GreaterThanOrEqual, (DateTime) filterModel.Cutoff);
+                dateTimeFilter = TableQuery.GenerateFilterConditionForDate(nameof(GameServerStatusStatsEntity.Timestamp), QueryComparisons.GreaterThanOrEqual, (DateTime)filterModel.Cutoff);
 
             if (filterModel.ServerId != Guid.Empty && filterModel.Cutoff != null)
                 query = query.Where(TableQuery.CombineFilters(serverIdFilter, TableOperators.And, dateTimeFilter)).AsTableQuery();

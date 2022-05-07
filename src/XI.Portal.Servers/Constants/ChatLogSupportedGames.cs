@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Servers.Constants
 {
     public static class ChatLogSupportedGames
     {
-        public static IEnumerable<string> Games
+        public static IEnumerable<GameType> Games
         {
             get
             {
-                yield return "CallOfDuty2";
-                yield return "CallOfDuty4";
-                yield return "CallOfDuty5";
+                yield return GameType.CallOfDuty2;
+                yield return GameType.CallOfDuty4;
+                yield return GameType.CallOfDuty5;
             }
         }
     }

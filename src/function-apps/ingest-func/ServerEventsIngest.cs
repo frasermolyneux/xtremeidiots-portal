@@ -45,14 +45,14 @@ public class ServerEventsIngest
         if (onServerConnected == null)
             throw new Exception("OnServerConnected event was null");
 
-        if (string.IsNullOrWhiteSpace(onServerConnected.Id))
+        if (!Guid.TryParse(onServerConnected.Id, out Guid serverId))
             throw new Exception("OnServerConnected event contained null or empty 'onServerConnected'");
 
         _log.LogInformation(
             $"OnServerConnected :: Id: '{onServerConnected.Id}', GameType: '{onServerConnected.GameType}'");
 
         var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-        var existingServer = await _repositoryApiClient.GameServers.GetGameServer(accessToken, onServerConnected.Id);
+        var existingServer = await _repositoryApiClient.GameServers.GetGameServer(accessToken, serverId);
 
         if (existingServer == null)
         {

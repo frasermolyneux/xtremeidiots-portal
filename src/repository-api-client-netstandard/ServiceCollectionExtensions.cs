@@ -3,8 +3,10 @@ using System;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.AdminActionsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.ChatMessagesApi;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DataMaintenanceApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.GameServersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -23,8 +25,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
             serviceCollection.AddSingleton<IAdminActionsApiClient, AdminActionsApiClient>();
             serviceCollection.AddSingleton<IBanFileMonitorsApiClient, BanFileMonitorsApiClient>();
             serviceCollection.AddSingleton<IChatMessagesApiClient, ChatMessagesApiClient>();
+            serviceCollection.AddSingleton<IDataMaintenanceApiClient, DataMaintenanceApiClient>();
             serviceCollection.AddSingleton<IDemosApiClient, DemosApiClient>();
             serviceCollection.AddSingleton<IGameServersApiClient, GameServersApiClient>();
+            serviceCollection.AddSingleton<IMapsApiClient, MapsApiClient>();
             serviceCollection.AddSingleton<IPlayerAnalyticsApiClient, PlayerAnalyticsApiClient>();
             serviceCollection.AddSingleton<IPlayersApiClient, PlayersApiClient>();
 

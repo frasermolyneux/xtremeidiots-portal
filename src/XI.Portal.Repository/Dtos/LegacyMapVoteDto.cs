@@ -2,7 +2,7 @@
 
 namespace XI.Portal.Repository.Dtos
 {
-    public class MapVoteDto
+    public class LegacyMapVoteDto
     {
         public GameType GameType { get; set; }
         public string MapName { get; set; }

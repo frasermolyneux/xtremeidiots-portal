@@ -19,21 +19,21 @@ namespace XI.Portal.Repository
         {
         }
 
-        public async Task InsertOrMergeMap(MapDto mapDto)
+        public async Task InsertOrMergeMap(LegacyMapDto mapDto)
         {
             var cloudEntity = new MapCloudEntity(mapDto);
             var operation = TableOperation.InsertOrMerge(cloudEntity);
             await MapsTable.ExecuteAsync(operation);
         }
 
-        public async Task InsertOrMergeMapVote(MapVoteDto mapVoteDto)
+        public async Task InsertOrMergeMapVote(LegacyMapVoteDto mapVoteDto)
         {
             var cloudEntity = new MapVoteCloudEntity(mapVoteDto);
             var operation = TableOperation.InsertOrMerge(cloudEntity);
             await MapVotesTable.ExecuteAsync(operation);
         }
 
-        public async Task<MapDto> GetMap(GameType gameType, string mapName)
+        public async Task<LegacyMapDto> GetMap(GameType gameType, string mapName)
         {
             var tableOperation = TableOperation.Retrieve<MapCloudEntity>(gameType.ToString(), mapName);
             var result = await MapsTable.ExecuteAsync(tableOperation);
@@ -51,7 +51,7 @@ namespace XI.Portal.Repository
             return maps.Count;
         }
 
-        public async Task<List<MapDto>> GetMaps(MapsQueryOptions queryOptions)
+        public async Task<List<LegacyMapDto>> GetMaps(MapsQueryOptions queryOptions)
         {
             var entityResults = new List<MapCloudEntity>();
             var query = new TableQuery<MapCloudEntity>().ApplyQueryOptions(queryOptions);

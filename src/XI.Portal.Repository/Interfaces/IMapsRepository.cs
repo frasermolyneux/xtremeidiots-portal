@@ -8,11 +8,11 @@ namespace XI.Portal.Repository.Interfaces
 {
     public interface IMapsRepository
     {
-        Task InsertOrMergeMap(MapDto mapDto);
-        Task InsertOrMergeMapVote(MapVoteDto mapVoteDto);
-        Task<MapDto> GetMap(GameType gameType, string mapName);
+        Task InsertOrMergeMap(LegacyMapDto mapDto);
+        Task InsertOrMergeMapVote(LegacyMapVoteDto mapVoteDto);
+        Task<LegacyMapDto> GetMap(GameType gameType, string mapName);
         Task<int> GetMapsCount(MapsQueryOptions queryOptions);
-        Task<List<MapDto>> GetMaps(MapsQueryOptions queryOptions);
+        Task<List<LegacyMapDto>> GetMaps(MapsQueryOptions queryOptions);
         Task RebuildMapVotes();
     }
 }

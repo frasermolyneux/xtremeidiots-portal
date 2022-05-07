@@ -129,7 +129,7 @@ namespace XI.Portal.Web.Controllers
                     }
             }
 
-            MapDto mapDto = null;
+            LegacyMapDto mapDto = null;
             if (gameServerStatusDto != null)
                 mapDto = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
@@ -155,10 +155,10 @@ namespace XI.Portal.Web.Controllers
         {
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
-            public MapDto Map { get; set; }
+            public LegacyMapDto Map { get; set; }
             public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
             public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
-            public List<MapDto> Maps { get; set; }
+            public List<LegacyMapDto> Maps { get; set; }
         }
 
         public class MapTimelineDataPoint

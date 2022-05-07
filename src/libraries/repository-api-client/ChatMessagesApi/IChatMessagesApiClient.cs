@@ -1,8 +1,12 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
-namespace XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
-
-public interface IChatMessagesApiClient
+namespace XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi
 {
-    Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage);
+    public interface IChatMessagesApiClient
+    {
+        Task<ChatMessageSearchEntryDto> GetChatMessage(string accessToken, Guid id);
+        Task CreateChatMessage(string accessToken, ChatMessageDto chatMessage);
+        Task<ChatMessageSearchResponseDto> SearchChatMessages(string accessToken, GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order);
+    }
 }

@@ -120,6 +120,14 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'webapi-portal-application-audience'
           value: 'api://portal-repository-api-${parEnvironment}'
         }
+        {
+          name: 'map-redirect-base-url'
+          value: 'https://redirect.xtremeidiots.net'
+        }
+        {
+          name: 'map-redirect-api-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=map-redirect-api-key)'
+        }
       ]
     }
   }

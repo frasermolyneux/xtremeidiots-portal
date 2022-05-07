@@ -74,7 +74,7 @@ namespace XI.Portal.FuncApp
                         {
                             log.LogDebug("Map {MapName} map file count differs", mapDto.MapName);
 
-                            mapDto.MapFiles = mapFiles.Select(mf => new MapFileDto
+                            mapDto.MapFiles = mapFiles.Select(mf => new LegacyMapFileDto
                             {
                                 FileName = mf,
                                 Url = $"https://redirect.xtremeidiots.net/redirect/{mapDto.GameType.ToRedirectShortName()}/usermaps/{mapDto.MapName}/{mf}"
@@ -90,7 +90,7 @@ namespace XI.Portal.FuncApp
                             {
                                 if (mapDto.TotalVotes > 0)
                                 {
-                                    mapDto.MapFiles = new List<MapFileDto>();
+                                    mapDto.MapFiles = new List<LegacyMapFileDto>();
                                     await _mapsRepository.InsertOrMergeMap(mapDto);
                                 }
                             }
@@ -107,11 +107,11 @@ namespace XI.Portal.FuncApp
 
                         var mapFiles = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).ToList();
 
-                        var mapDto = new MapDto
+                        var mapDto = new LegacyMapDto
                         {
                             GameType = game.Key,
                             MapName = mapRedirectEntry.MapName,
-                            MapFiles = mapFiles.Select(mf => new MapFileDto
+                            MapFiles = mapFiles.Select(mf => new LegacyMapFileDto
                             {
                                 FileName = mf,
                                 Url = $"https://redirect.xtremeidiots.net/redirect/{game.Key.ToRedirectShortName()}/usermaps/{mapRedirectEntry.MapName}/{mf}"

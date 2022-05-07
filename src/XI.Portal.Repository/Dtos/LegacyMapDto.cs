@@ -3,7 +3,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository.Dtos
 {
-    public class MapDto
+    public class LegacyMapDto
     {
         public GameType GameType { get; set; }
         public string MapName { get; set; }
@@ -12,6 +12,6 @@ namespace XI.Portal.Repository.Dtos
         public int TotalVotes { get; set; }
         public double PositivePercentage { get; set; }
         public double NegativePercentage { get; set; }
-        public List<MapFileDto> MapFiles { get; set; }
+        public List<LegacyMapFileDto> MapFiles { get; set; }
     }
 }

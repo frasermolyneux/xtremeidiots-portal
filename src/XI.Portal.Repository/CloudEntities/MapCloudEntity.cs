@@ -18,7 +18,7 @@ namespace XI.Portal.Repository.CloudEntities
             RowKey = mapName;
         }
 
-        public MapCloudEntity(MapDto mapDto)
+        public MapCloudEntity(LegacyMapDto mapDto)
         {
             PartitionKey = mapDto.GameType.ToString();
             RowKey = mapDto.MapName;
@@ -38,6 +38,6 @@ namespace XI.Portal.Repository.CloudEntities
         public double NegativePercentage { get; set; }
 
         [EntityJsonPropertyConverter]
-        public List<MapFileDto> MapFiles { get; set; }
+        public List<LegacyMapFileDto> MapFiles { get; set; }
     }
 }

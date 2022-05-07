@@ -11,9 +11,9 @@ namespace XI.Portal.Repository.Extensions
 {
     internal static class MapCloudEntityExtensions
     {
-        internal static MapDto ToDto(this MapCloudEntity mapCloudEntity)
+        internal static LegacyMapDto ToDto(this MapCloudEntity mapCloudEntity)
         {
-            return new MapDto
+            return new LegacyMapDto
             {
                 GameType = Enum.Parse<GameType>(mapCloudEntity.PartitionKey),
                 MapName = mapCloudEntity.RowKey,
@@ -22,7 +22,7 @@ namespace XI.Portal.Repository.Extensions
                 TotalVotes = mapCloudEntity.TotalVotes,
                 PositivePercentage = mapCloudEntity.PositivePercentage,
                 NegativePercentage = mapCloudEntity.NegativePercentage,
-                MapFiles = mapCloudEntity.MapFiles ?? new List<MapFileDto>()
+                MapFiles = mapCloudEntity.MapFiles ?? new List<LegacyMapFileDto>()
             };
         }
 

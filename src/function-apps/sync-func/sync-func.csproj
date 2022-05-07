@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -6,10 +6,13 @@
     <UserSecretsId>2ef03b04-3cd8-414c-9f40-f40dfdcf902a</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
+    <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>

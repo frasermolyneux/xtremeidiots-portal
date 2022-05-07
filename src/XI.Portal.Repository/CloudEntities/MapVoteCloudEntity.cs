@@ -20,7 +20,7 @@ namespace XI.Portal.Repository.CloudEntities
             Like = like;
         }
 
-        public MapVoteCloudEntity(MapVoteDto mapVoteDto)
+        public MapVoteCloudEntity(LegacyMapVoteDto mapVoteDto)
         {
             PartitionKey = mapVoteDto.GameType.ToString();
             RowKey = $"{mapVoteDto.MapName}-{mapVoteDto.Guid}";

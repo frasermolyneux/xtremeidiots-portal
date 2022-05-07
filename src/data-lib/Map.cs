@@ -13,20 +13,20 @@ namespace XtremeIdiots.Portal.DataLib
     {
         public Map()
         {
-            MapFiles = new HashSet<MapFile>();
-            MapRotations = new HashSet<MapRotation>();
+            GameServerMaps = new HashSet<GameServerMap>();
             MapVotes = new HashSet<MapVote>();
         }
 
         [Key]
         public Guid MapId { get; set; }
         public int GameType { get; set; }
+        [Required]
         public string MapName { get; set; }
+        public string MapFiles { get; set; }
+        public string MapPopularity { get; set; }
 
-        [InverseProperty("MapMap")]
-        public virtual ICollection<MapFile> MapFiles { get; set; }
-        [InverseProperty("MapMap")]
-        public virtual ICollection<MapRotation> MapRotations { get; set; }
+        [InverseProperty("Map")]
+        public virtual ICollection<GameServerMap> GameServerMaps { get; set; }
         [InverseProperty("MapMap")]
         public virtual ICollection<MapVote> MapVotes { get; set; }
     }

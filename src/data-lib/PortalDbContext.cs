@@ -29,11 +29,11 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<FileMonitor> FileMonitors { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
         public virtual DbSet<GameServerEvent> GameServerEvents { get; set; }
+        public virtual DbSet<GameServerMap> GameServerMaps { get; set; }
+        public virtual DbSet<GameServerStat> GameServerStats { get; set; }
         public virtual DbSet<LivePlayer> LivePlayers { get; set; }
         public virtual DbSet<LivePlayerLocation> LivePlayerLocations { get; set; }
         public virtual DbSet<Map> Maps { get; set; }
-        public virtual DbSet<MapFile> MapFiles { get; set; }
-        public virtual DbSet<MapRotation> MapRotations { get; set; }
         public virtual DbSet<MapVote> MapVotes { get; set; }
         public virtual DbSet<Player2> Player2s { get; set; }
         public virtual DbSet<PlayerAlias> PlayerAliases { get; set; }
@@ -170,6 +170,31 @@ namespace XtremeIdiots.Portal.DataLib
                     .HasConstraintName("FK_GameServerEvents_GameServer");
             });
 
+            modelBuilder.Entity<GameServerMap>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.GameServerMaps)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_GameServerMaps_GameServer");
+
+                entity.HasOne(d => d.Map)
+                    .WithMany(p => p.GameServerMaps)
+                    .HasForeignKey(d => d.MapId)
+                    .HasConstraintName("FK_GameServerMaps_Map");
+            });
+
+            modelBuilder.Entity<GameServerStat>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.GameServerStats)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_GameServerStats_GameServer");
+            });
+
             modelBuilder.Entity<LivePlayer>(entity =>
             {
                 entity.Property(e => e.LivePlayerId).HasDefaultValueSql("newsequentialid()");
@@ -188,31 +213,6 @@ namespace XtremeIdiots.Portal.DataLib
             modelBuilder.Entity<Map>(entity =>
             {
                 entity.Property(e => e.MapId).HasDefaultValueSql("newsequentialid()");
-            });
-
-            modelBuilder.Entity<MapFile>(entity =>
-            {
-                entity.Property(e => e.MapFileId).HasDefaultValueSql("newsequentialid()");
-
-                entity.HasOne(d => d.MapMap)
-                    .WithMany(p => p.MapFiles)
-                    .HasForeignKey(d => d.MapMapId)
-                    .HasConstraintName("FK_dbo.MapFiles_dbo.Maps_Map_MapId");
-            });
-
-            modelBuilder.Entity<MapRotation>(entity =>
-            {
-                entity.Property(e => e.MapRotationId).HasDefaultValueSql("newsequentialid()");
-
-                entity.HasOne(d => d.GameServerServer)
-                    .WithMany(p => p.MapRotations)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.MapRotations_dbo.GameServers_GameServer_ServerId");
-
-                entity.HasOne(d => d.MapMap)
-                    .WithMany(p => p.MapRotations)
-                    .HasForeignKey(d => d.MapMapId)
-                    .HasConstraintName("FK_dbo.MapRotations_dbo.Maps_Map_MapId");
             });
 
             modelBuilder.Entity<MapVote>(entity =>

@@ -58,7 +58,15 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[GameServerMaps]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[GameServers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[GameServerStats]",
          "ObjectType": 0
       },
       {
@@ -67,14 +75,6 @@
       },
       {
          "Name": "[dbo].[LivePlayers]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[MapFiles]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[MapRotations]",
          "ObjectType": 0
       },
       {

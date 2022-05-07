@@ -201,14 +201,6 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\MapFiles.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
-    <Build Include="dbo\Tables\MapRotations.sql">
-      <AnsiNulls>On</AnsiNulls>
-      <QuotedIdentifier>On</QuotedIdentifier>
-    </Build>
     <Build Include="dbo\Tables\Maps.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
@@ -224,6 +216,8 @@
     <Build Include="Storage\fts_chatlogs.sql" />
     <Build Include="FullTextIndexes.sql" />
     <Build Include="dbo\Tables\GameServerEvents.sql" />
+    <Build Include="dbo\Tables\GameServerMaps.sql" />
+    <Build Include="dbo\Tables\GameServerStats.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeploymentPermissions.sql" />

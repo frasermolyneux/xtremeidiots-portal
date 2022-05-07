@@ -96,7 +96,7 @@
             @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
             {
                 <li class="@Html.IsSelected(action: "GameChatLog", id: game.ToString())">
-                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game ChatLog</a>
+                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game.ShortDisplayName() ChatLog</a>
                 </li>
             }
         }

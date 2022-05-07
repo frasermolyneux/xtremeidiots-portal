@@ -251,7 +251,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GameChatLog(string id)
+        public async Task<IActionResult> GameChatLog(GameType id)
         {
             var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
 

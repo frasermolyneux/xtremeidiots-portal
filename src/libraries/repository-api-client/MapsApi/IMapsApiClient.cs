@@ -14,5 +14,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
         Task<MapDto> UpdateMap(string accessToken, MapDto mapDto);
 
         Task DeleteMap(string accessToken, Guid mapId);
+        Task RebuildMapPopularity(string accessToken);
     }
 }

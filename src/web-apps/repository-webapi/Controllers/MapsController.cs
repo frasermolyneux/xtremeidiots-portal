@@ -170,6 +170,34 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(result);
         }
 
+        [HttpPost]
+        [Route("api/maps/popularity")]
+        public async Task<IActionResult> RebuildMapPopularity()
+        {
+            var maps = await Context.Maps.Include(m => m.MapVotes).ToListAsync();
+
+            foreach (var map in maps)
+            {
+                map.TotalLikes = map.MapVotes.Count(mv => mv.Like);
+                map.TotalDislikes = map.MapVotes.Count(mv => !mv.Like);
+                map.TotalVotes = map.MapVotes.Count;
+
+                if (map.TotalVotes > 0)
+                {
+                    map.LikePercentage = (double)map.TotalLikes / map.TotalVotes * 100;
+                    map.DislikePercentage = (double)map.TotalDislikes / map.TotalVotes * 100;
+                }
+                else
+                {
+                    map.LikePercentage = 0;
+                    map.DislikePercentage = 0;
+                }
+            }
+
+            await Context.SaveChangesAsync();
+            return new OkResult();
+        }
+
         private IQueryable<Map> ApplySearchFilter(IQueryable<Map> maps, GameType gameType, string[]? mapNames, string? filterString)
         {
             maps = maps.AsQueryable();

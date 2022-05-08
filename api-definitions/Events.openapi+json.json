@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Events",
+        "title": "Events API",
         "description": "",
         "version": "1.0"
     },
@@ -122,6 +122,17 @@
                 "responses": {
                     "200": {
                         "description": "null"
+                    }
+                }
+            }
+        },
+        "/OnMapVote": {
+            "post": {
+                "summary": "OnMapVote",
+                "operationId": "OnMapVote",
+                "responses": {
+                    "200": {
+                        "description": null
                     }
                 }
             }

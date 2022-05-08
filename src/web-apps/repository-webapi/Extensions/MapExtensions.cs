@@ -12,7 +12,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
             {
                 MapId = map.MapId,
                 GameType = map.GameType.ToGameType(),
-                MapName = map.MapName
+                MapName = map.MapName,
+                TotalLikes = map.TotalLikes,
+                TotalDislikes = map.TotalDislikes,
+                TotalVotes = map.TotalVotes,
+                LikePercentage = map.LikePercentage,
+                DislikePercentage = map.DislikePercentage
             };
 
             if (!string.IsNullOrEmpty(map.MapFiles))

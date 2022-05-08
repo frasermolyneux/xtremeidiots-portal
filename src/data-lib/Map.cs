@@ -22,7 +22,11 @@ namespace XtremeIdiots.Portal.DataLib
         public int GameType { get; set; }
         public string MapName { get; set; }
         public string MapFiles { get; set; }
-        public string MapPopularity { get; set; }
+        public int TotalLikes { get; set; }
+        public int TotalDislikes { get; set; }
+        public int TotalVotes { get; set; }
+        public double LikePercentage { get; set; }
+        public double DislikePercentage { get; set; }
 
         [InverseProperty("Map")]
         public virtual ICollection<GameServerMap> GameServerMaps { get; set; }

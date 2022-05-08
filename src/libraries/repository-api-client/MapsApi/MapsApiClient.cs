@@ -130,5 +130,11 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
+
+        public async Task RebuildMapPopularity(string accessToken)
+        {
+            var request = CreateRequest($"repository/maps/popularity", Method.Post, accessToken);
+            await ExecuteAsync(request);
+        }
     }
 }

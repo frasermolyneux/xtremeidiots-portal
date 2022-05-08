@@ -131,6 +131,45 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(response);
         }
 
+        [HttpPut]
+        [Route("api/maps")]
+        public async Task<IActionResult> UpdateMaps()
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            List<MapDto>? mapDtos;
+            try
+            {
+                mapDtos = JsonConvert.DeserializeObject<List<MapDto>>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
+
+            if (mapDtos == null || mapDtos.Count == 0)
+                return new BadRequestResult();
+
+            var mapIds = mapDtos.Select(m => m.MapId).ToArray();
+
+            var maps = await Context.Maps.Where(m => mapIds.Contains(m.MapId)).ToListAsync();
+            foreach (var mapDto in mapDtos)
+            {
+                var map = maps.SingleOrDefault(m => m.MapId == mapDto.MapId);
+
+                if (map == null)
+                    return new BadRequestResult();
+
+                map.MapFiles = JsonConvert.SerializeObject(mapDto.MapFiles);
+            }
+
+            await Context.SaveChangesAsync();
+
+            var result = maps.Select(m => m.ToDto());
+
+            return new OkObjectResult(result);
+        }
+
         private IQueryable<Map> ApplySearchFilter(IQueryable<Map> maps, GameType gameType, string[]? mapNames, string? filterString)
         {
             maps = maps.AsQueryable();

@@ -2,5 +2,9 @@
 {
     public enum MapsOrder
     {
+        MapNameAsc,
+        MapNameDesc,
+        GameTypeAsc,
+        GameTypeDesc
     }
 }

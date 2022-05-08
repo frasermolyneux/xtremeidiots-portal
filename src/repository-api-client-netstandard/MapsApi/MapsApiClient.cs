@@ -71,7 +71,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapDto?> GetMap(string accessToken, string gameType, string mapName)
+        public async Task<MapDto?> GetMap(string accessToken, GameType gameType, string mapName)
         {
             var request = CreateRequest($"repository/maps/{gameType}/{mapName}", Method.GET, accessToken);
             var response = await ExecuteAsync(request);
@@ -156,10 +156,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
             await ExecuteAsync(request);
         }
 
-        public async Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like)
+        public async Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null)
         {
             var request = CreateRequest($"repository/maps/{mapId}/popularity/{playerId}", Method.POST, accessToken);
             request.AddQueryParameter("like", like.ToString());
+
+            if (overrideCreated != null)
+                request.AddQueryParameter("overrideCreated", overrideCreated.ToString());
+
             await ExecuteAsync(request);
         }
     }

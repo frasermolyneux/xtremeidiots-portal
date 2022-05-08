@@ -6,6 +6,7 @@ using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -56,13 +57,14 @@ public class PlayerEventsIngest
         if (string.IsNullOrWhiteSpace(onPlayerConnected.Guid))
             throw new Exception("OnPlayerConnected event contained null or empty 'Guid'");
 
+        if (!Enum.TryParse(onPlayerConnected.GameType, out GameType gameType))
+            throw new Exception("OnPlayerConnected event contained invalid 'GameType'");
+
         _log.LogInformation(
             $"ProcessOnPlayerConnected :: Username: '{onPlayerConnected.Username}', Guid: '{onPlayerConnected.Guid}'");
 
         var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-        var existingPlayer =
-            await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, onPlayerConnected.GameType,
-                onPlayerConnected.Guid);
+        var existingPlayer = await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, onPlayerConnected.Guid);
 
         if (existingPlayer == null)
         {
@@ -113,9 +115,12 @@ public class PlayerEventsIngest
         if (string.IsNullOrWhiteSpace(onChatMessage.Guid))
             throw new Exception("OnChatMessage event contained null or empty 'Guid'");
 
+        if (!Enum.TryParse(onChatMessage.GameType, out GameType gameType))
+            throw new Exception("OnChatMessage event contained invalid 'GameType'");
+
         _log.LogInformation($"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
 
-        var playerId = await GetPlayerId(onChatMessage.GameType, onChatMessage.Guid);
+        var playerId = await GetPlayerId(gameType, onChatMessage.Guid);
 
         if (playerId != Guid.Empty)
         {
@@ -166,14 +171,17 @@ public class PlayerEventsIngest
         if (onMapVote.Like == null)
             throw new Exception("OnMapVote event contained null 'Like'");
 
+        if (!Enum.TryParse(onMapVote.GameType, out GameType gameType))
+            throw new Exception("OnMapVote event contained invalid 'GameType'");
+
         _log.LogInformation($"ProcessOnMapVote ::  Guid: '{onMapVote.Guid}', Map Name: '{onMapVote.MapName}', Like: '{onMapVote.Like}'");
 
-        var playerId = await GetPlayerId(onMapVote.GameType, onMapVote.Guid);
+        var playerId = await GetPlayerId(gameType, onMapVote.Guid);
 
         if (playerId != Guid.Empty)
         {
             var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-            var map = await _repositoryApiClient.Maps.GetMap(accessToken, onMapVote.GameType, onMapVote.MapName);
+            var map = await _repositoryApiClient.Maps.GetMap(accessToken, gameType, onMapVote.MapName);
 
             await _repositoryApiClient.Maps.UpsertMapVote(accessToken, map.MapId, playerId, (bool)onMapVote.Like);
         }
@@ -183,7 +191,7 @@ public class PlayerEventsIngest
         }
     }
 
-    private async Task<Guid> GetPlayerId(string gameType, string guid)
+    private async Task<Guid> GetPlayerId(GameType gameType, string guid)
     {
         var cacheKey = $"{gameType}-${guid}";
 

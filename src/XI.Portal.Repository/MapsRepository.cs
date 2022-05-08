@@ -108,5 +108,28 @@ namespace XI.Portal.Repository
                 await InsertOrMergeMap(mapDto);
             }
         }
+
+        public async Task<List<MapVoteCloudEntity>> GetMapVotes()
+        {
+            var maps = await GetMaps(new MapsQueryOptions());
+            var mapVotes = new List<MapVoteCloudEntity>();
+
+            foreach (var mapDto in maps)
+            {
+                var mapVotesQuery = new TableQuery<MapVoteCloudEntity>()
+                    .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition(nameof(MapVoteCloudEntity.PartitionKey), QueryComparisons.Equal, mapDto.GameType.ToString()), TableOperators.And,
+                        TableQuery.GenerateFilterCondition(nameof(MapVoteCloudEntity.MapName), QueryComparisons.Equal, mapDto.MapName)));
+
+                TableContinuationToken continuationToken = null;
+                do
+                {
+                    var tableQueryResult = await MapVotesTable.ExecuteQuerySegmentedAsync(mapVotesQuery, continuationToken);
+                    mapVotes.AddRange(tableQueryResult);
+                    continuationToken = tableQueryResult.ContinuationToken;
+                } while (continuationToken != null);
+            }
+
+            return mapVotes;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using XI.Portal.Repository.CloudEntities;
 using XI.Portal.Repository.Dtos;
 using XI.Portal.Repository.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
@@ -14,5 +15,6 @@ namespace XI.Portal.Repository.Interfaces
         Task<int> GetMapsCount(MapsQueryOptions queryOptions);
         Task<List<LegacyMapDto>> GetMaps(MapsQueryOptions queryOptions);
         Task RebuildMapVotes();
+        Task<List<MapVoteCloudEntity>> GetMapVotes();
     }
 }

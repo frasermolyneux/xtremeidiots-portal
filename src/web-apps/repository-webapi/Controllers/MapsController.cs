@@ -213,24 +213,33 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpPost]
         [Route("/api/maps/{mapId}/popularity/{playerId}")]
-        public async Task<IActionResult> GetMap(Guid mapId, Guid playerId, bool like)
+        public async Task<IActionResult> UpsertMapVote(Guid mapId, Guid playerId, bool like, DateTime? overrideCreated)
         {
             var mapVote = await Context.MapVotes
                 .SingleOrDefaultAsync(mv => mv.MapMapId == mapId && mv.PlayerPlayerId == playerId);
 
             if (mapVote == null)
             {
-                Context.MapVotes.Add(new MapVote
+                var mapVoteToAdd = new MapVote
                 {
                     MapMapId = mapId,
                     PlayerPlayerId = playerId,
-                    Like = like
-                });
+                    Like = like,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                if (overrideCreated != null)
+                    mapVoteToAdd.Timestamp = (DateTime)overrideCreated;
+
+                Context.MapVotes.Add(mapVoteToAdd);
             }
             else
             {
                 if (mapVote.Like != like)
+                {
                     mapVote.Like = like;
+                    mapVote.Timestamp = DateTime.UtcNow;
+                }
             }
 
             await Context.SaveChangesAsync();

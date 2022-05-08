@@ -37,6 +37,8 @@ namespace XI.Portal.Players.Ingest
         {
             var skipTags = new[] { "[PBBAN]", "[B3BAN]", "[BANSYNC]", "[EXTERNAL]" };
 
+            var gameTypeEnum = Enum.Parse<GameType>(gameType);
+
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
             foreach (var line in remoteBanFileData.Split('\n'))
@@ -52,7 +54,7 @@ namespace XI.Portal.Players.Ingest
                     _logger.LogWarning($"Could not validate guid {guid} for {gameType}");
                     continue;
                 }
-                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameTypeEnum, guid);
 
                 if (player == null)
                 {
@@ -65,7 +67,7 @@ namespace XI.Portal.Players.Ingest
                         Guid = guid
                     });
 
-                    player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                    player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameTypeEnum, guid);
 
                     var adminActionDto = new AdminActionDto
                     {

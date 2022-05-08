@@ -95,7 +95,7 @@ namespace XI.Portal.Players.Ingest
             }
             else
             {
-                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType.ToString(), guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, guid);
 
                 if (player == null)
                 {

@@ -15,12 +15,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
 
         Task<MapDto> CreateMap(string accessToken, MapDto mapDto);
         Task<MapDto?> GetMap(string accessToken, Guid mapId);
-        Task<MapDto?> GetMap(string accessToken, string gameType, string mapName);
+        Task<MapDto?> GetMap(string accessToken, GameType gameType, string mapName);
         Task<MapDto> UpdateMap(string accessToken, MapDto mapDto);
 
         Task DeleteMap(string accessToken, Guid mapId);
         Task RebuildMapPopularity(string accessToken);
 
-        Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like);
+        Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null);
     }
 }

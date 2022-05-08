@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
@@ -74,7 +75,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid)
+        public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, GameType gameType, string guid)
         {
             var request = CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.GET, accessToken);
             var response = await ExecuteAsync(request);

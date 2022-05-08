@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
@@ -71,7 +72,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, string gameType, string guid)
+        public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, GameType gameType, string guid)
         {
             var request = CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.Get, accessToken);
             var response = await ExecuteAsync(request);

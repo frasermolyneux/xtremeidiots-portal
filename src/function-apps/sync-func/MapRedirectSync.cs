@@ -66,38 +66,47 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                 foreach (var mapRedirectEntry in mapRedirectEntries)
                 {
-                    if (mapRedirectEntry.MapFiles == null)
-                        mapRedirectEntry.MapFiles = new List<string>();
-
                     var mapDto = mapsResponseDto.Entries.SingleOrDefault(m => m.GameType == game.Key && m.MapName == mapRedirectEntry.MapName);
 
                     if (mapDto == null)
                     {
-                        mapDtosToCreate.Add(new MapDto
+                        var mapDtoToCreate = new MapDto
                         {
                             MapName = mapRedirectEntry.MapName,
-                            GameType = game.Key,
-                            MapFiles = mapRedirectEntry.MapFiles?.Where(file => file.EndsWith(".iwd") || file.EndsWith(".ff")).Select(mf => new MapFileDto
+                            GameType = game.Key
+                        };
+
+                        if (mapRedirectEntry.MapFiles != null)
+                        {
+                            var files = mapRedirectEntry.MapFiles.Where(f => f.EndsWith(".iwd") || f.EndsWith(".ff")).ToList();
+                            if (files.Count > 0)
                             {
-                                FileName = mf,
-                                Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
-                            }).ToList(),
-                        });
+                                mapDtoToCreate.MapFiles = files.Select(mf => new MapFileDto
+                                {
+                                    FileName = mf,
+                                    Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
+                                }).ToList();
+                            }
+                        }
+
+                        mapDtosToCreate.Add(mapDtoToCreate);
                     }
                     else
                     {
-                        var mapFileCount = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") || file.EndsWith(".ff")).ToList();
-                        if (mapFileCount.Count != mapDto.MapFiles.Count)
+                        if (mapRedirectEntry.MapFiles != null)
                         {
-                            mapDto.MapFiles = mapRedirectEntry.MapFiles.Select(mf => new MapFileDto
+                            var files = mapRedirectEntry.MapFiles.Where(f => f.EndsWith(".iwd") || f.EndsWith(".ff")).ToList();
+                            if (files.Count > 0 && files.Count != mapDto.MapFiles.Count)
                             {
-                                FileName = mf,
-                                Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
-                            }).ToList();
+                                mapDto.MapFiles = files.Select(mf => new MapFileDto
+                                {
+                                    FileName = mf,
+                                    Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
+                                }).ToList();
 
-                            mapDtosToUpdate.Add(mapDto);
+                                mapDtosToUpdate.Add(mapDto);
+                            }
                         }
-
                     }
                 }
 

@@ -31,7 +31,6 @@ stages:
   jobs:
 
   - job: DeployRepositoryApiBicep
-    dependsOn: ['DeployRepositoryAppBicep']
     steps:
     - task: AzureCLI@2
       displayName: DeployRepositoryApiBicep

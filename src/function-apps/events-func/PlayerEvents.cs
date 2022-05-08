@@ -48,4 +48,24 @@ public class PlayerEvents
 
         return JsonConvert.SerializeObject(onChatMessage);
     }
+
+    [FunctionName("OnMapVote")]
+    [return: ServiceBus("map_vote_queue", Connection = "service-bus-connection-string")]
+    public static string OnMapVote([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
+    ILogger log)
+    {
+        OnMapVote onMapVote;
+        try
+        {
+            onMapVote = JsonConvert.DeserializeObject<OnMapVote>(input);
+        }
+        catch (Exception ex)
+        {
+            log.LogError($"OnMapVote Raw Input: '{input}'");
+            log.LogError(ex, "OnMapVote was not in expected format");
+            throw;
+        }
+
+        return JsonConvert.SerializeObject(onMapVote);
+    }
 }

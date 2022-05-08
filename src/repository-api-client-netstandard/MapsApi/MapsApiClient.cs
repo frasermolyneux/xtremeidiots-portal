@@ -71,6 +71,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
+        public async Task<MapDto?> GetMap(string accessToken, string gameType, string mapName)
+        {
+            var request = CreateRequest($"repository/maps/{gameType}/{mapName}", Method.GET, accessToken);
+            var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<MapDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
+
         public async Task<MapsResponseDto> GetMaps(string accessToken, GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
         {
             var request = CreateRequest("repository/maps", Method.GET, accessToken);
@@ -139,6 +153,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
         public async Task RebuildMapPopularity(string accessToken)
         {
             var request = CreateRequest($"repository/maps/popularity", Method.POST, accessToken);
+            await ExecuteAsync(request);
+        }
+
+        public async Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like)
+        {
+            var request = CreateRequest($"repository/maps/{mapId}/popularity/{playerId}", Method.POST, accessToken);
+            request.AddQueryParameter("like", like.ToString());
             await ExecuteAsync(request);
         }
     }

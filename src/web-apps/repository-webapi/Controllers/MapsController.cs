@@ -84,6 +84,19 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
+        [Route("/api/maps/{gameType}/{mapName}")]
+        public async Task<IActionResult> GetMap(GameType gameType, string mapName)
+        {
+            var map = await Context.Maps
+                .SingleOrDefaultAsync(m => m.GameType == gameType.ToGameTypeInt() && m.MapName == mapName);
+
+            if (map == null)
+                return NotFound();
+
+            return new OkObjectResult(map.ToDto());
+        }
+
+        [HttpGet]
         [Route("/api/maps")]
         public async Task<IActionResult> GetMaps(GameType? gameType, string? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
         {
@@ -195,6 +208,33 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             await Context.SaveChangesAsync();
+            return new OkResult();
+        }
+
+        [HttpPost]
+        [Route("/api/maps/{mapId}/popularity/{playerId}")]
+        public async Task<IActionResult> GetMap(Guid mapId, Guid playerId, bool like)
+        {
+            var mapVote = await Context.MapVotes
+                .SingleOrDefaultAsync(mv => mv.MapMapId == mapId && mv.PlayerPlayerId == playerId);
+
+            if (mapVote == null)
+            {
+                Context.MapVotes.Add(new MapVote
+                {
+                    MapMapId = mapId,
+                    PlayerPlayerId = playerId,
+                    Like = like
+                });
+            }
+            else
+            {
+                if (mapVote.Like != like)
+                    mapVote.Like = like;
+            }
+
+            await Context.SaveChangesAsync();
+
             return new OkResult();
         }
 

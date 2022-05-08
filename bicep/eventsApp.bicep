@@ -335,6 +335,13 @@ resource chatMessageServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021
   properties: {}
 }
 
+resource mapVoteServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
+  name: 'map_vote_queue'
+  parent: serviceBus
+
+  properties: {}
+}
+
 resource serverConnectedServiceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2021-11-01' = {
   name: 'server_connected_queue'
   parent: serviceBus

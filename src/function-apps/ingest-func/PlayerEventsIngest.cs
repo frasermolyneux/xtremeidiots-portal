@@ -138,6 +138,51 @@ public class PlayerEventsIngest
         }
     }
 
+    [FunctionName("ProcessOnMapVote")]
+    public async Task ProcessOnMapVote(
+     [ServiceBusTrigger("map_vote_queue", Connection = "service-bus-connection-string")]
+        string myQueueItem)
+    {
+        OnMapVote onMapVote;
+        try
+        {
+            onMapVote = JsonConvert.DeserializeObject<OnMapVote>(myQueueItem);
+        }
+        catch (Exception ex)
+        {
+            _log.LogError(ex, "OnMapVote was not in expected format");
+            throw;
+        }
+
+        if (onMapVote == null)
+            throw new Exception("OnMapVote event was null");
+
+        if (string.IsNullOrWhiteSpace(onMapVote.MapName))
+            throw new Exception("OnMapVote event contained null or empty 'MapName'");
+
+        if (string.IsNullOrWhiteSpace(onMapVote.Guid))
+            throw new Exception("OnMapVote event contained null or empty 'Guid'");
+
+        if (onMapVote.Like == null)
+            throw new Exception("OnMapVote event contained null 'Like'");
+
+        _log.LogInformation($"ProcessOnMapVote ::  Guid: '{onMapVote.Guid}', Map Name: '{onMapVote.MapName}', Like: '{onMapVote.Like}'");
+
+        var playerId = await GetPlayerId(onMapVote.GameType, onMapVote.Guid);
+
+        if (playerId != Guid.Empty)
+        {
+            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
+            var map = await _repositoryApiClient.Maps.GetMap(accessToken, onMapVote.GameType, onMapVote.MapName);
+
+            await _repositoryApiClient.Maps.UpsertMapVote(accessToken, map.MapId, playerId, (bool)onMapVote.Like);
+        }
+        else
+        {
+            _log.LogWarning($"ProcessOnMapVote :: NOPLAYER :: Guid: '{onMapVote.Guid}', Map Name: '{onMapVote.MapName}', Like: '{onMapVote.Like}'");
+        }
+    }
+
     private async Task<Guid> GetPlayerId(string gameType, string guid)
     {
         var cacheKey = $"{gameType}-${guid}";

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -30,7 +32,7 @@ namespace XI.Portal.FuncApp
         }
 
         [FunctionName("MapVoteTransfer")]
-        public async Task RunMapVoteTransfer(ILogger log)
+        public async Task RunMapVoteTransfer([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var mapVotes = await _mapsRepository.GetMapVotes();

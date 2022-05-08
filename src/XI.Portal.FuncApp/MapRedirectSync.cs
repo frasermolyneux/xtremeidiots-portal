@@ -48,7 +48,7 @@ namespace XI.Portal.FuncApp
 
                     foreach (var mapVote in gameMapVotes)
                     {
-                        var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, mapVote.RowKey);
+                        var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, mapVote.Guid);
 
                         if (player != null)
                         {

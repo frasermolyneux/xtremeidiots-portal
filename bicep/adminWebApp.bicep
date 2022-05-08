@@ -35,7 +35,7 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
 
 // Module Resources
 resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
-  name: 'apiManagementSubscription'
+  name: '${apiManagement.name}-${varTempAdminWebAppName}-subscription'
   parent: apiManagement
 
   properties: {

@@ -18,7 +18,7 @@ public class RepositoryTokenProvider : IRepositoryTokenProvider
 
     public async Task<string> GetRepositoryAccessToken()
     {
-        var tokenCredential = new ManagedIdentityCredential();
+        var tokenCredential = new DefaultAzureCredential();
 
         AccessToken accessToken;
         try

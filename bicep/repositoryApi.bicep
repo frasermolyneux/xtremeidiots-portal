@@ -210,11 +210,11 @@ resource repositoryApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021
           <issuers>
               <issuer>https://sts.windows.net/{{tenant-id}}/</issuer>
           </issuers>
-          <required-claims>
+          <!--<required-claims>
               <claim name="roles" match="any">
                 <value>ServiceAccount</value>
               </claim>
-          </required-claims>
+          </required-claims>-->
       </validate-jwt>
   </inbound>
   <backend>

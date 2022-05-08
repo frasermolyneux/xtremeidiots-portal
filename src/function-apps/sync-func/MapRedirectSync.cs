@@ -54,9 +54,6 @@ namespace XtremeIdiots.Portal.SyncFunc
 
             var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
 
-            //As terrible as this is I need to see the token returned as something is wrong
-            log.LogInformation($"TOKEN :: {accessToken}");
-
             foreach (var game in gamesToSync)
             {
                 var mapRedirectEntries = MapRedirectRepository.GetMapEntriesForGame(game.Value);

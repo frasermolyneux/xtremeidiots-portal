@@ -102,8 +102,11 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                 log.LogInformation($"Creating {mapDtosToCreate.Count} new maps and updating {mapDtosToUpdate.Count} existing maps");
 
-                await RepositoryApiClient.Maps.CreateMaps(accessToken, mapDtosToCreate);
-                await RepositoryApiClient.Maps.UpdateMaps(accessToken, mapDtosToUpdate);
+                if (mapDtosToCreate.Count > 0)
+                    await RepositoryApiClient.Maps.CreateMaps(accessToken, mapDtosToCreate);
+
+                if (mapDtosToUpdate.Count > 0)
+                    await RepositoryApiClient.Maps.UpdateMaps(accessToken, mapDtosToUpdate);
             }
 
             stopWatch.Stop();

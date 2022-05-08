@@ -9,6 +9,8 @@ namespace XtremeIdiots.Portal.SyncFunc.Redirect
         {
             if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 
+            serviceCollection.Configure(configureOptions);
+
             serviceCollection.AddSingleton(configureOptions);
             serviceCollection.AddScoped<IMapRedirectRepository, MapRedirectRepository>();
 

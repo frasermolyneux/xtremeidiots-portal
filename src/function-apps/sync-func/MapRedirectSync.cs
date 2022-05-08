@@ -66,6 +66,9 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                 foreach (var mapRedirectEntry in mapRedirectEntries)
                 {
+                    if (mapRedirectEntry.MapFiles == null)
+                        mapRedirectEntry.MapFiles = new List<string>();
+
                     var mapDto = mapsResponseDto.Entries.SingleOrDefault(m => m.GameType == game.Key && m.MapName == mapRedirectEntry.MapName);
 
                     if (mapDto == null)

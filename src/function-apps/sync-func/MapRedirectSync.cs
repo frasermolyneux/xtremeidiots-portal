@@ -77,7 +77,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                         {
                             MapName = mapRedirectEntry.MapName,
                             GameType = game.Key,
-                            MapFiles = mapRedirectEntry.MapFiles?.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).Select(mf => new MapFileDto
+                            MapFiles = mapRedirectEntry.MapFiles?.Where(file => file.EndsWith(".iwd") || file.EndsWith(".ff")).Select(mf => new MapFileDto
                             {
                                 FileName = mf,
                                 Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                     }
                     else
                     {
-                        var mapFileCount = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") | file.EndsWith(".ff")).ToList();
+                        var mapFileCount = mapRedirectEntry.MapFiles.Where(file => file.EndsWith(".iwd") || file.EndsWith(".ff")).ToList();
                         if (mapFileCount.Count != mapDto.MapFiles.Count)
                         {
                             mapDto.MapFiles = mapRedirectEntry.MapFiles.Select(mf => new MapFileDto

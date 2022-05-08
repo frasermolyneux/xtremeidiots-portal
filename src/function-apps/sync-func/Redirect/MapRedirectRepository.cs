@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -8,9 +9,9 @@ namespace XtremeIdiots.Portal.SyncFunc.Redirect
 {
     public class MapRedirectRepository : IMapRedirectRepository
     {
-        private readonly IMapRedirectRepositoryOptions _options;
+        private readonly IOptions<IMapRedirectRepositoryOptions> _options;
 
-        public MapRedirectRepository(IMapRedirectRepositoryOptions options)
+        public MapRedirectRepository(IOptions<IMapRedirectRepositoryOptions> options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }
@@ -19,7 +20,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Redirect
         {
             using (var client = new WebClient())
             {
-                var content = client.DownloadString($"{_options.MapRedirectBaseUrl}/portal-map-sync.php?game={game}&key={_options.ApiKey}");
+                var content = client.DownloadString($"{_options.Value.MapRedirectBaseUrl}/portal-map-sync.php?game={game}&key={_options.Value.ApiKey}");
                 return JsonConvert.DeserializeObject<List<MapRedirectEntry>>(content);
             }
         }

@@ -78,7 +78,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                         if (mapRedirectEntry.MapFiles != null)
                         {
-                            var files = mapRedirectEntry.MapFiles.Where(f => f.EndsWith(".iwd") || f.EndsWith(".ff")).ToList();
+                            var files = mapRedirectEntry.MapFiles.Where(f => !string.IsNullOrWhiteSpace(f) && (f.EndsWith(".iwd") || f.EndsWith(".ff"))).ToList();
                             if (files.Count > 0)
                             {
                                 mapDtoToCreate.MapFiles = files.Select(mf => new MapFileDto
@@ -95,7 +95,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         if (mapRedirectEntry.MapFiles != null)
                         {
-                            var files = mapRedirectEntry.MapFiles.Where(f => f.EndsWith(".iwd") || f.EndsWith(".ff")).ToList();
+                            var files = mapRedirectEntry.MapFiles.Where(f => !string.IsNullOrWhiteSpace(f) && (f.EndsWith(".iwd") || f.EndsWith(".ff"))).ToList();
                             if (files.Count > 0 && files.Count != mapDto.MapFiles.Count)
                             {
                                 mapDto.MapFiles = files.Select(mf => new MapFileDto

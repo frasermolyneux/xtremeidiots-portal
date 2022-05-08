@@ -9,9 +9,9 @@ namespace XtremeIdiots.Portal.SyncFunc.Redirect
 {
     public class MapRedirectRepository : IMapRedirectRepository
     {
-        private readonly IOptions<IMapRedirectRepositoryOptions> _options;
+        private readonly IOptions<MapRedirectRepositoryOptions> _options;
 
-        public MapRedirectRepository(IOptions<IMapRedirectRepositoryOptions> options)
+        public MapRedirectRepository(IOptions<MapRedirectRepositoryOptions> options)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
         }

@@ -5,7 +5,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Redirect
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddMapRedirectRepository(this IServiceCollection serviceCollection, Action<IMapRedirectRepositoryOptions> configureOptions)
+        public static void AddMapRedirectRepository(this IServiceCollection serviceCollection, Action<MapRedirectRepositoryOptions> configureOptions)
         {
             if (configureOptions == null) throw new ArgumentNullException(nameof(configureOptions));
 

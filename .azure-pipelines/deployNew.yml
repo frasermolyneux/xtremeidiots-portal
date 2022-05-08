@@ -1,0 +1,316 @@
+trigger: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  appServicePlan: 'plan-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  serviceBus: 'sb-portal-prd-uksouth-01'
+  eventsApiAppName: 'portal-events-api-prd'
+  repositoryApiName: 'portal-repository-api-prd'
+  eventsFunctionAppName: 'fn-events-portal-prd-uksouth-01'
+  ingestFunctionAppName: 'fn-ingest-portal-prd-uksouth-01'
+  repositoryWebAppName: 'webapi-repository-portal-prd-uksouth-01'
+  repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
+  syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
+  adminWebAppName: 'webapp-admin-portal-prd-uksouth-01'
+  sqlServerName: 'sql-portal-prd-uksouth-01'
+  sqlServerDomainName: 'sql-portal-prd-uksouth-01.database.windows.net'
+  sqlAdminGroupName: 'sg-sql-portal-prd-admins'
+
+stages: 
+- stage: Build
+  jobs:
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildEventsFunctionApp'
+      projectName: 'events-func'
+      publishArtifact: true
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      dependsOn: ['BuildEventsFunctionApp']
+      jobName: 'BuildIngestFunctionApp'
+      projectName: 'ingest-func'
+      publishArtifact: true
+
+  - template: templates/build-web-app.yml
+    parameters: 
+      dependsOn: ['BuildIngestFunctionApp']
+      jobName: 'BuildRepositoryWebApi'
+      projectName: 'repository-webapi'
+      nugetConfigPath: './src/nuget.config'
+      publishArtifact: true
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      dependsOn: ['BuildRepositoryWebApi']
+      jobName: 'BuildRepositoryFunctionApp'
+      projectName: 'repository-func'
+      publishArtifact: true
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      dependsOn: ['BuildRepositoryFunctionApp']
+      jobName: 'BuildSyncFunctionApp'
+      projectName: 'sync-func'
+      publishArtifact: true
+
+  - template: templates/build-sql-database.yml
+    parameters:
+      dependsOn: ['BuildSyncFunctionApp']
+      publishArtifact: true
+
+- stage: DeployPrdCore
+
+  jobs:
+  - job: DeployAppRegistrations
+    steps:
+      - task: AzureCLI@2
+        displayName: Create Application Registrations
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
+
+      - task: AzureCLI@2
+        displayName: Create Application Credentials
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
+
+  - job: DeployPortalCoreBicep
+    dependsOn: [DeployAppRegistrations]
+    steps:
+      - task: AzureCLI@2
+        displayName: DeployPortalCoreBicep
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub create `
+            --template-file bicep/portalCore.bicep `
+            --location $(location) `
+            --parameters parLocation=$(location) parEnvironment=$(environment)
+
+- stage: DeployPrdInfrastructure
+
+  jobs:
+  - job: DeployDatabasePrdBicep
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $sqlPasswordSecretName = "sql-portal-$(environment)-$(location)-01-admin-password"
+          $sqlServerAdminPassword = (az keyvault secret show --name $sqlPasswordSecretName --vault-name $(keyVault) --query 'value') | ConvertFrom-Json
+          $adminGroupObjectId = (az ad group show --group $(sqlAdminGroupName) --query 'objectId')  | ConvertFrom-Json
+
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/sqlServer.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parAdminPassword=$sqlServerAdminPassword `
+              parKeyVaultName=$(keyVault) `
+              parAdminGroupName=$(sqlAdminGroupName) `
+              parAdminGroupOid=$adminGroupObjectId
+
+    - task: AzureCLI@2
+      displayName: CreateSqlServerRoleAssignment
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        arguments: '$(sqlServerName) $(resourceGroup)'
+        scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
+
+  - job: DeployRepositoryAppBicep
+    dependsOn: ['DeployDatabasePrdBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployRepositoryAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/repositoryApp.bicep `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+  - job: DeployRepositoryApiBicep
+    dependsOn: ['DeployRepositoryAppBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployRepositoryApiBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $repositoryApiAppId = (az ad app list --filter "displayName eq '$(repositoryApiName)'" --query '[].appId') | ConvertFrom-Json
+          
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/repositoryApi.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parSqlServerName=$(sqlServerName) `
+              parRepositoryApiAppId=$repositoryApiAppId
+
+  - job: DeployIngestAppBicep
+    dependsOn: ['DeployRepositoryApiBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployIngestAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/ingestApp.bicep `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+  - job: DeployEventsAppBicep
+    dependsOn: ['DeployIngestAppBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployEventsAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $eventsApiAppId = (az ad app list --filter "displayName eq '$(eventsApiAppName)'" --query '[].appId') | ConvertFrom-Json
+
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/eventsApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus) `
+              parEventsApiAppId=$eventsApiAppId
+
+  - job: DeploySyncAppBicep
+    dependsOn: ['DeployEventsAppBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeploySyncAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/syncApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+  - job: DeployAdminWebAppBicep
+    dependsOn: ['DeploySyncAppBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployAdminWebAppBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/adminWebApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServiceBusName=$(serviceBus)
+
+- stage: DeployPrdAppsAndDatabase
+
+  jobs:
+  - template: templates/deploy-sql-database.yml
+    parameters:
+      jobName: DeploySqlDatabase
+      serverName: $(sqlServerDomainName)
+      databaseName: 'portaldb'
+      environmentServiceNameAzureRM: $(subscription)
+      sqlCmdArgs: '/Variables:env=$(environment)'
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeploySqlDatabase']
+      projectName: events-func
+      jobName: DeployEventsFunctionApp
+      functionAppName: '$(eventsFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeployEventsFunctionApp']
+      projectName: ingest-func
+      jobName: DeployIngestFunctionApp
+      functionAppName: '$(ingestFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-web-app.yml
+    parameters:
+      dependsOn: ['DeployIngestFunctionApp']
+      projectName: repository-webapi
+      jobName: DeployRepositoryWebApi
+      webAppName: '$(repositoryWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeployRepositoryWebApi']
+      projectName: repository-func
+      jobName: DeployRepositoryFunctionApp
+      functionAppName: '$(repositoryFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeployRepositoryFunctionApp']
+      projectName: sync-func
+      jobName: DeploySyncFunctionApp
+      functionAppName: '$(syncFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)

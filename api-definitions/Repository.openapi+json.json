@@ -824,6 +824,24 @@
                         "description": "null"
                     }
                 }
+            },
+            "post": {
+                "summary": "maps",
+                "operationId": "post-maps",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "put": {
+                "summary": "maps",
+                "operationId": "put-maps",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
             }
         },
         "/maps/{game-type}/{map-name}": {
@@ -1120,6 +1138,7 @@
         "/demos": {
             "get": {
                 "summary": "demos",
+                "description": "demos",
                 "operationId": "get-demos",
                 "parameters": [
                     {
@@ -1167,16 +1186,17 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "post": {
                 "summary": "demos",
+                "description": "demos",
                 "operationId": "demos",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1184,6 +1204,7 @@
         "/demos/{demo-id}": {
             "get": {
                 "summary": "demos/{demo-id}",
+                "description": "demos/{demo-id}",
                 "operationId": "get-demos-demo-id",
                 "parameters": [
                     {
@@ -1197,12 +1218,13 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "delete": {
                 "summary": "demos/{demo-id}",
+                "description": "demos/{demo-id}",
                 "operationId": "delete-demos-demo-id",
                 "parameters": [
                     {
@@ -1211,6 +1233,27 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/maps/{map-id}": {
+            "get": {
+                "summary": "maps/{map-id}",
+                "operationId": "get-maps-map-id",
+                "parameters": [
+                    {
+                        "name": "map-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
                         }
                     }
                 ],

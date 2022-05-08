@@ -15,13 +15,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 MapName = map.MapName
             };
 
-            if (string.IsNullOrEmpty(map.MapFiles))
+            if (!string.IsNullOrEmpty(map.MapFiles))
             {
                 var mapFileDtos = JsonConvert.DeserializeObject<List<MapFileDto>>(map.MapFiles);
                 if (mapFileDtos != null)
                     dto.MapFiles = mapFileDtos;
                 else
                     dto.MapFiles = new List<MapFileDto>();
+            }
+            else
+            {
+                dto.MapFiles = new List<MapFileDto>();
             }
 
             return dto;

@@ -29,6 +29,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.17" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.17" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.13" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />

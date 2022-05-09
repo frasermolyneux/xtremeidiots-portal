@@ -40,26 +40,29 @@ namespace XI.Portal.FuncApp
         public async Task RunMapVoteTransfer([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var mapVotes = await _mapsRepository.GetMapVotes();
+            var allMapVotes = await _mapsRepository.GetMapVotes();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromHours(3));
 
-            log.LogInformation($"Migrating {mapVotes.Count} legacy map votes");
+            log.LogInformation($"Migrating {allMapVotes.Count} legacy map votes");
 
             foreach (var gameType in new[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 })
             {
-                var gameMapVotes = mapVotes.Where(mv => mv.PartitionKey == gameType.ToString()).ToList();
+                var gameMapVotes = allMapVotes.Where(mv => mv.PartitionKey == gameType.ToString()).ToList();
                 var migratedMaps = GetMigratedMapsForGame(gameType);
 
                 var maps = gameMapVotes.Select(mv => mv.MapName).Distinct().Where(m => !migratedMaps.Contains(m)).ToList();
 
-                log.LogInformation($"Processing {gameType}; {gameMapVotes.Count} total votes, {migratedMaps.Count} already migrated, {maps.Count} to migrate");
+                log.LogInformation($"Processing {gameType}; {gameMapVotes.Count} total votes, {migratedMaps.Count} maps already migrated, {maps.Count} maps to migrate");
 
                 foreach (var map in maps.Take(10))
                 {
                     var mapDto = await repositoryApiClient.Maps.GetMap(accessToken, gameType, map);
+                    var mapVotes = gameMapVotes.Where(mv => mv.MapName == map).ToList();
 
-                    foreach (var mapVote in gameMapVotes)
+                    log.LogInformation($"Processing {gameType} / {map} which has {mapVotes.Count} map votes to migrate");
+
+                    foreach (var mapVote in mapVotes)
                     {
                         var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, mapVote.Guid);
 

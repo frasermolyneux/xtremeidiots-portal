@@ -41,7 +41,7 @@ namespace XI.Portal.FuncApp
         public async Task RunMapVoteTransfer([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromHours(3));
+            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromHours(8));
 
             if (!memoryCache.TryGetValue("allMapVotes", out List<MapVoteCloudEntity> allMapVotes))
             {

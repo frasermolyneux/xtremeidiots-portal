@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using XI.Portal.Repository.CloudEntities;
 using XI.Portal.Repository.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
@@ -40,9 +41,13 @@ namespace XI.Portal.FuncApp
         public async Task RunMapVoteTransfer([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req, ILogger log)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var allMapVotes = await _mapsRepository.GetMapVotes();
-
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromHours(3));
+
+            if (!memoryCache.TryGetValue("allMapVotes", out List<MapVoteCloudEntity> allMapVotes))
+            {
+                allMapVotes = await _mapsRepository.GetMapVotes();
+                memoryCache.Set("allMapVotes", allMapVotes, cacheEntryOptions);
+            }
 
             log.LogInformation($"Migrating {allMapVotes.Count} legacy map votes");
 

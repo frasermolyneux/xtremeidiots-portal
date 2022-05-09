@@ -73,7 +73,7 @@ namespace XI.Portal.FuncApp
 
                         if (player != null)
                         {
-                            await repositoryApiClient.Maps.UpsertMapVote(accessToken, mapDto.MapId, player.Id, mapVote.Like);
+                            await repositoryApiClient.Maps.UpsertMapVote(accessToken, mapDto.MapId, player.Id, mapVote.Like, mapVote.Timestamp.DateTime);
                         }
                     }
 

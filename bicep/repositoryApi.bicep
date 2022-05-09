@@ -55,7 +55,7 @@ resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobS
   name: 'map-images'
   parent: repositoryApiAppDataStorageAccountBlobServices
   properties: {
-    publicAccess: 'None'
+    publicAccess: 'Blob'
   }
 }
 

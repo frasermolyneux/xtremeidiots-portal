@@ -79,7 +79,7 @@ namespace XI.Portal.FuncApp
 
         private List<string> GetMigratedMapsForGame(GameType gameType)
         {
-            if (!memoryCache.TryGetValue(gameType, out List<string> maps))
+            if (memoryCache.TryGetValue(gameType, out List<string> maps))
             {
                 return maps;
             }

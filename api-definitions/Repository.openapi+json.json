@@ -5,6 +5,11 @@
         "description": "",
         "version": "1.0"
     },
+    "servers": [
+        {
+            "url": "https://apim-portal-prd-uksouth-01.azure-api.net/repository"
+        }
+    ],
     "paths": {
         "/game-servers/{server-id}": {
             "get": {
@@ -1212,10 +1217,11 @@
         "/maps/popularity": {
             "post": {
                 "summary": "maps/popularity",
+                "description": "maps/popularity",
                 "operationId": "post-maps-popularity",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1223,6 +1229,7 @@
         "/maps/{map-id}/popularity/{player-id}": {
             "post": {
                 "summary": "maps/{map-id}/popularity/{player-id}",
+                "description": "maps/{map-id}/popularity/{player-id}",
                 "operationId": "post-maps-map-id-popularity-player-id",
                 "parameters": [
                     {
@@ -1246,6 +1253,56 @@
                         "in": "query",
                         "schema": {
                             "type": "bool"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/maps/{map-id}/image": {
+            "get": {
+                "summary": "maps/{map-id}/image",
+                "operationId": "get-maps-map-id-image",
+                "parameters": [
+                    {
+                        "name": "map-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/maps/{game-type}/{map-name}/image": {
+            "get": {
+                "summary": "maps/{game-type}/{map-name}/image",
+                "operationId": "get-maps-game-type-map-name-image",
+                "parameters": [
+                    {
+                        "name": "game-type",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    },
+                    {
+                        "name": "map-name",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
                         }
                     }
                 ],

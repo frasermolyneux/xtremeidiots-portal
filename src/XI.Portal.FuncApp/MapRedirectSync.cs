@@ -60,7 +60,7 @@ namespace XI.Portal.FuncApp
 
                 log.LogInformation($"Processing {gameType}; {gameMapVotes.Count} total votes, {migratedMaps.Count} maps already migrated, {maps.Count} maps to migrate");
 
-                foreach (var map in maps.Take(20))
+                foreach (var map in maps)
                 {
                     var mapDto = await repositoryApiClient.Maps.GetMap(accessToken, gameType, map);
                     var mapVotes = gameMapVotes.Where(mv => mv.MapName == map).ToList();

@@ -35,6 +35,40 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
 }
 
 // Module Resources
+resource repositoryApiAppDataStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'sarepoappdata${parEnvironment}'
+  location: parLocation
+  kind: 'StorageV2'
+
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource repositoryApiAppDataStorageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  name: 'default'
+  parent: repositoryApiAppDataStorageAccount
+  properties: {}
+}
+
+resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  name: 'map-images'
+  parent: repositoryApiAppDataStorageAccountBlobServices
+  properties: {
+    publicAccess: 'None'
+  }
+}
+
+resource repositoryApiAppDataConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  name: '${repositoryApiAppDataStorageAccount.name}-connectionstring'
+  parent: keyVault
+
+  properties: {
+    contentType: 'text/plain'
+    value: 'DefaultEndpointsProtocol=https;AccountName=${repositoryApiAppDataStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(repositoryApiAppDataStorageAccount.id, repositoryApiAppDataStorageAccount.apiVersion).keys[0].value}'
+  }
+}
+
 resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   name: varRepositoryWebAppName
   location: parLocation
@@ -96,6 +130,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           'name': 'sql-connection-string'
           'value': 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
+        }
+        {
+          'name': 'appdata-storage-connectionstring'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
         }
       ]
     }

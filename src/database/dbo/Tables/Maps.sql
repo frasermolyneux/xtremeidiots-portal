@@ -2,6 +2,7 @@
     [MapId]    UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
     [GameType] INT              NOT NULL,
     [MapName]  NVARCHAR (MAX)   NULL,
+    [MapImageUri] NVARCHAR(MAX) NULL, 
     [MapFiles] NVARCHAR(MAX) NULL , 
     [TotalLikes] INT NOT NULL DEFAULT 0, 
     [TotalDislikes] INT NOT NULL DEFAULT 0, 

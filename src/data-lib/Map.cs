@@ -21,6 +21,7 @@ namespace XtremeIdiots.Portal.DataLib
         public Guid MapId { get; set; }
         public int GameType { get; set; }
         public string MapName { get; set; }
+        public string MapImageUri { get; set; }
         public string MapFiles { get; set; }
         public int TotalLikes { get; set; }
         public int TotalDislikes { get; set; }

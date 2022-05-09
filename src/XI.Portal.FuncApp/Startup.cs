@@ -117,6 +117,8 @@ namespace XI.Portal.FuncApp
 
             builder.Services.Configure<AppDataOptions>(config.GetSection("AppData"));
             builder.Services.AddAppData();
+
+            builder.Services.AddMemoryCache();
         }
     }
 }

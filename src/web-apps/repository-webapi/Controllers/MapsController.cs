@@ -240,6 +240,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     mapVote.Like = like;
                     mapVote.Timestamp = DateTime.UtcNow;
                 }
+
+                if (overrideCreated != null)
+                    mapVote.Timestamp = (DateTime)overrideCreated;
             }
 
             await Context.SaveChangesAsync();

@@ -18,6 +18,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
         Task RebuildMapPopularity(string accessToken);
 
         Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null);
-        Task UpdateMapImage(string accessToken, Guid mapId, byte[] imageData);
+        Task UpdateMapImage(string accessToken, Guid mapId, string filePath);
     }
 }

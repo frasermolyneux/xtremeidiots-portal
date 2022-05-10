@@ -267,6 +267,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new BadRequestResult();
 
             var file = Request.Form.Files.First();
+            Logger.LogInformation($"UpdateMapImage :: File received {file.Name} with length {file.Length}");
 
             var blobKey = $"{map.GameType.ToGameType()}_{map.MapName}.jpg";
             var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
@@ -285,8 +286,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 await file.CopyToAsync(stream);
             }
-
-            Logger.LogInformation($"UpdateMapImage :: File received {file.Name} with length {file.Length}");
 
             await blobClient.UploadAsync(filePath);
 

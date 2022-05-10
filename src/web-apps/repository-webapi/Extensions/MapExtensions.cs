@@ -13,6 +13,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 MapId = map.MapId,
                 GameType = map.GameType.ToGameType(),
                 MapName = map.MapName,
+                MapImageUri = map.MapImageUri,
                 TotalLikes = map.TotalLikes,
                 TotalDislikes = map.TotalDislikes,
                 TotalVotes = map.TotalVotes,

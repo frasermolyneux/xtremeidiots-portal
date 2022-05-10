@@ -1264,41 +1264,12 @@
             }
         },
         "/maps/{map-id}/image": {
-            "get": {
+            "post": {
                 "summary": "maps/{map-id}/image",
-                "operationId": "get-maps-map-id-image",
+                "operationId": "post-maps-map-id-image",
                 "parameters": [
                     {
                         "name": "map-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": null
-                    }
-                }
-            }
-        },
-        "/maps/{game-type}/{map-name}/image": {
-            "get": {
-                "summary": "maps/{game-type}/{map-name}/image",
-                "operationId": "get-maps-game-type-map-name-image",
-                "parameters": [
-                    {
-                        "name": "game-type",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "map-name",
                         "in": "path",
                         "required": true,
                         "schema": {

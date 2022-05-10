@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -244,6 +245,37 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 if (overrideCreated != null)
                     mapVote.Timestamp = (DateTime)overrideCreated;
             }
+
+            await Context.SaveChangesAsync();
+
+            return new OkResult();
+        }
+
+        [HttpPost]
+        [Route("/api/maps/{mapId}/image")]
+        public async Task<IActionResult> UpdateMapImage(Guid mapId)
+        {
+            var map = await Context.Maps
+                .SingleOrDefaultAsync(m => m.MapId == mapId);
+
+            if (map == null)
+                return new NotFoundResult();
+
+            var blobKey = $"{map.GameType.ToGameType()}_{map.MapName}.jpg";
+            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
+            var containerClient = blobServiceClient.GetBlobContainerClient("map-files");
+
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            var blobClient = containerClient.GetBlobClient(blobKey);
+            if (await blobClient.ExistsAsync())
+            {
+                await blobClient.DeleteAsync();
+            }
+
+            await blobClient.UploadAsync(Request.Body);
+
+            map.MapImageUri = blobClient.Uri.ToString();
 
             await Context.SaveChangesAsync();
 

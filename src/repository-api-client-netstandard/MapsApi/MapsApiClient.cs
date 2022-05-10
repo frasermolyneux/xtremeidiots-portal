@@ -166,5 +166,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
 
             await ExecuteAsync(request);
         }
+
+        public async Task UpdateMapImage(string accessToken, Guid mapId, byte[] imageData)
+        {
+            var request = CreateRequest($"repository/maps/{mapId}/image", Method.POST, accessToken);
+            request.AddBody(imageData);
+
+            await ExecuteAsync(request);
+        }
     }
 }

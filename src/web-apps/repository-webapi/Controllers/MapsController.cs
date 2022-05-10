@@ -263,7 +263,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var blobKey = $"{map.GameType.ToGameType()}_{map.MapName}.jpg";
             var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
-            var containerClient = blobServiceClient.GetBlobContainerClient("map-files");
+            var containerClient = blobServiceClient.GetBlobContainerClient("map-images");
 
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 

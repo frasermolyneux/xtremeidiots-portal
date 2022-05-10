@@ -14,11 +14,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class MapsController : Controller
     {
-        public MapsController(PortalDbContext context)
+        public MapsController(ILogger<MapsController> logger, PortalDbContext context)
         {
+            Logger = logger;
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        public ILogger<MapsController> Logger { get; }
         public PortalDbContext Context { get; }
 
         [HttpPost]
@@ -278,7 +280,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 await blobClient.DeleteAsync();
             }
 
-            await blobClient.UploadAsync(file.OpenReadStream());
+            var filePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            Logger.LogInformation($"UpdateMapImage :: File received {file.Name} with length {file.Length}");
+
+            await blobClient.UploadAsync(filePath);
 
             map.MapImageUri = blobClient.Uri.ToString();
 

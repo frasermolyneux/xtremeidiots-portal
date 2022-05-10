@@ -253,7 +253,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpPost]
         [Route("/api/maps/{mapId}/image")]
-        public async Task<IActionResult> UpdateMapImage(Guid mapId, List<IFormFile> files)
+        public async Task<IActionResult> UpdateMapImage(Guid mapId)
         {
             var map = await Context.Maps
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
@@ -261,10 +261,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (map == null)
                 return new NotFoundResult();
 
-            if (files.Count == 0)
+            if (Request.Form.Files.Count == 0)
                 return new BadRequestResult();
 
-            var file = files.First();
+            var file = Request.Form.Files.First();
 
             var blobKey = $"{map.GameType.ToGameType()}_{map.MapName}.jpg";
             var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));

@@ -24,7 +24,7 @@ namespace XtremeIdiots.Portal.SyncFunc
         public IRepositoryTokenProvider RepositoryTokenProvider { get; }
         public IRepositoryApiClient RepositoryApiClient { get; }
 
-        [FunctionName("MapRedirectSync")]
+        [FunctionName("MapImageSync")]
         // ReSharper disable once UnusedMember.Global
         public async Task RunMapImageSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
         {

@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
         [FunctionName("MapRedirectSync")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunMapRedirectSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunMapRedirectSync([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogDebug($"Start RunMapRedirectSync @ {DateTime.UtcNow}");
 

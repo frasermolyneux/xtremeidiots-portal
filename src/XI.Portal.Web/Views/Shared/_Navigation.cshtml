@@ -4,10 +4,10 @@
 @using XI.Portal.Auth.Contract.Extensions
 @using XI.Portal.Auth.Contract.Models
 @using XI.Portal.Demos.Constants
-@using XI.Portal.Maps.Constants
 @using XI.Portal.Players.Constants
 @using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Extensions
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Extensions
 @inject IAuthorizationService AuthorizationService
 @inject SignInManager<PortalIdentityUser> SignInManager
@@ -135,13 +135,17 @@
             <a asp-controller="Maps" asp-action="Index">Maps Index</a>
         </li>
 
-        @foreach (var game in MapsSupportedGames.Games)
-        {
-            <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
-                <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game.DisplayName()</a>
-            </li>
-        }
+        <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty2.ToString())">
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2.ToString()) @GameType.CallOfDuty2.DisplayName()</a>
+        </li>
 
+        <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty4.ToString())">
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4.ToString()) @GameType.CallOfDuty4.DisplayName()</a>
+        </li>
+
+        <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty5.ToString())">
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5.ToString()) @GameType.CallOfDuty5.DisplayName()</a>
+        </li>
     </ul>
 </li>
 

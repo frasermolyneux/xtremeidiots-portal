@@ -5,6 +5,20 @@ namespace XI.Portal.Web.Extensions
 {
     public static class MapImageHtmlExtensions
     {
+        public static HtmlString MapImage(this IHtmlHelper html, string mapImageUri)
+        {
+            if (string.IsNullOrEmpty(mapImageUri))
+            {
+                return new HtmlString(
+                $"<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/images/noimage.jpg\" alt=\"noimage\" />");
+            }
+            else
+            {
+                return new HtmlString(
+                $"<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"{mapImageUri}\" />");
+            }
+        }
+
         public static HtmlString MapImage(this IHtmlHelper html, string gameType, string mapName)
         {
             return new HtmlString(

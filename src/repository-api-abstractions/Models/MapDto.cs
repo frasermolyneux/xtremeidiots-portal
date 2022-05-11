@@ -1,10 +1,13 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class MapDto
     {
         public Guid MapId { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; set; }
         public string MapName { get; set; } = string.Empty;
         public string MapImageUri { get; set; } = string.Empty;

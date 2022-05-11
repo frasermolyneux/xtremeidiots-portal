@@ -7,10 +7,7 @@ using System.IO;
 using System.Reflection;
 using XI.Forums.Extensions;
 using XI.Portal.FuncApp;
-using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Repository.Config;
-using XI.Portal.Repository.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Utilities.FtpHelper;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
@@ -98,15 +95,6 @@ namespace XI.Portal.FuncApp
                 });
             });
 
-            builder.Services.AddMapsModule(options =>
-            {
-                options.ConfigureMapRedirectRepository(repositoryOptions =>
-                {
-                    repositoryOptions.MapRedirectBaseUrl = config["MapsRedirect:BaseUrl"];
-                    repositoryOptions.ApiKey = config["MapsRedirect:ApiKey"];
-                });
-            });
-
             builder.Services.AddForumsClient(options =>
             {
                 options.BaseUrl = config["XtremeIdiotsForums:BaseUrl"];
@@ -114,9 +102,6 @@ namespace XI.Portal.FuncApp
             });
 
             builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
-
-            builder.Services.Configure<AppDataOptions>(config.GetSection("AppData"));
-            builder.Services.AddAppData();
 
             builder.Services.AddMemoryCache();
         }

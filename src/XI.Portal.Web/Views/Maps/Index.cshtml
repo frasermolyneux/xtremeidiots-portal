@@ -65,7 +65,7 @@
                         name: 'gameType',
                         sortable: true,
                         render: function(data, type, row) {
-                            return gameTypeIconEnum(row['gameType']);
+                            return gameTypeIcon(row['gameType']);
                         }
                     },
                     {
@@ -98,24 +98,24 @@
                             return "<div class=\"progress\" id=\"progress-" +
                                 row['mapName'] +
                                 "\"> <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: " +
-                                row['positivePercentage'] +
+                                row['likePercentage'] +
                                 "%\" aria-valuenow=\"" +
-                                row['positiveVotes'] +
+                                row['totalLikes'] +
                                 "\" aria-valuemin=\"0\" aria-valuemax=\"" +
                                 row['totalVotes'] +
                                 "\"></div>" +
                                 "<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: " +
-                                row['negativePercentage'] +
+                                row['dislikePercentage'] +
                                 "%\" aria-valuenow=\"" +
-                                row['negativeVotes'] +
+                                row['totalDislikes'] +
                                 "\" aria-valuemin=\"0\" aria-valuemax=\"" +
                                 row['totalVotes'] +
                                 "\"></div>" +
                                 "</div>" +
                                 "<div class=\"m-t-sm\">" +
-                                row['positiveVotes'] +
+                                row['totalLikes'] +
                                 " likes and " +
-                                row['negativeVotes'] +
+                                row['totalDislikes'] +
                                 " dislikes out of " +
                                 row['totalVotes'] +
                                 "</div>";
@@ -124,13 +124,13 @@
                     {
                         sortable: false,
                         render: function (data, type, row) {
-                            return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/Maps/MapImage?gameType=" +
-                                row['gameType'] +
-                                "&mapName=" +
-                                row['mapName'] +
-                                "\" alt=\"" +
-                                row['mapName'] +
-                                "\" />";
+                            if (row['mapImageUri'] == null) {
+                                return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/images/noimage.jpg\" />";
+                            }
+                            else 
+                            {
+                                return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"" + row['mapImageUri'] + "\" />";
+                            }
                         }
                     }
                 ]

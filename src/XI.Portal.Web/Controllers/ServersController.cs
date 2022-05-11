@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Repository.Dtos;
-using XI.Portal.Repository.Interfaces;
-using XI.Portal.Repository.Models;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -23,7 +22,6 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
-        private readonly IMapsRepository _mapsRepository;
         private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
@@ -32,14 +30,12 @@ namespace XI.Portal.Web.Controllers
             IGameServerStatusRepository gameServerStatusRepository,
             IPlayerLocationsRepository playerLocationsRepository,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IMapsRepository mapsRepository,
             IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient)
         {
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
             this.repositoryTokenProvider = repositoryTokenProvider;
             this.repositoryApiClient = repositoryApiClient;
         }
@@ -129,23 +125,19 @@ namespace XI.Portal.Web.Controllers
                     }
             }
 
-            LegacyMapDto mapDto = null;
+            MapDto mapDto = null;
             if (gameServerStatusDto != null)
-                mapDto = await _mapsRepository.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
+                mapDto = await repositoryApiClient.Maps.GetMap(accessToken, gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
-            var queryOptions = new MapsQueryOptions
-            {
-                GameType = gameServer.GameType,
-                MapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToList()
-            };
-            var maps = await _mapsRepository.GetMaps(queryOptions);
+            var mapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
+            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(accessToken, gameServer.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
 
             return View(new ServerInfoViewModel
             {
                 GameServer = gameServer,
                 GameServerStatus = gameServerStatusDto,
                 Map = mapDto,
-                Maps = maps,
+                Maps = mapsResponseDto.Entries,
                 GameServerStatusStats = gameServerStatusStatsDtos,
                 MapTimelineDataPoints = mapTimelineDataPoints
             });
@@ -155,10 +147,10 @@ namespace XI.Portal.Web.Controllers
         {
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
-            public LegacyMapDto Map { get; set; }
+            public MapDto Map { get; set; }
             public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
             public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
-            public List<LegacyMapDto> Maps { get; set; }
+            public List<MapDto> Maps { get; set; }
         }
 
         public class MapTimelineDataPoint

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Repository.Dtos
@@ -7,6 +8,8 @@ namespace XI.Portal.Repository.Dtos
     public class MapDto
     {
         public Guid MapId { get; set; }
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; set; }
         public string MapName { get; set; } = string.Empty;
         public string MapImageUri { get; set; } = string.Empty;

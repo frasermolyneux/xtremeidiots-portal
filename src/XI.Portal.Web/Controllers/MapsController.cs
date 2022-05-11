@@ -1,31 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Maps.Interfaces;
-using XI.Portal.Repository.Interfaces;
-using XI.Portal.Repository.Models;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = AuthPolicies.AccessMaps)]
     public class MapsController : Controller
     {
-        private readonly IMapImageRepository _mapImageRepository;
-        private readonly IMapsRepository _mapsRepository;
+        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+        private readonly IRepositoryApiClient repositoryApiClient;
 
         public MapsController(
-            IMapsRepository mapsRepository,
-            IMapImageRepository mapImageRepository)
+            IRepositoryTokenProvider repositoryTokenProvider,
+            IRepositoryApiClient repositoryApiClient)
         {
-            _mapsRepository = mapsRepository ?? throw new ArgumentNullException(nameof(mapsRepository));
-            _mapImageRepository = mapImageRepository ?? throw new ArgumentNullException(nameof(mapImageRepository));
+            this.repositoryTokenProvider = repositoryTokenProvider;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
@@ -52,50 +50,34 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var queryOptions = new MapsQueryOptions();
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
-            if (id != null)
-                queryOptions.GameType = (GameType)id;
+            var order = MapsOrder.MapNameAsc;
 
-            var recordsTotal = await _mapsRepository.GetMapsCount(queryOptions);
+            var orderColumn = model.Columns[model.Order.First().Column].Name;
+            var searchOrder = model.Order.First().Dir;
 
-            queryOptions.FilterString = model.Search?.Value;
-            var recordsFiltered = await _mapsRepository.GetMapsCount(queryOptions);
-
-            queryOptions.TakeEntries = model.Length;
-            queryOptions.SkipEntries = model.Start;
-
-            if (model.Order == null)
+            switch (orderColumn)
             {
-                queryOptions.Order = MapsQueryOptions.OrderBy.MapNameAsc;
-            }
-            else
-            {
-                var orderColumn = model.Columns[model.Order.First().Column].Name;
-                var searchOrder = model.Order.First().Dir;
-
-                switch (orderColumn)
-                {
-                    case "mapName":
-                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.MapNameAsc : MapsQueryOptions.OrderBy.MapNameDesc;
-                        break;
-                    case "popularity":
-                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.LikeDislikeAsc : MapsQueryOptions.OrderBy.LikeDislikeDesc;
-                        break;
-                    case "gameType":
-                        queryOptions.Order = searchOrder == "asc" ? MapsQueryOptions.OrderBy.GameTypeAsc : MapsQueryOptions.OrderBy.GameTypeDesc;
-                        break;
-                }
+                case "mapName":
+                    order = searchOrder == "asc" ? MapsOrder.MapNameAsc : MapsOrder.MapNameDesc;
+                    break;
+                case "popularity":
+                    order = searchOrder == "asc" ? MapsOrder.PopularityAsc : MapsOrder.PopularityDesc;
+                    break;
+                case "gameType":
+                    order = searchOrder == "asc" ? MapsOrder.GameTypeAsc : MapsOrder.GameTypeDesc;
+                    break;
             }
 
-            var mapDtos = await _mapsRepository.GetMaps(queryOptions);
+            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(accessToken, id, null, model.Search?.Value, model.Start, model.Length, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal,
-                recordsFiltered,
-                data = mapDtos
+                recordsTotal = mapsResponseDto.TotalRecords,
+                recordsFiltered = mapsResponseDto.FilteredRecords,
+                data = mapsResponseDto.Entries
             });
         }
 
@@ -105,9 +87,10 @@ namespace XI.Portal.Web.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-            var mapImage = await _mapImageRepository.GetMapImage(gameType, mapName);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var map = await repositoryApiClient.Maps.GetMap(accessToken, gameType, mapName);
 
-            return Redirect(mapImage.ToString());
+            return Redirect(map.MapImageUri);
         }
     }
 }

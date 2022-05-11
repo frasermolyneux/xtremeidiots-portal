@@ -20,11 +20,7 @@ using XI.Forums.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Auth.Extensions;
 using XI.Portal.Demos.Extensions;
-using XI.Portal.Maps.Extensions;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Repository.Config;
-using XI.Portal.Repository.Extensions;
-using XI.Portal.Repository.Interfaces;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Users.Data;
 using XI.Portal.Users.Extensions;
@@ -152,15 +148,6 @@ namespace XI.Portal.Web
                 options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
             });
 
-            services.AddMapsModule(options =>
-            {
-                options.ConfigureMapImageRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageContainerName = Configuration["MapImageCache:StorageContainerName"];
-                });
-            });
-
             services.AddDemosModule(options =>
             {
                 options.ConfigureDemosRepository(repositoryOptions =>
@@ -223,9 +210,6 @@ namespace XI.Portal.Web
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
-
-            services.Configure<AppDataOptions>(Configuration.GetSection("AppData"));
-            services.AddAppData();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -259,8 +243,6 @@ namespace XI.Portal.Web
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
             });
-
-            app.ApplicationServices.GetService<IAppDataRepository>()?.CreateTablesIfNotExist().Wait();
         }
     }
 }

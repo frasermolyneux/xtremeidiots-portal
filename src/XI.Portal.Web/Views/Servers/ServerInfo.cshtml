@@ -240,10 +240,10 @@
                                     }
                                 </td>
                                 <td>
-                                    @Html.MapPopularity(item.MapName, item.PositivePercentage, item.NegativePercentage, item.PositiveVotes, item.NegativeVotes, item.TotalVotes)
+                                    @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage, item.TotalLikes, item.TotalDislikes, item.TotalVotes)
                                 </td>
                                 <td>
-                                    @Html.MapImage(Model.GameServer.GameType.ToString(), item.MapName)
+                                    @Html.MapImage(@Model.Map.MapImageUri)
                                 </td>
                             </tr>
                         }

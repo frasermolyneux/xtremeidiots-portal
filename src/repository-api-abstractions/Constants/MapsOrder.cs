@@ -5,6 +5,8 @@
         MapNameAsc,
         MapNameDesc,
         GameTypeAsc,
-        GameTypeDesc
+        GameTypeDesc,
+        PopularityAsc,
+        PopularityDesc
     }
 }

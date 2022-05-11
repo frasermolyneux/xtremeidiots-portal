@@ -27,7 +27,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
         [FunctionName("MapImageSync")]
         // ReSharper disable once UnusedMember.Global
-        public async Task RunMapImageSync([TimerTrigger("0 0 * * * *")] TimerInfo myTimer, ILogger log)
+        public async Task RunMapImageSync([TimerTrigger("0 0 0 * * 3")] TimerInfo myTimer, ILogger log)
         {
             var gamesToSync = new Dictionary<GameType, string>
             {

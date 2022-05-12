@@ -89,7 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
         {
             var request = CreateRequest("repository/maps", Method.GET, accessToken);
 
-            if (gameType == null)
+            if (gameType != null)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
             if (mapNames != null && mapNames.Count() > 0)

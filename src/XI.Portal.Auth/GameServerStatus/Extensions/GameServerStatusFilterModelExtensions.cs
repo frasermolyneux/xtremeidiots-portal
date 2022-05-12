@@ -13,7 +13,7 @@ namespace XI.Portal.Auth.GameServerStatus.Extensions
         public static GameServerStatusFilterModel ApplyAuthForGameServerStatus(this GameServerStatusFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.GameServer };
-            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
+            var (gameTypes, serverIds) = claimsPrincipal.LegacyClaimedGamesAndItems(requiredClaims);
 
             List<GameType> legacyGameTypes = new List<GameType>();
             foreach (var gameType in gameTypes)

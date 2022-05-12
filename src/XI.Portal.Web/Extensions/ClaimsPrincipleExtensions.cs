@@ -5,31 +5,31 @@ using System.Security.Claims;
 using XI.Portal.Auth.Contract.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
-namespace XI.Portal.Auth.Contract.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class ClaimsPrincipleExtensions
     {
-        public static string LegacyUsername(this ClaimsPrincipal claimsPrincipal)
+        public static string Username(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirst(ClaimTypes.Name).Value;
         }
 
-        public static string LegacyEmail(this ClaimsPrincipal claimsPrincipal)
+        public static string Email(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirst(ClaimTypes.Email).Value;
         }
 
-        public static string LegacyXtremeIdiotsId(this ClaimsPrincipal claimsPrincipal)
+        public static string XtremeIdiotsId(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.XtremeIdiotsId).Value;
         }
 
-        public static string LegacyPhotoUrl(this ClaimsPrincipal claimsPrincipal)
+        public static string PhotoUrl(this ClaimsPrincipal claimsPrincipal)
         {
             return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.PhotoUrl).Value;
         }
 
-        public static Tuple<string[], Guid[]> LegacyClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static Tuple<string[], Guid[]> ClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             var gameTypes = new List<string>();
             var servers = new List<Guid>();
@@ -50,7 +50,7 @@ namespace XI.Portal.Auth.Contract.Extensions
             return new Tuple<string[], Guid[]>(gameTypes.ToArray(), servers.ToArray());
         }
 
-        public static List<string> LegacyClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static List<string> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
             var gameTypes = new List<string>();
 

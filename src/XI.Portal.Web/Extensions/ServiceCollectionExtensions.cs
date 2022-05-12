@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.AdminActions.AuthorizationHandlers;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.ChangeLog.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
@@ -15,8 +14,9 @@ using XI.Portal.Auth.Servers.AuthorizationHandlers;
 using XI.Portal.Auth.Status.AuthorizationHandlers;
 using XI.Portal.Auth.Users.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
+using XI.Portal.Web.Auth;
 
-namespace XI.Portal.Auth.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -25,14 +25,7 @@ namespace XI.Portal.Auth.Extensions
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
             // Admin Actions
-            services.AddSingleton<IAuthorizationHandler, AccessAdminActionsHandler>();
-            services.AddSingleton<IAuthorizationHandler, ChangeAdminActionAdminHandler>();
-            services.AddSingleton<IAuthorizationHandler, ClaimAdminActionHandler>();
-            services.AddSingleton<IAuthorizationHandler, CreateAdminActionHandler>();
-            services.AddSingleton<IAuthorizationHandler, CreateAdminActionTopicHandler>();
-            services.AddSingleton<IAuthorizationHandler, DeleteAdminActionHandler>();
-            services.AddSingleton<IAuthorizationHandler, EditAdminActionHandler>();
-            services.AddSingleton<IAuthorizationHandler, LiftAdminActionHandler>();
+            services.AddSingleton<IAuthorizationHandler, AdminActionsAuthHandler>();
 
             // Ban File Monitors
             services.AddSingleton<IAuthorizationHandler, AccessBanFileMonitorsHandler>();

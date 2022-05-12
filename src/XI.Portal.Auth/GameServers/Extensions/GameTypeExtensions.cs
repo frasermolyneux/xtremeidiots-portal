@@ -14,7 +14,7 @@ namespace XI.Portal.Auth.GameServers.Extensions
                 XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin
             };
 
-            return claimsPrincipal.ClaimedGameTypes(requiredClaims);
+            return claimsPrincipal.LegacyClaimedGameTypes(requiredClaims);
         }
     }
 }

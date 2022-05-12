@@ -8,6 +8,7 @@ using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;

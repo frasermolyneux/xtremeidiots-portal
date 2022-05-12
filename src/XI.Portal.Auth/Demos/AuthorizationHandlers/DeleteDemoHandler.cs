@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Demos.AuthorizationRequirements;
-using XI.Portal.Demos.Dto;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 
 namespace XI.Portal.Auth.Demos.AuthorizationHandlers
@@ -18,7 +17,7 @@ namespace XI.Portal.Auth.Demos.AuthorizationHandlers
             if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, resource.Game.ToString()))
                 context.Succeed(requirement);
 
-            if (context.User.XtremeIdiotsId() == resource.UserId)
+            if (context.User.LegacyXtremeIdiotsId() == resource.UserId)
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

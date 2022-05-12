@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -47,7 +46,7 @@ namespace XI.Portal.Web.Controllers
             if (playerDto == null)
                 return NotFound();
 
-            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new AdminActionDto { GameType = playerDto.GameType }, AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, adminActionType), AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -79,7 +78,7 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new AdminActionDto { GameType = playerDto.GameType }, AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, model.Type), AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -127,7 +126,7 @@ namespace XI.Portal.Web.Controllers
                 PlayerDto = playerDto
             };
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, adminActionDto.Type), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -151,7 +150,7 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, adminActionDto.Type), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -161,7 +160,7 @@ namespace XI.Portal.Web.Controllers
             if (model.Type == AdminActionType.TempBan)
                 adminActionDto.Expires = model.Expires;
 
-            var canChangeAdminActionAdmin = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ChangeAdminActionAdmin);
+            var canChangeAdminActionAdmin = await authorizationService.AuthorizeAsync(User, adminActionDto.GameType, AuthPolicies.ChangeAdminActionAdmin);
 
             if (canChangeAdminActionAdmin.Succeeded)
                 adminActionDto.AdminId = model.AdminId;
@@ -186,7 +185,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
+            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionDto.GameType, adminActionDto.AdminId), AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -205,7 +204,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.LiftAdminAction);
+            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionDto.GameType, adminActionDto.AdminId), AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -232,7 +231,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
+            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto.GameType, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -251,7 +250,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.ClaimAdminAction);
+            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto.GameType, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -278,7 +277,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canCreateAdminActionDiscussionTopic = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.CreateAdminActionTopic);
+            var canCreateAdminActionDiscussionTopic = await authorizationService.AuthorizeAsync(User, adminActionDto.GameType, AuthPolicies.CreateAdminActionTopic);
 
             if (!canCreateAdminActionDiscussionTopic.Succeeded)
                 return Unauthorized();
@@ -302,7 +301,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canDeleteAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
+            var canDeleteAdminAction = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
@@ -321,7 +320,7 @@ namespace XI.Portal.Web.Controllers
             if (adminActionDto == null)
                 return NotFound();
 
-            var canDeleteAdminAction = await authorizationService.AuthorizeAsync(User, adminActionDto, AuthPolicies.DeleteAdminAction);
+            var canDeleteAdminAction = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteAdminAction);
 
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();

@@ -44,7 +44,7 @@
                             </div>
                         }
 
-                        @if ((await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.ChangeAdminActionAdmin)).Succeeded)
+                        @if ((await AuthorizationService.AuthorizeAsync(User, Model.PlayerDto.GameType, AuthPolicies.ChangeAdminActionAdmin)).Succeeded)
                         {
                             <div class="form-group">
                                 <label asp-for="AdminId"></label>

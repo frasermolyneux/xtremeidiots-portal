@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Auth.AdminActions.AuthorizationRequirements;
 using XI.Portal.Auth.BanFileMonitors.AuthorizationRequirements;
 using XI.Portal.Auth.ChangeLog.AuthorizationRequirements;
 using XI.Portal.Auth.Contract.Constants;
@@ -14,8 +13,9 @@ using XI.Portal.Auth.ServerAdmin.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
 using XI.Portal.Auth.Status.AuthorizationRequirements;
 using XI.Portal.Auth.Users.AuthorizationRequirements;
+using XI.Portal.Web.Auth;
 
-namespace XI.Portal.Auth.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class PolicyExtensions
     {

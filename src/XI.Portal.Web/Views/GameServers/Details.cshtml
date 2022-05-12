@@ -2,6 +2,7 @@
 @using XI.Portal.Web.Extensions
 @using Microsoft.AspNetCore.Authorization
 @using XI.Portal.Auth.Contract.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @model XI.Portal.Web.Models.GameServerDetailsViewModel
 
 @{
@@ -39,7 +40,7 @@
                                 @Html.ServerHostAndPort(Model.GameServerDto.Hostname, Model.GameServerDto.QueryPort)
                             </dd>
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.ViewFtpCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerDto.GameType, Model.GameServerDto.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.GameServerDto.FtpHostname)
@@ -61,7 +62,7 @@
                                 </dd>
                             }
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, Model, AuthPolicies.ViewRconCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerDto.GameType, Model.GameServerDto.Id), AuthPolicies.ViewRconCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.GameServerDto.RconPassword)
@@ -141,7 +142,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.ViewFtpCredential)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerDto.GameType, Model.GameServerDto.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
                                                 @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
                                             }

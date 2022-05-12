@@ -6,8 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Auth.GameServers.Extensions;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
@@ -72,7 +70,7 @@ namespace XI.Portal.Web.Controllers
                 GameType = model.GameType
             };
 
-            var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateGameServer);
+            var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.CreateGameServer);
 
             if (!canCreateGameServer.Succeeded)
                 return Unauthorized();
@@ -81,7 +79,7 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.Hostname = model.Hostname;
             gameServerDto.QueryPort = model.QueryPort;
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
@@ -90,7 +88,7 @@ namespace XI.Portal.Web.Controllers
                 gameServerDto.FtpPassword = model.FtpPassword;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = model.RconPassword;
@@ -118,9 +116,9 @@ namespace XI.Portal.Web.Controllers
 
             if (gameServerDto == null) return NotFound();
 
-            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewGameServer);
+            var canViewGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewGameServer);
 
-            if (!canEditGameServer.Succeeded)
+            if (!canViewGameServer.Succeeded)
                 return Unauthorized();
 
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
@@ -161,12 +159,12 @@ namespace XI.Portal.Web.Controllers
 
             AddGameTypeViewData(gameServerDto.GameType);
 
-            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServer);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServer);
 
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp);
 
             if (!canEditGameServerFtp.Succeeded)
             {
@@ -175,7 +173,7 @@ namespace XI.Portal.Web.Controllers
                 gameServerDto.FtpPassword = string.Empty;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerRcon);
 
             if (!canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = string.Empty;
@@ -198,7 +196,7 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServer);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServer);
 
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
@@ -207,7 +205,7 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.Hostname = model.Hostname;
             gameServerDto.QueryPort = model.QueryPort;
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
@@ -216,7 +214,7 @@ namespace XI.Portal.Web.Controllers
                 gameServerDto.FtpPassword = model.FtpPassword;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = model.RconPassword;
@@ -243,7 +241,7 @@ namespace XI.Portal.Web.Controllers
 
             if (gameServerDto == null) return NotFound();
 
-            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteGameServer);
+            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
 
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();
@@ -261,7 +259,7 @@ namespace XI.Portal.Web.Controllers
 
             if (gameServerDto == null) return NotFound();
 
-            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteGameServer);
+            var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
 
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();

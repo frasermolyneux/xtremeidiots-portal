@@ -39,7 +39,6 @@ namespace XI.Portal.Web.Auth
 
                 if (requirement is CreateAdminActionTopic)
                     HandleCreateAdminActionTopic(context, requirement);
-
             }
 
             return Task.CompletedTask;

@@ -64,5 +64,15 @@ namespace XI.Portal.Web.Extensions
 
             return gameTypes.Distinct().OrderBy(g => g).ToList();
         }
+
+        public static List<string> GetGameTypesForGameServers(this ClaimsPrincipal claimsPrincipal)
+        {
+            var requiredClaims = new[]
+            {
+                XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin
+            };
+
+            return claimsPrincipal.ClaimedGameTypes(requiredClaims);
+        }
     }
 }

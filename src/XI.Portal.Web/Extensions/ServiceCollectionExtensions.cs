@@ -4,7 +4,6 @@ using XI.Portal.Auth.BanFileMonitors.AuthorizationHandlers;
 using XI.Portal.Auth.ChangeLog.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
 using XI.Portal.Auth.Demos.AuthorizationHandlers;
-using XI.Portal.Auth.GameServers.AuthorizationHandlers;
 using XI.Portal.Auth.Home.AuthorizationHandlers;
 using XI.Portal.Auth.Maps.AuthorizationHandlers;
 using XI.Portal.Auth.Migration.AuthorizationHandlers;
@@ -45,16 +44,7 @@ namespace XI.Portal.Web.Extensions
             services.AddSingleton<IAuthorizationHandler, DeleteDemoHandler>();
 
             // Game Servers
-            services.AddSingleton<IAuthorizationHandler, AccessGameServersHandler>();
-            services.AddSingleton<IAuthorizationHandler, CreateGameServerHandler>();
-            services.AddSingleton<IAuthorizationHandler, DeleteGameServerHandler>();
-            services.AddSingleton<IAuthorizationHandler, EditGameServerFtpHandler>();
-            services.AddSingleton<IAuthorizationHandler, EditGameServerHandler>();
-            services.AddSingleton<IAuthorizationHandler, EditGameServerHandlerByGameType>();
-            services.AddSingleton<IAuthorizationHandler, EditGameServerRconHandler>();
-            services.AddSingleton<IAuthorizationHandler, ViewFtpCredentialHandler>();
-            services.AddSingleton<IAuthorizationHandler, ViewGameServerHandler>();
-            services.AddSingleton<IAuthorizationHandler, ViewRconCredentialHandler>();
+            services.AddSingleton<IAuthorizationHandler, GameServersAuthHandler>();
 
             // Home
             services.AddSingleton<IAuthorizationHandler, AccessHomeHandler>();

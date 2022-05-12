@@ -13,11 +13,11 @@ public class DataMaintenanceApiClient : BaseApiClient, IDataMaintenanceApiClient
 
     public async Task PruneChatMessages(string accessToken)
     {
-        await ExecuteAsync(CreateRequest("repository/DataMaintenance/PruneChatMessages", Method.Delete, accessToken));
+        await ExecuteAsync(CreateRequest("repository/data-maintenance/prune-chat-messages", Method.Delete, accessToken));
     }
 
     public async Task PruneGameServerEvents(string accessToken)
     {
-        await ExecuteAsync(CreateRequest("repository/DataMaintenance/PruneGameServerEvents", Method.Delete, accessToken));
+        await ExecuteAsync(CreateRequest("repository/data-maintenance/prune-game-server-events", Method.Delete, accessToken));
     }
 }

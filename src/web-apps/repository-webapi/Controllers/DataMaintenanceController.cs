@@ -17,7 +17,7 @@ public class DataMaintenanceController : ControllerBase
     public PortalDbContext Context { get; }
 
     [HttpDelete]
-    [Route("api/DataMaintenance/PruneChatMessages")]
+    [Route("api/data-maintenance/prune-chat-messages")]
     public async Task<IActionResult> PruneChatMessages()
     {
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[ChatLogs] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
@@ -25,7 +25,7 @@ public class DataMaintenanceController : ControllerBase
     }
 
     [HttpDelete]
-    [Route("api/DataMaintenance/PruneGameServerEvents")]
+    [Route("api/data-maintenance/prune-game-server-events")]
     public async Task<IActionResult> PruneGameServerEvents()
     {
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[GameServerEvents] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");

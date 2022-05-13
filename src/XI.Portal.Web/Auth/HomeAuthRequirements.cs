@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.Home.AuthorizationRequirements
+namespace XI.Portal.Web.Auth
 {
     public class AccessHome : IAuthorizationRequirement
     {

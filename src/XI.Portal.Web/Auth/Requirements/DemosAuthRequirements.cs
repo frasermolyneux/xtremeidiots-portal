@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Web.Auth
+namespace XI.Portal.Web.Auth.Requirements
 {
     public class AccessDemos : IAuthorizationRequirement
     {

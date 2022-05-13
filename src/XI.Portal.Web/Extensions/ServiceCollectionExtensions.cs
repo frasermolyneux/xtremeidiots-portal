@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using XI.Portal.Auth.Users.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
-using XI.Portal.Web.Auth;
+using XI.Portal.Web.Auth.Handlers;
 
 namespace XI.Portal.Web.Extensions
 {

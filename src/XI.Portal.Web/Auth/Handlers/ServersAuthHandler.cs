@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Threading.Tasks;
+using XI.Portal.Web.Auth.Requirements;
 
-namespace XI.Portal.Web.Auth
+namespace XI.Portal.Web.Auth.Handlers
 {
-    public class HomeAuthHandler : IAuthorizationHandler
+    public class ServersAuthHandler : IAuthorizationHandler
     {
         public Task HandleAsync(AuthorizationHandlerContext context)
         {
@@ -12,14 +13,14 @@ namespace XI.Portal.Web.Auth
 
             foreach (var requirement in pendingRequirements)
             {
-                if (requirement is AccessHome)
-                    HandleAccessHome(context, requirement);
+                if (requirement is AccessServers)
+                    HandleAccessServers(context, requirement);
             }
 
             return Task.CompletedTask;
         }
 
-        private void HandleAccessHome(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        private void HandleAccessServers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             context.Succeed(requirement);
         }

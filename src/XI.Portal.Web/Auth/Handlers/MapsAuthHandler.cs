@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Threading.Tasks;
+using XI.Portal.Web.Auth.Requirements;
 
-namespace XI.Portal.Web.Auth
+namespace XI.Portal.Web.Auth.Handlers
 {
     public class MapsAuthHandler : IAuthorizationHandler
     {

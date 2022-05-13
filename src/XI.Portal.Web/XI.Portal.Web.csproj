@@ -24,11 +24,9 @@
     <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
     <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
-    <ProjectReference Include="..\XI.Portal.Auth\XI.Portal.Auth.csproj" />
     <ProjectReference Include="..\XI.Portal.Demos\XI.Portal.Demos.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />
-    <ProjectReference Include="..\XI.Portal.Users\XI.Portal.Users.csproj" />
   </ItemGroup>
 
 

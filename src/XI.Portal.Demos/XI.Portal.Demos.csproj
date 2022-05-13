@@ -16,7 +16,6 @@
     <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
     <ProjectReference Include="..\XI.Demos\XI.Demos.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
-    <ProjectReference Include="..\XI.Portal.Auth.Contract\XI.Portal.Auth.Contract.csproj" />
   </ItemGroup>
 
 </Project>

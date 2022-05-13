@@ -5,7 +5,7 @@ using XI.Portal.Users.Repository;
 
 namespace XI.Portal.Users.Extensions
 {
-    public static class ServiceCollectionExtensions
+    public static class UsersServiceCollectionExtensions
     {
         public static void AddUsersModule(this IServiceCollection serviceCollection,
             Action<IUsersModuleOptions> configureOptions)

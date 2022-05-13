@@ -11,7 +11,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Demos.Models;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Demos.Forums;

@@ -7,7 +7,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Models;
 using XI.Portal.Users.Repository;

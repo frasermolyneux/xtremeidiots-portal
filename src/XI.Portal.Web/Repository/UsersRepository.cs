@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Azure.Cosmos.Table;
+using Microsoft.Azure.Cosmos.Table.Queryable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
-using Microsoft.Azure.Cosmos.Table.Queryable;
 using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Configuration;
 using XI.Portal.Users.Data;
@@ -114,7 +114,7 @@ namespace XI.Portal.Users.Repository
             var tableOperation = TableOperation.Retrieve<PortalClaimEntity>(userId, claimId);
             var result = await _additionalClaimsTable.ExecuteAsync(tableOperation);
 
-            var operation = TableOperation.Delete((PortalClaimEntity) result.Result);
+            var operation = TableOperation.Delete((PortalClaimEntity)result.Result);
             await _additionalClaimsTable.ExecuteAsync(operation);
         }
     }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Servers.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
@@ -13,7 +12,7 @@ namespace XI.Portal.Web.Extensions
         public static GameServerStatusFilterModel ApplyAuthForGameServerStatus(this GameServerStatusFilterModel filterModel, ClaimsPrincipal claimsPrincipal)
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.GameServer };
-            var (gameTypes, serverIds) = claimsPrincipal.LegacyClaimedGamesAndItems(requiredClaims);
+            var (gameTypes, serverIds) = claimsPrincipal.ClaimedGamesAndItems(requiredClaims);
 
             List<GameType> legacyGameTypes = new List<GameType>();
             foreach (var gameType in gameTypes)

@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XI.Portal.Auth.Contract\XI.Portal.Auth.Contract.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Servers\XI.Servers.csproj" />
   </ItemGroup>

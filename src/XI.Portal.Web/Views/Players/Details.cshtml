@@ -75,35 +75,35 @@
                         <div style="padding-bottom: 10px; padding-top: 20px">
                             <div>
                                 <ul>
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Observation, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
                                         {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Observation">Add Observation</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Warning, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User,new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Warning), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Warning">Add Warning</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Kick, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Kick), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Kick">Add Kick</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.TempBan, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.TempBan), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="TempBan">Add Temp Ban</a>
                                         </li>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, new AdminActionDto() { Type = AdminActionType.Ban, GameType = Model.Player.GameType }, AuthPolicies.CreateAdminAction)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Ban), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Ban">Add Ban</a>

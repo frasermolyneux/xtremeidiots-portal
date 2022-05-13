@@ -108,7 +108,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, Guid.Parse(claimValue));
 
-            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.CreateUserClaim);
+            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.CreateUserClaim);
 
             if (!canCreateUserClaim.Succeeded)
                 return Unauthorized();
@@ -149,7 +149,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, Guid.Parse(claim.ClaimValue));
 
-            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.DeleteUserClaim);
+            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.DeleteUserClaim);
 
             if (!canDeleteUserClaim.Succeeded)
                 return Unauthorized();

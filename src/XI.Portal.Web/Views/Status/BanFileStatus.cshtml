@@ -3,6 +3,7 @@
 @using XI.Portal.Web.Extensions
 @using Microsoft.AspNetCore.Authorization
 @using XI.Portal.Web.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants
 @model List<BanFileMonitorViewModel>
 
 @{
@@ -82,7 +83,7 @@
                         </div>
                         <div class="ibox-content">
                             <p>
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.ViewFtpCredential)).Succeeded)
+                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
                                 {
                                     <strong>File Path: </strong>
                                     @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)<br/>
@@ -106,14 +107,14 @@
                                 }
 
                                 <div class="btn-group btn-group-sm" role="group">
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer, AuthPolicies.EditGameServer)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType, AuthPolicies.EditGameServer)).Succeeded)
                                     {
                                         <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.Id">
                                             <i class="fa fa-edit"></i> Edit Game Server
                                         </a>
                                     }
 
-                                    @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditBanFileMonitor)).Succeeded)
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
                                     {
                                         <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId">
                                             <i class="fa fa-edit"></i> Edit Ban File Monitor

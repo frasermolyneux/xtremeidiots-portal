@@ -78,7 +78,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -92,7 +92,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -111,7 +111,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -138,7 +138,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -165,7 +165,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -192,7 +192,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -219,7 +219,7 @@ namespace XI.Portal.Web.Controllers
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -281,7 +281,7 @@ namespace XI.Portal.Web.Controllers
             if (gameServerDto == null)
                 return NotFound();
 
-            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewServerChatLog);
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewServerChatLog);
 
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
@@ -299,7 +299,7 @@ namespace XI.Portal.Web.Controllers
             if (gameServerDto == null)
                 return NotFound();
 
-            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewServerChatLog);
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewServerChatLog);
 
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();

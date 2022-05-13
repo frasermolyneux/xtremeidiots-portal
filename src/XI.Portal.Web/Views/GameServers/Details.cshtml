@@ -156,17 +156,17 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.EditBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit Monitor</a>
                                                 }
 
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.ViewBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Details" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-info-circle"></i> Details</a>
                                                 }
 
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, item, AuthPolicies.DeleteBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-danger" asp-controller="BanFileMonitors" asp-action="Delete" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-trash"></i> Delete</a>
                                                 }

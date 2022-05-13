@@ -150,7 +150,7 @@ namespace XI.Portal.Web.Controllers
             var portalDemoEntries = new List<PortalDemoDto>();
             foreach (var demoDto in searchResponse.Entries)
             {
-                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
+                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoDto.Game, demoDto.UserId), AuthPolicies.DeleteDemo);
 
                 var portalDemoDto = new PortalDemoDto(demoDto);
 
@@ -188,7 +188,7 @@ namespace XI.Portal.Web.Controllers
 
             if (demoDto == null) return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoDto.Game, demoDto.UserId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
@@ -208,7 +208,7 @@ namespace XI.Portal.Web.Controllers
 
             if (demoDto == null) return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, demoDto, AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoDto.Game, demoDto.UserId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();

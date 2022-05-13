@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
@@ -37,7 +38,7 @@ namespace XI.Portal.Web.Controllers
 
             foreach (var gameServerDto in gameServerDtos)
             {
-                var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewFtpCredential);
+                var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewFtpCredential);
 
                 if (!canViewFtpCredential.Succeeded)
                 {
@@ -46,7 +47,7 @@ namespace XI.Portal.Web.Controllers
                     gameServerDto.FtpPassword = string.Empty;
                 }
 
-                var canViewRconCredential = await _authorizationService.AuthorizeAsync(User, gameServerDto, AuthPolicies.ViewRconCredential);
+                var canViewRconCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewRconCredential);
 
                 if (!canViewRconCredential.Succeeded)
                     gameServerDto.RconPassword = string.Empty;

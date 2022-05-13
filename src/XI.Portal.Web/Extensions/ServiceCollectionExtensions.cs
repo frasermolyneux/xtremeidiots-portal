@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.ChangeLog.AuthorizationHandlers;
 using XI.Portal.Auth.Credentials.AuthorizationHandlers;
 using XI.Portal.Auth.Demos.AuthorizationHandlers;
 using XI.Portal.Auth.Home.AuthorizationHandlers;
@@ -29,7 +28,7 @@ namespace XI.Portal.Web.Extensions
             services.AddSingleton<IAuthorizationHandler, BanFileMonitorsAuthHandler>();
 
             // Change Log
-            services.AddSingleton<IAuthorizationHandler, AccessChangeLogHandler>();
+            services.AddSingleton<IAuthorizationHandler, ChangeLogAuthHandler>();
 
             // Credentials
             services.AddSingleton<IAuthorizationHandler, AccessCredentialsHandler>();

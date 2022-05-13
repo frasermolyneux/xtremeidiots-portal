@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.Players.AuthorizationHandlers;
 using XI.Portal.Auth.ServerAdmin.AuthorizationHandlers;
 using XI.Portal.Auth.Servers.AuthorizationHandlers;
 using XI.Portal.Auth.Status.AuthorizationHandlers;
@@ -24,11 +23,7 @@ namespace XI.Portal.Web.Extensions
             services.AddSingleton<IAuthorizationHandler, GameServersAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, HomeAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, MapsAuthHandler>();
-
-            // Players
-            services.AddSingleton<IAuthorizationHandler, AccessPlayersHandler>();
-            services.AddSingleton<IAuthorizationHandler, DeletePlayerHandler>();
-            services.AddSingleton<IAuthorizationHandler, ViewPlayersHandler>();
+            services.AddSingleton<IAuthorizationHandler, PlayersAuthHandler>();
 
             // Server Admin
             services.AddSingleton<IAuthorizationHandler, AccessLiveRconHandler>();

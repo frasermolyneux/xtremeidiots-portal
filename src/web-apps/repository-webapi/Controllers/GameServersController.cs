@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System.Net;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -152,23 +151,24 @@ public class GameServersController : Controller
         }
 
         if (gameServer == null) return new BadRequestResult();
-
         if (gameServer.Id != serverId) return new BadRequestResult();
 
         var gameServerToUpdate = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
         if (gameServerToUpdate == null) return new NotFoundResult();
 
-        if (!string.IsNullOrWhiteSpace(gameServer.Title)) gameServerToUpdate.Title = gameServer.Title.Trim();
-
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-        if (IPAddress.TryParse(gameServerToUpdate.Hostname, out var ip))
-        {
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServerToUpdate.Hostname = ip.ToString();
-        }
-
-        if (gameServerToUpdate.QueryPort != 0) gameServerToUpdate.QueryPort = gameServer.QueryPort;
+        gameServerToUpdate.Title = gameServer.Title;
+        gameServerToUpdate.Hostname = gameServer.Hostname;
+        gameServerToUpdate.QueryPort = gameServer.QueryPort;
+        gameServerToUpdate.FtpHostname = gameServer.FtpHostname;
+        gameServerToUpdate.FtpUsername = gameServer.FtpUsername;
+        gameServerToUpdate.FtpPassword = gameServer.FtpPassword;
+        gameServerToUpdate.RconPassword = gameServer.RconPassword;
+        gameServerToUpdate.ShowOnBannerServerList = gameServer.ShowOnBannerServerList;
+        gameServerToUpdate.HtmlBanner = gameServer.HtmlBanner;
+        gameServerToUpdate.BannerServerListPosition = gameServer.BannerServerListPosition;
+        gameServerToUpdate.ShowOnPortalServerList = gameServer.ShowOnPortalServerList;
+        gameServerToUpdate.ShowChatLog = gameServer.ShowChatLog;
 
         await Context.SaveChangesAsync();
 

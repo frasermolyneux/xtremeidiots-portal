@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Users.AuthorizationRequirements;
+using XI.Portal.Web.Auth.Constants;
+using XI.Portal.Web.Auth.Requirements;
 
-namespace XI.Portal.Auth.Users.AuthorizationHandlers
+namespace XI.Portal.Web.Auth.Handlers
 {
     public class AccessUsersHandler : AuthorizationHandler<AccessUsers>
     {

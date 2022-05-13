@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Users.Models;
-using XI.Portal.Users.Repository;
+using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
+using XI.Portal.Web.Models;
+using XI.Portal.Web.Repository;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 

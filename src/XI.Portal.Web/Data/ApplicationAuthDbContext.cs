@@ -1,7 +1,7 @@
 ﻿using ElCamino.AspNetCore.Identity.AzureTable;
 using ElCamino.AspNetCore.Identity.AzureTable.Model;
 
-namespace XI.Portal.Users.Data
+namespace XI.Portal.Web.Data
 {
     public class ApplicationAuthDbContext : IdentityCloudContext
     {

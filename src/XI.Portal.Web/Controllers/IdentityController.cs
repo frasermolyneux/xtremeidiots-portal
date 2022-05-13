@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using XI.Portal.Auth.XtremeIdiots;
+using XI.Portal.Web.Auth.XtremeIdiots;
 
 namespace XI.Portal.Web.Controllers
 {

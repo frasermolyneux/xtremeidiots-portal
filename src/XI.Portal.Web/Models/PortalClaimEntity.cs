@@ -1,6 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 
-namespace XI.Portal.Users.Models
+namespace XI.Portal.Web.Models
 {
     internal class PortalClaimEntity : TableEntity, IPortalClaimDto
     {

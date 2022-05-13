@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Auth.Requirements;
 
 namespace XI.Portal.Web.Auth.Handlers

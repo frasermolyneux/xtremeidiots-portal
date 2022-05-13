@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace XI.Portal.Auth.XtremeIdiots
+namespace XI.Portal.Web.Auth.XtremeIdiots
 {
     public interface IXtremeIdiotsAuth
     {

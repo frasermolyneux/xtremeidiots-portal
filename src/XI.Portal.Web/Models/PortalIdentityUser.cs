@@ -1,6 +1,6 @@
 ﻿using ElCamino.AspNetCore.Identity.AzureTable.Model;
 
-namespace XI.Portal.Auth.Contract.Models
+namespace XI.Portal.Web.Models
 {
     public class PortalIdentityUser : IdentityUser
     {

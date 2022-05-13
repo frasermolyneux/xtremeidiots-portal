@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Models;
-using XI.Portal.Users.Configuration;
-using XI.Portal.Users.Data;
-using XI.Portal.Users.Models;
+using XI.Portal.Web.Configuration;
+using XI.Portal.Web.Data;
+using XI.Portal.Web.Models;
 
-namespace XI.Portal.Users.Repository
+namespace XI.Portal.Web.Repository
 {
     public class UsersRepository : IUsersRepository
     {

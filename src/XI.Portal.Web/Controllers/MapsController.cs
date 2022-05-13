@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;

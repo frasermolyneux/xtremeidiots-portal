@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.Users.Configuration
+namespace XI.Portal.Web.Configuration
 {
     public interface IUsersModuleOptions
     {

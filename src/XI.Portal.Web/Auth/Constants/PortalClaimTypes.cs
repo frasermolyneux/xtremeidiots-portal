@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Auth.Contract.Constants
+﻿namespace XI.Portal.Web.Auth.Constants
 {
     public static class PortalClaimTypes
     {

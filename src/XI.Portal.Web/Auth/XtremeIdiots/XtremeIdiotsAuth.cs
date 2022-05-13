@@ -8,12 +8,12 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using XI.Forums.Interfaces;
 using XI.Forums.Models;
-using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Models;
-using XI.Portal.Users.Repository;
+using XI.Portal.Web.Auth.Constants;
+using XI.Portal.Web.Models;
+using XI.Portal.Web.Repository;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
-namespace XI.Portal.Auth.XtremeIdiots
+namespace XI.Portal.Web.Auth.XtremeIdiots
 {
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {

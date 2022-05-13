@@ -1,4 +1,4 @@
-﻿namespace XI.Portal.Users.Models
+﻿namespace XI.Portal.Web.Models
 {
     public class PortalClaimDto : IPortalClaimDto
     {

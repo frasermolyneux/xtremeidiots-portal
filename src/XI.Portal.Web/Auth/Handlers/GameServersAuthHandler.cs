@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 

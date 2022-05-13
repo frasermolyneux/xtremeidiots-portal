@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
-using XI.Portal.Auth.Contract.Constants;
+using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;

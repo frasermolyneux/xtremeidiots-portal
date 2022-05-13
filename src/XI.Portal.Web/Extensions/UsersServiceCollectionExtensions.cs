@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Users.Configuration;
-using XI.Portal.Users.Repository;
+using XI.Portal.Web.Configuration;
+using XI.Portal.Web.Repository;
 
-namespace XI.Portal.Users.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class UsersServiceCollectionExtensions
     {

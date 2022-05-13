@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.Users.AuthorizationRequirements
+namespace XI.Portal.Web.Auth.Requirements
 {
     public class DeleteUserClaim : IAuthorizationRequirement
     {

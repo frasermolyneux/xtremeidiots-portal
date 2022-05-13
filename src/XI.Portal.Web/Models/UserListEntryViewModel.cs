@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace XI.Portal.Users.Models
+namespace XI.Portal.Web.Models
 {
     public class UserListEntryViewModel
     {

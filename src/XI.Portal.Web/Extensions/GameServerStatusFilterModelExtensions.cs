@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
-using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Servers.Models;
+using XI.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
 namespace XI.Portal.Web.Extensions

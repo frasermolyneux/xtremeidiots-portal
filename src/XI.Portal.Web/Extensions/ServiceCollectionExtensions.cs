@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.Users.AuthorizationHandlers;
-using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Web.Auth.Handlers;
+using XI.Portal.Web.Auth.XtremeIdiots;
 
 namespace XI.Portal.Web.Extensions
 {

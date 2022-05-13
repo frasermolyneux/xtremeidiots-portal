@@ -1,7 +1,7 @@
 ﻿using System;
-using XI.Portal.Users.Configuration;
+using XI.Portal.Web.Configuration;
 
-namespace XI.Portal.Users.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class UsersModuleOptionsExtensions
     {

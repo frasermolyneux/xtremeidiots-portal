@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using XI.Portal.Users.Models;
+using XI.Portal.Web.Models;
 
-namespace XI.Portal.Users.Repository
+namespace XI.Portal.Web.Repository
 {
     public interface IUsersRepository
     {

@@ -17,13 +17,12 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using XI.Forums.Extensions;
-using XI.Portal.Auth.Contract.Models;
 using XI.Portal.Demos.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
-using XI.Portal.Users.Data;
-using XI.Portal.Users.Extensions;
+using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
+using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 

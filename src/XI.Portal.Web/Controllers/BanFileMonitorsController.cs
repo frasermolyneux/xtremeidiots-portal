@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
@@ -91,7 +91,7 @@ namespace XI.Portal.Web.Controllers
                 ServerId = model.ServerId
             };
 
-            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.CreateBanFileMonitor);
+            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.CreateBanFileMonitor);
 
             if (!canCreateBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -115,7 +115,7 @@ namespace XI.Portal.Web.Controllers
 
             if (banFileMonitorDto == null) return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.ViewBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.ViewBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -142,7 +142,7 @@ namespace XI.Portal.Web.Controllers
 
             if (banFileMonitorDto == null) return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -168,6 +168,7 @@ namespace XI.Portal.Web.Controllers
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, model.BanFileMonitorId);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
             if (banFileMonitorDto == null) return NotFound();
 
             if (!ModelState.IsValid)
@@ -176,7 +177,7 @@ namespace XI.Portal.Web.Controllers
                 return View(banFileMonitorDto);
             }
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -196,10 +197,11 @@ namespace XI.Portal.Web.Controllers
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -228,10 +230,11 @@ namespace XI.Portal.Web.Controllers
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, banFileMonitorDto, AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -253,7 +256,7 @@ namespace XI.Portal.Web.Controllers
 
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
 
-            ViewData["GameServers"] = new SelectList(gameServerDtos, "ServerId", "Title", selected);
+            ViewData["GameServers"] = new SelectList(gameServerDtos, "Id", "Title", selected);
         }
     }
 }

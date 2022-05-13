@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.Maps.AuthorizationRequirements
+namespace XI.Portal.Web.Auth
 {
     public class AccessMaps : IAuthorizationRequirement
     {

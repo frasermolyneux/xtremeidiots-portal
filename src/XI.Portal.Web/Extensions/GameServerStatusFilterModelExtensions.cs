@@ -6,7 +6,7 @@ using XI.Portal.Auth.Contract.Extensions;
 using XI.Portal.Servers.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
-namespace XI.Portal.Auth.GameServerStatus.Extensions
+namespace XI.Portal.Web.Extensions
 {
     public static class GameServerStatusFilterModelExtensions
     {

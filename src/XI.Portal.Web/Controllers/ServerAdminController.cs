@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Auth.Contract.Extensions;
-using XI.Portal.Auth.GameServerStatus.Extensions;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Portal.Web.Extensions;

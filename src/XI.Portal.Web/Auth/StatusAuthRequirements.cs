@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.Status.AuthorizationRequirements
+namespace XI.Portal.Web.Auth
 {
     public class AccessStatus : IAuthorizationRequirement
     {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.Status.AuthorizationHandlers;
 using XI.Portal.Auth.Users.AuthorizationHandlers;
 using XI.Portal.Auth.XtremeIdiots;
 using XI.Portal.Web.Auth;
@@ -23,10 +22,8 @@ namespace XI.Portal.Web.Extensions
             services.AddSingleton<IAuthorizationHandler, MapsAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, PlayersAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, ServerAdminAuthHandler>();
-            services.AddSingleton<IAuthorizationHandler, AccessServersAuthHandler>();
-
-            // Status
-            services.AddSingleton<IAuthorizationHandler, AccessStatusHandler>();
+            services.AddSingleton<IAuthorizationHandler, ServersAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, StatusAuthHandler>();
 
             // Users
             services.AddSingleton<IAuthorizationHandler, AccessUsersHandler>();

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace XI.Portal.Web.Auth
 {
-    public class AccessServersAuthHandler : IAuthorizationHandler
+    public class ServersAuthHandler : IAuthorizationHandler
     {
         public Task HandleAsync(AuthorizationHandlerContext context)
         {

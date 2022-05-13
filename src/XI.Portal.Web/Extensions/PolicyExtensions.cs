@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Servers.AuthorizationRequirements;
 using XI.Portal.Auth.Status.AuthorizationRequirements;
 using XI.Portal.Auth.Users.AuthorizationRequirements;
 using XI.Portal.Web.Auth;

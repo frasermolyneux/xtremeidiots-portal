@@ -1,13 +1,26 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Credentials.AuthorizationRequirements;
 
-namespace XI.Portal.Auth.Credentials.AuthorizationHandlers
+namespace XI.Portal.Web.Auth
 {
-    public class AccessCredentialsHandler : AuthorizationHandler<AccessCredentials>
+    public class CredentialsAuthHandler : IAuthorizationHandler
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessCredentials requirement)
+        public Task HandleAsync(AuthorizationHandlerContext context)
+        {
+            var pendingRequirements = context.PendingRequirements.ToList();
+
+            foreach (var requirement in pendingRequirements)
+            {
+                if (requirement is AccessCredentials)
+                    HandleAccessCredentials(requirement, context);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private void HandleAccessCredentials(IAuthorizationRequirement requirement, AuthorizationHandlerContext context)
         {
             if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
                 context.Succeed(requirement);
@@ -23,8 +36,6 @@ namespace XI.Portal.Auth.Credentials.AuthorizationHandlers
 
             if (context.User.HasClaim(claim => claim.Type == PortalClaimTypes.FtpCredentials))
                 context.Succeed(requirement);
-
-            return Task.CompletedTask;
         }
     }
 }

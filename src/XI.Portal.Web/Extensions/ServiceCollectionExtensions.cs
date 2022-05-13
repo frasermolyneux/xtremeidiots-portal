@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
-using XI.Portal.Auth.Credentials.AuthorizationHandlers;
 using XI.Portal.Auth.Demos.AuthorizationHandlers;
 using XI.Portal.Auth.Home.AuthorizationHandlers;
 using XI.Portal.Auth.Maps.AuthorizationHandlers;
@@ -21,17 +20,10 @@ namespace XI.Portal.Web.Extensions
         {
             services.AddScoped<IXtremeIdiotsAuth, XtremeIdiotsAuth>();
 
-            // Admin Actions
             services.AddSingleton<IAuthorizationHandler, AdminActionsAuthHandler>();
-
-            // Ban File Monitors
             services.AddSingleton<IAuthorizationHandler, BanFileMonitorsAuthHandler>();
-
-            // Change Log
             services.AddSingleton<IAuthorizationHandler, ChangeLogAuthHandler>();
-
-            // Credentials
-            services.AddSingleton<IAuthorizationHandler, AccessCredentialsHandler>();
+            services.AddSingleton<IAuthorizationHandler, CredentialsAuthHandler>();
 
             // Demos
             services.AddSingleton<IAuthorizationHandler, AccessDemosHandler>();

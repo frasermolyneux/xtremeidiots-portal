@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XI.Portal.Auth.Demos.AuthorizationRequirements
+namespace XI.Portal.Web.Auth
 {
+    public class AccessDemos : IAuthorizationRequirement
+    {
+    }
+
     public class DeleteDemo : IAuthorizationRequirement
     {
     }

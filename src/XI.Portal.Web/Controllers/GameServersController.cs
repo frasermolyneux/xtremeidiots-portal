@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Auth.Contract.Constants;
 using XI.Portal.Web.Extensions;
@@ -45,7 +46,9 @@ namespace XI.Portal.Web.Controllers
 
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
 
-            return View(gameServerDtos);
+            var viewModels = gameServerDtos.Select(gs => gs.ToViewModel()).ToList();
+
+            return View(viewModels);
         }
 
         [HttpGet]
@@ -142,7 +145,7 @@ namespace XI.Portal.Web.Controllers
 
             var model = new GameServerDetailsViewModel
             {
-                GameServerDto = gameServerDto,
+                GameServerViewModel = gameServerDto.ToViewModel(),
                 BanFileMonitors = viewModels
             };
 
@@ -178,7 +181,7 @@ namespace XI.Portal.Web.Controllers
             if (!canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = string.Empty;
 
-            return View(gameServerDto);
+            return View(gameServerDto.ToViewModel());
         }
 
         [HttpPost]
@@ -246,7 +249,7 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();
 
-            return View(gameServerDto);
+            return View(gameServerDto.ToViewModel());
         }
 
         [HttpPost]

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using XI.Portal.Auth.Contract.Constants;
-using XI.Portal.Auth.Migration.AuthorizationRequirements;
 using XI.Portal.Auth.Players.AuthorizationRequirements;
 using XI.Portal.Auth.ServerAdmin.AuthorizationRequirements;
 using XI.Portal.Auth.Servers.AuthorizationRequirements;
@@ -57,9 +56,6 @@ namespace XI.Portal.Web.Extensions
 
             // Maps
             options.AddPolicy(AuthPolicies.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
-
-            // Migration
-            options.AddPolicy(AuthPolicies.AccessMigration, policy => { policy.Requirements.Add(new AccessMigration()); });
 
             // Players
             options.AddPolicy(AuthPolicies.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });

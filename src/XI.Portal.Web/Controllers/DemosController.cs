@@ -59,6 +59,24 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Migrate()
+        {
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var demoAuthKeys = await _demoAuthRepository.GetAllAuthKeys();
+
+            var demoAuthDtos = demoAuthKeys.Select(dak => new DemoAuthDto
+            {
+                UserId = dak.RowKey,
+                AuthKey = dak.AuthKey,
+                Created = dak.Timestamp.UtcDateTime,
+                LastActivity = DateTime.UtcNow
+            }).ToList();
+
+            await repositoryApiClient.DemosAuth.CreateDemosAuths(accessToken, demoAuthDtos);
+            return new OkResult();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> DemoClient()
         {
             ViewData["ClientAuthKey"] = await _demoAuthRepository.GetAuthKey(User.XtremeIdiotsId());

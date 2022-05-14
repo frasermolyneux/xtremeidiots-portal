@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using Microsoft.Azure.Cosmos.Table;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos.Table;
 using XI.Portal.Demos.Interfaces;
 using XI.Portal.Demos.Models;
 
@@ -27,7 +28,7 @@ namespace XI.Portal.Demos.Repository
             if (result.HttpStatusCode == 404)
                 return null;
 
-            var demoAuthEntity = (DemoAuthEntity) result.Result;
+            var demoAuthEntity = (DemoAuthEntity)result.Result;
             return demoAuthEntity.AuthKey;
         }
 
@@ -50,6 +51,14 @@ namespace XI.Portal.Demos.Repository
             var result = _demoAuthTable.ExecuteQuery(query).FirstOrDefault();
 
             return Task.FromResult(result?.RowKey);
+        }
+
+        public Task<List<DemoAuthEntity>> GetAllAuthKeys()
+        {
+            var query = new TableQuery<DemoAuthEntity>();
+            var result = _demoAuthTable.ExecuteQuery(query).ToList();
+
+            return Task.FromResult(result);
         }
     }
 }

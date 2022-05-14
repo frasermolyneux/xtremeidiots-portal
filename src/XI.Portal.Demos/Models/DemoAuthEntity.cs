@@ -2,7 +2,7 @@
 
 namespace XI.Portal.Demos.Models
 {
-    internal class DemoAuthEntity : TableEntity
+    public class DemoAuthEntity : TableEntity
     {
         public string AuthKey { get; set; }
     }

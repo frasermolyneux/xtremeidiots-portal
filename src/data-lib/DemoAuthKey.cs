@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.DataLib
     public partial class DemoAuthKey
     {
         [Key]
-        [Column(TypeName = "nvarchar(max)")]
+        [StringLength(50)]
         public string UserId { get; set; }
         [Required]
         [StringLength(50)]

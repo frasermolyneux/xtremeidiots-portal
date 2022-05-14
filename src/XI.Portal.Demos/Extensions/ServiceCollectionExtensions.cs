@@ -1,5 +1,5 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using XI.Portal.Demos.Configuration;
 using XI.Portal.Demos.Forums;
 using XI.Portal.Demos.Interfaces;
@@ -16,17 +16,6 @@ namespace XI.Portal.Demos.Extensions
 
             IDemoModuleOptions options = new DemoModuleOptions();
             configureOptions.Invoke(options);
-
-            if (options.DemoAuthRepositoryOptions != null)
-            {
-                IDemoAuthRepositoryOptions subOptions = new DemoAuthRepositoryOptions();
-                options.DemoAuthRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IDemoAuthRepository, DemoAuthRepository>();
-            }
 
             if (options.DemosRepositoryOptions != null)
             {

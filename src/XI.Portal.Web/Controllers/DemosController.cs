@@ -27,7 +27,6 @@ namespace XI.Portal.Web.Controllers
     public class DemosController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IDemoAuthRepository _demoAuthRepository;
         private readonly IDemoFileRepository _demosRepository;
         private readonly ILogger<DemosController> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
@@ -40,7 +39,6 @@ namespace XI.Portal.Web.Controllers
             ILogger<DemosController> logger,
             IAuthorizationService authorizationService,
             IDemoFileRepository demosRepository,
-            IDemoAuthRepository demoAuthRepository,
             UserManager<PortalIdentityUser> userManager,
             SignInManager<PortalIdentityUser> signInManager,
             IDemosForumsClient demosForumsClient,
@@ -50,7 +48,6 @@ namespace XI.Portal.Web.Controllers
             _logger = logger;
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             _demosRepository = demosRepository ?? throw new ArgumentNullException(nameof(demosRepository));
-            _demoAuthRepository = demoAuthRepository ?? throw new ArgumentNullException(nameof(demoAuthRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
@@ -59,27 +56,11 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Migrate()
-        {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var demoAuthKeys = await _demoAuthRepository.GetAllAuthKeys();
-
-            var demoAuthDtos = demoAuthKeys.Select(dak => new DemoAuthDto
-            {
-                UserId = dak.RowKey,
-                AuthKey = dak.AuthKey,
-                Created = dak.Timestamp.UtcDateTime,
-                LastActivity = DateTime.UtcNow
-            }).ToList();
-
-            await repositoryApiClient.DemosAuth.CreateDemosAuths(accessToken, demoAuthDtos);
-            return new OkResult();
-        }
-
-        [HttpGet]
         public async Task<IActionResult> DemoClient()
         {
-            ViewData["ClientAuthKey"] = await _demoAuthRepository.GetAuthKey(User.XtremeIdiotsId());
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+
+            ViewData["ClientAuthKey"] = await repositoryApiClient.DemosAuth.GetDemosAuth(accessToken, User.XtremeIdiotsId());
 
             var demoManagerClientDto = await _demosForumsClient.GetDemoManagerClient();
             return View(demoManagerClientDto);
@@ -89,7 +70,27 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegenerateAuthKey()
         {
-            await _demoAuthRepository.UpdateAuthKey(User.XtremeIdiotsId(), Guid.NewGuid().ToString());
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+
+            var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuth(accessToken, User.XtremeIdiotsId());
+
+            if (demosAuth == null)
+            {
+                demosAuth = new DemoAuthDto
+                {
+                    UserId = User.XtremeIdiotsId(),
+                    AuthKey = Guid.NewGuid().ToString(),
+                    Created = DateTime.UtcNow,
+                    LastActivity = DateTime.UtcNow
+                };
+
+                await repositoryApiClient.DemosAuth.CreateDemosAuth(accessToken, demosAuth);
+            }
+            else
+            {
+                demosAuth.AuthKey = Guid.NewGuid().ToString();
+                await repositoryApiClient.DemosAuth.UpdateDemosAuth(accessToken, demosAuth);
+            }
 
             _logger.LogInformation("User {User} has regenerated their demo auth key", User.Username());
             this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
@@ -255,7 +256,10 @@ namespace XI.Portal.Web.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userId = await _demoAuthRepository.GetUserId(authKey);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(accessToken, authKey);
+
+            var userId = demosAuth.UserId;
             if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -272,7 +276,6 @@ namespace XI.Portal.Web.Controllers
             filterGameTypes = gameTypes.ToArray();
             if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(accessToken, filterGameTypes, filterUserId, null, 0, 0, "DateDesc");
 
             var demos = searchResponse.Entries.Select(demo => new
@@ -307,7 +310,10 @@ namespace XI.Portal.Web.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userId = await _demoAuthRepository.GetUserId(authKey);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(accessToken, authKey);
+
+            var userId = demosAuth.UserId;
             if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -348,8 +354,6 @@ namespace XI.Portal.Web.Controllers
             };
 
             await _demosRepository.CreateDemo(demoDto.FileName, path);
-
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             await repositoryApiClient.Demos.CreateDemo(accessToken, demoDto);
 
             _logger.LogInformation("User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
@@ -371,10 +375,12 @@ namespace XI.Portal.Web.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userId = await _demoAuthRepository.GetUserId(authKey);
+            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(accessToken, authKey);
+
+            var userId = demosAuth.UserId;
             if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
             DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
 
             var demoUrl = await _demosRepository.GetDemoUrl(demoDto.FileName);

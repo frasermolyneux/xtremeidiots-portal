@@ -154,12 +154,6 @@ namespace XI.Portal.Web
                     repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
                     repositoryOptions.StorageContainerName = Configuration["DemosRepository:StorageContainerName"];
                 });
-
-                options.ConfigureDemoAuthRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = Configuration["DemoAuthRepository:StorageTableName"];
-                });
             });
 
             services.AddPlayersModule(options =>

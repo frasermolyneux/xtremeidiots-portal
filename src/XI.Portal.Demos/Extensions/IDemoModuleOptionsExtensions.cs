@@ -9,10 +9,5 @@ namespace XI.Portal.Demos.Extensions
         {
             options.DemosRepositoryOptions = repositoryOptions;
         }
-
-        public static void ConfigureDemoAuthRepository(this IDemoModuleOptions options, Action<IDemoAuthRepositoryOptions> repositoryOptions)
-        {
-            options.DemoAuthRepositoryOptions = repositoryOptions;
-        }
     }
 }

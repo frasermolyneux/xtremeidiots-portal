@@ -46,6 +46,10 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[DemoAuthKeys]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[Demoes]",
          "ObjectType": 0
       },

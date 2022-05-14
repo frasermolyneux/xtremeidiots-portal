@@ -218,6 +218,7 @@
     <Build Include="dbo\Tables\GameServerEvents.sql" />
     <Build Include="dbo\Tables\GameServerMaps.sql" />
     <Build Include="dbo\Tables\GameServerStats.sql" />
+    <Build Include="dbo\Tables\DemoAuthKeys.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeploymentPermissions.sql" />
@@ -228,5 +229,8 @@
       </DefaultValue>
       <Value>$(SqlCmdVar__1)</Value>
     </SqlCmdVariable>
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="database.refactorlog" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[DemoAuthKeys]
+(
+	[UserId] NVARCHAR(MAX) NOT NULL PRIMARY KEY, 
+    [AuthKey] NVARCHAR(50) NOT NULL
+)

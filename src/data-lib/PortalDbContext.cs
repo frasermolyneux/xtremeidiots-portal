@@ -26,6 +26,7 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<BanFileMonitor> BanFileMonitors { get; set; }
         public virtual DbSet<ChatLog> ChatLogs { get; set; }
         public virtual DbSet<Demo> Demoes { get; set; }
+        public virtual DbSet<DemoAuthKey> DemoAuthKeys { get; set; }
         public virtual DbSet<FileMonitor> FileMonitors { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
         public virtual DbSet<GameServerEvent> GameServerEvents { get; set; }

@@ -1266,6 +1266,7 @@
         "/maps/{map-id}/image": {
             "post": {
                 "summary": "maps/{map-id}/image",
+                "description": "maps/{map-id}/image",
                 "operationId": "post-maps-map-id-image",
                 "parameters": [
                     {
@@ -1274,6 +1275,68 @@
                         "required": true,
                         "schema": {
                             "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/demo-auth-keys/{user-id}": {
+            "get": {
+                "summary": "demo-auth-keys/{user-id}",
+                "operationId": "get-demo-auth-keys-user-id",
+                "parameters": [
+                    {
+                        "name": "user-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/demo-auth-keys": {
+            "post": {
+                "summary": "demo-auth-keys",
+                "operationId": "post-demo-auth-keys",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "put": {
+                "summary": "demo-auth-keys",
+                "operationId": "demo-auth-keys",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/demo-auth-keys/by-auth-key/{auth-key}": {
+            "get": {
+                "summary": "demo-auth-keys/by-auth-key/{auth-key}",
+                "operationId": "get-demo-auth-keys-by-auth-key-auth-key",
+                "parameters": [
+                    {
+                        "name": "auth-key",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],

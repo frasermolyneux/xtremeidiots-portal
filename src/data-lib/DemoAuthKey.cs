@@ -16,5 +16,9 @@ namespace XtremeIdiots.Portal.DataLib
         [Required]
         [StringLength(50)]
         public string AuthKey { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime Created { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime LastActivity { get; set; }
     }
 }

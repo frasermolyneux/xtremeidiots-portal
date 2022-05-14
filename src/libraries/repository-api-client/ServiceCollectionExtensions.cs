@@ -3,6 +3,7 @@ using XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DataMaintenanceApi;
+using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
@@ -23,6 +24,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             serviceCollection.AddSingleton<IBanFileMonitorsApiClient, BanFileMonitorsApiClient>();
             serviceCollection.AddSingleton<IChatMessagesApiClient, ChatMessagesApiClient>();
             serviceCollection.AddSingleton<IDataMaintenanceApiClient, DataMaintenanceApiClient>();
+            serviceCollection.AddSingleton<IDemosAuthApiClient, DemosAuthApiClient>();
             serviceCollection.AddSingleton<IDemosApiClient, DemosApiClient>();
             serviceCollection.AddSingleton<IGameServersApiClient, GameServersApiClient>();
             serviceCollection.AddSingleton<IGameServersEventsApiClient, GameServersEventsApiClient>();

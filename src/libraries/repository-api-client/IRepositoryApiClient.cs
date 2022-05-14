@@ -2,6 +2,7 @@
 using XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DataMaintenanceApi;
+using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
@@ -17,6 +18,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         IBanFileMonitorsApiClient BanFileMonitors { get; }
         IChatMessagesApiClient ChatMessages { get; }
         IDataMaintenanceApiClient DataMaintenance { get; }
+        IDemosAuthApiClient DemosAuth { get; }
         IDemosApiClient Demos { get; }
         IGameServersApiClient GameServers { get; }
         IGameServersEventsApiClient GameServersEvents { get; }

@@ -1285,10 +1285,10 @@
                 }
             }
         },
-        "/demo-auth-keys/{user-id}": {
+        "/demos-auth/{user-id}": {
             "get": {
-                "summary": "demo-auth-keys/{user-id}",
-                "operationId": "get-demo-auth-keys-user-id",
+                "summary": "demos-auth/{user-id}",
+                "operationId": "get-demos-auth-user-id",
                 "parameters": [
                     {
                         "name": "user-id",
@@ -1306,10 +1306,10 @@
                 }
             }
         },
-        "/demo-auth-keys": {
+        "/demos-auth": {
             "post": {
-                "summary": "demo-auth-keys",
-                "operationId": "post-demo-auth-keys",
+                "summary": "demos-auth",
+                "operationId": "post-demos-auth",
                 "responses": {
                     "200": {
                         "description": null
@@ -1317,8 +1317,8 @@
                 }
             },
             "put": {
-                "summary": "demo-auth-keys",
-                "operationId": "demo-auth-keys",
+                "summary": "demos-auth",
+                "operationId": "demos-auth",
                 "responses": {
                     "200": {
                         "description": null
@@ -1326,10 +1326,10 @@
                 }
             }
         },
-        "/demo-auth-keys/by-auth-key/{auth-key}": {
+        "/demos-auth/by-auth-key/{auth-key}": {
             "get": {
-                "summary": "demo-auth-keys/by-auth-key/{auth-key}",
-                "operationId": "get-demo-auth-keys-by-auth-key-auth-key",
+                "summary": "demos-auth/by-auth-key/{auth-key}",
+                "operationId": "get-demos-auth-by-auth-key-auth-key",
                 "parameters": [
                     {
                         "name": "auth-key",

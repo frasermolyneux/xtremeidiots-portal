@@ -53,8 +53,10 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> DemoClient()
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
+            var demoAuthDto = await repositoryApiClient.DemosAuth.GetDemosAuth(accessToken, User.XtremeIdiotsId());
 
-            ViewData["ClientAuthKey"] = await repositoryApiClient.DemosAuth.GetDemosAuth(accessToken, User.XtremeIdiotsId());
+            if (demoAuthDto != null)
+                ViewData["ClientAuthKey"] = demoAuthDto.AuthKey;
 
             var demoManagerClientDto = await _demosForumsClient.GetDemoManagerClient();
             return View(demoManagerClientDto);

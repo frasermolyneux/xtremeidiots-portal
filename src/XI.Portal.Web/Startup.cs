@@ -21,6 +21,7 @@ using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
+using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -139,6 +140,8 @@ namespace XI.Portal.Web
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
+
+            services.AddScoped<IDemosForumsClient, DemosForumsClient>();
 
             services.AddRepositoryApiClient(options =>
             {

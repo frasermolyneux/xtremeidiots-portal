@@ -59,6 +59,14 @@ resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobS
   }
 }
 
+resource repositoryApiDemosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  name: 'demos'
+  parent: repositoryApiAppDataStorageAccountBlobServices
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
 resource repositoryApiAppDataConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
   name: '${repositoryApiAppDataStorageAccount.name}-connectionstring'
   parent: keyVault

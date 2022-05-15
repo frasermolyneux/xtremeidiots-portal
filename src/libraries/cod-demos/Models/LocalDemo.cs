@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 // ReSharper disable StringLiteralTypo
 
-namespace XI.Demos.Models
+namespace XtremeIdiots.CodDemos.Models
 {
     public class LocalDemo : IDemo
     {

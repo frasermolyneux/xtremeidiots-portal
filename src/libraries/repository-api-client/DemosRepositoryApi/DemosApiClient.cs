@@ -13,10 +13,11 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
         {
         }
 
-        public async Task<DemoDto> CreateDemo(string accessToken, DemoDto demoDto)
+        public async Task<DemoDto?> CreateDemo(string accessToken, DemoDto demoDto, string fileName, string filePath)
         {
             var request = CreateRequest("repository/demos", Method.Post, accessToken);
             request.AddJsonBody(demoDto);
+            request.AddFile(fileName, filePath);
 
             var response = await ExecuteAsync(request);
 
@@ -32,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
             await ExecuteAsync(request);
         }
 
-        public async Task<DemoDto> GetDemo(string accessToken, Guid demoId)
+        public async Task<DemoDto?> GetDemo(string accessToken, Guid demoId)
         {
             var request = CreateRequest($"repository/demos/{demoId}", Method.Get, accessToken);
             var response = await ExecuteAsync(request);

@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using XtremeIdiots.CodDemos.Models;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -48,22 +50,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             query = ApplySearchOrderAndLimits(query, (DemoOrder)order, skipEntries, takeEntries);
             var searchResults = await query.ToListAsync();
 
-            var entries = searchResults.Select(demo => new DemoDto()
-            {
-                DemoId = demo.DemoId,
-                Game = demo.Game.ToGameType(),
-                Name = demo.Name,
-                FileName = demo.FileName,
-                Date = demo.Date,
-                Map = demo.Map,
-                Mod = demo.Mod,
-                GameType = demo.GameType,
-                Server = demo.Server,
-                Size = demo.Size,
-
-                UserId = demo.User.XtremeIdiotsId,
-                UploadedBy = demo.User.UserName
-            }).ToList();
+            var entries = searchResults.Select(d => d.ToDto()).ToList();
 
             var response = new DemosSearchResponseDto
             {
@@ -149,42 +136,51 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             if (demoDto == null) return new BadRequestResult();
 
+            if (Request.Form.Files.Count == 0)
+                return new BadRequestResult();
+
+            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
+
+            var file = Request.Form.Files.First();
+            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
+                return BadRequest();
+
+            var filePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(filePath))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var blobKey = $"{Guid.NewGuid()}.{demoDto.Game.DemoExtension()}";
+            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
+            var containerClient = blobServiceClient.GetBlobContainerClient("demos");
+            var blobClient = containerClient.GetBlobClient(blobKey);
+            await blobClient.UploadAsync(filePath);
+
+            var localDemo = new LocalDemo(filePath, demoDto.Game);
+
             var demo = new Demo
             {
                 DemoId = Guid.NewGuid(),
                 Game = demoDto.Game.ToGameTypeInt(),
-                Name = demoDto.Name,
-                FileName = demoDto.FileName,
-                Date = demoDto.Date,
-                Map = demoDto.Map,
-                Mod = demoDto.Mod,
-                GameType = demoDto.GameType,
-                Server = demoDto.Server,
-                Size = demoDto.Size,
-                User = await Context.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == demoDto.UserId)
+                Name = Path.GetFileNameWithoutExtension(file.FileName),
+                FileName = blobKey,
+                Date = localDemo.Date,
+                Map = localDemo.Map,
+                Mod = localDemo.Mod,
+                GameType = localDemo.GameType,
+                Server = localDemo.Server,
+                Size = localDemo.Size,
+                User = await Context.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == demoDto.UserId),
+                DemoFileUri = blobClient.Uri.ToString()
             };
 
             Context.Demoes.Add(demo);
             await Context.SaveChangesAsync();
 
-            var result = new DemoDto
-            {
-                DemoId = demo.DemoId,
-                Game = demo.Game.ToGameType(),
-                Name = demo.Name,
-                FileName = demo.FileName,
-                Date = demo.Date,
-                Map = demo.Map,
-                Mod = demo.Mod,
-                GameType = demo.GameType,
-                Server = demo.Server,
-                Size = demo.Size,
+            var dto = demo.ToDto();
 
-                UserId = demo.User.XtremeIdiotsId,
-                UploadedBy = demo.User.UserName
-            };
-
-            return new OkObjectResult(result);
+            return new OkObjectResult(dto);
         }
 
         [HttpGet]
@@ -193,24 +189,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var demo = await Context.Demoes.Include(d => d.User).SingleOrDefaultAsync(d => d.DemoId == demoId);
 
-            var result = new DemoDto
-            {
-                DemoId = demo.DemoId,
-                Game = demo.Game.ToGameType(),
-                Name = demo.Name,
-                FileName = demo.FileName,
-                Date = demo.Date,
-                Map = demo.Map,
-                Mod = demo.Mod,
-                GameType = demo.GameType,
-                Server = demo.Server,
-                Size = demo.Size,
+            if (demo == null)
+                return NotFound();
 
-                UserId = demo.User.XtremeIdiotsId,
-                UploadedBy = demo.User.UserName
-            };
+            var dto = demo.ToDto();
 
-            return new OkObjectResult(result);
+            return new OkObjectResult(dto);
         }
 
         [HttpDelete]

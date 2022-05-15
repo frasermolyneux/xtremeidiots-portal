@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 
-namespace XI.Demos.Huffman
+namespace XtremeIdiots.CodDemos.Huffman
 {
     internal class HuffmanTree
     {
@@ -15,7 +12,7 @@ namespace XI.Demos.Huffman
 
             var nodes = new List<Node>(Enumerable.Range(0, 256).Select(i => new Node
             {
-                Symbol = (byte) i,
+                Symbol = (byte)i,
                 Frequency = frequencies[i]
             }));
 

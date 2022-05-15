@@ -9,12 +9,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Demos.Models;
-using XI.Portal.Demos.Extensions;
-using XI.Portal.Demos.Forums;
-using XI.Portal.Demos.Interfaces;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
+using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
@@ -27,7 +24,6 @@ namespace XI.Portal.Web.Controllers
     public class DemosController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IDemoFileRepository _demosRepository;
         private readonly ILogger<DemosController> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
         private readonly IDemosForumsClient _demosForumsClient;
@@ -38,7 +34,6 @@ namespace XI.Portal.Web.Controllers
         public DemosController(
             ILogger<DemosController> logger,
             IAuthorizationService authorizationService,
-            IDemoFileRepository demosRepository,
             UserManager<PortalIdentityUser> userManager,
             SignInManager<PortalIdentityUser> signInManager,
             IDemosForumsClient demosForumsClient,
@@ -47,7 +42,6 @@ namespace XI.Portal.Web.Controllers
         {
             _logger = logger;
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            _demosRepository = demosRepository ?? throw new ArgumentNullException(nameof(demosRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
@@ -192,11 +186,12 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Download(Guid id)
         {
             var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+            var demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
 
-            var demoUrl = await _demosRepository.GetDemoUrl(demoDto.FileName);
+            if (demoDto == null)
+                return NotFound();
 
-            return Redirect(demoUrl.ToString());
+            return Redirect(demoDto.DemoFileUri);
         }
 
         [HttpGet]
@@ -318,43 +313,27 @@ namespace XI.Portal.Web.Controllers
 
             var user = await _userManager.FindByIdAsync(userId);
 
-            if (file == null || file.Length == 0) return Content("You must provide a file to be uploaded");
-
-            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
-
-            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
-                return Content("Invalid file type - this must be a demo file");
+            if (user == null)
+                return Content("User not found");
 
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
 
-            var fileName = $"{Guid.NewGuid()}.{gameType.DemoExtension()}";
-            var path = Path.Combine(Path.GetTempPath(), fileName);
+            if (file == null || file.Length == 0) return Content("You must provide a file to be uploaded");
 
-            await using (var fileStream = new FileStream(path, FileMode.Create))
+            var filePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(filePath))
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
             }
-
-            var localDemo = new LocalDemo(path, gameType);
-            var frontEndFileName = Path.GetFileNameWithoutExtension(file.FileName);
 
             var demoDto = new DemoDto
             {
                 Game = gameType,
-                Name = frontEndFileName,
-                FileName = fileName,
-                Date = localDemo.Date,
-                Map = localDemo.Map,
-                Mod = localDemo.Mod,
-                GameType = localDemo.GameType,
-                Server = localDemo.Server,
-                Size = localDemo.Size,
                 UserId = user.Id
             };
 
-            await _demosRepository.CreateDemo(demoDto.FileName, path);
-            await repositoryApiClient.Demos.CreateDemo(accessToken, demoDto);
+            await repositoryApiClient.Demos.CreateDemo(accessToken, demoDto, file.FileName, filePath);
 
             _logger.LogInformation("User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
 
@@ -381,11 +360,9 @@ namespace XI.Portal.Web.Controllers
             var userId = demosAuth.UserId;
             if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            DemoDto demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
+            var demoDto = await repositoryApiClient.Demos.GetDemo(accessToken, id);
 
-            var demoUrl = await _demosRepository.GetDemoUrl(demoDto.FileName);
-
-            return Redirect(demoUrl.ToString());
+            return Redirect(demoDto.DemoFileUri);
         }
 
         public class PortalDemoDto

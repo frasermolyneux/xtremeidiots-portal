@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace XI.Portal.Demos.Dto
+namespace XI.Portal.Web.Models
 {
     public class DemoManagerClientDto
     {

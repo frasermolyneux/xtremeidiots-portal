@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using XI.Forums.Interfaces;
-using XI.Portal.Demos.Dto;
+using XI.Portal.Web.Models;
 
-namespace XI.Portal.Demos.Forums
+namespace XI.Portal.Web.Forums
 {
     public class DemosForumsClient : IDemosForumsClient
     {

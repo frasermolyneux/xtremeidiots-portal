@@ -1,4 +1,4 @@
-﻿namespace XI.Demos.Huffman
+﻿namespace XtremeIdiots.CodDemos.Huffman
 {
     internal static class HuffmanFrequencies
     {

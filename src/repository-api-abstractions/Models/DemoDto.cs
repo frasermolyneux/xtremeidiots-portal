@@ -19,5 +19,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public long Size { get; set; }
         public string UserId { get; set; } = string.Empty;
         public string UploadedBy { get; set; } = string.Empty;
+        public string DemoFileUri { get; set; } = string.Empty;
     }
 }

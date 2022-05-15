@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using XI.Demos.Huffman;
-using XI.Demos.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+﻿using XtremeIdiots.CodDemos.Huffman;
+using XtremeIdiots.CodDemos.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
-namespace XI.Demos
+namespace XtremeIdiots.CodDemos
 {
     internal class DemoReader
     {

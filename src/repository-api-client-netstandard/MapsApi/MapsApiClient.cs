@@ -170,7 +170,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
         public async Task UpdateMapImage(string accessToken, Guid mapId, string filePath)
         {
             var request = CreateRequest($"repository/maps/{mapId}/image", Method.POST, accessToken);
-            request.AddFile("map.jpg", filePath, "map.jpg");
+            request.AddFile("map.jpg", filePath);
 
             await ExecuteAsync(request);
         }

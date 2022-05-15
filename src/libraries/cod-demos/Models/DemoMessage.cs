@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections;
-using XI.Demos.Huffman;
+﻿using System.Collections;
+using XtremeIdiots.CodDemos.Huffman;
 
-namespace XI.Demos.Models
+namespace XtremeIdiots.CodDemos.Models
 {
     internal struct DemoMessage
     {
@@ -70,7 +69,7 @@ namespace XI.Demos.Models
                 var remainingBits = Math.Min(bits, 8 - _bit);
 
                 // Read the bits from the data and shift them into the result.
-                var read = Data[_readCount] & ((int) Math.Pow(2, remainingBits) - 1);
+                var read = Data[_readCount] & (int)Math.Pow(2, remainingBits) - 1;
 
                 value <<= readBits;
                 value |= read;
@@ -136,7 +135,7 @@ namespace XI.Demos.Models
                     break;
 
                 //                buffer += c > 127 ? '.' : (char)c;
-                buffer += (char) c;
+                buffer += (char)c;
             }
 
             return buffer;

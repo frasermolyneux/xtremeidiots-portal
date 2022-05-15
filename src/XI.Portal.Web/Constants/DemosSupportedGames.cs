@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 
-namespace XI.Portal.Demos.Constants
+namespace XI.Portal.Web.Constants
 {
     public static class DemosSupportedGames
     {

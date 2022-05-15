@@ -17,7 +17,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using XI.Forums.Extensions;
-using XI.Portal.Demos.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Web.Data;
@@ -145,15 +144,6 @@ namespace XI.Portal.Web
             {
                 options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
                 options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
-            });
-
-            services.AddDemosModule(options =>
-            {
-                options.ConfigureDemosRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageContainerName = Configuration["DemosRepository:StorageContainerName"];
-                });
             });
 
             services.AddPlayersModule(options =>

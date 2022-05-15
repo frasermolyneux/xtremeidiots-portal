@@ -26,6 +26,7 @@ namespace XtremeIdiots.Portal.DataLib
         [Column("User_Id")]
         [StringLength(128)]
         public string UserId { get; set; }
+        public string DemoFileUri { get; set; }
 
         [ForeignKey("UserId")]
         [InverseProperty("Demos")]

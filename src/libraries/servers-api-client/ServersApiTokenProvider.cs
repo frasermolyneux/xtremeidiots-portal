@@ -5,22 +5,22 @@ using Microsoft.Extensions.Logging;
 
 namespace XtremeIdiots.Portal.FuncHelpers.Providers;
 
-public class RepositoryTokenProvider : IRepositoryTokenProvider
+public class ServersApiTokenProvider : IServersApiTokenProvider
 {
-    public RepositoryTokenProvider(
-        ILogger<RepositoryTokenProvider> log,
+    public ServersApiTokenProvider(
+        ILogger<ServersApiTokenProvider> log,
         IConfiguration configuration)
     {
         Log = log;
         Configuration = configuration;
     }
 
-    private ILogger<RepositoryTokenProvider> Log { get; }
+    private ILogger<ServersApiTokenProvider> Log { get; }
     public IConfiguration Configuration { get; }
 
-    private string WebApiPortalApplicationAudience => Configuration["repository-api-application-audience"];
+    private string ServersApiApplicationAudience => Configuration["servers-api-application-audience"];
 
-    public async Task<string> GetRepositoryAccessToken()
+    public async Task<string> GetAccessToken()
     {
         var tokenCredential = new DefaultAzureCredential();
 
@@ -28,11 +28,11 @@ public class RepositoryTokenProvider : IRepositoryTokenProvider
         try
         {
             accessToken = await tokenCredential.GetTokenAsync(
-                new TokenRequestContext(new[] { $"{WebApiPortalApplicationAudience}/.default" }));
+                new TokenRequestContext(new[] { $"{ServersApiApplicationAudience}/.default" }));
         }
         catch (Exception ex)
         {
-            Log.LogError(ex, "Failed to get managed identity token");
+            Log.LogError(ex, "Failed to get identity token");
             throw;
         }
 

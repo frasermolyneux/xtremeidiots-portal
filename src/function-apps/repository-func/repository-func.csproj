@@ -15,7 +15,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />
+    <ProjectReference Include="..\..\libraries\servers-api-client\servers-api-client.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
+    <ProjectReference Include="..\..\servers-api-abstractions\servers-api-abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

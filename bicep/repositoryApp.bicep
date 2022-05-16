@@ -117,8 +117,12 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varRepositoryFuncAppName}-apikey)'
         }
         {
-          name: 'webapi-portal-application-audience'
+          name: 'repository-api-application-audience'
           value: 'api://portal-repository-api-${parEnvironment}'
+        }
+        {
+          name: 'servers-api-application-audience'
+          value: 'api://portal-servers-api-${parEnvironment}'
         }
       ]
     }

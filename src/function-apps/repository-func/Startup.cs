@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc;
+using XtremeIdiots.Portal.ServersApiClient;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 
@@ -17,6 +18,12 @@ public class Startup : FunctionsStartup
         builder.Services.AddSingleton<IRepositoryTokenProvider, RepositoryTokenProvider>();
 
         builder.Services.AddRepositoryApiClient(options =>
+        {
+            options.ApimBaseUrl = config["apim-base-url"];
+            options.ApimSubscriptionKey = config["apim-subscription-key"];
+        });
+
+        builder.Services.AddServersApiClient(options =>
         {
             options.ApimBaseUrl = config["apim-base-url"];
             options.ApimSubscriptionKey = config["apim-subscription-key"];

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -6,7 +7,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
@@ -50,23 +50,23 @@ namespace XI.Servers.Clients
 
             var players = ParsePlayers(playersQueryBytes);
 
-            return Task.FromResult((IQueryResponse) new SourceQueryResponse(serverParams, players));
+            return Task.FromResult((IQueryResponse)new SourceQueryResponse(serverParams, players));
         }
 
         private static byte[] A2S_INFO()
         {
             //ÿÿÿÿTSource Engine Query
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00};
+            return new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x54, 0x53, 0x6F, 0x75, 0x72, 0x63, 0x65, 0x20, 0x45, 0x6E, 0x67, 0x69, 0x6E, 0x65, 0x20, 0x51, 0x75, 0x65, 0x72, 0x79, 0x00 };
         }
 
         private static byte[] A2S_PLAYERS_PRE()
         {
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF};
+            return new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x55, 0xFF, 0xFF, 0xFF, 0xFF };
         }
 
         private static byte[] A2S_PLAYERS(IEnumerable<byte> challengeResponse)
         {
-            var start = new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x55};
+            var start = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x55 };
             return start.Concat(challengeResponse).ToArray();
         }
 
@@ -94,7 +94,7 @@ namespace XI.Servers.Clients
 
                 i += 4;
 
-                newPlayer.Time = new TimeSpan(0, 0, (int) BitConverter.ToSingle(responseBytes, i));
+                newPlayer.Time = new TimeSpan(0, 0, (int)BitConverter.ToSingle(responseBytes, i));
 
                 i += 4;
 
@@ -143,7 +143,7 @@ namespace XI.Servers.Clients
                     break;
                 }
 
-                temp += (char) responseBytes[offset];
+                temp += (char)responseBytes[offset];
             }
 
             newOffset = offset;
@@ -161,7 +161,7 @@ namespace XI.Servers.Clients
             {
                 var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                udpClient = new UdpClient(QueryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient = new UdpClient(QueryPort) { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
                 udpClient.Connect(Hostname, QueryPort);
                 udpClient.Send(commandBytes, commandBytes.Length);
 

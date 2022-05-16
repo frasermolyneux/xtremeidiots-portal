@@ -4,13 +4,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
     public interface IGameServersApiClient
     {
-        Task<List<GameServerDto>?> GetGameServers(string accessToken, string[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order);
-        Task<GameServerDto?> GetGameServer(string accessToken, Guid serverId);
-        Task CreateGameServer(string accessToken, GameServerDto gameServer);
-        Task UpdateGameServer(string accessToken, GameServerDto gameServer);
+        Task<List<GameServerDto>?> GetGameServers(string[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order);
+        Task<GameServerDto?> GetGameServer(Guid serverId);
+        Task CreateGameServer(GameServerDto gameServer);
+        Task UpdateGameServer(GameServerDto gameServer);
 
         // Ban File Monitor Child Resources
-        Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(string accessToken, Guid serverId, BanFileMonitorDto banFileMonitor);
-        Task DeleteGameServer(string accessToken, Guid id);
+        Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor);
+        Task DeleteGameServer(Guid id);
     }
 }

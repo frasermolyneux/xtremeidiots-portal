@@ -10,13 +10,13 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.22.1" />
     <PackageReference Include="Polly" Version="7.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
     <ProjectReference Include="..\..\servers-api-abstractions\servers-api-abstractions.csproj" />

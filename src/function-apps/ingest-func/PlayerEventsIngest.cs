@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -18,16 +17,13 @@ public class PlayerEventsIngest
     private readonly ILogger<PlayerEventsIngest> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
     private readonly IMemoryCache memoryCache;
-    private readonly IRepositoryTokenProvider _repositoryTokenProvider;
 
     public PlayerEventsIngest(
         ILogger<PlayerEventsIngest> log,
-        IRepositoryTokenProvider repositoryTokenProvider,
         IRepositoryApiClient repositoryApiClient,
         IMemoryCache memoryCache)
     {
         _log = log;
-        _repositoryTokenProvider = repositoryTokenProvider;
         _repositoryApiClient = repositoryApiClient;
         this.memoryCache = memoryCache;
     }
@@ -63,8 +59,7 @@ public class PlayerEventsIngest
         _log.LogInformation(
             $"ProcessOnPlayerConnected :: Username: '{onPlayerConnected.Username}', Guid: '{onPlayerConnected.Guid}'");
 
-        var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-        var existingPlayer = await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, onPlayerConnected.Guid);
+        var existingPlayer = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, onPlayerConnected.Guid);
 
         if (existingPlayer == null)
         {
@@ -76,7 +71,7 @@ public class PlayerEventsIngest
                 IpAddress = onPlayerConnected.IpAddress
             };
 
-            await _repositoryApiClient.Players.CreatePlayer(accessToken, player);
+            await _repositoryApiClient.Players.CreatePlayer(player);
         }
         else
         {
@@ -85,7 +80,7 @@ public class PlayerEventsIngest
                 existingPlayer.Username = onPlayerConnected.Username;
                 existingPlayer.IpAddress = onPlayerConnected.IpAddress;
 
-                await _repositoryApiClient.Players.UpdatePlayer(accessToken, existingPlayer);
+                await _repositoryApiClient.Players.UpdatePlayer(existingPlayer);
             }
         }
     }
@@ -134,8 +129,7 @@ public class PlayerEventsIngest
                 Timestamp = onChatMessage.EventGeneratedUtc
             };
 
-            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-            await _repositoryApiClient.ChatMessages.CreateChatMessage(accessToken, chatMessage);
+            await _repositoryApiClient.ChatMessages.CreateChatMessage(chatMessage);
         }
         else
         {
@@ -180,10 +174,9 @@ public class PlayerEventsIngest
 
         if (playerId != Guid.Empty)
         {
-            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-            var map = await _repositoryApiClient.Maps.GetMap(accessToken, gameType, onMapVote.MapName);
+            var map = await _repositoryApiClient.Maps.GetMap(gameType, onMapVote.MapName);
 
-            await _repositoryApiClient.Maps.UpsertMapVote(accessToken, map.MapId, playerId, (bool)onMapVote.Like);
+            await _repositoryApiClient.Maps.UpsertMapVote(map.MapId, playerId, (bool)onMapVote.Like);
         }
         else
         {
@@ -197,9 +190,7 @@ public class PlayerEventsIngest
 
         if (!memoryCache.TryGetValue(cacheKey, out Guid playerId))
         {
-            var accessToken = await _repositoryTokenProvider.GetRepositoryAccessToken();
-
-            var player = await _repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, guid);
+            var player = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
 
             if (player != null)
             {

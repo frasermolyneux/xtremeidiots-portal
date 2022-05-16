@@ -14,6 +14,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.22.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
@@ -22,7 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\data-lib\data-lib.csproj" />
     <ProjectReference Include="..\..\libraries\cod-demos\cod-demos.csproj" />
-    <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
   </ItemGroup>
 

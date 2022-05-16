@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -6,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
@@ -51,7 +51,7 @@ namespace XI.Servers.Clients
             var serverParams = GetParams(lines[1].Split('\\'));
 
             if (lines.Length <= 2)
-                return Task.FromResult((IQueryResponse) new Quake3QueryResponse(serverParams, new List<IQueryPlayer>()));
+                return Task.FromResult((IQueryResponse)new Quake3QueryResponse(serverParams, new List<IQueryPlayer>()));
 
             var players = new List<IQueryPlayer>();
             for (var i = 2; i < lines.Length; i++)
@@ -60,13 +60,13 @@ namespace XI.Servers.Clients
                 players.Add(ParsePlayer(lines[i]));
             }
 
-            return Task.FromResult((IQueryResponse) new Quake3QueryResponse(serverParams, players));
+            return Task.FromResult((IQueryResponse)new Quake3QueryResponse(serverParams, players));
         }
 
         private static byte[] GetStatusPacket()
         {
             //ÿÿÿÿgetstatus
-            return new byte[] {0xFF, 0xFF, 0xFF, 0xFF, 0x67, 0x65, 0x74, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73};
+            return new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0x67, 0x65, 0x74, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73 };
         }
 
         private static IQueryPlayer ParsePlayer(string playerInfo)
@@ -114,7 +114,7 @@ namespace XI.Servers.Clients
             {
                 var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                udpClient = new UdpClient(QueryPort) {Client = {SendTimeout = 5000, ReceiveTimeout = 5000}};
+                udpClient = new UdpClient(QueryPort) { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
                 udpClient.Connect(Hostname, QueryPort);
                 udpClient.Send(commandBytes, commandBytes.Length);
 

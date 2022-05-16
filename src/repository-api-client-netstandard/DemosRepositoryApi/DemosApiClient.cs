@@ -11,13 +11,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi
 {
     public class DemosApiClient : BaseApiClient, IDemosApiClient
     {
-        public DemosApiClient(ILogger<DemosApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public DemosApiClient(ILogger<DemosApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<DemoDto?> CreateDemo(string accessToken, DemoDto demoDto, string fileName, string filePath)
+        public async Task<DemoDto?> CreateDemo(DemoDto demoDto, string fileName, string filePath)
         {
-            var request = CreateRequest("repository/demos", Method.POST, accessToken);
+            var request = await CreateRequest("repository/demos", Method.Post);
             request.AddJsonBody(demoDto);
             request.AddFile(fileName, filePath);
 
@@ -29,15 +29,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task DeleteDemo(string accessToken, Guid demoId)
+        public async Task DeleteDemo(Guid demoId)
         {
-            var request = CreateRequest($"repository/demos/{demoId}", Method.DELETE, accessToken);
+            var request = await CreateRequest($"repository/demos/{demoId}", Method.Delete);
             await ExecuteAsync(request);
         }
 
-        public async Task<DemoDto?> GetDemo(string accessToken, Guid demoId)
+        public async Task<DemoDto?> GetDemo(Guid demoId)
         {
-            var request = CreateRequest($"repository/demos/{demoId}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/demos/{demoId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -49,9 +49,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemosSearchResponseDto> SearchDemos(string accessToken, string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
+        public async Task<DemosSearchResponseDto> SearchDemos(string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
         {
-            var request = CreateRequest("repository/demos", Method.GET, accessToken);
+            var request = await CreateRequest("repository/demos", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));

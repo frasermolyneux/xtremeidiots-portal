@@ -7,7 +7,6 @@ using XI.Portal.Players.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Players.Ingest
 {
@@ -16,18 +15,15 @@ namespace XI.Portal.Players.Ingest
         private readonly IPlayersCacheRepository _playersCacheRepository;
         private ILogger _logger;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayerIngest(
             ILogger<PlayerIngest> logger,
             IPlayersCacheRepository playersCacheRepository,
-            IRepositoryApiClient repositoryApiClient,
-            IRepositoryTokenProvider repositoryTokenProvider)
+            IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _playersCacheRepository = playersCacheRepository ?? throw new ArgumentNullException(nameof(playersCacheRepository));
             this.repositoryApiClient = repositoryApiClient;
-            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         public async Task IngestData(GameType gameType, string guid, string username, string ipAddress)
@@ -45,8 +41,6 @@ namespace XI.Portal.Players.Ingest
             }
 
             _logger.LogDebug("Ingesting gameType '{GameType}', guid '{Guid}', username '{Username}', ipAddress '{IpAddress}'", gameType, guid, username, ipAddress);
-
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
             var cachedPlayer = await _playersCacheRepository.GetPlayer(gameType, guid);
 
@@ -95,13 +89,13 @@ namespace XI.Portal.Players.Ingest
             }
             else
             {
-                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameType, guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
 
                 if (player == null)
                 {
                     _logger.LogInformation("Creating new player in the database with username {Username} guid {Guid}", username, guid);
 
-                    await repositoryApiClient.Players.CreatePlayer(accessToken, new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
                     {
                         GameType = gameType,
                         Username = username,

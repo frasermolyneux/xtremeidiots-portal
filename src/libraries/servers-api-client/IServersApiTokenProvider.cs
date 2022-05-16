@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.FuncHelpers.Providers;
+﻿namespace XtremeIdiots.Portal.ServersApiClient;
 
 public interface IServersApiTokenProvider
 {

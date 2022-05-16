@@ -13,13 +13,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
 {
     public class PlayersApiClient : BaseApiClient, IPlayersApiClient
     {
-        public PlayersApiClient(ILogger<PlayersApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public PlayersApiClient(ILogger<PlayersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<PlayerDto?> GetPlayer(string accessToken, Guid id)
+        public async Task<PlayerDto?> GetPlayer(Guid id)
         {
-            var request = CreateRequest($"repository/players/{id}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/{id}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -31,9 +31,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<AliasDto>> GetPlayerAliases(string accessToken, Guid id)
+        public async Task<List<AliasDto>> GetPlayerAliases(Guid id)
         {
-            var request = CreateRequest($"repository/players/{id}/aliases", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/{id}/aliases", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -45,9 +45,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<IpAddressDto>> GetPlayerIpAddresses(string accessToken, Guid id)
+        public async Task<List<IpAddressDto>> GetPlayerIpAddresses(Guid id)
         {
-            var request = CreateRequest($"repository/players/{id}/ip-addresses", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/{id}/ip-addresses", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -59,9 +59,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(string accessToken, Guid id, string ipAddress)
+        public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(Guid id, string ipAddress)
         {
-            var request = CreateRequest($"repository/players/{id}/related-players", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/{id}/related-players", Method.Get);
             request.AddQueryParameter("IpAddress", ipAddress);
 
             var response = await ExecuteAsync(request);
@@ -75,9 +75,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<PlayerDto?> GetPlayerByGameType(string accessToken, GameType gameType, string guid)
+        public async Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid)
         {
-            var request = CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -89,25 +89,25 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task CreatePlayer(string accessToken, PlayerDto player)
+        public async Task CreatePlayer(PlayerDto player)
         {
-            var request = CreateRequest("repository/players", Method.POST, accessToken);
+            var request = await CreateRequest("repository/players", Method.Post);
             request.AddJsonBody(new List<PlayerDto> { player });
 
             await ExecuteAsync(request);
         }
 
-        public async Task UpdatePlayer(string accessToken, PlayerDto player)
+        public async Task UpdatePlayer(PlayerDto player)
         {
-            var request = CreateRequest($"repository/players/{player.Id}", Method.PATCH, accessToken);
+            var request = await CreateRequest($"repository/players/{player.Id}", Method.Patch);
             request.AddJsonBody(player);
 
             await ExecuteAsync(request);
         }
 
-        public async Task<PlayersSearchResponseDto> SearchPlayers(string accessToken, string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
+        public async Task<PlayersSearchResponseDto> SearchPlayers(string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
         {
-            var request = CreateRequest("repository/players/search", Method.GET, accessToken);
+            var request = await CreateRequest("repository/players/search", Method.Get);
 
             if (!string.IsNullOrWhiteSpace(gameType))
                 request.AddQueryParameter("gameType", gameType);
@@ -135,9 +135,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<AdminActionDto>> GetAdminActionsForPlayer(string accessToken, Guid playerId)
+        public async Task<List<AdminActionDto>> GetAdminActionsForPlayer(Guid playerId)
         {
-            var request = CreateRequest($"repository/players/{playerId}/admin-actions", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/players/{playerId}/admin-actions", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.Content != null)
@@ -146,9 +146,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> CreateAdminActionForPlayer(string accessToken, AdminActionDto adminAction)
+        public async Task<AdminActionDto> CreateAdminActionForPlayer(AdminActionDto adminAction)
         {
-            var request = CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions", Method.POST, accessToken);
+            var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions", Method.Post);
             request.AddJsonBody(adminAction);
 
             var response = await ExecuteAsync(request);
@@ -159,9 +159,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> UpdateAdminActionForPlayer(string accessToken, AdminActionDto adminAction)
+        public async Task<AdminActionDto> UpdateAdminActionForPlayer(AdminActionDto adminAction)
         {
-            var request = CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.PATCH, accessToken);
+            var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
             request.AddJsonBody(adminAction);
 
             var response = await ExecuteAsync(request);

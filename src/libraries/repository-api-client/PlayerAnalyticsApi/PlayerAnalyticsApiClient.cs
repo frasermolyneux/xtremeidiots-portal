@@ -8,13 +8,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi
 {
     public class PlayerAnalyticsApiClient : BaseApiClient, IPlayerAnalyticsApiClient
     {
-        public PlayerAnalyticsApiClient(ILogger<PlayerAnalyticsApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public PlayerAnalyticsApiClient(ILogger<PlayerAnalyticsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<List<PlayerAnalyticEntryDto>> GetCumulativeDailyPlayers(string accessToken, DateTime cutoff)
+        public async Task<List<PlayerAnalyticEntryDto>> GetCumulativeDailyPlayers(DateTime cutoff)
         {
-            var request = CreateRequest($"repository/player-analytics/cumulative-daily-players", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/player-analytics/cumulative-daily-players", Method.Get);
             request.AddQueryParameter("cutoff", cutoff.ToString());
 
             var response = await ExecuteAsync(request);
@@ -25,9 +25,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetNewDailyPlayersPerGame(string accessToken, DateTime cutoff)
+        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetNewDailyPlayersPerGame(DateTime cutoff)
         {
-            var request = CreateRequest($"repository/player-analytics/new-daily-players-per-game", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/player-analytics/new-daily-players-per-game", Method.Get);
             request.AddQueryParameter("cutoff", cutoff.ToString());
 
             var response = await ExecuteAsync(request);
@@ -38,9 +38,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetPlayersDropOffPerGameJson(string accessToken, DateTime cutoff)
+        public async Task<List<PlayerAnalyticPerGameEntryDto>> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var request = CreateRequest($"repository/player-analytics/players-drop-off-per-game", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/player-analytics/players-drop-off-per-game", Method.Get);
             request.AddQueryParameter("cutoff", cutoff.ToString());
 
             var response = await ExecuteAsync(request);

@@ -9,13 +9,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
     public class GameServersApiClient : BaseApiClient, IGameServersApiClient
     {
-        public GameServersApiClient(ILogger<GameServersApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public GameServersApiClient(ILogger<GameServersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<List<GameServerDto>?> GetGameServers(string accessToken, string[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order)
+        public async Task<List<GameServerDto>?> GetGameServers(string[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order)
         {
-            var request = CreateRequest("repository/game-servers", Method.Get, accessToken);
+            var request = await CreateRequest("repository/game-servers", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));
@@ -40,9 +40,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<GameServerDto?> GetGameServer(string accessToken, Guid serverId)
+        public async Task<GameServerDto?> GetGameServer(Guid serverId)
         {
-            var request = CreateRequest($"repository/game-servers/{serverId}", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/game-servers/{serverId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -54,31 +54,31 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task DeleteGameServer(string accessToken, Guid id)
+        public async Task DeleteGameServer(Guid id)
         {
-            var request = CreateRequest($"repository/game-servers/{id}", Method.Delete, accessToken);
+            var request = await CreateRequest($"repository/game-servers/{id}", Method.Delete);
             await ExecuteAsync(request);
         }
 
-        public async Task CreateGameServer(string accessToken, GameServerDto gameServer)
+        public async Task CreateGameServer(GameServerDto gameServer)
         {
-            var request = CreateRequest("repository/game-servers", Method.Post, accessToken);
+            var request = await CreateRequest("repository/game-servers", Method.Post);
             request.AddJsonBody(new List<GameServerDto> { gameServer });
 
             await ExecuteAsync(request);
         }
 
-        public async Task UpdateGameServer(string accessToken, GameServerDto gameServer)
+        public async Task UpdateGameServer(GameServerDto gameServer)
         {
-            var request = CreateRequest($"repository/game-servers/{gameServer.Id}", Method.Patch, accessToken);
+            var request = await CreateRequest($"repository/game-servers/{gameServer.Id}", Method.Patch);
             request.AddJsonBody(gameServer);
 
             await ExecuteAsync(request);
         }
 
-        public async Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(string accessToken, Guid serverId, BanFileMonitorDto banFileMonitor)
+        public async Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
         {
-            var request = CreateRequest($"repository/game-servers/{serverId}/ban-file-monitors", Method.Post, accessToken);
+            var request = await CreateRequest($"repository/game-servers/{serverId}/ban-file-monitors", Method.Post);
             request.AddJsonBody(banFileMonitor);
 
             var response = await ExecuteAsync(request);

@@ -24,6 +24,7 @@ using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.ServersApiClient;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 
 namespace XI.Portal.Web
@@ -149,6 +150,12 @@ namespace XI.Portal.Web
                 options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
             });
 
+            services.AddServersApiClient(options =>
+            {
+                options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
+                options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
+            });
+
             services.AddPlayersModule(options =>
             {
                 options.ConfigurePlayerLocationsRepository(repositoryOptions =>
@@ -196,6 +203,8 @@ namespace XI.Portal.Web
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
             services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
+
+            services.AddMemoryCache();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

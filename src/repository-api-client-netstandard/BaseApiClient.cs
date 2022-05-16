@@ -12,19 +12,23 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
     {
         private readonly string _apimSubscriptionKey;
 
-        public BaseApiClient(ILogger logger, IOptions<RepositoryApiClientOptions> options)
+        public BaseApiClient(ILogger logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider)
         {
             _apimSubscriptionKey = options.Value.ApimSubscriptionKey;
 
             RestClient = new RestClient(options.Value.ApimBaseUrl);
             Logger = logger;
+            RepositoryApiTokenProvider = repositoryApiTokenProvider;
         }
 
         public ILogger Logger { get; }
+        public IRepositoryApiTokenProvider RepositoryApiTokenProvider { get; }
         private RestClient RestClient { get; }
 
-        public RestRequest CreateRequest(string resource, Method method, string accessToken)
+        public async Task<RestRequest> CreateRequest(string resource, Method method)
         {
+            var accessToken = await RepositoryApiTokenProvider.GetAccessToken();
+
             var request = new RestRequest(resource, method);
 
             request.AddHeader("Ocp-Apim-Subscription-Key", _apimSubscriptionKey);
@@ -33,7 +37,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
             return request;
         }
 
-        public async Task<IRestResponse> ExecuteAsync(RestRequest request)
+        public async Task<RestResponse> ExecuteAsync(RestRequest request)
         {
             var response = await RestClient.ExecuteAsync(request);
 

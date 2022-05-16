@@ -4,16 +4,16 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace XtremeIdiots.Portal.ServersApiClient;
+namespace XtremeIdiots.Portal.RepositoryApiClient;
 
-public class ServersApiTokenProvider : IServersApiTokenProvider
+public class RepositoryApiTokenProvider : IRepositoryApiTokenProvider
 {
-    private readonly ILogger<ServersApiTokenProvider> logger;
+    private readonly ILogger<RepositoryApiTokenProvider> logger;
     private readonly IMemoryCache memoryCache;
     private readonly IConfiguration configuration;
 
-    public ServersApiTokenProvider(
-        ILogger<ServersApiTokenProvider> logger,
+    public RepositoryApiTokenProvider(
+        ILogger<RepositoryApiTokenProvider> logger,
         IMemoryCache memoryCache,
         IConfiguration configuration)
     {
@@ -22,11 +22,11 @@ public class ServersApiTokenProvider : IServersApiTokenProvider
         this.configuration = configuration;
     }
 
-    private string ServersApiApplicationAudience => configuration["servers-api-application-audience"];
+    private string ServersApiApplicationAudience => configuration["repository-api-application-audience"];
 
     public async Task<string> GetAccessToken()
     {
-        if (memoryCache.TryGetValue("servers-api-access-token", out AccessToken accessToken))
+        if (memoryCache.TryGetValue("repository-api-access-token", out AccessToken accessToken))
         {
             if (DateTime.UtcNow < accessToken.ExpiresOn)
                 return accessToken.Token;
@@ -37,7 +37,7 @@ public class ServersApiTokenProvider : IServersApiTokenProvider
         try
         {
             accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { $"{ServersApiApplicationAudience}/.default" }));
-            memoryCache.Set("servers-api-access-token", accessToken);
+            memoryCache.Set("reository-api-access-token", accessToken);
         }
         catch (Exception ex)
         {

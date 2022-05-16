@@ -5,7 +5,50 @@
         "description": "",
         "version": "1.0"
     },
-    "paths": {},
+    "paths": {
+        "/query/{server-id}/status": {
+            "get": {
+                "summary": "query/{server-id}/status",
+                "operationId": "get-query-server-id-status",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/rcon/{server-id}/status": {
+            "get": {
+                "summary": "rcon/{server-id}/status",
+                "operationId": "get-rcon-server-id-status",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        }
+    },
     "components": {
         "securitySchemes": {
             "apiKeyHeader": {

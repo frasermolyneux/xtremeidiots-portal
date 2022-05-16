@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 
 namespace XtremeIdiots.Portal.ServersApiClient.QueryApi
 {

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using RestSharp;
 using System.Net;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 
 namespace XtremeIdiots.Portal.ServersApiClient
 {

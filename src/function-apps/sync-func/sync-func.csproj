@@ -11,7 +11,6 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
   </ItemGroup>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.ServersApiClient.QueryApi;
 using XtremeIdiots.Portal.ServersApiClient.RconApi;
 

@@ -7,6 +7,7 @@ using XtremeIdiots.Portal.RepositoryWebApi.Auth;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging();
+builder.Services.AddMemoryCache();
 builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddDbContext<PortalDbContext>(options =>

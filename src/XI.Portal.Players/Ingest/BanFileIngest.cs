@@ -7,7 +7,6 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Players.Ingest
 {
@@ -17,29 +16,24 @@ namespace XI.Portal.Players.Ingest
         private readonly IGuidValidator _guidValidator;
         private readonly IPlayersForumsClient _playersForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public BanFileIngest(
             ILogger<BanFileIngest> logger,
             IGuidValidator guidValidator,
             IPlayersForumsClient playersForumsClient,
-            IRepositoryApiClient repositoryApiClient,
-            IRepositoryTokenProvider repositoryTokenProvider)
+            IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _guidValidator = guidValidator ?? throw new ArgumentNullException(nameof(guidValidator));
             _playersForumsClient = playersForumsClient ?? throw new ArgumentNullException(nameof(playersForumsClient));
             this.repositoryApiClient = repositoryApiClient;
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
         }
 
         public async Task IngestBanFileDataForGame(string gameType, string remoteBanFileData)
         {
             var skipTags = new[] { "[PBBAN]", "[B3BAN]", "[BANSYNC]", "[EXTERNAL]" };
-
             var gameTypeEnum = Enum.Parse<GameType>(gameType);
-
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
 
             foreach (var line in remoteBanFileData.Split('\n'))
             {
@@ -54,20 +48,20 @@ namespace XI.Portal.Players.Ingest
                     _logger.LogWarning($"Could not validate guid {guid} for {gameType}");
                     continue;
                 }
-                var player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameTypeEnum, guid);
+                var player = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
 
                 if (player == null)
                 {
                     _logger.LogInformation($"BanFileIngest - creating new player {name} with guid {guid} with import ban");
 
-                    await repositoryApiClient.Players.CreatePlayer(accessToken, new PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(new PlayerDto()
                     {
                         GameType = gameType.ToGameType(),
                         Username = name,
                         Guid = guid
                     });
 
-                    player = await repositoryApiClient.Players.GetPlayerByGameType(accessToken, gameTypeEnum, guid);
+                    player = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
 
                     var adminActionDto = new AdminActionDto
                     {
@@ -82,11 +76,11 @@ namespace XI.Portal.Players.Ingest
                     adminActionDto.Text = "Imported from server";
                     adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
-                    await repositoryApiClient.Players.CreateAdminActionForPlayer(accessToken, adminActionDto);
+                    await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
                 }
                 else
                 {
-                    var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, player.Id, null, "ActiveBans", 0, 0, null);
+                    var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, player.Id, null, "ActiveBans", 0, 0, null);
 
                     if (adminActions.Count(aa => aa.Type == AdminActionType.Ban) == 0)
                     {
@@ -105,7 +99,7 @@ namespace XI.Portal.Players.Ingest
                         adminActionDto.Text = "Imported from server";
                         adminActionDto.ForumTopicId = await _playersForumsClient.CreateTopicForAdminAction(adminActionDto);
 
-                        await repositoryApiClient.Players.CreateAdminActionForPlayer(accessToken, adminActionDto);
+                        await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
                     }
                 }
 

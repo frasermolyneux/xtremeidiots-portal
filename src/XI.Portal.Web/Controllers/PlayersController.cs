@@ -14,7 +14,6 @@ using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -23,16 +22,13 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
 
         public PlayersController(
             IGeoLocationClient geoLocationClient,
-            IRepositoryApiClient repositoryApiClient,
-            IRepositoryTokenProvider repositoryTokenProvider)
+            IRepositoryApiClient repositoryApiClient)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             this.repositoryApiClient = repositoryApiClient;
-            this.repositoryTokenProvider = repositoryTokenProvider;
         }
 
         [HttpGet]
@@ -100,8 +96,8 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            PlayersSearchResponseDto searchResponse = await repositoryApiClient.Players.SearchPlayers(accessToken, id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
+
+            PlayersSearchResponseDto searchResponse = await repositoryApiClient.Players.SearchPlayers(id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {
@@ -117,9 +113,9 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var player = await repositoryApiClient.Players.GetPlayer(accessToken, (Guid)id);
-            var adminActions = await repositoryApiClient.Players.GetAdminActionsForPlayer(accessToken, (Guid)id);
+
+            var player = await repositoryApiClient.Players.GetPlayer((Guid)id);
+            var adminActions = await repositoryApiClient.Players.GetAdminActionsForPlayer((Guid)id);
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
@@ -157,8 +153,8 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var aliases = await repositoryApiClient.Players.GetPlayerAliases(accessToken, (Guid)id);
+
+            var aliases = await repositoryApiClient.Players.GetPlayerAliases((Guid)id);
 
             return Json(new
             {
@@ -171,8 +167,8 @@ namespace XI.Portal.Web.Controllers
         {
             if (id == null) return NotFound();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var ipAddresses = await repositoryApiClient.Players.GetPlayerIpAddresses(accessToken, (Guid)id);
+
+            var ipAddresses = await repositoryApiClient.Players.GetPlayerIpAddresses((Guid)id);
 
             return Json(new
             {
@@ -188,8 +184,8 @@ namespace XI.Portal.Web.Controllers
             if (string.IsNullOrWhiteSpace(ipAddress))
                 return BadRequest();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var relatedPlayers = await repositoryApiClient.Players.GetRelatedPlayers(accessToken, (Guid)id, ipAddress);
+
+            var relatedPlayers = await repositoryApiClient.Players.GetRelatedPlayers((Guid)id, ipAddress);
 
             return Json(new
             {
@@ -200,8 +196,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> MyActions()
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, User.XtremeIdiotsId(), null, 0, 0, "CreatedDesc");
+
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 0, "CreatedDesc");
 
             return View(adminActions);
         }
@@ -209,8 +205,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Unclaimed()
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, "UnclaimedBans", 0, 0, "CreatedDesc");
+
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, "UnclaimedBans", 0, 0, "CreatedDesc");
 
             return View(adminActions);
         }
@@ -227,8 +223,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var data = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(accessToken, cutoff);
+
+            var data = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(cutoff);
 
             return Json(data);
         }
@@ -236,8 +232,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var data = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(accessToken, cutoff);
+
+            var data = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(cutoff);
 
             return Json(data);
         }
@@ -245,8 +241,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var data = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(accessToken, cutoff);
+
+            var data = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(cutoff);
 
             return Json(data);
         }

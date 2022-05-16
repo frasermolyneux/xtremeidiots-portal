@@ -2,6 +2,6 @@
 
 public interface IDataMaintenanceApiClient
 {
-    Task PruneChatMessages(string accessToken);
-    Task PruneGameServerEvents(string accessToken);
+    Task PruneChatMessages();
+    Task PruneGameServerEvents();
 }

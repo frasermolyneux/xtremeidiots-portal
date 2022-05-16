@@ -1,6 +1,6 @@
-using System;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System;
 
 namespace XtremeIdiots.Portal.RepositoryFunc;
 

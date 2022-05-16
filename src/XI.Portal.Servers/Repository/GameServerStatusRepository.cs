@@ -12,7 +12,6 @@ using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XI.Servers.Interfaces;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Servers.Repository
 {
@@ -21,7 +20,7 @@ namespace XI.Portal.Servers.Repository
         private readonly IGameServerClientFactory _gameServerClientFactory;
         private readonly IGeoLocationClient _geoLocationClient;
         private readonly IPlayerLocationsRepository _playersLocationsRepository;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly CloudTable _statusTable;
 
@@ -29,13 +28,13 @@ namespace XI.Portal.Servers.Repository
             IGameServerClientFactory gameServerClientFactory,
             IGeoLocationClient geoLocationClient,
             IPlayerLocationsRepository playersLocationsRepository,
-            IRepositoryTokenProvider repositoryTokenProvider,
+
             IRepositoryApiClient repositoryApiClient)
         {
             _gameServerClientFactory = gameServerClientFactory ?? throw new ArgumentNullException(nameof(gameServerClientFactory));
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             _playersLocationsRepository = playersLocationsRepository ?? throw new ArgumentNullException(nameof(playersLocationsRepository));
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
             var storageAccount = CloudStorageAccount.Parse(options.StorageConnectionString);
             var cloudTableClient = storageAccount.CreateCloudTableClient();
@@ -146,8 +145,8 @@ namespace XI.Portal.Servers.Repository
         {
             try
             {
-                var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-                var server = await repositoryApiClient.GameServers.GetGameServer(accessToken, serverId);
+
+                var server = await repositoryApiClient.GameServers.GetGameServer(serverId);
 
                 var gameServerStatusHelper = _gameServerClientFactory.GetGameServerStatusHelper(server.GameType, server.Id, server.Hostname, server.QueryPort, server.RconPassword);
 

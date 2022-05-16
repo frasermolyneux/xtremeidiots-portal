@@ -4,5 +4,5 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
 
 public interface IGameServersEventsApiClient
 {
-    Task CreateGameServerEvent(string accessToken, GameServerEventDto gameServerEvent);
+    Task CreateGameServerEvent(GameServerEventDto gameServerEvent);
 }

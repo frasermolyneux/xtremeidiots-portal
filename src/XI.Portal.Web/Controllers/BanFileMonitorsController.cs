@@ -11,7 +11,6 @@ using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -19,36 +18,32 @@ namespace XI.Portal.Web.Controllers
     public class BanFileMonitorsController : Controller
     {
         private readonly IAuthorizationService _authorizationService;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<BanFileMonitorsController> _logger;
 
         public BanFileMonitorsController(
             ILogger<BanFileMonitorsController> logger,
             IAuthorizationService authorizationService,
-            IRepositoryTokenProvider repositoryTokenProvider,
+
             IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryTokenProvider = repositoryTokenProvider;
             this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitors = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
+            var banFileMonitors = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
 
             List<BanFileMonitorViewModel> models = new List<BanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitors)
             {
-                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitor.ServerId);
+                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
                 models.Add(new BanFileMonitorViewModel
                 {
@@ -75,8 +70,7 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BanFileMonitorViewModel model)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, model.ServerId);
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(model.ServerId);
 
             if (gameServerDto == null) return NotFound();
 
@@ -98,7 +92,7 @@ namespace XI.Portal.Web.Controllers
 
             banFileMonitorDto.FilePath = model.FilePath;
 
-            await repositoryApiClient.GameServers.CreateBanFileMonitorForGameServer(accessToken, model.ServerId, banFileMonitorDto);
+            await repositoryApiClient.GameServers.CreateBanFileMonitorForGameServer(model.ServerId, banFileMonitorDto);
 
             _logger.LogInformation("User {User} has created a new ban file monitor with Id {Id}", User.Username(), banFileMonitorDto.BanFileMonitorId);
             this.AddAlertSuccess($"The ban file monitor has been created for {gameServerDto.Title}");
@@ -109,9 +103,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
@@ -136,9 +129,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+
+            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
@@ -166,9 +159,8 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(BanFileMonitorViewModel model)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, model.BanFileMonitorId);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(model.BanFileMonitorId);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
             if (banFileMonitorDto == null) return NotFound();
 
             if (!ModelState.IsValid)
@@ -184,7 +176,7 @@ namespace XI.Portal.Web.Controllers
 
             banFileMonitorDto.FilePath = model.FilePath;
 
-            await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitorDto);
+            await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitorDto);
 
             _logger.LogInformation("User {User} has updated {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
             this.AddAlertSuccess($"The ban file monitor has been created");
@@ -195,9 +187,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
@@ -208,7 +199,7 @@ namespace XI.Portal.Web.Controllers
 
             await AddGameServersViewData(banFileMonitorDto.ServerId);
 
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             var viewModel = new BanFileMonitorViewModel
             {
@@ -228,9 +219,8 @@ namespace XI.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(accessToken, id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitorDto.ServerId);
+            var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
+            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
@@ -239,7 +229,7 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            await repositoryApiClient.BanFileMonitors.DeleteBanFileMonitor(accessToken, id);
+            await repositoryApiClient.BanFileMonitors.DeleteBanFileMonitor(id);
 
             _logger.LogInformation("User {User} has deleted {BanFileMonitorId} against {ServerId}", User.Username(), banFileMonitorDto.BanFileMonitorId, banFileMonitorDto.ServerId);
             this.AddAlertSuccess($"The ban file monitor has been deleted");
@@ -249,12 +239,10 @@ namespace XI.Portal.Web.Controllers
 
         private async Task AddGameServersViewData(Guid? selected = null)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(accessToken, gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
 
             ViewData["GameServers"] = new SelectList(gameServerDtos, "Id", "Title", selected);
         }

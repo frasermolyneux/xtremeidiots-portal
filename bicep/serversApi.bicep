@@ -98,6 +98,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           'value': tenant().tenantId
         }
         {
+          'name': 'AzureAd:Instance'
+          'value': environment().authentication.loginEndpoint
+        }
+        {
           'name': 'AzureAd:ClientId'
           'value': parServersApiAppId
         }

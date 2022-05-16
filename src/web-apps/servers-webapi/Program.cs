@@ -1,4 +1,4 @@
-using XtremeIdiots.Portal.FuncHelpers.Providers;
+using Microsoft.Identity.Web;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersWebApi.Factories;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
@@ -6,9 +6,8 @@ using XtremeIdiots.Portal.ServersWebApi.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging();
+builder.Services.AddMemoryCache();
 builder.Services.AddApplicationInsightsTelemetry();
-
-builder.Services.AddSingleton<IRepositoryTokenProvider, RepositoryTokenProvider>();
 
 builder.Services.AddSingleton<IQueryClientFactory, QueryClientFactory>();
 builder.Services.AddSingleton<IRconClientFactory, RconClientFactory>();
@@ -20,7 +19,7 @@ builder.Services.AddRepositoryApiClient(options =>
 });
 
 // Add services to the container.
-//builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
+builder.Services.AddMicrosoftIdentityWebApiAuthentication(builder.Configuration);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

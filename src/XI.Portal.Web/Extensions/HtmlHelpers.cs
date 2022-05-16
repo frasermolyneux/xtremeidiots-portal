@@ -9,9 +9,9 @@ namespace XI.Portal.Web.Extensions
             if (string.IsNullOrEmpty(cssClass))
                 cssClass = "active";
 
-            var currentAction = (string) html.ViewContext.RouteData.Values["action"];
-            var currentController = (string) html.ViewContext.RouteData.Values["controller"];
-            var currentId = (string) html.ViewContext.RouteData.Values["id"];
+            var currentAction = (string)html.ViewContext.RouteData.Values["action"];
+            var currentController = (string)html.ViewContext.RouteData.Values["controller"];
+            var currentId = (string)html.ViewContext.RouteData.Values["id"];
 
             if (string.IsNullOrEmpty(controller))
                 controller = currentController;
@@ -27,7 +27,7 @@ namespace XI.Portal.Web.Extensions
 
         public static string PageClass(this IHtmlHelper htmlHelper)
         {
-            var currentAction = (string) htmlHelper.ViewContext.RouteData.Values["action"];
+            var currentAction = (string)htmlHelper.ViewContext.RouteData.Values["action"];
             return currentAction;
         }
     }

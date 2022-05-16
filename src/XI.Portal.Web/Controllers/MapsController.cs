@@ -8,21 +8,16 @@ using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = AuthPolicies.AccessMaps)]
     public class MapsController : Controller
     {
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
 
-        public MapsController(
-            IRepositoryTokenProvider repositoryTokenProvider,
-            IRepositoryApiClient repositoryApiClient)
+        public MapsController(IRepositoryApiClient repositoryApiClient)
         {
-            this.repositoryTokenProvider = repositoryTokenProvider;
             this.repositoryApiClient = repositoryApiClient;
         }
 
@@ -50,8 +45,6 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-
             var order = MapsOrder.MapNameAsc;
 
             var orderColumn = model.Columns[model.Order.First().Column].Name;
@@ -70,7 +63,7 @@ namespace XI.Portal.Web.Controllers
                     break;
             }
 
-            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(accessToken, id, null, model.Search?.Value, model.Start, model.Length, order);
+            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(id, null, model.Search?.Value, model.Start, model.Length, order);
 
             return Json(new
             {
@@ -87,8 +80,8 @@ namespace XI.Portal.Web.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var map = await repositoryApiClient.Maps.GetMap(accessToken, gameType, mapName);
+
+            var map = await repositoryApiClient.Maps.GetMap(gameType, mapName);
 
             return Redirect(map.MapImageUri);
         }

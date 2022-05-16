@@ -30,11 +30,11 @@ namespace XI.Utilities.FtpHelper
 
         public DateTime GetLastModified(string hostname, string filePath, string username, string password)
         {
-            var request = (FtpWebRequest) WebRequest.Create($"ftp://{hostname}/{filePath}");
+            var request = (FtpWebRequest)WebRequest.Create($"ftp://{hostname}/{filePath}");
             request.Method = WebRequestMethods.Ftp.GetDateTimestamp;
             request.Credentials = new NetworkCredential(username, password);
 
-            return ((FtpWebResponse) request.GetResponse()).LastModified;
+            return ((FtpWebResponse)request.GetResponse()).LastModified;
         }
 
         public string GetRemoteFileData(string hostname, string filePath, string username, string password)
@@ -42,7 +42,7 @@ namespace XI.Utilities.FtpHelper
             var request = CreateWebRequest(hostname, filePath, username, password);
             request.Method = WebRequestMethods.Ftp.DownloadFile;
 
-            using (var response = (FtpWebResponse) request.GetResponse())
+            using (var response = (FtpWebResponse)request.GetResponse())
             {
                 using (var responseStream = response.GetResponseStream())
                 {

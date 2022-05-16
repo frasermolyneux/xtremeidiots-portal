@@ -6,18 +6,18 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DataMaintenanceApi;
 
 public class DataMaintenanceApiClient : BaseApiClient, IDataMaintenanceApiClient
 {
-    public DataMaintenanceApiClient(ILogger<DataMaintenanceApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+    public DataMaintenanceApiClient(ILogger<DataMaintenanceApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
     {
 
     }
 
-    public async Task PruneChatMessages(string accessToken)
+    public async Task PruneChatMessages()
     {
-        await ExecuteAsync(CreateRequest("repository/data-maintenance/prune-chat-messages", Method.Delete, accessToken));
+        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-chat-messages", Method.Delete));
     }
 
-    public async Task PruneGameServerEvents(string accessToken)
+    public async Task PruneGameServerEvents()
     {
-        await ExecuteAsync(CreateRequest("repository/data-maintenance/prune-game-server-events", Method.Delete, accessToken));
+        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-game-server-events", Method.Delete));
     }
 }

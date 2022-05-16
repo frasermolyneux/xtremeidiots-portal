@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Utilities.FtpHelper;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
@@ -14,7 +13,7 @@ namespace XI.Portal.FuncApp
     {
         private readonly IBanFileIngest _banFileIngest;
         private readonly IBanFilesRepository _banFilesRepository;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
+
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IFtpHelper _ftpHelper;
         private readonly ILogger<BanFileMonitor> _logger;
@@ -24,14 +23,14 @@ namespace XI.Portal.FuncApp
             IFtpHelper ftpHelper,
             IBanFileIngest banFileIngest,
             IBanFilesRepository banFilesRepository,
-            IRepositoryTokenProvider repositoryTokenProvider,
+
             IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _ftpHelper = ftpHelper ?? throw new ArgumentNullException(nameof(ftpHelper));
             _banFileIngest = banFileIngest;
             _banFilesRepository = banFilesRepository ?? throw new ArgumentNullException(nameof(banFilesRepository));
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
         }
 
@@ -43,14 +42,14 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var banFileMonitors = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, null, null, null, 0, 0, null);
+
+            var banFileMonitors = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(null, null, null, 0, 0, null);
 
             foreach (var banFileMonitor in banFileMonitors)
             {
                 try
                 {
-                    var server = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitor.ServerId);
+                    var server = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
                     _logger.LogDebug("Checking ban file for {server}", server.Title);
 
@@ -77,7 +76,7 @@ namespace XI.Portal.FuncApp
 
                         banFileMonitor.RemoteFileSize = banFileSize;
 
-                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitor);
                         continue;
                     }
 
@@ -95,7 +94,7 @@ namespace XI.Portal.FuncApp
 
                         banFileMonitor.RemoteFileSize = remoteFileSize;
 
-                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitor);
                     }
                     else
                     {
@@ -117,7 +116,7 @@ namespace XI.Portal.FuncApp
 
                         banFileMonitor.RemoteFileSize = banFileSize;
 
-                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitor);
                     }
                     else
                     {
@@ -125,7 +124,7 @@ namespace XI.Portal.FuncApp
                     }
 
                     banFileMonitor.LastSync = DateTime.UtcNow;
-                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(accessToken, banFileMonitor);
+                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitor);
                 }
                 catch (Exception ex)
                 {

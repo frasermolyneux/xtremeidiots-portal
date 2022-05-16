@@ -12,13 +12,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.AdminActionsApi
 {
     public class AdminActionsApiClient : BaseApiClient, IAdminActionsApiClient
     {
-        public AdminActionsApiClient(ILogger<AdminActionsApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public AdminActionsApiClient(ILogger<AdminActionsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<List<AdminActionDto>> GetAdminActions(string accessToken, string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
+        public async Task<List<AdminActionDto>> GetAdminActions(string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
         {
-            var request = CreateRequest($"repository/admin-actions", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/admin-actions", Method.Get);
 
             if (!string.IsNullOrWhiteSpace(gameType))
                 request.AddQueryParameter("gameType", gameType);
@@ -46,9 +46,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.AdminActionsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> GetAdminAction(string accessToken, Guid adminActionId)
+        public async Task<AdminActionDto> GetAdminAction(Guid adminActionId)
         {
-            var request = CreateRequest($"repository/admin-actions/{adminActionId}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/admin-actions/{adminActionId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -60,9 +60,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.AdminActionsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task DeleteAdminAction(string accessToken, Guid adminActionId)
+        public async Task DeleteAdminAction(Guid adminActionId)
         {
-            var request = CreateRequest($"repository/admin-actions/{adminActionId}", Method.DELETE, accessToken);
+            var request = await CreateRequest($"repository/admin-actions/{adminActionId}", Method.Delete);
             await ExecuteAsync(request);
         }
     }

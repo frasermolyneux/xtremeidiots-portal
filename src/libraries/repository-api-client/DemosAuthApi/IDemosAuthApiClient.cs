@@ -4,13 +4,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
 {
     public interface IDemosAuthApiClient
     {
-        Task<List<DemoAuthDto>> CreateDemosAuths(string accessToken, List<DemoAuthDto> demoAuthDtos);
-        Task<List<DemoAuthDto>> UpdateDemosAuths(string accessToken, List<DemoAuthDto> demoAuthDtos);
+        Task<List<DemoAuthDto>> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos);
+        Task<List<DemoAuthDto>> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos);
 
-        Task<DemoAuthDto> CreateDemosAuth(string accessToken, DemoAuthDto demoAuthDto);
-        Task<DemoAuthDto> UpdateDemosAuth(string accessToken, DemoAuthDto demoAuthDto);
+        Task<DemoAuthDto> CreateDemosAuth(DemoAuthDto demoAuthDto);
+        Task<DemoAuthDto> UpdateDemosAuth(DemoAuthDto demoAuthDto);
 
-        Task<DemoAuthDto?> GetDemosAuth(string accessToken, string userId);
-        Task<DemoAuthDto?> GetDemosAuthByAuthKey(string accessToken, string authKey);
+        Task<DemoAuthDto?> GetDemosAuth(string userId);
+        Task<DemoAuthDto?> GetDemosAuthByAuthKey(string authKey);
     }
 }

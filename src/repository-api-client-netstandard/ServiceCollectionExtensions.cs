@@ -10,7 +10,6 @@ using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.PlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
 {
@@ -21,7 +20,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard
         {
             serviceCollection.Configure(configure);
 
-            serviceCollection.AddSingleton<IRepositoryTokenProvider, RepositoryTokenProvider>();
+            serviceCollection.AddSingleton<IRepositoryApiTokenProvider, RepositoryApiTokenProvider>();
 
             serviceCollection.AddSingleton<IAdminActionsApiClient, AdminActionsApiClient>();
             serviceCollection.AddSingleton<IBanFileMonitorsApiClient, BanFileMonitorsApiClient>();

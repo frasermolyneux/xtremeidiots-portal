@@ -12,13 +12,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi
 {
     public class BanFileMonitorsApiClient : BaseApiClient, IBanFileMonitorsApiClient
     {
-        public BanFileMonitorsApiClient(ILogger<BanFileMonitorsApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public BanFileMonitorsApiClient(ILogger<BanFileMonitorsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<BanFileMonitorDto> GetBanFileMonitor(string accessToken, Guid banFileMonitorId)
+        public async Task<BanFileMonitorDto> GetBanFileMonitor(Guid banFileMonitorId)
         {
-            var request = CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -30,9 +30,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<BanFileMonitorDto>> GetBanFileMonitors(string accessToken, string[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
+        public async Task<List<BanFileMonitorDto>> GetBanFileMonitors(string[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
         {
-            var request = CreateRequest("repository/ban-file-monitors", Method.GET, accessToken);
+            var request = await CreateRequest("repository/ban-file-monitors", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));
@@ -57,9 +57,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<BanFileMonitorDto> UpdateBanFileMonitor(string accessToken, BanFileMonitorDto banFileMonitor)
+        public async Task<BanFileMonitorDto> UpdateBanFileMonitor(BanFileMonitorDto banFileMonitor)
         {
-            var request = CreateRequest($"repository/ban-file-monitors/{banFileMonitor.BanFileMonitorId}", Method.PATCH, accessToken);
+            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitor.BanFileMonitorId}", Method.Patch);
             request.AddJsonBody(banFileMonitor);
 
             var response = await ExecuteAsync(request);
@@ -70,9 +70,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.BanFileMonitorsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task DeleteBanFileMonitor(string accessToken, Guid banFileMonitorId)
+        public async Task DeleteBanFileMonitor(Guid banFileMonitorId)
         {
-            var request = CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.DELETE, accessToken);
+            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.Delete);
             await ExecuteAsync(request);
         }
     }

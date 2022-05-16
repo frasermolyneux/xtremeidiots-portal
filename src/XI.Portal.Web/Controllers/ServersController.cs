@@ -13,7 +13,6 @@ using XI.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -22,7 +21,6 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
 
@@ -30,21 +28,19 @@ namespace XI.Portal.Web.Controllers
             IGameServerStatusRepository gameServerStatusRepository,
             IPlayerLocationsRepository playerLocationsRepository,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient)
         {
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var servers = await repositoryApiClient.GameServers.GetGameServers(accessToken, null, null, "ShowOnPortalServerList", 0, 0, "BannerServerListPosition");
+            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, "ShowOnPortalServerList", 0, 0, "BannerServerListPosition");
 
             var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
 
@@ -71,8 +67,8 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerInfo(Guid id)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var gameServer = await repositoryApiClient.GameServers.GetGameServer(accessToken, id);
+
+            var gameServer = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, TimeSpan.Zero);
 
@@ -127,10 +123,10 @@ namespace XI.Portal.Web.Controllers
 
             MapDto mapDto = null;
             if (gameServerStatusDto != null)
-                mapDto = await repositoryApiClient.Maps.GetMap(accessToken, gameServerStatusDto.GameType, gameServerStatusDto.Map);
+                mapDto = await repositoryApiClient.Maps.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
 
             var mapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(accessToken, gameServer.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
+            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServer.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
 
             return View(new ServerInfoViewModel
             {

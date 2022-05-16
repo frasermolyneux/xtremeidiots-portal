@@ -9,7 +9,6 @@ using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -17,32 +16,27 @@ namespace XI.Portal.Web.Controllers
     public class StatusController : Controller
     {
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
 
         public StatusController(
             IGameServerStatusRepository gameServerStatusRepository,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient)
         {
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
-            this.repositoryTokenProvider = repositoryTokenProvider;
             this.repositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> BanFileStatus()
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(accessToken, gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
+            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
 
             List<BanFileMonitorViewModel> models = new List<BanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitorDtos)
             {
-                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, banFileMonitor.ServerId);
+                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
                 models.Add(new BanFileMonitorViewModel
                 {

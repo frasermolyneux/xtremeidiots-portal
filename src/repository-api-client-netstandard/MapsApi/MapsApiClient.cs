@@ -15,13 +15,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
 {
     public class MapsApiClient : BaseApiClient, IMapsApiClient
     {
-        public MapsApiClient(ILogger<MapsApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public MapsApiClient(ILogger<MapsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<MapDto> CreateMap(string accessToken, MapDto mapDto)
+        public async Task<MapDto> CreateMap(MapDto mapDto)
         {
-            var request = CreateRequest("repository/maps", Method.POST, accessToken);
+            var request = await CreateRequest("repository/maps", Method.Post);
             request.AddJsonBody(new List<MapDto> { mapDto });
 
             var response = await ExecuteAsync(request);
@@ -35,9 +35,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<MapDto>> CreateMaps(string accessToken, List<MapDto> mapDtos)
+        public async Task<List<MapDto>> CreateMaps(List<MapDto> mapDtos)
         {
-            var request = CreateRequest("repository/maps", Method.POST, accessToken);
+            var request = await CreateRequest("repository/maps", Method.Post);
             request.AddJsonBody(mapDtos);
 
             var response = await ExecuteAsync(request);
@@ -51,15 +51,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task DeleteMap(string accessToken, Guid mapId)
+        public async Task DeleteMap(Guid mapId)
         {
-            var request = CreateRequest($"repository/maps/{mapId}", Method.DELETE, accessToken);
+            var request = await CreateRequest($"repository/maps/{mapId}", Method.Delete);
             await ExecuteAsync(request);
         }
 
-        public async Task<MapDto?> GetMap(string accessToken, Guid mapId)
+        public async Task<MapDto?> GetMap(Guid mapId)
         {
-            var request = CreateRequest($"repository/maps/{mapId}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/maps/{mapId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -71,9 +71,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapDto?> GetMap(string accessToken, GameType gameType, string mapName)
+        public async Task<MapDto?> GetMap(GameType gameType, string mapName)
         {
-            var request = CreateRequest($"repository/maps/{gameType}/{mapName}", Method.GET, accessToken);
+            var request = await CreateRequest($"repository/maps/{gameType}/{mapName}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -85,9 +85,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapsResponseDto> GetMaps(string accessToken, GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
+        public async Task<MapsResponseDto> GetMaps(GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
         {
-            var request = CreateRequest("repository/maps", Method.GET, accessToken);
+            var request = await CreateRequest("repository/maps", Method.Get);
 
             if (gameType != null)
                 request.AddQueryParameter("gameType", gameType.ToString());
@@ -118,9 +118,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapDto> UpdateMap(string accessToken, MapDto mapDto)
+        public async Task<MapDto> UpdateMap(MapDto mapDto)
         {
-            var request = CreateRequest("repository/maps", Method.PUT, accessToken);
+            var request = await CreateRequest("repository/maps", Method.Put);
             request.AddJsonBody(new List<MapDto> { mapDto });
 
             var response = await ExecuteAsync(request);
@@ -134,9 +134,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<MapDto>> UpdateMaps(string accessToken, List<MapDto> mapDtos)
+        public async Task<List<MapDto>> UpdateMaps(List<MapDto> mapDtos)
         {
-            var request = CreateRequest("repository/maps", Method.PUT, accessToken);
+            var request = await CreateRequest("repository/maps", Method.Put);
             request.AddJsonBody(mapDtos);
 
             var response = await ExecuteAsync(request);
@@ -152,13 +152,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
 
         public async Task RebuildMapPopularity(string accessToken)
         {
-            var request = CreateRequest($"repository/maps/popularity", Method.POST, accessToken);
+            var request = await CreateRequest($"repository/maps/popularity", Method.Post);
             await ExecuteAsync(request);
         }
 
-        public async Task UpsertMapVote(string accessToken, Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null)
+        public async Task UpsertMapVote(Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null)
         {
-            var request = CreateRequest($"repository/maps/{mapId}/popularity/{playerId}", Method.POST, accessToken);
+            var request = await CreateRequest($"repository/maps/{mapId}/popularity/{playerId}", Method.Post);
             request.AddQueryParameter("like", like.ToString());
 
             if (overrideCreated != null)
@@ -167,9 +167,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.MapsApi
             await ExecuteAsync(request);
         }
 
-        public async Task UpdateMapImage(string accessToken, Guid mapId, string filePath)
+        public async Task UpdateMapImage(Guid mapId, string filePath)
         {
-            var request = CreateRequest($"repository/maps/{mapId}/image", Method.POST, accessToken);
+            var request = await CreateRequest($"repository/maps/{mapId}/image", Method.Post);
             request.AddFile("map.jpg", filePath);
 
             await ExecuteAsync(request);

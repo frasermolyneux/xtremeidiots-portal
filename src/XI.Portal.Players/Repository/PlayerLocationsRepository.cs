@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using FM.AzureTableExtensions.Library.Extensions;
+﻿using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using XI.Portal.Players.Dto;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
@@ -87,7 +87,7 @@ namespace XI.Portal.Players.Repository
                 var query = new TableQuery<TableEntity>()
                     .Where(TableQuery.CombineFilters(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, serverId.ToString()), TableOperators.And,
                         TableQuery.GenerateFilterConditionForDate("Timestamp", QueryComparisons.LessThan, DateTime.UtcNow.AddHours(-24))))
-                    .Select(new[] {"PartitionKey", "RowKey"});
+                    .Select(new[] { "PartitionKey", "RowKey" });
 
                 TableContinuationToken continuationToken = null;
                 do

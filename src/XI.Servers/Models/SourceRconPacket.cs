@@ -40,7 +40,7 @@ namespace XI.Servers.Models
                 var id = BitConverter.GetBytes(Id);
                 var type = BitConverter.GetBytes(Type);
                 var body = Encoding.ASCII.GetBytes(Body);
-                var terminator = new byte[] {0x00};
+                var terminator = new byte[] { 0x00 };
 
                 var packet = new byte[4 + Size];
 

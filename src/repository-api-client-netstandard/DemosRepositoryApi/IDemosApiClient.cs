@@ -6,9 +6,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.NetStandard.DemosRepositoryApi
 {
     public interface IDemosApiClient
     {
-        Task<DemosSearchResponseDto> SearchDemos(string accessToken, string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order);
-        Task<DemoDto?> GetDemo(string accessToken, Guid demoId);
-        Task<DemoDto?> CreateDemo(string accessToken, DemoDto demoDto, string fileName, string filePath);
-        Task DeleteDemo(string accessToken, Guid demoId);
+        Task<DemosSearchResponseDto> SearchDemos(string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order);
+        Task<DemoDto?> GetDemo(Guid demoId);
+        Task<DemoDto?> CreateDemo(DemoDto demoDto, string fileName, string filePath);
+        Task DeleteDemo(Guid demoId);
     }
 }

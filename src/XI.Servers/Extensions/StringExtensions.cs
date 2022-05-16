@@ -8,7 +8,7 @@ namespace XI.Servers.Extensions
     {
         public static string NormalizeName(this string playerName)
         {
-            var toRemove = new List<string> {"^0", "^1", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9"};
+            var toRemove = new List<string> { "^0", "^1", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9" };
 
             var toReturn = playerName.ToUpper();
             toReturn = toRemove.Aggregate(toReturn, (current, val) => current.Replace(val, ""));

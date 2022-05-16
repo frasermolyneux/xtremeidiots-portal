@@ -1,9 +1,9 @@
-﻿using System;
+﻿using FM.AzureTableExtensions.Library.Extensions;
+using Microsoft.Azure.Cosmos.Table;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FM.AzureTableExtensions.Library.Extensions;
-using Microsoft.Azure.Cosmos.Table;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Servers.Interfaces;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
@@ -12,19 +11,15 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
     public class RconController : Controller
     {
         private readonly ILogger<RconController> logger;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRconClientFactory rconClientFactory;
 
         public RconController(
             ILogger<RconController> logger,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient,
-            IRconClientFactory rconClientFactory
-            )
+            IRconClientFactory rconClientFactory)
         {
             this.logger = logger;
-            this.repositoryTokenProvider = repositoryTokenProvider;
             this.repositoryApiClient = repositoryApiClient;
             this.rconClientFactory = rconClientFactory;
         }
@@ -33,8 +28,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         [Route("api/rcon/{serverId}/players")]
         public async Task<IActionResult> GetServerStatus(Guid serverId)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, serverId);
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(serverId);
 
             if (gameServerDto == null)
                 return NotFound();

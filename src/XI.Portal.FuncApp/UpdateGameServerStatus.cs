@@ -9,7 +9,6 @@ using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
@@ -19,20 +18,18 @@ namespace XI.Portal.FuncApp
         private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IPlayerIngest _playerIngest;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
 
         public UpdateGameServerStatus(
             IGameServerStatusRepository gameServerStatusRepository,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
             IPlayerIngest playerIngest,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient)
         {
             _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
             _playerIngest = playerIngest ?? throw new ArgumentNullException(nameof(playerIngest));
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
         }
 
@@ -47,8 +44,7 @@ namespace XI.Portal.FuncApp
 
             _playerIngest.OverrideLogger(log);
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var servers = await repositoryApiClient.GameServers.GetGameServers(accessToken, null, null, "ShowOnPortalServerList", 0, 0, null);
+            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, "ShowOnPortalServerList", 0, 0, null);
 
             foreach (var server in servers)
             {

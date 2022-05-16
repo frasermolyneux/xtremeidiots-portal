@@ -28,7 +28,7 @@ resource "azurerm_app_service" "app-service" {
   app_service_plan_id = azurerm_app_service_plan.app-service-plan.id
 
   site_config {
-    dotnet_framework_version = "v5.0"
+    dotnet_framework_version = "v6.0"
     # This is required to be set to support the shared app service plan
     use_32_bit_worker_process = true
   }

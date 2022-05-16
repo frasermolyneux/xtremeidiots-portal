@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>aspnet-XI.Portal.Web-C68F0D1A-4DA1-4487-9A50-680D1F2E79E0</UserSecretsId>
   </PropertyGroup>
 
@@ -16,13 +16,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\repository-api-abstractions-netstandard\repository-api-abstractions-netstandard.csproj" />
-    <ProjectReference Include="..\repository-api-client-netstandard\repository-api-client-netstandard.csproj" />
+    <ProjectReference Include="..\libraries\repository-api-client\repository-api-client.csproj" />
+    <ProjectReference Include="..\libraries\servers-api-client\servers-api-client.csproj" />
+    <ProjectReference Include="..\repository-api-abstractions\repository-api-abstractions.csproj" />
+    <ProjectReference Include="..\servers-api-abstractions\servers-api-abstractions.csproj" />
     <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />

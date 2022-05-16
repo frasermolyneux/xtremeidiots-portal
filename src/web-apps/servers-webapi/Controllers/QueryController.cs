@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
@@ -12,19 +11,16 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
     public class QueryController : Controller
     {
         private readonly ILogger<QueryController> logger;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IQueryClientFactory queryClientFactory;
 
         public QueryController(
             ILogger<QueryController> logger,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient,
-            IQueryClientFactory queryClientFactory
-            )
+            IQueryClientFactory queryClientFactory)
         {
             this.logger = logger;
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
             this.queryClientFactory = queryClientFactory;
         }
@@ -33,8 +29,8 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         [Route("api/query/{serverId}/status")]
         public async Task<IActionResult> GetServerStatus(Guid serverId)
         {
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(accessToken, serverId);
+
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(serverId);
 
             if (gameServerDto == null)
                 return NotFound();

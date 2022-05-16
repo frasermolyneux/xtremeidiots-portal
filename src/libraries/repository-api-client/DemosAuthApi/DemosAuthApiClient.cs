@@ -9,13 +9,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
 {
     public class DemosAuthApiClient : BaseApiClient, IDemosAuthApiClient
     {
-        public DemosAuthApiClient(ILogger<DemosAuthApiClient> logger, IOptions<RepositoryApiClientOptions> options) : base(logger, options)
+        public DemosAuthApiClient(ILogger<DemosAuthApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
         {
         }
 
-        public async Task<DemoAuthDto> CreateDemosAuth(string accessToken, DemoAuthDto demoAuthDto)
+        public async Task<DemoAuthDto> CreateDemosAuth(DemoAuthDto demoAuthDto)
         {
-            var request = CreateRequest("repository/demos-auth", Method.Post, accessToken);
+            var request = await CreateRequest("repository/demos-auth", Method.Post);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
 
             var response = await ExecuteAsync(request);
@@ -29,9 +29,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<DemoAuthDto>> CreateDemosAuths(string accessToken, List<DemoAuthDto> demoAuthDtos)
+        public async Task<List<DemoAuthDto>> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
-            var request = CreateRequest("repository/demos-auth", Method.Post, accessToken);
+            var request = await CreateRequest("repository/demos-auth", Method.Post);
             request.AddJsonBody(demoAuthDtos);
 
             var response = await ExecuteAsync(request);
@@ -45,9 +45,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemoAuthDto?> GetDemosAuth(string accessToken, string userId)
+        public async Task<DemoAuthDto?> GetDemosAuth(string userId)
         {
-            var request = CreateRequest($"repository/demos-auth/{userId}", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/demos-auth/{userId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -59,9 +59,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemoAuthDto?> GetDemosAuthByAuthKey(string accessToken, string authKey)
+        public async Task<DemoAuthDto?> GetDemosAuthByAuthKey(string authKey)
         {
-            var request = CreateRequest($"repository/demos-auth/by-auth-key/{authKey}", Method.Get, accessToken);
+            var request = await CreateRequest($"repository/demos-auth/by-auth-key/{authKey}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -73,9 +73,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemoAuthDto> UpdateDemosAuth(string accessToken, DemoAuthDto demoAuthDto)
+        public async Task<DemoAuthDto> UpdateDemosAuth(DemoAuthDto demoAuthDto)
         {
-            var request = CreateRequest("repository/demos-auth", Method.Put, accessToken);
+            var request = await CreateRequest("repository/demos-auth", Method.Put);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
 
             var response = await ExecuteAsync(request);
@@ -89,9 +89,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<DemoAuthDto>> UpdateDemosAuths(string accessToken, List<DemoAuthDto> demoAuthDtos)
+        public async Task<List<DemoAuthDto>> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
-            var request = CreateRequest("repository/demos-auth", Method.Put, accessToken);
+            var request = await CreateRequest("repository/demos-auth", Method.Put);
             request.AddJsonBody(demoAuthDtos);
 
             var response = await ExecuteAsync(request);

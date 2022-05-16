@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.FuncApp
 {
@@ -15,7 +14,6 @@ namespace XI.Portal.FuncApp
     public class DataMaintenance
     {
         private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
-        private readonly IRepositoryTokenProvider repositoryTokenProvider;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
@@ -24,13 +22,12 @@ namespace XI.Portal.FuncApp
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
             IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IRepositoryTokenProvider repositoryTokenProvider,
             IRepositoryApiClient repositoryApiClient)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
             _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
-            this.repositoryTokenProvider = repositoryTokenProvider;
+
             this.repositoryApiClient = repositoryApiClient;
         }
 
@@ -43,9 +40,7 @@ namespace XI.Portal.FuncApp
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            var accessToken = await repositoryTokenProvider.GetRepositoryAccessToken();
-            var servers = await repositoryApiClient.GameServers.GetGameServers(accessToken, null, null, null, 0, 0, null);
-
+            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, null, 0, 0, null);
             var serverIds = servers.Select(s => s.Id).ToList();
 
             await _playerLocationsRepository.RemoveOldEntries(serverIds);

@@ -5,27 +5,21 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard.Providers;
 
 namespace XI.Portal.Web.Controllers
 {
     public class ExternalController : Controller
     {
-        public IRepositoryTokenProvider RepositoryTokenProvider { get; }
         public IRepositoryApiClient RepositoryApiClient { get; }
 
-        public ExternalController(
-            IRepositoryTokenProvider repositoryTokenProvider,
-            IRepositoryApiClient repositoryApiClient)
+        public ExternalController(IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryTokenProvider = repositoryTokenProvider;
             RepositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> LatestAdminActions()
         {
-            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, null, 0, 15, "CreatedDesc");
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, "CreatedDesc");
 
             return View(adminActionDtos);
         }
@@ -33,8 +27,7 @@ namespace XI.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions()
         {
-            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(accessToken, null, null, null, null, 0, 15, "CreatedDesc");
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, "CreatedDesc");
 
             var results = new List<dynamic>();
             foreach (var adminActionDto in adminActionDtos)

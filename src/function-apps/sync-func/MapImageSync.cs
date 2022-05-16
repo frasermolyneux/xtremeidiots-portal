@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using XtremeIdiots.Portal.FuncHelpers.Providers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -14,15 +13,11 @@ namespace XtremeIdiots.Portal.SyncFunc
 {
     public class MapImageSync
     {
-        public MapImageSync(
-            IRepositoryTokenProvider repositoryTokenProvider,
-            IRepositoryApiClient repositoryApiClient)
+        public MapImageSync(IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryTokenProvider = repositoryTokenProvider;
             RepositoryApiClient = repositoryApiClient;
         }
 
-        public IRepositoryTokenProvider RepositoryTokenProvider { get; }
         public IRepositoryApiClient RepositoryApiClient { get; }
 
         [FunctionName("MapImageSync")]
@@ -36,11 +31,9 @@ namespace XtremeIdiots.Portal.SyncFunc
                 {GameType.CallOfDuty5, "codww"}
             };
 
-            var accessToken = await RepositoryTokenProvider.GetRepositoryAccessToken();
-
             foreach (var game in gamesToSync)
             {
-                var mapsResponseDto = await RepositoryApiClient.Maps.GetMaps(accessToken, game.Key, null, null, null, null, null);
+                var mapsResponseDto = await RepositoryApiClient.Maps.GetMaps(game.Key, null, null, null, null, null);
                 var mapsToUpdate = mapsResponseDto.Entries.Where(m => string.IsNullOrWhiteSpace(m.MapImageUri)).ToList();
 
                 log.LogInformation($"Total maps retrieved from redirect for {game.Key} is {mapsResponseDto.Entries.Count} with {mapsToUpdate.Count} needing updating");
@@ -60,7 +53,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                             var filePath = Path.GetTempFileName();
                             client.DownloadFile(new Uri(gameTrackerImageUrl), filePath);
 
-                            await RepositoryApiClient.Maps.UpdateMapImage(accessToken, mapDto.MapId, filePath);
+                            await RepositoryApiClient.Maps.UpdateMapImage(mapDto.MapId, filePath);
                         }
                     }
                     catch (Exception ex)

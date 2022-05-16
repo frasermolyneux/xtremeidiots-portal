@@ -20,6 +20,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         {
             serviceCollection.Configure(configure);
 
+            serviceCollection.AddSingleton<IRepositoryApiTokenProvider, RepositoryApiTokenProvider>();
+
             serviceCollection.AddSingleton<IAdminActionsApiClient, AdminActionsApiClient>();
             serviceCollection.AddSingleton<IBanFileMonitorsApiClient, BanFileMonitorsApiClient>();
             serviceCollection.AddSingleton<IChatMessagesApiClient, ChatMessagesApiClient>();

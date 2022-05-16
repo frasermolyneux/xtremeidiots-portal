@@ -1,5 +1,4 @@
-﻿using System;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions
 {

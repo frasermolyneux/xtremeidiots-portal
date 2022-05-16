@@ -29,6 +29,7 @@ if (($b3BotsClientPermissions.resourceAccess | Where-Object { $_.id -eq '042608f
     az ad app permission add --id $b3botsClientId --api $eventsApiAppId --api-permissions '042608f6-317d-43b7-8fad-4618705abfcc=Role' 
 }
 
+## Repository API
 $repositoryApiName = 'portal-repository-api-prd'
 az ad app create --display-name $repositoryApiName --identifier-uris "api://$repositoryApiName"
 $repositoryApiId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
@@ -39,3 +40,15 @@ if ($null -eq $repositoryApiSp) {
 }
 
 az ad app update --id $repositoryApiId --app-roles @app-registrations/repository-api-approles.json
+
+## Servers API
+$serversApiName = 'portal-servers-api-prd'
+az ad app create --display-name $serversApiName --identifier-uris "api://$serversApiName"
+$serversApiId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
+
+$serversApiSp = az ad sp show --id $serversApiId
+if ($null -eq $serversApiSp) {
+    az ad sp create --id $serversApiId
+}
+
+az ad app update --id $serversApiId --app-roles @app-registrations/servers-api-approles.json

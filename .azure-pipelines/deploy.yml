@@ -20,10 +20,12 @@ variables:
   serviceBus: 'sb-portal-prd-uksouth-01'
   eventsApiAppName: 'portal-events-api-prd'
   repositoryApiName: 'portal-repository-api-prd'
+  serversApiName: 'portal-servers-api-prd'
   eventsFunctionAppName: 'fn-events-portal-prd-uksouth-01'
   ingestFunctionAppName: 'fn-ingest-portal-prd-uksouth-01'
   repositoryWebAppName: 'webapi-repository-portal-prd-uksouth-01'
   repositoryFunctionAppName: 'fn-repository-portal-prd-uksouth-01'
+  serversWebAppName: 'webapi-servers-portal-prd-uksouth-01'
   syncFunctionAppName: 'fn-sync-portal-prd-uksouth-01'
   adminWebAppName: 'webapp-admin-portal-prd-uksouth-01'
   sqlServerName: 'sql-portal-prd-uksouth-01'
@@ -130,9 +132,16 @@ stages:
       projectName: 'sync-func'
       publishArtifact: true
 
+  - template: templates/build-web-app.yml
+    parameters: 
+      dependsOn: ['BuildSyncFunctionApp']
+      jobName: 'BuildServersWebApi'
+      projectName: 'servers-webapi'
+      publishArtifact: true
+
   - template: templates/build-sql-database.yml
     parameters:
-      dependsOn: ['BuildSyncFunctionApp']
+      dependsOn: ['BuildServersWebApi']
       publishArtifact: true
 
 - stage: DeployPrdCore
@@ -330,6 +339,73 @@ stages:
               parApiManagementName=$(apiManagement) `
               parServiceBusName=$(serviceBus)
 
+  - job: DeployServersApiBicep
+    dependsOn: ['DeployAdminWebAppBicep']
+    steps:
+    - task: AzureCLI@2
+      displayName: DeployServersApiBicep
+      inputs:
+        azureSubscription: $(subscription)
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $serversApiAppId = (az ad app list --filter "displayName eq '$(serversApiName)'" --query '[].appId') | ConvertFrom-Json
+          
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/serversApi.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parServersApiAppId=$serversApiAppId
+
+- stage: DeployPrdPermissions
+
+  jobs:
+  - job: DeployPrdPermissions
+    steps:
+      - task: AzureCLI@2
+        displayName: SetIngestApiFuncAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: SetLegacyFuncAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyFuncAppPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: SetLegacyWebAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyWebAppPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: SetRepositoryApiAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryApiAppPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: SetRepositoryAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
+
 - stage: DeployPrdAppsAndDatabase
 
   jobs:
@@ -380,4 +456,13 @@ stages:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-web-app.yml
+    parameters:
+      dependsOn: ['DeployRepositoryFunctionApp']
+      projectName: servers-webapi
+      jobName: DeployServersWebApi
+      webAppName: '$(serversWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)

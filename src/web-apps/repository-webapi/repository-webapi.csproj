@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\data-lib\data-lib.csproj" />
     <ProjectReference Include="..\..\libraries\cod-demos\cod-demos.csproj" />
+    <ProjectReference Include="..\..\libraries\func-helpers\func-helpers.csproj" />
     <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
   </ItemGroup>
 

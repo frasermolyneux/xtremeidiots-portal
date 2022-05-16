@@ -1,0 +1,12 @@
+[
+    {
+        "allowedMemberTypes": [
+            "Application"
+        ],
+        "description": "Service Accounts can call status, query and rcon APIs",
+        "displayName": "ServiceAccount",
+        "id": "6336ebcb-6b93-4abf-801e-7b485b77c142",
+        "isEnabled": true,
+        "value": "ServiceAccount"
+    }
+]

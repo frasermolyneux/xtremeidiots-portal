@@ -107,7 +107,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'AzureAd:Audience'
-          'value': 'api://portal-repository-api-${parEnvironment}'
+          'value': 'api://portal-servers-api-${parEnvironment}'
         }
         {
           name: 'apim-base-url'

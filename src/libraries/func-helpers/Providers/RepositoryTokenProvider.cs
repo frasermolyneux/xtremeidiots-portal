@@ -1,20 +1,24 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace XtremeIdiots.Portal.FuncHelpers.Providers;
 
 public class RepositoryTokenProvider : IRepositoryTokenProvider
 {
-    public RepositoryTokenProvider(ILogger<RepositoryTokenProvider> log)
+    public RepositoryTokenProvider(
+        ILogger<RepositoryTokenProvider> log,
+        IConfiguration configuration)
     {
         Log = log;
+        Configuration = configuration;
     }
 
     private ILogger<RepositoryTokenProvider> Log { get; }
+    public IConfiguration Configuration { get; }
 
-    private string WebApiPortalApplicationAudience =>
-        Environment.GetEnvironmentVariable("webapi-portal-application-audience");
+    private string WebApiPortalApplicationAudience => Configuration["webapi-portal-application-audience"];
 
     public async Task<string> GetRepositoryAccessToken()
     {

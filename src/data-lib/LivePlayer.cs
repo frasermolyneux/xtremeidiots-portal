@@ -12,7 +12,8 @@ namespace XtremeIdiots.Portal.DataLib
     public partial class LivePlayer
     {
         [Key]
-        public Guid LivePlayerId { get; set; }
+        public Guid Id { get; set; }
+        [Required]
         [StringLength(60)]
         public string Name { get; set; }
         public int Score { get; set; }

@@ -197,7 +197,7 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<LivePlayer>(entity =>
             {
-                entity.Property(e => e.LivePlayerId).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.GameServerServer)
                     .WithMany(p => p.LivePlayers)

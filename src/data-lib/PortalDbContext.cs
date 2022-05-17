@@ -33,7 +33,6 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<GameServerMap> GameServerMaps { get; set; }
         public virtual DbSet<GameServerStat> GameServerStats { get; set; }
         public virtual DbSet<LivePlayer> LivePlayers { get; set; }
-        public virtual DbSet<LivePlayerLocation> LivePlayerLocations { get; set; }
         public virtual DbSet<Map> Maps { get; set; }
         public virtual DbSet<MapVote> MapVotes { get; set; }
         public virtual DbSet<Player2> Player2s { get; set; }
@@ -204,11 +203,6 @@ namespace XtremeIdiots.Portal.DataLib
                     .WithMany(p => p.LivePlayers)
                     .HasForeignKey(d => d.GameServerServerId)
                     .HasConstraintName("FK_dbo.LivePlayers_dbo.GameServers_GameServer_ServerId");
-            });
-
-            modelBuilder.Entity<LivePlayerLocation>(entity =>
-            {
-                entity.Property(e => e.LivePlayerLocationId).HasDefaultValueSql("newsequentialid()");
             });
 
             modelBuilder.Entity<Map>(entity =>

@@ -13,11 +13,19 @@ namespace XtremeIdiots.Portal.DataLib
     {
         [Key]
         public Guid LivePlayerId { get; set; }
+        [StringLength(60)]
         public string Name { get; set; }
         public int Score { get; set; }
         public int Ping { get; set; }
+        [StringLength(10)]
         public string Team { get; set; }
         public TimeSpan Time { get; set; }
+        [StringLength(60)]
+        public string IpAddress { get; set; }
+        public double? Lat { get; set; }
+        public double? Long { get; set; }
+        [StringLength(60)]
+        public string CountryCode { get; set; }
         [Column("GameServer_ServerId")]
         public Guid? GameServerServerId { get; set; }
 

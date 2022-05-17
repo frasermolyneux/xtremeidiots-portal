@@ -326,7 +326,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     maps = maps.OrderBy(m => m.LikePercentage).AsQueryable();
                     break;
                 case MapsOrder.PopularityDesc:
-                    maps = maps.OrderBy(m => m.DislikePercentage).AsQueryable();
+                    maps = maps.OrderByDescending(m => m.LikePercentage).AsQueryable();
                     break;
             }
 

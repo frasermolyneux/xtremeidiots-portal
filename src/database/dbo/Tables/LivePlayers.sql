@@ -9,6 +9,7 @@
     [Lat]                 FLOAT (53)       NULL,
     [Long]                FLOAT (53)       NULL,
     [CountryCode]         NVARCHAR (60)   NULL,
+    [GameType]            INT DEFAULT 0 NOT NULL,
     [GameServer_ServerId] UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.LivePlayers] PRIMARY KEY CLUSTERED ([Id] ASC),
     CONSTRAINT [FK_dbo.LivePlayers_dbo.GameServers_GameServer_ServerId] FOREIGN KEY ([GameServer_ServerId]) REFERENCES [dbo].[GameServers] ([ServerId])

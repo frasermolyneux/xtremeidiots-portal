@@ -27,6 +27,7 @@ namespace XtremeIdiots.Portal.DataLib
         public double? Long { get; set; }
         [StringLength(60)]
         public string CountryCode { get; set; }
+        public int GameType { get; set; }
         [Column("GameServer_ServerId")]
         public Guid? GameServerServerId { get; set; }
 

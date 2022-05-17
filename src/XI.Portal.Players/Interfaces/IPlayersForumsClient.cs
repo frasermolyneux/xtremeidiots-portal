@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XI.Portal.Players.Interfaces
 {

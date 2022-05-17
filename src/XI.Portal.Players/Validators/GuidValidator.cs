@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using XI.Portal.Players.Interfaces;
 
 namespace XI.Portal.Players.Validators

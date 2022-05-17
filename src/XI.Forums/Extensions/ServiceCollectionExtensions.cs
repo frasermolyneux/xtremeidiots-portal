@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
 using XI.Forums.Client;
 using XI.Forums.Configuration;
 using XI.Forums.Interfaces;

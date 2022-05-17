@@ -6,8 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
 {

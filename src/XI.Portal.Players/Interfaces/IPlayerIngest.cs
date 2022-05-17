@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Players.Interfaces
 {

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XI.Portal.Servers.Interfaces
+﻿namespace XI.Portal.Servers.Interfaces
 {
     public interface IServersModuleOptions
     {

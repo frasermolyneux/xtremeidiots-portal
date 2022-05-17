@@ -1,15 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using XI.Servers.Interfaces;
 using XI.Servers.Interfaces.Models;
 using XI.Servers.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Servers.Clients
 {

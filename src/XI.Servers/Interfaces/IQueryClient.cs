@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace XI.Servers.Interfaces
+﻿namespace XI.Servers.Interfaces
 {
     public interface IQueryClient
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using XI.Forums.Interfaces;
+﻿using XI.Forums.Interfaces;
 
 namespace XI.Forums.Configuration
 {

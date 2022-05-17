@@ -23,7 +23,7 @@ using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 

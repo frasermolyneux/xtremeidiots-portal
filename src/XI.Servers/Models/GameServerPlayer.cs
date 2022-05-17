@@ -1,5 +1,4 @@
-﻿using System;
-using XI.Servers.Extensions;
+﻿using XI.Servers.Extensions;
 using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Models

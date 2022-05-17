@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using XI.Portal.Players.Dto;
+﻿using XI.Portal.Players.Dto;
 
 namespace XI.Portal.Players.Interfaces
 {

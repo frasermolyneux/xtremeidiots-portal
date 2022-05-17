@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Servers.Interfaces
 {

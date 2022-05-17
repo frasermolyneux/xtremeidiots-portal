@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Utilities.FtpHelper;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.FuncApp
 {

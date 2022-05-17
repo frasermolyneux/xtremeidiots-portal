@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using XI.Servers.Dto;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+﻿using XI.Servers.Dto;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Servers.Interfaces
 {

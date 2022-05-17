@@ -1,5 +1,5 @@
 ﻿using XI.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XI.Portal.Web.Extensions
 {

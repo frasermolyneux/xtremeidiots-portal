@@ -1,12 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Extensions;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Players.Ingest
 {

@@ -1,11 +1,9 @@
 ﻿using FM.AzureTableExtensions.Library.Extensions;
 using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Players.Repository
 {

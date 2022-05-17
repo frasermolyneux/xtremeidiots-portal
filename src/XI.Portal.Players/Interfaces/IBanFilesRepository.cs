@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-namespace XI.Portal.Players.Interfaces
+﻿namespace XI.Portal.Players.Interfaces
 {
     public interface IBanFilesRepository
     {

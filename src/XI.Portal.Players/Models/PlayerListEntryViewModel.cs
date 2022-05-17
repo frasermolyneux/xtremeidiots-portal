@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace XI.Portal.Players.Models
+﻿namespace XI.Portal.Players.Models
 {
     public class PlayerListEntryViewModel
     {

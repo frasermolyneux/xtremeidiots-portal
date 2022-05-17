@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XI.Servers.Interfaces.Models;
+﻿using XI.Servers.Interfaces.Models;
 
 namespace XI.Servers.Interfaces
 {

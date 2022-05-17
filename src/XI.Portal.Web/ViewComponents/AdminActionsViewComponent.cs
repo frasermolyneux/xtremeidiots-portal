@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XI.Portal.Web.ViewComponents
 {

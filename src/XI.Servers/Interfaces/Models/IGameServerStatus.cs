@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XI.Servers.Interfaces.Models
+﻿namespace XI.Servers.Interfaces.Models
 {
     internal interface IGameServerStatus<T>
     {

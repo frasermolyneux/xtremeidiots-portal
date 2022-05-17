@@ -11,7 +11,7 @@ using XI.Forums.Models;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XI.Portal.Web.Repository;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Web.Auth.XtremeIdiots
 {

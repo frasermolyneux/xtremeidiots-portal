@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
 using XI.Portal.Servers.Configuration;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Repository;

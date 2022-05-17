@@ -1,8 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Azure.Cosmos.Table.Queryable;
-using System;
 using XI.Portal.Servers.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Servers.Extensions
 {

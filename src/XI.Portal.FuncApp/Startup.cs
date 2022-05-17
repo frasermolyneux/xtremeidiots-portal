@@ -10,7 +10,7 @@ using XI.Portal.FuncApp;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Utilities.FtpHelper;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 [assembly: FunctionsStartup(typeof(Startup))]
 

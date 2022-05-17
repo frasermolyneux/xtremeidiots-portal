@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Interfaces;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.FuncApp
 {

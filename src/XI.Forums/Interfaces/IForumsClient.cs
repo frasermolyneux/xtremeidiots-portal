@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using XI.Forums.Models;
+﻿using XI.Forums.Models;
 
 namespace XI.Forums.Interfaces
 {

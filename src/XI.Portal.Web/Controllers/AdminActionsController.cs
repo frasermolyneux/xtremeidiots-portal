@@ -7,9 +7,9 @@ using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
 {

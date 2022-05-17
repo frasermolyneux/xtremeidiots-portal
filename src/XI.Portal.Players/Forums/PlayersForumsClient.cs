@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
-using System.Threading.Tasks;
 using XI.Forums.Interfaces;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Players.Interfaces;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XI.Portal.Players.Forums
 {

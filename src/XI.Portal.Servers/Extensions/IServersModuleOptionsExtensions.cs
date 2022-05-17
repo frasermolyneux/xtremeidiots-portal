@@ -1,5 +1,4 @@
-﻿using System;
-using XI.Portal.Servers.Interfaces;
+﻿using XI.Portal.Servers.Interfaces;
 
 namespace XI.Portal.Servers.Extensions
 {

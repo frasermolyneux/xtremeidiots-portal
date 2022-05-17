@@ -4,8 +4,8 @@ using System;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
 {

@@ -1,8 +1,7 @@
 ﻿using FM.AzureTableExtensions.Library;
 using FM.AzureTableExtensions.Library.Attributes;
 using FM.GeoLocation.Contract.Models;
-using System;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Players.Models
 {

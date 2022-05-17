@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace XI.Utilities.FtpHelper
+﻿namespace XI.Utilities.FtpHelper
 {
     public interface IFtpHelper
     {

@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Net;
-using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
 using XI.Portal.Players.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models;
-using XtremeIdiots.Portal.RepositoryApiClient.NetStandard;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Players.Ingest
 {
@@ -95,7 +93,7 @@ namespace XI.Portal.Players.Ingest
                 {
                     _logger.LogInformation("Creating new player in the database with username {Username} guid {Guid}", username, guid);
 
-                    await repositoryApiClient.Players.CreatePlayer(new XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Models.PlayerDto()
+                    await repositoryApiClient.Players.CreatePlayer(new PlayerDto()
                     {
                         GameType = gameType,
                         Username = username,

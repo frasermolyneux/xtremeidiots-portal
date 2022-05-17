@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
-using XI.Portal.Players.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.NetStandard.Constants;
+﻿using XI.Portal.Players.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Players.Interfaces
 {

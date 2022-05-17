@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
 using XI.Portal.Players.Configuration;
 using XI.Portal.Players.Forums;
 using XI.Portal.Players.Ingest;

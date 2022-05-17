@@ -188,10 +188,10 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<GameServerStat>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.GameServer)
-                    .WithMany(p => p.GameServerStats)
+                    .WithMany()
                     .HasForeignKey(d => d.GameServerId)
                     .HasConstraintName("FK_GameServerStats_GameServer");
             });

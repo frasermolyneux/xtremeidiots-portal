@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[GameServerStats]
 (
-	[Id] INT NOT NULL PRIMARY KEY,
+	[Id] UNIQUEIDENTIFIER NOT NULL DEFAULT newsequentialid(),
 	[GameServerId] UNIQUEIDENTIFIER NULL, 
 	[PlayerCount] INT NOT NULL,
 	[MapName] NVARCHAR(MAX) NOT NULL,

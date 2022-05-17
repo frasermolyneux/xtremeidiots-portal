@@ -218,4 +218,32 @@ public class GameServersController : Controller
 
         return new OkObjectResult(result);
     }
+
+    [HttpDelete]
+    [Route("api/game-servers/{serverId}")]
+    public async Task<IActionResult> DeleteGameServer(Guid? serverId)
+    {
+        if (serverId == null)
+            return new BadRequestResult();
+
+        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+
+        if (gameServer == null)
+            return new NotFoundResult();
+
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.FileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerMaps)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.LivePlayers)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.RconMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+
+        Context.GameServers.Remove(gameServer);
+
+        await Context.SaveChangesAsync();
+
+        return new OkResult();
+    }
 }

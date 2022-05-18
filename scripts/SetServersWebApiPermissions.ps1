@@ -1,4 +1,4 @@
-$identity = az functionapp identity show --name fn-servers-portal-prd-uksouth-01 --resource-group rg-portal-prd-uksouth-01 | ConvertFrom-Json
+$identity = az functionapp identity show --name webapi-servers-portal-prd-uksouth-01 --resource-group xi-portal-leo | ConvertFrom-Json
 $principalId = $identity.principalId
 
 # Repository API

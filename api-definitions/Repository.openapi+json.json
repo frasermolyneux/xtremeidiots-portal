@@ -5,11 +5,6 @@
         "description": "",
         "version": "1.0"
     },
-    "servers": [
-        {
-            "url": "https://apim-portal-prd-uksouth-01.azure-api.net/repository"
-        }
-    ],
     "paths": {
         "/game-servers/{server-id}": {
             "get": {
@@ -1288,6 +1283,7 @@
         "/demos-auth/{user-id}": {
             "get": {
                 "summary": "demos-auth/{user-id}",
+                "description": "demos-auth/{user-id}",
                 "operationId": "get-demos-auth-user-id",
                 "parameters": [
                     {
@@ -1301,7 +1297,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1309,19 +1305,21 @@
         "/demos-auth": {
             "post": {
                 "summary": "demos-auth",
+                "description": "demos-auth",
                 "operationId": "post-demos-auth",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "put": {
                 "summary": "demos-auth",
+                "description": "demos-auth",
                 "operationId": "demos-auth",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1329,6 +1327,7 @@
         "/demos-auth/by-auth-key/{auth-key}": {
             "get": {
                 "summary": "demos-auth/by-auth-key/{auth-key}",
+                "description": "demos-auth/by-auth-key/{auth-key}",
                 "operationId": "get-demos-auth-by-auth-key-auth-key",
                 "parameters": [
                     {
@@ -1340,6 +1339,58 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/live-players/{server-id}": {
+            "post": {
+                "summary": "live-players/{server-id}",
+                "operationId": "post-live-players-server-id",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/game-servers-stats": {
+            "post": {
+                "summary": "game-servers-stats",
+                "operationId": "post-game-servers-stats",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
+        },
+        "/live-players": {
+            "get": {
+                "summary": "live-players",
+                "operationId": "get-live-players",
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            },
+            "put": {
+                "summary": "live-players",
+                "operationId": "put-live-players",
                 "responses": {
                     "200": {
                         "description": null

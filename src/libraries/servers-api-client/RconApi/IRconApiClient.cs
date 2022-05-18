@@ -4,6 +4,6 @@ namespace XtremeIdiots.Portal.ServersApiClient.RconApi
 {
     public interface IRconApiClient
     {
-        Task<ServerRconStatusResponseDto?> GetPlayers(Guid serverId);
+        Task<ServerRconStatusResponseDto?> GetServerStatus(Guid serverId);
     }
 }

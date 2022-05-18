@@ -1,10 +1,11 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
     public interface IGameServersApiClient
     {
-        Task<List<GameServerDto>?> GetGameServers(string[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order);
+        Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order);
         Task<GameServerDto?> GetGameServer(Guid serverId);
         Task CreateGameServer(GameServerDto gameServer);
         Task UpdateGameServer(GameServerDto gameServer);

@@ -96,7 +96,7 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var serverRcoStatusResponseDto = await serversApiClient.Rcon.GetPlayers(id);
+            var serverRcoStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(id);
 
             return Json(new
             {

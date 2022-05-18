@@ -29,25 +29,25 @@ namespace XI.Portal.Web.Extensions
             return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.PhotoUrl).Value;
         }
 
-        public static Tuple<string[], Guid[]> ClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static Tuple<GameType[], Guid[]> ClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            var gameTypes = new List<string>();
+            var gameTypes = new List<GameType>();
             var servers = new List<Guid>();
 
             if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
-                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList().Select(gt => gt.ToString()).ToList();
+                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
 
             var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
 
             foreach (var claim in claims)
             {
-                gameTypes.Add(claim.Value);
+                gameTypes.Add(Enum.Parse<GameType>(claim.Value));
 
                 if (Guid.TryParse(claim.Value, out var guid)) servers.Add(guid);
             }
 
             gameTypes = gameTypes.Distinct().OrderBy(g => g).ToList();
-            return new Tuple<string[], Guid[]>(gameTypes.ToArray(), servers.ToArray());
+            return new Tuple<GameType[], Guid[]>(gameTypes.ToArray(), servers.ToArray());
         }
 
         public static List<string> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)

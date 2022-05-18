@@ -12,7 +12,7 @@ namespace XtremeIdiots.Portal.ServersApiClient.RconApi
         {
         }
 
-        public async Task<ServerRconStatusResponseDto?> GetPlayers(Guid serverId)
+        public async Task<ServerRconStatusResponseDto?> GetServerStatus(Guid serverId)
         {
             var request = await CreateRequest($"servers/rcon/{serverId}/status", Method.Get);
             var response = await ExecuteAsync(request);

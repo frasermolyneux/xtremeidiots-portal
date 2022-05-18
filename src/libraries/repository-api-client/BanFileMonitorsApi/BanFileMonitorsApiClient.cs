@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi
@@ -27,7 +28,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<BanFileMonitorDto>> GetBanFileMonitors(string[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
+        public async Task<List<BanFileMonitorDto>> GetBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
         {
             var request = await CreateRequest("repository/ban-file-monitors", Method.Get);
 

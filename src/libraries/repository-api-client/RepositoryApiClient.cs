@@ -6,6 +6,8 @@ using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
+using XtremeIdiots.Portal.RepositoryApiClient.GameServersStatsApi;
+using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
@@ -23,6 +25,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             IDemosApiClient demosApiClient,
             IGameServersApiClient gameServersApiClient,
             IGameServersEventsApiClient gameServersEventsApiClient,
+            IGameServersStatsApiClient gameServersStatsApiClient,
+            ILivePlayersApiClient livePlayersApiClient,
             IMapsApiClient mapsApiClient,
             IPlayerAnalyticsApiClient playerAnalyticsApiClient,
             IPlayersApiClient playersApiClient)
@@ -35,6 +39,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             Demos = demosApiClient;
             GameServers = gameServersApiClient;
             GameServersEvents = gameServersEventsApiClient;
+            GameServersStats = gameServersStatsApiClient;
+            LivePlayers = livePlayersApiClient;
             Maps = mapsApiClient;
             PlayerAnalytics = playerAnalyticsApiClient;
             Players = playersApiClient;
@@ -48,6 +54,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         public IDemosApiClient Demos { get; }
         public IGameServersApiClient GameServers { get; }
         public IGameServersEventsApiClient GameServersEvents { get; }
+        public IGameServersStatsApiClient GameServersStats { get; }
+        public ILivePlayersApiClient LivePlayers { get; }
         public IMapsApiClient Maps { get; }
         public IPlayerAnalyticsApiClient PlayerAnalytics { get; }
         public IPlayersApiClient Players { get; }

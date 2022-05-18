@@ -7,6 +7,8 @@ using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
 using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
+using XtremeIdiots.Portal.RepositoryApiClient.GameServersStatsApi;
+using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
@@ -30,6 +32,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             serviceCollection.AddSingleton<IDemosApiClient, DemosApiClient>();
             serviceCollection.AddSingleton<IGameServersApiClient, GameServersApiClient>();
             serviceCollection.AddSingleton<IGameServersEventsApiClient, GameServersEventsApiClient>();
+            serviceCollection.AddSingleton<IGameServersStatsApiClient, GameServersStatsApiClient>();
+            serviceCollection.AddSingleton<ILivePlayersApiClient, LivePlayersApiClient>();
             serviceCollection.AddSingleton<IMapsApiClient, MapsApiClient>();
             serviceCollection.AddSingleton<IPlayerAnalyticsApiClient, PlayerAnalyticsApiClient>();
             serviceCollection.AddSingleton<IPlayersApiClient, PlayersApiClient>();

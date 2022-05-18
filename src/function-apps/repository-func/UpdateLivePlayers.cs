@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
@@ -30,7 +29,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
 
         [FunctionName("UpdateLivePlayers")]
-        public async Task<IActionResult> RunUpdateLivePlayers([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task RunUpdateLivePlayers([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 0, null);
@@ -49,8 +48,6 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     await UpdateLivePlayersFromQuery(gameServerDto);
                 }
             }
-
-            return new OkResult();
         }
 
         private async Task UpdateLivePlayersFromRcon(GameServerDto gameServerDto)

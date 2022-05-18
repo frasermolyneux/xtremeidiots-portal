@@ -77,7 +77,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
             await ExecuteAsync(request);
         }
 
-        public async Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
+        public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
         {
             var request = await CreateRequest($"repository/game-servers/{serverId}/ban-file-monitors", Method.Post);
             request.AddJsonBody(banFileMonitor);

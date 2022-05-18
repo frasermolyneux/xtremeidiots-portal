@@ -14,7 +14,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
         {
         }
 
-        public async Task<MapDto> CreateMap(MapDto mapDto)
+        public async Task<MapDto?> CreateMap(MapDto mapDto)
         {
             var request = await CreateRequest("repository/maps", Method.Post);
             request.AddJsonBody(new List<MapDto> { mapDto });
@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<MapDto>> CreateMaps(List<MapDto> mapDtos)
+        public async Task<List<MapDto>?> CreateMaps(List<MapDto> mapDtos)
         {
             var request = await CreateRequest("repository/maps", Method.Post);
             request.AddJsonBody(mapDtos);
@@ -80,7 +80,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapsResponseDto> GetMaps(GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
+        public async Task<MapsResponseDto?> GetMaps(GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
         {
             var request = await CreateRequest("repository/maps", Method.Get);
 
@@ -113,7 +113,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<MapDto> UpdateMap(MapDto mapDto)
+        public async Task<MapDto?> UpdateMap(MapDto mapDto)
         {
             var request = await CreateRequest("repository/maps", Method.Put);
             request.AddJsonBody(new List<MapDto> { mapDto });
@@ -129,7 +129,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<MapDto>> UpdateMaps(List<MapDto> mapDtos)
+        public async Task<List<MapDto>?> UpdateMaps(List<MapDto> mapDtos)
         {
             var request = await CreateRequest("repository/maps", Method.Put);
             request.AddJsonBody(mapDtos);

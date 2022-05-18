@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
         Task UpdateGameServer(GameServerDto gameServer);
 
         // Ban File Monitor Child Resources
-        Task<BanFileMonitorDto> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor);
+        Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor);
         Task DeleteGameServer(Guid id);
     }
 }

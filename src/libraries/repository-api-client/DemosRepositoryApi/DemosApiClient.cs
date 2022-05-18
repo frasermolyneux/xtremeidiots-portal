@@ -47,7 +47,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemosSearchResponseDto> SearchDemos(string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
+        public async Task<DemosSearchResponseDto?> SearchDemos(string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
         {
             var request = await CreateRequest("repository/demos", Method.Get);
 

@@ -13,7 +13,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi
         {
         }
 
-        public async Task<List<AdminActionDto>> GetAdminActions(string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
+        public async Task<List<AdminActionDto>?> GetAdminActions(string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
         {
             var request = await CreateRequest($"repository/admin-actions", Method.Get);
 
@@ -43,7 +43,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> GetAdminAction(Guid adminActionId)
+        public async Task<AdminActionDto?> GetAdminAction(Guid adminActionId)
         {
             var request = await CreateRequest($"repository/admin-actions/{adminActionId}", Method.Get);
             var response = await ExecuteAsync(request);

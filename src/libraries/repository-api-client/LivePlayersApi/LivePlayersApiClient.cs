@@ -12,7 +12,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi
         {
         }
 
-        public async Task<List<LivePlayerDto>> CreateGameServerLivePlayers(Guid serverId, List<LivePlayerDto> livePlayerDtos)
+        public async Task<List<LivePlayerDto>?> CreateGameServerLivePlayers(Guid serverId, List<LivePlayerDto> livePlayerDtos)
         {
             var request = await CreateRequest($"repository/live-players/{serverId}", Method.Post);
             request.AddJsonBody(livePlayerDtos);

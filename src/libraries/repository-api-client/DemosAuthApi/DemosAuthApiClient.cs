@@ -13,7 +13,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
         {
         }
 
-        public async Task<DemoAuthDto> CreateDemosAuth(DemoAuthDto demoAuthDto)
+        public async Task<DemoAuthDto?> CreateDemosAuth(DemoAuthDto demoAuthDto)
         {
             var request = await CreateRequest("repository/demos-auth", Method.Post);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
@@ -29,7 +29,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<DemoAuthDto>> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos)
+        public async Task<List<DemoAuthDto>?> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
             var request = await CreateRequest("repository/demos-auth", Method.Post);
             request.AddJsonBody(demoAuthDtos);
@@ -73,7 +73,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemoAuthDto> UpdateDemosAuth(DemoAuthDto demoAuthDto)
+        public async Task<DemoAuthDto?> UpdateDemosAuth(DemoAuthDto demoAuthDto)
         {
             var request = await CreateRequest("repository/demos-auth", Method.Put);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
@@ -89,7 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<DemoAuthDto>> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos)
+        public async Task<List<DemoAuthDto>?> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
             var request = await CreateRequest("repository/demos-auth", Method.Put);
             request.AddJsonBody(demoAuthDtos);

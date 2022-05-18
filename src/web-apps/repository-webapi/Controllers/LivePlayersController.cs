@@ -49,24 +49,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(response);
         }
 
-        private IQueryable<LivePlayer> ApplySearchFilter(IQueryable<LivePlayer> query, GameType gameType, Guid? serverId)
-        {
-            if (gameType != GameType.Unknown)
-                query = query.Where(lp => lp.GameType == gameType.ToGameTypeInt()).AsQueryable();
-
-            if (serverId != null)
-                query = query.Where(lp => lp.GameServerServerId == serverId).AsQueryable();
-
-            return query;
-        }
-
-        private IQueryable<LivePlayer> ApplySearchOrderAndLimits(IQueryable<LivePlayer> query)
-        {
-            query = query.OrderByDescending(lp => lp.Score).AsQueryable();
-
-            return query;
-        }
-
         [HttpPost]
         [Route("api/live-players/{serverId}")]
         public async Task<IActionResult> CreateGameServerLivePlayers(Guid serverId)
@@ -112,8 +94,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPut]
-        [Route("api/live-players/{serverId}")]
-        public async Task<IActionResult> UpsertGameServerLivePlayers(Guid serverId)
+        [Route("api/live-players")]
+        public async Task<IActionResult> UpsertGameServerLivePlayers()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -157,6 +139,24 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var result = livePlayers.Select(lp => lp.ToDto());
 
             return new OkObjectResult(result);
+        }
+
+        private IQueryable<LivePlayer> ApplySearchFilter(IQueryable<LivePlayer> query, GameType gameType, Guid? serverId)
+        {
+            if (gameType != GameType.Unknown)
+                query = query.Where(lp => lp.GameType == gameType.ToGameTypeInt()).AsQueryable();
+
+            if (serverId != null)
+                query = query.Where(lp => lp.GameServerServerId == serverId).AsQueryable();
+
+            return query;
+        }
+
+        private IQueryable<LivePlayer> ApplySearchOrderAndLimits(IQueryable<LivePlayer> query)
+        {
+            query = query.OrderByDescending(lp => lp.Score).AsQueryable();
+
+            return query;
         }
     }
 }

@@ -63,6 +63,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             catch (Exception ex)
             {
                 logger.LogError(ex, $"UpdateLivePlayers: Failed to get rcon server status for {gameServerDto.Title} - {gameServerDto.Hostname}:{gameServerDto.QueryPort}");
+                return;
             }
 
             var livePlayerDtos = serverRconStatusResponseDto.Players.Select(rconPlayer => new LivePlayerDto
@@ -89,6 +90,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             catch (Exception ex)
             {
                 logger.LogError(ex, $"UpdateLivePlayers: Failed to get query server status for {gameServerDto.Title} - {gameServerDto.Hostname}:{gameServerDto.QueryPort}");
+                return;
             }
 
             var livePlayerDtos = serverQueryStatusResponseDto.Players.Select(queryPlayer => new LivePlayerDto

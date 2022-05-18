@@ -9,9 +9,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class GameServerStatsController : Controller
+    public class GameServersStatsController : Controller
     {
-        public GameServerStatsController(PortalDbContext context)
+        public GameServersStatsController(PortalDbContext context)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
         }

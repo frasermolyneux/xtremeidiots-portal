@@ -339,6 +339,14 @@ stages:
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
 
+      - task: AzureCLI@2
+        displayName: SetServersAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersAppPermissions.ps1'
+
 - stage: DeployPrdAppsAndDatabase
 
   jobs:

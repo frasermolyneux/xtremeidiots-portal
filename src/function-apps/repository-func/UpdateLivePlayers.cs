@@ -1,3 +1,5 @@
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,15 +18,18 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         private readonly ILogger<UpdateLivePlayers> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
+        private readonly TelemetryClient telemetryClient;
 
         public UpdateLivePlayers(
             ILogger<UpdateLivePlayers> logger,
             IRepositoryApiClient repositoryApiClient,
-            IServersApiClient serversApiClient)
+            IServersApiClient serversApiClient,
+            TelemetryClient telemetryClient)
         {
             this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
             this.serversApiClient = serversApiClient;
+            this.telemetryClient = telemetryClient;
         }
 
 
@@ -74,6 +79,17 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 GameServerServerId = gameServerDto.Id
             }).ToList();
 
+            MetricTelemetry telemetry = new()
+            {
+                Name = "PlayerCount",
+                Sum = livePlayerDtos.Count
+            };
+
+            telemetry.Properties.Add("serverId", gameServerDto.Id.ToString());
+            telemetry.Properties.Add("serverName", gameServerDto.Title);
+
+            telemetryClient.TrackMetric(telemetry);
+
             await repositoryApiClient.LivePlayers.CreateGameServerLivePlayers(gameServerDto.Id, livePlayerDtos);
         }
 
@@ -100,6 +116,17 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 GameType = gameServerDto.GameType,
                 GameServerServerId = gameServerDto.Id
             }).ToList();
+
+            MetricTelemetry telemetry = new()
+            {
+                Name = "PlayerCount",
+                Sum = livePlayerDtos.Count
+            };
+
+            telemetry.Properties.Add("serverId", gameServerDto.Id.ToString());
+            telemetry.Properties.Add("serverName", gameServerDto.Title);
+
+            telemetryClient.TrackMetric(telemetry);
 
             await repositoryApiClient.LivePlayers.CreateGameServerLivePlayers(gameServerDto.Id, livePlayerDtos);
         }

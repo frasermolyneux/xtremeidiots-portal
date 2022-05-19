@@ -65,7 +65,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new BadRequestObjectResult(ex);
             }
 
-            if (livePlayerDtos == null || !livePlayerDtos.Any())
+            if (livePlayerDtos == null)
                 return new BadRequestResult();
 
             await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");

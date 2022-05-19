@@ -2,6 +2,7 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
@@ -12,28 +13,27 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class QueryController : Controller
     {
-        private readonly ILogger<QueryController> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IQueryClientFactory queryClientFactory;
         private readonly TelemetryClient telemetryClient;
+        private readonly IMemoryCache memoryCache;
 
         public QueryController(
-            ILogger<QueryController> logger,
             IRepositoryApiClient repositoryApiClient,
             IQueryClientFactory queryClientFactory,
-            TelemetryClient telemetryClient)
+            TelemetryClient telemetryClient,
+            IMemoryCache memoryCache)
         {
-            this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
             this.queryClientFactory = queryClientFactory;
             this.telemetryClient = telemetryClient;
+            this.memoryCache = memoryCache;
         }
 
         [HttpGet]
         [Route("api/query/{serverId}/status")]
         public async Task<IActionResult> GetServerStatus(Guid serverId)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(serverId);
 
             if (gameServerDto == null)
@@ -47,7 +47,15 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
 
             try
             {
-                var statusResult = await queryClient.GetServerStatus();
+                if (!memoryCache.TryGetValue($"{gameServerDto.Id}-query-status", out IQueryResponse statusResult))
+                {
+                    statusResult = await queryClient.GetServerStatus();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
+
+                    memoryCache.Set($"{gameServerDto.Id}-query-status", statusResult, cacheEntryOptions);
+                }
 
                 if (statusResult != null)
                 {

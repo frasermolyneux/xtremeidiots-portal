@@ -42,7 +42,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             var queryClient = queryClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Hostname, gameServerDto.QueryPort);
 
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("QueryServerStatus");
-            operation.Telemetry.Type = "GameServer";
+            operation.Telemetry.Type = $"{gameServerDto.GameType}Server";
             operation.Telemetry.Target = $"{gameServerDto.Hostname}:{gameServerDto.QueryPort}";
 
             try

@@ -41,7 +41,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             var queryClient = rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
 
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("RconServerStatus");
-            operation.Telemetry.Type = "GameServer";
+            operation.Telemetry.Type = $"{gameServerDto.GameType}Server";
             operation.Telemetry.Target = $"{gameServerDto.Hostname}:{gameServerDto.QueryPort}";
 
             try

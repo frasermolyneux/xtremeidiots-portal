@@ -84,6 +84,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             catch (Exception ex)
             {
                 operation.Telemetry.Success = false;
+                operation.Telemetry.ResultCode = 500;
                 telemetryClient.TrackException(ex);
 
                 throw;

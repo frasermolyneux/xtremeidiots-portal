@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
@@ -13,16 +15,18 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         private readonly ILogger<QueryController> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IQueryClientFactory queryClientFactory;
+        private readonly TelemetryClient telemetryClient;
 
         public QueryController(
             ILogger<QueryController> logger,
             IRepositoryApiClient repositoryApiClient,
-            IQueryClientFactory queryClientFactory)
+            IQueryClientFactory queryClientFactory,
+            TelemetryClient telemetryClient)
         {
             this.logger = logger;
-
             this.repositoryApiClient = repositoryApiClient;
             this.queryClientFactory = queryClientFactory;
+            this.telemetryClient = telemetryClient;
         }
 
         [HttpGet]
@@ -36,6 +40,10 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
                 return NotFound();
 
             var queryClient = queryClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Hostname, gameServerDto.QueryPort);
+
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("QueryServerStatus");
+            operation.Telemetry.Type = "GameServer";
+            operation.Telemetry.Target = $"{gameServerDto.Hostname}:{gameServerDto.QueryPort}";
 
             try
             {
@@ -67,8 +75,14 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to get status from server {gameServerDto.Hostname}:{gameServerDto.QueryPort}");
+                operation.Telemetry.Success = false;
+                telemetryClient.TrackException(ex);
+
                 throw;
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
             }
         }
     }

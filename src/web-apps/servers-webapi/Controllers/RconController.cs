@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
@@ -13,15 +15,18 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         private readonly ILogger<RconController> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IRconClientFactory rconClientFactory;
+        private readonly TelemetryClient telemetryClient;
 
         public RconController(
             ILogger<RconController> logger,
             IRepositoryApiClient repositoryApiClient,
-            IRconClientFactory rconClientFactory)
+            IRconClientFactory rconClientFactory,
+            TelemetryClient telemetryClient)
         {
             this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
             this.rconClientFactory = rconClientFactory;
+            this.telemetryClient = telemetryClient;
         }
 
         [HttpGet]
@@ -34,6 +39,10 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
                 return NotFound();
 
             var queryClient = rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
+
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("RconServerStatus");
+            operation.Telemetry.Type = "GameServer";
+            operation.Telemetry.Target = $"{gameServerDto.Hostname}:{gameServerDto.QueryPort}";
 
             try
             {
@@ -62,8 +71,13 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to get status from server {gameServerDto.Hostname}:{gameServerDto.QueryPort}");
+                operation.Telemetry.Success = false;
+                telemetryClient.TrackException(ex);
                 throw;
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
             }
         }
     }

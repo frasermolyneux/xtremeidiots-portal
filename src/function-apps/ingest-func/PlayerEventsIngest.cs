@@ -1,3 +1,5 @@
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -17,15 +19,18 @@ public class PlayerEventsIngest
     private readonly ILogger<PlayerEventsIngest> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
     private readonly IMemoryCache memoryCache;
+    private readonly TelemetryClient telemetryClient;
 
     public PlayerEventsIngest(
         ILogger<PlayerEventsIngest> log,
         IRepositoryApiClient repositoryApiClient,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache,
+        TelemetryClient telemetryClient)
     {
         _log = log;
         _repositoryApiClient = repositoryApiClient;
         this.memoryCache = memoryCache;
+        this.telemetryClient = telemetryClient;
     }
 
     [FunctionName("ProcessOnPlayerConnected")]
@@ -56,8 +61,11 @@ public class PlayerEventsIngest
         if (!Enum.TryParse(onPlayerConnected.GameType, out GameType gameType))
             throw new Exception("OnPlayerConnected event contained invalid 'GameType'");
 
-        _log.LogInformation(
-            $"ProcessOnPlayerConnected :: Username: '{onPlayerConnected.Username}', Guid: '{onPlayerConnected.Guid}'");
+        var onPlayerConnectedTelemetry = new EventTelemetry("OnPlayerConnected");
+        onPlayerConnectedTelemetry.Properties.Add("GameType", onPlayerConnected.GameType);
+        onPlayerConnectedTelemetry.Properties.Add("Username", onPlayerConnected.Username);
+        onPlayerConnectedTelemetry.Properties.Add("Guid", onPlayerConnected.Guid);
+        telemetryClient.TrackEvent(onPlayerConnectedTelemetry);
 
         var existingPlayer = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, onPlayerConnected.Guid);
 
@@ -113,7 +121,12 @@ public class PlayerEventsIngest
         if (!Enum.TryParse(onChatMessage.GameType, out GameType gameType))
             throw new Exception("OnChatMessage event contained invalid 'GameType'");
 
-        _log.LogInformation($"ProcessOnChatMessage :: Username: '{onChatMessage.Username}', Guid: '{onChatMessage.Guid}', Message: '{onChatMessage.Message}', Timestamp: '{onChatMessage.EventGeneratedUtc}'");
+        var onChatMessageTelemetry = new EventTelemetry("OnChatMessage");
+        onChatMessageTelemetry.Properties.Add("GameType", onChatMessage.GameType);
+        onChatMessageTelemetry.Properties.Add("Username", onChatMessage.Username);
+        onChatMessageTelemetry.Properties.Add("Guid", onChatMessage.Guid);
+        onChatMessageTelemetry.Properties.Add("Message", onChatMessage.Message);
+        telemetryClient.TrackEvent(onChatMessageTelemetry);
 
         var playerId = await GetPlayerId(gameType, onChatMessage.Guid);
 
@@ -168,7 +181,12 @@ public class PlayerEventsIngest
         if (!Enum.TryParse(onMapVote.GameType, out GameType gameType))
             throw new Exception("OnMapVote event contained invalid 'GameType'");
 
-        _log.LogInformation($"ProcessOnMapVote ::  Guid: '{onMapVote.Guid}', Map Name: '{onMapVote.MapName}', Like: '{onMapVote.Like}'");
+        var onMapVoteTelemetry = new EventTelemetry("OnMapVote");
+        onMapVoteTelemetry.Properties.Add("GameType", onMapVote.GameType);
+        onMapVoteTelemetry.Properties.Add("Guid", onMapVote.Guid);
+        onMapVoteTelemetry.Properties.Add("MapName", onMapVote.MapName);
+        onMapVoteTelemetry.Properties.Add("Like", onMapVote.Like.ToString());
+        telemetryClient.TrackEvent(onMapVoteTelemetry);
 
         var playerId = await GetPlayerId(gameType, onMapVote.Guid);
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -10,8 +11,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
     public class GameServersApiClient : BaseApiClient, IGameServersApiClient
     {
-        public GameServersApiClient(ILogger<GameServersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
+        private readonly IOptions<RepositoryApiClientOptions> options;
+        private readonly IMemoryCache memoryCache;
+
+        public GameServersApiClient(ILogger<GameServersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
+            this.options = options;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order)
@@ -43,6 +49,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 
         public async Task<GameServerDto?> GetGameServer(Guid serverId)
         {
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{serverId}-{nameof(GetGameServer)}", out GameServerDto gameServerDto))
+                    return gameServerDto;
+
             var request = await CreateRequest($"repository/game-servers/{serverId}", Method.Get);
             var response = await ExecuteAsync(request);
 
@@ -50,7 +60,18 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<GameServerDto>(response.Content);
+            {
+                var gameServerDto = JsonConvert.DeserializeObject<GameServerDto>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && gameServerDto != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{serverId}-{nameof(GetGameServer)}", gameServerDto, cacheEntryOptions);
+                }
+
+                return gameServerDto;
+            }
+
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }

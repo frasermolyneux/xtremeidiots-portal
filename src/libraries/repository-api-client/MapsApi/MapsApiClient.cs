@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -10,8 +11,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
 {
     public class MapsApiClient : BaseApiClient, IMapsApiClient
     {
-        public MapsApiClient(ILogger<MapsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
+        private readonly IOptions<RepositoryApiClientOptions> options;
+        private readonly IMemoryCache memoryCache;
+
+        public MapsApiClient(ILogger<MapsApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
+            this.options = options;
+            this.memoryCache = memoryCache;
         }
 
         public async Task<MapDto?> CreateMap(MapDto mapDto)
@@ -54,6 +60,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
 
         public async Task<MapDto?> GetMap(Guid mapId)
         {
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{mapId}-{nameof(GetMap)}", out MapDto mapDto))
+                    return mapDto;
+
             var request = await CreateRequest($"repository/maps/{mapId}", Method.Get);
             var response = await ExecuteAsync(request);
 
@@ -61,13 +71,27 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<MapDto>(response.Content);
+            {
+                var mapDto = JsonConvert.DeserializeObject<MapDto>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && mapDto != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{mapId}-{nameof(GetMap)}", mapDto, cacheEntryOptions);
+                }
+
+                return mapDto;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
         public async Task<MapDto?> GetMap(GameType gameType, string mapName)
         {
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{gameType}-{mapName}-{nameof(GetMap)}", out MapDto mapDto))
+                    return mapDto;
+
             var request = await CreateRequest($"repository/maps/{gameType}/{mapName}", Method.Get);
             var response = await ExecuteAsync(request);
 
@@ -75,7 +99,17 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<MapDto>(response.Content);
+            {
+                var mapDto = JsonConvert.DeserializeObject<MapDto>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && mapDto != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{gameType}-{mapName}-{nameof(GetMap)}", mapDto, cacheEntryOptions);
+                }
+
+                return mapDto;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }

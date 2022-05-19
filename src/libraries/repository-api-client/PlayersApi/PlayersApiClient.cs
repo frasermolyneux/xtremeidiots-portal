@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -10,55 +11,106 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
 {
     public class PlayersApiClient : BaseApiClient, IPlayersApiClient
     {
-        public PlayersApiClient(ILogger<PlayersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider) : base(logger, options, repositoryApiTokenProvider)
+        private readonly IOptions<RepositoryApiClientOptions> options;
+        private readonly IMemoryCache memoryCache;
+
+        public PlayersApiClient(ILogger<PlayersApiClient> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
+            this.options = options;
+            this.memoryCache = memoryCache;
         }
 
-        public async Task<PlayerDto?> GetPlayer(Guid id)
+        public async Task<PlayerDto?> GetPlayer(Guid playerId)
         {
-            var request = await CreateRequest($"repository/players/{id}", Method.Get);
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayer)}", out PlayerDto playerDto))
+                    return playerDto;
+
+            var request = await CreateRequest($"repository/players/{playerId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<PlayerDto>(response.Content);
+            {
+                var playerDto = JsonConvert.DeserializeObject<PlayerDto>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && playerDto != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{playerId}-{nameof(GetPlayer)}", playerDto, cacheEntryOptions);
+                }
+
+                return playerDto;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<AliasDto>> GetPlayerAliases(Guid id)
+        public async Task<List<AliasDto>?> GetPlayerAliases(Guid playerId)
         {
-            var request = await CreateRequest($"repository/players/{id}/aliases", Method.Get);
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerAliases)}", out List<AliasDto> playerAliasDtos))
+                    return playerAliasDtos;
+
+            var request = await CreateRequest($"repository/players/{playerId}/aliases", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<AliasDto>>(response.Content);
+            {
+                var playerAliasDtos = JsonConvert.DeserializeObject<List<AliasDto>>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && playerAliasDtos != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{playerId}-{nameof(GetPlayerAliases)}", playerAliasDtos, cacheEntryOptions);
+                }
+
+                return playerAliasDtos;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<IpAddressDto>> GetPlayerIpAddresses(Guid id)
+        public async Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid playerId)
         {
-            var request = await CreateRequest($"repository/players/{id}/ip-addresses", Method.Get);
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerIpAddresses)}", out List<IpAddressDto> playerIpAddressDtos))
+                    return playerIpAddressDtos;
+
+            var request = await CreateRequest($"repository/players/{playerId}/ip-addresses", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<IpAddressDto>>(response.Content);
+            {
+                var playerIpAddressDtos = JsonConvert.DeserializeObject<List<IpAddressDto>>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && playerIpAddressDtos != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{playerId}-{nameof(GetPlayerIpAddresses)}", playerIpAddressDtos, cacheEntryOptions);
+                }
+
+                return playerIpAddressDtos;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<RelatedPlayerDto>> GetRelatedPlayers(Guid id, string ipAddress)
+        public async Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress)
         {
-            var request = await CreateRequest($"repository/players/{id}/related-players", Method.Get);
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{playerId}-{ipAddress}-{nameof(GetRelatedPlayers)}", out List<RelatedPlayerDto> relatedPlayerDtos))
+                    return relatedPlayerDtos;
+
+            var request = await CreateRequest($"repository/players/{playerId}/related-players", Method.Get);
             request.AddQueryParameter("IpAddress", ipAddress);
 
             var response = await ExecuteAsync(request);
@@ -67,13 +119,27 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<RelatedPlayerDto>>(response.Content);
+            {
+                var relatedPlayerDtos = JsonConvert.DeserializeObject<List<RelatedPlayerDto>>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && relatedPlayerDtos != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{playerId}-{ipAddress}-{nameof(GetRelatedPlayers)}", relatedPlayerDtos, cacheEntryOptions);
+                }
+
+                return relatedPlayerDtos;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
         public async Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid)
         {
+            if (options.Value.UseMemoryCacheOnGet)
+                if (memoryCache.TryGetValue($"{gameType}-{guid}-{nameof(GetPlayerByGameType)}", out PlayerDto playerDto))
+                    return playerDto;
+
             var request = await CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.Get);
             var response = await ExecuteAsync(request);
 
@@ -81,7 +147,17 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 return null;
 
             if (response.Content != null)
-                return JsonConvert.DeserializeObject<PlayerDto>(response.Content);
+            {
+                var playerDto = JsonConvert.DeserializeObject<PlayerDto>(response.Content);
+
+                if (options.Value.UseMemoryCacheOnGet && playerDto != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
+                    memoryCache.Set($"{gameType}-{guid}-{nameof(GetPlayerByGameType)}", playerDto, cacheEntryOptions);
+                }
+
+                return playerDto;
+            }
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
@@ -102,7 +178,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
             await ExecuteAsync(request);
         }
 
-        public async Task<PlayersSearchResponseDto> SearchPlayers(string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
+        public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
         {
             var request = await CreateRequest("repository/players/search", Method.Get);
 
@@ -132,7 +208,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<AdminActionDto>> GetAdminActionsForPlayer(Guid playerId)
+        public async Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId)
         {
             var request = await CreateRequest($"repository/players/{playerId}/admin-actions", Method.Get);
             var response = await ExecuteAsync(request);
@@ -143,7 +219,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> CreateAdminActionForPlayer(AdminActionDto adminAction)
+        public async Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction)
         {
             var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions", Method.Post);
             request.AddJsonBody(adminAction);
@@ -156,7 +232,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<AdminActionDto> UpdateAdminActionForPlayer(AdminActionDto adminAction)
+        public async Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction)
         {
             var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
             request.AddJsonBody(adminAction);

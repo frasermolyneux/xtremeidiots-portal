@@ -5,10 +5,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
 {
     public interface IPlayersApiClient
     {
-        Task<PlayerDto?> GetPlayer(Guid id);
-        Task<List<AliasDto>?> GetPlayerAliases(Guid id);
-        Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid id);
-        Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid id, string ipAddress);
+        Task<PlayerDto?> GetPlayer(Guid playerId);
+        Task<List<AliasDto>?> GetPlayerAliases(Guid playerId);
+        Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid playerId);
+        Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress);
         Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid);
         Task CreatePlayer(PlayerDto player);
         Task UpdatePlayer(PlayerDto player);

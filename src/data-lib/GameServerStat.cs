@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Keyless]
     public partial class GameServerStat
     {
+        [Key]
         public Guid Id { get; set; }
         public Guid? GameServerId { get; set; }
         public int PlayerCount { get; set; }
@@ -20,6 +20,7 @@ namespace XtremeIdiots.Portal.DataLib
         public DateTime Timestamp { get; set; }
 
         [ForeignKey("GameServerId")]
+        [InverseProperty("GameServerStats")]
         public virtual GameServer GameServer { get; set; }
     }
 }

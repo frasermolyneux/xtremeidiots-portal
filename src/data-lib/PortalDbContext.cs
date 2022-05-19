@@ -190,7 +190,7 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.GameServer)
-                    .WithMany()
+                    .WithMany(p => p.GameServerStats)
                     .HasForeignKey(d => d.GameServerId)
                     .HasConstraintName("FK_GameServerStats_GameServer");
             });

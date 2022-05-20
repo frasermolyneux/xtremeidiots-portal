@@ -152,7 +152,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
             {
                 var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                udpClient = new UdpClient(QueryPort) { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
+                udpClient = new UdpClient() { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
                 udpClient.Connect(Hostname, QueryPort);
                 udpClient.Send(commandBytes, commandBytes.Length);
 

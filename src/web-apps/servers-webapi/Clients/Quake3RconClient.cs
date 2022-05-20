@@ -197,7 +197,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 var commandBytes = ExecuteCommandPacket(_rconPassword, command);
                 var remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
-                udpClient = new UdpClient(_queryPort) { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
+                udpClient = new UdpClient() { Client = { SendTimeout = 5000, ReceiveTimeout = 5000 } };
                 udpClient.Connect(_hostname, _queryPort);
                 udpClient.Send(commandBytes, commandBytes.Length);
 

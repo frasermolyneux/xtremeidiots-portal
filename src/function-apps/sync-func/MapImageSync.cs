@@ -28,7 +28,9 @@ namespace XtremeIdiots.Portal.SyncFunc
             {
                 {GameType.CallOfDuty2, "cod2"},
                 {GameType.CallOfDuty4, "cod4"},
-                {GameType.CallOfDuty5, "codww"}
+                {GameType.CallOfDuty5, "codww"},
+                {GameType.UnrealTournament2004, "ut2k4"},
+                {GameType.Insurgency, "ins"},
             };
 
             foreach (var game in gamesToSync)

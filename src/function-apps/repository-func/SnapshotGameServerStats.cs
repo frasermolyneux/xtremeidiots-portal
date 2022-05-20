@@ -1,4 +1,5 @@
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -17,15 +18,18 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         private readonly ILogger<SnapshotGameServerStats> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
+        private readonly IMemoryCache memoryCache;
 
         public SnapshotGameServerStats(
             ILogger<SnapshotGameServerStats> logger,
             IRepositoryApiClient repositoryApiClient,
-            IServersApiClient serversApiClient)
+            IServersApiClient serversApiClient,
+            IMemoryCache memoryCache)
         {
             this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
             this.serversApiClient = serversApiClient;
+            this.memoryCache = memoryCache;
         }
 
         [FunctionName("SnapshotGameServerStats")]
@@ -50,6 +54,20 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                         if (serverQueryStatusResponseDto == null)
                             throw new Exception("Server query response was null");
+
+                        if (!string.IsNullOrWhiteSpace(serverQueryStatusResponseDto.Map))
+                        {
+                            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{serverQueryStatusResponseDto.Map}", out bool mapExists))
+                            {
+                                await repositoryApiClient.Maps.CreateMap(new MapDto
+                                {
+                                    GameType = gameServerDto.GameType,
+                                    MapName = serverQueryStatusResponseDto.Map
+                                });
+
+                                memoryCache.Set($"{gameServerDto.GameType}-{serverQueryStatusResponseDto.Map}", true);
+                            }
+                        }
                     }
                     catch (Exception ex)
                     {

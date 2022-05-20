@@ -141,11 +141,11 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerDto gameServer;
+        GameServerDto gameServerDto;
         try
         {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServer = JsonConvert.DeserializeObject<GameServerDto>(requestBody);
+            gameServerDto = JsonConvert.DeserializeObject<GameServerDto>(requestBody);
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
         }
         catch (Exception ex)
@@ -153,36 +153,36 @@ public class GameServersController : Controller
             return new BadRequestObjectResult(ex);
         }
 
-        if (gameServer == null) return new BadRequestResult();
-        if (gameServer.Id != serverId) return new BadRequestResult();
+        if (gameServerDto == null) return new BadRequestResult();
+        if (gameServerDto.Id != serverId) return new BadRequestResult();
 
-        var gameServerToUpdate = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
-        if (gameServerToUpdate == null) return new NotFoundResult();
+        if (gameServer == null) return new NotFoundResult();
 
-        gameServerToUpdate.Title = gameServer.Title;
-        gameServerToUpdate.HtmlBanner = gameServer.HtmlBanner;
-        gameServerToUpdate.Hostname = gameServer.Hostname;
-        gameServerToUpdate.QueryPort = gameServer.QueryPort;
-        gameServerToUpdate.FtpHostname = gameServer.FtpHostname;
-        gameServerToUpdate.FtpUsername = gameServer.FtpUsername;
-        gameServerToUpdate.FtpPassword = gameServer.FtpPassword;
-        gameServerToUpdate.LiveStatusEnabled = gameServer.LiveStatusEnabled;
-        gameServerToUpdate.LiveTitle = gameServer.LiveTitle;
-        gameServerToUpdate.LiveMap = gameServer.LiveMap;
-        gameServerToUpdate.LiveMod = gameServer.LiveMod;
-        gameServerToUpdate.LiveMaxPlayers = gameServer.LiveMaxPlayers;
-        gameServerToUpdate.LiveCurrentPlayers = gameServer.LiveCurrentPlayers;
-        gameServerToUpdate.LiveLastUpdated = gameServer.LiveLastUpdated;
-        gameServerToUpdate.ShowOnBannerServerList = gameServer.ShowOnBannerServerList;
-        gameServerToUpdate.BannerServerListPosition = gameServer.BannerServerListPosition;
-        gameServerToUpdate.ShowOnPortalServerList = gameServer.ShowOnPortalServerList;
-        gameServerToUpdate.ShowChatLog = gameServer.ShowChatLog;
-        gameServerToUpdate.RconPassword = gameServer.RconPassword;
+        gameServer.Title = gameServerDto.Title;
+        gameServer.HtmlBanner = gameServerDto.HtmlBanner;
+        gameServer.Hostname = gameServerDto.Hostname;
+        gameServer.QueryPort = gameServerDto.QueryPort;
+        gameServer.FtpHostname = gameServerDto.FtpHostname;
+        gameServer.FtpUsername = gameServerDto.FtpUsername;
+        gameServer.FtpPassword = gameServerDto.FtpPassword;
+        gameServer.LiveStatusEnabled = gameServerDto.LiveStatusEnabled;
+        gameServer.LiveTitle = gameServerDto.LiveTitle;
+        gameServer.LiveMap = gameServerDto.LiveMap;
+        gameServer.LiveMod = gameServerDto.LiveMod;
+        gameServer.LiveMaxPlayers = gameServerDto.LiveMaxPlayers;
+        gameServer.LiveCurrentPlayers = gameServerDto.LiveCurrentPlayers;
+        gameServer.LiveLastUpdated = gameServerDto.LiveLastUpdated;
+        gameServer.ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList;
+        gameServer.BannerServerListPosition = gameServerDto.BannerServerListPosition;
+        gameServer.ShowOnPortalServerList = gameServerDto.ShowOnPortalServerList;
+        gameServer.ShowChatLog = gameServerDto.ShowChatLog;
+        gameServer.RconPassword = gameServerDto.RconPassword;
 
         await Context.SaveChangesAsync();
 
-        return new OkObjectResult(gameServerToUpdate);
+        return new OkObjectResult(gameServer.ToDto());
     }
 
 

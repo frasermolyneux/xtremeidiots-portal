@@ -90,6 +90,7 @@ namespace XI.Portal.Web.Controllers
             if (canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = model.RconPassword;
 
+            gameServerDto.LiveStatusEnabled = model.LiveStatusEnabled;
             gameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
             gameServerDto.BannerServerListPosition = model.BannerServerListPosition;
             gameServerDto.HtmlBanner = model.HtmlBanner;
@@ -216,6 +217,7 @@ namespace XI.Portal.Web.Controllers
             if (canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = model.RconPassword;
 
+            gameServerDto.LiveStatusEnabled = model.LiveStatusEnabled;
             gameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
             gameServerDto.BannerServerListPosition = model.BannerServerListPosition;
             gameServerDto.HtmlBanner = model.HtmlBanner;

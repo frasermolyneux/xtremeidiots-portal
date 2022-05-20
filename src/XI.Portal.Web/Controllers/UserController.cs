@@ -10,6 +10,7 @@ using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
 using XI.Portal.Web.Repository;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
@@ -56,7 +57,7 @@ namespace XI.Portal.Web.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
+            var gameServers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
 
             var user = await _usersRepository.GetUser(id);
 

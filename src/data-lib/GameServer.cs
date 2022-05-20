@@ -34,6 +34,7 @@ namespace XtremeIdiots.Portal.DataLib
         public string FtpHostname { get; set; }
         public string FtpUsername { get; set; }
         public string FtpPassword { get; set; }
+        public bool LiveStatusEnabled { get; set; }
         public string LiveTitle { get; set; }
         public string LiveMap { get; set; }
         public string LiveMod { get; set; }

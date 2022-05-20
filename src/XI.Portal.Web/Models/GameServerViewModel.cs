@@ -18,6 +18,7 @@ namespace XI.Portal.Web.Models
         [DisplayName("Ftp Username")] public string FtpUsername { get; set; }
         [DisplayName("Ftp Password")] public string FtpPassword { get; set; }
         [DisplayName("Rcon Password")] public string RconPassword { get; set; }
+        [DisplayName("Live Status Tracking")] public bool LiveStatusEnabled { get; set; }
         [DisplayName("Banner Server List")] public bool ShowOnBannerServerList { get; set; }
 
         [DisplayName("Position")] public int BannerServerListPosition { get; set; }

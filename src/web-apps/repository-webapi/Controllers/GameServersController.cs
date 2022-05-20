@@ -50,10 +50,13 @@ public class GameServersController : Controller
             switch (filterOption)
             {
                 case GameServerFilter.ShowOnPortalServerList:
-                    query = query.Where(s => s.ShowOnPortalServerList);
+                    query = query.Where(s => s.ShowOnPortalServerList).AsQueryable();
                     break;
                 case GameServerFilter.ShowOnBannerServerList:
-                    query = query.Where(s => s.ShowOnBannerServerList);
+                    query = query.Where(s => s.ShowOnBannerServerList).AsQueryable();
+                    break;
+                case GameServerFilter.LiveStatusEnabled:
+                    query = query.Where(s => s.LiveStatusEnabled).AsQueryable();
                     break;
             }
         }
@@ -158,17 +161,24 @@ public class GameServersController : Controller
         if (gameServerToUpdate == null) return new NotFoundResult();
 
         gameServerToUpdate.Title = gameServer.Title;
+        gameServerToUpdate.HtmlBanner = gameServer.HtmlBanner;
         gameServerToUpdate.Hostname = gameServer.Hostname;
         gameServerToUpdate.QueryPort = gameServer.QueryPort;
         gameServerToUpdate.FtpHostname = gameServer.FtpHostname;
         gameServerToUpdate.FtpUsername = gameServer.FtpUsername;
         gameServerToUpdate.FtpPassword = gameServer.FtpPassword;
-        gameServerToUpdate.RconPassword = gameServer.RconPassword;
+        gameServerToUpdate.LiveStatusEnabled = gameServer.LiveStatusEnabled;
+        gameServerToUpdate.LiveTitle = gameServer.LiveTitle;
+        gameServerToUpdate.LiveMap = gameServer.LiveMap;
+        gameServerToUpdate.LiveMod = gameServer.LiveMod;
+        gameServerToUpdate.LiveMaxPlayers = gameServer.LiveMaxPlayers;
+        gameServerToUpdate.LiveCurrentPlayers = gameServer.LiveCurrentPlayers;
+        gameServerToUpdate.LiveLastUpdated = gameServer.LiveLastUpdated;
         gameServerToUpdate.ShowOnBannerServerList = gameServer.ShowOnBannerServerList;
-        gameServerToUpdate.HtmlBanner = gameServer.HtmlBanner;
         gameServerToUpdate.BannerServerListPosition = gameServer.BannerServerListPosition;
         gameServerToUpdate.ShowOnPortalServerList = gameServer.ShowOnPortalServerList;
         gameServerToUpdate.ShowChatLog = gameServer.ShowChatLog;
+        gameServerToUpdate.RconPassword = gameServer.RconPassword;
 
         await Context.SaveChangesAsync();
 

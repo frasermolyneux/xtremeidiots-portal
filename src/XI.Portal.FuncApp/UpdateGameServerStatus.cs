@@ -8,6 +8,7 @@ using XI.Portal.Players.Interfaces;
 using XI.Portal.Servers.Dto;
 using XI.Portal.Servers.Interfaces;
 using XI.Portal.Servers.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.FuncApp
@@ -44,7 +45,7 @@ namespace XI.Portal.FuncApp
 
             _playerIngest.OverrideLogger(log);
 
-            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, "ShowOnPortalServerList", 0, 0, null);
+            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, null);
 
             foreach (var server in servers)
             {

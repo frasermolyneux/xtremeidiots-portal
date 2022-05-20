@@ -28,7 +28,7 @@ namespace XI.Portal.Web.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.FtpCredentials, PortalClaimTypes.RconCredentials };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
 
             foreach (var gameServerDto in gameServerDtos)
             {

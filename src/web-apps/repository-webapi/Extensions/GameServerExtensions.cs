@@ -11,18 +11,25 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
             {
                 Id = gameServer.ServerId,
                 Title = gameServer.Title,
+                HtmlBanner = gameServer.HtmlBanner,
                 GameType = gameServer.GameType.ToGameType(),
                 Hostname = gameServer.Hostname,
                 QueryPort = gameServer.QueryPort,
                 FtpHostname = gameServer.FtpHostname,
                 FtpUsername = gameServer.FtpUsername,
                 FtpPassword = gameServer.FtpPassword,
-                RconPassword = gameServer.RconPassword,
+                LiveStatusEnabled = gameServer.LiveStatusEnabled,
+                LiveTitle = gameServer.LiveTitle,
+                LiveMap = gameServer.LiveMap,
+                LiveMod = gameServer.LiveMod,
+                LiveMaxPlayers = gameServer.LiveMaxPlayers,
+                LiveCurrentPlayers = gameServer.LiveCurrentPlayers,
+                LiveLastUpdated = gameServer.LiveLastUpdated,
                 ShowOnBannerServerList = gameServer.ShowOnBannerServerList,
-                HtmlBanner = gameServer.HtmlBanner,
                 BannerServerListPosition = gameServer.BannerServerListPosition,
                 ShowOnPortalServerList = gameServer.ShowOnPortalServerList,
-                ShowChatLog = gameServer.ShowChatLog
+                ShowChatLog = gameServer.ShowChatLog,
+                RconPassword = gameServer.RconPassword
             };
 
             return dto;

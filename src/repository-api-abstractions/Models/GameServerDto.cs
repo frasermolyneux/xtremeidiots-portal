@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
     {
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
-
+        public string HtmlBanner { get; set; } = string.Empty;
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; set; }
         public string Hostname { get; set; } = string.Empty;
@@ -15,11 +15,17 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public string FtpHostname { get; set; } = string.Empty;
         public string FtpUsername { get; set; } = string.Empty;
         public string FtpPassword { get; set; } = string.Empty;
-        public string RconPassword { get; set; } = string.Empty;
+        public bool LiveStatusEnabled { get; set; }
+        public string LiveTitle { get; set; } = string.Empty;
+        public string LiveMap { get; set; } = string.Empty;
+        public string LiveMod { get; set; } = string.Empty;
+        public int LiveMaxPlayers { get; set; }
+        public int LiveCurrentPlayers { get; set; }
+        public DateTime LiveLastUpdated { get; set; }
         public bool ShowOnBannerServerList { get; set; }
-        public string? HtmlBanner { get; set; }
         public int BannerServerListPosition { get; set; }
         public bool ShowOnPortalServerList { get; set; }
         public bool ShowChatLog { get; set; }
+        public string RconPassword { get; set; } = string.Empty;
     }
 }

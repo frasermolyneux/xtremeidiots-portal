@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
             this.memoryCache = memoryCache;
         }
 
-        public async Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[] serverIds, string filterOption, int skipEntries, int takeEntries, string order)
+        public async Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[] serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
         {
             var request = await CreateRequest("repository/game-servers", Method.Get);
 
@@ -30,14 +30,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
             if (serverIds != null)
                 request.AddQueryParameter("serverIds", string.Join(",", serverIds));
 
-            if (!string.IsNullOrWhiteSpace(filterOption))
-                request.AddQueryParameter("filterOption", filterOption);
+            if (filterOption != null)
+                request.AddQueryParameter("filterOption", filterOption.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
+            if (order != null)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 

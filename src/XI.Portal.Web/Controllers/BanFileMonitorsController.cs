@@ -242,7 +242,7 @@ namespace XI.Portal.Web.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, "BannerServerListPosition");
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
 
             ViewData["GameServers"] = new SelectList(gameServerDtos, "Id", "Title", selected);
         }

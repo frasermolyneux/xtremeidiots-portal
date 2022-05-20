@@ -18,6 +18,7 @@ namespace XI.Portal.Web.Extensions
                 FtpUsername = gameServerDto.FtpUsername,
                 FtpPassword = gameServerDto.FtpPassword,
                 RconPassword = gameServerDto.RconPassword,
+                LiveStatusEnabled = gameServerDto.LiveStatusEnabled,
                 ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList,
                 BannerServerListPosition = gameServerDto.BannerServerListPosition,
                 HtmlBanner = gameServerDto.HtmlBanner,

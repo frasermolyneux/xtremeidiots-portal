@@ -97,7 +97,6 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
             gameServerDto.ShowChatLog = model.ShowChatLog;
 
-
             await repositoryApiClient.GameServers.CreateGameServer(gameServerDto);
 
             _logger.LogInformation("User {User} has created a new game server for {GameType}", User.Username(), model.GameType);

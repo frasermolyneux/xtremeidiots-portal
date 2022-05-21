@@ -42,7 +42,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             foreach (var gameServerStatDto in gameServerStatDtos)
             {
-                var lastStat = await Context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).LastOrDefaultAsync();
+                var lastStat = await Context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).OrderBy(gss => gss.Timestamp).LastOrDefaultAsync();
 
                 if (lastStat == null || lastStat.PlayerCount != gameServerStatDto.PlayerCount || lastStat.MapName != gameServerStatDto.MapName)
                 {

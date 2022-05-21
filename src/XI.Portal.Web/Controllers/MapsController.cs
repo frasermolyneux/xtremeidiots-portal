@@ -80,8 +80,10 @@ namespace XI.Portal.Web.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-
             var map = await repositoryApiClient.Maps.GetMap(gameType, mapName);
+
+            if (map == null || string.IsNullOrWhiteSpace(map.MapImageUri))
+                return Redirect("/images/noimage.jpg");
 
             return Redirect(map.MapImageUri);
         }

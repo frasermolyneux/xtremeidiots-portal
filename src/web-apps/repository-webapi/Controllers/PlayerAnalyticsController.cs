@@ -21,9 +21,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/player-analytics/cumulative-daily-players")]
         public async Task<IActionResult> GetCumulativeDailyPlayers(DateTime cutoff)
         {
-            var cumulative = await Context.Player2s.CountAsync(p => p.FirstSeen < cutoff);
+            var cumulative = await Context.Players.CountAsync(p => p.FirstSeen < cutoff);
 
-            var players = await Context.Player2s
+            var players = await Context.Players
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => p.FirstSeen)
                 .OrderBy(p => p)
@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/player-analytics/new-daily-players-per-game")]
         public async Task<IActionResult> GetNewDailyPlayersPerGame(DateTime cutoff)
         {
-            var players = await Context.Player2s
+            var players = await Context.Players
                 .Where(p => p.FirstSeen > cutoff)
                 .Select(p => new { p.FirstSeen, p.GameType })
                 .OrderBy(p => p.FirstSeen)
@@ -66,7 +66,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/player-analytics/players-drop-off-per-game")]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var players = await Context.Player2s
+            var players = await Context.Players
                 .Where(p => p.LastSeen > cutoff)
                 .Select(p => new { p.LastSeen, p.GameType })
                 .OrderBy(p => p.LastSeen)

@@ -54,15 +54,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[FileMonitors]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[GameServerEvents]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[GameServerMaps]",
          "ObjectType": 0
       },
       {
@@ -86,10 +78,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[Player2]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[PlayerAlias]",
          "ObjectType": 0
       },
@@ -98,15 +86,11 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[RconMonitors]",
+         "Name": "[dbo].[Players]",
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[SystemLogs]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[UserLogs]",
+         "Name": "[dbo].[UserProfile]",
          "ObjectType": 0
       }
    ],

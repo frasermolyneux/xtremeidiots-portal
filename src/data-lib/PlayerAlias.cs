@@ -26,6 +26,6 @@ namespace XtremeIdiots.Portal.DataLib
 
         [ForeignKey("PlayerPlayerId")]
         [InverseProperty("PlayerAliases")]
-        public virtual Player2 PlayerPlayer { get; set; }
+        public virtual Player PlayerPlayer { get; set; }
     }
 }

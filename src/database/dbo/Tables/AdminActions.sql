@@ -9,7 +9,7 @@
     [ForumTopicId]    INT              DEFAULT ((0)) NOT NULL,
     CONSTRAINT [PK_dbo.AdminActions] PRIMARY KEY CLUSTERED ([AdminActionId] ASC),
     CONSTRAINT [FK_dbo.AdminActions_dbo.AspNetUsers_Admin_Id] FOREIGN KEY ([Admin_Id]) REFERENCES [dbo].[AspNetUsers] ([Id]),
-    CONSTRAINT [FK_dbo.AdminActions_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Player2] ([PlayerId])
+    CONSTRAINT [FK_dbo.AdminActions_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 

@@ -5,7 +5,7 @@
     [LastUsed]        DATETIME         NOT NULL,
     [Player_PlayerId] UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.PlayerAlias] PRIMARY KEY CLUSTERED ([PlayerAliasId] ASC),
-    CONSTRAINT [FK_dbo.PlayerAlias_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Player2] ([PlayerId])
+    CONSTRAINT [FK_dbo.PlayerAlias_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 

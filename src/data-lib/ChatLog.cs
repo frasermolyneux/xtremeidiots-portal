@@ -30,6 +30,6 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual GameServer GameServerServer { get; set; }
         [ForeignKey("PlayerPlayerId")]
         [InverseProperty("ChatLogs")]
-        public virtual Player2 PlayerPlayer { get; set; }
+        public virtual Player PlayerPlayer { get; set; }
     }
 }

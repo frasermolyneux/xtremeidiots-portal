@@ -8,15 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("Timestamp", Name = "IX_Timestamp")]
-    public partial class SystemLog
+    [Table("UserProfile")]
+    public partial class UserProfile
     {
         [Key]
-        public Guid SystemLogId { get; set; }
-        public string Level { get; set; }
-        public string Message { get; set; }
-        public string Error { get; set; }
-        [Column(TypeName = "datetime")]
-        public DateTime Timestamp { get; set; }
+        public Guid Id { get; set; }
+        [StringLength(50)]
+        public string IdentityOid { get; set; }
+        [StringLength(50)]
+        public string XtremeIdiotsForumId { get; set; }
     }
 }

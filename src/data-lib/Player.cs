@@ -8,13 +8,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Table("Player2")]
     [Index("GameType", Name = "IX_GameType")]
     [Index("GameType", "LastSeen", Name = "IX_GameTypeAndLastSeen")]
     [Index("PlayerId", Name = "IX_PlayerId", IsUnique = true)]
-    public partial class Player2
+    public partial class Player
     {
-        public Player2()
+        public Player()
         {
             AdminActions = new HashSet<AdminAction>();
             ChatLogs = new HashSet<ChatLog>();

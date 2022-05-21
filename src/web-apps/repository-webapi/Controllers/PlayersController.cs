@@ -27,7 +27,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId)
     {
-        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var player = await Context.Players.SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null) return new NotFoundResult();
 
@@ -49,7 +49,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/aliases")]
     public async Task<IActionResult> GetPlayerAliases(Guid playerId)
     {
-        var player = await Context.Player2s
+        var player = await Context.Players
             .Include(p => p.PlayerAliases)
             .SingleAsync(p => p.PlayerId == playerId);
 
@@ -67,7 +67,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/ip-addresses")]
     public async Task<IActionResult> GetPlayerIpAddresses(Guid playerId)
     {
-        var player = await Context.Player2s
+        var player = await Context.Players
             .Include(p => p.PlayerIpAddresses)
             .SingleAsync(p => p.PlayerId == playerId);
 
@@ -104,7 +104,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
     public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string playerGuid)
     {
-        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
+        var player = await Context.Players.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
 
         if (player == null) return new NotFoundResult();
 
@@ -144,11 +144,11 @@ public class PlayersController : ControllerBase
 
         foreach (var player in playerDtos)
         {
-            var existingPlayer = await Context.Player2s.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
+            var existingPlayer = await Context.Players.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
 
             if (existingPlayer != null) return new ConflictObjectResult(existingPlayer);
 
-            var player2 = new Player2
+            var player2 = new Player
             {
                 Username = player.Username.Trim(),
                 Guid = player.Guid.ToLower().Trim(),
@@ -184,7 +184,7 @@ public class PlayersController : ControllerBase
                 }
             };
 
-            await Context.Player2s.AddAsync(player2);
+            await Context.Players.AddAsync(player2);
         }
 
         await Context.SaveChangesAsync();
@@ -215,7 +215,7 @@ public class PlayersController : ControllerBase
 
         playerDto.Username = playerDto.Username.Trim();
 
-        var player = await Context.Player2s
+        var player = await Context.Players
                 .Include(p => p.PlayerAliases)
                 .Include(p => p.PlayerIpAddresses)
                 .SingleOrDefaultAsync(p => p.PlayerId == playerDto.Id);
@@ -359,7 +359,7 @@ public class PlayersController : ControllerBase
         if (filterString == null)
             filterString = string.Empty;
 
-        var query = Context.Player2s.AsQueryable();
+        var query = Context.Players.AsQueryable();
         query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
         var totalCount = await query.CountAsync();
 
@@ -390,7 +390,7 @@ public class PlayersController : ControllerBase
         return new OkObjectResult(response);
     }
 
-    private IQueryable<Player2> ApplySearchFilter(IQueryable<Player2> players, GameType gameType, string filterType, string filterString)
+    private IQueryable<Player> ApplySearchFilter(IQueryable<Player> players, GameType gameType, string filterType, string filterString)
     {
         players = players.AsQueryable();
 
@@ -416,7 +416,7 @@ public class PlayersController : ControllerBase
         return players;
     }
 
-    private IQueryable<Player2> ApplySearchOrderAndLimits(IQueryable<Player2> players, string order, int skipEntries, int takeEntries)
+    private IQueryable<Player> ApplySearchOrderAndLimits(IQueryable<Player> players, string order, int skipEntries, int takeEntries)
     {
         switch (order)
         {
@@ -490,7 +490,7 @@ public class PlayersController : ControllerBase
         if (adminActionDto == null) return new BadRequestResult();
         if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
 
-        var player = await Context.Player2s.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
+        var player = await Context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
 
         AspNetUser admin = null;
         if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))

@@ -27,20 +27,16 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<ChatLog> ChatLogs { get; set; }
         public virtual DbSet<Demo> Demoes { get; set; }
         public virtual DbSet<DemoAuthKey> DemoAuthKeys { get; set; }
-        public virtual DbSet<FileMonitor> FileMonitors { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
         public virtual DbSet<GameServerEvent> GameServerEvents { get; set; }
-        public virtual DbSet<GameServerMap> GameServerMaps { get; set; }
         public virtual DbSet<GameServerStat> GameServerStats { get; set; }
         public virtual DbSet<LivePlayer> LivePlayers { get; set; }
         public virtual DbSet<Map> Maps { get; set; }
         public virtual DbSet<MapVote> MapVotes { get; set; }
-        public virtual DbSet<Player2> Player2s { get; set; }
+        public virtual DbSet<Player> Players { get; set; }
         public virtual DbSet<PlayerAlias> PlayerAliases { get; set; }
         public virtual DbSet<PlayerIpAddress> PlayerIpAddresses { get; set; }
-        public virtual DbSet<RconMonitor> RconMonitors { get; set; }
-        public virtual DbSet<SystemLog> SystemLogs { get; set; }
-        public virtual DbSet<UserLog> UserLogs { get; set; }
+        public virtual DbSet<UserProfile> UserProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -139,16 +135,6 @@ namespace XtremeIdiots.Portal.DataLib
                     .HasConstraintName("FK_dbo.Demoes_dbo.AspNetUsers_User_Id");
             });
 
-            modelBuilder.Entity<FileMonitor>(entity =>
-            {
-                entity.Property(e => e.FileMonitorId).HasDefaultValueSql("newsequentialid()");
-
-                entity.HasOne(d => d.GameServerServer)
-                    .WithMany(p => p.FileMonitors)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.FileMonitors_dbo.GameServers_GameServer_ServerId");
-            });
-
             modelBuilder.Entity<GameServer>(entity =>
             {
                 entity.HasKey(e => e.ServerId)
@@ -168,21 +154,6 @@ namespace XtremeIdiots.Portal.DataLib
                     .HasForeignKey(d => d.GameServerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_GameServerEvents_GameServer");
-            });
-
-            modelBuilder.Entity<GameServerMap>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.HasOne(d => d.GameServer)
-                    .WithMany(p => p.GameServerMaps)
-                    .HasForeignKey(d => d.GameServerId)
-                    .HasConstraintName("FK_GameServerMaps_GameServer");
-
-                entity.HasOne(d => d.Map)
-                    .WithMany(p => p.GameServerMaps)
-                    .HasForeignKey(d => d.MapId)
-                    .HasConstraintName("FK_GameServerMaps_Map");
             });
 
             modelBuilder.Entity<GameServerStat>(entity =>
@@ -225,11 +196,8 @@ namespace XtremeIdiots.Portal.DataLib
                     .HasConstraintName("FK_dbo.MapVotes_dbo.Player2_Player_PlayerId");
             });
 
-            modelBuilder.Entity<Player2>(entity =>
+            modelBuilder.Entity<Player>(entity =>
             {
-                entity.HasKey(e => e.PlayerId)
-                    .HasName("PK_dbo.Player2");
-
                 entity.Property(e => e.PlayerId).HasDefaultValueSql("newsequentialid()");
             });
 
@@ -253,29 +221,9 @@ namespace XtremeIdiots.Portal.DataLib
                     .HasConstraintName("FK_dbo.PlayerIpAddresses_dbo.Player2_Player_PlayerId");
             });
 
-            modelBuilder.Entity<RconMonitor>(entity =>
+            modelBuilder.Entity<UserProfile>(entity =>
             {
-                entity.Property(e => e.RconMonitorId).HasDefaultValueSql("newsequentialid()");
-
-                entity.HasOne(d => d.GameServerServer)
-                    .WithMany(p => p.RconMonitors)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.RconMonitors_dbo.GameServers_GameServer_ServerId");
-            });
-
-            modelBuilder.Entity<SystemLog>(entity =>
-            {
-                entity.Property(e => e.SystemLogId).HasDefaultValueSql("newsequentialid()");
-            });
-
-            modelBuilder.Entity<UserLog>(entity =>
-            {
-                entity.Property(e => e.UserLogId).HasDefaultValueSql("newsequentialid()");
-
-                entity.HasOne(d => d.ApplicationUser)
-                    .WithMany(p => p.UserLogs)
-                    .HasForeignKey(d => d.ApplicationUserId)
-                    .HasConstraintName("FK_dbo.UserLogs_dbo.AspNetUsers_ApplicationUser_Id");
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
             });
 
             OnModelCreatingPartial(modelBuilder);

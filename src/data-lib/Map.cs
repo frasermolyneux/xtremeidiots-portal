@@ -13,7 +13,6 @@ namespace XtremeIdiots.Portal.DataLib
     {
         public Map()
         {
-            GameServerMaps = new HashSet<GameServerMap>();
             MapVotes = new HashSet<MapVote>();
         }
 
@@ -29,8 +28,6 @@ namespace XtremeIdiots.Portal.DataLib
         public double LikePercentage { get; set; }
         public double DislikePercentage { get; set; }
 
-        [InverseProperty("Map")]
-        public virtual ICollection<GameServerMap> GameServerMaps { get; set; }
         [InverseProperty("MapMap")]
         public virtual ICollection<MapVote> MapVotes { get; set; }
     }

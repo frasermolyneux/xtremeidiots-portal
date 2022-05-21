@@ -25,6 +25,6 @@ namespace XtremeIdiots.Portal.DataLib
 
         [ForeignKey("PlayerPlayerId")]
         [InverseProperty("PlayerIpAddresses")]
-        public virtual Player2 PlayerPlayer { get; set; }
+        public virtual Player PlayerPlayer { get; set; }
     }
 }

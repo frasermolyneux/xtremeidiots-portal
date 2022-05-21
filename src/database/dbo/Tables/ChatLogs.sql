@@ -8,7 +8,7 @@
     [Player_PlayerId]     UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.ChatLogs] PRIMARY KEY CLUSTERED ([ChatLogId] ASC),
     CONSTRAINT [FK_dbo.ChatLogs_dbo.GameServers_GameServer_ServerId] FOREIGN KEY ([GameServer_ServerId]) REFERENCES [dbo].[GameServers] ([ServerId]),
-    CONSTRAINT [FK_dbo.ChatLogs_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Player2] ([PlayerId])
+    CONSTRAINT [FK_dbo.ChatLogs_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 

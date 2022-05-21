@@ -17,7 +17,6 @@ namespace XtremeIdiots.Portal.DataLib
             AspNetUserClaims = new HashSet<AspNetUserClaim>();
             AspNetUserLogins = new HashSet<AspNetUserLogin>();
             Demos = new HashSet<Demo>();
-            UserLogs = new HashSet<UserLog>();
             Roles = new HashSet<AspNetRole>();
         }
 
@@ -57,8 +56,6 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; }
         [InverseProperty("User")]
         public virtual ICollection<Demo> Demos { get; set; }
-        [InverseProperty("ApplicationUser")]
-        public virtual ICollection<UserLog> UserLogs { get; set; }
 
         [ForeignKey("UserId")]
         [InverseProperty("Users")]

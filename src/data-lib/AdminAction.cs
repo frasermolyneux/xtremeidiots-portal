@@ -32,6 +32,6 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual AspNetUser Admin { get; set; }
         [ForeignKey("PlayerPlayerId")]
         [InverseProperty("AdminActions")]
-        public virtual Player2 PlayerPlayer { get; set; }
+        public virtual Player PlayerPlayer { get; set; }
     }
 }

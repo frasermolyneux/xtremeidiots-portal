@@ -243,12 +243,9 @@ public class GameServersController : Controller
 
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.FileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerMaps)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.LivePlayers)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.RconMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
 
         Context.GameServers.Remove(gameServer);
 

@@ -6,7 +6,7 @@
     [Player_PlayerId] UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.MapVotes] PRIMARY KEY CLUSTERED ([MapVoteId] ASC),
     CONSTRAINT [FK_dbo.MapVotes_dbo.Maps_Map_MapId] FOREIGN KEY ([Map_MapId]) REFERENCES [dbo].[Maps] ([MapId]),
-    CONSTRAINT [FK_dbo.MapVotes_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Player2] ([PlayerId])
+    CONSTRAINT [FK_dbo.MapVotes_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 

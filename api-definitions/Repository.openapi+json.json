@@ -59,6 +59,25 @@
                         "description": "null"
                     }
                 }
+            },
+            "delete": {
+                "summary": "game-servers/{server-id}",
+                "operationId": "delete-game-servers-server-id",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
             }
         },
         "/game-servers": {
@@ -1349,6 +1368,7 @@
         "/live-players/{server-id}": {
             "post": {
                 "summary": "live-players/{server-id}",
+                "description": "live-players/{server-id}",
                 "operationId": "post-live-players-server-id",
                 "parameters": [
                     {
@@ -1362,7 +1382,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1370,10 +1390,11 @@
         "/game-servers-stats": {
             "post": {
                 "summary": "game-servers-stats",
+                "description": "game-servers-stats",
                 "operationId": "post-game-servers-stats",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1381,19 +1402,21 @@
         "/live-players": {
             "get": {
                 "summary": "live-players",
+                "description": "live-players",
                 "operationId": "get-live-players",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "put": {
                 "summary": "live-players",
+                "description": "live-players",
                 "operationId": "put-live-players",
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }

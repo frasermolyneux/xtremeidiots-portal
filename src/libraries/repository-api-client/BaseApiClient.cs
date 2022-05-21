@@ -38,21 +38,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         {
             var response = await RestClient.ExecuteAsync(request);
 
+            if (response.IsSuccessful)
+                return response;
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return response;
+
             if (response.ErrorException != null)
             {
                 Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
                 throw response.ErrorException;
             }
 
-            if (new[] { HttpStatusCode.OK, HttpStatusCode.NotFound }.Contains(response.StatusCode))
-            {
-                return response;
-            }
-            else
-            {
-                Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
-                throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-            }
+            Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
+            throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
         }
     }
 }

@@ -22,7 +22,7 @@ public class RepositoryApiTokenProvider : IRepositoryApiTokenProvider
         this.configuration = configuration;
     }
 
-    private string ServersApiApplicationAudience => configuration["repository-api-application-audience"];
+    private string RepositoryApiApplicationAudience => configuration["repository-api-application-audience"];
 
     public async Task<string> GetAccessToken()
     {
@@ -36,12 +36,12 @@ public class RepositoryApiTokenProvider : IRepositoryApiTokenProvider
 
         try
         {
-            accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { $"{ServersApiApplicationAudience}/.default" }));
+            accessToken = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { $"{RepositoryApiApplicationAudience}/.default" }));
             memoryCache.Set("reository-api-access-token", accessToken);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Failed to get identity token from AAD for audience: '{ServersApiApplicationAudience}'");
+            logger.LogError(ex, $"Failed to get identity token from AAD for audience: '{RepositoryApiApplicationAudience}'");
             throw;
         }
 

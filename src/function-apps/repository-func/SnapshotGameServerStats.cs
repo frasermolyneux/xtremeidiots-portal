@@ -59,11 +59,14 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         {
                             if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{serverQueryStatusResponseDto.Map}", out bool mapExists))
                             {
-                                await repositoryApiClient.Maps.CreateMap(new MapDto
-                                {
-                                    GameType = gameServerDto.GameType,
-                                    MapName = serverQueryStatusResponseDto.Map
-                                });
+                                var mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryStatusResponseDto.Map);
+
+                                if (mapDto == null)
+                                    await repositoryApiClient.Maps.CreateMap(new MapDto
+                                    {
+                                        GameType = gameServerDto.GameType,
+                                        MapName = serverQueryStatusResponseDto.Map
+                                    });
 
                                 memoryCache.Set($"{gameServerDto.GameType}-{serverQueryStatusResponseDto.Map}", true);
                             }

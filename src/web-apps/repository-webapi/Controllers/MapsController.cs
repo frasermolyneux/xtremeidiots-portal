@@ -49,6 +49,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 MapFiles = JsonConvert.SerializeObject(mapDto.MapFiles),
             });
 
+            var conflict = maps.Any(m => Context.Maps.Any(mm => mm.GameType == m.GameType && mm.MapName == m.MapName));
+            if (conflict)
+                return new ConflictResult();
+
             await Context.Maps.AddRangeAsync(maps);
             await Context.SaveChangesAsync();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -37,13 +38,23 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (gameServerStatDtos == null || !gameServerStatDtos.Any())
                 return new BadRequestResult();
 
-            var gameServerStats = gameServerStatDtos.Select(gameServerStat => new GameServerStat
+            List<GameServerStat> gameServerStats = new();
+
+            foreach (var gameServerStatDto in gameServerStatDtos)
             {
-                GameServerId = gameServerStat.GameServerId,
-                PlayerCount = gameServerStat.PlayerCount,
-                MapName = gameServerStat.MapName,
-                Timestamp = DateTime.UtcNow
-            });
+                var lastStat = await Context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).LastOrDefaultAsync();
+
+                if (lastStat == null || lastStat.PlayerCount != gameServerStatDto.PlayerCount || lastStat.MapName != gameServerStatDto.MapName)
+                {
+                    gameServerStats.Add(new GameServerStat
+                    {
+                        GameServerId = gameServerStatDto.GameServerId,
+                        PlayerCount = gameServerStatDto.PlayerCount,
+                        MapName = gameServerStatDto.MapName,
+                        Timestamp = DateTime.UtcNow
+                    });
+                }
+            }
 
             await Context.GameServerStats.AddRangeAsync(gameServerStats);
             await Context.SaveChangesAsync();

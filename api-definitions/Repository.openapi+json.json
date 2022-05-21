@@ -312,7 +312,7 @@
             "delete": {
                 "summary": "data-maintenance/prune-chat-messages",
                 "description": "Prunes chat messages from the database",
-                "operationId": "prune-chat-messages",
+                "operationId": "delete-prune-chat-messages",
                 "responses": {
                     "200": {
                         "description": "null"
@@ -324,7 +324,19 @@
             "delete": {
                 "summary": "data-maintenance/prune-game-server-events",
                 "description": "Prunes game server events from the database",
-                "operationId": "prune-game-server-events",
+                "operationId": "delete-prune-game-server-events",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-game-server-stats": {
+            "delete": {
+                "summary": "data-maintenance/prune-game-server-stats",
+                "description": "Prunes game server stats from the database",
+                "operationId": "delete-prune-game-server-stats",
                 "responses": {
                     "200": {
                         "description": "null"

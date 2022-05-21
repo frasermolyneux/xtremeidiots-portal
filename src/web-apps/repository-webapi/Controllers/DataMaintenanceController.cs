@@ -31,4 +31,12 @@ public class DataMaintenanceController : ControllerBase
         await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerEvents)}] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
         return new OkResult();
     }
+
+    [HttpDelete]
+    [Route("api/data-maintenance/prune-game-server-stats")]
+    public async Task<IActionResult> PruneGameServerStats()
+    {
+        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerStats)}] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
+        return new OkResult();
+    }
 }

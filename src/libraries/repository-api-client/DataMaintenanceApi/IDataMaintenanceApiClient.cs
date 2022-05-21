@@ -4,4 +4,5 @@ public interface IDataMaintenanceApiClient
 {
     Task PruneChatMessages();
     Task PruneGameServerEvents();
+    Task PruneGameServerStats();
 }

@@ -26,5 +26,6 @@ public class DataMaintenance
 
         await _repositoryApiClient.DataMaintenance.PruneChatMessages();
         await _repositoryApiClient.DataMaintenance.PruneGameServerEvents();
+        await _repositoryApiClient.DataMaintenance.PruneGameServerStats();
     }
 }

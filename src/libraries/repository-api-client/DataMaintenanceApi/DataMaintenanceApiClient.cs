@@ -20,4 +20,9 @@ public class DataMaintenanceApiClient : BaseApiClient, IDataMaintenanceApiClient
     {
         await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-game-server-events", Method.Delete));
     }
+
+    public async Task PruneGameServerStats()
+    {
+        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-game-server-stats", Method.Delete));
+    }
 }

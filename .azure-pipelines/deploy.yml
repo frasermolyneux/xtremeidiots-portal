@@ -147,8 +147,17 @@ stages:
 - stage: DeployPrdCore
 
   jobs:
-  - job: DeployAppRegistrations
+  - job: DeployAADResources
     steps:
+      - task: AzureCLI@2
+        displayName: Create Database AAD Groups
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateDatabaseAADGroups.ps1'
+
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
@@ -203,6 +212,16 @@ stages:
               parKeyVaultName=$(keyVault) `
               parAdminGroupName=$(sqlAdminGroupName) `
               parAdminGroupOid=$adminGroupObjectId
+
+    - task: AzureCLI@2
+      displayName: SetDeployPrincipalPermissions
+      inputs:
+        azureSubscription: $(subscription)
+        addSpnToEnvironment: true
+        scriptType: 'pscore'
+        scriptLocation: 'scriptPath'
+        arguments: '$(environment)'
+        scriptPath: '$(Build.sourcesDirectory)/scripts/SetDeployPrincipalPermissions.ps1'
 
     - task: AzureCLI@2
       displayName: CreateSqlServerRoleAssignment
@@ -372,6 +391,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
 
       - task: AzureCLI@2
@@ -380,6 +400,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyFuncAppPermissions.ps1'
 
       - task: AzureCLI@2
@@ -388,6 +409,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyWebAppPermissions.ps1'
 
       - task: AzureCLI@2
@@ -396,6 +418,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryApiAppPermissions.ps1'
 
       - task: AzureCLI@2
@@ -404,6 +427,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
 
       - task: AzureCLI@2
@@ -412,6 +436,7 @@ stages:
           azureSubscription: $(subscription)
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersWebApiPermissions.ps1'
 
 - stage: DeployPrdAppsAndDatabase

@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Forums.Interfaces;
 using XI.Portal.Web.Auth.Constants;
+using XtremeIdiots.Portal.InvisionApiClient;
 
 namespace XI.Portal.Web.Controllers
 {
@@ -16,7 +16,7 @@ namespace XI.Portal.Web.Controllers
         private readonly List<HealthCheckComponent> _healthCheckComponents = new();
 
         public HealthCheckController(
-            IForumsClient forumsClient,
+            IInvisionApiClient forumsClient,
             IGeoLocationClient geoLocationClient)
         {
             _healthCheckComponents.Add(new HealthCheckComponent
@@ -27,7 +27,7 @@ namespace XI.Portal.Web.Controllers
                 {
                     try
                     {
-                        var response = await forumsClient.GetCoreHello();
+                        var response = await forumsClient.Core.GetCoreHello();
                         var checkResponse = response.CommunityUrl == "https://www.xtremeidiots.com/";
                         return new Tuple<bool, string>(checkResponse, "OK");
                     }

@@ -5,11 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
 using System.Reflection;
-using XI.Forums.Extensions;
 using XI.Portal.FuncApp;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Utilities.FtpHelper;
+using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -95,7 +95,7 @@ namespace XI.Portal.FuncApp
                 });
             });
 
-            builder.Services.AddForumsClient(options =>
+            builder.Services.AddInvisionApiClient(options =>
             {
                 options.BaseUrl = config["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = config["XtremeIdiotsForums:ApiKey"];

@@ -6,18 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using XI.Forums.Interfaces;
-using XI.Forums.Models;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XI.Portal.Web.Repository;
+using XtremeIdiots.Portal.InvisionApiClient;
+using XtremeIdiots.Portal.InvisionApiClient.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XI.Portal.Web.Auth.XtremeIdiots
 {
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {
-        private readonly IForumsClient _forumsClient;
+        private readonly IInvisionApiClient _forumsClient;
         private readonly ILogger<XtremeIdiotsAuth> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
         private readonly UserManager<PortalIdentityUser> _userManager;
@@ -28,7 +28,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
             SignInManager<PortalIdentityUser> signInManager,
             UserManager<PortalIdentityUser> userManager,
             IUsersRepository usersRepository,
-            IForumsClient forumsClient)
+            IInvisionApiClient forumsClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -77,7 +77,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
         private async Task UpdateExistingUser(ExternalLoginInfo info)
         {
             var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var member = await _forumsClient.GetMember(id);
+            var member = await _forumsClient.Core.GetMember(id);
 
             var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -95,7 +95,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
 
-            var member = await _forumsClient.GetMember(id);
+            var member = await _forumsClient.Core.GetMember(id);
 
             var user = new PortalIdentityUser { Id = id, UserName = username, Email = email };
             var createUserResult = await _userManager.CreateAsync(user);

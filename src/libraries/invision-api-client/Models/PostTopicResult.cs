@@ -1,4 +1,4 @@
-﻿namespace XI.Forums.Models
+﻿namespace XtremeIdiots.Portal.InvisionApiClient.Models
 {
     public class PostTopicResult
     {

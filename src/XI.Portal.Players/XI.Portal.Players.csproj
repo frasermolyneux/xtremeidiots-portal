@@ -16,9 +16,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\libraries\invision-api-client\invision-api-client.csproj" />
     <ProjectReference Include="..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\repository-api-abstractions\repository-api-abstractions.csproj" />
-    <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
   </ItemGroup>
 
 </Project>

@@ -16,13 +16,13 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
-using XI.Forums.Extensions;
 using XI.Portal.Players.Extensions;
 using XI.Portal.Servers.Extensions;
 using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
@@ -136,7 +136,7 @@ namespace XI.Portal.Web
                 };
             });
 
-            services.AddForumsClient(options =>
+            services.AddInvisionApiClient(options =>
             {
                 options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];

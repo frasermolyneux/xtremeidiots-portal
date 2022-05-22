@@ -21,11 +21,11 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\libraries\invision-api-client\invision-api-client.csproj" />
     <ProjectReference Include="..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\libraries\servers-api-client\servers-api-client.csproj" />
     <ProjectReference Include="..\repository-api-abstractions\repository-api-abstractions.csproj" />
     <ProjectReference Include="..\servers-api-abstractions\servers-api-abstractions.csproj" />
-    <ProjectReference Include="..\XI.Forums\XI.Forums.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
     <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />
   </ItemGroup>

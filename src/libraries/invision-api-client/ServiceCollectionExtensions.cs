@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddRepositoryApiClient(this IServiceCollection serviceCollection,
+        public static void AddInvisionApiClient(this IServiceCollection serviceCollection,
             Action<InvisionApiClientOptions> options)
         {
             serviceCollection.Configure(options);

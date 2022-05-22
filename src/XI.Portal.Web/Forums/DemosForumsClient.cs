@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
-using XI.Forums.Interfaces;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.InvisionApiClient;
 
 namespace XI.Portal.Web.Forums
 {
     public class DemosForumsClient : IDemosForumsClient
     {
-        private readonly IForumsClient _forumsClient;
+        private readonly IInvisionApiClient _invisionClient;
 
-        public DemosForumsClient(IForumsClient forumsClient)
+        public DemosForumsClient(IInvisionApiClient forumsClient)
         {
-            _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
+            _invisionClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
         }
 
         public async Task<DemoManagerClientDto> GetDemoManagerClient()
         {
-            var downloadFile = await _forumsClient.GetDownloadFile(2753);
+            var downloadFile = await _invisionClient.Downloads.GetDownloadFile(2753);
 
             return new DemoManagerClientDto
             {

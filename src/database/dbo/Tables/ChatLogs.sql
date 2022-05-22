@@ -26,3 +26,8 @@ GO
 CREATE NONCLUSTERED INDEX [IX_Player_PlayerId]
     ON [dbo].[ChatLogs]([Player_PlayerId] ASC);
 
+GO
+CREATE NONCLUSTERED INDEX [IX_ChatLogs]
+    ON [dbo].[ChatLogs] ([Player_PlayerId], [GameServer_ServerId]) 
+    INCLUDE ([ChatType], [Message], [Timestamp], [Username]) 
+    WITH (ONLINE = ON)

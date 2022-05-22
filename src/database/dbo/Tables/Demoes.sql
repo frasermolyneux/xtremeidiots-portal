@@ -10,8 +10,10 @@
     [Server]   NVARCHAR (MAX)   NULL,
     [Size]     BIGINT           NOT NULL,
     [User_Id]  NVARCHAR (128)   NULL,
+    [UserProfileId] UNIQUEIDENTIFIER NULL,
     [DemoFileUri] NVARCHAR(MAX) NULL, 
     CONSTRAINT [PK_dbo.Demoes] PRIMARY KEY CLUSTERED ([DemoId] ASC),
+    CONSTRAINT [FK_dbo.Demoes_dbo.UserProfiles_Id] FOREIGN KEY ([UserProfileId]) REFERENCES [dbo].[UserProfiles] ([Id]),
     CONSTRAINT [FK_dbo.Demoes_dbo.AspNetUsers_User_Id] FOREIGN KEY ([User_Id]) REFERENCES [dbo].[AspNetUsers] ([Id])
 );
 

@@ -194,7 +194,7 @@
     <Build Include="dbo\Tables\GameServerEvents.sql" />
     <Build Include="dbo\Tables\GameServerStats.sql" />
     <Build Include="dbo\Tables\DemoAuthKeys.sql" />
-    <Build Include="dbo\Tables\UserProfile.sql" />
+    <Build Include="dbo\Tables\UserProfiles.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeploymentPermissions.sql" />

@@ -142,10 +142,10 @@ namespace XI.Portal.Web.Controllers
         {
             public GameServerDto GameServer { get; set; }
             public PortalGameServerStatusDto GameServerStatus { get; set; }
-            public MapDto Map { get; set; }
+            public MapDto? Map { get; set; }
             public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
             public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
-            public List<MapDto> Maps { get; set; }
+            public List<MapDto> Maps { get; set; } = new List<MapDto>();
         }
 
         public class MapTimelineDataPoint

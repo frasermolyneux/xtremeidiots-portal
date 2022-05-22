@@ -303,7 +303,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             if (gameType != GameType.Unknown) maps = maps.Where(m => m.GameType == gameType.ToGameTypeInt()).AsQueryable();
 
-            if (mapNames != null && mapNames.Count() > 0) maps = maps.Where(m => mapNames.Contains(m.MapName)).AsQueryable();
+            if (mapNames != null && mapNames.Length > 0) maps = maps.Where(m => mapNames.Contains(m.MapName)).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filterString)) maps = maps.Where(m => m.MapName.Contains(filterString)).AsQueryable();
 

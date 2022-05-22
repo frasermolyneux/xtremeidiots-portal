@@ -17,9 +17,9 @@
 
             <div class="ibox-content">
 
-                @if (Model.GameServerStatus?.Map != null)
+                @if (Model.Map != null)
                 {
-                    @Html.MapImage(Model.GameServer.GameType.ToString(), Model.GameServerStatus?.Map)
+                    @Html.MapImage(Model.Map.MapImageUri)
                     <br/>
                 }
 
@@ -31,6 +31,7 @@
                         </td>
                         <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
                     </tr>
+
                     @if (Model.GameServerStatus != null)
                     {
                         <tr>
@@ -243,7 +244,7 @@
                                     @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage, item.TotalLikes, item.TotalDislikes, item.TotalVotes)
                                 </td>
                                 <td>
-                                    @Html.MapImage(@Model.Map.MapImageUri)
+                                    @Html.MapImage(item.MapImageUri)
                                 </td>
                             </tr>
                         }

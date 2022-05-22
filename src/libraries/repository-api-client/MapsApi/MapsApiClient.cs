@@ -121,7 +121,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
             if (gameType != null)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
-            if (mapNames != null && mapNames.Count() > 0)
+            if (mapNames != null && mapNames.Length > 0)
                 request.AddQueryParameter("mapNames", string.Join(",", mapNames));
 
             if (!string.IsNullOrEmpty(filterString))

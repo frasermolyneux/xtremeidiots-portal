@@ -130,5 +130,58 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             return new OkObjectResult(result);
         }
+
+        [HttpGet]
+        [Route("api/user-profile/{id}/claims")]
+        public async Task<IActionResult> GetUserProfileClaims(Guid id)
+        {
+            var userProfileClaims = await Context.UserProfileClaims
+                .Where(upc => upc.UserProfileId == id).ToListAsync();
+
+            var result = userProfileClaims.Select(upc => upc.ToDto());
+
+            return new OkObjectResult(result);
+        }
+
+        [HttpPost]
+        [Route("api/user-profile/{id}/claims")]
+        public async Task<IActionResult> CreateUserProfileClaims(Guid id)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            List<UserProfileClaimDto>? userProfileClaimDtos;
+            try
+            {
+                userProfileClaimDtos = JsonConvert.DeserializeObject<List<UserProfileClaimDto>>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
+
+            if (userProfileClaimDtos == null)
+                return new BadRequestResult();
+
+            var userProfile = await Context.UserProfiles.Include(up => up.UserProfileClaims).SingleOrDefaultAsync(up => up.Id == id);
+
+            if (userProfile == null)
+                return NotFound();
+
+            userProfile.UserProfileClaims.Clear();
+
+            userProfile.UserProfileClaims = userProfileClaimDtos.Select(upc => new UserProfileClaim
+            {
+                UserProfileId = userProfile.Id,
+                SystemGenerated = upc.SystemGenerated,
+                ClaimType = upc.ClaimType,
+                ClaimValue = upc.ClaimValue
+            }).ToList();
+
+            await Context.SaveChangesAsync();
+
+            var result = userProfile.UserProfileClaims.Select(upc => upc.ToDto());
+
+            return new OkObjectResult(result);
+        }
     }
 }

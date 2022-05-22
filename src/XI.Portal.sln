@@ -62,6 +62,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "servers-api-abstractions", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "servers-api-client", "libraries\servers-api-client\servers-api-client.csproj", "{0B991872-2799-4EB9-A9C3-758A9BF443B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invision-api-client", "libraries\invision-api-client\invision-api-client.csproj", "{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,6 +156,10 @@ Global
 		{0B991872-2799-4EB9-A9C3-758A9BF443B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B991872-2799-4EB9-A9C3-758A9BF443B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B991872-2799-4EB9-A9C3-758A9BF443B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,6 +184,7 @@ Global
 		{9D5BD633-92C5-47A3-99C6-B0679C374140} = {577FAA4D-F399-44DB-8884-98F7D09BEBC0}
 		{54C9F2DF-AFF9-4506-AB03-EBD562E3A406} = {76B12390-BFC3-4599-A5F8-486AB492E3BB}
 		{0B991872-2799-4EB9-A9C3-758A9BF443B8} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
+		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

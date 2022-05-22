@@ -33,6 +33,7 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<PlayerAlias> PlayerAliases { get; set; }
         public virtual DbSet<PlayerIpAddress> PlayerIpAddresses { get; set; }
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
+        public virtual DbSet<UserProfileClaim> UserProfileClaims { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -177,6 +178,17 @@ namespace XtremeIdiots.Portal.DataLib
             modelBuilder.Entity<UserProfile>(entity =>
             {
                 entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+            });
+
+            modelBuilder.Entity<UserProfileClaim>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+
+                entity.HasOne(d => d.UserProfile)
+                    .WithMany(p => p.UserProfileClaims)
+                    .HasForeignKey(d => d.UserProfileId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_dbo.UserProfileClaims_dbo.UserProfiles_Id");
             });
 
             OnModelCreatingPartial(modelBuilder);

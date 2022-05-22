@@ -14,6 +14,7 @@ namespace XtremeIdiots.Portal.DataLib
         {
             AdminActions = new HashSet<AdminAction>();
             Demos = new HashSet<Demo>();
+            UserProfileClaims = new HashSet<UserProfileClaim>();
         }
 
         [Key]
@@ -29,5 +30,7 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<AdminAction> AdminActions { get; set; }
         [InverseProperty("UserProfile")]
         public virtual ICollection<Demo> Demos { get; set; }
+        [InverseProperty("UserProfile")]
+        public virtual ICollection<UserProfileClaim> UserProfileClaims { get; set; }
     }
 }

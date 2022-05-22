@@ -11,7 +11,6 @@ param parAdminGroupOid string
 
 // Variables
 var varSqlServerName = 'sql-portal-${parEnvironment}-${parLocation}-01'
-var varSqlDatabaseName = 'portaldb'
 
 // Existing Resources
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
@@ -58,11 +57,11 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' = {
 
 resource portalDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
   parent: sqlServer
-  name: varSqlDatabaseName
+  name: 'portaldb'
   location: parLocation
 
   sku: {
-    capacity: 20
+    capacity: 10
     name: 'Standard'
     tier: 'Standard'
   }
@@ -70,6 +69,27 @@ resource portalDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
   properties: {
     collation: 'SQL_Latin1_General_CP1_CI_AS'
     maxSizeBytes: 21474836480
+    catalogCollation: 'SQL_Latin1_General_CP1_CI_AS'
+    zoneRedundant: false
+    readScale: 'Disabled'
+    requestedBackupStorageRedundancy: 'Zone'
+  }
+}
+
+resource identityDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
+  parent: sqlServer
+  name: 'identitydb'
+  location: parLocation
+
+  sku: {
+    capacity: 5
+    name: 'Basic'
+    tier: 'Basic'
+  }
+
+  properties: {
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 2147483648
     catalogCollation: 'SQL_Latin1_General_CP1_CI_AS'
     zoneRedundant: false
     readScale: 'Disabled'

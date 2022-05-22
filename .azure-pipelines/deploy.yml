@@ -175,7 +175,7 @@ stages:
           scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
 
   - job: DeployPortalCoreBicep
-    dependsOn: [DeployAppRegistrations]
+    dependsOn: [DeployAADResources]
     steps:
       - task: AzureCLI@2
         displayName: DeployPortalCoreBicep

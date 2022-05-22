@@ -80,8 +80,17 @@ stages:
 - stage: DeployPrdCore
 
   jobs:
-  - job: DeployAppRegistrations
+  - job: DeployAADResources
     steps:
+      - task: AzureCLI@2
+        displayName: Create Database AAD Groups
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateDatabaseAADGroups.ps1'
+
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
@@ -99,7 +108,7 @@ stages:
           scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
 
   - job: DeployPortalCoreBicep
-    dependsOn: [DeployAppRegistrations]
+    dependsOn: [DeployAADResources]
     steps:
       - task: AzureCLI@2
         displayName: DeployPortalCoreBicep

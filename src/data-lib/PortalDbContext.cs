@@ -19,10 +19,6 @@ namespace XtremeIdiots.Portal.DataLib
         }
 
         public virtual DbSet<AdminAction> AdminActions { get; set; }
-        public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
-        public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
-        public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
-        public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
         public virtual DbSet<BanFileMonitor> BanFileMonitors { get; set; }
         public virtual DbSet<ChatLog> ChatLogs { get; set; }
         public virtual DbSet<Demo> Demoes { get; set; }
@@ -46,58 +42,15 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.AdminActionId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.Admin)
-                    .WithMany(p => p.AdminActions)
-                    .HasForeignKey(d => d.AdminId)
-                    .HasConstraintName("FK_dbo.AdminActions_dbo.AspNetUsers_Admin_Id");
-
                 entity.HasOne(d => d.PlayerPlayer)
                     .WithMany(p => p.AdminActions)
                     .HasForeignKey(d => d.PlayerPlayerId)
                     .HasConstraintName("FK_dbo.AdminActions_dbo.Player2_Player_PlayerId");
-            });
 
-            modelBuilder.Entity<AspNetUser>(entity =>
-            {
-                entity.HasMany(d => d.Roles)
-                    .WithMany(p => p.Users)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "AspNetUserRole",
-                        l => l.HasOne<AspNetRole>().WithMany().HasForeignKey("RoleId").HasConstraintName("FK_dbo.AspNetUserRoles_dbo.AspNetRoles_RoleId"),
-                        r => r.HasOne<AspNetUser>().WithMany().HasForeignKey("UserId").HasConstraintName("FK_dbo.AspNetUserRoles_dbo.AspNetUsers_UserId"),
-                        j =>
-                        {
-                            j.HasKey("UserId", "RoleId").HasName("PK_dbo.AspNetUserRoles");
-
-                            j.ToTable("AspNetUserRoles");
-
-                            j.HasIndex(new[] { "RoleId" }, "IX_RoleId");
-
-                            j.HasIndex(new[] { "UserId" }, "IX_UserId");
-
-                            j.IndexerProperty<string>("UserId").HasMaxLength(128);
-
-                            j.IndexerProperty<string>("RoleId").HasMaxLength(128);
-                        });
-            });
-
-            modelBuilder.Entity<AspNetUserClaim>(entity =>
-            {
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.AspNetUserClaims)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_dbo.AspNetUserClaims_dbo.AspNetUsers_UserId");
-            });
-
-            modelBuilder.Entity<AspNetUserLogin>(entity =>
-            {
-                entity.HasKey(e => new { e.LoginProvider, e.ProviderKey, e.UserId })
-                    .HasName("PK_dbo.AspNetUserLogins");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.AspNetUserLogins)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_dbo.AspNetUserLogins_dbo.AspNetUsers_UserId");
+                entity.HasOne(d => d.UserProfile)
+                    .WithMany(p => p.AdminActions)
+                    .HasForeignKey(d => d.UserProfileId)
+                    .HasConstraintName("FK_dbo.AdminActions_dbo.UserProfiles_Id");
             });
 
             modelBuilder.Entity<BanFileMonitor>(entity =>
@@ -129,10 +82,10 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.DemoId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.User)
+                entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.Demos)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_dbo.Demoes_dbo.AspNetUsers_User_Id");
+                    .HasForeignKey(d => d.UserProfileId)
+                    .HasConstraintName("FK_dbo.Demoes_dbo.UserProfiles_Id");
             });
 
             modelBuilder.Entity<GameServer>(entity =>

@@ -22,10 +22,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 DemoFileUri = demo.DemoFileUri
             };
 
-            if (demo.User != null)
+            if (demo.UserProfile != null)
             {
-                dto.UserId = demo.User.XtremeIdiotsId;
-                dto.UploadedBy = demo.User.UserName;
+                dto.UserId = demo.UserProfile.XtremeIdiotsForumId;
+                dto.UploadedBy = demo.UserProfile.DisplayName;
             }
 
             return dto;

@@ -26,7 +26,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/demos")]
         public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
-            var demos = Context.Demoes.Include(d => d.User).AsQueryable();
+            var demos = Context.Demoes.Include(d => d.UserProfile).AsQueryable();
 
             int[] filterByGameTypes = { };
             if (!string.IsNullOrWhiteSpace(gameTypes))
@@ -40,7 +40,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 order = DemoOrder.DateDesc;
 
 
-            var query = Context.Demoes.Include(d => d.User).AsQueryable();
+            var query = Context.Demoes.Include(d => d.UserProfile).AsQueryable();
             query = ApplySearchFilter(query, Array.Empty<int>(), null, null);
             var totalCount = await query.CountAsync();
 
@@ -65,14 +65,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         private IQueryable<Demo> ApplySearchFilter(IQueryable<Demo> query, int[] filterByGameTypes, string? userId, string? filterString)
         {
             if (userId != null && filterByGameTypes.Count() != 0)
-                query = query.Where(d => filterByGameTypes.Contains(d.Game) && d.UserId == userId).AsQueryable();
+                query = query.Where(d => filterByGameTypes.Contains(d.Game) && d.UserProfile.XtremeIdiotsForumId == userId).AsQueryable();
             else if (filterByGameTypes.Count() != 0)
                 query = query.Where(d => filterByGameTypes.Contains(d.Game)).AsQueryable();
             else if (userId != null)
-                query = query.Where(d => d.UserId == userId).AsQueryable();
+                query = query.Where(d => d.UserProfile.XtremeIdiotsForumId == userId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filterString))
-                query = query.Where(d => d.Name.Contains(filterString) || d.User.UserName.Contains(filterString)).AsQueryable();
+                query = query.Where(d => d.Name.Contains(filterString) || d.UserProfile.DisplayName.Contains(filterString)).AsQueryable();
 
             return query;
         }
@@ -100,10 +100,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     query = query.OrderByDescending(d => d.Date).AsQueryable();
                     break;
                 case DemoOrder.UploadedByAsc:
-                    query = query.OrderBy(d => d.User.UserName).AsQueryable();
+                    query = query.OrderBy(d => d.UserProfile.DisplayName).AsQueryable();
                     break;
                 case DemoOrder.UploadedByDesc:
-                    query = query.OrderByDescending(d => d.User.UserName).AsQueryable();
+                    query = query.OrderByDescending(d => d.UserProfile.DisplayName).AsQueryable();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 GameType = localDemo.GameType,
                 Server = localDemo.Server,
                 Size = localDemo.Size,
-                User = await Context.AspNetUsers.SingleAsync(u => u.XtremeIdiotsId == demoDto.UserId),
+                UserProfile = await Context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == demoDto.UserId),
                 DemoFileUri = blobClient.Uri.ToString()
             };
 
@@ -187,7 +187,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/demos/{demoId}")]
         public async Task<IActionResult> GetDemo(Guid? demoId)
         {
-            var demo = await Context.Demoes.Include(d => d.User).SingleOrDefaultAsync(d => d.DemoId == demoId);
+            var demo = await Context.Demoes.Include(d => d.UserProfile).SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
                 return NotFound();

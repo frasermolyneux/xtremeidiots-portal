@@ -8,14 +8,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Table("UserProfile")]
     public partial class UserProfile
     {
+        public UserProfile()
+        {
+            AdminActions = new HashSet<AdminAction>();
+            Demos = new HashSet<Demo>();
+        }
+
         [Key]
         public Guid Id { get; set; }
         [StringLength(50)]
         public string IdentityOid { get; set; }
         [StringLength(50)]
         public string XtremeIdiotsForumId { get; set; }
+        [StringLength(50)]
+        public string DisplayName { get; set; }
+
+        [InverseProperty("UserProfile")]
+        public virtual ICollection<AdminAction> AdminActions { get; set; }
+        [InverseProperty("UserProfile")]
+        public virtual ICollection<Demo> Demos { get; set; }
     }
 }

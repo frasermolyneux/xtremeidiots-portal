@@ -24,7 +24,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var adminAction = await Context.AdminActions
                 .Include(aa => aa.PlayerPlayer)
-                .Include(aa => aa.Admin)
+                .Include(aa => aa.UserProfile)
                 .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
             if (adminAction == null)
@@ -40,7 +40,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (order == null)
                 order = AdminActionOrder.CreatedDesc;
 
-            var query = Context.AdminActions.Include(aa => aa.PlayerPlayer).Include(aa => aa.Admin).AsQueryable();
+            var query = Context.AdminActions.Include(aa => aa.PlayerPlayer).Include(aa => aa.UserProfile).AsQueryable();
 
             if (gameType != null)
                 query = query.Where(aa => aa.PlayerPlayer.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
@@ -49,7 +49,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 query = query.Where(aa => aa.PlayerPlayerId == playerId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(adminId))
-                query = query.Where(aa => aa.Admin.XtremeIdiotsId == adminId).AsQueryable();
+                query = query.Where(aa => aa.UserProfile.XtremeIdiotsForumId == adminId).AsQueryable();
 
             switch (filterType)
             {
@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null || aa.Type == AdminActionType.TempBan.ToAdminActionTypeInt() && aa.Expires > DateTime.UtcNow).AsQueryable();
                     break;
                 case AdminActionFilter.UnclaimedBans:
-                    query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null && aa.Admin == null).AsQueryable();
+                    query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null && aa.UserProfile == null).AsQueryable();
                     break;
             }
 

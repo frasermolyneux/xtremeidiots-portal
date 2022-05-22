@@ -18,26 +18,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[AspNetRoles]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[AspNetUserClaims]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[AspNetUserLogins]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[AspNetUserRoles]",
-         "ObjectType": 0
-      },
-      {
-         "Name": "[dbo].[AspNetUsers]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[BanFileMonitors]",
          "ObjectType": 0
       },
@@ -90,7 +70,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[UserProfile]",
+         "Name": "[dbo].[UserProfiles]",
          "ObjectType": 0
       }
    ],

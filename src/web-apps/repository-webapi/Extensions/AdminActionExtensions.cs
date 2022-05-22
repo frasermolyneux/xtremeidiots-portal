@@ -25,10 +25,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 dto.Guid = adminAction.PlayerPlayer.Guid;
             }
 
-            if (adminAction.Admin != null)
+            if (adminAction.UserProfile != null)
             {
-                dto.AdminId = adminAction.Admin.XtremeIdiotsId;
-                dto.AdminName = adminAction.Admin.UserName;
+                dto.AdminId = adminAction.UserProfile.XtremeIdiotsForumId;
+                dto.AdminName = adminAction.UserProfile.DisplayName;
             }
 
             return dto;

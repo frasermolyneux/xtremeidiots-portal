@@ -460,7 +460,7 @@ public class PlayersController : ControllerBase
     {
         var results = await Context.AdminActions
             .Include(aa => aa.PlayerPlayer)
-            .Include(aa => aa.Admin)
+            .Include(aa => aa.UserProfile)
             .Where(aa => aa.PlayerPlayerId == playerId)
             .ToListAsync();
 
@@ -492,16 +492,16 @@ public class PlayersController : ControllerBase
 
         var player = await Context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
 
-        AspNetUser admin = null;
+        UserProfile admin = null;
         if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
         {
-            admin = await Context.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+            admin = await Context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
         }
 
         var adminAction = new AdminAction
         {
             PlayerPlayer = player,
-            Admin = admin,
+            UserProfile = admin,
             Type = adminActionDto.Type.ToAdminActionTypeInt(),
             Text = adminActionDto.Text,
             Created = DateTime.UtcNow,
@@ -544,18 +544,18 @@ public class PlayersController : ControllerBase
         adminAction.Text = adminActionDto.Text;
         adminAction.Expires = adminActionDto.Expires;
 
-        if (adminAction.AdminId != adminActionDto.AdminId)
+        if (adminAction.UserProfile.XtremeIdiotsForumId != adminActionDto.AdminId)
         {
             if (string.IsNullOrWhiteSpace(adminActionDto.AdminId))
-                adminAction.Admin = null;
+                adminAction.UserProfile = null;
             else
             {
-                var admin = await Context.AspNetUsers.SingleOrDefaultAsync(u => u.XtremeIdiotsId == adminActionDto.AdminId);
+                var admin = await Context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
 
                 if (admin == null)
                     throw new NullReferenceException(nameof(admin));
 
-                adminAction.Admin = admin;
+                adminAction.UserProfile = admin;
             }
         }
 

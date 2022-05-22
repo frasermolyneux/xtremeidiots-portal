@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("UserId", Name = "IX_User_Id")]
     public partial class Demo
     {
         [Key]
@@ -23,13 +22,11 @@ namespace XtremeIdiots.Portal.DataLib
         public string GameType { get; set; }
         public string Server { get; set; }
         public long Size { get; set; }
-        [Column("User_Id")]
-        [StringLength(128)]
-        public string UserId { get; set; }
+        public Guid? UserProfileId { get; set; }
         public string DemoFileUri { get; set; }
 
-        [ForeignKey("UserId")]
+        [ForeignKey("UserProfileId")]
         [InverseProperty("Demos")]
-        public virtual AspNetUser User { get; set; }
+        public virtual UserProfile UserProfile { get; set; }
     }
 }

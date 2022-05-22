@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("AdminId", Name = "IX_Admin_Id")]
     [Index("PlayerPlayerId", Name = "IX_Player_PlayerId")]
     public partial class AdminAction
     {
@@ -20,18 +19,16 @@ namespace XtremeIdiots.Portal.DataLib
         public DateTime Created { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? Expires { get; set; }
-        [Column("Admin_Id")]
-        [StringLength(128)]
-        public string AdminId { get; set; }
+        public Guid? UserProfileId { get; set; }
         [Column("Player_PlayerId")]
         public Guid? PlayerPlayerId { get; set; }
         public int ForumTopicId { get; set; }
 
-        [ForeignKey("AdminId")]
-        [InverseProperty("AdminActions")]
-        public virtual AspNetUser Admin { get; set; }
         [ForeignKey("PlayerPlayerId")]
         [InverseProperty("AdminActions")]
         public virtual Player PlayerPlayer { get; set; }
+        [ForeignKey("UserProfileId")]
+        [InverseProperty("AdminActions")]
+        public virtual UserProfile UserProfile { get; set; }
     }
 }

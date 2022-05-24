@@ -124,6 +124,14 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'servers-api-application-audience'
           value: 'api://portal-servers-api-${parEnvironment}'
         }
+        {
+          name: 'geolocation-baseurl'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=geolocation-baseurl)'
+        }
+        {
+          name: 'geolocation-apikey'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=geolocation-apikey)'
+        }
       ]
     }
   }

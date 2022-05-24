@@ -56,6 +56,7 @@ stages:
       dependsOn: ['BuildRepositoryWebApi']
       jobName: 'BuildRepositoryFunctionApp'
       projectName: 'repository-func'
+      nugetConfigPath: './src/nuget.config'
       publishArtifact: true
 
   - template: templates/build-function-app.yml

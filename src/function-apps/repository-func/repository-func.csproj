@@ -6,6 +6,7 @@
     <UserSecretsId>28cc33cc-f7bd-4409-bf94-f8a9d46d11c9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="FM.GeoLocation.Client" Version="1.0.4908" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.20.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.5.0" />

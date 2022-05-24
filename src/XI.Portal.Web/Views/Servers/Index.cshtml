@@ -46,7 +46,7 @@
                                         @Html.GameTypeIcon(item.GameServer.GameType.ToString())
                                     </td>
                                     <td>
-                                        @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
+                                        @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
                                     </td>
                                     <td>
                                         @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
@@ -60,9 +60,9 @@
                                     <td>
                                         @{
                                             double percentage = 0;
-                                            if (item.GameServerStatus != null)
+                                            if (item.GameServer.LiveCurrentPlayers != 0 && item.GameServer.LiveMaxPlayers != 0)
                                             {
-                                                percentage = (double) item.GameServerStatus.PlayerCount / item.GameServerStatus.MaxPlayers * 100;
+                                                percentage = (double) item.GameServer.LiveCurrentPlayers / item.GameServer.LiveMaxPlayers * 100;
                                             }
                                         }
 
@@ -73,10 +73,10 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @item.GameServerStatus?.Map
+                                        @item.GameServer.LiveMap
                                     </td>
                                     <td>
-                                        @item.GameServerStatus?.Mod
+                                        @item.GameServer.LiveMod
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">

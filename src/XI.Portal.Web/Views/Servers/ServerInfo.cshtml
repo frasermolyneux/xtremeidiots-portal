@@ -13,7 +13,7 @@
 
         <div class="ibox">
             <div class="ibox-title">
-                <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServerStatus?.ServerName)</h5>
+                <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)</h5>
             </div>
 
             <div class="ibox-content">
@@ -33,26 +33,34 @@
                         <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
                     </tr>
 
-                    @if (Model.GameServerStatus != null)
+                    @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMod))
                     {
                         <tr>
                             <td>
                                 <strong>Mod</strong>
                             </td>
-                            <td>@Model.GameServerStatus.Mod</td>
-                        </tr>
+                            <td>@Model.GameServer.LiveMod</td>
+                        </tr>  
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMap))
+                    {
                         <tr>
                             <td>
                                 <strong>Map</strong>
                             </td>
-                            <td>@Model.GameServerStatus.Map</td>
-                        </tr>
+                            <td>@Model.GameServer.LiveMap</td>
+                        </tr>       
+                    }
+
+                    @if (Model.GameServer.LiveCurrentPlayers != 0 && Model.GameServer.LiveMaxPlayers != 0)
+                    {
                         <tr>
                             <td>
                                 <strong>Player Count</strong>
                             </td>
-                            <td>@Model.GameServerStatus.PlayerCount / @Model.GameServerStatus.MaxPlayers</td>
-                        </tr>
+                            <td>@Model.GameServer.LiveCurrentPlayers / @Model.GameServer.LiveMaxPlayers</td>
+                        </tr>       
                     }
 
                     <tr>
@@ -103,7 +111,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#home">Players</a>
                     </li>
-                    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
+                    @if (Model.LivePlayers != null && Model.LivePlayers.Any())
                     {
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
@@ -113,11 +121,7 @@
 
                 <div class="tab-content">
                     <div class="tab-pane container active" id="home">
-                        @if (Model.GameServerStatus == null)
-                        {
-                            <h2 style="text-align: center">The players data could not be retrieved from the server</h2>
-                        }
-                        else if (Model.GameServerStatus?.Players.Count == 0)
+                        @if (Model.GameServer.LiveCurrentPlayers == 0)
                         {
                             <h2 style="text-align: center">There are currently no connected players</h2>
                         }
@@ -125,9 +129,9 @@
                         {
                             <table class="table">
                                 <tr>
-@*                                    <th>
+                                    <th>
                                         @Html.Label("Num")
-                                    </th>*@
+                                    </th>
                                     <th>
                                         @Html.Label("Name")
                                     </th>
@@ -136,20 +140,15 @@
                                     </th>
                                 </tr>
 
-                                @foreach (var item in Model.GameServerStatus.Players)
+                                @foreach (var item in Model.LivePlayers.OrderByDescending(lp => lp.Score))
                                 {
                                     <tr>
 @*                                        <td>
                                             @Html.DisplayFor(model => item.Num)
                                         </td>*@
                                         <td>
-@*                                            @if (item.GeoLocation != null)
-                                            {
-                                                @item.GeoLocation.FlagImage()
-                                            }*@
-
+                                            @item.CountryCode.FlagImage()
                                             @Html.PlayerName(item.Name)
-
                                         </td>
                                         <td>
                                             @Html.DisplayFor(model => item.Score)
@@ -161,7 +160,7 @@
                             </table>
                         }
                     </div>
-                    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
+                    @if (Model.LivePlayers.Any())
                     {
                         <div class="tab-pane container fade" id="menu1">
                             <div id="map" style="height: 600px; width: 100%;"></div>
@@ -260,7 +259,7 @@
 
 @section Scripts {
 
-    @if (Model.GameServerStatus != null && Model.GameServerStatus.Players.Any())
+    @if (Model.LivePlayers.Any())
     {
         <script>
             function initMap() {
@@ -272,17 +271,17 @@
                     });
 
                 var locations = [
-@*                    @foreach (var location in Model.GameServerStatus.Players)
+                    @foreach (var player in Model.LivePlayers)
                     {
-                        if (location.GeoLocation == null)
+                        if (player.Lat == null && player.Long == null)
                         {
                             continue;
                         }
 
                         <text>
-                            ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude],
+                            ['Player', @player.Lat, @player.Long],
                         </text>
-                    }*@
+                    }
                 ];
 
                 for (var count = 0; count < locations.length; count++) {

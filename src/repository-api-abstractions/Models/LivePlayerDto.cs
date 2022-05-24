@@ -1,4 +1,5 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
@@ -14,6 +15,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public double? Lat { get; set; }
         public double? Long { get; set; }
         public string CountryCode { get; set; } = string.Empty;
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; set; }
         public Guid? GameServerServerId { get; set; }
     }

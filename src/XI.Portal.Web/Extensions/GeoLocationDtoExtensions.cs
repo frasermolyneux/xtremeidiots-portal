@@ -12,6 +12,13 @@ namespace XI.Portal.Web.Extensions
                 : new HtmlString("<img src=\"/images/flags/unknown.png\" />");
         }
 
+        public static HtmlString FlagImage(this string countryCode)
+        {
+            return !string.IsNullOrWhiteSpace(countryCode)
+                ? new HtmlString($"<img src=\"/images/flags/{countryCode.ToLower()}.png\" />")
+                : new HtmlString("<img src=\"/images/flags/unknown.png\" />");
+        }
+
         public static HtmlString LocationSummary(this GeoLocationDto geoLocationDto)
         {
             if (!string.IsNullOrWhiteSpace(geoLocationDto.CityName) &&

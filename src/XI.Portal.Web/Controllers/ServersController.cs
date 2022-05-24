@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Concurrent;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
@@ -33,30 +31,10 @@ namespace XI.Portal.Web.Controllers
         {
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var serversGameServerViewModels = new ConcurrentBag<ServersGameServerViewModel>();
-
-            CancellationToken cancellationToken = CancellationToken.None;
-            await Parallel.ForEachAsync(gameServerDtos, async (gameServerDto, cancellationToken) =>
+            var result = gameServerDtos.Select(gs => new ServersGameServerViewModel
             {
-                try
-                {
-                    var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
-
-                    serversGameServerViewModels.Add(new ServersGameServerViewModel
-                    {
-                        GameServer = gameServerDto,
-                        GameServerStatus = serverQueryStatusResponseStatusDto
-                    });
-                }
-                catch
-                {
-                    // swallow
-                }
-
-            });
-
-            var result = serversGameServerViewModels
-                .OrderBy(gs => gs.GameServer.BannerServerListPosition).ToList();
+                GameServer = gs
+            }).ToList();
 
             return View(result);
         }
@@ -64,9 +42,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Map()
         {
-            var livePlayers = await repositoryApiClient.LivePlayers.GetLivePlayers(null, null, LivePlayerFilter.GeoLocated);
+            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, null, LivePlayerFilter.GeoLocated);
 
-            return View(livePlayers);
+            return View(livePlayersResponseDto.Entries);
         }
 
         [HttpGet]
@@ -79,6 +57,7 @@ namespace XI.Portal.Web.Controllers
 
             var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
             var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
+            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated);
 
             MapDto mapDto = null;
             if (!string.IsNullOrWhiteSpace(serverQueryStatusResponseStatusDto.Map))
@@ -90,10 +69,10 @@ namespace XI.Portal.Web.Controllers
             return View(new ServersGameServerViewModel
             {
                 GameServer = gameServerDto,
-                GameServerStatus = serverQueryStatusResponseStatusDto,
                 Map = mapDto,
                 Maps = mapsResponseDto.Entries,
-                GameServerStats = gameServerStatusStats
+                GameServerStats = gameServerStatusStats,
+                LivePlayers = livePlayersResponseDto.Entries
             });
         }
     }

@@ -29,7 +29,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<List<LivePlayerDto>?> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
+        public async Task<LivePlayersResponseDto?> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
         {
             var request = await CreateRequest($"repository/live-players", Method.Get);
 
@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi
 
             if (response.Content != null)
             {
-                var result = JsonConvert.DeserializeObject<List<LivePlayerDto>>(response.Content);
+                var result = JsonConvert.DeserializeObject<LivePlayersResponseDto>(response.Content);
                 return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
             }
             else

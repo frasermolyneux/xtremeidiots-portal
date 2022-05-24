@@ -62,6 +62,7 @@
             },
             "delete": {
                 "summary": "game-servers/{server-id}",
+                "description": "game-servers/{server-id}",
                 "operationId": "delete-game-servers-server-id",
                 "parameters": [
                     {
@@ -75,7 +76,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -301,42 +302,6 @@
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-chat-messages": {
-            "delete": {
-                "summary": "data-maintenance/prune-chat-messages",
-                "description": "Prunes chat messages from the database",
-                "operationId": "delete-prune-chat-messages",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-game-server-events": {
-            "delete": {
-                "summary": "data-maintenance/prune-game-server-events",
-                "description": "Prunes game server events from the database",
-                "operationId": "delete-prune-game-server-events",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-game-server-stats": {
-            "delete": {
-                "summary": "data-maintenance/prune-game-server-stats",
-                "description": "Prunes game server stats from the database",
-                "operationId": "delete-prune-game-server-stats",
                 "responses": {
                     "200": {
                         "description": "null"
@@ -1429,6 +1394,70 @@
                 "responses": {
                     "200": {
                         "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-chat-messages": {
+            "delete": {
+                "summary": "data-maintenance/prune-chat-messages",
+                "description": "Prunes chat messages from the database",
+                "operationId": "delete-prune-chat-messages",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-game-server-events": {
+            "delete": {
+                "summary": "data-maintenance/prune-game-server-events",
+                "description": "Prunes game server events from the database",
+                "operationId": "delete-prune-game-server-events",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/data-maintenance/prune-game-server-stats": {
+            "delete": {
+                "summary": "data-maintenance/prune-game-server-stats",
+                "description": "Prunes game server stats from the database",
+                "operationId": "delete-prune-game-server-stats",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/game-servers-stats/{server-id}": {
+            "get": {
+                "summary": "game-servers-stats/{server-id}",
+                "operationId": "get-game-servers-stats-server-id",
+                "parameters": [
+                    {
+                        "name": "server-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
                     }
                 }
             }

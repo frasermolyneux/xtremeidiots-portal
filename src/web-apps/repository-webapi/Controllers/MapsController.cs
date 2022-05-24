@@ -133,7 +133,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             query = ApplySearchFilter(query, (GameType)gameType, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplySearchFilter(query, (GameType)gameType, mapNamesFilter, filterString);
+            query = ApplySearchFilter(query, (GameType)gameType, mapNames != null ? mapNamesFilter : null, filterString);
             var filteredCount = await query.CountAsync();
 
             query = ApplySearchOrderAndLimits(query, (MapsOrder)order, (int)skipEntries, (int)takeEntries);

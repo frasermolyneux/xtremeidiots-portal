@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
-using XI.Servers.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -25,19 +22,13 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
-        private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly IRconClientFactory _rconClientFactory;
 
         public ServerAdminController(
             IAuthorizationService authorizationService,
-            IGameServerStatusRepository gameServerStatusRepository,
-            IRconClientFactory rconClientFactory,
             IRepositoryApiClient repositoryApiClient,
             IServersApiClient serversApiClient)
         {
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
-            _rconClientFactory = rconClientFactory ?? throw new ArgumentNullException(nameof(rconClientFactory));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
             this.serversApiClient = serversApiClient;
@@ -51,20 +42,19 @@ namespace XI.Portal.Web.Controllers
 
             var servers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var gameServerStatusFilterModel = new GameServerStatusFilterModel().ApplyAuthForGameServerStatus(User);
-            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(gameServerStatusFilterModel, TimeSpan.Zero);
-
-            var results = new List<ServersController.ServerInfoViewModel>();
+            var results = new List<ServerAdminGameServerViewModel>();
 
             foreach (var server in servers)
             {
-                var portalGameServerStatusDto = serversStatus.SingleOrDefault(ss => server.Id == ss.ServerId);
+                var serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(server.Id);
+                var serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(server.Id);
 
-                if (portalGameServerStatusDto != null)
-                    results.Add(new ServersController.ServerInfoViewModel
+                if (serverRconStatusResponseDto != null)
+                    results.Add(new ServerAdminGameServerViewModel
                     {
                         GameServer = server,
-                        GameServerStatus = portalGameServerStatusDto
+                        GameServerQueryStatus = serverQueryStatusResponseDto,
+                        GameServerRconStatus = serverRconStatusResponseDto
                     });
             }
 
@@ -74,7 +64,6 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewRcon(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -88,7 +77,6 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRconPlayers(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -107,7 +95,6 @@ namespace XI.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> RestartServer(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -115,26 +102,25 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconClient = _rconClientFactory.CreateInstance(
-                gameServerDto.GameType,
-                gameServerDto.Id,
-                gameServerDto.Hostname,
-                gameServerDto.QueryPort,
-                gameServerDto.RconPassword);
-
-            var result = await rconClient.Restart();
+            //var rconClient = _rconClientFactory.CreateInstance(
+            //    gameServerDto.GameType,
+            //    gameServerDto.Id,
+            //    gameServerDto.Hostname,
+            //    gameServerDto.QueryPort,
+            //    gameServerDto.RconPassword);
+            //
+            //var result = await rconClient.Restart();
 
             return Json(new
             {
                 Success = true,
-                Message = result
+                //Message = result
             });
         }
 
         [HttpPost]
         public async Task<IActionResult> RestartMap(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -142,26 +128,25 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconClient = _rconClientFactory.CreateInstance(
-                gameServerDto.GameType,
-                gameServerDto.Id,
-                gameServerDto.Hostname,
-                gameServerDto.QueryPort,
-                gameServerDto.RconPassword);
-
-            var result = await rconClient.RestartMap();
+            //var rconClient = _rconClientFactory.CreateInstance(
+            //    gameServerDto.GameType,
+            //    gameServerDto.Id,
+            //    gameServerDto.Hostname,
+            //    gameServerDto.QueryPort,
+            //    gameServerDto.RconPassword);
+            //
+            //var result = await rconClient.RestartMap();
 
             return Json(new
             {
                 Success = true,
-                Message = result
+                //Message = result
             });
         }
 
         [HttpPost]
         public async Task<IActionResult> FastRestartMap(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -169,26 +154,25 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconClient = _rconClientFactory.CreateInstance(
-                gameServerDto.GameType,
-                gameServerDto.Id,
-                gameServerDto.Hostname,
-                gameServerDto.QueryPort,
-                gameServerDto.RconPassword);
-
-            var result = await rconClient.FastRestartMap();
+            //var rconClient = _rconClientFactory.CreateInstance(
+            //    gameServerDto.GameType,
+            //    gameServerDto.Id,
+            //    gameServerDto.Hostname,
+            //    gameServerDto.QueryPort,
+            //    gameServerDto.RconPassword);
+            //
+            //var result = await rconClient.FastRestartMap();
 
             return Json(new
             {
                 Success = true,
-                Message = result
+                //Message = result
             });
         }
 
         [HttpPost]
         public async Task<IActionResult> NextMap(Guid id)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -196,26 +180,25 @@ namespace XI.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconClient = _rconClientFactory.CreateInstance(
-                gameServerDto.GameType,
-                gameServerDto.Id,
-                gameServerDto.Hostname,
-                gameServerDto.QueryPort,
-                gameServerDto.RconPassword);
-
-            var result = await rconClient.NextMap();
+            //var rconClient = _rconClientFactory.CreateInstance(
+            //    gameServerDto.GameType,
+            //    gameServerDto.Id,
+            //    gameServerDto.Hostname,
+            //    gameServerDto.QueryPort,
+            //    gameServerDto.RconPassword);
+            //
+            //var result = await rconClient.NextMap();
 
             return Json(new
             {
                 Success = true,
-                Message = result
+                //Message = result
             });
         }
 
         [HttpGet]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
-
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.ViewLiveRcon);
@@ -226,7 +209,7 @@ namespace XI.Portal.Web.Controllers
             if (string.IsNullOrWhiteSpace(num))
                 return NotFound();
 
-            var rconClient = _rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
+            //var rconClient = _rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
 
             //rconClient.KickPlayer(num);
 

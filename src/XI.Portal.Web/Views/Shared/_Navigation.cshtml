@@ -1,7 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
 @using XI.Portal.Players.Constants
-@using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Auth.Constants
 @using XI.Portal.Web.Constants
 @using XI.Portal.Web.Extensions
@@ -186,13 +185,10 @@
 </li>
 
 <li policy="@AuthPolicies.AccessStatus" class="@Html.IsSelected("Status")">
-    <a asp-controller="Status" asp-action="GameServerStatus">
+    <a asp-controller="Status" asp-action="BanFileStatus">
         <i class="fa fa-desktop"></i> <span class="nav-label">Status</span><span class="fa arrow"></span>
     </a>
     <ul class="nav nav-second-level collapse @Html.IsSelected("Status", cssClass: "in")">
-        <li class="@Html.IsSelected(action: "GameServerStatus")">
-            <a asp-controller="Status" asp-action="GameServerStatus">Game Server Status</a>
-        </li>
         <li class="@Html.IsSelected(action: "BanFileStatus")">
             <a asp-controller="Status" asp-action="BanFileStatus">Ban File Status</a>
         </li>

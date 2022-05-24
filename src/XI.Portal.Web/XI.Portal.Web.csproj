@@ -27,12 +27,16 @@
     <ProjectReference Include="..\repository-api-abstractions\repository-api-abstractions.csproj" />
     <ProjectReference Include="..\servers-api-abstractions\servers-api-abstractions.csproj" />
     <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
-    <ProjectReference Include="..\XI.Portal.Servers\XI.Portal.Servers.csproj" />
   </ItemGroup>
 
 
   <ItemGroup>
     <Folder Include="wwwroot\images\service-icons\" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 ﻿@using XI.Portal.Web.Extensions
-@model XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel
+@using XI.Portal.Web.Models
+@model ServersGameServerViewModel
 
 @{
     ViewData["Title"] = "Server Info";
@@ -51,12 +52,6 @@
                                 <strong>Player Count</strong>
                             </td>
                             <td>@Model.GameServerStatus.PlayerCount / @Model.GameServerStatus.MaxPlayers</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Last Status Query</strong>
-                            </td>
-                            <td>@Model.GameServerStatus.Timestamp</td>
                         </tr>
                     }
 
@@ -130,9 +125,9 @@
                         {
                             <table class="table">
                                 <tr>
-                                    <th>
+@*                                    <th>
                                         @Html.Label("Num")
-                                    </th>
+                                    </th>*@
                                     <th>
                                         @Html.Label("Name")
                                     </th>
@@ -144,14 +139,14 @@
                                 @foreach (var item in Model.GameServerStatus.Players)
                                 {
                                     <tr>
-                                        <td>
+@*                                        <td>
                                             @Html.DisplayFor(model => item.Num)
-                                        </td>
+                                        </td>*@
                                         <td>
-                                            @if (item.GeoLocation != null)
+@*                                            @if (item.GeoLocation != null)
                                             {
                                                 @item.GeoLocation.FlagImage()
-                                            }
+                                            }*@
 
                                             @Html.PlayerName(item.Name)
 
@@ -179,7 +174,7 @@
     </div>
 </div>
 
-@if (Model.MapTimelineDataPoints.Any())
+@if (Model.GameServerStats.Any())
 {
     <div class="row">
         <div class="col-12">
@@ -190,7 +185,7 @@
                 </div>
 
                 @{
-                    var mapTimelineHeight = Model.MapTimelineDataPoints.GroupBy(m => m.MapName).ToList().Count * 41 + 50;
+                    var mapTimelineHeight = Model.GameServerStats.GroupBy(m => m.MapName).ToList().Count * 41 + 50;
                 }
 
                 <div id="mapsTimeline" style="height: @(mapTimelineHeight)px; width: 100%;"></div>
@@ -277,7 +272,7 @@
                     });
 
                 var locations = [
-                    @foreach (var location in Model.GameServerStatus.Players)
+@*                    @foreach (var location in Model.GameServerStatus.Players)
                     {
                         if (location.GeoLocation == null)
                         {
@@ -287,7 +282,7 @@
                         <text>
                             ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude],
                         </text>
-                    }
+                    }*@
                 ];
 
                 for (var count = 0; count < locations.length; count++) {
@@ -315,7 +310,7 @@
 
             playerCountData.addRows([
 
-                @foreach (var item in Model.GameServerStatusStats)
+                @foreach (var item in Model.GameServerStats)
                 {
                     <text>
                         [new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second), @item.PlayerCount],
@@ -336,7 +331,7 @@
         }
     </script>
 
-    @if (Model.MapTimelineDataPoints.Any())
+    @if (Model.GameServerStats.Any())
     {
         <script type="text/javascript">
             google.charts.load("current", { packages: ["timeline"] });
@@ -352,15 +347,29 @@
                 dataTable.addColumn({ type: 'date', id: 'End' });
                 dataTable.addRows([
 
-                    @foreach (var item in Model.MapTimelineDataPoints)
+                    @for (var i = 0; i < Model.GameServerStats.Count; i++)
                     {
-                        <text>
+                        var map = Model.GameServerStats[i];
+
+                        if (i == Model.GameServerStats.Count - 1) {
+                            <text>
                             [
-                                '@item.MapName',
-                                new Date(@item.Start.Year, @item.Start.Month, @item.Start.Day, @item.Start.Hour, @item.Start.Minute, @item.Start.Second),
-                                new Date(@item.Stop.Year, @item.Stop.Month, @item.Stop.Day, @item.Stop.Hour, @item.Stop.Minute, @item.Stop.Second)
+                                '@map.MapName',
+                                new Date(@map.Timestamp.Year, @map.Timestamp.Month, @map.Timestamp.Day, @map.Timestamp.Hour, @map.Timestamp.Minute, @map.Timestamp.Second),
+                                new Date(@DateTime.UtcNow.Year, @DateTime.UtcNow.Month, @DateTime.UtcNow.Day, @DateTime.UtcNow.Hour, @DateTime.UtcNow.Minute, @DateTime.UtcNow.Second)
                             ],
-                        </text>
+                            </text>
+                        } else {
+                            var nextMap = Model.GameServerStats[i+1];
+
+                            <text>
+                            [
+                                '@map.MapName',
+                                new Date(@map.Timestamp.Year, @map.Timestamp.Month, @map.Timestamp.Day, @map.Timestamp.Hour, @map.Timestamp.Minute, @map.Timestamp.Second),
+                                new Date(@nextMap.Timestamp.Year, @nextMap.Timestamp.Month, @nextMap.Timestamp.Day, @nextMap.Timestamp.Hour, @nextMap.Timestamp.Minute, @nextMap.Timestamp.Second)
+                            ],
+                            </text>
+                        }
                     }
 
                 ]);

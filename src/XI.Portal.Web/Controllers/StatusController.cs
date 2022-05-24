@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -15,14 +13,11 @@ namespace XI.Portal.Web.Controllers
     [Authorize(Policy = AuthPolicies.AccessStatus)]
     public class StatusController : Controller
     {
-        private readonly IGameServerStatusRepository _gameServerStatusRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
 
         public StatusController(
-            IGameServerStatusRepository gameServerStatusRepository,
             IRepositoryApiClient repositoryApiClient)
         {
-            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
             this.repositoryApiClient = repositoryApiClient;
         }
 
@@ -50,14 +45,6 @@ namespace XI.Portal.Web.Controllers
             }
 
             return View(models);
-        }
-
-        public async Task<IActionResult> GameServerStatus()
-        {
-            var filterModel = new GameServerStatusFilterModel().ApplyAuthForGameServerStatus(User);
-
-            var statusModel = await _gameServerStatusRepository.GetAllStatusModels(filterModel, TimeSpan.Zero);
-            return View(statusModel);
         }
     }
 }

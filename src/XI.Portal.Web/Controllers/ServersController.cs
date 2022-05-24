@@ -1,64 +1,74 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
-using XI.Portal.Servers.Dto;
-using XI.Portal.Servers.Interfaces;
-using XI.Portal.Servers.Models;
 using XI.Portal.Web.Auth.Constants;
+using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XI.Portal.Web.Controllers
 {
     [Authorize(Policy = AuthPolicies.AccessServers)]
     public class ServersController : Controller
     {
-        private readonly IGameServerStatusRepository _gameServerStatusRepository;
-        private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IPlayerLocationsRepository _playerLocationsRepository;
+        private readonly IServersApiClient serversApiClient;
+        private readonly IPlayerLocationsRepository playerLocationsRepository;
 
         public ServersController(
-            IGameServerStatusRepository gameServerStatusRepository,
             IPlayerLocationsRepository playerLocationsRepository,
-            IGameServerStatusStatsRepository gameServerStatusStatsRepository,
-            IRepositoryApiClient repositoryApiClient)
+            IRepositoryApiClient repositoryApiClient,
+            IServersApiClient serversApiClient)
         {
-            _gameServerStatusRepository = gameServerStatusRepository ?? throw new ArgumentNullException(nameof(gameServerStatusRepository));
-            _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
-            _gameServerStatusStatsRepository = gameServerStatusStatsRepository ?? throw new ArgumentNullException(nameof(gameServerStatusStatsRepository));
-
-            this.repositoryApiClient = repositoryApiClient;
+            this.playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+            this.serversApiClient = serversApiClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var servers = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var serversStatus = await _gameServerStatusRepository.GetAllStatusModels(new GameServerStatusFilterModel(), TimeSpan.Zero);
+            var serversGameServerViewModels = new ConcurrentBag<ServersGameServerViewModel>();
 
-            var results = new List<ServerInfoViewModel>();
-
-            foreach (var server in servers)
-                results.Add(new ServerInfoViewModel
+            CancellationToken cancellationToken = CancellationToken.None;
+            await Parallel.ForEachAsync(gameServerDtos, async (gameServerDto, cancellationToken) =>
+            {
+                try
                 {
-                    GameServer = server,
-                    GameServerStatus = serversStatus.SingleOrDefault(ss => server.Id == ss.ServerId)
-                });
+                    var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
 
-            return View(results);
+                    serversGameServerViewModels.Add(new ServersGameServerViewModel
+                    {
+                        GameServer = gameServerDto,
+                        GameServerStatus = serverQueryStatusResponseStatusDto
+                    });
+                }
+                catch
+                {
+                    // swallow
+                }
+
+            });
+
+            var result = serversGameServerViewModels
+                .OrderBy(gs => gs.GameServer.BannerServerListPosition).ToList();
+
+            return View(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> Map()
         {
-            var playerLocationDtos = await _playerLocationsRepository.GetLocations();
+            var playerLocationDtos = await playerLocationsRepository.GetLocations();
 
             return View(playerLocationDtos);
         }
@@ -66,93 +76,29 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerInfo(Guid id)
         {
+            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            var gameServer = await repositoryApiClient.GameServers.GetGameServer(id);
+            if (gameServerDto == null)
+                return NotFound();
 
-            var gameServerStatusDto = await _gameServerStatusRepository.GetStatus(id, TimeSpan.Zero);
-
-            var serversFilterModel = new GameServerStatusStatsFilterModel
-            {
-                ServerId = gameServer.Id,
-                Cutoff = DateTime.UtcNow.AddDays(-2),
-                Order = GameServerStatusStatsFilterModel.OrderBy.TimestampAsc
-            };
-            var gameServerStatusStatsDtos = await _gameServerStatusStatsRepository.GetGameServerStatusStats(serversFilterModel);
-
-            var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
-
-            DateTime? timestamp = null;
-            string trackMap = null;
-
-            if (gameServerStatusStatsDtos.Any())
-            {
-                var lastItem = gameServerStatusStatsDtos.Last();
-                foreach (var item in gameServerStatusStatsDtos.Where(gss => gss.Timestamp > DateTime.UtcNow.AddDays(-1)))
-                    if (trackMap == null)
-                    {
-                        trackMap = item.MapName;
-                        timestamp = item.Timestamp.UtcDateTime;
-                    }
-                    else
-                    {
-                        if (item == lastItem)
-                        {
-                            mapTimelineDataPoints.Add(new MapTimelineDataPoint
-                            {
-                                MapName = trackMap,
-                                Start = (DateTime)timestamp,
-                                Stop = item.Timestamp.UtcDateTime
-                            });
-                            continue;
-                        }
-
-                        if (trackMap == item.MapName) continue;
-
-                        mapTimelineDataPoints.Add(new MapTimelineDataPoint
-                        {
-                            MapName = trackMap,
-                            Start = (DateTime)timestamp,
-                            Stop = item.Timestamp.UtcDateTime
-                        });
-
-                        timestamp = item.Timestamp.UtcDateTime;
-                        trackMap = item.MapName;
-                    }
-            }
+            var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
+            var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
 
             MapDto mapDto = null;
-            if (gameServerStatusDto != null)
-                mapDto = await repositoryApiClient.Maps.GetMap(gameServerStatusDto.GameType, gameServerStatusDto.Map);
+            if (!string.IsNullOrWhiteSpace(serverQueryStatusResponseStatusDto.Map))
+                mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryStatusResponseStatusDto.Map);
 
-            var mapNames = gameServerStatusStatsDtos.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServer.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
+            var mapNames = gameServerStatusStats.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
+            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
 
-            return View(new ServerInfoViewModel
+            return View(new ServersGameServerViewModel
             {
-                GameServer = gameServer,
-                GameServerStatus = gameServerStatusDto,
+                GameServer = gameServerDto,
+                GameServerStatus = serverQueryStatusResponseStatusDto,
                 Map = mapDto,
                 Maps = mapsResponseDto.Entries,
-                GameServerStatusStats = gameServerStatusStatsDtos,
-                MapTimelineDataPoints = mapTimelineDataPoints
+                GameServerStats = gameServerStatusStats
             });
-        }
-
-        public class ServerInfoViewModel
-        {
-            public GameServerDto GameServer { get; set; }
-            public PortalGameServerStatusDto GameServerStatus { get; set; }
-            public MapDto? Map { get; set; }
-            public List<GameServerStatusStatsDto> GameServerStatusStats { get; set; }
-            public List<MapTimelineDataPoint> MapTimelineDataPoints { get; set; }
-            public List<MapDto> Maps { get; set; } = new List<MapDto>();
-        }
-
-        public class MapTimelineDataPoint
-        {
-            public string MapName { get; set; }
-            public DateTime Start { get; set; }
-            public DateTime Stop { get; set; }
         }
     }
 }

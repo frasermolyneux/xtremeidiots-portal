@@ -1,6 +1,7 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using System.Collections.Generic;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
-namespace XI.Portal.Servers.Constants
+namespace XI.Portal.Web.Constants
 {
     public static class ChatLogSupportedGames
     {

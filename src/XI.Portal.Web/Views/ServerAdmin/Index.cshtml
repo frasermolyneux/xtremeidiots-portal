@@ -1,9 +1,10 @@
 ﻿@inject IAuthorizationService AuthorizationService
 @using Microsoft.AspNetCore.Authorization
-@using XI.Portal.Servers.Constants
 @using XI.Portal.Web.Auth.Constants
+@using XI.Portal.Web.Constants
 @using XI.Portal.Web.Extensions
-@model IEnumerable<XI.Portal.Web.Controllers.ServersController.ServerInfoViewModel>
+@using XI.Portal.Web.Models
+@model IEnumerable<ServerAdminGameServerViewModel>
 
 @{
     ViewData["Title"] = "Live Rcon";
@@ -43,7 +44,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString()) @Html.ServerName(item.GameServer.Title, item.GameServerStatus?.ServerName)
+                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString()) @Html.ServerName(item.GameServer.Title, item.GameServerQueryStatus?.ServerName)
                                     </td>
                                     <td>
                                         @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
@@ -51,9 +52,9 @@
                                     <td>
                                         @{
                                             double percentage = 0;
-                                            if (item.GameServerStatus != null)
+                                            if (item.GameServerQueryStatus != null)
                                             {
-                                                percentage = (double) item.GameServerStatus.PlayerCount / item.GameServerStatus.MaxPlayers * 100;
+                                                percentage = (double) item.GameServerQueryStatus.PlayerCount / item.GameServerQueryStatus.MaxPlayers * 100;
                                             }
                                         }
 
@@ -64,10 +65,10 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @item.GameServerStatus?.Map
+                                        @item.GameServerQueryStatus?.Map
                                     </td>
                                     <td>
-                                        @item.GameServerStatus?.Mod
+                                        @item.GameServerQueryStatus?.Mod
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">

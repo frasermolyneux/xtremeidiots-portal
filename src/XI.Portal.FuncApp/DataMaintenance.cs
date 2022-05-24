@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Players.Interfaces;
-using XI.Portal.Servers.Interfaces;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.FuncApp
@@ -13,7 +12,6 @@ namespace XI.Portal.FuncApp
     // ReSharper disable once UnusedMember.Global
     public class DataMaintenance
     {
-        private readonly IGameServerStatusStatsRepository _gameServerStatusStatsRepository;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IPlayerLocationsRepository _playerLocationsRepository;
         private readonly IPlayersCacheRepository _playersCache;
@@ -21,12 +19,10 @@ namespace XI.Portal.FuncApp
         public DataMaintenance(
             IPlayerLocationsRepository playerLocationsRepository,
             IPlayersCacheRepository playersCache,
-            IGameServerStatusStatsRepository gameServerStatusStatsRepository,
             IRepositoryApiClient repositoryApiClient)
         {
             _playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             _playersCache = playersCache ?? throw new ArgumentNullException(nameof(playersCache));
-            _gameServerStatusStatsRepository = gameServerStatusStatsRepository;
 
             this.repositoryApiClient = repositoryApiClient;
         }
@@ -45,7 +41,6 @@ namespace XI.Portal.FuncApp
 
             await _playerLocationsRepository.RemoveOldEntries(serverIds);
             await _playersCache.RemoveOldEntries();
-            await _gameServerStatusStatsRepository.RemoveOldEntries(serverIds);
 
             stopWatch.Stop();
             log.LogDebug($"Stop RunDataMaintenance @ {DateTime.UtcNow} after {stopWatch.ElapsedMilliseconds} milliseconds");

@@ -52,7 +52,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
                     statusResult = await queryClient.GetServerStatus();
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(30));
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(300));
 
                     memoryCache.Set($"{gameServerDto.Id}-query-status", statusResult, cacheEntryOptions);
                 }

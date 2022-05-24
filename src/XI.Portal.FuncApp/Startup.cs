@@ -7,7 +7,6 @@ using System.IO;
 using System.Reflection;
 using XI.Portal.FuncApp;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Servers.Extensions;
 using XI.Utilities.FtpHelper;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -57,21 +56,6 @@ namespace XI.Portal.FuncApp
             {
                 options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
                 options.ApimSubscriptionKey = config["apimsubscriptionkey"];
-            });
-
-            builder.Services.AddServersModule(options =>
-            {
-                options.ConfigureGameServerStatusRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = config["GameServerStatusRepository:StorageTableName"];
-                });
-
-                options.ConfigureGameServerStatusStatsRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = config["GameServerStatusStatsRepository:StorageTableName"];
-                });
             });
 
             builder.Services.AddPlayersModule(options =>

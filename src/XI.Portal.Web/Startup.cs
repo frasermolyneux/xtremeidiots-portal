@@ -17,7 +17,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using XI.Portal.Players.Extensions;
-using XI.Portal.Servers.Extensions;
 using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Forums;
@@ -176,21 +175,6 @@ namespace XI.Portal.Web
 
             services.AddXtremeIdiotsAuth();
             services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
-
-            services.AddServersModule(options =>
-            {
-                options.ConfigureGameServerStatusRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = Configuration["GameServerStatusRepository:StorageTableName"];
-                });
-
-                options.ConfigureGameServerStatusStatsRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = Configuration["GameServerStatusStatsRepository:StorageTableName"];
-                });
-            });
 
             services.AddCors(options =>
             {

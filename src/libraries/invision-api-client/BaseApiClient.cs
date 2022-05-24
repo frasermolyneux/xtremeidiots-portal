@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestSharp;
-using RestSharp.Authenticators;
 using System.Net;
+using System.Text;
 
 namespace XtremeIdiots.Portal.InvisionApiClient
 {
     public class BaseApiClient
     {
+        private readonly IOptions<InvisionApiClientOptions> options;
+
         public BaseApiClient(ILogger logger, IOptions<InvisionApiClientOptions> options)
         {
             if (string.IsNullOrWhiteSpace(options.Value.BaseUrl))
@@ -16,12 +18,10 @@ namespace XtremeIdiots.Portal.InvisionApiClient
             if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
                 throw new ArgumentNullException(nameof(options.Value.ApiKey));
 
-            RestClient = new RestClient(options.Value.BaseUrl)
-            {
-                Authenticator = new HttpBasicAuthenticator("", options.Value.ApiKey)
-            };
+            RestClient = new RestClient(options.Value.BaseUrl);
 
             Logger = logger;
+            this.options = options;
         }
 
         public ILogger Logger { get; }
@@ -30,6 +30,11 @@ namespace XtremeIdiots.Portal.InvisionApiClient
         public RestRequest CreateRequest(string resource, Method method)
         {
             var request = new RestRequest(resource, method);
+
+#pragma warning disable CS8604 // Possible null reference argument.
+            request.AddHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes(options.Value.ApiKey))}");
+#pragma warning restore CS8604 // Possible null reference argument.
+
             return request;
         }
 

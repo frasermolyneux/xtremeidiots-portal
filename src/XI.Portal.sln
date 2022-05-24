@@ -11,10 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Players", "XI.Por
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EE009C4-309F-4281-AD5D-45F8E7F524A2}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		nuget.config = nuget.config
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Servers", "XI.Portal.Servers\XI.Portal.Servers.csproj", "{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{FCAB2882-2D60-47DC-86DD-11950A79CB97}"
 EndProject
@@ -60,7 +59,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "servers-api-abstractions", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "servers-api-client", "libraries\servers-api-client\servers-api-client.csproj", "{0B991872-2799-4EB9-A9C3-758A9BF443B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invision-api-client", "libraries\invision-api-client\invision-api-client.csproj", "{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "invision-api-client", "libraries\invision-api-client\invision-api-client.csproj", "{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -76,10 +75,6 @@ Global
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7E2FFE1E-04A9-41E5-88EA-57A55B76376E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7E2FFE1E-04A9-41E5-88EA-57A55B76376E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E2FFE1E-04A9-41E5-88EA-57A55B76376E}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -160,7 +155,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1E4D0D52-FFD5-4534-B051-D30FF5053D0B} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
-		{B062BADB-CAC7-41CE-8FE8-CFD5BA0D7495} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{7E2FFE1E-04A9-41E5-88EA-57A55B76376E} = {FCAB2882-2D60-47DC-86DD-11950A79CB97}
 		{9CAB181C-5624-4128-B77C-F16D893E4095} = {FCAB2882-2D60-47DC-86DD-11950A79CB97}
 		{07E98821-8959-4AF7-8B5F-6CF8AFC49218} = {9C61BE39-0649-4034-AC6B-8F0EADCDE6FE}

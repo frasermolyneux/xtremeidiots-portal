@@ -60,18 +60,6 @@ namespace XI.Portal.FuncApp
 
             builder.Services.AddPlayersModule(options =>
             {
-                options.ConfigurePlayerLocationsRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = config["PlayerLocationsRepository:StorageTableName"];
-                });
-
-                options.ConfigurePlayersCacheRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = config["PlayerCacheRepository:StorageTableName"];
-                });
-
                 options.ConfigureBanFilesRepositoryOptions(repositoryOptions =>
                 {
                     repositoryOptions.StorageConnectionString = config["AppDataContainer:StorageConnectionString"];

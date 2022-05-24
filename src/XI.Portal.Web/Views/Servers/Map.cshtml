@@ -1,4 +1,5 @@
-﻿@model List<XI.Portal.Players.Dto.PlayerLocationDto>
+﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+@model List<LivePlayerDto>
 
 @{
     ViewData["Title"] = "Player Map";
@@ -37,10 +38,10 @@
                 });
 
             var locations = [
-                @foreach (var location in Model.Where(location => location.GeoLocation != null))
+                @foreach (var player in Model)
                 {
                     <text>
-                        ['Player', @location.GeoLocation.Latitude, @location.GeoLocation.Longitude, '@location.GameType.ToString()'],
+                        ['Player', @player.Lat, @player.Long, '@player.GameType.ToString()'],
                     </text>
                 }
             ];

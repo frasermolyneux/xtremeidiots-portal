@@ -22,16 +22,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("/api/live-players")]
-        public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? serverId)
+        public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
         {
             if (gameType == null)
                 gameType = GameType.Unknown;
 
             var query = Context.LivePlayers.AsQueryable();
-            query = ApplySearchFilter(query, (GameType)gameType, null);
+            query = ApplySearchFilter(query, (GameType)gameType, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplySearchFilter(query, (GameType)gameType, serverId);
+            query = ApplySearchFilter(query, (GameType)gameType, serverId, filter);
             var filteredCount = await query.CountAsync();
 
             query = ApplySearchOrderAndLimits(query);
@@ -141,13 +141,23 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(result);
         }
 
-        private IQueryable<LivePlayer> ApplySearchFilter(IQueryable<LivePlayer> query, GameType gameType, Guid? serverId)
+        private IQueryable<LivePlayer> ApplySearchFilter(IQueryable<LivePlayer> query, GameType gameType, Guid? serverId, LivePlayerFilter? filter)
         {
             if (gameType != GameType.Unknown)
                 query = query.Where(lp => lp.GameType == gameType.ToGameTypeInt()).AsQueryable();
 
             if (serverId != null)
                 query = query.Where(lp => lp.GameServerServerId == serverId).AsQueryable();
+
+            if (filter != null)
+            {
+                switch (filter)
+                {
+                    case LivePlayerFilter.GeoLocated:
+                        query = query.Where(lp => lp.Lat != null && lp.Long != null).AsQueryable();
+                        break;
+                }
+            }
 
             return query;
         }

@@ -5,7 +5,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using XI.Portal.Players.Interfaces;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -20,14 +19,11 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
-        private readonly IPlayerLocationsRepository playerLocationsRepository;
 
         public ServersController(
-            IPlayerLocationsRepository playerLocationsRepository,
             IRepositoryApiClient repositoryApiClient,
             IServersApiClient serversApiClient)
         {
-            this.playerLocationsRepository = playerLocationsRepository ?? throw new ArgumentNullException(nameof(playerLocationsRepository));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.serversApiClient = serversApiClient;
         }
@@ -68,9 +64,9 @@ namespace XI.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Map()
         {
-            var playerLocationDtos = await playerLocationsRepository.GetLocations();
+            var livePlayers = await repositoryApiClient.LivePlayers.GetLivePlayers(null, null, LivePlayerFilter.GeoLocated);
 
-            return View(playerLocationDtos);
+            return View(livePlayers);
         }
 
         [HttpGet]

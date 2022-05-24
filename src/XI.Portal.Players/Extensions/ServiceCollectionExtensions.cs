@@ -18,29 +18,6 @@ namespace XI.Portal.Players.Extensions
             IPlayersModuleOptions options = new PlayersModuleOptions();
             configureOptions.Invoke(options);
 
-            if (options.PlayerLocationsRepositoryOptions != null)
-            {
-                IPlayerLocationsRepositoryOptions subOptions = new PlayerLocationsRepositoryOptions();
-                options.PlayerLocationsRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IPlayerLocationsRepository, PlayerLocationsRepository>();
-            }
-
-            if (options.PlayersCacheRepositoryOptions != null)
-            {
-                IPlayersCacheRepositoryOptions subOptions = new PlayersCacheRepositoryOptions();
-                options.PlayersCacheRepositoryOptions.Invoke(subOptions);
-
-                subOptions.Validate();
-
-                serviceCollection.AddSingleton(subOptions);
-                serviceCollection.AddScoped<IPlayersCacheRepository, PlayersCacheRepository>();
-                serviceCollection.AddScoped<IPlayerIngest, PlayerIngest>();
-            }
-
             if (options.BanFilesRepositoryOptions != null)
             {
                 IBanFilesRepositoryOptions subOptions = new BanFilesRepositoryOptions();

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -8,7 +9,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient.ForumsApi
 {
     public class ForumsApiClient : BaseApiClient, IForumsApiClient
     {
-        public ForumsApiClient(ILogger<ForumsApiClient> logger, IOptions<InvisionApiClientOptions> options) : base(logger, options)
+        public ForumsApiClient(ILogger<ForumsApiClient> logger, IOptions<InvisionApiClientOptions> options, TelemetryClient telemetryClient) : base(logger, options, telemetryClient)
         {
         }
 

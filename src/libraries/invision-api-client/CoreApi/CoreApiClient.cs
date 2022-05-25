@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -8,7 +9,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient.CoreApi
 {
     public class CoreApiClient : BaseApiClient, ICoreApiClient
     {
-        public CoreApiClient(ILogger<CoreApiClient> logger, IOptions<InvisionApiClientOptions> options) : base(logger, options)
+        public CoreApiClient(ILogger<CoreApiClient> logger, IOptions<InvisionApiClientOptions> options, TelemetryClient telemetryClient) : base(logger, options, telemetryClient)
         {
         }
 

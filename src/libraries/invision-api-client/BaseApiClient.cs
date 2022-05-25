@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RestSharp;
 using System.Net;
@@ -9,8 +11,9 @@ namespace XtremeIdiots.Portal.InvisionApiClient
     public class BaseApiClient
     {
         private readonly IOptions<InvisionApiClientOptions> options;
+        private readonly TelemetryClient telemetryClient;
 
-        public BaseApiClient(ILogger logger, IOptions<InvisionApiClientOptions> options)
+        public BaseApiClient(ILogger logger, IOptions<InvisionApiClientOptions> options, TelemetryClient telemetryClient)
         {
             if (string.IsNullOrWhiteSpace(options.Value.BaseUrl))
                 throw new ArgumentNullException(nameof(options.Value.BaseUrl));
@@ -22,6 +25,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient
 
             Logger = logger;
             this.options = options;
+            this.telemetryClient = telemetryClient;
         }
 
         public ILogger Logger { get; }
@@ -40,22 +44,37 @@ namespace XtremeIdiots.Portal.InvisionApiClient
 
         public async Task<RestResponse> ExecuteAsync(RestRequest request)
         {
-            var response = await RestClient.ExecuteAsync(request);
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("InvisionRestApi");
+            operation.Telemetry.Type = "HTTP";
+            operation.Telemetry.Target = options.Value.BaseUrl;
+            operation.Telemetry.Data = request.Resource;
 
-            if (response.IsSuccessful)
-                return response;
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return response;
-
-            if (response.ErrorException != null)
+            try
             {
-                Logger.LogError(response.ErrorException, $"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
-                throw response.ErrorException;
-            }
+                var response = await RestClient.ExecuteAsync(request);
 
-            Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
-            throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+                if (response.IsSuccessful)
+                    return response;
+
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                    return response;
+
+                if (response.ErrorException != null)
+                {
+                    operation.Telemetry.Success = false;
+                    operation.Telemetry.ResultCode = response.ErrorException.Message;
+                    telemetryClient.TrackException(response.ErrorException);
+
+                    throw response.ErrorException;
+                }
+
+                Logger.LogError($"Failed {request.Method} to '{request.Resource}' with response status '{response.ResponseStatus}' and code '{response.StatusCode}'");
+                throw new Exception($"Failed {request.Method} to '{request.Resource}' with code '{response.StatusCode}'");
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
+            }
         }
     }
 }

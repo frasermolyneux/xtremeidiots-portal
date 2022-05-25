@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
@@ -8,7 +9,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient.DownloadsApi
 {
     public class DownloadsApiClient : BaseApiClient, IDownloadsApiClient
     {
-        public DownloadsApiClient(ILogger<DownloadsApiClient> logger, IOptions<InvisionApiClientOptions> options) : base(logger, options)
+        public DownloadsApiClient(ILogger<DownloadsApiClient> logger, IOptions<InvisionApiClientOptions> options, TelemetryClient telemetryClient) : base(logger, options, telemetryClient)
         {
         }
 

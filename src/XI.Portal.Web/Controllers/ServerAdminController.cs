@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,23 +39,12 @@ namespace XI.Portal.Web.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.ServerAdmin };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var servers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
+            var servers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, GameServerFilter.LiveStatusEnabled, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var results = new List<ServerAdminGameServerViewModel>();
-
-            foreach (var server in servers)
+            var results = servers.Select(gs => new ServerAdminGameServerViewModel
             {
-                var serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(server.Id);
-                var serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(server.Id);
-
-                if (serverRconStatusResponseDto != null)
-                    results.Add(new ServerAdminGameServerViewModel
-                    {
-                        GameServer = server,
-                        GameServerQueryStatus = serverQueryStatusResponseDto,
-                        GameServerRconStatus = serverRconStatusResponseDto
-                    });
-            }
+                GameServer = gs
+            }).ToList();
 
             return View(results);
         }

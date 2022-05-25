@@ -4,7 +4,7 @@
 @using XI.Portal.Web.Constants
 @using XI.Portal.Web.Extensions
 @using XI.Portal.Web.Models
-@model IEnumerable<ServerAdminGameServerViewModel>
+@model List<ServerAdminGameServerViewModel>
 
 @{
     ViewData["Title"] = "Live Rcon";
@@ -44,7 +44,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString()) @Html.ServerName(item.GameServer.Title, item.GameServerQueryStatus?.ServerName)
+                                        @Html.GameTypeIcon(item.GameServer.GameType.ToString()) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
                                     </td>
                                     <td>
                                         @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
@@ -52,9 +52,9 @@
                                     <td>
                                         @{
                                             double percentage = 0;
-                                            if (item.GameServerQueryStatus != null)
+                                            if (item.GameServer.LiveCurrentPlayers != 0 && item.GameServer.LiveMaxPlayers != 0)
                                             {
-                                                percentage = (double) item.GameServerQueryStatus.PlayerCount / item.GameServerQueryStatus.MaxPlayers * 100;
+                                                percentage = (double) item.GameServer.LiveCurrentPlayers / item.GameServer.LiveMaxPlayers * 100;
                                             }
                                         }
 
@@ -65,10 +65,10 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @item.GameServerQueryStatus?.Map
+                                        @item.GameServer.LiveMap
                                     </td>
                                     <td>
-                                        @item.GameServerQueryStatus?.Mod
+                                        @item.GameServer.LiveMod
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">

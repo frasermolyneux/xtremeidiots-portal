@@ -11,7 +11,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
             {
                 Id = userProfile.Id,
                 IdentityOid = userProfile.IdentityOid,
-                XtremeIdiotsForumId = userProfile.XtremeIdiotsForumId
+                XtremeIdiotsForumId = userProfile.XtremeIdiotsForumId,
+                DisplayName = userProfile.DisplayName,
+                Title = userProfile.Title,
+                FormattedName = userProfile.FormattedName,
+                PrimaryGroup = userProfile.PrimaryGroup,
+                Email = userProfile.Email,
+                PhotoUrl = userProfile.PhotoUrl,
+                ProfileUrl = userProfile.ProfileUrl,
+                TimeZone = userProfile.TimeZone
             };
 
             return userProfileDto;

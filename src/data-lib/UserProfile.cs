@@ -25,6 +25,20 @@ namespace XtremeIdiots.Portal.DataLib
         public string XtremeIdiotsForumId { get; set; }
         [StringLength(50)]
         public string DisplayName { get; set; }
+        [StringLength(50)]
+        public string Title { get; set; }
+        [StringLength(50)]
+        public string FormattedName { get; set; }
+        [StringLength(50)]
+        public string PrimaryGroup { get; set; }
+        [StringLength(50)]
+        public string Email { get; set; }
+        [StringLength(256)]
+        public string PhotoUrl { get; set; }
+        [StringLength(256)]
+        public string ProfileUrl { get; set; }
+        [StringLength(50)]
+        public string TimeZone { get; set; }
 
         [InverseProperty("UserProfile")]
         public virtual ICollection<AdminAction> AdminActions { get; set; }

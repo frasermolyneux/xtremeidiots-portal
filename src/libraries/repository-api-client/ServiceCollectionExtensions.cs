@@ -12,6 +12,7 @@ using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {
@@ -37,6 +38,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             serviceCollection.AddSingleton<IMapsApiClient, MapsApiClient>();
             serviceCollection.AddSingleton<IPlayerAnalyticsApiClient, PlayerAnalyticsApiClient>();
             serviceCollection.AddSingleton<IPlayersApiClient, PlayersApiClient>();
+            serviceCollection.AddSingleton<IUserProfileApiClient, UserProfileApiClient>();
 
             serviceCollection.AddSingleton<IRepositoryApiClient, RepositoryApiClient>();
         }

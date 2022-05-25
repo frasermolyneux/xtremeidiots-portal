@@ -20,6 +20,52 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         public PortalDbContext Context { get; }
 
         [HttpGet]
+        [Route("api/user-profile")]
+        public async Task<IActionResult> GetUserProfiles(int? skipEntries, int? takeEntries)
+        {
+            if (skipEntries == null)
+                skipEntries = 0;
+
+            if (takeEntries == null)
+                takeEntries = 10;
+
+            var query = Context.UserProfiles.AsQueryable();
+            query = ApplyFilter(query);
+            var totalCount = await query.CountAsync();
+
+            query = ApplyFilter(query);
+            var filteredCount = await query.CountAsync();
+
+            query = ApplyOrderAndLimits(query, (int)skipEntries, (int)takeEntries);
+            var results = await query.ToListAsync();
+
+            var entries = results.Select(up => up.ToDto()).ToList();
+
+            var response = new UserProfileResponseDto
+            {
+                Skipped = (int)skipEntries,
+                TotalRecords = totalCount,
+                FilteredRecords = filteredCount,
+                Entries = entries
+            };
+
+            return new OkObjectResult(response);
+        }
+
+        private IQueryable<UserProfile> ApplyFilter(IQueryable<UserProfile> userProfiles)
+        {
+            return userProfiles;
+        }
+
+        private IQueryable<UserProfile> ApplyOrderAndLimits(IQueryable<UserProfile> userProfiles, int skipEntries, int takeEntries)
+        {
+            userProfiles = userProfiles.Skip(skipEntries).AsQueryable();
+            userProfiles = userProfiles.Take(takeEntries).AsQueryable();
+
+            return userProfiles;
+        }
+
+        [HttpGet]
         [Route("api/user-profile/{id}")]
         public async Task<IActionResult> GetUserProfile(Guid id)
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc;
 using XtremeIdiots.Portal.SyncFunc.Redirect;
@@ -24,6 +25,12 @@ public class Startup : FunctionsStartup
         {
             options.MapRedirectBaseUrl = config["map-redirect-base-url"];
             options.ApiKey = config["map-redirect-api-key"];
+        });
+
+        builder.Services.AddInvisionApiClient(options =>
+        {
+            options.BaseUrl = config["xtremeidiots-forums-base-url"];
+            options.ApiKey = config["xtremeidiots-forums-api-key"];
         });
 
         builder.Services.AddLogging();

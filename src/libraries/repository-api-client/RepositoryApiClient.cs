@@ -11,6 +11,7 @@ using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {
@@ -29,7 +30,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             ILivePlayersApiClient livePlayersApiClient,
             IMapsApiClient mapsApiClient,
             IPlayerAnalyticsApiClient playerAnalyticsApiClient,
-            IPlayersApiClient playersApiClient)
+            IPlayersApiClient playersApiClient,
+            IUserProfileApiClient userProfileApiClient)
         {
             AdminActions = adminActionsApiClient;
             BanFileMonitors = banFileMonitorsApiClient;
@@ -44,6 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             Maps = mapsApiClient;
             PlayerAnalytics = playerAnalyticsApiClient;
             Players = playersApiClient;
+            UserProfiles = userProfileApiClient;
         }
 
         public IAdminActionsApiClient AdminActions { get; }
@@ -59,5 +62,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         public IMapsApiClient Maps { get; }
         public IPlayerAnalyticsApiClient PlayerAnalytics { get; }
         public IPlayersApiClient Players { get; }
+        public IUserProfileApiClient UserProfiles { get; }
     }
 }

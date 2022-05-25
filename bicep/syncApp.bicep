@@ -128,6 +128,14 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'map-redirect-api-key'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=map-redirect-api-key)'
         }
+        {
+          name: 'xtremeidiots-forums-base-url'
+          value: 'https://www.xtremeidiots.com'
+        }
+        {
+          name: 'xtremeidiots-forums-api-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-forums-api-key)'
+        }
       ]
     }
   }

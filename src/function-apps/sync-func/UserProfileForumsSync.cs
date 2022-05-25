@@ -1,5 +1,6 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -37,21 +38,29 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                     if (!string.IsNullOrWhiteSpace(userProfileDto.XtremeIdiotsForumId))
                     {
-                        var member = await invisionApiClient.Core.GetMember(userProfileDto.XtremeIdiotsForumId);
-
-                        if (member != null)
+                        try
                         {
-                            userProfileDto.DisplayName = member.Name;
-                            userProfileDto.Title = member.Title;
-                            userProfileDto.FormattedName = member.FormattedName;
-                            userProfileDto.PrimaryGroup = member.PrimaryGroup.Name;
-                            userProfileDto.Email = member.Email;
-                            userProfileDto.PhotoUrl = member.PhotoUrl;
-                            userProfileDto.ProfileUrl = member.ProfileUrl.ToString();
-                            userProfileDto.TimeZone = member.TimeZone;
+                            var member = await invisionApiClient.Core.GetMember(userProfileDto.XtremeIdiotsForumId);
 
-                            await repositoryApiClient.UserProfiles.UpdateUserProfile(userProfileDto);
+                            if (member != null)
+                            {
+                                userProfileDto.DisplayName = member.Name;
+                                userProfileDto.Title = member.Title;
+                                userProfileDto.FormattedName = member.FormattedName;
+                                userProfileDto.PrimaryGroup = member.PrimaryGroup.Name;
+                                userProfileDto.Email = member.Email;
+                                userProfileDto.PhotoUrl = member.PhotoUrl;
+                                userProfileDto.ProfileUrl = member.ProfileUrl.ToString();
+                                userProfileDto.TimeZone = member.TimeZone;
+
+                                await repositoryApiClient.UserProfiles.UpdateUserProfile(userProfileDto);
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, $"Failed to sync forum profile for {userProfileDto.XtremeIdiotsForumId}");
+                        }
+
                     }
                 }
 

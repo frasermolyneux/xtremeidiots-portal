@@ -31,11 +31,9 @@ namespace XtremeIdiots.Portal.DataLib
         public string FormattedName { get; set; }
         [StringLength(50)]
         public string PrimaryGroup { get; set; }
-        [StringLength(50)]
+        [StringLength(128)]
         public string Email { get; set; }
-        [StringLength(256)]
         public string PhotoUrl { get; set; }
-        [StringLength(256)]
         public string ProfileUrl { get; set; }
         [StringLength(50)]
         public string TimeZone { get; set; }

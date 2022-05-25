@@ -7,8 +7,8 @@
     [Title] NVARCHAR(50) NULL, 
     [FormattedName] NVARCHAR(50) NULL, 
     [PrimaryGroup] NVARCHAR(50) NULL, 
-    [Email] NVARCHAR(50) NULL, 
-    [PhotoUrl] NVARCHAR(256) NULL, 
-    [ProfileUrl] NVARCHAR(256) NULL, 
+    [Email] NVARCHAR(128) NULL, 
+    [PhotoUrl] NVARCHAR(MAX) NULL, 
+    [ProfileUrl] NVARCHAR(MAX) NULL, 
     [TimeZone] NVARCHAR(50) NULL 
 )

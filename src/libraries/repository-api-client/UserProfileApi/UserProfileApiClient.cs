@@ -143,7 +143,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi
 
         public async Task<UserProfileDto?> UpdateUserProfile(UserProfileDto userProfileDto)
         {
-            var request = await CreateRequest($"repository/user-profile", Method.Post);
+            var request = await CreateRequest($"repository/user-profile", Method.Put);
             request.AddJsonBody(new List<UserProfileDto> { userProfileDto });
 
             var response = await ExecuteAsync(request);

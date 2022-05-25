@@ -168,6 +168,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
                 userProfile.IdentityOid = userProfileDto.IdentityOid;
                 userProfile.XtremeIdiotsForumId = userProfileDto.XtremeIdiotsForumId;
+                userProfile.DisplayName = userProfileDto.DisplayName;
+                userProfile.Title = userProfileDto.Title;
+                userProfile.FormattedName = userProfileDto.FormattedName;
+                userProfile.PrimaryGroup = userProfileDto.PrimaryGroup;
+                userProfile.Email = userProfileDto.Email;
+                userProfile.PhotoUrl = userProfileDto.PhotoUrl;
+                userProfile.ProfileUrl = userProfileDto.ProfileUrl;
+                userProfile.TimeZone = userProfileDto.TimeZone;
             }
 
             await Context.SaveChangesAsync();

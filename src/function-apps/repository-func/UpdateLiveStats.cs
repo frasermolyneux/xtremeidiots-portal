@@ -97,6 +97,9 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             var livePlayerDtos = serverRconStatusResponseDto.Players.Select(rconPlayer => new LivePlayerDto
             {
                 Name = rconPlayer.Name,
+                Ping = rconPlayer.Ping,
+                Num = rconPlayer.Num,
+                Rate = rconPlayer.Rate,
                 IpAddress = rconPlayer.IpAddress,
                 GameType = gameServerDto.GameType,
                 GameServerServerId = gameServerDto.Id

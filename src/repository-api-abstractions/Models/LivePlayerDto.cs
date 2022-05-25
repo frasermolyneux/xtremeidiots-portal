@@ -9,6 +9,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public string Name { get; set; } = string.Empty;
         public int Score { get; set; }
         public int Ping { get; set; }
+        public int Num { get; set; }
+        public int Rate { get; set; }
         public string Team { get; set; } = string.Empty;
         public TimeSpan Time { get; set; }
         public string IpAddress { get; set; } = string.Empty;

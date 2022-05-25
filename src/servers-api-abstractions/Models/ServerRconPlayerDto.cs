@@ -2,10 +2,11 @@
 {
     public class ServerRconPlayerDto
     {
-        public string Num { get; set; } = string.Empty;
-        public string Guid { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public string IpAddress { get; set; } = string.Empty;
-        public string Rate { get; set; } = string.Empty;
+        public int Num { get; set; }
+        public string? Guid { get; set; }
+        public string? Name { get; set; }
+        public string? IpAddress { get; set; }
+        public int Rate { get; set; }
+        public int Ping { get; set; }
     }
 }

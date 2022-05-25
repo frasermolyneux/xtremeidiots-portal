@@ -65,16 +65,20 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 var rate = match.Groups[9].ToString();
                 var ipAddress = match.Groups[10].ToString();
 
+                int.TryParse(num, out int numInt);
+                int.TryParse(ping, out int pingInt);
+                int.TryParse(rate, out int rateInt);
+
                 _logger.LogDebug("[{ServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
 
                 players.Add(new SourceRconPlayer
                 {
-                    Num = num,
-                    Ping = ping,
+                    Num = numInt,
+                    Ping = pingInt,
                     Guid = guid,
                     Name = name,
                     IpAddress = ipAddress,
-                    Rate = rate
+                    Rate = rateInt
                 });
             }
 

@@ -3,6 +3,8 @@
     [Name]                NVARCHAR (60)   NOT NULL,
     [Score]               INT              NOT NULL,
     [Ping]                INT              NOT NULL,
+    [Num]                INT              NOT NULL,
+    [Rate]                INT              NOT NULL,
     [Team]                NVARCHAR (10)   NULL,
     [Time]                TIME (7)         NOT NULL,
     [IpAddress]            NVARCHAR (60)   NULL,

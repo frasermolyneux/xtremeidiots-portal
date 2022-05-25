@@ -58,7 +58,8 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
                             Guid = p.Guid,
                             Name = p.Name,
                             IpAddress = p.IpAddress,
-                            Rate = p.Rate
+                            Rate = p.Rate,
+                            Ping = p.Ping
                         }).ToList()
                     };
 

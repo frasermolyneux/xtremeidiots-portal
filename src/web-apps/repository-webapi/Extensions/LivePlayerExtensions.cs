@@ -13,6 +13,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 Name = livePlayer.Name,
                 Score = livePlayer.Score,
                 Ping = livePlayer.Ping,
+                Num = livePlayer.Num,
+                Rate = livePlayer.Rate,
                 Team = livePlayer.Team,
                 Time = livePlayer.Time,
                 IpAddress = livePlayer.IpAddress,

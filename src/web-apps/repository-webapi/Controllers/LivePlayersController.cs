@@ -76,6 +76,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 Name = livePlayerDto.Name,
                 Score = livePlayerDto.Score,
                 Ping = livePlayerDto.Ping,
+                Num = livePlayerDto.Num,
+                Rate = livePlayerDto.Rate,
                 Team = livePlayerDto.Team,
                 Time = livePlayerDto.Time,
                 IpAddress = livePlayerDto.IpAddress,
@@ -125,6 +127,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 livePlayer.Name = livePlayerDto.Name;
                 livePlayer.Score = livePlayerDto.Score;
                 livePlayer.Ping = livePlayerDto.Ping;
+                livePlayer.Num = livePlayerDto.Num;
+                livePlayer.Rate = livePlayerDto.Rate;
                 livePlayer.Team = livePlayerDto.Team;
                 livePlayer.Time = livePlayerDto.Time;
                 livePlayer.IpAddress = livePlayerDto.IpAddress;

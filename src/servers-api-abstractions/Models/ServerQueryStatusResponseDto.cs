@@ -2,9 +2,9 @@
 {
     public class ServerQueryStatusResponseDto
     {
-        public string ServerName { get; set; } = string.Empty;
-        public string Map { get; set; } = string.Empty;
-        public string Mod { get; set; } = string.Empty;
+        public string? ServerName { get; set; }
+        public string? Map { get; set; }
+        public string? Mod { get; set; }
         public int MaxPlayers { get; set; }
         public int PlayerCount { get; set; }
 

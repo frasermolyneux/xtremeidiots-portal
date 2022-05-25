@@ -18,6 +18,8 @@ namespace XtremeIdiots.Portal.DataLib
         public string Name { get; set; }
         public int Score { get; set; }
         public int Ping { get; set; }
+        public int Num { get; set; }
+        public int Rate { get; set; }
         [StringLength(10)]
         public string Team { get; set; }
         public TimeSpan Time { get; set; }

@@ -61,18 +61,23 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 var qPort = match.Groups[9].ToString();
                 var rate = match.Groups[10].ToString();
 
+                int.TryParse(num, out int numInt);
+                int.TryParse(score, out int scoreInt);
+                int.TryParse(ping, out int pingInt);
+                int.TryParse(rate, out int rateInt);
+
                 _logger.LogDebug("[{ServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
 
                 players.Add(new Quake3RconPlayer
                 {
-                    Num = num,
-                    Score = score,
-                    Ping = ping,
+                    Num = numInt,
+                    Score = scoreInt,
+                    Ping = pingInt,
                     Guid = guid,
                     Name = name,
                     IpAddress = ipAddress,
                     QPort = qPort,
-                    Rate = rate
+                    Rate = rateInt
                 });
             }
 

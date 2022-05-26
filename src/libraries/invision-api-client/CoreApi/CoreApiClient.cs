@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
+using System.Net;
 using XtremeIdiots.Portal.InvisionApiClient.Models;
 
 namespace XtremeIdiots.Portal.InvisionApiClient.CoreApi
@@ -30,6 +31,9 @@ namespace XtremeIdiots.Portal.InvisionApiClient.CoreApi
             var request = CreateRequest($"api/core/members/{id}", Method.Get);
 
             var response = await ExecuteAsync(request);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
 
             if (response.Content != null)
                 return JsonConvert.DeserializeObject<Member>(response.Content);

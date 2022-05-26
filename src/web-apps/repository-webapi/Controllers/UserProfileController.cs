@@ -216,26 +216,20 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (userProfileClaimDtos == null)
                 return new BadRequestResult();
 
-            var userProfile = await Context.UserProfiles.Include(up => up.UserProfileClaims).SingleOrDefaultAsync(up => up.Id == id);
+            await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.UserProfileClaims)}] WHERE [UserProfileId] = '{id}'");
 
-            if (userProfile == null)
-                return NotFound();
-
-            userProfile.UserProfileClaims.Clear();
-
-            await Context.SaveChangesAsync();
-
-            userProfile.UserProfileClaims = userProfileClaimDtos.Select(upc => new UserProfileClaim
+            var userProfileClaims = userProfileClaimDtos.Select(upc => new UserProfileClaim
             {
-                UserProfileId = userProfile.Id,
+                UserProfileId = id,
                 SystemGenerated = upc.SystemGenerated,
                 ClaimType = upc.ClaimType,
                 ClaimValue = upc.ClaimValue
             }).ToList();
 
+            await Context.UserProfileClaims.AddRangeAsync(userProfileClaims);
             await Context.SaveChangesAsync();
 
-            var result = userProfile.UserProfileClaims.Select(upc => upc.ToDto());
+            var result = userProfileClaims.Select(upc => upc.ToDto());
 
             return new OkObjectResult(result);
         }

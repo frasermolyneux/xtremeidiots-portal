@@ -2,39 +2,36 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
-using XI.Portal.Web.Repository;
 using XtremeIdiots.Portal.InvisionApiClient;
-using XtremeIdiots.Portal.InvisionApiClient.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Auth.XtremeIdiots
 {
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {
         private readonly IInvisionApiClient _forumsClient;
+        private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<XtremeIdiotsAuth> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
         private readonly UserManager<PortalIdentityUser> _userManager;
-        private readonly IUsersRepository _usersRepository;
 
         public XtremeIdiotsAuth(
             ILogger<XtremeIdiotsAuth> logger,
             SignInManager<PortalIdentityUser> signInManager,
             UserManager<PortalIdentityUser> userManager,
-            IUsersRepository usersRepository,
-            IInvisionApiClient forumsClient)
+            IInvisionApiClient forumsClient,
+            IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         }
 
         public AuthenticationProperties ConfigureExternalAuthenticationProperties(string redirectUrl)
@@ -83,9 +80,26 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
             var userClaims = await _userManager.GetClaimsAsync(user);
 
             await _userManager.RemoveClaimsAsync(user, userClaims);
-            await AddXtremeIdiotsClaims(user, member);
-            await AddPortalClaims(user);
 
+            var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+            if (userProfileDto == null)
+                userProfileDto = await repositoryApiClient.UserProfiles.CreateUserProfile(new UserProfileDto
+                {
+                    XtremeIdiotsForumId = member.Id.ToString(),
+                    DisplayName = member.Name,
+                    Title = member.Title,
+                    FormattedName = member.FormattedName,
+                    PrimaryGroup = member.PrimaryGroup.Name,
+                    Email = member.Email,
+                    PhotoUrl = member.PhotoUrl,
+                    ProfileUrl = member.ProfileUrl.ToString(),
+                    TimeZone = member.TimeZone
+                });
+
+            var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
+
+            var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+            await _userManager.AddClaimsAsync(user, claims);
             await _signInManager.SignInAsync(user, true);
         }
 
@@ -104,153 +118,30 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
                 var addLoginResult = await _userManager.AddLoginAsync(user, info);
                 if (addLoginResult.Succeeded)
                 {
-                    await AddXtremeIdiotsClaims(user, member);
+                    var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                    if (userProfileDto == null)
+                        userProfileDto = await repositoryApiClient.UserProfiles.CreateUserProfile(new UserProfileDto
+                        {
+                            XtremeIdiotsForumId = member.Id.ToString(),
+                            DisplayName = member.Name,
+                            Title = member.Title,
+                            FormattedName = member.FormattedName,
+                            PrimaryGroup = member.PrimaryGroup.Name,
+                            Email = member.Email,
+                            PhotoUrl = member.PhotoUrl,
+                            ProfileUrl = member.ProfileUrl.ToString(),
+                            TimeZone = member.TimeZone
+                        });
+
+                    var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
+
+                    var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+                    await _userManager.AddClaimsAsync(user, claims);
                     await _signInManager.SignInAsync(user, true);
+
                     _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
                 }
             }
-        }
-
-        private async Task AddPortalClaims(PortalIdentityUser identityUser)
-        {
-            var portalClaims = await _usersRepository.GetUserClaims(identityUser.Id);
-            var claims = new List<Claim>();
-
-            foreach (var claim in portalClaims) claims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
-
-            await _userManager.AddClaimsAsync(identityUser, claims);
-        }
-
-        private async Task AddXtremeIdiotsClaims(PortalIdentityUser identityUser, Member member)
-        {
-            var claims = GetClaimsForMember(member);
-            await _userManager.AddClaimsAsync(identityUser, claims);
-        }
-
-        private static IEnumerable<Claim> GetClaimsForMember(Member member)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(XtremeIdiotsClaimTypes.XtremeIdiotsId, member.Id.ToString()),
-                new Claim(ClaimTypes.Email, member.Email),
-                new Claim(XtremeIdiotsClaimTypes.PhotoUrl, member.PhotoUrl)
-            };
-
-            claims = claims.Concat(GetClaimsForGroup(member.PrimaryGroup)).ToList();
-            claims = member.SecondaryGroups.Aggregate(claims, (current, group) => current.Concat(GetClaimsForGroup(group)).ToList());
-
-            return claims;
-        }
-
-        private static IEnumerable<Claim> GetClaimsForGroup(Group group)
-        {
-            var claims = new List<Claim>();
-
-            var groupName = group.Name.Replace("+", "").Trim();
-            switch (groupName)
-            {
-                // Senior Admin
-                case "Senior Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.SeniorAdmin, GameType.Unknown.ToString()));
-                    break;
-
-                // COD2
-                case "COD2 Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty2.ToString()));
-                    break;
-                case "COD2 Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty2.ToString()));
-                    break;
-                case "COD2 Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty2.ToString()));
-                    break;
-
-                //COD4
-                case "COD4 Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty4.ToString()));
-                    break;
-                case "COD4 Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty4.ToString()));
-                    break;
-                case "COD4 Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty4.ToString()));
-                    break;
-
-                //COD5
-                case "COD5 Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.CallOfDuty5.ToString()));
-                    break;
-                case "COD5 Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.CallOfDuty5.ToString()));
-                    break;
-                case "COD5 Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.CallOfDuty5.ToString()));
-                    break;
-
-                //Insurgency
-                case "Insurgency Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Insurgency.ToString()));
-                    break;
-                case "Insurgency Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Insurgency.ToString()));
-                    break;
-                case "Insurgency Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Insurgency.ToString()));
-                    break;
-
-                //Minecraft
-                case "Minecraft Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Minecraft.ToString()));
-                    break;
-                case "Minecraft Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Minecraft.ToString()));
-                    break;
-                case "Minecraft Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Minecraft.ToString()));
-                    break;
-
-                //ARMA
-                case "ARMA Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Arma3.ToString()));
-                    break;
-                case "ARMA Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Arma3.ToString()));
-                    break;
-                case "ARMA Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma2.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Arma3.ToString()));
-                    break;
-
-                //Battlefield
-                case "Battlefield Head Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield1.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield3.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield4.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.Battlefield5.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.HeadAdmin, GameType.BattlefieldBadCompany2.ToString()));
-                    break;
-                case "Battlefield Admin":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield1.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield3.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield4.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.Battlefield5.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.GameAdmin, GameType.BattlefieldBadCompany2.ToString()));
-                    break;
-                case "Battlefield Moderator":
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield1.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield3.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield4.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.Battlefield5.ToString()));
-                    claims.Add(new Claim(XtremeIdiotsClaimTypes.Moderator, GameType.BattlefieldBadCompany2.ToString()));
-                    break;
-            }
-
-            return claims;
         }
     }
 }

@@ -3,14 +3,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
-using XI.Portal.Web.Repository;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
@@ -22,16 +24,13 @@ namespace XI.Portal.Web.Controllers
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<UserController> _logger;
         private readonly UserManager<PortalIdentityUser> _userManager;
-        private readonly IUsersRepository _usersRepository;
 
         public UserController(
-            IUsersRepository usersRepository,
             UserManager<PortalIdentityUser> userManager,
             ILogger<UserController> logger,
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient)
         {
-            _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
@@ -52,28 +51,47 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ManageProfile(string id)
+        public async Task<IActionResult> ManageProfile(Guid id)
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
             var gameServers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var user = await _usersRepository.GetUser(id);
+            var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfile(id);
+            var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(id);
+
+            var userProfileViewModel = new UserProfileViewModel
+            {
+                UserProfile = userProfileDto,
+                UserProfileClaims = userProfileClaimDtos
+            };
 
             ViewData["GameServers"] = gameServers;
-            ViewData["GameServersSelect"] = new SelectList(gameServers, "ServerId", "Title");
+            ViewData["GameServersSelect"] = new SelectList(gameServers, "Id", "Title");
 
-            return View(user);
+            return View(userProfileViewModel);
         }
 
-        [HttpGet]
+        [HttpPost]
         public async Task<IActionResult> GetUsersAjax()
         {
-            var users = await _usersRepository.GetUsers();
+            var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync();
+
+            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+            if (model == null)
+                return BadRequest();
+
+            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfiles(model.Start, model.Length);
+
             return Json(new
             {
-                data = users
+                model.Draw,
+                recordsTotal = userProfileResponseDto.TotalRecords,
+                recordsFiltered = userProfileResponseDto.FilteredRecords,
+                data = userProfileResponseDto.Entries
             });
         }
 
@@ -94,13 +112,15 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateUserClaim(string id, string claimType, string claimValue)
+        public async Task<IActionResult> CreateUserClaim(Guid id, string claimType, string claimValue)
         {
-            if (id == null) return NotFound();
+            var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfile(id);
 
-            var user = await _userManager.FindByIdAsync(id);
-            var portalClaims = await _usersRepository.GetUserClaims(id);
+            if (userProfileDto == null)
+                return NotFound();
 
+            var user = await _userManager.FindByIdAsync(userProfileDto.XtremeIdiotsForumId);
+            var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
 
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claimValue));
 
@@ -109,13 +129,16 @@ namespace XI.Portal.Web.Controllers
             if (!canCreateUserClaim.Succeeded)
                 return Unauthorized();
 
-            if (!portalClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
+            if (!userProfileClaimDtos.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
             {
-                await _usersRepository.UpdatePortalClaim(id, new PortalClaimDto
+                userProfileClaimDtos.Add(new UserProfileClaimDto
                 {
                     ClaimType = claimType,
-                    ClaimValue = claimValue
+                    ClaimValue = claimValue,
+                    SystemGenerated = false
                 });
+
+                await repositoryApiClient.UserProfiles.CreateUserProfileClaims(userProfileDto.Id, userProfileClaimDtos);
 
                 this.AddAlertSuccess($"The {claimType} claim has been added to {user.UserName}");
                 _logger.LogInformation("User {User} has added a {ClaimType} with {ClaimValue} to {TargetUser}", User.Username(), claimType, claimValue, user.UserName);
@@ -130,18 +153,20 @@ namespace XI.Portal.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveUserClaim(string id, string claimId)
+        public async Task<IActionResult> RemoveUserClaim(Guid id, Guid claimId)
         {
-            if (id == null || claimId == null) return NotFound();
+            var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfile(id);
 
-            var user = await _userManager.FindByIdAsync(id);
+            if (userProfileDto == null)
+                return NotFound();
 
-            var userClaims = await _usersRepository.GetUserClaims(id);
-            var claim = userClaims.SingleOrDefault(c => c.RowKey == claimId);
+            var user = await _userManager.FindByIdAsync(userProfileDto.XtremeIdiotsForumId);
+            var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
+
+            var claim = userProfileClaimDtos.SingleOrDefault(c => c.Id == claimId);
 
             if (claim == null)
                 return NotFound();
-
 
             var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claim.ClaimValue));
 
@@ -150,7 +175,9 @@ namespace XI.Portal.Web.Controllers
             if (!canDeleteUserClaim.Succeeded)
                 return Unauthorized();
 
-            await _usersRepository.RemoveUserClaim(id, claimId);
+            userProfileClaimDtos.Remove(claim);
+            await repositoryApiClient.UserProfiles.CreateUserProfileClaims(userProfileDto.Id, userProfileClaimDtos);
+
             await _userManager.UpdateSecurityStampAsync(user);
 
             this.AddAlertSuccess($"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)");

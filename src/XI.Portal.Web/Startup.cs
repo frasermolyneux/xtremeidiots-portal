@@ -154,15 +154,6 @@ namespace XI.Portal.Web
                 options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
             });
 
-            services.AddUsersModule(options =>
-            {
-                options.ConfigureUsersRepository(repositoryOptions =>
-                {
-                    repositoryOptions.StorageConnectionString = Configuration["ApplicationAuthDbContext:StorageConnectionString"];
-                    repositoryOptions.StorageTableName = Configuration["ApplicationAuthDbContext:PortalClaimsStorageTableName"];
-                });
-            });
-
             services.AddXtremeIdiotsAuth();
             services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });
 

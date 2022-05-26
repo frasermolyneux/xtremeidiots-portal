@@ -23,7 +23,6 @@
                                 <td>Id</td>
                                 <td>Username</td>
                                 <td>Email</td>
-                                <td>Additional Portal Permissions</td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -47,11 +46,18 @@
         $(document).ready(function() {
             $('#dataTable').DataTable({
                 processing: true,
+                serverSide: true,
+                searchDelay: 1000,
                 stateSave: true,
                 order: [[1, "asc"]],
                 ajax: {
                     url: '/User/GetUsersAjax',
-                    dataSrc: 'data'
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
                 },
                 columns: [
                     {
@@ -60,28 +66,14 @@
                         sortable: true
                     },
                     {
-                        data: 'username',
-                        name: 'username',
+                        data: 'displayName',
+                        name: 'displayName',
                         sortable: true
                     },
                     {
                         data: 'email',
                         name: 'email',
                         sortable: true
-                    },
-                    {
-                        data: 'portalClaims',
-                        name: 'portalClaims',
-                        sortable: true,
-                        render: function(data, type, row) {
-                            var claims = "";
-
-                            for (let i = 0; i < row['portalClaims'].length; i++) {
-                                claims = claims + "[" + row['portalClaims'][i].claimType + "],";
-                            }
-
-                            return claims.substring(0, claims.length - 1);
-                        }
                     },
                     {
                         sortable: false,

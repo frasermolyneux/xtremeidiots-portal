@@ -15,10 +15,9 @@ namespace XtremeIdiots.Portal.DataLib
         public Guid UserProfileId { get; set; }
         public bool SystemGenerated { get; set; }
         [Required]
-        [StringLength(50)]
+        [StringLength(128)]
         public string ClaimType { get; set; }
         [Required]
-        [StringLength(50)]
         public string ClaimValue { get; set; }
 
         [ForeignKey("UserProfileId")]

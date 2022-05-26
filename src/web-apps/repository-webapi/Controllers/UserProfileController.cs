@@ -223,6 +223,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             userProfile.UserProfileClaims.Clear();
 
+            await Context.SaveChangesAsync();
+
             userProfile.UserProfileClaims = userProfileClaimDtos.Select(upc => new UserProfileClaim
             {
                 UserProfileId = userProfile.Id,

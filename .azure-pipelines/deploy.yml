@@ -4,10 +4,6 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  TerraformVersion: '0.14.8'
-  AzTerraformRegion: 'uksouth'
-  AzTerraformResourceGroup: 'xi-portal-terraform'
-  AzTerraformStorageAccount: 'xiportaltfstate'
   AzSubscription: 'XI-Pay-As-You-Go'
   environment: 'prd'
   location: 'uksouth'
@@ -33,55 +29,6 @@ variables:
   sqlAdminGroupName: 'sg-sql-portal-prd-admins'
 
 stages: 
-- stage: LegacyBuild
-
-  pool:
-    vmImage: 'windows-latest'
-
-  jobs:
-  - job: LegacyBuild
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release'
-
-    steps:
-    - task: NuGetToolInstaller@1
-
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
-        command: 'restore'
-        feedsToUse: 'config'
-        nugetConfigPath: './src/nuget.config'
-
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
-
-    - task: CopyFiles@2
-      displayName: 'Copy terraform folder into staging directory'
-      inputs: 
-        SourceFolder: '$(Build.sourcesDirectory)/terraform'
-        Contents: '**'
-        TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
-      
-    - publish: $(Build.artifactStagingDirectory)/terraform
-      displayName: Publish terraform artifact
-      artifact: terraform
-
-    - publish: '$(Build.artifactStagingDirectory)/webapp'
-      displayName: 'Publish website source artifact'
-      artifact: webapp
-  
-- template: templates/deploy-application.yml
-  parameters:
-    environment: 'leo'
-
 - stage: Build
   jobs:
   - template: templates/build-web-app.yml
@@ -389,15 +336,6 @@ stages:
           scriptLocation: 'scriptPath'
           arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetLegacyWebAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyWebAppPermissions.ps1'
 
       - task: AzureCLI@2
         displayName: SetRepositoryApiAppPermissions

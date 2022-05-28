@@ -327,15 +327,6 @@ stages:
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
 
       - task: AzureCLI@2
-        displayName: SetLegacyWebAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetLegacyWebAppPermissions.ps1'
-
-      - task: AzureCLI@2
         displayName: SetRepositoryApiAppPermissions
         inputs:
           azureSubscription: $(subscription)

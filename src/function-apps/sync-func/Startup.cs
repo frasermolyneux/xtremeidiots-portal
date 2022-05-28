@@ -6,6 +6,7 @@ using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc;
 using XtremeIdiots.Portal.SyncFunc.Extensions;
+using XtremeIdiots.Portal.SyncFunc.Helpers;
 using XtremeIdiots.Portal.SyncFunc.Redirect;
 
 [assembly: FunctionsStartup(typeof(Startup))]
@@ -42,6 +43,8 @@ public class Startup : FunctionsStartup
         {
             options.ConnectionString = config["appdata-storage-connectionstring"];
         });
+
+        builder.Services.AddSingleton<IFtpHelper, FtpHelper>();
 
         builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         builder.Services.AddLogging();

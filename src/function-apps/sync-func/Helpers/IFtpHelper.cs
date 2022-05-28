@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.SyncFunc.FtpHelper
+﻿namespace XtremeIdiots.Portal.SyncFunc.Helpers
 {
     public interface IFtpHelper
     {

@@ -4,7 +4,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using XtremeIdiots.Portal.RepositoryApiClient;
-using XtremeIdiots.Portal.SyncFunc.FtpHelper;
+using XtremeIdiots.Portal.SyncFunc.Helpers;
 using XtremeIdiots.Portal.SyncFunc.Interfaces;
 
 namespace XtremeIdiots.Portal.SyncFunc

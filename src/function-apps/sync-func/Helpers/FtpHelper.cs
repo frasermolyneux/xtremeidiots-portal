@@ -2,7 +2,7 @@
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 
-namespace XtremeIdiots.Portal.SyncFunc.FtpHelper
+namespace XtremeIdiots.Portal.SyncFunc.Helpers
 {
     public class FtpHelper : IFtpHelper
     {
@@ -28,13 +28,9 @@ namespace XtremeIdiots.Portal.SyncFunc.FtpHelper
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
-                {
                     return await client.GetFileSizeAsync(filePath);
-                }
                 else
-                {
                     return null;
-                }
             }
             catch (Exception ex)
             {
@@ -65,13 +61,9 @@ namespace XtremeIdiots.Portal.SyncFunc.FtpHelper
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
-                {
                     return await client.GetModifiedTimeAsync(filePath);
-                }
                 else
-                {
                     return null;
-                }
             }
             catch (Exception ex)
             {

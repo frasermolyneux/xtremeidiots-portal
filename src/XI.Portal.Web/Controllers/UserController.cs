@@ -2,12 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -84,7 +79,7 @@ namespace XI.Portal.Web.Controllers
             if (model == null)
                 return BadRequest();
 
-            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfiles(model.Start, model.Length);
+            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfiles(model.Start, model.Length, model.Search?.Value);
 
             return Json(new
             {

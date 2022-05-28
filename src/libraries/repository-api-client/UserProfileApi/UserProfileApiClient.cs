@@ -13,12 +13,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi
         {
         }
 
-        public async Task<UserProfileResponseDto?> GetUserProfiles(int skipEntries, int takeEntries)
+        public async Task<UserProfileResponseDto?> GetUserProfiles(int skipEntries, int takeEntries, string? filterString)
         {
             var request = await CreateRequest($"repository/user-profile", Method.Get);
 
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
+
+            if (!string.IsNullOrEmpty(filterString))
+                request.AddQueryParameter("filterString", filterString);
 
             var response = await ExecuteAsync(request);
 

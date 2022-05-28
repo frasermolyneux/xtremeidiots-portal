@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("api/user-profile")]
-        public async Task<IActionResult> GetUserProfiles(int? skipEntries, int? takeEntries)
+        public async Task<IActionResult> GetUserProfiles(int? skipEntries, int? takeEntries, string? filterString)
         {
             if (skipEntries == null)
                 skipEntries = 0;
@@ -30,10 +30,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 takeEntries = 10;
 
             var query = Context.UserProfiles.AsQueryable();
-            query = ApplyFilter(query);
+            query = ApplyFilter(query, filterString);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query);
+            query = ApplyFilter(query, filterString);
             var filteredCount = await query.CountAsync();
 
             query = ApplyOrderAndLimits(query, (int)skipEntries, (int)takeEntries);
@@ -52,8 +52,11 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new OkObjectResult(response);
         }
 
-        private IQueryable<UserProfile> ApplyFilter(IQueryable<UserProfile> userProfiles)
+        private IQueryable<UserProfile> ApplyFilter(IQueryable<UserProfile> userProfiles, string? filterString)
         {
+            if (!string.IsNullOrEmpty(filterString))
+                userProfiles = userProfiles.Where(up => up.DisplayName.Contains(filterString) || up.Email.Contains(filterString)).AsQueryable();
+
             return userProfiles;
         }
 

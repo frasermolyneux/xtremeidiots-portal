@@ -1544,6 +1544,13 @@
                         "schema": {
                             "type": "int"
                         }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {

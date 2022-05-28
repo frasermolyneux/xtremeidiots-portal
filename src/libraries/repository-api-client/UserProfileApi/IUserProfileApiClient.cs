@@ -4,7 +4,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi
 {
     public interface IUserProfileApiClient
     {
-        Task<UserProfileResponseDto?> GetUserProfiles(int skipEntries, int takeEntries);
+        Task<UserProfileResponseDto?> GetUserProfiles(int skipEntries, int takeEntries, string? filterString);
         Task<UserProfileDto?> GetUserProfile(Guid userProfileId);
         Task<UserProfileDto?> GetUserProfileByIdentityId(string identityId);
         Task<UserProfileDto?> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId);

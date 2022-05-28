@@ -124,13 +124,13 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 return livePlayerDtos;
             }
 
-            foreach (var queryPlayer in serverQueryStatusResponseDto.Players)
+            foreach (var livePlayerDto in livePlayerDtos)
             {
-                var livePlayer = livePlayerDtos.SingleOrDefault(lp => lp.Name.NormalizeName() == queryPlayer.Name.NormalizeName());
+                var queryPlayer = serverQueryStatusResponseDto.Players.SingleOrDefault(qp => qp.Name.NormalizeName() == livePlayerDto.Name.NormalizeName());
 
-                if (livePlayer != null)
+                if (queryPlayer != null)
                 {
-                    livePlayer.Score = queryPlayer.Score;
+                    livePlayerDto.Score = queryPlayer.Score;
                 }
             }
 

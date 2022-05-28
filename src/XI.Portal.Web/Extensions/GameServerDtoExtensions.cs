@@ -15,6 +15,7 @@ namespace XI.Portal.Web.Extensions
                 Hostname = gameServerDto.Hostname,
                 QueryPort = gameServerDto.QueryPort,
                 FtpHostname = gameServerDto.FtpHostname,
+                FtpPort = gameServerDto.FtpPort,
                 FtpUsername = gameServerDto.FtpUsername,
                 FtpPassword = gameServerDto.FtpPassword,
                 RconPassword = gameServerDto.RconPassword,

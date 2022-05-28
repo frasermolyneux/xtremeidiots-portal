@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XtremeIdiots.Portal.SyncFunc.Models;
+﻿using XtremeIdiots.Portal.SyncFunc.Models;
 
 namespace XtremeIdiots.Portal.SyncFunc.Redirect
 {

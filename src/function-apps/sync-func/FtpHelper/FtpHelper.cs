@@ -1,98 +1,159 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FluentFTP;
+using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.DataContracts;
 
 namespace XtremeIdiots.Portal.SyncFunc.FtpHelper
 {
     public class FtpHelper : IFtpHelper
     {
-        public long GetFileSize(string hostname, string filePath, string username, string password)
+        private readonly TelemetryClient telemetryClient;
+
+        public FtpHelper(TelemetryClient telemetryClient)
         {
+            this.telemetryClient = telemetryClient;
+        }
+
+        public async Task<long?> GetFileSize(string hostname, string filePath, string username, string password)
+        {
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetFileSize");
+            operation.Telemetry.Type = "FTP";
+            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Data = filePath;
+
+            FtpClient? client = null;
+
             try
             {
-                var request = (FtpWebRequest)WebRequest.Create($"ftp://{hostname}/{filePath}");
-                request.Method = WebRequestMethods.Ftp.GetFileSize;
-                request.Credentials = new NetworkCredential(username, password);
+                client = new FtpClient(hostname, username, password);
+                await client.ConnectAsync();
 
-                return ((FtpWebResponse)request.GetResponse()).ContentLength;
+                if (await client.FileExistsAsync(filePath))
+                {
+                    return await client.GetFileSizeAsync(filePath);
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("(550) File unavailable"))
-                    return 0;
-
+                operation.Telemetry.Success = false;
+                operation.Telemetry.ResultCode = "Failed";
+                telemetryClient.TrackException(ex);
                 throw;
             }
-
-        }
-
-        public DateTime GetLastModified(string hostname, string filePath, string username, string password)
-        {
-            var request = (FtpWebRequest)WebRequest.Create($"ftp://{hostname}/{filePath}");
-            request.Method = WebRequestMethods.Ftp.GetDateTimestamp;
-            request.Credentials = new NetworkCredential(username, password);
-
-            return ((FtpWebResponse)request.GetResponse()).LastModified;
-        }
-
-        public string GetRemoteFileData(string hostname, string filePath, string username, string password)
-        {
-            var request = CreateWebRequest(hostname, filePath, username, password);
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-
-            using (var response = (FtpWebResponse)request.GetResponse())
+            finally
             {
-                using (var responseStream = response.GetResponseStream())
+                telemetryClient.StopOperation(operation);
+                client?.Dispose();
+            }
+        }
+
+        public async Task<DateTime?> GetLastModified(string hostname, string filePath, string username, string password)
+        {
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetLastModified");
+            operation.Telemetry.Type = "FTP";
+            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Data = filePath;
+
+            FtpClient? client = null;
+
+            try
+            {
+                client = new FtpClient(hostname, username, password);
+                await client.ConnectAsync();
+
+                if (await client.FileExistsAsync(filePath))
                 {
-                    using (var streamReader = new StreamReader(responseStream ?? throw new InvalidOperationException()))
+                    return await client.GetModifiedTimeAsync(filePath);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                operation.Telemetry.Success = false;
+                operation.Telemetry.ResultCode = "Failed";
+                telemetryClient.TrackException(ex);
+                throw;
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
+                client?.Dispose();
+            }
+        }
+
+        public async Task<string> GetRemoteFileData(string hostname, string filePath, string username, string password)
+        {
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetRemoteFileData");
+            operation.Telemetry.Type = "FTP";
+            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Data = filePath;
+
+            FtpClient? client = null;
+
+            try
+            {
+                client = new FtpClient(hostname, username, password);
+                await client.ConnectAsync();
+
+                using (var stream = new MemoryStream())
+                {
+                    await client.DownloadAsync(stream, filePath);
+
+                    using (var streamReader = new StreamReader(stream))
                     {
+                        stream.Seek(0, SeekOrigin.Begin);
                         return streamReader.ReadToEnd();
                     }
                 }
             }
-        }
-
-        public void UpdateRemoteFile(string hostname, string filePath, string username, string password, string dataPath)
-        {
-            var request = CreateWebRequest(hostname, filePath, username, password);
-            request.Method = WebRequestMethods.Ftp.UploadFile;
-
-            using (var streamReader = new StreamReader(dataPath))
+            catch (Exception ex)
             {
-                var fileContents = Encoding.UTF8.GetBytes(streamReader.ReadToEnd());
-
-                using (var requestStream = request.GetRequestStream())
-                {
-                    requestStream.Write(fileContents, 0, fileContents.Length);
-                }
+                operation.Telemetry.Success = false;
+                operation.Telemetry.ResultCode = "Failed";
+                telemetryClient.TrackException(ex);
+                throw;
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
+                client?.Dispose();
             }
         }
 
         public async Task UpdateRemoteFileFromStream(string hostname, string filePath, string username, string password, Stream data)
         {
-            var request = CreateWebRequest(hostname, filePath, username, password);
-            request.Method = WebRequestMethods.Ftp.UploadFile;
+            var operation = telemetryClient.StartOperation<DependencyTelemetry>("UpdateRemoteFileFromStream");
+            operation.Telemetry.Type = "FTP";
+            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Data = filePath;
 
-            using (var streamReader = new StreamReader(data))
+            FtpClient? client = null;
+
+            try
             {
-                var fileContents = Encoding.UTF8.GetBytes(streamReader.ReadToEnd());
-
-                using (var requestStream = request.GetRequestStream())
-                {
-                    await requestStream.WriteAsync(fileContents, 0, fileContents.Length);
-                }
+                client = new FtpClient(hostname, username, password);
+                await client.ConnectAsync();
+                data.Seek(0, SeekOrigin.Begin);
+                await client.UploadAsync(data, filePath);
             }
-        }
-
-        private static WebRequest CreateWebRequest(string hostname, string filePath, string username, string password)
-        {
-            var requestPath = $"ftp://{hostname}{filePath}";
-
-            var request = WebRequest.Create(new Uri(requestPath));
-            request.Credentials = new NetworkCredential(username, password);
-            return request;
+            catch (Exception ex)
+            {
+                operation.Telemetry.Success = false;
+                operation.Telemetry.ResultCode = "Failed";
+                telemetryClient.TrackException(ex);
+                throw;
+            }
+            finally
+            {
+                telemetryClient.StopOperation(operation);
+                client?.Dispose();
+            }
         }
     }
 }

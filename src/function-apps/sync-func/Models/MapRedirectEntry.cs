@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XtremeIdiots.Portal.SyncFunc.Models
+﻿namespace XtremeIdiots.Portal.SyncFunc.Models
 {
     public class MapRedirectEntry
     {

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.SyncFunc.Constants
 {

@@ -1,7 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-
-namespace XtremeIdiots.Portal.SyncFunc.Interfaces
+﻿namespace XtremeIdiots.Portal.SyncFunc.Interfaces
 {
     public interface IBanFilesRepository
     {

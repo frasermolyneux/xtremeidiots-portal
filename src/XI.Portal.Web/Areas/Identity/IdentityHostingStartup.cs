@@ -38,7 +38,7 @@ namespace XI.Portal.Web.Areas.Identity
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                     .AddOAuth("XtremeIdiots", options =>
                     {
-                        options.ClientId = context.Configuration["XtremeIdiotsAuth:ClientId"];
+                        options.ClientId = context.Configuration["xtremeidiots-auth-client-id"];
                         options.ClientSecret = context.Configuration["XtremeIdiotsAuth:ClientSecret"];
                         options.CallbackPath = new PathString("/signin-xtremeidiots");
 

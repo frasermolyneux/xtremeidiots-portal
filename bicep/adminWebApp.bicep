@@ -125,6 +125,14 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'xtremeidiots-forums-api-key'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-forums-api-key)'
         }
+        {
+          name: 'xtremeidiots-auth-client-id'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-id)'
+        }
+        {
+          name: 'xtremeidiots-auth-client-secret'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+        }
       ]
     }
   }

@@ -142,22 +142,22 @@ namespace XtremeIdiots.CodDemos.Models
         /// <summary>
         ///     Gets the map this instance was recorded in.
         /// </summary>
-        public string Map { get; }
+        public string? Map { get; }
 
         /// <summary>
         ///     Gets the mod this instance was recorded in.
         /// </summary>
-        public string Mod { get; }
+        public string? Mod { get; }
 
         /// <summary>
         ///     Gets the game type this instance was recorded in.
         /// </summary>
-        public string GameType { get; }
+        public string? GameType { get; }
 
         /// <summary>
         ///     Gets the server this instance was recorded on.
         /// </summary>
-        public string Server { get; }
+        public string? Server { get; }
 
         /// <summary>
         ///     Gets the size of the file.
@@ -190,7 +190,7 @@ namespace XtremeIdiots.CodDemos.Models
         ///     true if the specified object  is equal to the current object; otherwise, false.
         /// </returns>
         /// <param name="obj">The object to compare with the current object. </param>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;

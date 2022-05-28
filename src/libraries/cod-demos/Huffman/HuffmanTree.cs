@@ -2,7 +2,7 @@
 
 namespace XtremeIdiots.CodDemos.Huffman
 {
-    internal class HuffmanTree
+    internal partial class HuffmanTree
     {
         public HuffmanTree(int[] frequencies)
         {
@@ -43,40 +43,28 @@ namespace XtremeIdiots.CodDemos.Huffman
             }
         }
 
-        private Node Root { get; }
+        private Node? Root { get; }
 
         public byte[] Decode(BitArray bits)
         {
-            var current = Root;
+            if (Root == null)
+                throw new ArgumentNullException(nameof(Root));
+
+            var currentRoot = Root;
             var decoded = new List<byte>();
 
             foreach (bool bit in bits)
             {
-                current = current.Get(bit);
+                currentRoot = currentRoot.Get(bit);
 
                 // If this node is a leaf, take it's value and start again at the root.
-                if (!current.IsLeaf) continue;
+                if (!currentRoot.IsLeaf) continue;
 
-                decoded.Add(current.Symbol);
-                current = Root;
+                decoded.Add(currentRoot.Symbol);
+                currentRoot = Root;
             }
 
             return decoded.ToArray();
-        }
-
-        private class Node
-        {
-            public byte Symbol { get; set; }
-            public int Frequency { get; set; }
-            public Node Right { get; set; }
-            public Node Left { get; set; }
-
-            public bool IsLeaf => Left == null && Right == null;
-
-            public Node Get(bool bit)
-            {
-                return (bit ? Right : Left) ?? this;
-            }
         }
     }
 }

@@ -80,7 +80,7 @@ namespace XtremeIdiots.CodDemos
         private static IDictionary<string, string> SplitConfigString(string input, char seperator = '\\')
         {
             var result = new Dictionary<string, string>();
-            string key = null;
+            string? key = null;
 
             foreach (var value in input.Split(seperator))
             {

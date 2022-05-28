@@ -69,14 +69,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
     httpsOnly: true
 
-    hostNameSslStates: [
-      {
-        name: 'portal.xtremeidiots.com'
-        sslState: 'Disabled'
-        hostType: 'Standard'
-      }
-    ]
-
     siteConfig: {
       alwaysOn: true
       ftpsState: 'Disabled'
@@ -143,6 +135,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
       ]
     }
+  }
+}
+
+resource portalHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2021-03-01' = {
+  name: 'portal.xtremeidiots.com'
+  parent: webApp
+
+  properties: {
+    siteName: varAdminWebAppName
   }
 }
 

@@ -13,18 +13,18 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             this.telemetryClient = telemetryClient;
         }
 
-        public async Task<long?> GetFileSize(string hostname, string filePath, string username, string password)
+        public async Task<long?> GetFileSize(string hostname, int port, string filePath, string username, string password)
         {
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetFileSize");
             operation.Telemetry.Type = "FTP";
-            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
             FtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, username, password);
+                client = new FtpClient(hostname, port, username, password);
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
@@ -46,18 +46,18 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             }
         }
 
-        public async Task<DateTime?> GetLastModified(string hostname, string filePath, string username, string password)
+        public async Task<DateTime?> GetLastModified(string hostname, int port, string filePath, string username, string password)
         {
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetLastModified");
             operation.Telemetry.Type = "FTP";
-            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
             FtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, username, password);
+                client = new FtpClient(hostname, port, username, password);
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
@@ -79,18 +79,18 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             }
         }
 
-        public async Task<string> GetRemoteFileData(string hostname, string filePath, string username, string password)
+        public async Task<string> GetRemoteFileData(string hostname, int port, string filePath, string username, string password)
         {
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetRemoteFileData");
             operation.Telemetry.Type = "FTP";
-            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
             FtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, username, password);
+                client = new FtpClient(hostname, port, username, password);
                 await client.ConnectAsync();
 
                 using (var stream = new MemoryStream())
@@ -118,18 +118,18 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             }
         }
 
-        public async Task UpdateRemoteFileFromStream(string hostname, string filePath, string username, string password, Stream data)
+        public async Task UpdateRemoteFileFromStream(string hostname, int port, string filePath, string username, string password, Stream data)
         {
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("UpdateRemoteFileFromStream");
             operation.Telemetry.Type = "FTP";
-            operation.Telemetry.Target = hostname;
+            operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
             FtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, username, password);
+                client = new FtpClient(hostname, port, username, password);
                 await client.ConnectAsync();
                 data.Seek(0, SeekOrigin.Begin);
                 await client.UploadAsync(data, filePath);

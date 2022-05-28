@@ -96,6 +96,8 @@ namespace XtremeIdiots.Portal.DataLib
 
                 entity.Property(e => e.ServerId).HasDefaultValueSql("newsequentialid()");
 
+                entity.Property(e => e.FtpPort).HasDefaultValueSql("21");
+
                 entity.Property(e => e.LiveLastUpdated).HasDefaultValueSql("'1900-01-01t00:00:00.000'");
             });
 

@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -81,6 +76,7 @@ namespace XI.Portal.Web.Controllers
             if (canEditGameServerFtp.Succeeded)
             {
                 gameServerDto.FtpHostname = model.FtpHostname;
+                gameServerDto.FtpPort = model.FtpPort;
                 gameServerDto.FtpUsername = model.FtpUsername;
                 gameServerDto.FtpPassword = model.FtpPassword;
             }
@@ -166,6 +162,7 @@ namespace XI.Portal.Web.Controllers
             if (!canEditGameServerFtp.Succeeded)
             {
                 gameServerDto.FtpHostname = string.Empty;
+                gameServerDto.FtpPort = 21;
                 gameServerDto.FtpUsername = string.Empty;
                 gameServerDto.FtpPassword = string.Empty;
             }
@@ -207,6 +204,7 @@ namespace XI.Portal.Web.Controllers
             if (canEditGameServerFtp.Succeeded)
             {
                 gameServerDto.FtpHostname = model.FtpHostname;
+                gameServerDto.FtpPort = model.FtpPort;
                 gameServerDto.FtpUsername = model.FtpUsername;
                 gameServerDto.FtpPassword = model.FtpPassword;
             }

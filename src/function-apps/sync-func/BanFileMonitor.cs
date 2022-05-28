@@ -59,6 +59,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                     var remoteFileSize = await ftpHelper.GetFileSize(
                         gameServerDto.FtpHostname,
+                        gameServerDto.FtpPort,
                         banFileMonitorDto.FilePath,
                         gameServerDto.FtpUsername,
                         gameServerDto.FtpPassword);
@@ -77,6 +78,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                         await ftpHelper.UpdateRemoteFileFromStream(
                             gameServerDto.FtpHostname,
+                            gameServerDto.FtpPort,
                             banFileMonitorDto.FilePath,
                             gameServerDto.FtpUsername,
                             gameServerDto.FtpPassword,
@@ -98,6 +100,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                         var remoteBanFileData = await ftpHelper.GetRemoteFileData(
                             gameServerDto.FtpHostname,
+                            gameServerDto.FtpPort,
                             banFileMonitorDto.FilePath,
                             gameServerDto.FtpUsername,
                             gameServerDto.FtpPassword);
@@ -121,6 +124,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                         await ftpHelper.UpdateRemoteFileFromStream(
                             gameServerDto.FtpHostname,
+                            gameServerDto.FtpPort,
                             banFileMonitorDto.FilePath,
                             gameServerDto.FtpUsername,
                             gameServerDto.FtpPassword,

@@ -6,6 +6,7 @@
     [Hostname]                 NVARCHAR (MAX)   NULL,
     [QueryPort]                INT              DEFAULT 0 NOT NULL,
     [FtpHostname]              NVARCHAR (MAX)   NULL,
+    [FtpPort]                INT              DEFAULT 21 NOT NULL,
     [FtpUsername]              NVARCHAR (MAX)   NULL,
     [FtpPassword]              NVARCHAR (MAX)   NULL,
     [LiveStatusEnabled] BIT NOT NULL DEFAULT 0, 

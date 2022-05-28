@@ -86,12 +86,12 @@
                                 @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
                                 {
                                     <strong>File Path: </strong>
-                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)<br/>
+                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)<br/>
                                 }
                                 else
                                 {
                                     <strong>File Path: </strong>
-                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)<br/>
+                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath)<br/>
                                 }
 
                                 <strong>Last Recorded Sync: </strong>@item.LastSync<br/>

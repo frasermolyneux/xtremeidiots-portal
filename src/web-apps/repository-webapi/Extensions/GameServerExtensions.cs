@@ -16,6 +16,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 Hostname = gameServer.Hostname,
                 QueryPort = gameServer.QueryPort,
                 FtpHostname = gameServer.FtpHostname,
+                FtpPort = gameServer.FtpPort,
                 FtpUsername = gameServer.FtpUsername,
                 FtpPassword = gameServer.FtpPassword,
                 LiveStatusEnabled = gameServer.LiveStatusEnabled,

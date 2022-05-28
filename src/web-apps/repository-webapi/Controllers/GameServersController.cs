@@ -165,6 +165,7 @@ public class GameServersController : Controller
         gameServer.Hostname = gameServerDto.Hostname;
         gameServer.QueryPort = gameServerDto.QueryPort;
         gameServer.FtpHostname = gameServerDto.FtpHostname;
+        gameServer.FtpPort = gameServerDto.FtpPort;
         gameServer.FtpUsername = gameServerDto.FtpUsername;
         gameServer.FtpPassword = gameServerDto.FtpPassword;
         gameServer.LiveStatusEnabled = gameServerDto.LiveStatusEnabled;

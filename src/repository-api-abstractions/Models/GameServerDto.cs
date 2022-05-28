@@ -13,6 +13,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public string Hostname { get; set; } = string.Empty;
         public int QueryPort { get; set; }
         public string FtpHostname { get; set; } = string.Empty;
+        public int FtpPort { get; set; }
         public string FtpUsername { get; set; } = string.Empty;
         public string FtpPassword { get; set; } = string.Empty;
         public bool LiveStatusEnabled { get; set; }

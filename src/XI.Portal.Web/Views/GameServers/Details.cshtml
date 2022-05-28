@@ -48,6 +48,9 @@
                                 <dd class="col-sm-10">
                                     @Html.DisplayFor(model => model.GameServerViewModel.FtpHostname)
                                 </dd>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.FtpPort)
+                                </dd>
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.GameServerViewModel.FtpUsername)
                                 </dt>
@@ -144,14 +147,14 @@
                                         <td>
                                             @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerViewModel.GameType, Model.GameServerViewModel.ServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
-                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
                                             }
                                             else
                                             {
-                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.FilePath)
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath)
                                             }
                                         </td>
-                                        <td>
+                                        <td>s
                                             @Html.DisplayFor(modelItem => item.LastSync)
                                         </td>
                                         <td>

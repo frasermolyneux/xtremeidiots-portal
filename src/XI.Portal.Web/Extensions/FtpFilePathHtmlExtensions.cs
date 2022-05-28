@@ -5,15 +5,15 @@ namespace XI.Portal.Web.Extensions
 {
     public static class FtpFilePathHtmlExtensions
     {
-        public static HtmlString MonitorFtpPath(this IHtmlHelper html, string ftpHostName, string filePath)
+        public static HtmlString MonitorFtpPath(this IHtmlHelper html, string ftpHostName, int ftpPort, string filePath)
         {
             return new HtmlString(
-                $"ftp://{ftpHostName}{filePath}");
+                $"ftp://{ftpHostName}:{ftpPort}{filePath}");
         }
 
-        public static HtmlString MonitorFtpPath(this IHtmlHelper html, string ftpHostName, string filePath, string ftpUsername, string ftpPassword)
+        public static HtmlString MonitorFtpPath(this IHtmlHelper html, string ftpHostName, int ftpPort, string filePath, string ftpUsername, string ftpPassword)
         {
-            return new HtmlString($"<a target=\"_blank\" href=\"ftp://{ftpUsername}:{ftpPassword}@{ftpHostName}{filePath}\">ftp://{ftpHostName}{filePath}</a>");
+            return new HtmlString($"<a target=\"_blank\" href=\"ftp://{ftpUsername}:{ftpPassword}@{ftpHostName}:{ftpPort}{filePath}\">ftp://{ftpHostName}{filePath}</a>");
         }
     }
 }

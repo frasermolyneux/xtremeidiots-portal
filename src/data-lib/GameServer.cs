@@ -29,6 +29,7 @@ namespace XtremeIdiots.Portal.DataLib
         public string Hostname { get; set; }
         public int QueryPort { get; set; }
         public string FtpHostname { get; set; }
+        public int FtpPort { get; set; }
         public string FtpUsername { get; set; }
         public string FtpPassword { get; set; }
         public bool LiveStatusEnabled { get; set; }

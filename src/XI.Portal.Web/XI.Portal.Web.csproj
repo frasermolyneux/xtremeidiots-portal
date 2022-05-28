@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="ElCamino.AspNetCore.Identity.AzureTable" Version="3.1.0" />
+    <PackageReference Include="FM.GeoLocation.Client" Version="1.0.4908" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.5" />
@@ -21,12 +22,12 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\libraries\forums-integration\forums-integration.csproj" />
     <ProjectReference Include="..\libraries\invision-api-client\invision-api-client.csproj" />
     <ProjectReference Include="..\libraries\repository-api-client\repository-api-client.csproj" />
     <ProjectReference Include="..\libraries\servers-api-client\servers-api-client.csproj" />
     <ProjectReference Include="..\repository-api-abstractions\repository-api-abstractions.csproj" />
     <ProjectReference Include="..\servers-api-abstractions\servers-api-abstractions.csproj" />
-    <ProjectReference Include="..\XI.Portal.Players\XI.Portal.Players.csproj" />
   </ItemGroup>
 
 

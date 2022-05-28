@@ -11,8 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
-using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -25,7 +25,7 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<DemosController> _logger;
         private readonly SignInManager<PortalIdentityUser> _signInManager;
-        private readonly IDemosForumsClient _demosForumsClient;
+        private readonly IDemoManager _demosForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly UserManager<PortalIdentityUser> _userManager;
 
@@ -34,7 +34,7 @@ namespace XI.Portal.Web.Controllers
             IAuthorizationService authorizationService,
             UserManager<PortalIdentityUser> userManager,
             SignInManager<PortalIdentityUser> signInManager,
-            IDemosForumsClient demosForumsClient,
+            IDemoManager demosForumsClient,
             IRepositoryApiClient repositoryApiClient)
         {
             _logger = logger;

@@ -69,19 +69,6 @@ stages:
         SourceFolder: '$(Build.sourcesDirectory)/terraform'
         Contents: '**'
         TargetFolder: '$(Build.artifactStagingDirectory)/terraform'
-
-    - task: ArchiveFiles@2
-      displayName: "Package XI.Portal.FuncApp to artifact staging directory"
-      inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)/src/XI.Portal.FuncApp/bin/Release/net6.0/'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/XI.Portal.FuncApp.zip'
-        replaceExistingArchive: true
-
-    - publish: $(Build.artifactStagingDirectory)/XI.Portal.FuncApp.zip
-      displayName: Publish XI.Portal.FuncApp artifact
-      artifact: funcapp
       
     - publish: $(Build.artifactStagingDirectory)/terraform
       displayName: Publish terraform artifact

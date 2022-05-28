@@ -18,8 +18,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using XI.Portal.Web.Data;
 using XI.Portal.Web.Extensions;
-using XI.Portal.Web.Forums;
 using XI.Portal.Web.Models;
+using XtremeIdiots.Portal.ForumsIntegration;
+using XtremeIdiots.Portal.ForumsIntegration.Extensions;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
@@ -140,7 +141,9 @@ namespace XI.Portal.Web
                 options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
             });
 
-            services.AddScoped<IDemosForumsClient, DemosForumsClient>();
+            services.AddAdminActionTopics();
+
+            services.AddScoped<IDemoManager, DemoManager>();
 
             services.AddRepositoryApiClient(options =>
             {

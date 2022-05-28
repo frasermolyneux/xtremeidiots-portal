@@ -34,6 +34,40 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
 }
 
 // Module Resources
+resource syncAppDataStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'sasyncappdata${parEnvironment}'
+  location: parLocation
+  kind: 'StorageV2'
+
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource syncAppDataStorageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  name: 'default'
+  parent: syncAppDataStorageAccount
+  properties: {}
+}
+
+resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
+  name: 'ban-files'
+  parent: syncAppDataStorageAccountBlobServices
+  properties: {
+    publicAccess: 'Blob'
+  }
+}
+
+resource syncAppDataConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  name: '${syncAppDataStorageAccount.name}-connectionstring'
+  parent: keyVault
+
+  properties: {
+    contentType: 'text/plain'
+    value: 'DefaultEndpointsProtocol=https;AccountName=${syncAppDataStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(syncAppDataStorageAccount.id, syncAppDataStorageAccount.apiVersion).keys[0].value}'
+  }
+}
+
 resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
   name: '${apiManagement.name}-${varSyncFuncAppName}-subscription'
   parent: apiManagement
@@ -135,6 +169,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'xtremeidiots-forums-api-key'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-forums-api-key)'
+        }
+        {
+          name: 'appdata-storage-connectionstring'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${syncAppDataStorageAccount.name}-connectionstring)'
         }
       ]
     }

@@ -1,6 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity
-@using XI.Portal.Players.Constants
 @using XI.Portal.Web.Auth.Constants
 @using XI.Portal.Web.Constants
 @using XI.Portal.Web.Extensions
@@ -172,7 +171,7 @@
             <a asp-controller="Players" asp-action="Unclaimed">Unclaimed Bans</a>
         </li>
 
-        @foreach (var game in PlayersSupportedGames.Games)
+        @foreach (var game in new []{ GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency})
         {
             @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewPlayers)).Succeeded)
             {

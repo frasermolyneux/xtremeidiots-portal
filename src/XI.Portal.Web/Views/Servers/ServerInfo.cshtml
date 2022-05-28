@@ -143,9 +143,9 @@
                                 @foreach (var item in Model.LivePlayers.OrderByDescending(lp => lp.Score))
                                 {
                                     <tr>
-@*                                        <td>
+                                       <td>
                                             @Html.DisplayFor(model => item.Num)
-                                        </td>*@
+                                        </td>
                                         <td>
                                             @item.CountryCode.FlagImage()
                                             @Html.PlayerName(item.Name)

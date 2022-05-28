@@ -1,10 +1,13 @@
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Identity.Web;
 using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.ServersWebApi;
 using XtremeIdiots.Portal.ServersWebApi.Factories;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
 builder.Services.AddLogging();
 builder.Services.AddMemoryCache();
 builder.Services.AddApplicationInsightsTelemetry();

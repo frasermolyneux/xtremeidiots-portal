@@ -1,4 +1,5 @@
 ﻿using FM.GeoLocation.Client.Extensions;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -43,6 +44,7 @@ public class Startup : FunctionsStartup
                 };
         });
 
+        builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         builder.Services.AddLogging();
     }
 }

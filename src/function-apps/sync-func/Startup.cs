@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
 using XtremeIdiots.Portal.InvisionApiClient;
@@ -42,6 +43,7 @@ public class Startup : FunctionsStartup
             options.ConnectionString = config["appdata-storage-connectionstring"];
         });
 
+        builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         builder.Services.AddLogging();
     }
 }

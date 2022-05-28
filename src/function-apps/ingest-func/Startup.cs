@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+﻿using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using XtremeIdiots.Portal.IngestFunc;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -19,6 +20,7 @@ public class Startup : FunctionsStartup
             options.ApimSubscriptionKey = config["apim-subscription-key"];
         });
 
+        builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         builder.Services.AddLogging();
 
         builder.Services.AddMemoryCache();

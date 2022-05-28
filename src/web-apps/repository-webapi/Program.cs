@@ -1,9 +1,12 @@
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryWebApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
 builder.Services.AddLogging();
 builder.Services.AddMemoryCache();
 builder.Services.AddApplicationInsightsTelemetry();

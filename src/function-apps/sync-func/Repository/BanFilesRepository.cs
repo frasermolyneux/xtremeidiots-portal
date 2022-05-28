@@ -1,7 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.SyncFunc.Configuration;
 using XtremeIdiots.Portal.SyncFunc.Interfaces;
 
 namespace XtremeIdiots.Portal.SyncFunc.Repository
@@ -9,15 +11,21 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
     public class BanFilesRepository : IBanFilesRepository
     {
         private readonly ILogger<BanFilesRepository> _logger;
-        private readonly IBanFilesRepositoryOptions _options;
+        private readonly IOptions<BanFilesRepositoryOptions> _options;
         private readonly IRepositoryApiClient repositoryApiClient;
 
         public BanFilesRepository(
             ILogger<BanFilesRepository> logger,
-            IBanFilesRepositoryOptions options,
+            IOptions<BanFilesRepositoryOptions> options,
             IRepositoryApiClient repositoryApiClient
         )
         {
+            if (string.IsNullOrWhiteSpace(options.Value.ConnectionString))
+                throw new ArgumentNullException(nameof(options.Value.ConnectionString));
+
+            if (string.IsNullOrWhiteSpace(options.Value.ContainerName))
+                throw new ArgumentNullException(nameof(options.Value.ContainerName));
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
 
@@ -30,8 +38,8 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             _logger.LogInformation($"Regenerating ban file for {gameType} using blob key {blobKey}");
 
-            var blobServiceClient = new BlobServiceClient(_options.ConnectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(_options.ContainerName);
+            var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
 
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
@@ -59,8 +67,8 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             _logger.LogInformation($"Retrieving ban file size for {gameType} using blob key {blobKey}");
 
-            var blobServiceClient = new BlobServiceClient(_options.ConnectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(_options.ContainerName);
+            var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
 
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
@@ -91,8 +99,8 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
         private async Task<Stream> GetFileStream(string blobKey)
         {
-            var blobServiceClient = new BlobServiceClient(_options.ConnectionString);
-            var containerClient = blobServiceClient.GetBlobContainerClient(_options.ContainerName);
+            var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
+            var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
 
             await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 

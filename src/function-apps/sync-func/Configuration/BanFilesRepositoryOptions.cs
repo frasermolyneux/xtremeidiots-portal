@@ -1,10 +1,8 @@
-﻿using XtremeIdiots.Portal.SyncFunc.Interfaces;
-
-namespace XtremeIdiots.Portal.SyncFunc.Configuration
+﻿namespace XtremeIdiots.Portal.SyncFunc.Configuration
 {
-    internal class BanFilesRepositoryOptions : IBanFilesRepositoryOptions
+    public class BanFilesRepositoryOptions
     {
-        public string ConnectionString { get; set; }
-        public string ContainerName { get; set; } = "ban-files";
+        public string? ConnectionString { get; set; }
+        public string? ContainerName { get; set; } = "ban-files";
     }
 }

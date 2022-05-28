@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using XI.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
@@ -41,9 +38,11 @@ namespace XI.Portal.Web.Extensions
 
             foreach (var claim in claims)
             {
-                gameTypes.Add(Enum.Parse<GameType>(claim.Value));
+                if (Enum.TryParse(claim.Type, out GameType gameType))
+                    gameTypes.Add(Enum.Parse<GameType>(claim.Value));
 
-                if (Guid.TryParse(claim.Value, out var guid)) servers.Add(guid);
+                if (Guid.TryParse(claim.Value, out var guid))
+                    servers.Add(guid);
             }
 
             gameTypes = gameTypes.Distinct().OrderBy(g => g).ToList();

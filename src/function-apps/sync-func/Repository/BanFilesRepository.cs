@@ -1,6 +1,7 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Configuration;
 using XtremeIdiots.Portal.SyncFunc.Interfaces;
@@ -31,7 +32,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             this.repositoryApiClient = repositoryApiClient;
         }
 
-        public async Task RegenerateBanFileForGame(string gameType)
+        public async Task RegenerateBanFileForGame(GameType gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -42,7 +43,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, "ActiveBans", 0, 0, "CreatedAsc");
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, 0, 0, AdminActionOrder.CreatedAsc);
 
             var externalBansStream = await GetExternalBanFileForGame(gameType);
             externalBansStream.Seek(externalBansStream.Length, SeekOrigin.Begin);
@@ -58,7 +59,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             }
         }
 
-        public async Task<long> GetBanFileSizeForGame(string gameType)
+        public async Task<long> GetBanFileSizeForGame(GameType gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -74,7 +75,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             return 0;
         }
 
-        public async Task<Stream> GetBanFileForGame(string gameType)
+        public async Task<Stream> GetBanFileForGame(GameType gameType)
         {
             var blobKey = $"{gameType}-bans.txt";
 
@@ -83,7 +84,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             return await GetFileStream(blobKey);
         }
 
-        private async Task<Stream> GetExternalBanFileForGame(string gameType)
+        private async Task<Stream> GetExternalBanFileForGame(GameType gameType)
         {
             var blobKey = $"{gameType}-external.txt";
 

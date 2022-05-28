@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Helpers;
 using XtremeIdiots.Portal.SyncFunc.Interfaces;
@@ -64,7 +65,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                         gameServerDto.FtpUsername,
                         gameServerDto.FtpPassword);
 
-                    var banFileSize = await banFilesRepository.GetBanFileSizeForGame(gameServerDto.GameType.ToString());
+                    var banFileSize = await banFilesRepository.GetBanFileSizeForGame(gameServerDto.GameType);
 
                     if (remoteFileSize == null)
                     {
@@ -74,7 +75,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                         telemetry.Properties.Add("ServerName", gameServerDto.Title);
                         telemetryClient.TrackEvent(telemetry);
 
-                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType.ToString());
+                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType);
 
                         await ftpHelper.UpdateRemoteFileFromStream(
                             gameServerDto.FtpHostname,
@@ -120,7 +121,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                         telemetry.Properties.Add("ServerName", gameServerDto.Title);
                         telemetryClient.TrackEvent(telemetry);
 
-                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType.ToString());
+                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType);
 
                         await ftpHelper.UpdateRemoteFileFromStream(
                             gameServerDto.FtpHostname,
@@ -153,7 +154,7 @@ namespace XtremeIdiots.Portal.SyncFunc
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            foreach (var gameType in new string[] { "CallOfDuty2", "CallOfDuty4", "CallOfDuty5" })
+            foreach (var gameType in new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 })
                 try
                 {
                     await banFilesRepository.RegenerateBanFileForGame(gameType);

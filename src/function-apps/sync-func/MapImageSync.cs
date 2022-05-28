@@ -8,15 +8,18 @@ namespace XtremeIdiots.Portal.SyncFunc
 {
     public class MapImageSync
     {
-        public MapImageSync(IRepositoryApiClient repositoryApiClient)
+        private readonly ILogger<MapImageSync> logger;
+        private readonly IRepositoryApiClient repositoryApiClient;
+
+        public MapImageSync(
+            ILogger<MapImageSync> logger,
+            IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryApiClient = repositoryApiClient;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         }
 
-        public IRepositoryApiClient RepositoryApiClient { get; }
-
         [FunctionName("MapImageSync")]
-        // ReSharper disable once UnusedMember.Global
         public async Task RunMapImageSync([TimerTrigger("0 0 0 * * 3")] TimerInfo myTimer, ILogger log)
         {
             var gamesToSync = new Dictionary<GameType, string>
@@ -30,7 +33,14 @@ namespace XtremeIdiots.Portal.SyncFunc
 
             foreach (var game in gamesToSync)
             {
-                var mapsResponseDto = await RepositoryApiClient.Maps.GetMaps(game.Key, null, null, null, null, null);
+                var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(game.Key, null, null, null, null, null);
+
+                if (mapsResponseDto == null)
+                {
+                    logger.LogCritical($"Failed to retrieve maps from repository for game type '{game}'");
+                    continue;
+                }
+
                 var mapsToUpdate = mapsResponseDto.Entries.Where(m => string.IsNullOrWhiteSpace(m.MapImageUri)).ToList();
 
                 log.LogInformation($"Total maps retrieved from redirect for {game.Key} is {mapsResponseDto.Entries.Count} with {mapsToUpdate.Count} needing updating");
@@ -50,7 +60,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                             var filePath = Path.GetTempFileName();
                             client.DownloadFile(new Uri(gameTrackerImageUrl), filePath);
 
-                            await RepositoryApiClient.Maps.UpdateMapImage(mapDto.MapId, filePath);
+                            await repositoryApiClient.Maps.UpdateMapImage(mapDto.MapId, filePath);
                         }
                     }
                     catch (Exception ex)

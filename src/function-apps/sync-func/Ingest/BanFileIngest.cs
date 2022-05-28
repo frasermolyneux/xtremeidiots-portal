@@ -61,6 +61,9 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
 
                     player = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
 
+                    if (player == null)
+                        throw new Exception("Newly created player could not be retrieved from database");
+
                     var adminActionDto = new AdminActionDto
                     {
                         Type = AdminActionType.Ban
@@ -78,9 +81,9 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                 }
                 else
                 {
-                    var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, player.Id, null, "ActiveBans", 0, 0, null);
+                    var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, player.Id, null, AdminActionFilter.ActiveBans, 0, 0, null);
 
-                    if (adminActions.Count(aa => aa.Type == AdminActionType.Ban) == 0)
+                    if (adminActions?.Count(aa => aa.Type == AdminActionType.Ban) == 0)
                     {
                         _logger.LogInformation($"BanFileImport - adding import ban to existing player {player.Username} - {player.Guid} ({player.GameType})");
 
@@ -104,7 +107,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
             }
         }
 
-        private void ParseLine(string line, out string guid, out string name)
+        private void ParseLine(string line, out string? guid, out string? name)
         {
             try
             {

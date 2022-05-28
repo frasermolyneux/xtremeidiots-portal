@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -19,7 +16,7 @@ namespace XI.Portal.Web.Controllers
 
         public async Task<IActionResult> LatestAdminActions()
         {
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, "CreatedDesc");
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
 
             return View(adminActionDtos);
         }
@@ -27,7 +24,7 @@ namespace XI.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions()
         {
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, "CreatedDesc");
+            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
 
             var results = new List<dynamic>();
             foreach (var adminActionDto in adminActionDtos)

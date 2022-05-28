@@ -3,11 +3,6 @@ using FM.GeoLocation.Contract.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -197,7 +192,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> MyActions()
         {
 
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 0, "CreatedDesc");
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 0, AdminActionOrder.CreatedDesc);
 
             return View(adminActions);
         }
@@ -206,7 +201,7 @@ namespace XI.Portal.Web.Controllers
         public async Task<IActionResult> Unclaimed()
         {
 
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, "UnclaimedBans", 0, 0, "CreatedDesc");
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 0, AdminActionOrder.CreatedDesc);
 
             return View(adminActions);
         }

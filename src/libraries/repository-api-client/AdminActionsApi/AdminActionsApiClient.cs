@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi
@@ -13,12 +14,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi
         {
         }
 
-        public async Task<List<AdminActionDto>?> GetAdminActions(string gameType, Guid? playerId, string adminId, string filterType, int skipEntries, int takeEntries, string order)
+        public async Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filterType, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
             var request = await CreateRequest($"repository/admin-actions", Method.Get);
 
-            if (!string.IsNullOrWhiteSpace(gameType))
-                request.AddQueryParameter("gameType", gameType);
+            if (gameType != null)
+                request.AddQueryParameter("gameType", gameType.ToString());
 
             if (playerId != null)
                 request.AddQueryParameter("playerId", playerId.ToString());
@@ -26,14 +27,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi
             if (!string.IsNullOrWhiteSpace(adminId))
                 request.AddQueryParameter("adminId", adminId);
 
-            if (!string.IsNullOrWhiteSpace(filterType))
-                request.AddQueryParameter("filterType", filterType);
+            if (filterType != null)
+                request.AddQueryParameter("filterType", filterType.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
+            if (order != null)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 

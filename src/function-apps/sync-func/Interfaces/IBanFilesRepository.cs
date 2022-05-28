@@ -1,9 +1,11 @@
-﻿namespace XtremeIdiots.Portal.SyncFunc.Interfaces
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+
+namespace XtremeIdiots.Portal.SyncFunc.Interfaces
 {
     public interface IBanFilesRepository
     {
-        Task RegenerateBanFileForGame(string gameType);
-        Task<long> GetBanFileSizeForGame(string gameType);
-        Task<Stream> GetBanFileForGame(string gameType);
+        Task RegenerateBanFileForGame(GameType gameType);
+        Task<long> GetBanFileSizeForGame(GameType gameType);
+        Task<Stream> GetBanFileForGame(GameType gameType);
     }
 }

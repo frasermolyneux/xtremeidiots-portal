@@ -18,10 +18,10 @@ namespace XI.Portal.Web.Controllers
         private readonly IAuthorizationService _authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<UserController> _logger;
-        private readonly UserManager<PortalIdentityUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public UserController(
-            UserManager<PortalIdentityUser> userManager,
+            UserManager<IdentityUser> userManager,
             ILogger<UserController> logger,
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient)

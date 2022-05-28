@@ -1,11 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -17,13 +12,13 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
         private readonly IInvisionApiClient _forumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly ILogger<XtremeIdiotsAuth> _logger;
-        private readonly SignInManager<PortalIdentityUser> _signInManager;
-        private readonly UserManager<PortalIdentityUser> _userManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public XtremeIdiotsAuth(
             ILogger<XtremeIdiotsAuth> logger,
-            SignInManager<PortalIdentityUser> signInManager,
-            UserManager<PortalIdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
             IInvisionApiClient forumsClient,
             IRepositoryApiClient repositoryApiClient)
         {
@@ -101,6 +96,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
             var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
             await _userManager.AddClaimsAsync(user, claims);
             await _signInManager.SignInAsync(user, true);
+            await _signInManager.RefreshSignInAsync(user);
         }
 
         private async Task RegisterNewUser(ExternalLoginInfo info)
@@ -111,7 +107,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
 
             var member = await _forumsClient.Core.GetMember(id);
 
-            var user = new PortalIdentityUser { Id = id, UserName = username, Email = email };
+            var user = new IdentityUser { Id = id, UserName = username, Email = email };
             var createUserResult = await _userManager.CreateAsync(user);
             if (createUserResult.Succeeded)
             {
@@ -138,6 +134,7 @@ namespace XI.Portal.Web.Auth.XtremeIdiots
                     var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
                     await _userManager.AddClaimsAsync(user, claims);
                     await _signInManager.SignInAsync(user, true);
+                    await _signInManager.RefreshSignInAsync(user);
 
                     _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
                 }

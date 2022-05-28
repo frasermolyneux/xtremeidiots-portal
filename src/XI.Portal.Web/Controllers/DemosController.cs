@@ -1,14 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -24,16 +17,16 @@ namespace XI.Portal.Web.Controllers
     {
         private readonly IAuthorizationService _authorizationService;
         private readonly ILogger<DemosController> _logger;
-        private readonly SignInManager<PortalIdentityUser> _signInManager;
+        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IDemoManager _demosForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly UserManager<PortalIdentityUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public DemosController(
             ILogger<DemosController> logger,
             IAuthorizationService authorizationService,
-            UserManager<PortalIdentityUser> userManager,
-            SignInManager<PortalIdentityUser> signInManager,
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager,
             IDemoManager demosForumsClient,
             IRepositoryApiClient repositoryApiClient)
         {

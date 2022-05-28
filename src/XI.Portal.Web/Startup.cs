@@ -1,23 +1,14 @@
-using ElCamino.AspNetCore.Identity.AzureTable.Model;
 using FM.GeoLocation.Client.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
-using System.Security.Claims;
-using System.Text.Json;
-using XI.Portal.Web.Data;
+using Microsoft.EntityFrameworkCore;
+using XI.Portal.Web.Areas.Identity.Data;
 using XI.Portal.Web.Extensions;
-using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
-using IdentityRole = ElCamino.AspNetCore.Identity.AzureTable.Model.IdentityRole;
 
 namespace XI.Portal.Web
 {
@@ -32,87 +23,6 @@ namespace XI.Portal.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddApplicationInsightsTelemetry();
-
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-            services.AddIdentity<PortalIdentityUser, IdentityRole>(options =>
-                {
-                    options.User.RequireUniqueEmail = true;
-                    options.User.AllowedUserNameCharacters = string.Empty;
-                })
-                .AddAzureTableStores<ApplicationAuthDbContext>(() =>
-                {
-                    var config = new IdentityConfiguration
-                    {
-                        StorageConnectionString = Configuration["ApplicationAuthDbContext:StorageConnectionString"],
-                        LocationMode = "PrimaryOnly",
-                        IndexTableName = "AspNetIndex",
-                        RoleTableName = "AspNetRoles",
-                        UserTableName = "AspNetUsers",
-                        TablePrefix = ""
-                    };
-                    return config;
-                })
-                .AddDefaultTokenProviders()
-                .CreateAzureTablesIfNotExists<ApplicationAuthDbContext>();
-
-            services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });
-
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddOAuth("XtremeIdiots", options =>
-                {
-                    options.ClientId = Configuration["XtremeIdiotsAuth:ClientId"];
-                    options.ClientSecret = Configuration["XtremeIdiotsAuth:ClientSecret"];
-                    options.CallbackPath = new PathString("/signin-xtremeidiots");
-
-                    options.AuthorizationEndpoint = "https://www.xtremeidiots.com/oauth/authorize/";
-                    options.TokenEndpoint = "https://www.xtremeidiots.com/oauth/token/";
-                    options.UserInformationEndpoint = "https://www.xtremeidiots.com/api/core/me";
-
-                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-
-                    options.Scope.Add("profile");
-
-                    options.Events = new OAuthEvents
-                    {
-                        OnCreatingTicket = async context =>
-                        {
-                            var request =
-                                new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-                            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                            request.Headers.Authorization =
-                                new AuthenticationHeaderValue("Bearer", context.AccessToken);
-
-                            var response = await context.Backchannel.SendAsync(request,
-                                HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-                            response.EnsureSuccessStatusCode();
-
-                            var contentAsString = await response.Content.ReadAsStringAsync();
-                            var user = JsonDocument.Parse(contentAsString);
-
-                            context.RunClaimActions(user.RootElement);
-                        }
-                    };
-                });
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.AccessDeniedPath = "/Errors/Display/401";
-                options.Cookie.Name = "XIPortal";
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromDays(7);
-                options.LoginPath = "/Identity/Login";
-                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-                options.SlidingExpiration = true;
-            });
-
             services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
             services.AddLogging();
             services.AddApplicationInsightsTelemetry();
@@ -201,6 +111,12 @@ namespace XI.Portal.Web
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
             });
+
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var identityDataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
+                identityDataContext.Database.Migrate();
+            }
         }
     }
 }

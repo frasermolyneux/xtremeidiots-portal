@@ -2,7 +2,7 @@
 {
     internal static class HuffmanFrequencies
     {
-        public static readonly int[] Quake3 =
+        public readonly static int[] Quake3 =
         {
             250315, // 0
             41193, // 1
@@ -262,7 +262,7 @@
             13504 // 255
         };
 
-        public static readonly int[] CallOfDuty4 =
+        public readonly static int[] CallOfDuty4 =
         {
             274054,
             68777,

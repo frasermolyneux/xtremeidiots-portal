@@ -122,11 +122,9 @@ namespace XtremeIdiots.CodDemos.Models
         /// <summary>
         ///     Gets or sets the name of this instance.
         /// </summary>
-        public string Name
-        {
+        public string Name {
             get => System.IO.Path.GetFileNameWithoutExtension(Path);
-            set
-            {
+            set {
                 var newPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Path) ?? throw new InvalidOperationException(),
                     $"{value}{System.IO.Path.GetExtension(Path)}");
 

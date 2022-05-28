@@ -98,8 +98,7 @@ namespace XI.Portal.Web.Controllers
 
         public class HealthCheckResponse
         {
-            public bool IsHealthy
-            {
+            public bool IsHealthy {
                 get { return Components.All(c => c.IsHealthy); }
             }
 

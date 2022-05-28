@@ -35,9 +35,4 @@
     <Folder Include="wwwroot\images\service-icons\" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
-
 </Project>

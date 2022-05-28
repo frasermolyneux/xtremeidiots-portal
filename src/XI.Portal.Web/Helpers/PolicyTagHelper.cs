@@ -20,7 +20,7 @@ namespace XI.Portal.Web.Helpers
 
         public string Policy { get; set; }
 
-        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             if (!(await _authService.AuthorizeAsync(_principal, Policy)).Succeeded)
                 output.SuppressOutput();

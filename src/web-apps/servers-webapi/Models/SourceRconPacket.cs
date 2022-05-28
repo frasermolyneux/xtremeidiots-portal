@@ -13,8 +13,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Models
 
         public int Size // 32-bit little-endian Signed Integer
         {
-            get
-            {
+            get {
                 // 4 bytes for ID
                 // 4 bytes for Type
                 // At least 1 byte for Body (including null terminator)
@@ -29,10 +28,8 @@ namespace XtremeIdiots.Portal.ServersWebApi.Models
         public int Type { get; } // 32-bit little-endian Signed Integer
         public string Body { get; } // Null-terminated ASCII String
 
-        public byte[] PacketBytes
-        {
-            get
-            {
+        public byte[] PacketBytes {
+            get {
                 var size = BitConverter.GetBytes(Size);
                 var id = BitConverter.GetBytes(Id);
                 var type = BitConverter.GetBytes(Type);

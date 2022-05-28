@@ -51,8 +51,8 @@
         </row>
 
         @{
-            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp)).Succeeded;
-            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerRcon)).Succeeded;
+            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType, AuthPolicies.EditGameServerFtp)).Succeeded;
+            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType, AuthPolicies.EditGameServerRcon)).Succeeded;
         }
 
         @if (canEditFtpCredentials || canEditRconCredentials)

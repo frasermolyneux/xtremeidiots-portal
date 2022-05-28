@@ -39,7 +39,7 @@ namespace XI.Portal.Web.Areas.Identity
                     .AddOAuth("XtremeIdiots", options =>
                     {
                         options.ClientId = context.Configuration["xtremeidiots-auth-client-id"];
-                        options.ClientSecret = context.Configuration["XtremeIdiotsAuth:ClientSecret"];
+                        options.ClientSecret = context.Configuration["xtremeidiots-auth-client-secret"];
                         options.CallbackPath = new PathString("/signin-xtremeidiots");
 
                         options.AuthorizationEndpoint = "https://www.xtremeidiots.com/oauth/authorize/";

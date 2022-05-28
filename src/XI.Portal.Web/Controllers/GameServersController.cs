@@ -71,7 +71,7 @@ namespace XI.Portal.Web.Controllers
             gameServerDto.Hostname = model.Hostname;
             gameServerDto.QueryPort = model.QueryPort;
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
@@ -157,7 +157,7 @@ namespace XI.Portal.Web.Controllers
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServerFtp);
 
             if (!canEditGameServerFtp.Succeeded)
             {
@@ -209,7 +209,7 @@ namespace XI.Portal.Web.Controllers
                 gameServerDto.FtpPassword = model.FtpPassword;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
                 gameServerDto.RconPassword = model.RconPassword;

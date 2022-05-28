@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -111,6 +108,12 @@ namespace XI.Portal.Web.Auth.Handlers
 
             if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
+
+            if (context.Resource is GameType)
+            {
+                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, context.Resource.ToString()))
+                    context.Succeed(requirement);
+            }
         }
 
         private static void HandleEditGameServer(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
@@ -136,6 +139,12 @@ namespace XI.Portal.Web.Auth.Handlers
 
             if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
+
+            if (context.Resource is GameType)
+            {
+                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, context.Resource.ToString()))
+                    context.Succeed(requirement);
+            }
         }
 
         private static void HandleDeleteGameServer(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)

@@ -1,5 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -41,8 +40,6 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
 
-            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
-
             var blobClient = containerClient.GetBlobClient(blobKey);
 
             var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, "ActiveBans", 0, 0, "CreatedAsc");
@@ -69,8 +66,6 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
-
-            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 
@@ -101,8 +96,6 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
         {
             var blobServiceClient = new BlobServiceClient(_options.Value.ConnectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(_options.Value.ContainerName);
-
-            await containerClient.CreateIfNotExistsAsync(PublicAccessType.Blob);
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 

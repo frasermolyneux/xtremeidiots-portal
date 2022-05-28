@@ -84,8 +84,16 @@ stages:
 
 - stage: Build
   jobs:
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildAdminWebApp'
+      projectName: 'XI.Portal.Web'
+      nugetConfigPath: './src/nuget.config'
+      publishArtifact: true
+
   - template: templates/build-function-app.yml
     parameters: 
+      dependsOn: ['BuildAdminWebApp']
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
       publishArtifact: true
@@ -344,7 +352,7 @@ stages:
               parAppServicePlanName=$(appServicePlan) `
               parAppInsightsName=$(appInsights) `
               parApiManagementName=$(apiManagement) `
-              parServiceBusName=$(serviceBus)
+              parSqlServerName=$(sqlServerName)
 
   - job: DeployServersApiBicep
     dependsOn: ['DeployAdminWebAppBicep']
@@ -418,6 +426,15 @@ stages:
           arguments: '$(environment)'
           scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersWebApiPermissions.ps1'
 
+      - task: AzureCLI@2
+        displayName: SetAdminWebAppPermissions
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
+          scriptPath: '$(Build.sourcesDirectory)/scripts/SetAdminWebAppPermissions.ps1'
+
 - stage: DeployPrdAppsAndDatabase
 
   jobs:
@@ -476,5 +493,14 @@ stages:
       projectName: servers-webapi
       jobName: DeployServersWebApi
       webAppName: '$(serversWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-web-app.yml
+    parameters:
+      dependsOn: ['DeployServersWebApi']
+      projectName: XI.Portal.Web
+      jobName: DeployAdminWebApp
+      webAppName: '$(adminWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)

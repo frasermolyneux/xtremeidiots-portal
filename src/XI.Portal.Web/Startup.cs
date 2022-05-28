@@ -29,8 +29,8 @@ namespace XI.Portal.Web
 
             services.AddGeoLocationClient(options =>
             {
-                options.BaseUrl = Configuration["GeoLocation:BaseUrl"];
-                options.ApiKey = Configuration["GeoLocation:ApiKey"];
+                options.BaseUrl = Configuration["geolocation-baseurl"];
+                options.ApiKey = Configuration["geolocation-apikey"];
                 options.UseMemoryCache = true;
                 options.BubbleExceptions = false;
                 options.CacheEntryLifeInMinutes = 60;
@@ -42,8 +42,8 @@ namespace XI.Portal.Web
 
             services.AddInvisionApiClient(options =>
             {
-                options.BaseUrl = Configuration["XtremeIdiotsForums:BaseUrl"];
-                options.ApiKey = Configuration["XtremeIdiotsForums:ApiKey"];
+                options.BaseUrl = Configuration["xtremeidiots-forums-base-url"];
+                options.ApiKey = Configuration["xtremeidiots-forums-api-key"];
             });
 
             services.AddAdminActionTopics();
@@ -52,14 +52,14 @@ namespace XI.Portal.Web
 
             services.AddRepositoryApiClient(options =>
             {
-                options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
-                options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
+                options.ApimBaseUrl = Configuration["apim-base-url"];
+                options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
             });
 
             services.AddServersApiClient(options =>
             {
-                options.ApimBaseUrl = "https://apim-portal-prd-uksouth-01.azure-api.net";
-                options.ApimSubscriptionKey = Configuration["apimsubscriptionkey"];
+                options.ApimBaseUrl = Configuration["apim-base-url"];
+                options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
             });
 
             services.AddXtremeIdiotsAuth();
@@ -68,7 +68,7 @@ namespace XI.Portal.Web
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins("https://www.xtremeidiots.com")
+                    builder => builder.WithOrigins(Configuration["xtremeidiots-forums-base-url"])
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

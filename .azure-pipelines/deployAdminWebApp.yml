@@ -3,23 +3,29 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  environment: 'prd'
+  location: 'uksouth'
+  subscription: 'XI-Pay-As-You-Go'
+  resourceGroup: 'rg-portal-prd-uksouth-01'
+  keyVault: 'kv-portal-prd-uksouth-01'
+  appServicePlan: 'plan-portal-prd-uksouth-01'
+  appInsights: 'ai-portal-prd-uksouth-01'
+  apiManagement: 'apim-portal-prd-uksouth-01'
+  adminWebAppName: 'webapp-admin-portal-prd-uksouth-01'
+  sqlServerName: 'sql-portal-prd-uksouth-01'
+
 stages:
-#- stage: Build
-#  jobs:
-#  - template: templates/build-web-app.yml
-#    parameters: 
-#      jobName: 'BuildAdminWebApp'
-#      projectName: 'admin-webapp'
-#      nugetConfigPath: './src/nuget.config'
-#      publishArtifact: true
+- stage: Build
+  jobs:
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildAdminWebApp'
+      projectName: 'XI.Portal.Web'
+      nugetConfigPath: './src/nuget.config'
+      publishArtifact: true
 
 - stage: DeployAdminWebAppPrd
-
-  variables: 
-    environment: 'prd'
-    region: 'uksouth'
-    instance: '01'
-    AzSubscription: 'XI-Pay-As-You-Go'
 
   jobs:
 
@@ -31,15 +37,21 @@ stages:
         scriptType: 'pscore'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az deployment group create `
-          --resource-group 'rg-portal-prd-uksouth-01' `
-          --template-file bicep/adminWebApp.bicep  `
-          --parameters parLocation='uksouth' parEnvironment='prd' parKeyVaultName='kv-portal-prd-uksouth-01' parAppServicePlanName='plan-portal-prd-uksouth-01' parAppInsightsName='ai-portal-prd-uksouth-01' parApiManagementName='apim-portal-prd-uksouth-01'
+          az deployment group create --resource-group $(resourceGroup) `
+              --template-file bicep/adminWebApp.bicep  `
+              --parameters parLocation=$(location) `
+              parEnvironment=$(environment) `
+              parKeyVaultName=$(keyVault) `
+              parAppServicePlanName=$(appServicePlan) `
+              parAppInsightsName=$(appInsights) `
+              parApiManagementName=$(apiManagement) `
+              parSqlServerName=$(sqlServerName)
 
-  #- template: templates/deploy-web-app.yml
-  #  parameters:
-  #    projectName: repository-webapi
-  #    jobName: DeployRepositoryWebApp
-  #    webAppName: 'webapi-repository-portal-$(environment)-$(region)-$(instance)'
-  #    webAppNameResourceGroup: 'rg-portal-$(environment)-$(region)-$(instance)'
-  #    environmentServiceNameAzureRM: 'XI-Pay-As-You-Go'
+  - template: templates/deploy-web-app.yml
+    parameters:
+      dependsOn: ['DeployAdminWebAppBicep']
+      projectName: XI.Portal.Web
+      jobName: DeployAdminWebApp
+      webAppName: '$(adminWebAppName)'
+      webAppNameResourceGroup: '$(resourceGroup)'
+      environmentServiceNameAzureRM: $(subscription)

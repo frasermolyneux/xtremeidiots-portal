@@ -16,5 +16,6 @@
         public static string RconMonitor => nameof(RconMonitor);
         public static string ServerAdmin => nameof(ServerAdmin);
         public static string LiveRcon => nameof(LiveRcon);
+        public static string TimeZone => nameof(TimeZone);
     }
 }

@@ -103,6 +103,12 @@ namespace XtremeIdiots.Portal.SyncFunc
                     ClaimType = UserProfileClaimType.PhotoUrl,
                     ClaimValue = member.PhotoUrl,
                     SystemGenerated = true
+                },
+                new UserProfileClaimDto
+                {
+                    ClaimType = UserProfileClaimType.TimeZone,
+                    ClaimValue = member.TimeZone,
+                    SystemGenerated = true
                 }
             };
 

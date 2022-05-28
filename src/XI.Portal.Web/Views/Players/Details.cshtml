@@ -64,7 +64,7 @@
                             </li>
                             <li class="list-group-item">
                                 <span class="pull-right">
-                                    <i class="fa fa-clock-o"></i> @Model.Player.LastSeen
+                                    <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, Model.Player.LastSeen)
                                 </span>
                                 Last Seen
                             </li>

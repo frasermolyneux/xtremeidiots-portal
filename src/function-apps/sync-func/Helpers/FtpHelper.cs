@@ -25,6 +25,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             try
             {
                 client = new FtpClient(hostname, port, username, password);
+                client.ValidateAnyCertificate = true;
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
@@ -58,6 +59,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             try
             {
                 client = new FtpClient(hostname, port, username, password);
+                client.ValidateAnyCertificate = true;
                 await client.ConnectAsync();
 
                 if (await client.FileExistsAsync(filePath))
@@ -91,6 +93,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             try
             {
                 client = new FtpClient(hostname, port, username, password);
+                client.ValidateAnyCertificate = true;
                 await client.ConnectAsync();
 
                 using (var stream = new MemoryStream())
@@ -130,6 +133,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             try
             {
                 client = new FtpClient(hostname, port, username, password);
+                client.ValidateAnyCertificate = true;
                 await client.ConnectAsync();
                 data.Seek(0, SeekOrigin.Begin);
                 await client.UploadAsync(data, filePath);

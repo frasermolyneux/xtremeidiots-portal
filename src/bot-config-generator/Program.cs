@@ -70,12 +70,13 @@ public class ConfigGeneratorService : IHostedService
             var scheduledTask = File.ReadAllText(@"templates\gameType_serverId.xml");
             var pluginPortal = File.ReadAllText(@"templates\plugin_portal_gameType_serverId.ini");
 
-            if (gameServerDto.FtpHostname.Contains("nfo"))
+            if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname))
             {
                 FtpClient? ftpClient = null;
                 try
                 {
                     ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                    ftpClient.ValidateAnyCertificate = true;
                     ftpClient.AutoConnect();
 
                     ftpClient.SetWorkingDirectory(gameServerDto.LiveMod);

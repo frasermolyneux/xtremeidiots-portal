@@ -57,6 +57,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         try
                         {
                             ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                            ftpClient.ValidateAnyCertificate = true;
                             ftpClient.AutoConnect();
 
                             if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))
@@ -88,6 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             try
                             {
                                 ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                                ftpClient.ValidateAnyCertificate = true;
                                 ftpClient.AutoConnect();
 
                                 if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))

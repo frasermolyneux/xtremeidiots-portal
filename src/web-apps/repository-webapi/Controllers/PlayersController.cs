@@ -14,20 +14,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class PlayersController : ControllerBase
 {
-    public PlayersController(ILogger<PlayersController> log, PortalDbContext context)
-    {
-        Log = log ?? throw new ArgumentNullException(nameof(log));
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ILogger<PlayersController> logger;
+    private readonly PortalDbContext context;
 
-    public PortalDbContext Context { get; }
-    public ILogger<PlayersController> Log { get; }
+    public PlayersController(
+        ILogger<PlayersController> logger,
+        PortalDbContext context)
+    {
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
+    }
 
     [HttpGet]
     [Route("api/players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId)
     {
-        var player = await Context.Players.SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null) return new NotFoundResult();
 
@@ -49,7 +51,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/aliases")]
     public async Task<IActionResult> GetPlayerAliases(Guid playerId)
     {
-        var player = await Context.Players
+        var player = await context.Players
             .Include(p => p.PlayerAliases)
             .SingleAsync(p => p.PlayerId == playerId);
 
@@ -67,7 +69,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/ip-addresses")]
     public async Task<IActionResult> GetPlayerIpAddresses(Guid playerId)
     {
-        var player = await Context.Players
+        var player = await context.Players
             .Include(p => p.PlayerIpAddresses)
             .SingleAsync(p => p.PlayerId == playerId);
 
@@ -85,7 +87,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/related-players")]
     public async Task<IActionResult> GetRelatedPlayers(Guid playerId, string ipAddress)
     {
-        var playerIpAddresses = await Context.PlayerIpAddresses.Include(ip => ip.PlayerPlayer)
+        var playerIpAddresses = await context.PlayerIpAddresses.Include(ip => ip.PlayerPlayer)
             .Where(ip => ip.Address == ipAddress && ip.PlayerPlayerId != playerId)
             .ToListAsync();
 
@@ -104,7 +106,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
     public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string playerGuid)
     {
-        var player = await Context.Players.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
+        var player = await context.Players.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
 
         if (player == null) return new NotFoundResult();
 
@@ -137,14 +139,15 @@ public class PlayersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (playerDtos == null) return new BadRequestResult();
 
         foreach (var player in playerDtos)
         {
-            var existingPlayer = await Context.Players.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
+            var existingPlayer = await context.Players.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
 
             if (existingPlayer != null) return new ConflictObjectResult(existingPlayer);
 
@@ -184,10 +187,10 @@ public class PlayersController : ControllerBase
                 }
             };
 
-            await Context.Players.AddAsync(player2);
+            await context.Players.AddAsync(player2);
         }
 
-        await Context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return new OkObjectResult(playerDtos);
     }
@@ -207,7 +210,8 @@ public class PlayersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (playerDto == null) return new BadRequestResult();
@@ -215,7 +219,7 @@ public class PlayersController : ControllerBase
 
         playerDto.Username = playerDto.Username.Trim();
 
-        var player = await Context.Players
+        var player = await context.Players
                 .Include(p => p.PlayerAliases)
                 .Include(p => p.PlayerIpAddresses)
                 .SingleOrDefaultAsync(p => p.PlayerId == playerDto.Id);
@@ -243,7 +247,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerAliases.Add(new PlayerAlias
+                    context.PlayerAliases.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
                         Name = player.Username,
@@ -260,7 +264,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerAliases.Add(new PlayerAlias
+                    context.PlayerAliases.Add(new PlayerAlias
                     {
                         PlayerAliasId = Guid.NewGuid(),
                         Name = playerDto.Username,
@@ -288,7 +292,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerIpAddresses.Add(new PlayerIpAddress
+                    context.PlayerIpAddresses.Add(new PlayerIpAddress
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
                         Address = player.IpAddress,
@@ -305,7 +309,7 @@ public class PlayersController : ControllerBase
                 }
                 else
                 {
-                    Context.PlayerIpAddresses.Add(new PlayerIpAddress
+                    context.PlayerIpAddresses.Add(new PlayerIpAddress
                     {
                         PlayerIpAddressId = Guid.NewGuid(),
                         Address = player.IpAddress,
@@ -326,7 +330,7 @@ public class PlayersController : ControllerBase
 
             player.LastSeen = DateTime.UtcNow;
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         return new OkObjectResult(new PlayerDto
@@ -359,7 +363,7 @@ public class PlayersController : ControllerBase
         if (filterString == null)
             filterString = string.Empty;
 
-        var query = Context.Players.AsQueryable();
+        var query = context.Players.AsQueryable();
         query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
         var totalCount = await query.CountAsync();
 
@@ -458,7 +462,7 @@ public class PlayersController : ControllerBase
     [Route("api/players/{playerId}/admin-actions")]
     public async Task<IActionResult> GetAdminActionsForPlayer(Guid playerId)
     {
-        var results = await Context.AdminActions
+        var results = await context.AdminActions
             .Include(aa => aa.PlayerPlayer)
             .Include(aa => aa.UserProfile)
             .Where(aa => aa.PlayerPlayerId == playerId)
@@ -484,18 +488,19 @@ public class PlayersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (adminActionDto == null) return new BadRequestResult();
         if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
 
-        var player = await Context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
+        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
 
         UserProfile admin = null;
         if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
         {
-            admin = await Context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
+            admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
         }
 
         var adminAction = new AdminAction
@@ -509,8 +514,8 @@ public class PlayersController : ControllerBase
             ForumTopicId = adminActionDto.ForumTopicId
         };
 
-        Context.AdminActions.Add(adminAction);
-        await Context.SaveChangesAsync();
+        context.AdminActions.Add(adminAction);
+        await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
     }
@@ -530,13 +535,14 @@ public class PlayersController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (adminActionDto == null) return new BadRequestResult();
         if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
 
-        var adminAction = await Context.AdminActions.SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionDto.AdminActionId);
+        var adminAction = await context.AdminActions.SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionDto.AdminActionId);
 
         if (adminAction == null)
             throw new NullReferenceException(nameof(adminAction));
@@ -550,7 +556,7 @@ public class PlayersController : ControllerBase
                 adminAction.UserProfile = null;
             else
             {
-                var admin = await Context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
+                var admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
 
                 if (admin == null)
                     throw new NullReferenceException(nameof(admin));
@@ -562,7 +568,7 @@ public class PlayersController : ControllerBase
         if (adminActionDto.ForumTopicId != 0)
             adminAction.ForumTopicId = adminActionDto.ForumTopicId;
 
-        await Context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
     }

@@ -13,18 +13,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class BanFileMonitorsController : Controller
     {
-        public BanFileMonitorsController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<BanFileMonitorsController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public BanFileMonitorsController(
+            ILogger<BanFileMonitorsController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpGet]
         [Route("api/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> GetBanFileMonitor(Guid banFileMonitorId)
         {
-            var banFileMonitor = await Context.BanFileMonitors
+            var banFileMonitor = await context.BanFileMonitors
                 .Include(bfm => bfm.GameServerServer)
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
 
@@ -41,7 +45,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (order == null)
                 order = BanFileMonitorOrder.BannerServerListPosition;
 
-            var query = Context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
+            var query = context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
 
             if (serverId != null)
             {
@@ -99,13 +103,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (banFileMonitorDto == null) return new BadRequestResult();
             if (banFileMonitorDto.BanFileMonitorId != banFileMonitorId) return new BadRequestResult();
 
-            var banFileMonitor = await Context.BanFileMonitors.Include(bfm => bfm.GameServerServer).SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
+            var banFileMonitor = await context.BanFileMonitors.Include(bfm => bfm.GameServerServer).SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
 
             if (banFileMonitor == null)
                 return NotFound();
@@ -114,7 +119,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             banFileMonitor.RemoteFileSize = banFileMonitorDto.RemoteFileSize;
             banFileMonitor.LastSync = banFileMonitorDto.LastSync;
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new OkObjectResult(banFileMonitor.ToDto());
         }
@@ -123,14 +128,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> DeleteBanFileMonitor(Guid banFileMonitorId)
         {
-            var banFileMonitor = await Context.BanFileMonitors
+            var banFileMonitor = await context.BanFileMonitors
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
 
             if (banFileMonitor == null)
                 return NotFound();
 
-            Context.Remove(banFileMonitor);
-            await Context.SaveChangesAsync();
+            context.Remove(banFileMonitor);
+            await context.SaveChangesAsync();
 
             return new OkResult();
         }

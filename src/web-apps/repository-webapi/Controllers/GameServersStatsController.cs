@@ -12,12 +12,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class GameServersStatsController : Controller
     {
-        public GameServersStatsController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<GameServersStatsController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public GameServersStatsController(
+            ILogger<GameServersStatsController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpPost]
         [Route("api/game-servers-stats")]
@@ -32,7 +36,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (gameServerStatDtos == null || !gameServerStatDtos.Any())
@@ -42,7 +47,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             foreach (var gameServerStatDto in gameServerStatDtos)
             {
-                var lastStat = await Context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).OrderBy(gss => gss.Timestamp).LastOrDefaultAsync();
+                var lastStat = await context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).OrderBy(gss => gss.Timestamp).LastOrDefaultAsync();
 
                 if (lastStat == null || lastStat.PlayerCount != gameServerStatDto.PlayerCount || lastStat.MapName != gameServerStatDto.MapName)
                 {
@@ -56,8 +61,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 }
             }
 
-            await Context.GameServerStats.AddRangeAsync(gameServerStats);
-            await Context.SaveChangesAsync();
+            await context.GameServerStats.AddRangeAsync(gameServerStats);
+            await context.SaveChangesAsync();
 
             var result = gameServerStats.Select(gss => gss.ToDto());
 
@@ -68,7 +73,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/game-servers-stats/{serverId}")]
         public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime cutoff)
         {
-            var gameServerStats = await Context.GameServerStats
+            var gameServerStats = await context.GameServerStats
                 .Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff)
                 .OrderByDescending(gss => gss.Timestamp)
                 .ToListAsync();

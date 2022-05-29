@@ -13,12 +13,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class LivePlayersController : Controller
     {
-        public LivePlayersController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<LivePlayersController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public LivePlayersController(
+            ILogger<LivePlayersController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpGet]
         [Route("/api/live-players")]
@@ -27,7 +31,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (gameType == null)
                 gameType = GameType.Unknown;
 
-            var query = Context.LivePlayers.AsQueryable();
+            var query = context.LivePlayers.AsQueryable();
             query = ApplySearchFilter(query, (GameType)gameType, null, null);
             var totalCount = await query.CountAsync();
 
@@ -62,13 +66,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (livePlayerDtos == null)
                 return new BadRequestResult();
 
-            await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");
+            await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");
 
             var livePlayers = livePlayerDtos.Select(livePlayerDto => new LivePlayer
             {
@@ -87,8 +92,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 GameServerServerId = livePlayerDto.GameServerServerId
             });
 
-            await Context.LivePlayers.AddRangeAsync(livePlayers);
-            await Context.SaveChangesAsync();
+            await context.LivePlayers.AddRangeAsync(livePlayers);
+            await context.SaveChangesAsync();
 
             var result = livePlayers.Select(lp => lp.ToDto());
 
@@ -108,7 +113,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (livePlayerDtos == null || !livePlayerDtos.Any())
@@ -116,7 +122,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var livePlayerIds = livePlayerDtos.Select(lp => lp.Id).ToArray();
 
-            var livePlayers = await Context.LivePlayers.Where(lp => livePlayerIds.Contains(lp.Id)).ToListAsync();
+            var livePlayers = await context.LivePlayers.Where(lp => livePlayerIds.Contains(lp.Id)).ToListAsync();
             foreach (var livePlayerDto in livePlayerDtos)
             {
                 var livePlayer = livePlayers.SingleOrDefault(lp => lp.Id == livePlayerDto.Id);
@@ -138,7 +144,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 livePlayer.GameServerServerId = livePlayerDto.GameServerServerId;
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             var result = livePlayers.Select(lp => lp.ToDto());
 

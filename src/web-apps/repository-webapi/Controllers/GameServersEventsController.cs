@@ -10,12 +10,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersEventsController : ControllerBase
 {
-    public GameServersEventsController(PortalDbContext context)
-    {
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ILogger<GameServersEventsController> logger;
+    private readonly PortalDbContext context;
 
-    public PortalDbContext Context { get; }
+    public GameServersEventsController(
+        ILogger<GameServersEventsController> logger,
+        PortalDbContext context)
+    {
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
+    }
 
     [HttpPost]
     [Route("api/game-servers/{serverId}/event")]
@@ -32,7 +36,8 @@ public class GameServersEventsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (gameServerEvent == null) return new BadRequestResult();

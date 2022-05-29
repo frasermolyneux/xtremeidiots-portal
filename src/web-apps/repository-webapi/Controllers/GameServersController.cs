@@ -13,18 +13,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersController : Controller
 {
-    public GameServersController(PortalDbContext context)
-    {
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ILogger<GameServersController> logger;
+    private readonly PortalDbContext context;
 
-    public PortalDbContext Context { get; }
+    public GameServersController(
+        ILogger<GameServersController> logger,
+        PortalDbContext context)
+    {
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
+    }
 
     [HttpGet]
     [Route("api/game-servers")]
     public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
     {
-        var query = Context.GameServers.AsQueryable();
+        var query = context.GameServers.AsQueryable();
 
         if (order == null)
             order = GameServerOrder.BannerServerListPosition;
@@ -88,7 +92,7 @@ public class GameServersController : Controller
         if (serverId == null)
             return new BadRequestResult();
 
-        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
         if (gameServer == null)
             return new NotFoundResult();
@@ -113,14 +117,15 @@ public class GameServersController : Controller
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (gameServers == null) return new BadRequestResult();
 
         foreach (var gameServer in gameServers)
         {
-            var existingGameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServer.Id);
+            var existingGameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServer.Id);
             if (existingGameServer != null) return new ConflictObjectResult(existingGameServer);
 
             if (string.IsNullOrWhiteSpace(gameServer.Title)) gameServer.Title = "to-be-updated";
@@ -150,13 +155,14 @@ public class GameServersController : Controller
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (gameServerDto == null) return new BadRequestResult();
         if (gameServerDto.Id != serverId) return new BadRequestResult();
 
-        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
         if (gameServer == null) return new NotFoundResult();
 
@@ -181,7 +187,7 @@ public class GameServersController : Controller
         gameServer.ShowChatLog = gameServerDto.ShowChatLog;
         gameServer.RconPassword = gameServerDto.RconPassword;
 
-        await Context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return new OkObjectResult(gameServer.ToDto());
     }
@@ -202,12 +208,13 @@ public class GameServersController : Controller
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (banFileMonitorDto == null) return new BadRequestResult();
 
-        var server = await Context.GameServers.SingleOrDefaultAsync(s => s.ServerId == serverId);
+        var server = await context.GameServers.SingleOrDefaultAsync(s => s.ServerId == serverId);
 
         if (server == null)
             throw new NullReferenceException(nameof(server));
@@ -222,8 +229,8 @@ public class GameServersController : Controller
             GameServerServer = server
         };
 
-        Context.BanFileMonitors.Add(banFileMonitor);
-        await Context.SaveChangesAsync();
+        context.BanFileMonitors.Add(banFileMonitor);
+        await context.SaveChangesAsync();
 
         var result = banFileMonitor.ToDto();
 
@@ -237,20 +244,20 @@ public class GameServersController : Controller
         if (serverId == null)
             return new BadRequestResult();
 
-        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
         if (gameServer == null)
             return new NotFoundResult();
 
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
-        await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.LivePlayers)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
 
-        Context.GameServers.Remove(gameServer);
+        context.GameServers.Remove(gameServer);
 
-        await Context.SaveChangesAsync();
+        await context.SaveChangesAsync();
 
         return new OkResult();
     }

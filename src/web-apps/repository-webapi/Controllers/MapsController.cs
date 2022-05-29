@@ -14,14 +14,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class MapsController : Controller
     {
-        public MapsController(ILogger<MapsController> logger, PortalDbContext context)
-        {
-            Logger = logger;
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<MapsController> logger;
+        private readonly PortalDbContext context;
 
-        public ILogger<MapsController> Logger { get; }
-        public PortalDbContext Context { get; }
+        public MapsController(
+            ILogger<MapsController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpPost]
         [Route("api/maps")]
@@ -36,7 +38,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (mapDtos == null || mapDtos.Count == 0)
@@ -49,12 +52,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 MapFiles = JsonConvert.SerializeObject(mapDto.MapFiles),
             });
 
-            var conflict = maps.Any(m => Context.Maps.Any(mm => mm.GameType == m.GameType && mm.MapName == m.MapName));
+            var conflict = maps.Any(m => context.Maps.Any(mm => mm.GameType == m.GameType && mm.MapName == m.MapName));
             if (conflict)
                 return new ConflictResult();
 
-            await Context.Maps.AddRangeAsync(maps);
-            await Context.SaveChangesAsync();
+            await context.Maps.AddRangeAsync(maps);
+            await context.SaveChangesAsync();
 
             var result = maps.Select(m => m.ToDto());
 
@@ -65,14 +68,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/maps/{mapId}")]
         public async Task<IActionResult> DeleteMap(Guid mapId)
         {
-            var map = await Context.Maps
+            var map = await context.Maps
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
                 return NotFound();
 
-            Context.Remove(map);
-            await Context.SaveChangesAsync();
+            context.Remove(map);
+            await context.SaveChangesAsync();
 
             return new OkResult();
         }
@@ -81,7 +84,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("/api/maps/{mapId}")]
         public async Task<IActionResult> GetMap(Guid mapId)
         {
-            var map = await Context.Maps
+            var map = await context.Maps
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
@@ -94,7 +97,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("/api/maps/{gameType}/{mapName}")]
         public async Task<IActionResult> GetMap(GameType gameType, string mapName)
         {
-            var map = await Context.Maps
+            var map = await context.Maps
                 .SingleOrDefaultAsync(m => m.GameType == gameType.ToGameTypeInt() && m.MapName == mapName);
 
             if (map == null)
@@ -129,7 +132,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 mapNamesFilter = split.Select(mn => mn.Trim()).ToArray();
             }
 
-            var query = Context.Maps.AsQueryable();
+            var query = context.Maps.AsQueryable();
             query = ApplySearchFilter(query, (GameType)gameType, null, null);
             var totalCount = await query.CountAsync();
 
@@ -164,7 +167,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (mapDtos == null || mapDtos.Count == 0)
@@ -172,7 +176,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var mapIds = mapDtos.Select(m => m.MapId).ToArray();
 
-            var maps = await Context.Maps.Where(m => mapIds.Contains(m.MapId)).ToListAsync();
+            var maps = await context.Maps.Where(m => mapIds.Contains(m.MapId)).ToListAsync();
             foreach (var mapDto in mapDtos)
             {
                 var map = maps.SingleOrDefault(m => m.MapId == mapDto.MapId);
@@ -183,7 +187,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 map.MapFiles = JsonConvert.SerializeObject(mapDto.MapFiles);
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             var result = maps.Select(m => m.ToDto());
 
@@ -194,7 +198,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/maps/popularity")]
         public async Task<IActionResult> RebuildMapPopularity()
         {
-            var maps = await Context.Maps.Include(m => m.MapVotes).ToListAsync();
+            var maps = await context.Maps.Include(m => m.MapVotes).ToListAsync();
 
             foreach (var map in maps)
             {
@@ -214,7 +218,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 }
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return new OkResult();
         }
 
@@ -222,7 +226,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("/api/maps/{mapId}/popularity/{playerId}")]
         public async Task<IActionResult> UpsertMapVote(Guid mapId, Guid playerId, bool like, DateTime? overrideCreated)
         {
-            var mapVote = await Context.MapVotes
+            var mapVote = await context.MapVotes
                 .SingleOrDefaultAsync(mv => mv.MapMapId == mapId && mv.PlayerPlayerId == playerId);
 
             if (mapVote == null)
@@ -238,7 +242,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 if (overrideCreated != null)
                     mapVoteToAdd.Timestamp = (DateTime)overrideCreated;
 
-                Context.MapVotes.Add(mapVoteToAdd);
+                context.MapVotes.Add(mapVoteToAdd);
             }
             else
             {
@@ -252,7 +256,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     mapVote.Timestamp = (DateTime)overrideCreated;
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new OkResult();
         }
@@ -261,7 +265,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("/api/maps/{mapId}/image")]
         public async Task<IActionResult> UpdateMapImage(Guid mapId)
         {
-            var map = await Context.Maps
+            var map = await context.Maps
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
@@ -292,7 +296,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             map.MapImageUri = blobClient.Uri.ToString();
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new OkResult();
         }

@@ -12,18 +12,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class DemosAuthController : Controller
     {
-        public DemosAuthController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<DemosAuthController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public DemosAuthController(
+            ILogger<DemosAuthController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpGet]
         [Route("api/demos-auth/{userId}")]
         public async Task<IActionResult> GetDemoAuthKeyByUserId(string userId)
         {
-            var demoAuthKey = await Context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.UserId == userId);
+            var demoAuthKey = await context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.UserId == userId);
 
             if (demoAuthKey == null)
                 return NotFound();
@@ -37,7 +41,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/demos-auth/by-auth-key/{authKey}")]
         public async Task<IActionResult> GetDemoAuthKeyByAuthKey(string authKey)
         {
-            var demoAuthKey = await Context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.AuthKey == authKey);
+            var demoAuthKey = await context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.AuthKey == authKey);
 
             if (demoAuthKey == null)
                 return NotFound();
@@ -60,7 +64,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (demoAuthDtos == null || demoAuthDtos.Count == 0)
@@ -74,8 +79,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 LastActivity = demoAuthDto.LastActivity
             });
 
-            await Context.DemoAuthKeys.AddRangeAsync(demoAuthKeys);
-            await Context.SaveChangesAsync();
+            await context.DemoAuthKeys.AddRangeAsync(demoAuthKeys);
+            await context.SaveChangesAsync();
 
             var dtos = demoAuthKeys.Select(dak => dak.ToDto());
 
@@ -95,7 +100,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (demoAuthDtos == null || demoAuthDtos.Count == 0)
@@ -103,7 +109,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var userIds = demoAuthDtos.Select(dak => dak.UserId).ToArray();
 
-            var demoAuthKeys = await Context.DemoAuthKeys.Where(dak => userIds.Contains(dak.UserId)).ToListAsync();
+            var demoAuthKeys = await context.DemoAuthKeys.Where(dak => userIds.Contains(dak.UserId)).ToListAsync();
             foreach (var demoAuthDto in demoAuthDtos)
             {
                 var demoAuthKey = demoAuthKeys.SingleOrDefault(dak => dak.UserId == demoAuthDto.UserId);
@@ -115,7 +121,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 demoAuthKey.LastActivity = DateTime.UtcNow;
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             var dtos = demoAuthKeys.Select(dak => dak.ToDto());
 

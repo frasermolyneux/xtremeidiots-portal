@@ -12,12 +12,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class UserProfileController : Controller
     {
-        public UserProfileController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<UserProfileController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public UserProfileController(
+            ILogger<UserProfileController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpGet]
         [Route("api/user-profile")]
@@ -29,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (takeEntries == null)
                 takeEntries = 10;
 
-            var query = Context.UserProfiles.AsQueryable();
+            var query = context.UserProfiles.AsQueryable();
             query = ApplyFilter(query, filterString);
             var totalCount = await query.CountAsync();
 
@@ -72,7 +76,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/user-profile/{id}")]
         public async Task<IActionResult> GetUserProfile(Guid id)
         {
-            var userProfile = await Context.UserProfiles
+            var userProfile = await context.UserProfiles
                 .SingleOrDefaultAsync(up => up.Id == id);
 
             if (userProfile == null)
@@ -85,7 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/user-profile/by-identity-id/{identityId}")]
         public async Task<IActionResult> GetUserProfileByIdentityId(string identityId)
         {
-            var userProfile = await Context.UserProfiles
+            var userProfile = await context.UserProfiles
                 .SingleOrDefaultAsync(up => up.IdentityOid == identityId);
 
             if (userProfile == null)
@@ -98,7 +102,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/user-profile/by-xtremeidiots-id/{xtremeidiotsId}")]
         public async Task<IActionResult> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId)
         {
-            var userProfile = await Context.UserProfiles
+            var userProfile = await context.UserProfiles
                 .SingleOrDefaultAsync(up => up.XtremeIdiotsForumId == xtremeIdiotsId);
 
             if (userProfile == null)
@@ -120,7 +124,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (userProfileDtos == null || userProfileDtos.Count == 0)
@@ -132,8 +137,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 XtremeIdiotsForumId = up.XtremeIdiotsForumId
             });
 
-            await Context.UserProfiles.AddRangeAsync(userProfiles);
-            await Context.SaveChangesAsync();
+            await context.UserProfiles.AddRangeAsync(userProfiles);
+            await context.SaveChangesAsync();
 
             var result = userProfiles.Select(up => up.ToDto());
 
@@ -153,7 +158,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (userProfileDtos == null || userProfileDtos.Count == 0)
@@ -161,7 +167,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var userProfileIds = userProfileDtos.Select(up => up.Id).ToArray();
 
-            var userProfiles = await Context.UserProfiles.Where(up => userProfileIds.Contains(up.Id)).ToListAsync();
+            var userProfiles = await context.UserProfiles.Where(up => userProfileIds.Contains(up.Id)).ToListAsync();
             foreach (var userProfileDto in userProfileDtos)
             {
                 var userProfile = userProfiles.SingleOrDefault(up => up.Id == userProfileDto.Id);
@@ -181,7 +187,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 userProfile.TimeZone = userProfileDto.TimeZone;
             }
 
-            await Context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             var result = userProfiles.Select(up => up.ToDto());
 
@@ -192,7 +198,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/user-profile/{id}/claims")]
         public async Task<IActionResult> GetUserProfileClaims(Guid id)
         {
-            var userProfileClaims = await Context.UserProfileClaims
+            var userProfileClaims = await context.UserProfileClaims
                 .Where(upc => upc.UserProfileId == id).ToListAsync();
 
             var result = userProfileClaims.Select(upc => upc.ToDto());
@@ -213,13 +219,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
             if (userProfileClaimDtos == null)
                 return new BadRequestResult();
 
-            await Context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(Context.UserProfileClaims)}] WHERE [UserProfileId] = '{id}'");
+            await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.UserProfileClaims)}] WHERE [UserProfileId] = '{id}'");
 
             var userProfileClaims = userProfileClaimDtos.Select(upc => new UserProfileClaim
             {
@@ -229,8 +236,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 ClaimValue = upc.ClaimValue
             }).ToList();
 
-            await Context.UserProfileClaims.AddRangeAsync(userProfileClaims);
-            await Context.SaveChangesAsync();
+            await context.UserProfileClaims.AddRangeAsync(userProfileClaims);
+            await context.SaveChangesAsync();
 
             var result = userProfileClaims.Select(upc => upc.ToDto());
 

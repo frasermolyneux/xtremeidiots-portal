@@ -13,20 +13,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class ChatMessagesController : ControllerBase
 {
-    public ChatMessagesController(ILogger<ChatMessagesController> logger, PortalDbContext context)
-    {
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+    private readonly ILogger<ChatMessagesController> logger;
+    private readonly PortalDbContext context;
 
-    public ILogger<ChatMessagesController> Logger { get; }
-    public PortalDbContext Context { get; }
+    public ChatMessagesController(
+        ILogger<ChatMessagesController> logger,
+        PortalDbContext context)
+    {
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.context = context ?? throw new ArgumentNullException(nameof(context));
+    }
 
     [HttpGet]
     [Route("api/chat-messages/{chatMessageId}")]
     public async Task<IActionResult> GetChatMessage(Guid chatMessageId)
     {
-        var chatLog = await Context.ChatLogs
+        var chatLog = await context.ChatLogs
             .Include(cl => cl.GameServerServer)
             .SingleOrDefaultAsync(cl => cl.ChatLogId == chatMessageId);
 
@@ -54,7 +56,8 @@ public class ChatMessagesController : ControllerBase
         }
         catch (Exception ex)
         {
-            return new BadRequestObjectResult(ex);
+            logger.LogError(ex, "Could not deserialize request body");
+            return new BadRequestResult();
         }
 
         if (chatMessageDtos == null) return new BadRequestResult();
@@ -69,8 +72,8 @@ public class ChatMessagesController : ControllerBase
             Timestamp = chatMessageDto.Timestamp
         });
 
-        await Context.ChatLogs.AddRangeAsync(chatLogs);
-        await Context.SaveChangesAsync();
+        await context.ChatLogs.AddRangeAsync(chatLogs);
+        await context.SaveChangesAsync();
 
         var result = chatLogs.Select(cl => cl.ToSearchEntryDto());
 
@@ -90,7 +93,7 @@ public class ChatMessagesController : ControllerBase
         if (filterString == null)
             filterString = string.Empty;
 
-        var query = Context.ChatLogs.AsQueryable();
+        var query = context.ChatLogs.AsQueryable();
         query = ApplySearchFilter(query, (GameType)gameType, serverId, playerId, string.Empty);
         var totalCount = await query.CountAsync();
 

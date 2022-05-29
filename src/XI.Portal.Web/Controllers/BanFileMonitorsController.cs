@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
@@ -166,7 +162,8 @@ namespace XI.Portal.Web.Controllers
             if (!ModelState.IsValid)
             {
                 await AddGameServersViewData(model.ServerId);
-                return View(banFileMonitorDto);
+                model.GameServer = serverDto;
+                return View(model);
             }
 
             var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.EditBanFileMonitor);

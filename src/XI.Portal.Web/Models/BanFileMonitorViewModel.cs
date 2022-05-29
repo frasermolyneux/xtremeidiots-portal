@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 
@@ -17,6 +16,6 @@ namespace XI.Portal.Web.Models
 
         [DisplayName("Server")] public Guid ServerId { get; set; }
 
-        [DisplayName("Server")] public GameServerDto GameServer { get; set; }
+        [DisplayName("Server")] public GameServerDto? GameServer { get; set; }
     }
 }

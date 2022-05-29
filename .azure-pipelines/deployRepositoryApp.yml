@@ -21,6 +21,7 @@ stages:
   - template: templates/build-function-app.yml
     parameters: 
       projectName: 'repository-func'
+      nugetConfigPath: './src/nuget.config'
       publishArtifact: true
 
 - stage: DeployRepositoryAppPrd

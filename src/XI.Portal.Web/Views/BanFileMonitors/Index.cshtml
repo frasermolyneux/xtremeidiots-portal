@@ -32,6 +32,9 @@
                                     @Html.DisplayNameFor(model => model.FilePath)
                                 </th>
                                 <th>
+                                    Mod Check
+                                </th>
+                                <th>
                                     @Html.DisplayNameFor(model => model.LastSync)
                                 </th>
                                 <th></th>
@@ -53,6 +56,16 @@
                                         else
                                         {
                                             @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath)
+                                        }
+                                    </td>
+                                    <td>
+                                        @if(item.FilePath.ToLower().Contains(item.GameServer.LiveMod.ToLower()))
+                                        {
+                                            <span class="badge badge-success">@item.GameServer.LiveMod is included in path</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">@item.GameServer.LiveMod is not included in path</span>
                                         }
                                     </td>
                                     <td>

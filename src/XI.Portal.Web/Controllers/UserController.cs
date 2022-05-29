@@ -155,7 +155,7 @@ namespace XI.Portal.Web.Controllers
             if (userProfileDto == null)
                 return NotFound();
 
-            var user = await _userManager.FindByIdAsync(userProfileDto.XtremeIdiotsForumId);
+
             var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
 
             var claim = userProfileClaimDtos.SingleOrDefault(c => c.Id == claimId);
@@ -173,10 +173,14 @@ namespace XI.Portal.Web.Controllers
             userProfileClaimDtos.Remove(claim);
             await repositoryApiClient.UserProfiles.CreateUserProfileClaims(userProfileDto.Id, userProfileClaimDtos);
 
-            await _userManager.UpdateSecurityStampAsync(user);
+            var user = await _userManager.FindByIdAsync(userProfileDto.XtremeIdiotsForumId);
+            if (user != null)
+            {
+                await _userManager.UpdateSecurityStampAsync(user);
+            }
 
-            this.AddAlertSuccess($"User {user.UserName}'s claim has been removed (this may take up to 15 minutes)");
-            _logger.LogInformation("User {User} has removed a claim from {TargetUser}", User.Username(), user.UserName);
+            this.AddAlertSuccess($"User {userProfileDto.DisplayName}'s claim has been removed (this may take up to 15 minutes)");
+            _logger.LogInformation("User {User} has removed a claim from {TargetUser}", User.Username(), userProfileDto.DisplayName);
 
             return RedirectToAction(nameof(ManageProfile), new { id });
         }

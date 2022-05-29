@@ -10,6 +10,9 @@ parameters:
   default: 'function-app'
 - name: functionAppName
   type: string
+- name: blueGreenDeploy
+  type: bool
+  default: false
 - name: environmentServiceNameAzureRM
 
 jobs:
@@ -21,8 +24,31 @@ jobs:
       displayName: 'Download ${{ parameters.projectName }} artifact'
       artifact: ${{ parameters.projectName }}
 
-    - task: AzureFunctionApp@1
-      inputs:
-        azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-        appName: '${{ parameters.functionAppName }}'
-        package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+    ${{ if eq(parameters.blueGreenDeploy, false) }}:
+      - task: AzureFunctionApp@1
+        displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          appName: '${{ parameters.functionAppName }}'
+          package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+
+    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+      - task: AzureFunctionApp@1
+        displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          appName: '${{ parameters.webAppName }}'
+          deployToSlotOrASE: true
+          slotName: 'staging'
+          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+
+    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+      - task: AzureAppServiceManage@0
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          webAppName: '${{ parameters.webAppName }}'
+          action: 'Swap Slots'
+          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          sourceSlot: 'staging'
+          swapWithProduction: 'true'

@@ -31,9 +31,8 @@ jobs:
         displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
         inputs:
           azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-          WebAppName: '${{ parameters.webAppName }}'
-          deployToSlotOrASE: true
-          ResourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          webAppName: '${{ parameters.webAppName }}'
+          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
           packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
     ${{ if eq(parameters.blueGreenDeploy, true) }}:
@@ -43,8 +42,8 @@ jobs:
           azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
           WebAppName: '${{ parameters.webAppName }}'
           deployToSlotOrASE: true
-          SlotName: 'staging'
-          ResourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          slotName: 'staging'
+          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
           packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
     ${{ if eq(parameters.blueGreenDeploy, true) }}:

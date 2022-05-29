@@ -26,7 +26,7 @@ jobs:
       displayName: 'Download ${{ parameters.projectName }} artifact'
       artifact: ${{ parameters.projectName }}
 
-    ${{ if eq(parameters.blueGreenDeploy, false) }}:
+    - ${{ if eq(parameters.blueGreenDeploy, false) }}:
       - task: AzureRmWebAppDeployment@4
         displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
         inputs:
@@ -35,7 +35,7 @@ jobs:
           resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
           packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
       - task: AzureRmWebAppDeployment@4
         displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
         inputs:
@@ -46,7 +46,7 @@ jobs:
           resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
           packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
       - task: AzureAppServiceManage@0
         inputs:
           azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'

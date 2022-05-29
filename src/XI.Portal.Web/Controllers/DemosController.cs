@@ -95,7 +95,7 @@ namespace XI.Portal.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetDemoListAjax(string? id)
+        public async Task<IActionResult> GetDemoListAjax(GameType? id)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -108,12 +108,13 @@ namespace XI.Portal.Web.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator };
             var gameTypes = User.ClaimedGameTypes(requiredClaims);
 
-            string filterUserId = null;
-            string[] filterGameTypes = null;
+            string? filterUserId = null;
+            GameType[]? filterGameTypes = null;
             if (id != null)
             {
+                filterGameTypes = new[] { (GameType)id };
                 // If the user has the required claims do not filter by user id
-                filterUserId = gameTypes.Contains(id) ? null : User.XtremeIdiotsId();
+                filterUserId = gameTypes.Contains((GameType)id) ? null : User.XtremeIdiotsId();
             }
             else
             {
@@ -123,7 +124,7 @@ namespace XI.Portal.Web.Controllers
                 if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
             }
 
-            string order = "DateDesc";
+            DemoOrder order = DemoOrder.DateDesc;
             if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
@@ -132,16 +133,16 @@ namespace XI.Portal.Web.Controllers
                 switch (orderColumn)
                 {
                     case "game":
-                        order = searchOrder == "asc" ? "GameTypeAsc" : "GameTypeDesc";
+                        order = searchOrder == "asc" ? DemoOrder.GameTypeAsc : DemoOrder.GameTypeDesc;
                         break;
                     case "name":
-                        order = searchOrder == "asc" ? "NameAsc" : "NameDesc";
+                        order = searchOrder == "asc" ? DemoOrder.NameAsc : DemoOrder.NameDesc;
                         break;
                     case "date":
-                        order = searchOrder == "asc" ? "DateAsc" : "DateDesc";
+                        order = searchOrder == "asc" ? DemoOrder.DateAsc : DemoOrder.DateDesc;
                         break;
                     case "uploadedBy":
-                        order = searchOrder == "asc" ? "UploadedByAsc" : "UploadedByDesc";
+                        order = searchOrder == "asc" ? DemoOrder.UploadedByAsc : DemoOrder.UploadedByDesc;
                         break;
                 }
             }
@@ -251,12 +252,12 @@ namespace XI.Portal.Web.Controllers
             var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
 
             string filterUserId = null;
-            string[] filterGameTypes = null;
+            GameType[]? filterGameTypes = null;
 
             filterGameTypes = gameTypes.ToArray();
             if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
 
-            DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(filterGameTypes, filterUserId, null, 0, 0, "DateDesc");
+            DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(filterGameTypes, filterUserId, null, 0, 0, DemoOrder.DateDesc);
 
             var demos = searchResponse.Entries.Select(demo => new
             {

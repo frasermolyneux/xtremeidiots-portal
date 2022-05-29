@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 
@@ -60,7 +61,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task<DemosSearchResponseDto?> SearchDemos(string[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, string? order)
+        public async Task<DemosSearchResponseDto?> SearchDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
             var request = await CreateRequest("repository/demos", Method.Get);
 
@@ -76,8 +77,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
+            if (order != null)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 

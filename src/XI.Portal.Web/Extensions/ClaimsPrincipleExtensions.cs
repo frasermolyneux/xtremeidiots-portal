@@ -49,22 +49,25 @@ namespace XI.Portal.Web.Extensions
             return new Tuple<GameType[], Guid[]>(gameTypes.ToArray(), servers.ToArray());
         }
 
-        public static List<string> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
+        public static List<GameType> ClaimedGameTypes(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
         {
-            var gameTypes = new List<string>();
+            var gameTypes = new List<GameType>();
 
             if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
-                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList().Select(gt => gt.ToString()).ToList();
+                gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
 
             var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
 
             foreach (var claim in claims)
-                gameTypes.Add(claim.Value);
+            {
+                if (Enum.TryParse(claim.Value, out GameType gameType))
+                    gameTypes.Add(gameType);
+            }
 
             return gameTypes.Distinct().OrderBy(g => g).ToList();
         }
 
-        public static List<string> GetGameTypesForGameServers(this ClaimsPrincipal claimsPrincipal)
+        public static List<GameType> GetGameTypesForGameServers(this ClaimsPrincipal claimsPrincipal)
         {
             var requiredClaims = new[]
             {

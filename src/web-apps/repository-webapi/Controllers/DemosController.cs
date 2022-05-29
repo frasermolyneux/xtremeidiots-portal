@@ -144,7 +144,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 DemoId = Guid.NewGuid(),
                 Game = createDemoDto.Game.ToGameTypeInt(),
-                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId),
+                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId)
             };
 
             context.Demoes.Add(demo);

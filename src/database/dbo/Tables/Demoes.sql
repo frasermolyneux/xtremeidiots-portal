@@ -3,7 +3,7 @@
     [Game]     INT              NOT NULL,
     [Name]     NVARCHAR (MAX)   NULL,
     [FileName] NVARCHAR (MAX)   NULL,
-    [Date]     DATETIME         NOT NULL,
+    [Date]     DATETIME         NULL,
     [Map]      NVARCHAR (MAX)   NULL,
     [Mod]      NVARCHAR (MAX)   NULL,
     [GameType] NVARCHAR (MAX)   NULL,

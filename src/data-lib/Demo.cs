@@ -16,7 +16,7 @@ namespace XtremeIdiots.Portal.DataLib
         public string Name { get; set; }
         public string FileName { get; set; }
         [Column(TypeName = "datetime")]
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public string Map { get; set; }
         public string Mod { get; set; }
         public string GameType { get; set; }

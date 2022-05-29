@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
         public GameType Game { get; set; }
         public string Name { get; set; } = string.Empty;
         public string FileName { get; set; } = string.Empty;
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         public string Map { get; set; } = string.Empty;
         public string Mod { get; set; } = string.Empty;
         public string GameType { get; set; } = string.Empty;

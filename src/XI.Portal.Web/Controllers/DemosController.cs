@@ -368,7 +368,7 @@ namespace XI.Portal.Web.Controllers
             public string Game { get; set; }
             public string Name { get; set; }
             public string FileName { get; set; }
-            public DateTime Date { get; set; }
+            public DateTime? Date { get; set; }
             public string Map { get; set; }
             public string Mod { get; set; }
             public string GameType { get; set; }

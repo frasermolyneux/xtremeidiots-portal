@@ -18,11 +18,23 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
         {
             var request = await CreateRequest("repository/demos", Method.Post);
             request.AddJsonBody(demoDto);
-            request.AddFile(fileName, filePath);
 
             var response = await ExecuteAsync(request);
 
+            DemoDto? resultDemoDto = null;
+
             if (response.Content != null)
+                resultDemoDto = JsonConvert.DeserializeObject<DemoDto>(response.Content);
+
+            if (resultDemoDto == null)
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+
+            var createFileRequest = await CreateRequest($"repository/demos/{resultDemoDto.DemoId}/file", Method.Post);
+            createFileRequest.AddFile(fileName, filePath);
+
+            var createFileResponse = await ExecuteAsync(createFileRequest);
+
+            if (createFileResponse.Content != null)
                 return JsonConvert.DeserializeObject<DemoDto>(response.Content);
             else
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");

@@ -1463,51 +1463,10 @@
                 }
             }
         },
-        "/user-profile/{user-profile-id}": {
-            "get": {
-                "summary": "user-profile/{user-profile-id}",
-                "operationId": "get-user-profile-user-profile-id",
-                "parameters": [
-                    {
-                        "name": "user-profile-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": null
-                    }
-                }
-            }
-        },
-        "/user-profile/by-identity-id/{identity-id}": {
-            "get": {
-                "summary": "user-profile/by-identity-id/{identity-id}",
-                "operationId": "get-user-profile-by-identity-id-identity-id",
-                "parameters": [
-                    {
-                        "name": "identity-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": null
-                    }
-                }
-            }
-        },
         "/user-profile/by-xtremeidiots-id/{xtremeidiots-id}": {
             "get": {
                 "summary": "user-profile/by-xtremeidiots-id/{xtremeidiots-id}",
+                "description": "user-profile/by-xtremeidiots-id/{xtremeidiots-id}",
                 "operationId": "get-user-profile-by-xtremeidiots-id-xtremeidiots-id",
                 "parameters": [
                     {
@@ -1521,14 +1480,35 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
         },
         "/user-profile": {
+            "post": {
+                "summary": "user-profile",
+                "description": "user-profile",
+                "operationId": "post-user-profile",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "put": {
+                "summary": "user-profile",
+                "description": "user-profile",
+                "operationId": "put-user-profile",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
             "get": {
                 "summary": "user-profile",
+                "description": "user-profile",
                 "operationId": "get-user-profile",
                 "parameters": [
                     {
@@ -1555,25 +1535,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
-                    }
-                }
-            },
-            "post": {
-                "summary": "user-profile",
-                "operationId": "post-user-profile",
-                "responses": {
-                    "200": {
-                        "description": null
-                    }
-                }
-            },
-            "put": {
-                "summary": "user-profile",
-                "operationId": "put-user-profile",
-                "responses": {
-                    "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             }
@@ -1581,6 +1543,7 @@
         "/user-profile/{user-profile-id}/claims": {
             "get": {
                 "summary": "user-profile/{user-profile-id}/claims",
+                "description": "user-profile/{user-profile-id}/claims",
                 "operationId": "get-user-profile-user-profile-id-claims",
                 "parameters": [
                     {
@@ -1594,16 +1557,82 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
                     }
                 }
             },
             "post": {
                 "summary": "user-profile/{user-profile-id}/claims",
+                "description": "user-profile/{user-profile-id}/claims",
                 "operationId": "post-user-profile-user-profile-id-claims",
                 "parameters": [
                     {
                         "name": "user-profile-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/user-profile/{user-profile-id}": {
+            "get": {
+                "summary": "user-profile/{user-profile-id}",
+                "description": "user-profile/{user-profile-id}",
+                "operationId": "get-user-profile-user-profile-id",
+                "parameters": [
+                    {
+                        "name": "user-profile-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/user-profile/by-identity-id/{identity-id}": {
+            "get": {
+                "summary": "user-profile/by-identity-id/{identity-id}",
+                "description": "user-profile/by-identity-id/{identity-id}",
+                "operationId": "get-user-profile-by-identity-id-identity-id",
+                "parameters": [
+                    {
+                        "name": "identity-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/demos/{demo-id}/file": {
+            "post": {
+                "summary": "demos/{demo-id}/file",
+                "operationId": "post-demos-demo-id-file",
+                "parameters": [
+                    {
+                        "name": "demo-id",
                         "in": "path",
                         "required": true,
                         "schema": {

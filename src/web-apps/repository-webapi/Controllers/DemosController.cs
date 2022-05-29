@@ -7,6 +7,7 @@ using XtremeIdiots.CodDemos.Models;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
@@ -125,10 +126,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            DemoDto? demoDto;
+            CreateDemoDto? createDemoDto;
             try
             {
-                demoDto = JsonConvert.DeserializeObject<DemoDto>(requestBody);
+                createDemoDto = JsonConvert.DeserializeObject<CreateDemoDto>(requestBody);
             }
             catch (Exception ex)
             {
@@ -136,7 +137,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new BadRequestResult();
             }
 
-            if (demoDto == null)
+            if (createDemoDto == null)
                 return new BadRequestResult();
 
             if (Request.Form.Files.Count == 0)
@@ -154,18 +155,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            var blobKey = $"{Guid.NewGuid()}.{demoDto.Game.DemoExtension()}";
+            var blobKey = $"{Guid.NewGuid()}.{createDemoDto.Game.DemoExtension()}";
             var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
             var containerClient = blobServiceClient.GetBlobContainerClient("demos");
             var blobClient = containerClient.GetBlobClient(blobKey);
             await blobClient.UploadAsync(filePath);
 
-            var localDemo = new LocalDemo(filePath, demoDto.Game);
+            var localDemo = new LocalDemo(filePath, createDemoDto.Game);
 
             var demo = new Demo
             {
                 DemoId = Guid.NewGuid(),
-                Game = demoDto.Game.ToGameTypeInt(),
+                Game = createDemoDto.Game.ToGameTypeInt(),
                 Name = Path.GetFileNameWithoutExtension(file.FileName),
                 FileName = blobKey,
                 Date = localDemo.Date,
@@ -174,7 +175,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 GameType = localDemo.GameType,
                 Server = localDemo.Server,
                 Size = localDemo.Size,
-                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == demoDto.UserId),
+                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId),
                 DemoFileUri = blobClient.Uri.ToString()
             };
 

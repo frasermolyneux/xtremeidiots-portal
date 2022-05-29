@@ -8,6 +8,7 @@ using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
@@ -292,6 +293,9 @@ namespace XI.Portal.Web.Controllers
 
             var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
 
+            if (demosAuth == null)
+                return Content("AuthError: Could not find associated user for auth key");
+
             var userId = demosAuth.UserId;
             if (userId == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
@@ -299,7 +303,8 @@ namespace XI.Portal.Web.Controllers
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
 
-            if (file == null || file.Length == 0) return Content("You must provide a file to be uploaded");
+            if (file == null || file.Length == 0)
+                return Content("You must provide a file to be uploaded");
 
             var filePath = Path.GetTempFileName();
             using (var stream = System.IO.File.Create(filePath))
@@ -307,15 +312,11 @@ namespace XI.Portal.Web.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            var demoDto = new DemoDto
-            {
-                Game = gameType,
-                UserId = userId
-            };
+            var demoDto = new CreateDemoDto(gameType, userId);
 
             await repositoryApiClient.Demos.CreateDemo(demoDto, file.FileName, filePath);
 
-            _logger.LogInformation("User {userId} has uploaded a new demo {FileName}", userId, demoDto.FileName);
+            _logger.LogInformation("User {userId} has uploaded a new demo {FileName}", userId, file.FileName);
 
             return Ok();
         }

@@ -1,4 +1,6 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class DemosSearchResponseDto
     {

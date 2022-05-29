@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
 {
@@ -13,7 +14,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi
         {
         }
 
-        public async Task<DemoDto?> CreateDemo(DemoDto demoDto, string fileName, string filePath)
+        public async Task<DemoDto?> CreateDemo(CreateDemoDto demoDto, string fileName, string filePath)
         {
             var request = await CreateRequest("repository/demos", Method.Post);
             request.AddJsonBody(demoDto);

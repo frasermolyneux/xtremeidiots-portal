@@ -290,16 +290,11 @@ namespace XI.Portal.Web.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-
             var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
 
             var userId = demosAuth.UserId;
-            if (userId == null) return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
-                return Content("User not found");
+            if (userId == null)
+                return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
@@ -315,12 +310,12 @@ namespace XI.Portal.Web.Controllers
             var demoDto = new DemoDto
             {
                 Game = gameType,
-                UserId = user.Id
+                UserId = userId
             };
 
             await repositoryApiClient.Demos.CreateDemo(demoDto, file.FileName, filePath);
 
-            _logger.LogInformation("User {Username} has uploaded a new demo {FileName}", user.UserName, demoDto.FileName);
+            _logger.LogInformation("User {userId} has uploaded a new demo {FileName}", userId, demoDto.FileName);
 
             return Ok();
         }

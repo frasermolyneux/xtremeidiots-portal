@@ -11,7 +11,7 @@ parameters:
 - name: functionAppName
   type: string
 - name: blueGreenDeploy
-  type: bool
+  type: boolean
   default: false
 - name: environmentServiceNameAzureRM
 

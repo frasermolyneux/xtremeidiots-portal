@@ -13,7 +13,7 @@ parameters:
 - name: webAppNameResourceGroup
   type: string
 - name: blueGreenDeploy
-  type: bool
+  type: boolean
   default: false
 - name: environmentServiceNameAzureRM
 

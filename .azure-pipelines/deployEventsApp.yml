@@ -57,5 +57,6 @@ stages:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: '$(eventsFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
       blueGreenDeploy: true

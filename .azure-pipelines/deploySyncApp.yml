@@ -53,4 +53,5 @@ stages:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)

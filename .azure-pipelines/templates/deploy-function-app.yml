@@ -10,6 +10,8 @@ parameters:
   default: 'function-app'
 - name: functionAppName
   type: string
+- name: functionAppResourceGroup
+  type: string
 - name: blueGreenDeploy
   type: boolean
   default: false
@@ -37,18 +39,18 @@ jobs:
         displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
         inputs:
           azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-          appName: '${{ parameters.webAppName }}'
+          appName: '${{ parameters.functionAppName }}'
           deployToSlotOrASE: true
           slotName: 'staging'
-          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
           package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
     - ${{ if eq(parameters.blueGreenDeploy, true) }}:
       - task: AzureAppServiceManage@0
         inputs:
           azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-          webAppName: '${{ parameters.webAppName }}'
+          webAppName: '${{ parameters.functionAppName }}'
           action: 'Swap Slots'
-          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
           sourceSlot: 'staging'
           swapWithProduction: 'true'

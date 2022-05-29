@@ -53,4 +53,5 @@ stages:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: '$(repositoryFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)

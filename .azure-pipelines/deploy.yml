@@ -390,6 +390,7 @@ stages:
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: '$(eventsFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
@@ -398,6 +399,7 @@ stages:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: '$(ingestFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-web-app.yml
@@ -415,6 +417,7 @@ stages:
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: '$(repositoryFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-function-app.yml
@@ -423,6 +426,7 @@ stages:
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: '$(syncFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
 
   - template: templates/deploy-web-app.yml

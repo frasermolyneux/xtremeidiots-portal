@@ -53,4 +53,5 @@ stages:
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: '$(ingestFunctionAppName)'
+      functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)

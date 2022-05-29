@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var gameServerStats = await context.GameServerStats
                 .Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff)
-                .OrderByDescending(gss => gss.Timestamp)
+                .OrderBy(gss => gss.Timestamp)
                 .ToListAsync();
 
             var result = gameServerStats.Select(gss => gss.ToDto());

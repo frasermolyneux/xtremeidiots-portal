@@ -12,6 +12,9 @@ parameters:
   type: string
 - name: webAppNameResourceGroup
   type: string
+- name: blueGreenDeploy
+  type: bool
+  default: false
 - name: environmentServiceNameAzureRM
 
 jobs:
@@ -23,11 +26,33 @@ jobs:
       displayName: 'Download ${{ parameters.projectName }} artifact'
       artifact: ${{ parameters.projectName }}
 
-    - task: AzureRmWebAppDeployment@4
-      displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
-      inputs:
-        azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
-        WebAppName: '${{ parameters.webAppName }}'
-        deployToSlotOrASE: true
-        ResourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
-        packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+    ${{ if eq(parameters.blueGreenDeploy, false) }}:
+      - task: AzureRmWebAppDeployment@4
+        displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          WebAppName: '${{ parameters.webAppName }}'
+          deployToSlotOrASE: true
+          ResourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+
+    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+      - task: AzureRmWebAppDeployment@4
+        displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          WebAppName: '${{ parameters.webAppName }}'
+          deployToSlotOrASE: true
+          SlotName: 'staging'
+          ResourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+
+    ${{ if eq(parameters.blueGreenDeploy, true) }}:
+      - task: AzureAppServiceManage@0
+        inputs:
+          azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+          webAppName: '${{ parameters.webAppName }}'
+          action: 'Swap Slots'
+          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+          sourceSlot: 'staging'
+          swapWithProduction: 'true'

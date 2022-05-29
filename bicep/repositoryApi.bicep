@@ -152,6 +152,82 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
+  name: 'staging'
+  location: parLocation
+  kind: 'app'
+  parent: webApp
+
+  identity: {
+    type: 'SystemAssigned'
+  }
+
+  properties: {
+    serverFarmId: appServicePlan.id
+
+    httpsOnly: true
+
+    siteConfig: {
+      alwaysOn: true
+      ftpsState: 'Disabled'
+
+      netFrameworkVersion: 'v6.0'
+      minTlsVersion: '1.2'
+
+      appSettings: [
+        {
+          'name': 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+        }
+        {
+          'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+        }
+        {
+          'name': 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          'value': '~2'
+        }
+        {
+          'name': 'ASPNETCORE_ENVIRONMENT'
+          'value': 'Production'
+        }
+        {
+          'name': 'WEBSITE_RUN_FROM_PACKAGE'
+          'value': '1'
+        }
+        {
+          'name': 'AzureAd:TenantId'
+          'value': tenant().tenantId
+        }
+        {
+          'name': 'AzureAd:Instance'
+          'value': environment().authentication.loginEndpoint
+        }
+        {
+          'name': 'AzureAd:ClientId'
+          'value': parRepositoryApiAppId
+        }
+        {
+          'name': 'AzureAd:ClientSecret'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
+        }
+        {
+          'name': 'AzureAd:Audience'
+          'value': 'api://portal-repository-api-${parEnvironment}'
+        }
+        {
+          'name': 'sql-connection-string'
+          'value': 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
+        }
+        {
+          'name': 'appdata-storage-connectionstring'
+          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
+        }
+      ]
+    }
+  }
+}
+
 resource webAppKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-11-01-preview' = {
   name: 'add'
   parent: keyVault
@@ -160,6 +236,18 @@ resource webAppKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@20
     accessPolicies: [
       {
         objectId: webApp.identity.principalId
+        permissions: {
+          certificates: []
+          keys: []
+          secrets: [
+            'get'
+          ]
+          storage: []
+        }
+        tenantId: tenant().tenantId
+      }
+      {
+        objectId: webAppStagingSlot.identity.principalId
         permissions: {
           certificates: []
           keys: []

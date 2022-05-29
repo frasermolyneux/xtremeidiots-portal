@@ -55,3 +55,4 @@ stages:
       webAppName: '$(adminWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true

@@ -138,6 +138,90 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
+  name: 'staging'
+  location: parLocation
+  kind: 'app'
+  parent: webApp
+
+  identity: {
+    type: 'SystemAssigned'
+  }
+
+  properties: {
+    serverFarmId: appServicePlan.id
+
+    httpsOnly: true
+
+    siteConfig: {
+      alwaysOn: true
+      ftpsState: 'Disabled'
+
+      netFrameworkVersion: 'v6.0'
+      minTlsVersion: '1.2'
+
+      appSettings: [
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~2'
+        }
+        {
+          name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Production'
+        }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        }
+        {
+          name: 'apim-base-url'
+          value: apiManagement.properties.gatewayUrl
+        }
+        {
+          name: 'apim-subscription-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varAdminWebAppName}-apikey)'
+        }
+        {
+          name: 'sql-connection-string'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=identitydb;'
+        }
+        {
+          name: 'geolocation-baseurl'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=geolocation-baseurl)'
+        }
+        {
+          name: 'geolocation-apikey'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=geolocation-apikey)'
+        }
+        {
+          name: 'xtremeidiots-forums-base-url'
+          value: 'https://www.xtremeidiots.com'
+        }
+        {
+          name: 'xtremeidiots-forums-api-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-forums-api-key)'
+        }
+        {
+          name: 'xtremeidiots-auth-client-id'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-id)'
+        }
+        {
+          name: 'xtremeidiots-auth-client-secret'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+        }
+      ]
+    }
+  }
+}
+
 resource portalHostnameBinding 'Microsoft.Web/sites/hostNameBindings@2021-03-01' = {
   name: 'portal.xtremeidiots.com'
   parent: webApp
@@ -155,6 +239,18 @@ resource webAppKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@20
     accessPolicies: [
       {
         objectId: webApp.identity.principalId
+        permissions: {
+          certificates: []
+          keys: []
+          secrets: [
+            'get'
+          ]
+          storage: []
+        }
+        tenantId: tenant().tenantId
+      }
+      {
+        objectId: webAppStagingSlot.identity.principalId
         permissions: {
           certificates: []
           keys: []

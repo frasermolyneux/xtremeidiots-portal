@@ -392,6 +392,7 @@ stages:
       functionAppName: '$(eventsFunctionAppName)'
       functionAppResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -410,6 +411,7 @@ stages:
       webAppName: '$(repositoryWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -437,6 +439,7 @@ stages:
       webAppName: '$(serversWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -446,3 +449,4 @@ stages:
       webAppName: '$(adminWebAppName)'
       webAppNameResourceGroup: '$(resourceGroup)'
       environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true

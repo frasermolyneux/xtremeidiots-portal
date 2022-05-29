@@ -160,7 +160,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         public async Task<IActionResult> CreateDemoFile(Guid demoId)
         {
             if (Request.Form.Files.Count == 0)
-                return new BadRequestResult();
+                return new BadRequestObjectResult("Request did not contain any files");
 
             var demo = context.Demoes.SingleOrDefault(d => d.DemoId == demoId);
 
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var file = Request.Form.Files.First();
             if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
-                return BadRequest();
+                return BadRequest("Invalid file type extension");
 
             var filePath = Path.GetTempFileName();
             using (var stream = System.IO.File.Create(filePath))

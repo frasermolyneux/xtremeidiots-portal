@@ -146,7 +146,6 @@ namespace XI.Portal.Web.Controllers
                 }
             }
 
-
             DemosSearchResponseDto searchResponse = await repositoryApiClient.Demos.SearchDemos(filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order);
 
             var portalDemoEntries = new List<PortalDemoDto>();
@@ -306,7 +305,12 @@ namespace XI.Portal.Web.Controllers
             if (file == null || file.Length == 0)
                 return Content("You must provide a file to be uploaded");
 
-            var filePath = Path.GetTempFileName();
+            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
+
+            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
+                return Content("Invalid file type extension");
+
+            var filePath = Path.Join(Path.GetTempPath(), file.FileName);
             using (var stream = System.IO.File.Create(filePath))
             {
                 await file.CopyToAsync(stream);
@@ -334,7 +338,6 @@ namespace XI.Portal.Web.Controllers
                 _logger.LogDebug("ClientDownload - Auth key header supplied but was empty");
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
-
 
             var demosAuth = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
 

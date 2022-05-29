@@ -15,18 +15,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class DemosController : Controller
     {
-        public DemosController(PortalDbContext context)
-        {
-            Context = context ?? throw new ArgumentNullException(nameof(context));
-        }
+        private readonly ILogger<DemosController> logger;
+        private readonly PortalDbContext context;
 
-        public PortalDbContext Context { get; }
+        public DemosController(
+            ILogger<DemosController> logger,
+            PortalDbContext context)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
         [HttpGet]
         [Route("api/demos")]
         public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
-            var demos = Context.Demoes.Include(d => d.UserProfile).AsQueryable();
+            var demos = context.Demoes.Include(d => d.UserProfile).AsQueryable();
 
             int[] filterByGameTypes = { };
             if (!string.IsNullOrWhiteSpace(gameTypes))
@@ -39,8 +43,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (order == null)
                 order = DemoOrder.DateDesc;
 
-
-            var query = Context.Demoes.Include(d => d.UserProfile).AsQueryable();
+            var query = context.Demoes.Include(d => d.UserProfile).AsQueryable();
             query = ApplySearchFilter(query, Array.Empty<int>(), null, null);
             var totalCount = await query.CountAsync();
 
@@ -122,19 +125,19 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            DemoDto demoDto;
+            DemoDto? demoDto;
             try
             {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
                 demoDto = JsonConvert.DeserializeObject<DemoDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
             }
             catch (Exception ex)
             {
-                return new BadRequestObjectResult(ex);
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
             }
 
-            if (demoDto == null) return new BadRequestResult();
+            if (demoDto == null)
+                return new BadRequestResult();
 
             if (Request.Form.Files.Count == 0)
                 return new BadRequestResult();
@@ -171,12 +174,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 GameType = localDemo.GameType,
                 Server = localDemo.Server,
                 Size = localDemo.Size,
-                UserProfile = await Context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == demoDto.UserId),
+                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == demoDto.UserId),
                 DemoFileUri = blobClient.Uri.ToString()
             };
 
-            Context.Demoes.Add(demo);
-            await Context.SaveChangesAsync();
+            context.Demoes.Add(demo);
+            await context.SaveChangesAsync();
 
             var dto = demo.ToDto();
 
@@ -187,7 +190,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/demos/{demoId}")]
         public async Task<IActionResult> GetDemo(Guid? demoId)
         {
-            var demo = await Context.Demoes.Include(d => d.UserProfile).SingleOrDefaultAsync(d => d.DemoId == demoId);
+            var demo = await context.Demoes.Include(d => d.UserProfile).SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
                 return NotFound();
@@ -201,13 +204,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/demos/{demoId}")]
         public async Task<IActionResult> DeleteDemo(Guid? demoId)
         {
-            var demo = await Context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
+            var demo = await context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
                 throw new NullReferenceException(nameof(demo));
 
-            Context.Remove(demo);
-            await Context.SaveChangesAsync();
+            context.Remove(demo);
+            await context.SaveChangesAsync();
 
             return new OkResult();
         }

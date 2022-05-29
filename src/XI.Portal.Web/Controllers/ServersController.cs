@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -66,13 +63,38 @@ namespace XI.Portal.Web.Controllers
             var mapNames = gameServerStatusStats.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
             var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
 
+            var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
+
+            GameServerStatDto? current = null;
+            foreach (var gameServerStatusStatDto in gameServerStatusStats.OrderBy(gss => gss.Timestamp))
+            {
+                if (current == null)
+                {
+                    current = gameServerStatusStatDto;
+                    continue;
+                }
+
+                if (current.MapName != gameServerStatusStatDto.MapName)
+                {
+                    mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
+                    current = gameServerStatusStatDto;
+                    continue;
+                }
+
+                if (current == gameServerStatusStats.Last())
+                {
+                    mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
+                }
+            }
+
             return View(new ServersGameServerViewModel
             {
                 GameServer = gameServerDto,
                 Map = mapDto,
                 Maps = mapsResponseDto.Entries,
                 GameServerStats = gameServerStatusStats,
-                LivePlayers = livePlayersResponseDto.Entries
+                LivePlayers = livePlayersResponseDto.Entries,
+                MapTimelineDataPoints = mapTimelineDataPoints
             });
         }
     }

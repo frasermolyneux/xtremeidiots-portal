@@ -346,31 +346,16 @@
                 dataTable.addColumn({ type: 'date', id: 'End' });
                 dataTable.addRows([
 
-                    @for (var i = 0; i < Model.GameServerStats.Count; i++)
+                    @foreach(var mapTimelineDataPoints in Model.MapTimelineDataPoints)
                     {
-                        var map = Model.GameServerStats[i];
-
-                        if (i == Model.GameServerStats.Count - 1) {
-                            <text>
+                        <text>
                             [
-                                '@map.MapName',
-                                new Date(@map.Timestamp.Year, @map.Timestamp.Month, @map.Timestamp.Day, @map.Timestamp.Hour, @map.Timestamp.Minute, @map.Timestamp.Second),
-                                new Date(@DateTime.UtcNow.Year, @DateTime.UtcNow.Month, @DateTime.UtcNow.Day, @DateTime.UtcNow.Hour, @DateTime.UtcNow.Minute, @DateTime.UtcNow.Second)
+                                '@mapTimelineDataPoints.MapName',
+                                new Date(@mapTimelineDataPoints.Start.Year, @mapTimelineDataPoints.Start.Month, @mapTimelineDataPoints.Start.Day, @mapTimelineDataPoints.Start.Hour, @mapTimelineDataPoints.Start.Minute, @mapTimelineDataPoints.Start.Second),
+                                new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second)
                             ],
-                            </text>
-                        } else {
-                            var nextMap = Model.GameServerStats[i+1];
-
-                            <text>
-                            [
-                                '@map.MapName',
-                                new Date(@map.Timestamp.Year, @map.Timestamp.Month, @map.Timestamp.Day, @map.Timestamp.Hour, @map.Timestamp.Minute, @map.Timestamp.Second),
-                                new Date(@nextMap.Timestamp.Year, @nextMap.Timestamp.Month, @nextMap.Timestamp.Day, @nextMap.Timestamp.Hour, @nextMap.Timestamp.Minute, @nextMap.Timestamp.Second)
-                            ],
-                            </text>
-                        }
+                        </text>
                     }
-
                 ]);
 
                 chart.draw(dataTable);

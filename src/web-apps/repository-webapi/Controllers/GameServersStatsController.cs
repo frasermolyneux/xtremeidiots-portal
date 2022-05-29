@@ -68,7 +68,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/game-servers-stats/{serverId}")]
         public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime cutoff)
         {
-            var gameServerStats = await Context.GameServerStats.Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff).ToListAsync();
+            var gameServerStats = await Context.GameServerStats
+                .Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff)
+                .OrderByDescending(gss => gss.Timestamp)
+                .ToListAsync();
 
             var result = gameServerStats.Select(gss => gss.ToDto());
 

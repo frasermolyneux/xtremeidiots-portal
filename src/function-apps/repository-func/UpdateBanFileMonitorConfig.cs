@@ -92,7 +92,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                 ftpClient.ValidateAnyCertificate = true;
                                 ftpClient.AutoConnect();
 
-                                if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))
+                                if (await ftpClient.DirectoryExistsAsync(gameServerDto.LiveMod))
                                 {
                                     banFileMonitorDto.FilePath = $"/{gameServerDto.LiveMod}/ban.txt";
                                     await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitorDto);

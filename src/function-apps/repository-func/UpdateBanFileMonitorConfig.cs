@@ -25,7 +25,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.LiveStatusEnabled, 0, 0, null);
+            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 0, null);
             var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 0, null);
 
             if (gameServerDtos == null)

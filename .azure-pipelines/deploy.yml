@@ -224,7 +224,7 @@ stages:
       jobName: DeploySqlDatabase
       serverName: "sql-portal-$(environment)-$(location)-01.database.windows.net"
       databaseName: 'portaldb'
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
       sqlCmdArgs: '/Variables:env=$(environment)'
 
   - template: templates/deploy-web-app.yml
@@ -234,7 +234,7 @@ stages:
       jobName: DeployRepositoryWebApi
       webAppName: "webapi-repository-portal-$(environment)-$(location)-01"
       webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
       blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
@@ -244,7 +244,7 @@ stages:
       jobName: DeployRepositoryFunctionApp
       functionAppName: "fn-repository-portal-$(environment)-$(location)-01"
       functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -253,7 +253,7 @@ stages:
       jobName: DeployIngestFunctionApp
       functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
       functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -262,7 +262,7 @@ stages:
       jobName: DeployEventsFunctionApp
       functionAppName: "fn-events-portal-$(environment)-$(location)-01"
       functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
       blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
@@ -272,7 +272,7 @@ stages:
       jobName: DeploySyncFunctionApp
       functionAppName: "fn-sync-portal-$(environment)-$(location)-01"
       functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -281,7 +281,7 @@ stages:
       jobName: DeployServersWebApi
       webAppName: "webapi-servers-portal-prd-uksouth-01"
       webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
       blueGreenDeploy: true
 
   - template: templates/deploy-web-app.yml
@@ -291,5 +291,5 @@ stages:
       jobName: DeployAdminWebApp
       webAppName: "webapp-admin-portal-$(environment)-$(location)-01"
       webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
+      subscription: $(subscription)
       blueGreenDeploy: true

@@ -5,7 +5,7 @@ parameters:
 - name: dependsOn
   type: object
   default: []
-- name: environmentServiceNameAzureRM
+- name: subscription
 - name: serverName
   type: string
   default: ""
@@ -33,7 +33,7 @@ jobs:
 
     - task: SqlAzureDacpacDeployment@1
       inputs:
-        azureSubscription: '${{ parameters.environmentServiceNameAzureRM }}'
+        azureSubscription: '${{ parameters.subscription }}'
         ServerName: '${{ parameters.serverName }}'
         DatabaseName: '${{ parameters.databaseName }}'
         AuthenticationType: servicePrincipal

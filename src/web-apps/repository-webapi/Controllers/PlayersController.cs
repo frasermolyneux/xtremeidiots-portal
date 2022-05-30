@@ -466,6 +466,7 @@ public class PlayersController : ControllerBase
             .Include(aa => aa.PlayerPlayer)
             .Include(aa => aa.UserProfile)
             .Where(aa => aa.PlayerPlayerId == playerId)
+            .OrderByDescending(aa => aa.Created)
             .ToListAsync();
 
         var result = results.Select(adminAction => adminAction.ToDto());

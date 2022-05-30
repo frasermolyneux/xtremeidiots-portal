@@ -227,28 +227,9 @@ stages:
       environmentServiceNameAzureRM: $(subscription)
       sqlCmdArgs: '/Variables:env=$(environment)'
 
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeploySqlDatabase']
-      projectName: events-func
-      jobName: DeployEventsFunctionApp
-      functionAppName: "fn-events-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
-      blueGreenDeploy: true
-
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeployEventsFunctionApp']
-      projectName: ingest-func
-      jobName: DeployIngestFunctionApp
-      functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      environmentServiceNameAzureRM: $(subscription)
-
   - template: templates/deploy-web-app.yml
     parameters:
-      dependsOn: ['DeployIngestFunctionApp']
+      dependsOn: ['DeploySqlDatabase']
       projectName: repository-webapi
       jobName: DeployRepositoryWebApi
       webAppName: "webapi-repository-portal-$(environment)-$(location)-01"
@@ -267,7 +248,26 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
-      dependsOn: ['DeployRepositoryFunctionApp']
+    dependsOn: ['DeployRepositoryWebApi']
+      projectName: ingest-func
+      jobName: DeployIngestFunctionApp
+      functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
+      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+      environmentServiceNameAzureRM: $(subscription)
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeployRepositoryWebApi']
+      projectName: events-func
+      jobName: DeployEventsFunctionApp
+      functionAppName: "fn-events-portal-$(environment)-$(location)-01"
+      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+      environmentServiceNameAzureRM: $(subscription)
+      blueGreenDeploy: true
+
+  - template: templates/deploy-function-app.yml
+    parameters:
+      dependsOn: ['DeployRepositoryWebApi']
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: "fn-sync-portal-$(environment)-$(location)-01"
@@ -276,7 +276,7 @@ stages:
 
   - template: templates/deploy-web-app.yml
     parameters:
-      dependsOn: ['DeployRepositoryFunctionApp']
+      dependsOn: ['DeployRepositoryWebApi']
       projectName: servers-webapi
       jobName: DeployServersWebApi
       webAppName: "webapi-servers-portal-prd-uksouth-01"
@@ -286,7 +286,7 @@ stages:
 
   - template: templates/deploy-web-app.yml
     parameters:
-      dependsOn: ['DeployServersWebApi']
+      dependsOn: ['DeployRepositoryWebApi']
       projectName: XI.Portal.Web
       jobName: DeployAdminWebApp
       webAppName: "webapp-admin-portal-$(environment)-$(location)-01"

@@ -206,23 +206,19 @@ public class PlayerEventsIngest
     {
         var cacheKey = $"{gameType}-${guid}";
 
-        if (!memoryCache.TryGetValue(cacheKey, out Guid playerId))
+        if (memoryCache.TryGetValue(cacheKey, out Guid playerId))
+            return playerId;
+
+        var player = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
+
+        if (player != null)
         {
-            var player = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
+            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
+            memoryCache.Set(cacheKey, player.Id, cacheEntryOptions);
 
-            if (player != null)
-            {
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
-                memoryCache.Set(cacheKey, player.Id, cacheEntryOptions);
-
-                return playerId;
-            }
-            else
-            {
-                return Guid.Empty;
-            }
+            return player.Id;
         }
 
-        return playerId;
+        return Guid.Empty;
     }
 }

@@ -169,6 +169,7 @@ stages:
               parServersApiAppId=$serversApiAppId 
 
   - job: DeployServicesPermissions
+    dependsOn: [DeployServicesBicep]
     steps:
       - task: AzureCLI@2
         displayName: SetIngestApiFuncAppPermissions

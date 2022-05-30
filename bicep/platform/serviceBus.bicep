@@ -37,3 +37,6 @@ resource serviceBusConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@202
     value: 'Endpoint=sb://${serviceBus.name}.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=${listKeys('${serviceBus.id}/AuthorizationRules/RootManageSharedAccessKey', serviceBus.apiVersion).primaryKey}'
   }
 }
+
+// Outputs
+output outServiceBusName string = serviceBus.name

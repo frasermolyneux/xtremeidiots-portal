@@ -7,11 +7,10 @@ param parKeyVaultName string
 param parAppServicePlanName string
 param parAppInsightsName string
 param parApiManagementName string
-param parSqlServerName string
-param parRepositoryApiAppId string
+param parServersApiAppId string
 
 // Variables
-var varRepositoryWebAppName = 'webapi-repository-portal-${parEnvironment}-${parLocation}-01'
+var varServersWebAppName = 'webapi-servers-portal-${parEnvironment}-${parLocation}-01'
 
 // Existing Resources
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
@@ -30,55 +29,30 @@ resource apiManagement 'Microsoft.ApiManagement/service@2021-08-01' existing = {
   name: parApiManagementName
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
-  name: parSqlServerName
-}
-
 // Module Resources
-resource repositoryApiAppDataStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'sarepoappdata${parEnvironment}'
-  location: parLocation
-  kind: 'StorageV2'
+resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
+  name: '${apiManagement.name}-${varServersWebAppName}-subscription'
+  parent: apiManagement
 
-  sku: {
-    name: 'Standard_LRS'
-  }
-}
-
-resource repositoryApiAppDataStorageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
-  name: 'default'
-  parent: repositoryApiAppDataStorageAccount
-  properties: {}
-}
-
-resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: 'map-images'
-  parent: repositoryApiAppDataStorageAccountBlobServices
   properties: {
-    publicAccess: 'Blob'
+    allowTracing: false
+    displayName: varServersWebAppName
+    scope: '/apis'
   }
 }
 
-resource repositoryApiDemosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: 'demos'
-  parent: repositoryApiAppDataStorageAccountBlobServices
-  properties: {
-    publicAccess: 'Blob'
-  }
-}
-
-resource repositoryApiAppDataConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  name: '${repositoryApiAppDataStorageAccount.name}-connectionstring'
+resource webAppApiMgmtKey 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  name: '${apiManagement.name}-${varServersWebAppName}-apikey'
   parent: keyVault
 
   properties: {
     contentType: 'text/plain'
-    value: 'DefaultEndpointsProtocol=https;AccountName=${repositoryApiAppDataStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(repositoryApiAppDataStorageAccount.id, repositoryApiAppDataStorageAccount.apiVersion).keys[0].value}'
+    value: apiManagementSubscription.properties.primaryKey
   }
 }
 
 resource webApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: varRepositoryWebAppName
+  name: varServersWebAppName
   location: parLocation
   kind: 'app'
 
@@ -129,7 +103,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'AzureAd:ClientId'
-          'value': parRepositoryApiAppId
+          'value': parServersApiAppId
         }
         {
           'name': 'AzureAd:ClientSecret'
@@ -137,15 +111,19 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           'name': 'AzureAd:Audience'
-          'value': 'api://portal-repository-api-${parEnvironment}'
+          'value': 'api://portal-servers-api-${parEnvironment}'
         }
         {
-          'name': 'sql-connection-string'
-          'value': 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
+          name: 'apim-base-url'
+          value: apiManagement.properties.gatewayUrl
         }
         {
-          'name': 'appdata-storage-connectionstring'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
+          name: 'apim-subscription-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varServersWebAppName}-apikey)'
+        }
+        {
+          name: 'repository-api-application-audience'
+          value: 'api://portal-repository-api-${parEnvironment}'
         }
       ]
     }
@@ -205,7 +183,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           'name': 'AzureAd:ClientId'
-          'value': parRepositoryApiAppId
+          'value': parServersApiAppId
         }
         {
           'name': 'AzureAd:ClientSecret'
@@ -213,15 +191,19 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           'name': 'AzureAd:Audience'
-          'value': 'api://portal-repository-api-${parEnvironment}'
+          'value': 'api://portal-servers-api-${parEnvironment}'
         }
         {
-          'name': 'sql-connection-string'
-          'value': 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
+          name: 'apim-base-url'
+          value: apiManagement.properties.gatewayUrl
         }
         {
-          'name': 'appdata-storage-connectionstring'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
+          name: 'apim-subscription-key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varServersWebAppName}-apikey)'
+        }
+        {
+          name: 'repository-api-application-audience'
+          value: 'api://portal-repository-api-${parEnvironment}'
         }
       ]
     }
@@ -280,30 +262,30 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
   }
 }
 
-resource repositoryApiActiveBackendNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
-  name: 'repository-api-active-backend'
+resource serversApiActiveBackendNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'servers-api-active-backend'
   parent: apiManagement
 
   properties: {
-    displayName: 'repository-api-active-backend'
+    displayName: 'servers-api-active-backend'
     value: apiBackend.name
     secret: false
   }
 }
 
-resource repositoryApiAudienceNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
-  name: 'repository-api-audience'
+resource serversApiAudienceNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
+  name: 'servers-api-audience'
   parent: apiManagement
 
   properties: {
-    displayName: 'repository-api-audience'
-    value: 'api://portal-repository-api-${parEnvironment}'
+    displayName: 'servers-api-audience'
+    value: 'api://portal-servers-api-${parEnvironment}'
     secret: false
   }
 }
 
-resource repositoryApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
-  name: 'repositoryApi'
+resource serversApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
+  name: 'serversApi'
   parent: apiManagement
 
   properties: {
@@ -311,9 +293,9 @@ resource repositoryApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
     apiType: 'http'
     type: 'http'
 
-    description: 'API for repository layer'
-    displayName: 'Repository API'
-    path: 'repository'
+    description: 'API for servers layer'
+    displayName: 'Servers API'
+    path: 'servers'
 
     protocols: [
       'https'
@@ -325,25 +307,25 @@ resource repositoryApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
     }
 
     format: 'openapi+json'
-    value: loadTextContent('./../api-definitions/Repository.openapi+json.json')
+    value: loadTextContent('./../../api-definitions/Servers.openapi+json.json')
   }
 }
 
-resource repositoryApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-01' = {
+resource serversApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-01' = {
   name: 'policy'
-  parent: repositoryApi
+  parent: serversApi
   properties: {
     format: 'xml'
     value: '''
 <policies>
   <inbound>
       <base/>
-      <set-backend-service backend-id="{{repository-api-active-backend}}" />
+      <set-backend-service backend-id="{{servers-api-active-backend}}" />
       <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" downstream-caching-type="none" />
       <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="JWT validation was unsuccessful" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
           <openid-config url="{{tenant-login-url}}{{tenant-id}}/v2.0/.well-known/openid-configuration" />
           <audiences>
-              <audience>{{repository-api-audience}}</audience>
+              <audience>{{servers-api-audience}}</audience>
           </audiences>
           <issuers>
               <issuer>https://sts.windows.net/{{tenant-id}}/</issuer>
@@ -367,14 +349,14 @@ resource repositoryApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021
   }
 
   dependsOn: [
-    repositoryApiActiveBackendNamedValue
-    repositoryApiAudienceNamedValue
+    serversApiActiveBackendNamedValue
+    serversApiAudienceNamedValue
   ]
 }
 
-resource repositoryApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2021-08-01' = {
+resource serversApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2021-08-01' = {
   name: 'applicationinsights'
-  parent: repositoryApi
+  parent: serversApi
 
   properties: {
     alwaysLog: 'allErrors'

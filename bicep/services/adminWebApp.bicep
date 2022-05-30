@@ -34,6 +34,27 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
 }
 
 // Module Resources
+resource identityDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' = {
+  parent: sqlServer
+  name: 'identitydb'
+  location: parLocation
+
+  sku: {
+    capacity: 5
+    name: 'Basic'
+    tier: 'Basic'
+  }
+
+  properties: {
+    collation: 'SQL_Latin1_General_CP1_CI_AS'
+    maxSizeBytes: 2147483648
+    catalogCollation: 'SQL_Latin1_General_CP1_CI_AS'
+    zoneRedundant: false
+    readScale: 'Disabled'
+    requestedBackupStorageRedundancy: 'Zone'
+  }
+}
+
 resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
   name: '${apiManagement.name}-${varAdminWebAppName}-subscription'
   parent: apiManagement

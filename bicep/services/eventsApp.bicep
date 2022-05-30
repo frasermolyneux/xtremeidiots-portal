@@ -321,7 +321,7 @@ resource eventsApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
     }
 
     format: 'openapi+json'
-    value: loadTextContent('./../api-definitions/Events.openapi+json.json')
+    value: loadTextContent('./../../api-definitions/Events.openapi+json.json')
   }
 }
 

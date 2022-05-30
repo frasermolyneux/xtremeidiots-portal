@@ -1629,6 +1629,7 @@
         "/demos/{demo-id}/file": {
             "post": {
                 "summary": "demos/{demo-id}/file",
+                "description": "demos/{demo-id}/file",
                 "operationId": "post-demos-demo-id-file",
                 "parameters": [
                     {
@@ -1642,7 +1643,175 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/reports": {
+            "get": {
+                "summary": "reports",
+                "description": "reports",
+                "operationId": "get-reports",
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "post": {
+                "summary": "reports",
+                "description": "reports",
+                "operationId": "post-reports",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/reports/{report-id}/close": {
+            "patch": {
+                "summary": "reports/{report-id}/close",
+                "description": "reports/{report-id}/close",
+                "operationId": "patch-reports-report-id-close",
+                "parameters": [
+                    {
+                        "name": "report-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/recent-players": {
+            "post": {
+                "summary": "recent-players",
+                "description": "recent-players",
+                "operationId": "post-recent-players",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
+            "get": {
+                "summary": "recent-players",
+                "description": "recent-players",
+                "operationId": "get-recent-players",
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
                     }
                 }
             }

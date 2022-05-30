@@ -11,6 +11,8 @@ using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
 using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.RecentPlayersApi;
+using XtremeIdiots.Portal.RepositoryApiClient.ReportsApi;
 using XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
@@ -30,6 +32,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         IMapsApiClient Maps { get; }
         IPlayerAnalyticsApiClient PlayerAnalytics { get; }
         IPlayersApiClient Players { get; }
+        IRecentPlayersApiClient RecentPlayers { get; }
+        IReportsApiClient Reports { get; }
         IUserProfileApiClient UserProfiles { get; }
     }
 }

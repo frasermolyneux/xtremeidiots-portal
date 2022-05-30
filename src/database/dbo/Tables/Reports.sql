@@ -1,0 +1,31 @@
+﻿CREATE TABLE [dbo].[Reports]
+(
+	[Id] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+	[PlayerId] UNIQUEIDENTIFIER NULL,
+    [UserProfileId] UNIQUEIDENTIFIER NULL,
+    [ServerId] UNIQUEIDENTIFIER NULL,
+    [GameType] INT DEFAULT 0 NOT NULL,
+    [Comments] NVARCHAR (MAX) NULL,
+    [Timestamp] DATETIME NOT NULL,
+    [AdminUserProfileId] UNIQUEIDENTIFIER NULL,
+    [AdminClosingComments] NVARCHAR (MAX) NULL,
+    [Closed] BIT DEFAULT 0 NOT NULL,
+    [ClosedTimestamp] DATETIME NULL,
+    CONSTRAINT [PK_dbo.Reports] PRIMARY KEY CLUSTERED ([Id] ASC),
+    CONSTRAINT [FK_dbo.Reports_dbo.GameServers_ServerId] FOREIGN KEY ([ServerId]) REFERENCES [dbo].[GameServers] ([ServerId]),
+    CONSTRAINT [FK_dbo.Reports_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId]),
+    CONSTRAINT [FK_dbo.Reports_dbo.UserProfiles_Id] FOREIGN KEY ([UserProfileId]) REFERENCES [dbo].[UserProfiles] ([Id]),
+    CONSTRAINT [FK_dbo.Reports_dbo.AdminUserProfiles_Id] FOREIGN KEY ([AdminUserProfileId]) REFERENCES [dbo].[UserProfiles] ([Id])
+)
+
+GO
+CREATE NONCLUSTERED INDEX [IX_GameServer_ServerId]
+    ON [dbo].[Reports]([ServerId] ASC);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_Players_PlayerId]
+    ON [dbo].[Reports]([PlayerId] ASC);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_UserProfiles_Id]
+    ON [dbo].[Reports]([UserProfileId] ASC);

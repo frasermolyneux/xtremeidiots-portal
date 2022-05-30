@@ -14,6 +14,8 @@ namespace XtremeIdiots.Portal.DataLib
         {
             AdminActions = new HashSet<AdminAction>();
             Demos = new HashSet<Demo>();
+            ReportAdminUserProfiles = new HashSet<Report>();
+            ReportUserProfiles = new HashSet<Report>();
             UserProfileClaims = new HashSet<UserProfileClaim>();
         }
 
@@ -42,6 +44,10 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<AdminAction> AdminActions { get; set; }
         [InverseProperty("UserProfile")]
         public virtual ICollection<Demo> Demos { get; set; }
+        [InverseProperty("AdminUserProfile")]
+        public virtual ICollection<Report> ReportAdminUserProfiles { get; set; }
+        [InverseProperty("UserProfile")]
+        public virtual ICollection<Report> ReportUserProfiles { get; set; }
         [InverseProperty("UserProfile")]
         public virtual ICollection<UserProfileClaim> UserProfileClaims { get; set; }
     }

@@ -70,6 +70,14 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[RecentPlayers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Reports]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[UserProfileClaims]",
          "ObjectType": 0
       },

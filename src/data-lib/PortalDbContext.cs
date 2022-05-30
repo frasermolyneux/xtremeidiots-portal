@@ -32,6 +32,8 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<Player> Players { get; set; }
         public virtual DbSet<PlayerAlias> PlayerAliases { get; set; }
         public virtual DbSet<PlayerIpAddress> PlayerIpAddresses { get; set; }
+        public virtual DbSet<RecentPlayer> RecentPlayers { get; set; }
+        public virtual DbSet<Report> Reports { get; set; }
         public virtual DbSet<UserProfile> UserProfiles { get; set; }
         public virtual DbSet<UserProfileClaim> UserProfileClaims { get; set; }
 
@@ -175,6 +177,46 @@ namespace XtremeIdiots.Portal.DataLib
                     .WithMany(p => p.PlayerIpAddresses)
                     .HasForeignKey(d => d.PlayerPlayerId)
                     .HasConstraintName("FK_dbo.PlayerIpAddresses_dbo.Player2_Player_PlayerId");
+            });
+
+            modelBuilder.Entity<RecentPlayer>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+
+                entity.HasOne(d => d.Player)
+                    .WithMany(p => p.RecentPlayers)
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.RecentPlayers_dbo.Players_PlayerId");
+
+                entity.HasOne(d => d.Server)
+                    .WithMany(p => p.RecentPlayers)
+                    .HasForeignKey(d => d.ServerId)
+                    .HasConstraintName("FK_dbo.RecentPlayers_dbo.GameServers_ServerId");
+            });
+
+            modelBuilder.Entity<Report>(entity =>
+            {
+                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+
+                entity.HasOne(d => d.AdminUserProfile)
+                    .WithMany(p => p.ReportAdminUserProfiles)
+                    .HasForeignKey(d => d.AdminUserProfileId)
+                    .HasConstraintName("FK_dbo.Reports_dbo.AdminUserProfiles_Id");
+
+                entity.HasOne(d => d.Player)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.Reports_dbo.Players_PlayerId");
+
+                entity.HasOne(d => d.Server)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.ServerId)
+                    .HasConstraintName("FK_dbo.Reports_dbo.GameServers_ServerId");
+
+                entity.HasOne(d => d.UserProfile)
+                    .WithMany(p => p.ReportUserProfiles)
+                    .HasForeignKey(d => d.UserProfileId)
+                    .HasConstraintName("FK_dbo.Reports_dbo.UserProfiles_Id");
             });
 
             modelBuilder.Entity<UserProfile>(entity =>

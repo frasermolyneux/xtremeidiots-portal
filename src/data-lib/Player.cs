@@ -20,6 +20,8 @@ namespace XtremeIdiots.Portal.DataLib
             MapVotes = new HashSet<MapVote>();
             PlayerAliases = new HashSet<PlayerAlias>();
             PlayerIpAddresses = new HashSet<PlayerIpAddress>();
+            RecentPlayers = new HashSet<RecentPlayer>();
+            Reports = new HashSet<Report>();
         }
 
         [Key]
@@ -43,5 +45,9 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<PlayerAlias> PlayerAliases { get; set; }
         [InverseProperty("PlayerPlayer")]
         public virtual ICollection<PlayerIpAddress> PlayerIpAddresses { get; set; }
+        [InverseProperty("Player")]
+        public virtual ICollection<RecentPlayer> RecentPlayers { get; set; }
+        [InverseProperty("Player")]
+        public virtual ICollection<Report> Reports { get; set; }
     }
 }

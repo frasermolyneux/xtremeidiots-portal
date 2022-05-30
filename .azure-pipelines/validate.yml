@@ -1,48 +1,57 @@
-trigger: none
-  #branches:
-  #  include:
-  #  - 'master'
+trigger:
+  branches:
+    include:
+    - '*'
 
-#schedules:
-#  - cron: "0 3 * * 0"
-#    displayName: Weekly Build
-#    branches:
-#      include:
-#      - master
+schedules:
+  - cron: "0 3 * * 0"
+    displayName: Weekly Build
+    branches:
+      include:
+      - master
 
 pool:
   vmImage: 'ubuntu-latest'
 
-stages:
-- stage: build
+stages: 
+- stage: Build
   jobs:
-  - job: build
-    pool:
-      vmImage: 'windows-latest'
-
-    variables:
-      solution: '**/*.sln'
-      buildPlatform: 'Any CPU'
-      buildConfiguration: 'Release'
-
-    steps:
-    - task: NuGetToolInstaller@1
-
-    - task: NuGetCommand@2
-      inputs:
-        restoreSolution: '$(solution)'
-        command: 'restore'
-        feedsToUse: 'config'
-        nugetConfigPath: './src/nuget.config'
-
-    - task: VSBuild@1
-      inputs:
-        solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)/webapp"'
-        platform: '$(buildPlatform)'
-        configuration: '$(buildConfiguration)'
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildAdminWebApp'
+      projectName: 'XI.Portal.Web'
+      nugetConfigPath: './src/nuget.config'
 
   - template: templates/build-function-app.yml
     parameters: 
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildIngestFunctionApp'
+      projectName: 'ingest-func'
+
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildRepositoryWebApi'
+      projectName: 'repository-webapi'
+      nugetConfigPath: './src/nuget.config'
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildRepositoryFunctionApp'
+      projectName: 'repository-func'
+      nugetConfigPath: './src/nuget.config'
+
+  - template: templates/build-function-app.yml
+    parameters: 
+      jobName: 'BuildSyncFunctionApp'
+      projectName: 'sync-func'
+
+  - template: templates/build-web-app.yml
+    parameters: 
+      jobName: 'BuildServersWebApi'
+      projectName: 'servers-webapi'
+
+  - template: templates/build-sql-database.yml

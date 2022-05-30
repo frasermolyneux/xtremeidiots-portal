@@ -20,21 +20,18 @@ stages:
 
   - template: templates/build-function-app.yml
     parameters: 
-      dependsOn: ['BuildAdminWebApp']
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
       publishArtifact: true
 
   - template: templates/build-function-app.yml
     parameters: 
-      dependsOn: ['BuildEventsFunctionApp']
       jobName: 'BuildIngestFunctionApp'
       projectName: 'ingest-func'
       publishArtifact: true
 
   - template: templates/build-web-app.yml
     parameters: 
-      dependsOn: ['BuildIngestFunctionApp']
       jobName: 'BuildRepositoryWebApi'
       projectName: 'repository-webapi'
       nugetConfigPath: './src/nuget.config'
@@ -42,7 +39,6 @@ stages:
 
   - template: templates/build-function-app.yml
     parameters: 
-      dependsOn: ['BuildRepositoryWebApi']
       jobName: 'BuildRepositoryFunctionApp'
       projectName: 'repository-func'
       nugetConfigPath: './src/nuget.config'
@@ -50,21 +46,18 @@ stages:
 
   - template: templates/build-function-app.yml
     parameters: 
-      dependsOn: ['BuildRepositoryFunctionApp']
       jobName: 'BuildSyncFunctionApp'
       projectName: 'sync-func'
       publishArtifact: true
 
   - template: templates/build-web-app.yml
     parameters: 
-      dependsOn: ['BuildSyncFunctionApp']
       jobName: 'BuildServersWebApi'
       projectName: 'servers-webapi'
       publishArtifact: true
 
   - template: templates/build-sql-database.yml
     parameters:
-      dependsOn: ['BuildServersWebApi']
       publishArtifact: true
 
 - stage: DeployPrdPlatform

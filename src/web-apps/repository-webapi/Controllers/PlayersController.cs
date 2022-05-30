@@ -542,7 +542,7 @@ public class PlayersController : ControllerBase
         if (adminActionDto == null) return new BadRequestResult();
         if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
 
-        var adminAction = await context.AdminActions.SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionDto.AdminActionId);
+        var adminAction = await context.AdminActions.SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
         if (adminAction == null)
             throw new NullReferenceException(nameof(adminAction));

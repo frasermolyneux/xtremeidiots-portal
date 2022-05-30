@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -15,9 +14,9 @@ namespace XI.Portal.Web.Models
         [Required]
         [DisplayName("Reason")]
         [MinLength(3, ErrorMessage = "You must enter a reason for the admin action")]
-        public string Text { get; set; }
+        public string? Text { get; set; }
         public DateTime? Expires { get; set; }
-        public PlayerDto PlayerDto { get; set; }
-        public string AdminId { get; set; }
+        public PlayerDto? PlayerDto { get; set; }
+        public string? AdminId { get; set; }
     }
 }

@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Auth.Requirements;
 using XI.Portal.Web.Extensions;
@@ -77,7 +74,7 @@ namespace XI.Portal.Web.Auth.Handlers
             if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
 
-            if (context.Resource is Tuple<GameType, AdminActionType>)
+            if (context.Resource is Tuple<GameType, AdminActionType, string>)
             {
                 var (gameType, adminActionType, adminId) = (Tuple<GameType, AdminActionType, string>)context.Resource;
 

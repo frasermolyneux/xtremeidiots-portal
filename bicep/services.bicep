@@ -13,7 +13,7 @@ var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
 var varApimName = 'apim-portal-${parEnvironment}-${parLocation}-01'
 var varAppServicePlanName = 'plan-portal-${parEnvironment}-${parLocation}-01'
 var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}-01'
-var varSqlServerName = 'sb-portal-${parEnvironment}-${parLocation}-01'
+var varSqlServerName = 'sql-portal-${parEnvironment}-${parLocation}-01'
 
 module adminWebApp 'services/adminWebApp.bicep' = {
   name: 'adminWebApp'

@@ -101,7 +101,7 @@ stages:
     dependsOn: [DeployAADResources]
     steps:
       - task: AzureCLI@2
-        displayName: DeployDatabasePrdBicep
+        displayName: DeployPlatformBicep
         inputs:
           azureSubscription: $(subscription)
           scriptType: 'pscore'

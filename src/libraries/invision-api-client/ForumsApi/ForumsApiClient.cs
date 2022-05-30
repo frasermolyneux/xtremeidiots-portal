@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.InvisionApiClient.ForumsApi
 
         public async Task UpdateTopic(int topicId, int authorId, string post)
         {
-            var request = CreateRequest($"api/forums/topics", Method.Post);
+            var request = CreateRequest($"api/forums/topics/{topicId}", Method.Post);
 
             request.AddParameter("author", authorId);
             request.AddParameter("post", post);

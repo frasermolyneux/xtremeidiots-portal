@@ -26,6 +26,36 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
+        [Route("api/reports/{reportId}")]
+        public async Task<IActionResult> GetReport(Guid reportId)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            CloseReportDto? closeReportDto;
+            try
+            {
+                closeReportDto = JsonConvert.DeserializeObject<CloseReportDto>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
+            }
+
+            if (closeReportDto == null)
+                return new BadRequestResult();
+
+            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
+
+            if (report == null)
+                return NotFound();
+
+            var response = new ReportDtoWrapper(report);
+
+            return new OkObjectResult(response);
+        }
+
+        [HttpGet]
         [Route("api/reports")]
         public async Task<IActionResult> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filterType, int? skipEntries, int? takeEntries, ReportsOrder? order)
         {

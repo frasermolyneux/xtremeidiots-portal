@@ -1815,6 +1815,27 @@
                     }
                 }
             }
+        },
+        "/reports/{report-id}": {
+            "get": {
+                "summary": "reports/{report-id}",
+                "operationId": "get-reports-report-id",
+                "parameters": [
+                    {
+                        "name": "report-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": null
+                    }
+                }
+            }
         }
     },
     "components": {

@@ -241,7 +241,7 @@ stages:
 
   - template: templates/deploy-function-app.yml
     parameters:
-    dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['DeployRepositoryWebApi']
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"

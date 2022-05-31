@@ -219,7 +219,8 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 createRecentPlayerDtos.Add(createRecentPlayerDto);
             }
 
-            await repositoryApiClient.RecentPlayers.CreateRecentPlayers(createRecentPlayerDtos);
+            if (createRecentPlayerDtos.Any())
+                await repositoryApiClient.RecentPlayers.CreateRecentPlayers(createRecentPlayerDtos);
         }
 
         private async Task<Guid?> GetPlayerId(GameType gameType, string guid)

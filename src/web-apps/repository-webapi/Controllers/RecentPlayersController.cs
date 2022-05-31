@@ -177,6 +177,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 GameType = recentPlayer.GameType.ToGameType();
                 PlayerId = recentPlayer.PlayerId;
                 ServerId = recentPlayer.ServerId;
+                Timestamp = recentPlayer.Timestamp;
             }
         }
     }

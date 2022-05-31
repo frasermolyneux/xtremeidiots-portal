@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XI.Portal.Web", "XI.Portal.Web\XI.Portal.Web.csproj", "{F7D3A58F-DEAF-41E1-BF0F-C4DD0BCBA5FF}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libraries", "libraries", "{B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EE009C4-309F-4281-AD5D-45F8E7F524A2}"
@@ -55,7 +53,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "forums-integration", "libra
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "utilities", "utilities", "{CCC491B2-3B74-4D5E-B240-B86A7195107C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bot-config-generator", "bot-config-generator\bot-config-generator.csproj", "{371D7871-048F-4907-88F0-6D982EED05A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "bot-config-generator", "bot-config-generator\bot-config-generator.csproj", "{371D7871-048F-4907-88F0-6D982EED05A7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "admin-webapp", "web-apps\admin-webapp\admin-webapp.csproj", "{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,10 +63,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F7D3A58F-DEAF-41E1-BF0F-C4DD0BCBA5FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7D3A58F-DEAF-41E1-BF0F-C4DD0BCBA5FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7D3A58F-DEAF-41E1-BF0F-C4DD0BCBA5FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7D3A58F-DEAF-41E1-BF0F-C4DD0BCBA5FF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{07E98821-8959-4AF7-8B5F-6CF8AFC49218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{07E98821-8959-4AF7-8B5F-6CF8AFC49218}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07E98821-8959-4AF7-8B5F-6CF8AFC49218}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -137,6 +133,10 @@ Global
 		{371D7871-048F-4907-88F0-6D982EED05A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{371D7871-048F-4907-88F0-6D982EED05A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{371D7871-048F-4907-88F0-6D982EED05A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -159,6 +159,7 @@ Global
 		{C45B71CC-0243-4B8A-8D61-8B321CC4BBB5} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{303663D8-A479-4D19-BFEF-F0D81841ADDA} = {B994E7DA-2B5D-4AB5-855F-3FAF9A2F1A48}
 		{371D7871-048F-4907-88F0-6D982EED05A7} = {CCC491B2-3B74-4D5E-B240-B86A7195107C}
+		{FE3B7A3E-30F9-4408-9534-9F4D15C80A0C} = {577FAA4D-F399-44DB-8884-98F7D09BEBC0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5CB7E1E4-62E6-4D08-A0BE-143FA51C7699}

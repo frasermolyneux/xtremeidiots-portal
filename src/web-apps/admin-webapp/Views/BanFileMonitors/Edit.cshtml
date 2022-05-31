@@ -1,0 +1,61 @@
+﻿@using XtremeIdiots.Portal.AdminWebApp.Models
+@model BanFileMonitorViewModel
+
+@{
+    ViewData["Title"] = "Edit Ban File Monitor";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> There may be a delay of 15 - 30 minutes before the next execution of the monitor process after editing.
+    </div>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <input type="hidden" asp-for="BanFileMonitorId"/>
+                            <div class="form-group">
+                                <label asp-for="ServerId" class="control-label"></label>
+                                <select asp-for="ServerId" class="form-control" asp-items="ViewBag.GameServers" disabled="disabled"></select>
+                                <span asp-validation-for="ServerId" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FilePath" class="control-label"></label>
+                                <input asp-for="FilePath" class="form-control"/>
+                                <span asp-validation-for="FilePath" class="text-danger"></span>
+                            </div>
+                            <div class="alert alert-primary" role="alert">
+                                <i class="fa fa-info-circle"></i> You do not need to enter the ftp hostname or credentials. example: /mods/xinam/ban.txt
+                            </div>
+                            <div class="form-group">
+                                <input type="submit" value="Save" class="btn btn-primary"/>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="ibox-footer">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

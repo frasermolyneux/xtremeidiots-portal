@@ -1,0 +1,190 @@
+﻿@inject IAuthorizationService AuthorizationService
+@using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
+@using XtremeIdiots.Portal.AdminWebApp.Extensions
+@using Microsoft.AspNetCore.Authorization
+@using XtremeIdiots.Portal.AdminWebApp.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
+@model GameServerDetailsViewModel
+
+@{
+    ViewData["Title"] = "Game Server Details";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.Title)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.Title)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.GameType)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.GameType)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.Hostname)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.ServerHostAndPort(Model.GameServerViewModel.Hostname, Model.GameServerViewModel.QueryPort)
+                            </dd>
+
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerViewModel.GameType, Model.GameServerViewModel.ServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
+                            {
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.GameServerViewModel.FtpHostname)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.FtpHostname)
+                                </dd>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.FtpPort)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.GameServerViewModel.FtpUsername)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.FtpUsername)
+                                </dd>
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.GameServerViewModel.FtpPassword)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.FtpPassword)
+                                </dd>
+                            }
+
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerViewModel.GameType, Model.GameServerViewModel.ServerId), AuthPolicies.ViewRconCredential)).Succeeded)
+                            {
+                                <dt class="col-sm-2">
+                                    @Html.DisplayNameFor(model => model.GameServerViewModel.RconPassword)
+                                </dt>
+                                <dd class="col-sm-10">
+                                    @Html.DisplayFor(model => model.GameServerViewModel.RconPassword)
+                                </dd>
+                            }
+
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.ShowOnBannerServerList)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.ShowOnBannerServerList)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.BannerServerListPosition)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.BannerServerListPosition)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.HtmlBanner)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.Raw(Model.GameServerViewModel.HtmlBanner)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.ShowOnPortalServerList)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.ShowOnPortalServerList)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServerViewModel.ShowChatLog)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.GameServerViewModel.ShowChatLog)
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="ibox-footer">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.GameServerViewModel.ServerId"><i class="fa fa-edit"></i> Edit</a>
+                            <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Ban File Monitors
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        File Path
+                                    </th>
+                                    <th>
+                                        Last Sync
+                                    </th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.BanFileMonitors)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameServerViewModel.GameType, Model.GameServerViewModel.ServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
+                                            {
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                                            }
+                                            else
+                                            {
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath)
+                                            }
+                                        </td>
+                                        <td>s
+                                            @Html.DisplayFor(modelItem => item.LastSync)
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
+                                                {
+                                                    <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit Monitor</a>
+                                                }
+
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewBanFileMonitor)).Succeeded)
+                                                {
+                                                    <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Details" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-info-circle"></i> Details</a>
+                                                }
+
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
+                                                {
+                                                    <a type="button" class="btn btn-danger" asp-controller="BanFileMonitors" asp-action="Delete" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-trash"></i> Delete</a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>

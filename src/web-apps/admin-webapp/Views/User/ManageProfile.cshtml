@@ -1,0 +1,161 @@
+﻿@using XtremeIdiots.Portal.AdminWebApp.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
+@model UserProfileViewModel
+
+@{
+    ViewData["Title"] = "Manage User Profile - " + Model.UserProfile.DisplayName;
+
+    var gameServers = (List<GameServerDto>) ViewData["GameServers"];
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="alert alert-primary" role="alert">
+        <i class="fa fa-info-circle"></i> To understand how the permissions work and what the additional permissions mean please see the <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
+    </div>
+
+    <row class="row">
+        <div class="col-6">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.UserProfile.DisplayName)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.UserProfile.DisplayName)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.UserProfile.Email)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.UserProfile.Email)
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-6">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Add Additional Portal Permission
+                    </div>
+                    <div class="ibox-content">
+                        <form asp-action="CreateUserClaim">
+                            <input id="id" name="id" type="hidden" value="@Model.UserProfile.Id"/>
+
+                            <div class="form-group">
+                                <label class="control-label">Permission Type</label>
+                                <select name="claimType" id="claimType" class="form-control">
+                                    <option value="FtpCredentials">FtpCredentials</option>
+                                    <option value="RconCredentials">RconCredentials</option>
+                                    <option value="GameServer">GameServer</option>
+                                    <option value="BanFileMonitor">BanFileMonitor</option>
+                                    <option value="RconMonitor">RconMonitor</option>
+                                    <option value="ServerAdmin">ServerAdmin</option>
+                                    <option value="LiveRcon">LiveRcon</option>
+                                </select>
+                            </div>
+
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <label class="control-label">Game Server</label>
+                                <select id="claimValue" name="claimValue" class="form-control" asp-items="ViewBag.GameServersSelect"></select>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-plus"> Add Additional Permission</i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Additional Portal Permission
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <thead>
+                            <tr>
+                                <td>Permission Type</td>
+                                <td>Game Server</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var claim in Model.UserProfileClaims)
+                            {
+                                <tr>
+                                    @{
+                                        Guid.TryParse(claim.ClaimValue, out var serverId);
+                                        var server = gameServers.FirstOrDefault(s => s.Id == serverId);
+                                    }
+
+                                    <td>@claim.ClaimType</td>
+                                    <td>
+                                        @{
+                                            if (server == null)
+                                            {
+                                                <text>Invalid Claim or you do not have permissions over this claim</text>
+                                            }
+                                            else
+                                            {
+                                                <text>@server.Title</text>
+                                            }
+                                        }
+                                    </td>
+                                    <td>
+                                        @{
+                                            if (server != null)
+                                            {
+                                                <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
+                                                    <input id="id" name="id" type="hidden" value="@Model.UserProfile.Id"/>
+                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.Id"/>
+
+                                                    <button class="btn btn-danger" type="submit">
+                                                        <i class="fa fa-trash"></i> Delete Permission
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

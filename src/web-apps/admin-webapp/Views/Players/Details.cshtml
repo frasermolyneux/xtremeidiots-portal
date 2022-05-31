@@ -1,0 +1,422 @@
+﻿@inject IAuthorizationService AuthorizationService
+@using FM.GeoLocation.Contract
+@using Microsoft.AspNetCore.Authorization
+@using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
+@using XtremeIdiots.Portal.AdminWebApp.Extensions
+@using XtremeIdiots.Portal.AdminWebApp.Models
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+@model PlayerDetailsViewModel
+
+@{
+    ViewData["Title"] = Model.Player.Username + " Player Details";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+<div class="row">
+
+    <div class="col-sm-4">
+        <div class="ibox">
+            <div class="ibox-content">
+
+                <span class="text-muted pull-right">
+                    @Html.GameTypeIcon(Model.Player.GameType.ToString())
+                </span>
+
+                <div id="player" class="tab-pane active">
+                    <div class="row m-b-lg" style="margin-left: 5px">
+                        <div class="text-center">
+                            <h2>@Model.Player.Username</h2>
+                        </div>
+                    </div>
+
+                    <div>
+                        <ul class="list-group clear-list">
+                            <li class="list-group-item fist-item">
+                                <span class="pull-right"> @Model.Player.Id</span>
+                                Player ID
+                            </li>
+                            <li class="list-group-item">
+                                <span class="pull-right"> @Model.Player.Username</span>
+                                Alias
+                            </li>
+
+                            @if (Model.GeoLocation != null)
+                            {
+                                <li class="list-group-item">
+                                    <span class="pull-right">
+                                        <a target="_blank" href="@GeoLocationUrls.LookupAddress(Model.Player.IpAddress)">
+                                            @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
+                                        </a>
+                                    </span>
+                                    IP Address
+                                </li>
+
+                                <li class="list-group-item">
+                                    <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
+                                    Country/City
+                                </li>
+                            }
+
+                            <li class="list-group-item">
+                                <span class="pull-right"> @Html.GuidLink(Model.Player.Guid, Model.Player.GameType.ToString())</span>
+                                GUID
+                            </li>
+                            <li class="list-group-item">
+                                <span class="pull-right">
+                                    <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, Model.Player.LastSeen)
+                                </span>
+                                Last Seen
+                            </li>
+                        </ul>
+
+                        <div style="padding-bottom: 10px; padding-top: 20px">
+                            <div>
+                                <ul>
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                        <li>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Observation">Add Observation</a>
+                                        </li>
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User,new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Warning), AuthPolicies.CreateAdminAction)).Succeeded)
+                                    {
+                                        <li>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Warning">Add Warning</a>
+                                        </li>
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Kick), AuthPolicies.CreateAdminAction)).Succeeded)
+                                    {
+                                        <li>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Kick">Add Kick</a>
+                                        </li>
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.TempBan), AuthPolicies.CreateAdminAction)).Succeeded)
+                                    {
+                                        <li>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="TempBan">Add Temp Ban</a>
+                                        </li>
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Ban), AuthPolicies.CreateAdminAction)).Succeeded)
+                                    {
+                                        <li>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Ban">Add Ban</a>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-8">
+        <div class="ibox ">
+            <div class="ibox-content">
+
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#location">Location</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#aliases">Aliases</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
+                    </li>
+                    @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#chatLog">ChatLog</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="ibox-content tab-pane container active" style="height: 100%" id="location">
+                        <div id="map" style="height: 450px; width: 100%;"></div>
+                        <a target="_blank" href="https://geo-location.net/">Powered by geo-location.net</a>
+                    </div>
+
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
+                        <table id="aliasesTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Name
+                                    </th>
+                                    <th>
+                                        Added
+                                    </th>
+                                    <th>
+                                        Last Used
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                        <table id="ipAddressesTable" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Address
+                                    </th>
+                                    <th>
+                                        Added
+                                    </th>
+                                    <th>
+                                        Last Used
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+                    {
+                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
+                            <table id="relatedPlayersTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Player Name
+                                        </th>
+                                        <th>
+                                            Connected By IP
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    }
+
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="chatLog">
+                        <table id="chatLogTable" style="width: 100%;">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Type
+                                </th>
+                                <th>
+                                    Message
+                                </th>
+                                <th>
+                                    Server
+                                </th> 
+                                <th>
+                                    Link
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@await Component.InvokeAsync("AdminActions", new {adminActions = Model.AdminActions, linkToPlayer = false})
+
+</div>
+
+@* ReSharper disable once Razor.SectionNotResolved *@
+
+@section Scripts {
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            $('#aliasesTable').DataTable({
+                processing: true,
+                order: [[2, "desc"]],
+                ajax: {
+                    url: '/Players/GetPlayerAliasesAjax/@Model.Player.Id',
+                    dataSrc: 'data',
+                    contentType: "application/json"
+                },
+                columns: [
+                    {
+                        data: 'name',
+                        name: 'name',
+                        sortable: true
+                    },
+                    {
+                        data: 'added',
+                        name: 'added',
+                        sortable: true
+                    },
+                    {
+                        data: 'lastUsed',
+                        name: 'lastUsed',
+                        sortable: true
+                    }
+                ]
+            });
+
+            $('#ipAddressesTable').DataTable({
+                processing: true,
+                order: [[2, "desc"]],
+                ajax: {
+                    url: '/Players/GetPlayerIpAddressesAjax/@Model.Player.Id',
+                    dataSrc: 'data',
+                    contentType: "application/json"
+                },
+                columns: [
+                    {
+                        data: 'address',
+                        name: 'address',
+                        sortable: true
+                    },
+                    {
+                        data: 'added',
+                        name: 'added',
+                        sortable: true
+                    },
+                    {
+                        data: 'lastUsed',
+                        name: 'lastUsed',
+                        sortable: true
+                    }
+                ]
+            });
+
+            @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
+            {
+                <text>
+
+                    $('#relatedPlayersTable').DataTable({
+                        processing: true,
+                        order: [[0, "asc"]],
+                        ajax: {
+                            url: '/Players/GetRelatedPlayersAjax/@Model.Player.Id?ipAddress=@Model.Player.IpAddress',
+                            dataSrc: 'data',
+                            contentType: "application/json"
+                        },
+                        columns: [
+                            {
+                                name: 'playerName',
+                                sortable: true,
+                                render: function(data, type, row) {
+                                    return renderPlayerName(row['gameType'], row['username'], row['playerId']);
+                                }
+                            },
+                            {
+                                name: 'connectedByIp',
+                                sortable: true,
+                                render: function(data, type, row) {
+                                    return geoLocationIpLink(row['ipAddress']);
+                                }
+                            }
+                        ]
+                    });
+
+                </text>
+            }
+
+            $('#chatLogTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searchDelay: 1000,
+                stateSave: true,
+                order: [[1, "desc"]],
+                ajax: {
+                    url: '/ServerAdmin/GetPlayerChatLog/@Model.Player.Id',
+                    dataSrc: 'data',
+                    contentType: "application/json",
+                    type: "POST",
+                    "data": function(d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                columns: [
+                    {
+                        data: 'timestamp',
+                        name: 'timestamp',
+                        sortable: true
+                    },
+                    {
+                        data: 'username',
+                        name: 'username',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return renderPlayerName(row['gameType'], row['username'], row['playerId']);
+                        }
+                    },
+                    {
+                        data: 'chatType',
+                        name: 'chatType',
+                        sortable: false
+                    },
+                    {
+                        data: 'message',
+                        name: 'message',
+                        sortable: false
+                    },
+                    {
+                        data: 'serverName',
+                        name: 'serverName',
+                        sortable: false
+                    },
+                    {
+                        data: 'chatLogId',
+                        name: 'chatLogId',
+                        sortable: false,
+                        render: function(data, type, row) {
+                            return chatLogUrl(row['chatLogId']);
+                        }
+                    }
+                ]
+            });
+
+        });
+
+        function initMap() {
+            @if (Model.GeoLocation != null)
+            {
+                <text>var myLatLng = {
+                        lat: @Model.GeoLocation.Latitude,
+                        lng: @Model.GeoLocation.Longitude
+                    };
+
+                    var map = new google.maps.Map(document.getElementById('map'),
+                        {
+                            zoom: 4,
+                            center: myLatLng
+                        });
+
+                    new google.maps.Marker({
+                        position: myLatLng,
+                        map: map,
+                        title: 'Player Location'
+                    });
+                </text>
+            }
+        }
+
+    </script>
+
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
+}

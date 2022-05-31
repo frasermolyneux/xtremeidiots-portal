@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/XI.Portal.Web/XI.Portal.Web.csproj",
+                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/XI.Portal.Web/XI.Portal.Web.csproj",
+                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +32,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/src/XI.Portal.Web/XI.Portal.Web.csproj",
+                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

@@ -19,7 +19,7 @@ stages:
   - template: templates/build-web-app.yml
     parameters: 
       jobName: 'BuildAdminWebApp'
-      projectName: 'XI.Portal.Web'
+      projectName: 'admin-webapp'
       nugetConfigPath: './src/nuget.config'
 
   - template: templates/build-function-app.yml

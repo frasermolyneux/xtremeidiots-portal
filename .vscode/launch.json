@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/XI.Portal.Web/bin/Debug/net5.0/XI.Portal.Web.dll",
+            "program": "${workspaceFolder}/src/web-apps/admin-webapp/bin/Debug/net5.0/admin-webapp.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/XI.Portal.Web",
+            "cwd": "${workspaceFolder}/src/web-apps/admin-webapp",
             "stopAtEntry": false,
             // Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
             "serverReadyAction": {

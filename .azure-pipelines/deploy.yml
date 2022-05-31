@@ -14,7 +14,7 @@ stages:
   - template: templates/build-web-app.yml
     parameters: 
       jobName: 'BuildAdminWebApp'
-      projectName: 'XI.Portal.Web'
+      projectName: 'admin-webapp'
       nugetConfigPath: './src/nuget.config'
       publishArtifact: true
 
@@ -280,7 +280,7 @@ stages:
   - template: templates/deploy-web-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
-      projectName: XI.Portal.Web
+      projectName: admin-webapp
       jobName: DeployAdminWebApp
       webAppName: "webapp-admin-portal-$(environment)-$(location)-01"
       webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"

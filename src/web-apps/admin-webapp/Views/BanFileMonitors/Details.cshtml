@@ -1,0 +1,59 @@
+﻿@using XtremeIdiots.Portal.AdminWebApp.Extensions
+@using XtremeIdiots.Portal.AdminWebApp.Models
+@model BanFileMonitorViewModel
+
+@{
+    ViewData["Title"] = "Ban File Monitor Details";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        @ViewData["Title"]
+                    </div>
+                    <div class="ibox-content">
+                        <dl class="row">
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.GameServer)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.ServerName(Model.GameServer.Title, null)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.FilePath)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort, Model.FilePath)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.RemoteFileSize)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.RemoteFileSize)
+                            </dd>
+                            <dt class="col-sm-2">
+                                @Html.DisplayNameFor(model => model.LastSync)
+                            </dt>
+                            <dd class="col-sm-10">
+                                @Html.DisplayFor(model => model.LastSync)
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="ibox-footer">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.BanFileMonitorId"><i class="fa fa-edit"></i> Edit</a>
+                            <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>

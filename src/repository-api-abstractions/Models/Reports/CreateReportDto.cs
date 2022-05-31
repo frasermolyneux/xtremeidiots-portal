@@ -13,10 +13,13 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
 
         [JsonProperty]
         public Guid PlayerId { get; private set; }
+
         [JsonProperty]
         public Guid UserProfileId { get; private set; }
+
         [JsonProperty]
         public Guid? ServerId { get; private set; }
+
         [JsonProperty]
         public string Comments { get; private set; }
     }

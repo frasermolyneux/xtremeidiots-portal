@@ -15,6 +15,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType Game { get; set; }
+
         [JsonProperty]
         public string UserId { get; set; }
     }

@@ -12,6 +12,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
 
         [JsonProperty]
         public Guid AdminUserProfileId { get; private set; }
+
         [JsonProperty]
         public string AdminClosingComments { get; private set; }
     }

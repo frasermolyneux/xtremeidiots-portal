@@ -15,19 +15,26 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
 
         [JsonProperty]
         public string Name { get; private set; }
+
         [JsonProperty]
         public string? IpAddress { get; set; }
+
         [JsonProperty]
         public double? Lat { get; set; }
+
         [JsonProperty]
         public double? Long { get; set; }
+
         [JsonProperty]
         public string? CountryCode { get; set; }
+
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; private set; }
+
         [JsonProperty]
         public Guid PlayerId { get; private set; }
+
         [JsonProperty]
         public Guid? ServerId { get; set; }
     }

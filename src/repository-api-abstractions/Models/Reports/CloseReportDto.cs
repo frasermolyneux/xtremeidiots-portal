@@ -1,4 +1,6 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
+﻿using Newtonsoft.Json;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
 {
     public class CloseReportDto
     {
@@ -8,7 +10,9 @@
             AdminClosingComments = closingComments;
         }
 
+        [JsonProperty]
         public Guid AdminUserProfileId { get; private set; }
+        [JsonProperty]
         public string AdminClosingComments { get; private set; }
     }
 }

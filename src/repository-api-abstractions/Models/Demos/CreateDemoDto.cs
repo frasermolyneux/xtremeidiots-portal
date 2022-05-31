@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
@@ -11,8 +12,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
             UserId = userId;
         }
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonProperty]
+        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType Game { get; set; }
+        [JsonProperty]
         public string UserId { get; set; }
     }
 }

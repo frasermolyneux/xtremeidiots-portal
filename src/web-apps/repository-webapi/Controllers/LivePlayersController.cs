@@ -89,6 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 Lat = livePlayerDto.Lat,
                 Long = livePlayerDto.Long,
                 CountryCode = livePlayerDto.CountryCode,
+                PlayerId = livePlayerDto.PlayerId,
                 GameServerServerId = livePlayerDto.GameServerServerId
             });
 
@@ -141,6 +142,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 livePlayer.Lat = livePlayerDto.Lat;
                 livePlayer.Long = livePlayerDto.Long;
                 livePlayer.CountryCode = livePlayerDto.CountryCode;
+                livePlayer.PlayerId = livePlayerDto.PlayerId;
                 livePlayer.GameServerServerId = livePlayerDto.GameServerServerId;
             }
 

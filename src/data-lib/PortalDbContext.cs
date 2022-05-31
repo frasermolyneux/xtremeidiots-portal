@@ -132,6 +132,11 @@ namespace XtremeIdiots.Portal.DataLib
                     .WithMany(p => p.LivePlayers)
                     .HasForeignKey(d => d.GameServerServerId)
                     .HasConstraintName("FK_dbo.LivePlayers_dbo.GameServers_GameServer_ServerId");
+
+                entity.HasOne(d => d.Player)
+                    .WithMany(p => p.LivePlayers)
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.LivePlayers_dbo.Players_PlayerId");
             });
 
             modelBuilder.Entity<Map>(entity =>

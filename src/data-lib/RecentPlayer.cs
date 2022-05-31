@@ -17,12 +17,10 @@ namespace XtremeIdiots.Portal.DataLib
         [Required]
         [StringLength(60)]
         public string Name { get; set; }
-        [Required]
         [StringLength(60)]
         public string IpAddress { get; set; }
-        public double Lat { get; set; }
-        public double Long { get; set; }
-        [Required]
+        public double? Lat { get; set; }
+        public double? Long { get; set; }
         [StringLength(60)]
         public string CountryCode { get; set; }
         public int GameType { get; set; }

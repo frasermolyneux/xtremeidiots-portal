@@ -13,8 +13,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
 
         public string Name { get; private set; }
         public string? IpAddress { get; set; }
-        public double Lat { get; set; }
-        public double Long { get; set; }
+        public double? Lat { get; set; }
+        public double? Long { get; set; }
         public string? CountryCode { get; set; }
         public GameType GameType { get; private set; }
         public Guid PlayerId { get; private set; }

@@ -17,6 +17,7 @@ namespace XtremeIdiots.Portal.DataLib
         {
             AdminActions = new HashSet<AdminAction>();
             ChatLogs = new HashSet<ChatLog>();
+            LivePlayers = new HashSet<LivePlayer>();
             MapVotes = new HashSet<MapVote>();
             PlayerAliases = new HashSet<PlayerAlias>();
             PlayerIpAddresses = new HashSet<PlayerIpAddress>();
@@ -39,6 +40,8 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<AdminAction> AdminActions { get; set; }
         [InverseProperty("PlayerPlayer")]
         public virtual ICollection<ChatLog> ChatLogs { get; set; }
+        [InverseProperty("Player")]
+        public virtual ICollection<LivePlayer> LivePlayers { get; set; }
         [InverseProperty("PlayerPlayer")]
         public virtual ICollection<MapVote> MapVotes { get; set; }
         [InverseProperty("PlayerPlayer")]

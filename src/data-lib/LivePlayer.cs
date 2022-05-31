@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 namespace XtremeIdiots.Portal.DataLib
 {
     [Index("GameServerServerId", Name = "IX_GameServer_ServerId")]
+    [Index("PlayerId", Name = "IX_Players_PlayerId")]
     public partial class LivePlayer
     {
         [Key]
@@ -30,11 +31,15 @@ namespace XtremeIdiots.Portal.DataLib
         [StringLength(60)]
         public string CountryCode { get; set; }
         public int GameType { get; set; }
+        public Guid? PlayerId { get; set; }
         [Column("GameServer_ServerId")]
         public Guid? GameServerServerId { get; set; }
 
         [ForeignKey("GameServerServerId")]
         [InverseProperty("LivePlayers")]
         public virtual GameServer GameServerServer { get; set; }
+        [ForeignKey("PlayerId")]
+        [InverseProperty("LivePlayers")]
+        public virtual Player Player { get; set; }
     }
 }

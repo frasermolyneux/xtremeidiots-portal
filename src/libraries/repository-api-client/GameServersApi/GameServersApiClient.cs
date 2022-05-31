@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
             this.memoryCache = memoryCache;
         }
 
-        public async Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[] serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
+        public async Task<List<GameServerDto>?> GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
         {
             var request = await CreateRequest("repository/game-servers", Method.Get);
 

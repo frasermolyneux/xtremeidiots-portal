@@ -2,7 +2,6 @@
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc;
 using XtremeIdiots.Portal.ServersApiClient;
@@ -46,5 +45,6 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         builder.Services.AddLogging();
+        builder.Services.AddMemoryCache();
     }
 }

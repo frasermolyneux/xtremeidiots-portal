@@ -22,6 +22,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
                 Long = livePlayer.Long,
                 CountryCode = livePlayer.CountryCode,
                 GameType = livePlayer.GameType.ToGameType(),
+                PlayerId = livePlayer.PlayerId,
                 GameServerServerId = livePlayer.GameServerServerId
             };
 

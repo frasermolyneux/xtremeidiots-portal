@@ -1,5 +1,5 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.MapsApi
 {

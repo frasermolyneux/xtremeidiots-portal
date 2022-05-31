@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.IngestFunc;

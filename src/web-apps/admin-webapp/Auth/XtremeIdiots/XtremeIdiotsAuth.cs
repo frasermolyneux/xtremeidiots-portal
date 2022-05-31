@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using XtremeIdiots.Portal.InvisionApiClient;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots

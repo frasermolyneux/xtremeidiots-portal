@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.IngestFunc;

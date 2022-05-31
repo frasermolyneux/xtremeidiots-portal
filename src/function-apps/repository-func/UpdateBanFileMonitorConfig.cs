@@ -2,7 +2,7 @@ using FluentFTP;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.RepositoryFunc

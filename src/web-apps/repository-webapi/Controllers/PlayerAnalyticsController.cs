@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using XtremeIdiots.Portal.DataLib;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {

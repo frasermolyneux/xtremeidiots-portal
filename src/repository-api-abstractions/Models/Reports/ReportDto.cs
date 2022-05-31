@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
 {

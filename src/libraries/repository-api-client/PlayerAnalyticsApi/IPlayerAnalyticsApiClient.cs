@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi
 {

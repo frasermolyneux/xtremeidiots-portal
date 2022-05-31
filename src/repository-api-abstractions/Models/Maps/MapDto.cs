@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
-namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps
 {
     public class MapDto
     {

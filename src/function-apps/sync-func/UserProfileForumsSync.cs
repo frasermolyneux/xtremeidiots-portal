@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.InvisionApiClient.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.SyncFunc

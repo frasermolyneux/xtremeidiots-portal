@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 
 namespace XtremeIdiots.Portal.ForumsIntegration
 {

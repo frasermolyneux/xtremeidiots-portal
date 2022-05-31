@@ -1,5 +1,6 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Models
 {

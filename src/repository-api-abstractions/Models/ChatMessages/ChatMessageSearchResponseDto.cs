@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
 {
     public class ChatMessageSearchResponseDto
     {

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi
 {

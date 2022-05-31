@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Models
 {

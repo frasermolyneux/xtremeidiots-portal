@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
 

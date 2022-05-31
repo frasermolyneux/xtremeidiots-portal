@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
     public class PlayersSearchResponseDto
     {

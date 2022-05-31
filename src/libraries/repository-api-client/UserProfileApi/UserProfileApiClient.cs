@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RestSharp;
 using System.Net;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi
 {

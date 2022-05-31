@@ -1,5 +1,5 @@
 ﻿using XtremeIdiots.Portal.DataLib;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
 {

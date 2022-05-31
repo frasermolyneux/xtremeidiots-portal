@@ -1434,6 +1434,18 @@
                 }
             }
         },
+        "/data-maintenance/prune-recent-players": {
+            "delete": {
+                "summary": "data-maintenance/prune-recent-players",
+                "description": "Prunes recent players from the database",
+                "operationId": "delete-prune-recent-players",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
         "/game-servers-stats/{server-id}": {
             "get": {
                 "summary": "game-servers-stats/{server-id}",

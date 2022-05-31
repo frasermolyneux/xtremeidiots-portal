@@ -77,7 +77,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new BadRequestResult();
             }
 
-            if (createRecentPlayersDto == null || createRecentPlayersDto.Count == 0)
+            if (createRecentPlayersDto == null || !createRecentPlayersDto.Any())
                 return new BadRequestResult();
 
             foreach (var createRecentPlayerDto in createRecentPlayersDto)

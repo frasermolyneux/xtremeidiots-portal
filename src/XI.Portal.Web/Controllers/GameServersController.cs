@@ -5,7 +5,7 @@ using XI.Portal.Web.Auth.Constants;
 using XI.Portal.Web.Extensions;
 using XI.Portal.Web.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XI.Portal.Web.Controllers
@@ -57,11 +57,9 @@ namespace XI.Portal.Web.Controllers
                 return View(model);
             }
 
-            var gameServerDto = new GameServerDto()
-            {
-                GameType = model.GameType
-            };
-
+#pragma warning disable CS8604 // Possible null reference argument. // ModelState check is just above.
+            var gameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
+#pragma warning restore CS8604 // Possible null reference argument.
             var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.CreateGameServer);
 
             if (!canCreateGameServer.Succeeded)

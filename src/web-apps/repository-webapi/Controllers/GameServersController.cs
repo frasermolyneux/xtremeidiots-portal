@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -108,12 +109,10 @@ public class GameServersController : Controller
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<GameServerDto> gameServers;
+        List<CreateGameServerDto>? createGameServerDtos;
         try
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServers = JsonConvert.DeserializeObject<List<GameServerDto>>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            createGameServerDtos = JsonConvert.DeserializeObject<List<CreateGameServerDto>>(requestBody);
         }
         catch (Exception ex)
         {
@@ -121,23 +120,48 @@ public class GameServersController : Controller
             return new BadRequestResult();
         }
 
-        if (gameServers == null) return new BadRequestResult();
+        if (createGameServerDtos == null || !createGameServerDtos.Any())
+            return new BadRequestResult();
 
-        foreach (var gameServer in gameServers)
+        var gameServers = new List<GameServer>();
+
+        foreach (var createGameServerDto in createGameServerDtos)
         {
-            var existingGameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServer.Id);
-            if (existingGameServer != null) return new ConflictObjectResult(existingGameServer);
+            var gameServer = new GameServer
+            {
+                Title = createGameServerDto.Title,
+                GameType = createGameServerDto.GameType.ToGameTypeInt(),
+                Hostname = createGameServerDto.Hostname,
+                QueryPort = createGameServerDto.QueryPort,
+                FtpHostname = createGameServerDto.FtpHostname,
+                FtpPort = createGameServerDto.FtpPort,
+                FtpUsername = createGameServerDto.FtpUsername,
+                FtpPassword = createGameServerDto.FtpPassword,
+                RconPassword = createGameServerDto.RconPassword,
+                LiveStatusEnabled = createGameServerDto.LiveStatusEnabled,
+                BannerServerListPosition = createGameServerDto.BannerServerListPosition,
+                ShowOnBannerServerList = createGameServerDto.ShowOnBannerServerList,
+                ShowOnPortalServerList = createGameServerDto.ShowOnPortalServerList,
+                ShowChatLog = createGameServerDto.ShowChatLog,
+                HtmlBanner = createGameServerDto.HtmlBanner
+            };
 
-            if (string.IsNullOrWhiteSpace(gameServer.Title)) gameServer.Title = "to-be-updated";
-
-            if (string.IsNullOrWhiteSpace(gameServer.Hostname)) gameServer.Hostname = "127.0.0.1";
-
-            //await Context.GameServers.AddAsync(gameServer);
+            gameServers.Add(gameServer);
         }
 
-        //await Context.SaveChangesAsync();
+        await context.GameServers.AddRangeAsync(gameServers);
+        await context.SaveChangesAsync();
 
-        return new OkObjectResult(gameServers);
+        var entries = gameServers.Select(gs => new GameServerDtoWrapper(gs)).ToList();
+
+        var response = new CollectionResponseDto<GameServerDtoWrapper>
+        {
+            TotalRecords = gameServers.Count,
+            FilteredRecords = gameServers.Count,
+            Entries = entries
+        };
+
+        return new OkObjectResult(response);
     }
 
     [HttpPatch]
@@ -260,5 +284,34 @@ public class GameServersController : Controller
         await context.SaveChangesAsync();
 
         return new OkResult();
+    }
+
+    public class GameServerDtoWrapper : GameServerDto
+    {
+        public GameServerDtoWrapper(GameServer gameServer)
+        {
+            Id = gameServer.ServerId;
+            Title = gameServer.Title;
+            HtmlBanner = gameServer.HtmlBanner;
+            GameType = gameServer.GameType.ToGameType();
+            Hostname = gameServer.Hostname;
+            QueryPort = gameServer.QueryPort;
+            FtpHostname = gameServer.FtpHostname;
+            FtpPort = gameServer.FtpPort;
+            FtpUsername = gameServer.FtpUsername;
+            FtpPassword = gameServer.FtpPassword;
+            LiveStatusEnabled = gameServer.LiveStatusEnabled;
+            LiveTitle = gameServer.LiveTitle;
+            LiveMap = gameServer.LiveMap;
+            LiveMod = gameServer.LiveMod;
+            LiveMaxPlayers = gameServer.LiveMaxPlayers;
+            LiveCurrentPlayers = gameServer.LiveCurrentPlayers;
+            LiveLastUpdated = gameServer.LiveLastUpdated;
+            ShowOnBannerServerList = gameServer.ShowOnBannerServerList;
+            BannerServerListPosition = gameServer.BannerServerListPosition;
+            ShowOnPortalServerList = gameServer.ShowOnPortalServerList;
+            ShowChatLog = gameServer.ShowChatLog;
+            RconPassword = gameServer.RconPassword;
+        }
     }
 }

@@ -6,6 +6,7 @@ using RestSharp;
 using System.Net;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
@@ -82,10 +83,18 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
             await ExecuteAsync(request);
         }
 
-        public async Task CreateGameServer(GameServerDto gameServer)
+        public async Task CreateGameServer(CreateGameServerDto createGameServerDto)
         {
             var request = await CreateRequest("repository/game-servers", Method.Post);
-            request.AddJsonBody(new List<GameServerDto> { gameServer });
+            request.AddJsonBody(new List<CreateGameServerDto> { createGameServerDto });
+
+            await ExecuteAsync(request);
+        }
+
+        public async Task CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
+        {
+            var request = await CreateRequest("repository/game-servers", Method.Post);
+            request.AddJsonBody(createGameServerDtos);
 
             await ExecuteAsync(request);
         }

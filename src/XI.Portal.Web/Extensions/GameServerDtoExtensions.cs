@@ -1,5 +1,5 @@
 ﻿using XI.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XI.Portal.Web.Extensions
 {

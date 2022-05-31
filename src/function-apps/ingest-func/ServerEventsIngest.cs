@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -52,13 +51,7 @@ public class ServerEventsIngest
 
         if (existingServer == null)
         {
-            var gameServer = new GameServerDto
-            {
-                Id = Guid.Parse(onServerConnected.Id),
-                GameType = onServerConnected.GameType.ToGameType()
-            };
-
-            await _repositoryApiClient.GameServers.CreateGameServer(gameServer);
+            //await _repositoryApiClient.GameServers.CreateGameServer(gameServer);
         }
     }
 

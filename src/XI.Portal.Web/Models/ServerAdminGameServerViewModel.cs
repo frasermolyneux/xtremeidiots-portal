@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 
 namespace XI.Portal.Web.Models

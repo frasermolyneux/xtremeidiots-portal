@@ -1,5 +1,6 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
 {
@@ -7,7 +8,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.GameServersApi
     {
         Task<List<GameServerDto>?> GetGameServers(GameType[] gameTypes, Guid[]? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order);
         Task<GameServerDto?> GetGameServer(Guid serverId);
-        Task CreateGameServer(GameServerDto gameServer);
+        Task CreateGameServer(CreateGameServerDto createGameServerDto);
+        Task CreateGameServers(List<CreateGameServerDto> createGameServerDtos);
         Task UpdateGameServer(GameServerDto gameServer);
 
         // Ban File Monitor Child Resources

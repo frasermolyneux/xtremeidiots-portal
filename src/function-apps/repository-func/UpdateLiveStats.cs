@@ -6,6 +6,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc.Extensions;

@@ -9,9 +9,9 @@ namespace XI.Portal.Web.Models
         public Guid ServerId { get; set; }
         [Required][MaxLength(60)] public string? Title { get; set; }
         [Required][DisplayName("Game")] public GameType GameType { get; set; }
-        public string? Hostname { get; set; }
+        [Required] public string? Hostname { get; set; }
 
-        [DisplayName("Query Port")] public int QueryPort { get; set; }
+        [Required][DisplayName("Query Port")] public int QueryPort { get; set; }
 
         [DisplayName("Ftp Hostname")] public string? FtpHostname { get; set; }
         [DisplayName("Ftp Port")] public int FtpPort { get; set; }

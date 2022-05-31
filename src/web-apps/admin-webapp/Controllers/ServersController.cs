@@ -39,9 +39,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Map()
         {
-            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, null, LivePlayerFilter.GeoLocated);
+            var recentPlayersCollectionDto = await repositoryApiClient.RecentPlayers.GetRecentPlayers(null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated, 0, 200, null);
 
-            return View(livePlayersResponseDto.Entries);
+            return View(recentPlayersCollectionDto?.Entries);
         }
 
         [HttpGet]

@@ -1,4 +1,5 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+﻿using System.Text.Json.Serialization;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 {
@@ -13,6 +14,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         }
 
         public string Title { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; set; }
         public string Hostname { get; set; }
         public int QueryPort { get; set; }

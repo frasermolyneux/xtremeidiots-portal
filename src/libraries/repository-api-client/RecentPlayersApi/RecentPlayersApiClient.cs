@@ -24,7 +24,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.RecentPlayersApi
                 request.AddQueryParameter("serverId", serverId.ToString());
 
             if (cutoff.HasValue)
-                request.AddQueryParameter("cutoff", cutoff.ToString());
+                request.AddQueryParameter("cutoff", cutoff.Value.ToString("MM/dd/yyyy HH:mm:ss"));
 
             if (filterType.HasValue)
                 request.AddQueryParameter("filterType", filterType.ToString());

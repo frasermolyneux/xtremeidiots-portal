@@ -53,12 +53,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                 {
                     _logger.LogInformation($"BanFileIngest - creating new player {name} with guid {guid} with import ban");
 
-                    await repositoryApiClient.Players.CreatePlayer(new PlayerDto()
-                    {
-                        GameType = gameType.ToGameType(),
-                        Username = name,
-                        Guid = guid
-                    });
+                    await repositoryApiClient.Players.CreatePlayer(new CreatePlayerDto(name, guid, gameType.ToGameType()));
 
                     player = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
 

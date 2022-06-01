@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
         Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid playerId);
         Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress);
         Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid);
-        Task CreatePlayer(PlayerDto player);
+        Task CreatePlayer(CreatePlayerDto createPlayerDto);
         Task UpdatePlayer(PlayerDto player);
         Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order);
         Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId);

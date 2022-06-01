@@ -133,6 +133,21 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     {
                         livePlayerDto.PlayerId = playerId;
                     }
+                    else if (!string.IsNullOrWhiteSpace(rconPlayer.Name))
+                    {
+                        var player = new CreatePlayerDto(rconPlayer.Name, rconPlayer.Guid, gameServerDto.GameType)
+                        {
+                            IpAddress = rconPlayer.IpAddress
+                        };
+
+                        await repositoryApiClient.Players.CreatePlayer(player);
+
+                        playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid);
+                        if (playerId.HasValue)
+                        {
+                            livePlayerDto.PlayerId = playerId;
+                        }
+                    }
                 }
 
                 livePlayerDtos.Add(livePlayerDto);

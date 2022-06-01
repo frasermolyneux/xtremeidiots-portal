@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System.Net;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
@@ -132,12 +131,10 @@ public class PlayersController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<PlayerDto> playerDtos;
+        List<CreatePlayerDto>? createPlayerDtos;
         try
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            playerDtos = JsonConvert.DeserializeObject<List<PlayerDto>>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            createPlayerDtos = JsonConvert.DeserializeObject<List<CreatePlayerDto>>(requestBody);
         }
         catch (Exception ex)
         {
@@ -145,28 +142,27 @@ public class PlayersController : ControllerBase
             return new BadRequestResult();
         }
 
-        if (playerDtos == null) return new BadRequestResult();
+        if (createPlayerDtos == null || !createPlayerDtos.Any()) return new BadRequestResult();
 
-        foreach (var player in playerDtos)
+        foreach (var createPlayerDto in createPlayerDtos)
         {
-            var existingPlayer = await context.Players.SingleOrDefaultAsync(p => p.GameType == player.GameType.ToGameTypeInt() && p.Guid == player.Guid);
+            if (await context.Players.AnyAsync(p => p.GameType == createPlayerDto.GameType.ToGameTypeInt() && p.Guid == createPlayerDto.Guid))
+                return new ConflictObjectResult($"Player with gameType '{createPlayerDto.GameType}' and guid '{createPlayerDto.Guid}' already exists");
 
-            if (existingPlayer != null) return new ConflictObjectResult(existingPlayer);
-
-            var player2 = new Player
+            var player = new Player
             {
-                Username = player.Username.Trim(),
-                Guid = player.Guid.ToLower().Trim(),
-                GameType = player.GameType.ToGameTypeInt(),
+                Username = createPlayerDto.Username.Trim(),
+                Guid = createPlayerDto.Guid.ToLower().Trim(),
+                GameType = createPlayerDto.GameType.ToGameTypeInt(),
                 FirstSeen = DateTime.UtcNow,
                 LastSeen = DateTime.UtcNow
             };
 
-            if (IPAddress.TryParse(player.IpAddress, out var ip))
+            if (IPAddress.TryParse(createPlayerDto.IpAddress, out var ip))
             {
-                player2.IpAddress = ip.ToString();
+                player.IpAddress = ip.ToString();
 
-                player2.PlayerIpAddresses = new List<PlayerIpAddress>
+                player.PlayerIpAddresses = new List<PlayerIpAddress>
                 {
                     new PlayerIpAddress
                     {
@@ -178,23 +174,23 @@ public class PlayersController : ControllerBase
                 };
             }
 
-            player2.PlayerAliases = new List<PlayerAlias>
+            player.PlayerAliases = new List<PlayerAlias>
             {
                 new PlayerAlias
                 {
                     PlayerAliasId = Guid.NewGuid(),
-                    Name = player.Username.Trim(),
+                    Name = createPlayerDto.Username.Trim(),
                     Added = DateTime.UtcNow,
                     LastUsed = DateTime.UtcNow
                 }
             };
 
-            await context.Players.AddAsync(player2);
+            await context.Players.AddAsync(player);
         }
 
         await context.SaveChangesAsync();
 
-        return new OkObjectResult(playerDtos);
+        return new OkResult();
     }
 
     [HttpPatch]

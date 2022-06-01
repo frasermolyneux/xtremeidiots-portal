@@ -72,11 +72,8 @@ public class PlayerEventsIngest
 
         if (existingPlayer == null)
         {
-            var player = new PlayerDto
+            var player = new CreatePlayerDto(onPlayerConnected.Username, onPlayerConnected.Guid, onPlayerConnected.GameType.ToGameType())
             {
-                GameType = onPlayerConnected.GameType.ToGameType(),
-                Guid = onPlayerConnected.Guid,
-                Username = onPlayerConnected.Username,
                 IpAddress = onPlayerConnected.IpAddress
             };
 

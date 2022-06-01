@@ -163,10 +163,10 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.PlayersApi
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
-        public async Task CreatePlayer(PlayerDto player)
+        public async Task CreatePlayer(CreatePlayerDto createPlayerDto)
         {
             var request = await CreateRequest("repository/players", Method.Post);
-            request.AddJsonBody(new List<PlayerDto> { player });
+            request.AddJsonBody(new List<CreatePlayerDto> { createPlayerDto });
 
             await ExecuteAsync(request);
         }

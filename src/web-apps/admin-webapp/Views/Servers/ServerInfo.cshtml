@@ -299,23 +299,21 @@
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.load('current', { 'packages': ['corechart', 'timeline'] });
         google.charts.setOnLoadCallback(drawPlayerCountChart);
 
         function drawPlayerCountChart() {
             var playerCountData = new google.visualization.DataTable();
-            playerCountData.addColumn('date', 'Timestamp');
+            playerCountData.addColumn('datetime', 'Timestamp');
             playerCountData.addColumn('number', 'Player Count');
 
             playerCountData.addRows([
-
                 @foreach (var item in Model.GameServerStats)
                 {
                     <text>
-                        [new Date(@item.Timestamp.Year, @item.Timestamp.Month, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second), @item.PlayerCount],
+                        [new Date(@item.Timestamp.Year, @item.Timestamp.Month-1, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second, @item.Timestamp.Millisecond), @item.PlayerCount],
                     </text>
                 }
-
             ]);
 
             var playerCountOptions = {
@@ -333,7 +331,6 @@
     @if (Model.MapTimelineDataPoints.Any())
     {
         <script type="text/javascript">
-            google.charts.load("current", { packages: ["timeline"] });
             google.charts.setOnLoadCallback(drawMapTimelineChart);
 
             function drawMapTimelineChart() {
@@ -342,8 +339,8 @@
                 var chart = new google.visualization.Timeline(container);
                 var dataTable = new google.visualization.DataTable();
                 dataTable.addColumn({ type: 'string', id: 'Map Name' });
-                dataTable.addColumn({ type: 'date', id: 'Start' });
-                dataTable.addColumn({ type: 'date', id: 'End' });
+                dataTable.addColumn({ type: 'datetime', id: 'Start' });
+                dataTable.addColumn({ type: 'datetime', id: 'End' });
                 dataTable.addRows([
 
                     @foreach(var mapTimelineDataPoints in Model.MapTimelineDataPoints)
@@ -351,8 +348,8 @@
                         <text>
                             [
                                 '@mapTimelineDataPoints.MapName',
-                                new Date(@mapTimelineDataPoints.Start.Year, @mapTimelineDataPoints.Start.Month, @mapTimelineDataPoints.Start.Day, @mapTimelineDataPoints.Start.Hour, @mapTimelineDataPoints.Start.Minute, @mapTimelineDataPoints.Start.Second),
-                                new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second)
+                                new Date(@mapTimelineDataPoints.Start.Year, @mapTimelineDataPoints.Start.Month-1, @mapTimelineDataPoints.Start.Day, @mapTimelineDataPoints.Start.Hour, @mapTimelineDataPoints.Start.Minute, @mapTimelineDataPoints.Start.Second, @mapTimelineDataPoints.Start.Millisecond),
+                                new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month-1, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second, @mapTimelineDataPoints.End.Millisecond)
                             ],
                         </text>
                     }

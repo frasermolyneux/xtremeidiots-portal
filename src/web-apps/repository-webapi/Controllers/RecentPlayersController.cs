@@ -45,12 +45,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddHours(-48))
                 cutoff = DateTime.UtcNow.AddHours(-48);
 
-            var response = await GetRecentPlayers(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((IRecentPlayersApi)this).GetRecentPlayers(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
+        async Task<ApiResponseDto<RecentPlayersCollectionDto>> IRecentPlayersApi.GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
             var query = context.RecentPlayers.AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
@@ -93,12 +93,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (createRecentPlayerDtos == null || !createRecentPlayerDtos.Any())
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-            var response = await CreateRecentPlayers(createRecentPlayerDtos);
+            var response = await ((IRecentPlayersApi)this).CreateRecentPlayers(createRecentPlayerDtos);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto> CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)
+        async Task<ApiResponseDto> IRecentPlayersApi.CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)
         {
             foreach (var createRecentPlayerDto in createRecentPlayerDtos)
             {

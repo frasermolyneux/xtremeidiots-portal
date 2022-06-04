@@ -36,12 +36,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/reports/{reportId}")]
         public async Task<IActionResult> GetReportApi(Guid reportId)
         {
-            var response = await GetReport(reportId);
+            var response = await ((IReportsApi)this).GetReport(reportId);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto<ReportDto>> GetReport(Guid reportId)
+        async Task<ApiResponseDto<ReportDto>> IReportsApi.GetReport(Guid reportId)
         {
             var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
 
@@ -66,12 +66,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddDays(-14))
                 cutoff = DateTime.UtcNow.AddDays(-14);
 
-            var response = await GetReports(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((IReportsApi)this).GetReports(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
+        async Task<ApiResponseDto<ReportsCollectionDto>> IReportsApi.GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
         {
             var query = context.Reports.Include(r => r.UserProfile).Include(r => r.AdminUserProfile).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
@@ -114,12 +114,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (createReportDtos == null || createReportDtos.Count == 0)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-            var response = await CreateReports(createReportDtos);
+            var response = await ((IReportsApi)this).CreateReports(createReportDtos);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto> CreateReports(List<CreateReportDto> createReportDtos)
+        async Task<ApiResponseDto> IReportsApi.CreateReports(List<CreateReportDto> createReportDtos)
         {
             var reports = createReportDtos.Select(r => mapper.Map<Report>(r)).ToList();
 
@@ -148,12 +148,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (closeReportDto == null)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-            var response = await CloseReport(reportId, closeReportDto);
+            var response = await ((IReportsApi)this).CloseReport(reportId, closeReportDto);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto> CloseReport(Guid reportId, CloseReportDto closeReportDto)
+        async Task<ApiResponseDto> IReportsApi.CloseReport(Guid reportId, CloseReportDto closeReportDto)
         {
             var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
 

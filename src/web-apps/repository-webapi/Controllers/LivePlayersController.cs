@@ -42,12 +42,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (!takeEntries.HasValue)
                 takeEntries = 20;
 
-            var response = await GetLivePlayers(gameType, serverId, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((ILivePlayersApi)this).GetLivePlayers(gameType, serverId, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto<LivePlayersCollectionDto>> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
+        async Task<ApiResponseDto<LivePlayersCollectionDto>> ILivePlayersApi.GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
             var query = context.LivePlayers.AsQueryable();
             query = ApplyFilter(query, gameType, null, null);
@@ -90,12 +90,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (createLivePlayerDtos == null)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-            var response = await SetLivePlayersForGameServer(serverId, createLivePlayerDtos);
+            var response = await ((ILivePlayersApi)this).SetLivePlayersForGameServer(serverId, createLivePlayerDtos);
 
             return response.ToHttpResult();
         }
 
-        public async Task<ApiResponseDto> SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)
+        async Task<ApiResponseDto> ILivePlayersApi.SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)
         {
             await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using XtremeIdiots.Portal.InvisionApiClient.CoreApi;
-using XtremeIdiots.Portal.InvisionApiClient.DownloadsApi;
-using XtremeIdiots.Portal.InvisionApiClient.ForumsApi;
+
+using XtremeIdiots.Portal.InvisionApiClient.Api;
+using XtremeIdiots.Portal.InvisionApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.InvisionApiClient
 {
@@ -12,9 +12,9 @@ namespace XtremeIdiots.Portal.InvisionApiClient
         {
             serviceCollection.Configure(options);
 
-            serviceCollection.AddSingleton<ICoreApiClient, CoreApiClient>();
-            serviceCollection.AddSingleton<IDownloadsApiClient, DownloadsApiClient>();
-            serviceCollection.AddSingleton<IForumsApiClient, ForumsApiClient>();
+            serviceCollection.AddSingleton<ICoreApi, CoreApi>();
+            serviceCollection.AddSingleton<IDownloadsApi, DownloadsApi>();
+            serviceCollection.AddSingleton<IForumsApi, ForumsApi>();
 
             serviceCollection.AddSingleton<IInvisionApiClient, InvisionApiClient>();
         }

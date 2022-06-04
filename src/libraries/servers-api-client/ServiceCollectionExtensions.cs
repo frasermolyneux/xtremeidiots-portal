@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using XtremeIdiots.Portal.ServersApiClient.QueryApi;
-using XtremeIdiots.Portal.ServersApiClient.RconApi;
+
+using XtremeIdiots.Portal.ServersApiClient.Api;
+using XtremeIdiots.Portal.ServersApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.ServersApiClient
 {
@@ -13,8 +14,8 @@ namespace XtremeIdiots.Portal.ServersApiClient
 
             serviceCollection.AddSingleton<IServersApiTokenProvider, ServersApiTokenProvider>();
 
-            serviceCollection.AddSingleton<IQueryApiClient, QueryApiClient>();
-            serviceCollection.AddSingleton<IRconApiClient, RconApiClient>();
+            serviceCollection.AddSingleton<IQueryApi, QueryApi>();
+            serviceCollection.AddSingleton<IRconApi, RconApi>();
 
             serviceCollection.AddSingleton<IServersApiClient, ServersApiClient>();
         }

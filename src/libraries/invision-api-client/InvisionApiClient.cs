@@ -1,23 +1,21 @@
-﻿using XtremeIdiots.Portal.InvisionApiClient.CoreApi;
-using XtremeIdiots.Portal.InvisionApiClient.DownloadsApi;
-using XtremeIdiots.Portal.InvisionApiClient.ForumsApi;
+﻿using XtremeIdiots.Portal.InvisionApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.InvisionApiClient
 {
     public class InvisionApiClient : IInvisionApiClient
     {
         public InvisionApiClient(
-            ICoreApiClient coreApiClient,
-            IDownloadsApiClient downloadsApiClient,
-            IForumsApiClient forumsApiClient)
+            ICoreApi coreApiClient,
+            IDownloadsApi downloadsApiClient,
+            IForumsApi forumsApiClient)
         {
             Core = coreApiClient;
             Downloads = downloadsApiClient;
             Forums = forumsApiClient;
         }
 
-        public ICoreApiClient Core { get; }
-        public IDownloadsApiClient Downloads { get; }
-        public IForumsApiClient Forums { get; }
+        public ICoreApi Core { get; }
+        public IDownloadsApi Downloads { get; }
+        public IForumsApi Forums { get; }
     }
 }

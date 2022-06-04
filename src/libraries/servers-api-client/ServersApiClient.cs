@@ -1,20 +1,19 @@
 ﻿
-using XtremeIdiots.Portal.ServersApiClient.QueryApi;
-using XtremeIdiots.Portal.ServersApiClient.RconApi;
+using XtremeIdiots.Portal.ServersApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.ServersApiClient
 {
     public class ServersApiClient : IServersApiClient
     {
         public ServersApiClient(
-            IQueryApiClient queryApiClient,
-            IRconApiClient rconApiClient)
+            IQueryApi queryApiClient,
+            IRconApi rconApiClient)
         {
             Query = queryApiClient;
             Rcon = rconApiClient;
         }
 
-        public IQueryApiClient Query { get; }
-        public IRconApiClient Rcon { get; }
+        public IQueryApi Query { get; }
+        public IRconApi Rcon { get; }
     }
 }

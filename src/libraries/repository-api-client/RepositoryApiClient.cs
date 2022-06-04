@@ -1,41 +1,26 @@
-﻿using XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DataMaintenanceApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersStatsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.RecentPlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.ReportsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi;
+﻿using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {
     public class RepositoryApiClient : IRepositoryApiClient
     {
         public RepositoryApiClient(
-            IAdminActionsApiClient adminActionsApiClient,
-            IBanFileMonitorsApiClient banFileMonitorsApiClient,
-            IChatMessagesApiClient chatMessagesApiClient,
-            IDataMaintenanceApiClient dataMaintenanceApiClient,
-            IDemosAuthApiClient demosAuthApiClient,
-            IDemosApiClient demosApiClient,
-            IGameServersApiClient gameServersApiClient,
-            IGameServersEventsApiClient gameServersEventsApiClient,
-            IGameServersStatsApiClient gameServersStatsApiClient,
-            ILivePlayersApiClient livePlayersApiClient,
-            IMapsApiClient mapsApiClient,
-            IPlayerAnalyticsApiClient playerAnalyticsApiClient,
-            IPlayersApiClient playersApiClient,
-            IRecentPlayersApiClient recentPlayersApiClient,
-            IReportsApiClient reportsApiClient,
-            IUserProfileApiClient userProfileApiClient)
+            IAdminActionsApi adminActionsApiClient,
+            IBanFileMonitorsApi banFileMonitorsApiClient,
+            IChatMessagesApi chatMessagesApiClient,
+            IDataMaintenanceApi dataMaintenanceApiClient,
+            IDemosAuthApi demosAuthApiClient,
+            IDemosApi demosApiClient,
+            IGameServersApi gameServersApiClient,
+            IGameServersEventsApi gameServersEventsApiClient,
+            IGameServersStatsApi gameServersStatsApiClient,
+            ILivePlayersApi livePlayersApiClient,
+            IMapsApi mapsApiClient,
+            IPlayerAnalyticsApi playerAnalyticsApiClient,
+            IPlayersApi playersApiClient,
+            IRecentPlayersApi recentPlayersApiClient,
+            IReportsApi reportsApiClient,
+            IUserProfileApi userProfileApiClient)
         {
             AdminActions = adminActionsApiClient;
             BanFileMonitors = banFileMonitorsApiClient;
@@ -55,21 +40,21 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             UserProfiles = userProfileApiClient;
         }
 
-        public IAdminActionsApiClient AdminActions { get; }
-        public IBanFileMonitorsApiClient BanFileMonitors { get; }
-        public IChatMessagesApiClient ChatMessages { get; }
-        public IDataMaintenanceApiClient DataMaintenance { get; }
-        public IDemosAuthApiClient DemosAuth { get; }
-        public IDemosApiClient Demos { get; }
-        public IGameServersApiClient GameServers { get; }
-        public IGameServersEventsApiClient GameServersEvents { get; }
-        public IGameServersStatsApiClient GameServersStats { get; }
-        public ILivePlayersApiClient LivePlayers { get; }
-        public IMapsApiClient Maps { get; }
-        public IPlayerAnalyticsApiClient PlayerAnalytics { get; }
-        public IPlayersApiClient Players { get; }
-        public IRecentPlayersApiClient RecentPlayers { get; }
-        public IReportsApiClient Reports { get; }
-        public IUserProfileApiClient UserProfiles { get; }
+        public IAdminActionsApi AdminActions { get; }
+        public IBanFileMonitorsApi BanFileMonitors { get; }
+        public IChatMessagesApi ChatMessages { get; }
+        public IDataMaintenanceApi DataMaintenance { get; }
+        public IDemosAuthApi DemosAuth { get; }
+        public IDemosApi Demos { get; }
+        public IGameServersApi GameServers { get; }
+        public IGameServersEventsApi GameServersEvents { get; }
+        public IGameServersStatsApi GameServersStats { get; }
+        public ILivePlayersApi LivePlayers { get; }
+        public IMapsApi Maps { get; }
+        public IPlayerAnalyticsApi PlayerAnalytics { get; }
+        public IPlayersApi Players { get; }
+        public IRecentPlayersApi RecentPlayers { get; }
+        public IReportsApi Reports { get; }
+        public IUserProfileApi UserProfiles { get; }
     }
 }

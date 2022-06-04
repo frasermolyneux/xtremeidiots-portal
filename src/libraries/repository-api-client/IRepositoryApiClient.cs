@@ -1,39 +1,24 @@
-﻿using XtremeIdiots.Portal.RepositoryApiClient.AdminActionsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.BanFileMonitorsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.ChatMessagesApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DataMaintenanceApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DemosAuthApi;
-using XtremeIdiots.Portal.RepositoryApiClient.DemosRepositoryApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersEventsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.GameServersStatsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.LivePlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.MapsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.PlayerAnalyticsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.PlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.RecentPlayersApi;
-using XtremeIdiots.Portal.RepositoryApiClient.ReportsApi;
-using XtremeIdiots.Portal.RepositoryApiClient.UserProfileApi;
+﻿using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {
     public interface IRepositoryApiClient
     {
-        IAdminActionsApiClient AdminActions { get; }
-        IBanFileMonitorsApiClient BanFileMonitors { get; }
-        IChatMessagesApiClient ChatMessages { get; }
-        IDataMaintenanceApiClient DataMaintenance { get; }
-        IDemosAuthApiClient DemosAuth { get; }
-        IDemosApiClient Demos { get; }
-        IGameServersApiClient GameServers { get; }
-        IGameServersEventsApiClient GameServersEvents { get; }
-        IGameServersStatsApiClient GameServersStats { get; }
-        ILivePlayersApiClient LivePlayers { get; }
-        IMapsApiClient Maps { get; }
-        IPlayerAnalyticsApiClient PlayerAnalytics { get; }
-        IPlayersApiClient Players { get; }
-        IRecentPlayersApiClient RecentPlayers { get; }
-        IReportsApiClient Reports { get; }
-        IUserProfileApiClient UserProfiles { get; }
+        IAdminActionsApi AdminActions { get; }
+        IBanFileMonitorsApi BanFileMonitors { get; }
+        IChatMessagesApi ChatMessages { get; }
+        IDataMaintenanceApi DataMaintenance { get; }
+        IDemosAuthApi DemosAuth { get; }
+        IDemosApi Demos { get; }
+        IGameServersApi GameServers { get; }
+        IGameServersEventsApi GameServersEvents { get; }
+        IGameServersStatsApi GameServersStats { get; }
+        ILivePlayersApi LivePlayers { get; }
+        IMapsApi Maps { get; }
+        IPlayerAnalyticsApi PlayerAnalytics { get; }
+        IPlayersApi Players { get; }
+        IRecentPlayersApi RecentPlayers { get; }
+        IReportsApi Reports { get; }
+        IUserProfileApi UserProfiles { get; }
     }
 }

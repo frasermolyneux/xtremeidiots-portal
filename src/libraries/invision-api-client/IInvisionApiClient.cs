@@ -1,13 +1,11 @@
-﻿using XtremeIdiots.Portal.InvisionApiClient.CoreApi;
-using XtremeIdiots.Portal.InvisionApiClient.DownloadsApi;
-using XtremeIdiots.Portal.InvisionApiClient.ForumsApi;
+﻿using XtremeIdiots.Portal.InvisionApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.InvisionApiClient
 {
     public interface IInvisionApiClient
     {
-        ICoreApiClient Core { get; }
-        IDownloadsApiClient Downloads { get; }
-        IForumsApiClient Forums { get; }
+        ICoreApi Core { get; }
+        IDownloadsApi Downloads { get; }
+        IForumsApi Forums { get; }
     }
 }

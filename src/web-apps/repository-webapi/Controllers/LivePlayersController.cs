@@ -1,9 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -11,58 +19,71 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class LivePlayersController : Controller
+    public class LivePlayersController : Controller, ILivePlayersApi
     {
         private readonly ILogger<LivePlayersController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public LivePlayersController(
             ILogger<LivePlayersController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         [Route("/api/live-players")]
-        public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
+        public async Task<IActionResult> GetLivePlayersApi(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int? skipEntries, int? takeEntries, LivePlayersOrder? order)
         {
-            if (gameType == null)
-                gameType = GameType.Unknown;
+            if (!skipEntries.HasValue)
+                skipEntries = 0;
 
+            if (!takeEntries.HasValue)
+                takeEntries = 20;
+
+            var response = await GetLivePlayers(gameType, serverId, filter, skipEntries.Value, takeEntries.Value, order);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<ApiResponseDto<LivePlayersCollectionDto>> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
+        {
             var query = context.LivePlayers.AsQueryable();
-            query = ApplySearchFilter(query, (GameType)gameType, null, null);
+            query = ApplyFilter(query, gameType, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplySearchFilter(query, (GameType)gameType, serverId, filter);
+            query = ApplyFilter(query, gameType, serverId, filter);
             var filteredCount = await query.CountAsync();
 
-            query = ApplySearchOrderAndLimits(query);
+            query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
             var results = await query.ToListAsync();
 
-            var entries = results.Select(lp => lp.ToDto()).ToList();
+            var entries = results.Select(lp => mapper.Map<LivePlayerDto>(lp)).ToList();
 
-            var response = new LivePlayersResponseDto
+            var result = new LivePlayersCollectionDto
             {
                 TotalRecords = totalCount,
                 FilteredRecords = filteredCount,
                 Entries = entries
             };
 
-            return new OkObjectResult(response);
+            return new ApiResponseDto<LivePlayersCollectionDto>(HttpStatusCode.OK, result);
         }
 
         [HttpPost]
         [Route("api/live-players/{serverId}")]
-        public async Task<IActionResult> CreateGameServerLivePlayers(Guid serverId)
+        public async Task<IActionResult> SetLivePlayersForGameServerApi(Guid serverId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            List<LivePlayerDto>? livePlayerDtos;
+            List<CreateLivePlayerDto>? createLivePlayerDtos;
             try
             {
-                livePlayerDtos = JsonConvert.DeserializeObject<List<LivePlayerDto>>(requestBody);
+                createLivePlayerDtos = JsonConvert.DeserializeObject<List<CreateLivePlayerDto>>(requestBody);
             }
             catch (Exception ex)
             {
@@ -70,95 +91,35 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new BadRequestResult();
             }
 
-            if (livePlayerDtos == null)
+            if (createLivePlayerDtos == null)
+            {
+                logger.LogWarning("Request body was null");
                 return new BadRequestResult();
+            }
 
+            var response = await SetLivePlayersForGameServer(serverId, createLivePlayerDtos);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<ApiResponseDto> SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)
+        {
             await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");
 
-            var livePlayers = livePlayerDtos.Select(livePlayerDto => new LivePlayer
-            {
-                Id = livePlayerDto.Id,
-                Name = livePlayerDto.Name,
-                Score = livePlayerDto.Score,
-                Ping = livePlayerDto.Ping,
-                Num = livePlayerDto.Num,
-                Rate = livePlayerDto.Rate,
-                Team = livePlayerDto.Team,
-                Time = livePlayerDto.Time,
-                IpAddress = livePlayerDto.IpAddress,
-                Lat = livePlayerDto.Lat,
-                Long = livePlayerDto.Long,
-                CountryCode = livePlayerDto.CountryCode,
-                PlayerId = livePlayerDto.PlayerId,
-                GameServerServerId = livePlayerDto.GameServerServerId
-            });
+            var livePlayers = createLivePlayerDtos.Select(lp => mapper.Map<LivePlayer>(lp)).ToList();
 
             await context.LivePlayers.AddRangeAsync(livePlayers);
             await context.SaveChangesAsync();
 
-            var result = livePlayers.Select(lp => lp.ToDto());
-
-            return new OkObjectResult(result);
+            return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        [HttpPut]
-        [Route("api/live-players")]
-        public async Task<IActionResult> UpsertGameServerLivePlayers()
+        private IQueryable<LivePlayer> ApplyFilter(IQueryable<LivePlayer> query, GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
         {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+            if (gameType.HasValue)
+                query = query.Where(lp => lp.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
 
-            List<LivePlayerDto>? livePlayerDtos;
-            try
-            {
-                livePlayerDtos = JsonConvert.DeserializeObject<List<LivePlayerDto>>(requestBody);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (livePlayerDtos == null || !livePlayerDtos.Any())
-                return new BadRequestResult();
-
-            var livePlayerIds = livePlayerDtos.Select(lp => lp.Id).ToArray();
-
-            var livePlayers = await context.LivePlayers.Where(lp => livePlayerIds.Contains(lp.Id)).ToListAsync();
-            foreach (var livePlayerDto in livePlayerDtos)
-            {
-                var livePlayer = livePlayers.SingleOrDefault(lp => lp.Id == livePlayerDto.Id);
-
-                if (livePlayer == null)
-                    return new BadRequestResult();
-
-                livePlayer.Name = livePlayerDto.Name;
-                livePlayer.Score = livePlayerDto.Score;
-                livePlayer.Ping = livePlayerDto.Ping;
-                livePlayer.Num = livePlayerDto.Num;
-                livePlayer.Rate = livePlayerDto.Rate;
-                livePlayer.Team = livePlayerDto.Team;
-                livePlayer.Time = livePlayerDto.Time;
-                livePlayer.IpAddress = livePlayerDto.IpAddress;
-                livePlayer.Lat = livePlayerDto.Lat;
-                livePlayer.Long = livePlayerDto.Long;
-                livePlayer.CountryCode = livePlayerDto.CountryCode;
-                livePlayer.PlayerId = livePlayerDto.PlayerId;
-                livePlayer.GameServerServerId = livePlayerDto.GameServerServerId;
-            }
-
-            await context.SaveChangesAsync();
-
-            var result = livePlayers.Select(lp => lp.ToDto());
-
-            return new OkObjectResult(result);
-        }
-
-        private IQueryable<LivePlayer> ApplySearchFilter(IQueryable<LivePlayer> query, GameType gameType, Guid? serverId, LivePlayerFilter? filter)
-        {
-            if (gameType != GameType.Unknown)
-                query = query.Where(lp => lp.GameType == gameType.ToGameTypeInt()).AsQueryable();
-
-            if (serverId != null)
+            if (serverId.HasValue)
                 query = query.Where(lp => lp.GameServerServerId == serverId).AsQueryable();
 
             if (filter != null)
@@ -174,9 +135,23 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return query;
         }
 
-        private IQueryable<LivePlayer> ApplySearchOrderAndLimits(IQueryable<LivePlayer> query)
+        private IQueryable<LivePlayer> ApplyOrderAndLimits(IQueryable<LivePlayer> query, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
-            query = query.OrderByDescending(lp => lp.Score).AsQueryable();
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
+
+            if (order.HasValue)
+            {
+                switch (order)
+                {
+                    case LivePlayersOrder.ScoreAsc:
+                        query = query.OrderBy(rp => rp.Score).AsQueryable();
+                        break;
+                    case LivePlayersOrder.ScoreDesc:
+                        query = query.OrderByDescending(rp => rp.Score).AsQueryable();
+                        break;
+                }
+            }
 
             return query;
         }

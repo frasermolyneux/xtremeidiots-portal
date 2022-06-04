@@ -17,7 +17,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filterType, int skipEntries, int takeEntries, RecentPlayersOrder? order)
+        public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
             var request = await CreateRequest("repository/recent-players", Method.Get);
 
@@ -30,8 +30,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (cutoff.HasValue)
                 request.AddQueryParameter("cutoff", cutoff.Value.ToString("MM/dd/yyyy HH:mm:ss"));
 
-            if (filterType.HasValue)
-                request.AddQueryParameter("filterType", filterType.ToString());
+            if (filter.HasValue)
+                request.AddQueryParameter("filterType", filter.ToString());
 
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());

@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
@@ -7,49 +9,49 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     public class LivePlayerDto
     {
         [JsonProperty]
-        public Guid Id { get; set; }
+        public Guid Id { get; internal set; }
 
         [JsonProperty]
-        public string? Name { get; set; }
+        public string? Name { get; internal set; }
 
         [JsonProperty]
-        public int Score { get; set; }
+        public int Score { get; internal set; }
 
         [JsonProperty]
-        public int Ping { get; set; }
+        public int Ping { get; internal set; }
 
         [JsonProperty]
-        public int Num { get; set; }
+        public int Num { get; internal set; }
 
         [JsonProperty]
-        public int Rate { get; set; }
+        public int Rate { get; internal set; }
 
         [JsonProperty]
-        public string? Team { get; set; }
+        public string? Team { get; internal set; }
 
         [JsonProperty]
-        public TimeSpan Time { get; set; }
+        public TimeSpan Time { get; internal set; }
 
         [JsonProperty]
-        public string? IpAddress { get; set; }
+        public string? IpAddress { get; internal set; }
 
         [JsonProperty]
-        public double? Lat { get; set; }
+        public double? Lat { get; internal set; }
 
         [JsonProperty]
-        public double? Long { get; set; }
+        public double? Long { get; internal set; }
 
         [JsonProperty]
-        public string? CountryCode { get; set; }
+        public string? CountryCode { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; set; }
+        public GameType GameType { get; internal set; }
 
         [JsonProperty]
-        public Guid? PlayerId { get; set; }
+        public Guid? PlayerId { get; internal set; }
 
         [JsonProperty]
-        public Guid? GameServerServerId { get; set; }
+        public Guid? GameServerServerId { get; internal set; }
     }
 }

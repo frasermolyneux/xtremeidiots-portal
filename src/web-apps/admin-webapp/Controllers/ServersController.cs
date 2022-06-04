@@ -6,6 +6,7 @@ using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 
@@ -55,7 +56,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
             var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
-            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated);
+            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
 
             MapDto mapDto = null;
             if (!string.IsNullOrWhiteSpace(serverQueryStatusResponseStatusDto.Map))
@@ -92,7 +93,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Map = mapDto,
                 Maps = mapsResponseDto.Entries,
                 GameServerStats = gameServerStatusStats,
-                LivePlayers = livePlayersResponseDto.Entries,
+                LivePlayers = livePlayersResponseDto.Result?.Entries != null ? livePlayersResponseDto.Result.Entries : new List<LivePlayerDto>(),
                 MapTimelineDataPoints = mapTimelineDataPoints
             });
         }

@@ -1386,16 +1386,6 @@
                         "description": "null"
                     }
                 }
-            },
-            "put": {
-                "summary": "live-players",
-                "description": "live-players",
-                "operationId": "put-live-players",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
             }
         },
         "/data-maintenance/prune-chat-messages": {

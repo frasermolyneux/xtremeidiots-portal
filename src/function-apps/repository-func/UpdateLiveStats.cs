@@ -1,9 +1,11 @@
 using FM.GeoLocation.Contract.Interfaces;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
@@ -58,7 +60,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
                     continue;
 
-                var livePlayerDtos = new List<LivePlayerDto>();
+                var livePlayerDtos = new List<CreateLivePlayerDto>();
 
                 try
                 {
@@ -92,11 +94,11 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                 telemetryClient.TrackMetric(telemetry);
 
-                await repositoryApiClient.LivePlayers.CreateGameServerLivePlayers(gameServerDto.Id, livePlayerDtos);
+                await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.Id, livePlayerDtos);
             }
         }
 
-        private async Task<List<LivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
+        private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
         {
             ServerRconStatusResponseDto? serverRconStatusResponseDto = null;
             try
@@ -106,16 +108,16 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             catch (Exception ex)
             {
                 logger.LogError(ex, $"Failed to get rcon server status for '{gameServerDto.Id}'");
-                return new List<LivePlayerDto>();
+                return new List<CreateLivePlayerDto>();
             }
 
             if (serverRconStatusResponseDto == null)
                 throw new NullReferenceException($"Server rcon status was null for '{gameServerDto.Id}'");
 
-            var livePlayerDtos = new List<LivePlayerDto>();
+            var livePlayerDtos = new List<CreateLivePlayerDto>();
             foreach (var rconPlayer in serverRconStatusResponseDto.Players)
             {
-                var livePlayerDto = new LivePlayerDto
+                var livePlayerDto = new CreateLivePlayerDto
                 {
                     Name = rconPlayer.Name,
                     Ping = rconPlayer.Ping,
@@ -156,7 +158,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             return livePlayerDtos;
         }
 
-        private async Task<List<LivePlayerDto>> UpdateLivePlayersFromQuery(GameServerDto gameServerDto, List<LivePlayerDto> livePlayerDtos)
+        private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromQuery(GameServerDto gameServerDto, List<CreateLivePlayerDto> livePlayerDtos)
         {
             ServerQueryStatusResponseDto? serverQueryStatusResponseDto = null;
             try
@@ -194,7 +196,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             return livePlayerDtos;
         }
 
-        private async Task<List<LivePlayerDto>> EnrichPlayersWithGeoLocation(List<LivePlayerDto> livePlayerDtos)
+        private async Task<List<CreateLivePlayerDto>> EnrichPlayersWithGeoLocation(List<CreateLivePlayerDto> livePlayerDtos)
         {
             foreach (var livePlayerDto in livePlayerDtos)
             {
@@ -214,7 +216,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             return livePlayerDtos;
         }
 
-        private async Task UpdateRecentPlayersWithLivePlayers(List<LivePlayerDto> livePlayerDtos)
+        private async Task UpdateRecentPlayersWithLivePlayers(List<CreateLivePlayerDto> livePlayerDtos)
         {
             var createRecentPlayerDtos = new List<CreateRecentPlayerDto>();
 

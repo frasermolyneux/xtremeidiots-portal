@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -17,7 +17,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<RecentPlayersCollectionDto?> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filterType, int skipEntries, int takeEntries, RecentPlayersOrder? order)
+        public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filterType, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
             var request = await CreateRequest("repository/recent-players", Method.Get);
 
@@ -41,18 +41,17 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<RecentPlayersCollectionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<RecentPlayersCollectionDto>();
         }
 
-        public async Task CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)
+        public async Task<ApiResponseDto> CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)
         {
             var request = await CreateRequest("repository/recent-players", Method.Post);
             request.AddJsonBody(createRecentPlayerDtos);
 
             var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
     }
 }

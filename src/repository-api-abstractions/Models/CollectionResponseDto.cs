@@ -5,9 +5,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
     public class CollectionResponseDto<T>
     {
         [JsonProperty]
-        public int Skipped { get; set; }
-
-        [JsonProperty]
         public int TotalRecords { get; set; }
 
         [JsonProperty]

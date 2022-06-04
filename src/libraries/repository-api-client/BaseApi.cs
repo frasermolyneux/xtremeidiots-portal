@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using RestSharp;
+
 using System.Net;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -40,9 +41,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Map()
         {
-            var recentPlayersCollectionDto = await repositoryApiClient.RecentPlayers.GetRecentPlayers(null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated, 0, 200, null);
-
-            return View(recentPlayersCollectionDto?.Entries);
+            var response = await repositoryApiClient.RecentPlayers.GetRecentPlayers(null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated, 0, 200, null);
+            return View(response.Result?.Entries);
         }
 
         [HttpGet]

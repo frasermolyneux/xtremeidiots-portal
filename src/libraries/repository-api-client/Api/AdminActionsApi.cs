@@ -19,7 +19,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filterType, int skipEntries, int takeEntries, AdminActionOrder? order)
+        public async Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
             var request = await CreateRequest($"repository/admin-actions", Method.Get);
 
@@ -32,8 +32,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (!string.IsNullOrWhiteSpace(adminId))
                 request.AddQueryParameter("adminId", adminId);
 
-            if (filterType != null)
-                request.AddQueryParameter("filterType", filterType.ToString());
+            if (filter != null)
+                request.AddQueryParameter("filter", filter.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());

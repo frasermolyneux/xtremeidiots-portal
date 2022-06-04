@@ -35,7 +35,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("api/admin-actions")]
-        public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filterType, int skipEntries, int takeEntries, AdminActionOrder? order)
+        public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
             if (order == null)
                 order = AdminActionOrder.CreatedDesc;
@@ -51,7 +51,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (!string.IsNullOrWhiteSpace(adminId))
                 query = query.Where(aa => aa.UserProfile.XtremeIdiotsForumId == adminId).AsQueryable();
 
-            switch (filterType)
+            switch (filter)
             {
                 case AdminActionFilter.ActiveBans:
                     query = query.Where(aa => aa.Type == AdminActionType.Ban.ToAdminActionTypeInt() && aa.Expires == null || aa.Type == AdminActionType.TempBan.ToAdminActionTypeInt() && aa.Expires > DateTime.UtcNow).AsQueryable();

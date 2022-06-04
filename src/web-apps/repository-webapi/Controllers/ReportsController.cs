@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
@@ -12,52 +19,46 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class ReportsController : ControllerBase
+    public class ReportsController : ControllerBase, IReportsApi
     {
         private readonly ILogger<ReportsController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public ReportsController(
             ILogger<ReportsController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         [Route("api/reports/{reportId}")]
-        public async Task<IActionResult> GetReport(Guid reportId)
+        public async Task<IActionResult> GetReportApi(Guid reportId)
         {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            CloseReportDto? closeReportDto;
-            try
-            {
-                closeReportDto = JsonConvert.DeserializeObject<CloseReportDto>(requestBody);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (closeReportDto == null)
-                return new BadRequestResult();
-
-            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
-
-            if (report == null)
-                return NotFound();
-
-            var response = new ReportDtoWrapper(report);
+            var response = await GetReport(reportId);
 
             return new OkObjectResult(response);
         }
 
+        public async Task<ApiResponseDto<ReportDto>> GetReport(Guid reportId)
+        {
+            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
+
+            if (report == null)
+                return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);
+
+            var result = mapper.Map<ReportDto>(report);
+
+            return new ApiResponseDto<ReportDto>(HttpStatusCode.OK, result);
+        }
+
         [HttpGet]
         [Route("api/reports")]
-        public async Task<IActionResult> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filterType, int? skipEntries, int? takeEntries, ReportsOrder? order)
+        public async Task<IActionResult> GetReportsApi(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -65,34 +66,41 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (!takeEntries.HasValue)
                 takeEntries = 20;
 
-            if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddHours(-48))
-                cutoff = DateTime.UtcNow.AddHours(-48);
+            if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddDays(-14))
+                cutoff = DateTime.UtcNow.AddDays(-14);
 
+            var response = await GetReports(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
+        {
             var query = context.Reports.Include(r => r.UserProfile).Include(r => r.AdminUserProfile).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query, gameType, serverId, cutoff, filterType);
+            query = ApplyFilter(query, gameType, serverId, cutoff, filter);
             var filteredCount = await query.CountAsync();
 
-            query = ApplyOrderAndLimits(query, (int)skipEntries, (int)takeEntries, order);
+            query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
             var results = await query.ToListAsync();
 
-            var entries = results.Select(rp => new ReportDtoWrapper(rp)).ToList();
+            var entries = results.Select(r => mapper.Map<ReportDto>(r)).ToList();
 
-            var response = new CollectionResponseDto<ReportDtoWrapper>
+            var result = new ReportsCollectionDto
             {
                 TotalRecords = totalCount,
                 FilteredRecords = filteredCount,
                 Entries = entries
             };
 
-            return new OkObjectResult(response);
+            return new ApiResponseDto<ReportsCollectionDto>(HttpStatusCode.OK, result);
         }
 
         [HttpPost]
         [Route("api/reports")]
-        public async Task<IActionResult> CreateReports()
+        public async Task<IActionResult> CreateReportsApi()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -103,58 +111,34 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Could not deserialize request body");
+                logger.LogWarning(ex, "Could not deserialize request body");
                 return new BadRequestResult();
             }
 
             if (createReportDtos == null || createReportDtos.Count == 0)
-                return new BadRequestResult();
-
-            var reports = new List<Report>();
-
-            foreach (var reportDto in createReportDtos)
             {
-                var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == reportDto.PlayerId);
-
-                if (player == null)
-                    return BadRequest("Could not find player with specified player id");
-
-                var userProfile = await context.UserProfiles.SingleOrDefaultAsync(up => up.Id == reportDto.UserProfileId);
-
-                if (userProfile == null)
-                    return BadRequest("Could not user profile with specified user profile id");
-
-                var report = new Report
-                {
-                    PlayerId = player.PlayerId,
-                    UserProfileId = userProfile.Id,
-                    ServerId = reportDto.ServerId,
-                    GameType = player.GameType,
-                    Comments = reportDto.Comments,
-                    Timestamp = DateTime.UtcNow
-                };
-
-                reports.Add(report);
+                logger.LogWarning("Request body was null or did not contain any entries");
+                return new BadRequestResult();
             }
 
-            await context.Reports.AddRangeAsync(reports);
-            await context.SaveChangesAsync();
-
-            var entries = reports.Select(rp => new ReportDtoWrapper(rp)).ToList();
-
-            var response = new CollectionResponseDto<ReportDtoWrapper>
-            {
-                TotalRecords = reports.Count,
-                FilteredRecords = reports.Count,
-                Entries = entries
-            };
+            var response = await CreateReports(createReportDtos);
 
             return new OkObjectResult(response);
         }
 
+        public async Task<ApiResponseDto> CreateReports(List<CreateReportDto> createReportDtos)
+        {
+            var reports = createReportDtos.Select(r => mapper.Map<Report>(r)).ToList();
+
+            await context.Reports.AddRangeAsync(reports);
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
         [HttpPatch]
         [Route("api/reports/{reportId}/close")]
-        public async Task<IActionResult> CloseReport(Guid reportId)
+        public async Task<IActionResult> CloseReportApi(Guid reportId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -170,31 +154,43 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             if (closeReportDto == null)
+            {
+                logger.LogWarning("Request body was null");
                 return new BadRequestResult();
+            }
 
+            var response = await CloseReport(reportId, closeReportDto);
+
+            return new OkObjectResult(response);
+        }
+
+        public async Task<ApiResponseDto> CloseReport(Guid reportId, CloseReportDto closeReportDto)
+        {
             var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
 
             if (report == null)
-                return NotFound();
+                return new ApiResponseDto(HttpStatusCode.NotFound);
 
             var userProfile = await context.UserProfiles.SingleOrDefaultAsync(up => up.Id == closeReportDto.AdminUserProfileId);
 
             if (userProfile == null)
-                return BadRequest("Could not user profile with specified user profile id");
+            {
+                var response = new ApiResponseDto(HttpStatusCode.BadRequest);
+                response.Errors.Add("Could not user profile with specified user profile id");
+                return response;
+            }
 
-            report.UserProfileId = userProfile.Id;
-            report.AdminClosingComments = closeReportDto.AdminClosingComments;
+            mapper.Map(closeReportDto, report);
+
             report.Closed = true;
             report.ClosedTimestamp = DateTime.UtcNow;
 
             await context.SaveChangesAsync();
 
-            var response = new ReportDtoWrapper(report);
-
-            return new OkObjectResult(response);
+            return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        private static IQueryable<Report> ApplyFilter(IQueryable<Report> query, GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filterType)
+        private static IQueryable<Report> ApplyFilter(IQueryable<Report> query, GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter)
         {
             if (gameType.HasValue)
                 query = query.Where(r => r.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
@@ -205,9 +201,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue)
                 query = query.Where(r => r.Timestamp > cutoff).AsQueryable();
 
-            if (filterType.HasValue)
+            if (filter.HasValue)
             {
-                switch (filterType)
+                switch (filter)
                 {
                     case ReportsFilter.OpenReports:
                         query = query.Where(r => !r.Closed).AsQueryable();
@@ -240,30 +236,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             return query;
-        }
-
-        public class ReportDtoWrapper : ReportDto
-        {
-            public ReportDtoWrapper(Report report)
-            {
-                Id = report.Id;
-                PlayerId = report.PlayerId;
-                UserProfileId = report.UserProfileId;
-                ServerId = report.ServerId;
-                GameType = report.GameType.ToGameType();
-                Comments = report.Comments;
-                Timestamp = report.Timestamp;
-                AdminUserProfileId = report.AdminUserProfileId;
-                AdminClosingComments = report.AdminClosingComments;
-                Closed = report.Closed;
-                ClosedTimestamp = report.ClosedTimestamp;
-
-                if (report.UserProfile != null)
-                    UserProfile = report.UserProfile.ToDto();
-
-                if (report.AdminUserProfile != null)
-                    AdminUserProfile = report.AdminUserProfile.ToDto();
-            }
         }
     }
 }

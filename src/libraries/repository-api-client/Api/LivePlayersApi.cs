@@ -28,12 +28,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 request.AddQueryParameter("serverId", serverId.ToString());
 
             if (filter.HasValue)
-                request.AddQueryParameter("filterType", filter.ToString());
+                request.AddQueryParameter("filter", filter.ToString());
 
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
 
-            if (order != null)
+            if (order.HasValue)
                 request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);

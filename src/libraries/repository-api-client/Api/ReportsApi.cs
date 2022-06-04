@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
-
-using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -19,21 +17,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<ReportDto?> GetReport(Guid reportId)
+        public async Task<ApiResponseDto<ReportDto>> GetReport(Guid reportId)
         {
             var request = await CreateRequest($"repository/reports/{reportId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ReportDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<ReportDto>();
         }
 
-        public async Task<ReportsCollectionDto?> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filterType, int skipEntries, int takeEntries, ReportsOrder? order)
+        public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
         {
             var request = await CreateRequest("repository/reports", Method.Get);
 
@@ -44,49 +36,40 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 request.AddQueryParameter("serverId", serverId.ToString());
 
             if (cutoff.HasValue)
-                request.AddQueryParameter("cutoff", cutoff.ToString());
+                request.AddQueryParameter("cutoff", cutoff.Value.ToString("MM/dd/yyyy HH:mm:ss"));
 
-            if (filterType.HasValue)
-                request.AddQueryParameter("filterType", filterType.ToString());
+            if (filter.HasValue)
+                request.AddQueryParameter("filter", filter.ToString());
 
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
 
-            if (order != null)
+            if (order.HasValue)
                 request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ReportsCollectionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<ReportsCollectionDto>();
         }
 
-        public async Task<ReportsCollectionDto?> CreateReports(List<CreateReportDto> createReportDtos)
+        public async Task<ApiResponseDto> CreateReports(List<CreateReportDto> createReportDtos)
         {
             var request = await CreateRequest("repository/reports", Method.Post);
             request.AddJsonBody(createReportDtos);
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ReportsCollectionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<ReportDto?> CloseReport(Guid reportId, CloseReportDto closeReportDto)
+        public async Task<ApiResponseDto> CloseReport(Guid reportId, CloseReportDto closeReportDto)
         {
             var request = await CreateRequest($"repository/reports/{reportId}/close", Method.Post);
             request.AddJsonBody(closeReportDto);
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ReportDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
     }
 }

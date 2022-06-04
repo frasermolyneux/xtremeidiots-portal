@@ -345,7 +345,7 @@ public class PlayersController : ControllerBase
 
     [HttpGet]
     [Route("api/players/search")]
-    public async Task<IActionResult> SearchPlayers(string? gameType, string? filterType, string? filterString, int takeEntries, int skipEntries, string? order)
+    public async Task<IActionResult> SearchPlayers(string? gameType, string? filter, string? filterString, int takeEntries, int skipEntries, string? order)
     {
         if (!Enum.TryParse(gameType, out GameType legacyGameType))
         {
@@ -355,8 +355,8 @@ public class PlayersController : ControllerBase
         if (string.IsNullOrWhiteSpace(order))
             order = "LastSeenDesc";
 
-        if (filterType == null)
-            filterType = string.Empty;
+        if (filter == null)
+            filter = string.Empty;
 
         if (filterString == null)
             filterString = string.Empty;
@@ -365,7 +365,7 @@ public class PlayersController : ControllerBase
         query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
         var totalCount = await query.CountAsync();
 
-        query = ApplySearchFilter(query, legacyGameType, filterType, filterString);
+        query = ApplySearchFilter(query, legacyGameType, filter, filterString);
         var filteredCount = await query.CountAsync();
 
         query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
@@ -392,14 +392,14 @@ public class PlayersController : ControllerBase
         return new OkObjectResult(response);
     }
 
-    private IQueryable<Player> ApplySearchFilter(IQueryable<Player> players, GameType gameType, string filterType, string filterString)
+    private IQueryable<Player> ApplySearchFilter(IQueryable<Player> players, GameType gameType, string filter, string filterString)
     {
         players = players.AsQueryable();
 
         if (gameType != GameType.Unknown) players = players.Where(p => p.GameType == gameType.ToGameTypeInt()).AsQueryable();
 
-        if (filterType != "None" && !string.IsNullOrWhiteSpace(filterString))
-            switch (filterType)
+        if (filter != "None" && !string.IsNullOrWhiteSpace(filterString))
+            switch (filter)
             {
                 case "UsernameAndGuid":
                     players = players.Where(p => p.Username.Contains(filterString) ||
@@ -413,7 +413,7 @@ public class PlayersController : ControllerBase
                         .AsQueryable();
                     break;
             }
-        else if (filterType == "IpAddress") players = players.Where(p => p.IpAddress != "" && p.IpAddress != null).AsQueryable();
+        else if (filter == "IpAddress") players = players.Where(p => p.IpAddress != "" && p.IpAddress != null).AsQueryable();
 
         return players;
     }

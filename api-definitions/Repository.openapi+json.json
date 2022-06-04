@@ -533,7 +533,7 @@
                         }
                     },
                     {
-                        "name": "filterType",
+                        "name": "filter",
                         "in": "query",
                         "schema": {
                             "enum": [
@@ -607,7 +607,7 @@
                         }
                     },
                     {
-                        "name": "filterType",
+                        "name": "filter",
                         "in": "query",
                         "schema": {
                             "enum": [
@@ -1678,7 +1678,7 @@
                         }
                     },
                     {
-                        "name": "filterType",
+                        "name": "filter",
                         "in": "query",
                         "schema": {
                             "type": "string"
@@ -1783,7 +1783,7 @@
                         }
                     },
                     {
-                        "name": "filterType",
+                        "name": "filter",
                         "in": "query",
                         "schema": {
                             "type": "string"

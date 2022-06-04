@@ -184,15 +184,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             await ExecuteAsync(request);
         }
 
-        public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filterType, string filterString, int takeEntries, int skipEntries, string? order)
+        public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)
         {
             var request = await CreateRequest("repository/players/search", Method.Get);
 
             if (!string.IsNullOrWhiteSpace(gameType))
                 request.AddQueryParameter("gameType", gameType);
 
-            if (!string.IsNullOrWhiteSpace(filterType))
-                request.AddQueryParameter("filterType", filterType);
+            if (!string.IsNullOrWhiteSpace(filter))
+                request.AddQueryParameter("filter", filter);
 
             if (!string.IsNullOrWhiteSpace(filterString))
                 request.AddQueryParameter("filterString", filterString);

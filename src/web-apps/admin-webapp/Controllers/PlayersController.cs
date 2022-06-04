@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         }
 
         [HttpPost]
-        private async Task<IActionResult> GetPlayersAjaxPrivate(string filterType, GameType? id)
+        private async Task<IActionResult> GetPlayersAjaxPrivate(string filter, GameType? id)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -90,7 +90,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 }
             }
 
-            var searchResponse = await repositoryApiClient.Players.SearchPlayers(id.ToString(), filterType, model.Search?.Value, model.Length, model.Start, order);
+            var searchResponse = await repositoryApiClient.Players.SearchPlayers(id.ToString(), filter, model.Search?.Value, model.Length, model.Start, order);
 
             return Json(new
             {

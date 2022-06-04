@@ -50,7 +50,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var response = await GetRecentPlayers(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
@@ -88,21 +88,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 createRecentPlayerDtos = JsonConvert.DeserializeObject<List<CreateRecentPlayerDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogWarning(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
             if (createRecentPlayerDtos == null || !createRecentPlayerDtos.Any())
-            {
-                logger.LogWarning("Request body was null or did not contain any entries");
-                return new BadRequestResult();
-            }
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
             var response = await CreateRecentPlayers(createRecentPlayerDtos);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto> CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)

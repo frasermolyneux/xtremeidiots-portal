@@ -47,7 +47,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var response = await GetLivePlayers(gameType, serverId, filter, skipEntries.Value, takeEntries.Value, order);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto<LivePlayersCollectionDto>> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
@@ -85,21 +85,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 createLivePlayerDtos = JsonConvert.DeserializeObject<List<CreateLivePlayerDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
             if (createLivePlayerDtos == null)
-            {
-                logger.LogWarning("Request body was null");
-                return new BadRequestResult();
-            }
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
             var response = await SetLivePlayersForGameServer(serverId, createLivePlayerDtos);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto> SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)

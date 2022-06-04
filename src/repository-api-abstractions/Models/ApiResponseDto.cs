@@ -11,6 +11,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
             StatusCode = statusCode;
         }
 
+        public ApiResponseDto(HttpStatusCode statusCode, string error)
+        {
+            StatusCode = statusCode;
+            Errors.Add(error);
+        }
+
         [JsonProperty]
         public HttpStatusCode StatusCode { get; internal set; }
 
@@ -24,6 +30,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
     public class ApiResponseDto<T> : ApiResponseDto
     {
         public ApiResponseDto(HttpStatusCode statusCode) : base(statusCode)
+        {
+            StatusCode = statusCode;
+            Result = default(T);
+        }
+
+        public ApiResponseDto(HttpStatusCode statusCode, string error) : base(statusCode, error)
         {
             StatusCode = statusCode;
             Result = default(T);

@@ -41,7 +41,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var response = await GetReport(reportId);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto<ReportDto>> GetReport(Guid reportId)
@@ -71,7 +71,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             var response = await GetReports(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
@@ -109,21 +109,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 createReportDtos = JsonConvert.DeserializeObject<List<CreateReportDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogWarning(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
             if (createReportDtos == null || createReportDtos.Count == 0)
-            {
-                logger.LogWarning("Request body was null or did not contain any entries");
-                return new BadRequestResult();
-            }
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
             var response = await CreateReports(createReportDtos);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto> CreateReports(List<CreateReportDto> createReportDtos)
@@ -147,21 +143,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             {
                 closeReportDto = JsonConvert.DeserializeObject<CloseReportDto>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
             if (closeReportDto == null)
-            {
-                logger.LogWarning("Request body was null");
-                return new BadRequestResult();
-            }
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
             var response = await CloseReport(reportId, closeReportDto);
 
-            return new OkObjectResult(response);
+            return response.ToHttpResult();
         }
 
         public async Task<ApiResponseDto> CloseReport(Guid reportId, CloseReportDto closeReportDto)
@@ -174,11 +166,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var userProfile = await context.UserProfiles.SingleOrDefaultAsync(up => up.Id == closeReportDto.AdminUserProfileId);
 
             if (userProfile == null)
-            {
-                var response = new ApiResponseDto(HttpStatusCode.BadRequest);
-                response.Errors.Add("Could not user profile with specified user profile id");
-                return response;
-            }
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not user profile with specified user profile id");
 
             mapper.Map(closeReportDto, report);
 

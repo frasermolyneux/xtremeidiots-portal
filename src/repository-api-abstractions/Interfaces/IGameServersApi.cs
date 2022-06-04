@@ -2,7 +2,7 @@
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
-namespace XtremeIdiots.Portal.RepositoryApiClient.Interfaces
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IGameServersApi
     {

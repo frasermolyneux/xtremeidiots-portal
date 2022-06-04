@@ -1,4 +1,4 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
+﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 
 public interface IDataMaintenanceApi
 {

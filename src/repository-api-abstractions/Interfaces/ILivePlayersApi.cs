@@ -1,7 +1,7 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
-namespace XtremeIdiots.Portal.RepositoryApiClient.Interfaces
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface ILivePlayersApi
     {

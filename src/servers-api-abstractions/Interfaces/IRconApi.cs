@@ -1,6 +1,6 @@
 ﻿using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 
-namespace XtremeIdiots.Portal.ServersApiClient.Interfaces
+namespace XtremeIdiots.Portal.ServersApi.Abstractions.Interfaces
 {
     public interface IRconApi
     {

@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 using RestSharp;
 
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {

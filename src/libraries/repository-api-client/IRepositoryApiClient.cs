@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {

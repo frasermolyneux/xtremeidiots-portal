@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApiClient.Api;
-using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient
 {

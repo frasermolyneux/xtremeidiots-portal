@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 using RestSharp;
 
+using XtremeIdiots.Portal.ServersApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
-using XtremeIdiots.Portal.ServersApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.ServersApiClient.Api
 {

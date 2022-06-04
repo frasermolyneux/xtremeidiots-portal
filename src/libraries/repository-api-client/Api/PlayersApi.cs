@@ -9,9 +9,9 @@ using RestSharp;
 using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {

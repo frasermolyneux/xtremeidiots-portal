@@ -1,6 +1,6 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
-namespace XtremeIdiots.Portal.RepositoryApiClient.Interfaces
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IUserProfileApi
     {

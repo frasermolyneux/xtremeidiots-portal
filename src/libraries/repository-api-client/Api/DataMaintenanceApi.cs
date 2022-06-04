@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 using RestSharp;
 
-using XtremeIdiots.Portal.RepositoryApiClient.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api;
 

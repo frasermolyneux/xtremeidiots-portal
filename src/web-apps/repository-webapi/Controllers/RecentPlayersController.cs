@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -16,13 +17,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     {
         private readonly ILogger<RecentPlayersController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public RecentPlayersController(
             ILogger<RecentPlayersController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -45,12 +49,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             query = ApplyFilter(query, gameType, serverId, cutoff, filterType);
             var filteredCount = await query.CountAsync();
 
-            query = ApplyOrderAndLimits(query, (int)skipEntries, (int)takeEntries, order);
+            query = ApplyOrderAndLimits(query, skipEntries.Value, takeEntries.Value, order);
             var results = await query.ToListAsync();
 
-            var entries = results.Select(rp => new RecentPlayerDtoWrapper(rp)).ToList();
+            var entries = results.Select(rp => mapper.Map<RecentPlayerDto>(rp)).ToList();
 
-            var response = new CollectionResponseDto<RecentPlayerDtoWrapper>
+            var response = new CollectionResponseDto<RecentPlayerDto>
             {
                 TotalRecords = totalCount,
                 FilteredRecords = filteredCount,
@@ -86,27 +90,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
                 if (recentPlayer != null)
                 {
-                    recentPlayer.Name = createRecentPlayerDto.Name ?? recentPlayer.Name;
-                    recentPlayer.IpAddress = createRecentPlayerDto.IpAddress ?? recentPlayer.IpAddress;
-                    recentPlayer.Lat = createRecentPlayerDto.Lat != 0 ? createRecentPlayerDto.Lat : recentPlayer.Lat;
-                    recentPlayer.Long = createRecentPlayerDto.Long != 0 ? createRecentPlayerDto.Long : recentPlayer.Long;
-                    recentPlayer.CountryCode = createRecentPlayerDto.CountryCode ?? recentPlayer.CountryCode;
+                    mapper.Map(createRecentPlayerDto, recentPlayer);
                     recentPlayer.Timestamp = DateTime.UtcNow;
                 }
                 else
                 {
-                    recentPlayer = new RecentPlayer
-                    {
-                        Name = createRecentPlayerDto.Name,
-                        IpAddress = createRecentPlayerDto.IpAddress,
-                        Lat = createRecentPlayerDto.Lat,
-                        Long = createRecentPlayerDto.Long,
-                        CountryCode = createRecentPlayerDto.CountryCode,
-                        GameType = createRecentPlayerDto.GameType.ToGameTypeInt(),
-                        PlayerId = createRecentPlayerDto.PlayerId,
-                        ServerId = createRecentPlayerDto.ServerId,
-                        Timestamp = DateTime.UtcNow
-                    };
+                    recentPlayer = mapper.Map<RecentPlayer>(createRecentPlayerDto);
+                    recentPlayer.Timestamp = DateTime.UtcNow;
 
                     await context.RecentPlayers.AddAsync(recentPlayer);
                 }
@@ -120,7 +110,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         private static IQueryable<RecentPlayer> ApplyFilter(IQueryable<RecentPlayer> query, GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filterType)
         {
             if (gameType.HasValue)
-                query = query.Where(rp => rp.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
+                query = query.Where(rp => rp.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
 
             if (serverId.HasValue)
                 query = query.Where(rp => rp.ServerId == serverId).AsQueryable();
@@ -135,7 +125,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     case RecentPlayersFilter.GeoLocated:
                         query = query.Where(rp => rp.Lat != 0 && rp.Long != 0).AsQueryable();
                         break;
-
                 }
             }
 
@@ -158,27 +147,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                         query = query.OrderByDescending(rp => rp.Timestamp).AsQueryable();
                         break;
                 }
-
             }
 
             return query;
-        }
-
-        public class RecentPlayerDtoWrapper : RecentPlayerDto
-        {
-            public RecentPlayerDtoWrapper(RecentPlayer recentPlayer)
-            {
-                Id = recentPlayer.Id;
-                Name = recentPlayer.Name;
-                IpAddress = recentPlayer.IpAddress;
-                Lat = recentPlayer.Lat;
-                Long = recentPlayer.Long;
-                CountryCode = recentPlayer.CountryCode;
-                GameType = recentPlayer.GameType.ToGameType();
-                PlayerId = recentPlayer.PlayerId;
-                ServerId = recentPlayer.ServerId;
-                Timestamp = recentPlayer.Timestamp;
-            }
         }
     }
 }

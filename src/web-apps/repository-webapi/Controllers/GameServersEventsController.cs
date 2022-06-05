@@ -1,51 +1,80 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
 [ApiController]
 [Authorize(Roles = "ServiceAccount")]
-public class GameServersEventsController : ControllerBase
+public class GameServersEventsController : ControllerBase, IGameServersEventsApi
 {
     private readonly ILogger<GameServersEventsController> logger;
     private readonly PortalDbContext context;
+    private readonly IMapper mapper;
 
     public GameServersEventsController(
         ILogger<GameServersEventsController> logger,
-        PortalDbContext context)
+        PortalDbContext context,
+            IMapper mapper)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+    }
+
+    Task<ApiResponseDto> IGameServersEventsApi.CreateGameServerEvent(CreateGameServerEventDto createGameServerEventDto)
+    {
+        throw new NotImplementedException();
     }
 
     [HttpPost]
-    [Route("api/game-servers/{serverId}/event")]
-    public async Task<IActionResult> CreateGameServerEvent(Guid serverId)
+    [Route("api/game-server-events")]
+    public async Task<IActionResult> CreateGameServerEvents()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerEventDto gameServerEvent;
+        List<CreateGameServerEventDto>? createGameServerEventDto;
         try
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServerEvent = JsonConvert.DeserializeObject<GameServerEventDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            createGameServerEventDto = JsonConvert.DeserializeObject<List<CreateGameServerEventDto>>(requestBody);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
         }
 
-        if (gameServerEvent == null) return new BadRequestResult();
-        if (gameServerEvent.GameServerId != serverId) return new BadRequestResult();
+        if (createGameServerEventDto == null)
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-        //await Context.GameServerEvents.AddAsync(gameServerEvent);
-        //await Context.SaveChangesAsync();
+        var response = await ((IGameServersEventsApi)this).CreateGameServerEvents(createGameServerEventDto);
 
-        return new OkObjectResult(gameServerEvent);
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto> IGameServersEventsApi.CreateGameServerEvents(List<CreateGameServerEventDto> createGameServerEventDtos)
+    {
+        var gameServerEvents = createGameServerEventDtos.Select(gse => mapper.Map<GameServerEvent>(gse)).ToList();
+
+        gameServerEvents.ForEach(gse =>
+        {
+            gse.Timestamp = DateTime.UtcNow;
+        });
+
+        await context.GameServerEvents.AddRangeAsync(gameServerEvents);
+        await context.SaveChangesAsync();
+
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
 }

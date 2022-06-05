@@ -367,21 +367,11 @@
                 }
             }
         },
-        "/game-servers/{server-id}/events": {
+        "/game-server-events": {
             "post": {
-                "summary": "game-servers/{server-id}/events",
+                "summary": "game-server-events",
                 "description": "Creates one or more server events",
-                "operationId": "game-servers-server-id-events",
-                "parameters": [
-                    {
-                        "name": "server-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
+                "operationId": "game-server-events",
                 "responses": {
                     "200": {
                         "description": "null"

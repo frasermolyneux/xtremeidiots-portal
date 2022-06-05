@@ -1,8 +1,11 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
+
 using System;
 using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -80,13 +83,7 @@ public class ServerEventsIngest
         _log.LogInformation(
             $"ProcessOnMapChange :: GameName: '{onMapChange.GameName}', GameType: '{onMapChange.GameType}', MapName: '{onMapChange.MapName}'");
 
-        var gameServerEvent = new GameServerEventDto
-        {
-            GameServerId = (Guid)onMapChange.ServerId,
-            Timestamp = onMapChange.EventGeneratedUtc,
-            EventType = "MapChange",
-            EventData = JsonConvert.SerializeObject(onMapChange)
-        };
+        var gameServerEvent = new CreateGameServerEventDto((Guid)onMapChange.ServerId, "MapChange", JsonConvert.SerializeObject(onMapChange));
 
         await _repositoryApiClient.GameServersEvents.CreateGameServerEvent(gameServerEvent);
     }

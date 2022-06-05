@@ -4,7 +4,9 @@ using Microsoft.Extensions.Options;
 using RestSharp;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api;
 
@@ -14,11 +16,23 @@ public class GameServersEventsApi : BaseApi, IGameServersEventsApi
     {
     }
 
-    public async Task CreateGameServerEvent(GameServerEventDto gameServerEvent)
+    public async Task<ApiResponseDto> CreateGameServerEvent(CreateGameServerEventDto createGameServerEventDto)
     {
-        var request = await CreateRequest($"game-servers/{gameServerEvent.GameServerId}/events", Method.Post);
-        request.AddJsonBody(new List<GameServerEventDto> { gameServerEvent });
+        var request = await CreateRequest($"game-server-events", Method.Post);
+        request.AddJsonBody(new List<CreateGameServerEventDto> { createGameServerEventDto });
 
-        await ExecuteAsync(request);
+        var response = await ExecuteAsync(request);
+
+        return response.ToApiResponse();
+    }
+
+    public async Task<ApiResponseDto> CreateGameServerEvents(List<CreateGameServerEventDto> createGameServerEventDtos)
+    {
+        var request = await CreateRequest($"game-server-events", Method.Post);
+        request.AddJsonBody(createGameServerEventDtos);
+
+        var response = await ExecuteAsync(request);
+
+        return response.ToApiResponse();
     }
 }

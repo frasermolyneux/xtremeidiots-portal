@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 
@@ -280,18 +277,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayerChatLog(Guid id)
         {
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(id);
 
-            var playerDto = await repositoryApiClient.Players.GetPlayer(id);
-
-            if (playerDto == null)
+            if (playerDtoApiResponse == null)
                 return NotFound();
 
-            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerDto.GameType, AuthPolicies.ViewGameChatLog);
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerDtoApiResponse.Result.GameType, AuthPolicies.ViewGameChatLog);
 
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerDto.GameType, null, playerDto.Id);
+            return await GetChatLogPrivate(playerDtoApiResponse.Result.GameType, null, playerDtoApiResponse.Result.Id);
         }
 
         private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)

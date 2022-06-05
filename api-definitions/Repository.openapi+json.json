@@ -468,57 +468,6 @@
                 }
             }
         },
-        "/players/{player-id}/aliases": {
-            "get": {
-                "summary": "players/{player-id}/aliases",
-                "description": "Gets a players aliases",
-                "operationId": "get-players-player-id-aliases",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players/{player-id}/ip-addresses": {
-            "get": {
-                "summary": "players/{player-id}/ip-addresses",
-                "description": "Gets a players IP Addresses",
-                "operationId": "get-players-player-id-ip-addresses",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "ipAddress",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
         "/players/search": {
             "get": {
                 "summary": "players/search",

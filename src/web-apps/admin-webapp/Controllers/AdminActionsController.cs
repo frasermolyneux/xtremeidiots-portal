@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
@@ -34,13 +35,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(id);
 
-            var playerDto = await repositoryApiClient.Players.GetPlayer(id);
-
-            if (playerDto == null)
+            if (playerDtoApiResponse.IsNotFound)
                 return NotFound();
 
-            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, adminActionType), AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDtoApiResponse.Result.GameType, adminActionType), AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -48,8 +48,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var viewModel = new AdminActionViewModel
             {
                 Type = adminActionType,
-                PlayerId = playerDto.Id,
-                PlayerDto = playerDto,
+                PlayerId = playerDtoApiResponse.Result.Id,
+                PlayerDto = playerDtoApiResponse.Result,
                 Expires = adminActionType == AdminActionType.TempBan ? DateTime.UtcNow.AddDays(7) : null
             };
 
@@ -60,19 +60,18 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AdminActionViewModel model)
         {
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId);
 
-            var playerDto = await repositoryApiClient.Players.GetPlayer(model.PlayerId);
-
-            if (playerDto == null)
+            if (playerDtoApiResponse.IsNotFound)
                 return NotFound();
 
             if (!ModelState.IsValid)
             {
-                model.PlayerDto = playerDto;
+                model.PlayerDto = playerDtoApiResponse.Result;
                 return View(model);
             }
 
-            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDto.GameType, model.Type), AuthPolicies.CreateAdminAction);
+            var canCreateAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(playerDtoApiResponse.Result.GameType, model.Type), AuthPolicies.CreateAdminAction);
 
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
@@ -80,10 +79,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var adminActionDto = new AdminActionDto
             {
                 Type = model.Type,
-                PlayerId = playerDto.Id,
-                GameType = playerDto.GameType,
-                Username = playerDto.Username,
-                Guid = playerDto.Guid,
+                PlayerId = playerDtoApiResponse.Result.Id,
+                GameType = playerDtoApiResponse.Result.GameType,
+                Username = playerDtoApiResponse.Result.Username,
+                Guid = playerDtoApiResponse.Result.Guid,
                 AdminId = User.XtremeIdiotsId(),
                 Text = model.Text,
                 Expires = model.Expires
@@ -94,7 +93,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
 
             logger.LogInformation("User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
-            this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDto.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
+            this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDtoApiResponse.Result.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
 
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
         }
@@ -102,9 +101,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-
             var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(id);
-            var playerDto = await repositoryApiClient.Players.GetPlayer(adminActionDto.PlayerId);
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(adminActionDto.PlayerId);
 
             if (adminActionDto == null)
                 return NotFound();
@@ -117,10 +115,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Text = adminActionDto.Text,
                 Expires = adminActionDto.Expires,
                 AdminId = adminActionDto.AdminId,
-                PlayerDto = playerDto
+                PlayerDto = playerDtoApiResponse.Result
             };
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerDto.GameType, adminActionDto.Type, adminActionDto.AdminId), AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerDtoApiResponse.Result.GameType, adminActionDto.Type, adminActionDto.AdminId), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -132,19 +130,18 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(AdminActionViewModel model)
         {
-
             var adminActionDto = await repositoryApiClient.AdminActions.GetAdminAction(model.AdminActionId);
-            var playerDto = await repositoryApiClient.Players.GetPlayer(adminActionDto.PlayerId);
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(adminActionDto.PlayerId);
 
             if (adminActionDto == null) return NotFound();
 
             if (!ModelState.IsValid)
             {
-                model.PlayerDto = playerDto;
+                model.PlayerDto = playerDtoApiResponse.Result;
                 return View(model);
             }
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerDto.GameType, adminActionDto.Type, adminActionDto.AdminId), AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerDtoApiResponse.Result.GameType, adminActionDto.Type, adminActionDto.AdminId), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();

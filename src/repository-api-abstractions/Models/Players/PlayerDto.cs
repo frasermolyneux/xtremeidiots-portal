@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
@@ -27,5 +30,14 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 
         [JsonProperty]
         public string IpAddress { get; set; } = string.Empty;
+
+        [JsonProperty]
+        public List<AliasDto> AliasDtos { get; set; } = new List<AliasDto>();
+
+        [JsonProperty]
+        public List<IpAddressDto> IpAddressDtos { get; set; } = new List<IpAddressDto>();
+
+        [JsonProperty]
+        public List<AdminActionDto> AdminActionDtos { get; set; } = new List<AdminActionDto>();
     }
 }

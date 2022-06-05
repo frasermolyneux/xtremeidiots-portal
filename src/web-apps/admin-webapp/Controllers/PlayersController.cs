@@ -1,12 +1,14 @@
 ﻿using FM.GeoLocation.Contract.Interfaces;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -106,28 +108,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             if (id == null) return NotFound();
 
-            var player = await repositoryApiClient.Players.GetPlayer((Guid)id);
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer((Guid)id);
             var adminActions = await repositoryApiClient.Players.GetAdminActionsForPlayer((Guid)id);
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = new PlayerDto
-                {
-                    Id = player.Id,
-                    GameType = player.GameType,
-                    Username = player.Username,
-                    Guid = player.Guid,
-                    IpAddress = player.IpAddress,
-                    FirstSeen = player.FirstSeen,
-                    LastSeen = player.LastSeen
-                },
+                Player = playerDtoApiResponse.Result,
                 AdminActions = adminActions
             };
 
-            if (!string.IsNullOrWhiteSpace(player.IpAddress))
+            if (!string.IsNullOrWhiteSpace(playerDtoApiResponse.Result.IpAddress))
                 try
                 {
-                    var geoLocation = await _geoLocationClient.LookupAddress(player.IpAddress);
+                    var geoLocation = await _geoLocationClient.LookupAddress(playerDtoApiResponse.Result.IpAddress);
 
                     if (geoLocation.Success)
                         playerDetailsViewModel.GeoLocation = geoLocation.GeoLocationDto;
@@ -138,32 +131,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 }
 
             return View(playerDetailsViewModel);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetPlayerAliasesAjax(Guid? id)
-        {
-            if (id == null) return NotFound();
-
-            var aliases = await repositoryApiClient.Players.GetPlayerAliases((Guid)id);
-
-            return Json(new
-            {
-                data = aliases
-            });
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetPlayerIpAddressesAjax(Guid? id)
-        {
-            if (id == null) return NotFound();
-
-            var ipAddresses = await repositoryApiClient.Players.GetPlayerIpAddresses((Guid)id);
-
-            return Json(new
-            {
-                data = ipAddresses
-            });
         }
 
         [HttpGet]

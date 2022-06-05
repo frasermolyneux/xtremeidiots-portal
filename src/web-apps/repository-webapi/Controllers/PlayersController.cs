@@ -1,10 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
 using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
@@ -13,39 +20,45 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
 [ApiController]
 [Authorize(Roles = "ServiceAccount")]
-public class PlayersController : ControllerBase
+public class PlayersController : ControllerBase, IPlayersApi
 {
     private readonly ILogger<PlayersController> logger;
     private readonly PortalDbContext context;
+    private readonly IMapper mapper;
 
     public PlayersController(
         ILogger<PlayersController> logger,
-        PortalDbContext context)
+        PortalDbContext context,
+            IMapper mapper)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet]
     [Route("api/players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId)
     {
-        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var response = await ((IPlayersApi)this).GetPlayer(playerId);
 
-        if (player == null) return new NotFoundResult();
+        return response.ToHttpResult();
+    }
 
-        var playerDto = new PlayerDto
-        {
-            Id = player.PlayerId,
-            GameType = player.GameType.ToGameType(),
-            Username = player.Username,
-            Guid = player.Guid,
-            FirstSeen = player.FirstSeen,
-            LastSeen = player.LastSeen,
-            IpAddress = player.IpAddress
-        };
+    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayer(Guid playerId)
+    {
+        var player = await context.Players
+            .Include(p => p.PlayerAliases)
+            .Include(p => p.PlayerIpAddresses)
+            .Include(p => p.AdminActions)
+            .SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
-        return new OkObjectResult(playerDto);
+        if (player == null)
+            return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
+
+        var result = mapper.Map<PlayerDto>(player);
+
+        return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
 
     [HttpGet]
@@ -572,5 +585,45 @@ public class PlayersController : ControllerBase
         await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
+    }
+
+    Task<List<RelatedPlayerDto>?> IPlayersApi.GetRelatedPlayers(Guid playerId, string ipAddress)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<PlayerDto?> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task IPlayersApi.CreatePlayer(CreatePlayerDto createPlayerDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task IPlayersApi.UpdatePlayer(PlayerDto player)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<PlayersSearchResponseDto?> IPlayersApi.SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<List<AdminActionDto>?> IPlayersApi.GetAdminActionsForPlayer(Guid playerId)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<AdminActionDto?> IPlayersApi.CreateAdminActionForPlayer(AdminActionDto adminAction)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<AdminActionDto?> IPlayersApi.UpdateAdminActionForPlayer(AdminActionDto adminAction)
+    {
+        throw new NotImplementedException();
     }
 }

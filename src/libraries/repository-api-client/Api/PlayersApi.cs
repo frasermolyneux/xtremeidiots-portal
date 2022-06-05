@@ -10,8 +10,10 @@ using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -26,88 +28,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             this.memoryCache = memoryCache;
         }
 
-        public async Task<PlayerDto?> GetPlayer(Guid playerId)
+        public async Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId)
         {
-            if (options.Value.UseMemoryCacheOnGet)
-                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayer)}", out PlayerDto playerDto))
-                    return playerDto;
-
             var request = await CreateRequest($"players/{playerId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-            {
-                var playerDto = JsonConvert.DeserializeObject<PlayerDto>(response.Content);
-
-                if (options.Value.UseMemoryCacheOnGet && playerDto != null)
-                {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
-                    memoryCache.Set($"{playerId}-{nameof(GetPlayer)}", playerDto, cacheEntryOptions);
-                }
-
-                return playerDto;
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<List<AliasDto>?> GetPlayerAliases(Guid playerId)
-        {
-            if (options.Value.UseMemoryCacheOnGet)
-                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerAliases)}", out List<AliasDto> playerAliasDtos))
-                    return playerAliasDtos;
-
-            var request = await CreateRequest($"players/{playerId}/aliases", Method.Get);
-            var response = await ExecuteAsync(request);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-            {
-                var playerAliasDtos = JsonConvert.DeserializeObject<List<AliasDto>>(response.Content);
-
-                if (options.Value.UseMemoryCacheOnGet && playerAliasDtos != null)
-                {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
-                    memoryCache.Set($"{playerId}-{nameof(GetPlayerAliases)}", playerAliasDtos, cacheEntryOptions);
-                }
-
-                return playerAliasDtos;
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid playerId)
-        {
-            if (options.Value.UseMemoryCacheOnGet)
-                if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerIpAddresses)}", out List<IpAddressDto> playerIpAddressDtos))
-                    return playerIpAddressDtos;
-
-            var request = await CreateRequest($"players/{playerId}/ip-addresses", Method.Get);
-            var response = await ExecuteAsync(request);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-            {
-                var playerIpAddressDtos = JsonConvert.DeserializeObject<List<IpAddressDto>>(response.Content);
-
-                if (options.Value.UseMemoryCacheOnGet && playerIpAddressDtos != null)
-                {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
-                    memoryCache.Set($"{playerId}-{nameof(GetPlayerIpAddresses)}", playerIpAddressDtos, cacheEntryOptions);
-                }
-
-                return playerIpAddressDtos;
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<PlayerDto>();
         }
 
         public async Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress)

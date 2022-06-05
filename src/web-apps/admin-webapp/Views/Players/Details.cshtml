@@ -74,8 +74,8 @@
                         <div style="padding-bottom: 10px; padding-top: 20px">
                             <div>
                                 <ul>
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
-                                        {
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
+                                    {
                                         <li>
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Observation">Add Observation</a>
                                         </li>
@@ -151,7 +151,7 @@
                     </div>
 
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
-                        <table id="aliasesTable" style="width: 100%;">
+                        <table class="table table-borderless" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>
@@ -165,11 +165,21 @@
                                     </th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @foreach(var aliasDto in Model.Player.AliasDtos)
+                                {
+                                <tr>
+                                    <td>@aliasDto.Name</td>
+                                    <td>@Html.ToUserTime(User, aliasDto.Added)</td>
+                                    <td>@Html.ToUserTime(User, aliasDto.LastUsed)</td>
+                                </tr> 
+                                }
+                            </tbody>
                         </table>
                     </div>
 
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
-                        <table id="ipAddressesTable" style="width: 100%;">
+                        <table class="table table-borderless" style="width: 100%;">
                             <thead>
                                 <tr>
                                     <th>
@@ -183,6 +193,16 @@
                                     </th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @foreach(var ipAddressDto in Model.Player.IpAddressDtos)
+                                {
+                                <tr>
+                                    <td>@ipAddressDto.Address</td>
+                                    <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
+                                    <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>
+                                </tr> 
+                                }
+                            </tbody>
                         </table>
                     </div>
 
@@ -248,60 +268,6 @@
     <script type="text/javascript">
 
         $(document).ready(function() {
-
-            $('#aliasesTable').DataTable({
-                processing: true,
-                order: [[2, "desc"]],
-                ajax: {
-                    url: '/Players/GetPlayerAliasesAjax/@Model.Player.Id',
-                    dataSrc: 'data',
-                    contentType: "application/json"
-                },
-                columns: [
-                    {
-                        data: 'name',
-                        name: 'name',
-                        sortable: true
-                    },
-                    {
-                        data: 'added',
-                        name: 'added',
-                        sortable: true
-                    },
-                    {
-                        data: 'lastUsed',
-                        name: 'lastUsed',
-                        sortable: true
-                    }
-                ]
-            });
-
-            $('#ipAddressesTable').DataTable({
-                processing: true,
-                order: [[2, "desc"]],
-                ajax: {
-                    url: '/Players/GetPlayerIpAddressesAjax/@Model.Player.Id',
-                    dataSrc: 'data',
-                    contentType: "application/json"
-                },
-                columns: [
-                    {
-                        data: 'address',
-                        name: 'address',
-                        sortable: true
-                    },
-                    {
-                        data: 'added',
-                        name: 'added',
-                        sortable: true
-                    },
-                    {
-                        data: 'lastUsed',
-                        name: 'lastUsed',
-                        sortable: true
-                    }
-                ]
-            });
 
             @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
             {

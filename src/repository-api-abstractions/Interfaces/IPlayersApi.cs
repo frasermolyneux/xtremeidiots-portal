@@ -1,4 +1,5 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
@@ -6,9 +7,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IPlayersApi
     {
-        Task<PlayerDto?> GetPlayer(Guid playerId);
-        Task<List<AliasDto>?> GetPlayerAliases(Guid playerId);
-        Task<List<IpAddressDto>?> GetPlayerIpAddresses(Guid playerId);
+        Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId);
         Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress);
         Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid);
         Task CreatePlayer(CreatePlayerDto createPlayerDto);

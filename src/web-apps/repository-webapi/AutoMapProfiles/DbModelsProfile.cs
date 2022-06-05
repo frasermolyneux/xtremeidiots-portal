@@ -18,6 +18,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
     {
         public DbModelsProfile()
         {
+            // Nullable Handling
+            CreateMap<int?, int>().ConvertUsing((src, dest) => src ?? dest);
+            CreateMap<string?, string>().ConvertUsing((src, dest) => src ?? dest);
+            CreateMap<double?, double>().ConvertUsing((src, dest) => src ?? dest);
+            CreateMap<DateTime?, DateTime>().ConvertUsing((src, dest) => src ?? dest);
+
             // AdminActions
             CreateMap<AdminAction, AdminActionDto>()
                 .ForMember(
@@ -36,6 +42,16 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.GameType.ToGameType())
                 );
 
+            CreateMap<CreateGameServerDto, GameServer>()
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameTypeInt())
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<EditGameServerDto, GameServer>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             // Game Server Stats
             CreateMap<GameServerStat, GameServerStatDto>();
 
@@ -52,7 +68,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameTypeInt())
-                );
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Maps
             CreateMap<Map, MapDto>()
@@ -73,13 +90,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.MapFiles,
                     src => src.MapFrom(src => JsonConvert.SerializeObject(src.MapFiles))
-                );
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<EditMapDto, MapDto>()
                 .ForMember(
                     dest => dest.MapFiles,
                     src => src.MapFrom(src => JsonConvert.SerializeObject(src.MapFiles))
-                );
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Players
             CreateMap<Player, PlayerDto>()
@@ -129,7 +148,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameTypeInt())
-                );
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Recent Players
             CreateMap<RecentPlayer, RecentPlayerDto>()
@@ -142,7 +162,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameTypeInt())
-                );
+                )
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Reports
             CreateMap<Report, ReportDto>()
@@ -151,7 +172,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.GameType.ToGameType())
                 );
 
-            CreateMap<CreateReportDto, Report>();
+            CreateMap<CreateReportDto, Report>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // User Profile
             CreateMap<UserProfile, UserProfileDto>()
@@ -162,9 +184,11 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
 
             CreateMap<UserProfileClaim, UserProfileClaimDto>();
 
-            CreateMap<CreateUserProfileDto, UserProfile>();
+            CreateMap<CreateUserProfileDto, UserProfile>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<CreateUserProfileClaimDto, UserProfileClaim>();
+            CreateMap<CreateUserProfileClaimDto, UserProfileClaim>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

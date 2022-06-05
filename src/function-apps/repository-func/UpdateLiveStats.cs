@@ -184,14 +184,17 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 }
             }
 
-            gameServerDto.LiveTitle = serverQueryStatusResponseDto.ServerName;
-            gameServerDto.LiveMap = serverQueryStatusResponseDto.Map;
-            gameServerDto.LiveMod = serverQueryStatusResponseDto.Mod;
-            gameServerDto.LiveMaxPlayers = serverQueryStatusResponseDto.MaxPlayers;
-            gameServerDto.LiveCurrentPlayers = serverQueryStatusResponseDto.PlayerCount;
-            gameServerDto.LiveLastUpdated = DateTime.UtcNow;
+            var editGameServerDto = new EditGameServerDto(gameServerDto.Id)
+            {
+                LiveTitle = serverQueryStatusResponseDto.ServerName,
+                LiveMap = serverQueryStatusResponseDto.Map,
+                LiveMod = serverQueryStatusResponseDto.Mod,
+                LiveMaxPlayers = serverQueryStatusResponseDto.MaxPlayers,
+                LiveCurrentPlayers = serverQueryStatusResponseDto.PlayerCount,
+                LiveLastUpdated = DateTime.UtcNow
+            };
 
-            await repositoryApiClient.GameServers.UpdateGameServer(gameServerDto);
+            await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
 
             return livePlayerDtos;
         }

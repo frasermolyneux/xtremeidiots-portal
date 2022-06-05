@@ -14,6 +14,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -110,37 +111,14 @@ public class GameServersController : Controller, IGameServersApi
         return new ApiResponseDto<GameServersCollectionDto>(HttpStatusCode.OK, result);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Task<ApiResponseDto> IGameServersApi.CreateGameServer(CreateGameServerDto createGameServerDto)
+    {
+        throw new NotImplementedException();
+    }
 
     [HttpPost]
     [Route("api/game-servers")]
-    public async Task<IActionResult> CreateGameServer()
+    public async Task<IActionResult> CreateGameServers()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -149,54 +127,27 @@ public class GameServersController : Controller, IGameServersApi
         {
             createGameServerDtos = JsonConvert.DeserializeObject<List<CreateGameServerDto>>(requestBody);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
         }
 
         if (createGameServerDtos == null || !createGameServerDtos.Any())
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-        var gameServers = new List<GameServer>();
+        var response = await ((IGameServersApi)this).CreateGameServers(createGameServerDtos);
 
-        foreach (var createGameServerDto in createGameServerDtos)
-        {
-            var gameServer = new GameServer
-            {
-                Title = createGameServerDto.Title,
-                GameType = createGameServerDto.GameType.ToGameTypeInt(),
-                Hostname = createGameServerDto.Hostname,
-                QueryPort = createGameServerDto.QueryPort,
-                FtpHostname = createGameServerDto.FtpHostname,
-                FtpPort = createGameServerDto.FtpPort,
-                FtpUsername = createGameServerDto.FtpUsername,
-                FtpPassword = createGameServerDto.FtpPassword,
-                RconPassword = createGameServerDto.RconPassword,
-                LiveStatusEnabled = createGameServerDto.LiveStatusEnabled,
-                BannerServerListPosition = createGameServerDto.BannerServerListPosition,
-                ShowOnBannerServerList = createGameServerDto.ShowOnBannerServerList,
-                ShowOnPortalServerList = createGameServerDto.ShowOnPortalServerList,
-                ShowChatLog = createGameServerDto.ShowChatLog,
-                HtmlBanner = createGameServerDto.HtmlBanner
-            };
+        return response.ToHttpResult();
+    }
 
-            gameServers.Add(gameServer);
-        }
+    async Task<ApiResponseDto> IGameServersApi.CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
+    {
+        var gameServers = createGameServerDtos.Select(gs => mapper.Map<GameServer>(gs)).ToList();
 
         await context.GameServers.AddRangeAsync(gameServers);
         await context.SaveChangesAsync();
 
-        var entries = gameServers.Select(gs => new GameServerDtoWrapper(gs)).ToList();
-
-        var response = new CollectionDto<GameServerDtoWrapper>
-        {
-            TotalRecords = gameServers.Count,
-            FilteredRecords = gameServers.Count,
-            Entries = entries
-        };
-
-        return new OkObjectResult(response);
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
 
     [HttpPatch]
@@ -205,51 +156,47 @@ public class GameServersController : Controller, IGameServersApi
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        GameServerDto gameServerDto;
+        EditGameServerDto? editGameServerDto;
         try
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            gameServerDto = JsonConvert.DeserializeObject<GameServerDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            editGameServerDto = JsonConvert.DeserializeObject<EditGameServerDto>(requestBody);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
         }
 
-        if (gameServerDto == null) return new BadRequestResult();
-        if (gameServerDto.Id != serverId) return new BadRequestResult();
+        if (editGameServerDto == null)
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        if (editGameServerDto.Id != serverId)
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
 
-        if (gameServer == null) return new NotFoundResult();
+        var response = await ((IGameServersApi)this).UpdateGameServer(editGameServerDto);
 
-        gameServer.Title = gameServerDto.Title;
-        gameServer.HtmlBanner = gameServerDto.HtmlBanner;
-        gameServer.Hostname = gameServerDto.Hostname;
-        gameServer.QueryPort = gameServerDto.QueryPort;
-        gameServer.FtpHostname = gameServerDto.FtpHostname;
-        gameServer.FtpPort = gameServerDto.FtpPort;
-        gameServer.FtpUsername = gameServerDto.FtpUsername;
-        gameServer.FtpPassword = gameServerDto.FtpPassword;
-        gameServer.LiveStatusEnabled = gameServerDto.LiveStatusEnabled;
-        gameServer.LiveTitle = gameServerDto.LiveTitle;
-        gameServer.LiveMap = gameServerDto.LiveMap;
-        gameServer.LiveMod = gameServerDto.LiveMod;
-        gameServer.LiveMaxPlayers = gameServerDto.LiveMaxPlayers;
-        gameServer.LiveCurrentPlayers = gameServerDto.LiveCurrentPlayers;
-        gameServer.LiveLastUpdated = gameServerDto.LiveLastUpdated;
-        gameServer.ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList;
-        gameServer.BannerServerListPosition = gameServerDto.BannerServerListPosition;
-        gameServer.ShowOnPortalServerList = gameServerDto.ShowOnPortalServerList;
-        gameServer.ShowChatLog = gameServerDto.ShowChatLog;
-        gameServer.RconPassword = gameServerDto.RconPassword;
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto> IGameServersApi.UpdateGameServer(EditGameServerDto editGameServerDto)
+    {
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == editGameServerDto.Id);
+
+        if (gameServer == null)
+            return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);
+
+        mapper.Map(editGameServerDto, gameServer);
 
         await context.SaveChangesAsync();
 
-        return new OkObjectResult(gameServer.ToDto());
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
+
+
+
+
+
+
+
 
 
     [HttpPost]
@@ -395,21 +342,6 @@ public class GameServersController : Controller, IGameServersApi
         return query;
     }
 
-    Task IGameServersApi.CreateGameServer(CreateGameServerDto createGameServerDto)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task IGameServersApi.CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task IGameServersApi.UpdateGameServer(GameServerDto gameServer)
-    {
-        throw new NotImplementedException();
-    }
-
     Task<BanFileMonitorDto?> IGameServersApi.CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
     {
         throw new NotImplementedException();
@@ -419,4 +351,6 @@ public class GameServersController : Controller, IGameServersApi
     {
         throw new NotImplementedException();
     }
+
+
 }

@@ -58,35 +58,56 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<GameServersCollectionDto>();
         }
 
+        public async Task<ApiResponseDto> CreateGameServer(CreateGameServerDto createGameServerDto)
+        {
+            var request = await CreateRequest("game-servers", Method.Post);
+            request.AddJsonBody(new List<CreateGameServerDto> { createGameServerDto });
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
+        {
+            var request = await CreateRequest("game-servers", Method.Post);
+            request.AddJsonBody(createGameServerDtos);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> UpdateGameServer(EditGameServerDto editGameServerDto)
+        {
+            var request = await CreateRequest($"game-servers/{editGameServerDto.Id}", Method.Patch);
+            request.AddJsonBody(editGameServerDto);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         public async Task DeleteGameServer(Guid id)
         {
             var request = await CreateRequest($"game-servers/{id}", Method.Delete);
             await ExecuteAsync(request);
         }
 
-        public async Task CreateGameServer(CreateGameServerDto createGameServerDto)
-        {
-            var request = await CreateRequest("game-servers", Method.Post);
-            request.AddJsonBody(new List<CreateGameServerDto> { createGameServerDto });
 
-            await ExecuteAsync(request);
-        }
 
-        public async Task CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
-        {
-            var request = await CreateRequest("game-servers", Method.Post);
-            request.AddJsonBody(createGameServerDtos);
 
-            await ExecuteAsync(request);
-        }
-
-        public async Task UpdateGameServer(GameServerDto gameServer)
-        {
-            var request = await CreateRequest($"game-servers/{gameServer.Id}", Method.Patch);
-            request.AddJsonBody(gameServer);
-
-            await ExecuteAsync(request);
-        }
 
         public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
         {

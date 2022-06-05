@@ -10,9 +10,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
         Task<ApiResponseDto<GameServerDto>> GetGameServer(Guid serverId);
         Task<ApiResponseDto<GameServersCollectionDto>> GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order);
 
-        Task CreateGameServer(CreateGameServerDto createGameServerDto);
-        Task CreateGameServers(List<CreateGameServerDto> createGameServerDtos);
-        Task UpdateGameServer(GameServerDto gameServer);
+        Task<ApiResponseDto> CreateGameServer(CreateGameServerDto createGameServerDto);
+        Task<ApiResponseDto> CreateGameServers(List<CreateGameServerDto> createGameServerDtos);
+
+        Task<ApiResponseDto> UpdateGameServer(EditGameServerDto editGameServerDto);
 
         // Ban File Monitor Child Resources
         Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor);

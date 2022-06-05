@@ -192,33 +192,35 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            gameServerApiResponse.Result.Title = model.Title;
-            gameServerApiResponse.Result.Hostname = model.Hostname;
-            gameServerApiResponse.Result.QueryPort = model.QueryPort;
+            var editGameServerDto = new EditGameServerDto(gameServerApiResponse.Result.Id);
+
+            editGameServerDto.Title = model.Title;
+            editGameServerDto.Hostname = model.Hostname;
+            editGameServerDto.QueryPort = model.QueryPort;
 
             var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
-                gameServerApiResponse.Result.FtpHostname = model.FtpHostname;
-                gameServerApiResponse.Result.FtpPort = model.FtpPort;
-                gameServerApiResponse.Result.FtpUsername = model.FtpUsername;
-                gameServerApiResponse.Result.FtpPassword = model.FtpPassword;
+                editGameServerDto.FtpHostname = model.FtpHostname;
+                editGameServerDto.FtpPort = model.FtpPort;
+                editGameServerDto.FtpUsername = model.FtpUsername;
+                editGameServerDto.FtpPassword = model.FtpPassword;
             }
 
             var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
-                gameServerApiResponse.Result.RconPassword = model.RconPassword;
+                editGameServerDto.RconPassword = model.RconPassword;
 
-            gameServerApiResponse.Result.LiveStatusEnabled = model.LiveStatusEnabled;
-            gameServerApiResponse.Result.ShowOnBannerServerList = model.ShowOnBannerServerList;
-            gameServerApiResponse.Result.BannerServerListPosition = model.BannerServerListPosition;
-            gameServerApiResponse.Result.HtmlBanner = model.HtmlBanner;
-            gameServerApiResponse.Result.ShowOnPortalServerList = model.ShowOnPortalServerList;
-            gameServerApiResponse.Result.ShowChatLog = model.ShowChatLog;
+            editGameServerDto.LiveStatusEnabled = model.LiveStatusEnabled;
+            editGameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
+            editGameServerDto.BannerServerListPosition = model.BannerServerListPosition;
+            editGameServerDto.HtmlBanner = model.HtmlBanner;
+            editGameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
+            editGameServerDto.ShowChatLog = model.ShowChatLog;
 
-            await repositoryApiClient.GameServers.UpdateGameServer(gameServerApiResponse.Result);
+            await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
 
             _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.Id, gameServerApiResponse.Result.GameType);
             this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been updated for {gameServerApiResponse.Result.GameType}");

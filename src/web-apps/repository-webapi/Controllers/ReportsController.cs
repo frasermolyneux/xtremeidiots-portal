@@ -123,6 +123,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var reports = createReportDtos.Select(r => mapper.Map<Report>(r)).ToList();
 
+            foreach (var report in reports)
+            {
+                var gameServer = context.GameServers.Single(gs => gs.ServerId == report.ServerId);
+                report.GameType = gameServer.GameType;
+            }
+
             await context.Reports.AddRangeAsync(reports);
             await context.SaveChangesAsync();
 

@@ -3,6 +3,7 @@
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
@@ -36,6 +37,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 dest => dest.GameType,
                 src => src.MapFrom(src => src.GameType.ToGameTypeInt())
             );
+
+            // Reports
+            CreateMap<Report, ReportDto>()
+            .ForMember(
+                dest => dest.GameType,
+                src => src.MapFrom(src => src.GameType.ToGameType())
+            );
+
+            CreateMap<CreateReportDto, Report>();
         }
     }
 }

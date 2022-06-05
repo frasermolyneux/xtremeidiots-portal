@@ -93,7 +93,7 @@
             @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
             {
                 <li class="@Html.IsSelected(action: "GameChatLog", id: game.ToString())">
-                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game.ShortDisplayName() ChatLog</a>
+                    <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game">@Html.GameTypeIcon(game) @game.ShortDisplayName() ChatLog</a>
                 </li>
             }
         }
@@ -116,7 +116,7 @@
         @foreach (var game in DemosSupportedGames.Games)
         {
             <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
-                <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game.DisplayName()</a>
+                <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
             </li>
         }
 
@@ -133,15 +133,15 @@
         </li>
 
         <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty2.ToString())">
-            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2.ToString()) @GameType.CallOfDuty2.DisplayName()</a>
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2) @GameType.CallOfDuty2.DisplayName()</a>
         </li>
 
         <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty4.ToString())">
-            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4.ToString()) @GameType.CallOfDuty4.DisplayName()</a>
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4) @GameType.CallOfDuty4.DisplayName()</a>
         </li>
 
         <li class="@Html.IsSelected(action: "GameIndex", id: GameType.CallOfDuty5.ToString())">
-            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5.ToString()) @GameType.CallOfDuty5.DisplayName()</a>
+            <a asp-controller="Maps" asp-action="GameIndex" asp-route-id="@GameType.CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5) @GameType.CallOfDuty5.DisplayName()</a>
         </li>
     </ul>
 </li>
@@ -176,7 +176,7 @@
             @if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewPlayers)).Succeeded)
             {
                 <li class="@Html.IsSelected(action: "GameIndex", id: game.ToString())">
-                    <a asp-controller="Players" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game.ToString()) @game.DisplayName()</a>
+                    <a asp-controller="Players" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game) @game.DisplayName()</a>
                 </li>
             }
         }

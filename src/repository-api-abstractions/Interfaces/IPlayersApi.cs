@@ -8,7 +8,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
     public interface IPlayersApi
     {
         Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId);
-        Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress);
         Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid);
         Task CreatePlayer(CreatePlayerDto createPlayerDto);
         Task UpdatePlayer(PlayerDto player);

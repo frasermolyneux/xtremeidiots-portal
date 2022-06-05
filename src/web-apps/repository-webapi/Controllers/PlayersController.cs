@@ -56,28 +56,15 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
 
-        var result = mapper.Map<PlayerDto>(player);
-
-        return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
-    }
-
-    [HttpGet]
-    [Route("api/players/{playerId}/related-players")]
-    public async Task<IActionResult> GetRelatedPlayers(Guid playerId, string ipAddress)
-    {
-        var playerIpAddresses = await context.PlayerIpAddresses.Include(ip => ip.PlayerPlayer)
-            .Where(ip => ip.Address == ipAddress && ip.PlayerPlayerId != playerId)
+        var playerIpAddresses = await context.PlayerIpAddresses
+            .Include(ip => ip.PlayerPlayer)
+            .Where(ip => ip.Address == player.IpAddress && ip.PlayerPlayerId != player.PlayerId)
             .ToListAsync();
 
-        var result = playerIpAddresses.Select(pip => new RelatedPlayerDto
-        {
-            GameType = pip.PlayerPlayer.GameType.ToGameType(),
-            Username = pip.PlayerPlayer.Username,
-            PlayerId = pip.PlayerPlayer.PlayerId,
-            IpAddress = pip.Address
-        }).ToList();
+        var result = mapper.Map<PlayerDto>(player);
+        result.RelatedPlayerDtos = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
 
-        return new OkObjectResult(result);
+        return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
 
     [HttpGet]
@@ -549,11 +536,6 @@ public class PlayersController : ControllerBase, IPlayersApi
         await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
-    }
-
-    Task<List<RelatedPlayerDto>?> IPlayersApi.GetRelatedPlayers(Guid playerId, string ipAddress)
-    {
-        throw new NotImplementedException();
     }
 
     Task<PlayerDto?> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)

@@ -134,23 +134,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRelatedPlayersAjax(Guid? id, string ipAddress)
-        {
-            if (id == null) return NotFound();
-
-            if (string.IsNullOrWhiteSpace(ipAddress))
-                return BadRequest();
-
-
-            var relatedPlayers = await repositoryApiClient.Players.GetRelatedPlayers((Guid)id, ipAddress);
-
-            return Json(new
-            {
-                data = relatedPlayers
-            });
-        }
-
-        [HttpGet]
         public async Task<IActionResult> MyActions()
         {
             var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 0, AdminActionOrder.CreatedDesc);

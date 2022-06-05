@@ -39,5 +39,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 
         [JsonProperty]
         public List<AdminActionDto> AdminActionDtos { get; set; } = new List<AdminActionDto>();
+
+        [JsonProperty]
+        public List<RelatedPlayerDto> RelatedPlayerDtos { get; set; } = new List<RelatedPlayerDto>();
     }
 }

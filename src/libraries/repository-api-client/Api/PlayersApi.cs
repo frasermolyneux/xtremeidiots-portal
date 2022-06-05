@@ -36,36 +36,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<PlayerDto>();
         }
 
-        public async Task<List<RelatedPlayerDto>?> GetRelatedPlayers(Guid playerId, string ipAddress)
-        {
-            if (options.Value.UseMemoryCacheOnGet)
-                if (memoryCache.TryGetValue($"{playerId}-{ipAddress}-{nameof(GetRelatedPlayers)}", out List<RelatedPlayerDto> relatedPlayerDtos))
-                    return relatedPlayerDtos;
-
-            var request = await CreateRequest($"players/{playerId}/related-players", Method.Get);
-            request.AddQueryParameter("IpAddress", ipAddress);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-            {
-                var relatedPlayerDtos = JsonConvert.DeserializeObject<List<RelatedPlayerDto>>(response.Content);
-
-                if (options.Value.UseMemoryCacheOnGet && relatedPlayerDtos != null)
-                {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
-                    memoryCache.Set($"{playerId}-{ipAddress}-{nameof(GetRelatedPlayers)}", relatedPlayerDtos, cacheEntryOptions);
-                }
-
-                return relatedPlayerDtos;
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
         public async Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid)
         {
             if (options.Value.UseMemoryCacheOnGet)

@@ -49,17 +49,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayersAjax(GameType? id)
         {
-            return await GetPlayersAjaxPrivate("UsernameAndGuid", id);
+            return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id);
         }
 
         [HttpPost]
         public async Task<IActionResult> GetIpSearchListAjax()
         {
-            return await GetPlayersAjaxPrivate("IpAddress", null);
+            return await GetPlayersAjaxPrivate(PlayersFilter.IpAddress, null);
         }
 
         [HttpPost]
-        private async Task<IActionResult> GetPlayersAjaxPrivate(string filter, GameType? id)
+        private async Task<IActionResult> GetPlayersAjaxPrivate(PlayersFilter filter, GameType? gameType)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -69,7 +69,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            var order = "LastSeenDesc";
+            var order = PlayersOrder.LastSeenDesc;
             if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
@@ -78,28 +78,28 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 switch (orderColumn)
                 {
                     case "gameType":
-                        order = searchOrder == "asc" ? "GameTypeAsc" : "GameTypeDesc";
+                        order = searchOrder == "asc" ? PlayersOrder.GameTypeAsc : PlayersOrder.GameTypeDesc;
                         break;
                     case "username":
-                        order = searchOrder == "asc" ? "UsernameAsc" : "UsernameDesc";
+                        order = searchOrder == "asc" ? PlayersOrder.UsernameAsc : PlayersOrder.UsernameDesc;
                         break;
                     case "firstSeen":
-                        order = searchOrder == "asc" ? "FirstSeenAsc" : "FirstSeenDesc";
+                        order = searchOrder == "asc" ? PlayersOrder.FirstSeenAsc : PlayersOrder.FirstSeenDesc;
                         break;
                     case "lastSeen":
-                        order = searchOrder == "asc" ? "LastSeenAsc" : "LastSeenDesc";
+                        order = searchOrder == "asc" ? PlayersOrder.LastSeenAsc : PlayersOrder.LastSeenDesc;
                         break;
                 }
             }
 
-            var searchResponse = await repositoryApiClient.Players.SearchPlayers(id.ToString(), filter, model.Search?.Value, model.Length, model.Start, order);
+            var playerCollectionApiResponse = await repositoryApiClient.Players.GetPlayers(gameType, filter, model.Search?.Value, model.Start, model.Length, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal = searchResponse.TotalRecords,
-                recordsFiltered = searchResponse.FilteredRecords,
-                data = searchResponse.Entries
+                recordsTotal = playerCollectionApiResponse.Result.TotalRecords,
+                recordsFiltered = playerCollectionApiResponse.Result.FilteredRecords,
+                data = playerCollectionApiResponse.Result.Entries
             });
         }
 

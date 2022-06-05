@@ -43,6 +43,33 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<PlayerDto>();
         }
 
+        public async Task<ApiResponseDto<PlayersCollectionDto>> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order)
+        {
+            var request = await CreateRequest("players", Method.Get);
+
+            if (gameType.HasValue)
+                request.AddQueryParameter("gameType", gameType.ToString());
+
+            if (filter.HasValue)
+                request.AddQueryParameter("filter", filter.ToString());
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                request.AddQueryParameter("filterString", filterString);
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                request.AddQueryParameter("filterString", filterString);
+
+            request.AddQueryParameter("skipEntries", skipEntries.ToString());
+            request.AddQueryParameter("takeEntries", takeEntries.ToString());
+
+            if (order.HasValue)
+                request.AddQueryParameter("order", order.ToString());
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<PlayersCollectionDto>();
+        }
+
         public async Task<ApiResponseDto> CreatePlayer(CreatePlayerDto createPlayerDto)
         {
             var request = await CreateRequest("players", Method.Post);
@@ -71,36 +98,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse();
-        }
-
-        public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)
-        {
-            var request = await CreateRequest("players/search", Method.Get);
-
-            if (!string.IsNullOrWhiteSpace(gameType))
-                request.AddQueryParameter("gameType", gameType);
-
-            if (!string.IsNullOrWhiteSpace(filter))
-                request.AddQueryParameter("filter", filter);
-
-            if (!string.IsNullOrWhiteSpace(filterString))
-                request.AddQueryParameter("filterString", filterString);
-
-            if (!string.IsNullOrWhiteSpace(filterString))
-                request.AddQueryParameter("filterString", filterString);
-
-            request.AddQueryParameter("takeEntries", takeEntries.ToString());
-            request.AddQueryParameter("skipEntries", skipEntries.ToString());
-
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<PlayersSearchResponseDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
 
         public async Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId)

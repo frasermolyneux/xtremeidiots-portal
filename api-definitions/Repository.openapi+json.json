@@ -161,6 +161,64 @@
             }
         },
         "/players": {
+            "get": {
+                "summary": "players",
+                "description": "players",
+                "operationId": "get-players",
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "enum": [
+                                "UsernameAndGuid",
+                                "IpAddress"
+                            ],
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "int"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            },
             "post": {
                 "summary": "players",
                 "description": "Creates one or more players",
@@ -458,66 +516,6 @@
                         "required": true,
                         "schema": {
                             "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players/search": {
-            "get": {
-                "summary": "players/search",
-                "description": "players/search",
-                "operationId": "get-players-search",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filter",
-                        "in": "query",
-                        "schema": {
-                            "enum": [
-                                "UsernameAndGuid",
-                                "IpAddress"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filterString",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
                         }
                     }
                 ],

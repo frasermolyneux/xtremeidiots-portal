@@ -99,6 +99,50 @@ public class PlayersController : ControllerBase, IPlayersApi
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
 
+    [HttpGet]
+    [Route("api/players")]
+    public async Task<IActionResult> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int? skipEntries, int? takeEntries, PlayersOrder? order)
+    {
+        if (!skipEntries.HasValue)
+            skipEntries = 0;
+
+        if (!takeEntries.HasValue)
+            takeEntries = 20;
+
+        var response = await ((IPlayersApi)this).GetPlayers(gameType, filter, filterString, skipEntries.Value, takeEntries.Value, order);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto<PlayersCollectionDto>> IPlayersApi.GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order)
+    {
+        var query = context.Players
+            .Include(p => p.PlayerAliases)
+            .Include(p => p.PlayerIpAddresses)
+            .Include(p => p.AdminActions)
+            .AsQueryable();
+
+        query = ApplyFilter(query, gameType, null, null);
+        var totalCount = await query.CountAsync();
+
+        query = ApplyFilter(query, gameType, filter, filterString);
+        var filteredCount = await query.CountAsync();
+
+        query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+        var results = await query.ToListAsync();
+
+        var entries = results.Select(p => mapper.Map<PlayerDto>(p)).ToList();
+
+        var result = new PlayersCollectionDto
+        {
+            TotalRecords = totalCount,
+            FilteredRecords = filteredCount,
+            Entries = entries
+        };
+
+        return new ApiResponseDto<PlayersCollectionDto>(HttpStatusCode.OK, result);
+    }
+
     [HttpPost]
     [Route("api/players")]
     public async Task<IActionResult> CreatePlayers()
@@ -247,119 +291,6 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players/search")]
-    public async Task<IActionResult> SearchPlayers(string? gameType, string? filter, string? filterString, int takeEntries, int skipEntries, string? order)
-    {
-        if (!Enum.TryParse(gameType, out GameType legacyGameType))
-        {
-            legacyGameType = GameType.Unknown;
-        }
-
-        if (string.IsNullOrWhiteSpace(order))
-            order = "LastSeenDesc";
-
-        if (filter == null)
-            filter = string.Empty;
-
-        if (filterString == null)
-            filterString = string.Empty;
-
-        var query = context.Players.AsQueryable();
-        query = ApplySearchFilter(query, legacyGameType, string.Empty, string.Empty);
-        var totalCount = await query.CountAsync();
-
-        query = ApplySearchFilter(query, legacyGameType, filter, filterString);
-        var filteredCount = await query.CountAsync();
-
-        query = ApplySearchOrderAndLimits(query, order, skipEntries, takeEntries);
-        var searchResults = await query.ToListAsync();
-
-        var entries = searchResults.Select(p => new PlayerDto()
-        {
-            Id = p.PlayerId,
-            GameType = p.GameType.ToGameType(),
-            Username = p.Username,
-            Guid = p.Guid,
-            FirstSeen = p.FirstSeen,
-            LastSeen = p.LastSeen,
-            IpAddress = p.IpAddress
-        }).ToList();
-
-        var response = new PlayersSearchResponseDto
-        {
-            TotalRecords = totalCount,
-            FilteredRecords = filteredCount,
-            Entries = entries
-        };
-
-        return new OkObjectResult(response);
-    }
-
-    private IQueryable<Player> ApplySearchFilter(IQueryable<Player> players, GameType gameType, string filter, string filterString)
-    {
-        players = players.AsQueryable();
-
-        if (gameType != GameType.Unknown) players = players.Where(p => p.GameType == gameType.ToGameTypeInt()).AsQueryable();
-
-        if (filter != "None" && !string.IsNullOrWhiteSpace(filterString))
-            switch (filter)
-            {
-                case "UsernameAndGuid":
-                    players = players.Where(p => p.Username.Contains(filterString) ||
-                                                 p.Guid.Contains(filterString) ||
-                                                 p.PlayerAliases.Any(a => a.Name.Contains(filterString)))
-                        .AsQueryable();
-                    break;
-                case "IpAddress":
-                    players = players.Where(p => p.IpAddress.Contains(filterString) ||
-                                                 p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString)))
-                        .AsQueryable();
-                    break;
-            }
-        else if (filter == "IpAddress") players = players.Where(p => p.IpAddress != "" && p.IpAddress != null).AsQueryable();
-
-        return players;
-    }
-
-    private IQueryable<Player> ApplySearchOrderAndLimits(IQueryable<Player> players, string order, int skipEntries, int takeEntries)
-    {
-        switch (order)
-        {
-            case "UsernameAsc":
-                players = players.OrderBy(p => p.Username).AsQueryable();
-                break;
-            case "UsernameDesc":
-                players = players.OrderByDescending(p => p.Username).AsQueryable();
-                break;
-            case "FirstSeenAsc":
-                players = players.OrderBy(p => p.FirstSeen).AsQueryable();
-                break;
-            case "FirstSeenDesc":
-                players = players.OrderByDescending(p => p.FirstSeen).AsQueryable();
-                break;
-            case "LastSeenAsc":
-                players = players.OrderBy(p => p.LastSeen).AsQueryable();
-                break;
-            case "LastSeenDesc":
-                players = players.OrderByDescending(p => p.LastSeen).AsQueryable();
-                break;
-            case "GameTypeAsc":
-                players = players.OrderBy(p => p.GameType).AsQueryable();
-                break;
-            case "GameTypeDesc":
-                players = players.OrderByDescending(p => p.GameType).AsQueryable();
-                break;
-        }
-
-        players = players.Skip(skipEntries).AsQueryable();
-
-        if (takeEntries != 0) players = players.Take(takeEntries).AsQueryable();
-
-        return players;
-    }
-
-
-    [HttpGet]
     [Route("api/players/{playerId}/admin-actions")]
     public async Task<IActionResult> GetAdminActionsForPlayer(Guid playerId)
     {
@@ -477,9 +408,61 @@ public class PlayersController : ControllerBase, IPlayersApi
         return new OkObjectResult(adminActionDto);
     }
 
-    Task<PlayersSearchResponseDto?> IPlayersApi.SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)
+    private IQueryable<Player> ApplyFilter(IQueryable<Player> query, GameType? gameType, PlayersFilter? filter, string? filterString)
     {
-        throw new NotImplementedException();
+        if (gameType.HasValue)
+            query = query.Where(p => p.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
+
+        if (filter.HasValue && !string.IsNullOrWhiteSpace(filterString))
+        {
+            switch (filter)
+            {
+                case PlayersFilter.UsernameAndGuid:
+                    query = query.Where(p => p.Username.Contains(filterString) || p.Guid.Contains(filterString) || p.PlayerAliases.Any(a => a.Name.Contains(filterString))).AsQueryable();
+                    break;
+                case PlayersFilter.IpAddress:
+                    query = query.Where(p => p.IpAddress.Contains(filterString) || p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString))).AsQueryable();
+                    break;
+            }
+        }
+
+        return query;
+    }
+
+    private IQueryable<Player> ApplyOrderAndLimits(IQueryable<Player> query, int skipEntries, int takeEntries, PlayersOrder? order)
+    {
+        query = query.Skip(skipEntries).AsQueryable();
+        query = query.Take(takeEntries).AsQueryable();
+
+        switch (order)
+        {
+            case PlayersOrder.UsernameAsc:
+                query = query.OrderBy(p => p.Username).AsQueryable();
+                break;
+            case PlayersOrder.UsernameDesc:
+                query = query.OrderByDescending(p => p.Username).AsQueryable();
+                break;
+            case PlayersOrder.FirstSeenAsc:
+                query = query.OrderBy(p => p.FirstSeen).AsQueryable();
+                break;
+            case PlayersOrder.FirstSeenDesc:
+                query = query.OrderByDescending(p => p.FirstSeen).AsQueryable();
+                break;
+            case PlayersOrder.LastSeenAsc:
+                query = query.OrderBy(p => p.LastSeen).AsQueryable();
+                break;
+            case PlayersOrder.LastSeenDesc:
+                query = query.OrderByDescending(p => p.LastSeen).AsQueryable();
+                break;
+            case PlayersOrder.GameTypeAsc:
+                query = query.OrderBy(p => p.GameType).AsQueryable();
+                break;
+            case PlayersOrder.GameTypeDesc:
+                query = query.OrderByDescending(p => p.GameType).AsQueryable();
+                break;
+        }
+
+        return query;
     }
 
     Task<List<AdminActionDto>?> IPlayersApi.GetAdminActionsForPlayer(Guid playerId)
@@ -496,5 +479,4 @@ public class PlayersController : ControllerBase, IPlayersApi
     {
         throw new NotImplementedException();
     }
-
 }

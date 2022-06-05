@@ -163,7 +163,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var data = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(cutoff);
 
-            return Json(data);
+            return Json(data.Result.Entries);
         }
 
         [HttpGet]
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var data = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(cutoff);
 
-            return Json(data);
+            return Json(data.Result.Entries);
         }
 
         [HttpGet]
@@ -179,7 +179,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var data = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(cutoff);
 
-            return Json(data);
+            return Json(data.Result.Entries);
         }
     }
 }

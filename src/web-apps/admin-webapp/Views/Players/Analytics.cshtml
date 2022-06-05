@@ -108,6 +108,8 @@
             $.getJSON("/Players/GetNewDailyPlayersPerGameJson?cutoff=" + cutoff,
                 function(jsonData) {
 
+                    console.log(jsonData);
+
                     var data = new google.visualization.DataTable();
                     data.addColumn('date', 'Date');
                     data.addColumn('number', 'CallOfDuty2');

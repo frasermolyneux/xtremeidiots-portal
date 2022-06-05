@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
     public class PlayerAnalyticPerGameEntryDto
@@ -8,6 +10,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
         public DateTime Created { get; set; }
 
         [JsonProperty]
-        public Dictionary<string, int> GameCounts { get; set; } = new Dictionary<string, int>();
+        public Dictionary<GameType, int> GameCounts { get; set; } = new Dictionary<GameType, int>();
     }
 }

@@ -1,11 +1,12 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IPlayerAnalyticsApi
     {
-        Task<List<PlayerAnalyticEntryDto>?> GetCumulativeDailyPlayers(DateTime cutoff);
-        Task<List<PlayerAnalyticPerGameEntryDto>?> GetNewDailyPlayersPerGame(DateTime cutoff);
-        Task<List<PlayerAnalyticPerGameEntryDto>?> GetPlayersDropOffPerGameJson(DateTime cutoff);
+        Task<ApiResponseDto<PlayerAnalyticEntryCollectionDto>> GetCumulativeDailyPlayers(DateTime cutoff);
+        Task<ApiResponseDto<PlayerAnalyticPerGameEntryCollectionDto>> GetNewDailyPlayersPerGame(DateTime cutoff);
+        Task<ApiResponseDto<PlayerAnalyticPerGameEntryCollectionDto>> GetPlayersDropOffPerGameJson(DateTime cutoff);
     }
 }

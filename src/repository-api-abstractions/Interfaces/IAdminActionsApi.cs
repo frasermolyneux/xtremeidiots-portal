@@ -8,5 +8,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
         Task<AdminActionDto?> GetAdminAction(Guid adminActionId);
         Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order);
         Task DeleteAdminAction(Guid adminActionId);
+        Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId);
+        Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction);
+        Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction);
     }
 }

@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (id == null) return NotFound();
 
             var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer((Guid)id);
-            var adminActions = await repositoryApiClient.Players.GetAdminActionsForPlayer((Guid)id);
+            var adminActions = await repositoryApiClient.AdminActions.GetAdminActionsForPlayer((Guid)id);
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {

@@ -1,6 +1,5 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
@@ -13,8 +12,5 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
         Task<ApiResponseDto> CreatePlayer(CreatePlayerDto createPlayerDto);
         Task<ApiResponseDto> CreatePlayers(List<CreatePlayerDto> createPlayerDtos);
         Task<ApiResponseDto> UpdatePlayer(EditPlayerDto editPlayerDto);
-        Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId);
-        Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction);
-        Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction);
     }
 }

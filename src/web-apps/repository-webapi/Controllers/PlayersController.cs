@@ -12,7 +12,6 @@ using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
@@ -290,124 +289,6 @@ public class PlayersController : ControllerBase, IPlayersApi
         return new ApiResponseDto(HttpStatusCode.OK);
     }
 
-    [HttpGet]
-    [Route("api/players/{playerId}/admin-actions")]
-    public async Task<IActionResult> GetAdminActionsForPlayer(Guid playerId)
-    {
-        var results = await context.AdminActions
-            .Include(aa => aa.PlayerPlayer)
-            .Include(aa => aa.UserProfile)
-            .Where(aa => aa.PlayerPlayerId == playerId)
-            .OrderByDescending(aa => aa.Created)
-            .ToListAsync();
-
-        var result = results.Select(adminAction => adminAction.ToDto());
-
-        return new OkObjectResult(result);
-    }
-
-    [HttpPost]
-    [Route("api/players/{playerId}/admin-actions")]
-    public async Task<IActionResult> CreateAdminActionForPlayer(Guid playerId)
-    {
-        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-        AdminActionDto adminActionDto;
-        try
-        {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
-        }
-
-        if (adminActionDto == null) return new BadRequestResult();
-        if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
-
-        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
-
-        UserProfile admin = null;
-        if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
-        {
-            admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
-        }
-
-        var adminAction = new AdminAction
-        {
-            PlayerPlayer = player,
-            UserProfile = admin,
-            Type = adminActionDto.Type.ToAdminActionTypeInt(),
-            Text = adminActionDto.Text,
-            Created = DateTime.UtcNow,
-            Expires = adminActionDto.Expires,
-            ForumTopicId = adminActionDto.ForumTopicId
-        };
-
-        context.AdminActions.Add(adminAction);
-        await context.SaveChangesAsync();
-
-        return new OkObjectResult(adminActionDto);
-    }
-
-    [HttpPatch]
-    [Route("api/players/{playerId}/admin-actions/{adminActionId}")]
-    public async Task<IActionResult> UpdateAdminActionForPlayer(Guid playerId, Guid adminActionId)
-    {
-        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-        AdminActionDto adminActionDto;
-        try
-        {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
-        }
-
-        if (adminActionDto == null) return new BadRequestResult();
-        if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
-
-        var adminAction = await context.AdminActions
-            .Include(aa => aa.UserProfile)
-            .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
-
-        if (adminAction == null)
-            throw new NullReferenceException(nameof(adminAction));
-
-        adminAction.Text = adminActionDto.Text;
-        adminAction.Expires = adminActionDto.Expires;
-
-        if (adminAction.UserProfile.XtremeIdiotsForumId != adminActionDto.AdminId)
-        {
-            if (string.IsNullOrWhiteSpace(adminActionDto.AdminId))
-                adminAction.UserProfile = null;
-            else
-            {
-                var admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
-
-                if (admin == null)
-                    throw new NullReferenceException(nameof(admin));
-
-                adminAction.UserProfile = admin;
-            }
-        }
-
-        if (adminActionDto.ForumTopicId != 0)
-            adminAction.ForumTopicId = adminActionDto.ForumTopicId;
-
-        await context.SaveChangesAsync();
-
-        return new OkObjectResult(adminActionDto);
-    }
-
     private IQueryable<Player> ApplyFilter(IQueryable<Player> query, GameType? gameType, PlayersFilter? filter, string? filterString)
     {
         if (gameType.HasValue)
@@ -463,20 +344,5 @@ public class PlayersController : ControllerBase, IPlayersApi
         }
 
         return query;
-    }
-
-    Task<List<AdminActionDto>?> IPlayersApi.GetAdminActionsForPlayer(Guid playerId)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<AdminActionDto?> IPlayersApi.CreateAdminActionForPlayer(AdminActionDto adminAction)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<AdminActionDto?> IPlayersApi.UpdateAdminActionForPlayer(AdminActionDto adminAction)
-    {
-        throw new NotImplementedException();
     }
 }

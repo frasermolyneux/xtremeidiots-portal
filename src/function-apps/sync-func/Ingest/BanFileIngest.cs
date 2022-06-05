@@ -74,7 +74,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                     adminActionDto.Text = "Imported from server";
                     adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
 
-                    await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
+                    await repositoryApiClient.AdminActions.CreateAdminActionForPlayer(adminActionDto);
                 }
                 else
                 {
@@ -97,7 +97,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                         adminActionDto.Text = "Imported from server";
                         adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
 
-                        await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
+                        await repositoryApiClient.AdminActions.CreateAdminActionForPlayer(adminActionDto);
                     }
                 }
 

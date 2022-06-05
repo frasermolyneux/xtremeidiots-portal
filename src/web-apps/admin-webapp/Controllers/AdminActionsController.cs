@@ -90,7 +90,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
 
-            await repositoryApiClient.Players.CreateAdminActionForPlayer(adminActionDto);
+            await repositoryApiClient.AdminActions.CreateAdminActionForPlayer(adminActionDto);
 
             logger.LogInformation("User {User} has created a new {AdminActionType} against {PlayerId}", User.Username(), model.Type, model.PlayerId);
             this.AddAlertSuccess($"The {model.Type} has been successfully against {playerDtoApiResponse.Result.Username} with a <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">topic</a>");
@@ -156,7 +156,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (canChangeAdminActionAdmin.Succeeded)
                 adminActionDto.AdminId = model.AdminId;
 
-            await repositoryApiClient.Players.UpdateAdminActionForPlayer(adminActionDto);
+            await repositoryApiClient.AdminActions.UpdateAdminActionForPlayer(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await adminActionTopics.UpdateTopicForAdminAction(adminActionDto);
@@ -202,7 +202,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             adminActionDto.Expires = DateTime.UtcNow;
 
-            await repositoryApiClient.Players.UpdateAdminActionForPlayer(adminActionDto);
+            await repositoryApiClient.AdminActions.UpdateAdminActionForPlayer(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await adminActionTopics.UpdateTopicForAdminAction(adminActionDto);
@@ -248,7 +248,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             adminActionDto.AdminId = User.XtremeIdiotsId();
 
-            await repositoryApiClient.Players.UpdateAdminActionForPlayer(adminActionDto);
+            await repositoryApiClient.AdminActions.UpdateAdminActionForPlayer(adminActionDto);
 
             if (adminActionDto.ForumTopicId != 0)
                 await adminActionTopics.UpdateTopicForAdminAction(adminActionDto);
@@ -275,7 +275,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
 
-            await repositoryApiClient.Players.UpdateAdminActionForPlayer(adminActionDto);
+            await repositoryApiClient.AdminActions.UpdateAdminActionForPlayer(adminActionDto);
 
             logger.LogInformation("User {User} has created a discussion topic for {AdminActionId} against {PlayerId}", User.Username(), id, adminActionDto.PlayerId);
             this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"https://www.xtremeidiots.com/forums/topic/{adminActionDto.ForumTopicId}-topic/\" class=\"alert-link\">here</a>");

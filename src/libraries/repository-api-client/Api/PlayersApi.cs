@@ -3,14 +3,11 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
@@ -98,43 +95,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse();
-        }
-
-        public async Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId)
-        {
-            var request = await CreateRequest($"players/{playerId}/admin-actions", Method.Get);
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<AdminActionDto>>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction)
-        {
-            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions", Method.Post);
-            request.AddJsonBody(adminAction);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction)
-        {
-            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
-            request.AddJsonBody(adminAction);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
         }
     }
 }

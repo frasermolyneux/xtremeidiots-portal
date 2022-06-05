@@ -50,19 +50,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (gameServerDto == null)
                 return NotFound();
 
-            var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
+            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
             var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
 
             var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, gameServerDto.LiveMap);
             var mapDto = mapApiResponse.Result ?? null;
 
-            var mapNames = gameServerStatusStats.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
+            var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
             var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
 
             GameServerStatDto? current = null;
-            foreach (var gameServerStatusStatDto in gameServerStatusStats.OrderBy(gss => gss.Timestamp))
+            foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Entries.OrderBy(gss => gss.Timestamp))
             {
                 if (current == null)
                 {
@@ -77,7 +77,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     continue;
                 }
 
-                if (current == gameServerStatusStats.Last())
+                if (current == gameServerStatsResponseDto.Result.Entries.Last())
                     mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
             }
 
@@ -85,7 +85,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             {
                 Map = mapDto,
                 Maps = mapsCollectionApiResponse.Result.Entries,
-                GameServerStats = gameServerStatusStats,
+                GameServerStats = gameServerStatsResponseDto.Result.Entries,
                 LivePlayers = livePlayersResponseDto.Result?.Entries != null ? livePlayersResponseDto.Result.Entries : new List<LivePlayerDto>(),
                 MapTimelineDataPoints = mapTimelineDataPoints
             });

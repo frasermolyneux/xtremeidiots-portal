@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.LiveStatusEnabled, 0, 0, null);
 
-            List<GameServerStatDto> gameServerStatDtos = new List<GameServerStatDto>();
+            List<CreateGameServerStatDto> gameServerStatDtos = new List<CreateGameServerStatDto>();
 
             foreach (var gameServerDto in gameServerDtos)
             {
@@ -72,12 +72,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         continue;
                     }
 
-                    gameServerStatDtos.Add(new GameServerStatDto
-                    {
-                        GameServerId = gameServerDto.Id,
-                        PlayerCount = serverQueryStatusResponseDto.PlayerCount,
-                        MapName = serverQueryStatusResponseDto.Map
-                    });
+                    gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.Id, serverQueryStatusResponseDto.PlayerCount, serverQueryStatusResponseDto.Map));
                 }
             }
 

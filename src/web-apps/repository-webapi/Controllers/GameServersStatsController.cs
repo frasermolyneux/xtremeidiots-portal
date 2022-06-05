@@ -1,8 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -10,17 +19,20 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class GameServersStatsController : Controller
+    public class GameServersStatsController : Controller, IGameServersStatsApi
     {
         private readonly ILogger<GameServersStatsController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public GameServersStatsController(
             ILogger<GameServersStatsController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpPost]
@@ -29,58 +41,79 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            List<GameServerStatDto>? gameServerStatDtos;
+            List<CreateGameServerStatDto>? createGameServerStatDto;
             try
             {
-                gameServerStatDtos = JsonConvert.DeserializeObject<List<GameServerStatDto>>(requestBody);
+                createGameServerStatDto = JsonConvert.DeserializeObject<List<CreateGameServerStatDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
-            if (gameServerStatDtos == null || !gameServerStatDtos.Any())
-                return new BadRequestResult();
+            if (createGameServerStatDto == null || !createGameServerStatDto.Any())
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-            List<GameServerStat> gameServerStats = new();
+            var response = await ((IGameServersStatsApi)this).CreateGameServerStats(createGameServerStatDto);
 
-            foreach (var gameServerStatDto in gameServerStatDtos)
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IGameServersStatsApi.CreateGameServerStats(List<CreateGameServerStatDto> createGameServerStatDtos)
+        {
+            var gameServerStats = new List<GameServerStat>();
+
+            foreach (var createGameServerStatDto in createGameServerStatDtos)
             {
-                var lastStat = await context.GameServerStats.Where(gss => gss.GameServerId == gameServerStatDto.GameServerId).OrderBy(gss => gss.Timestamp).LastOrDefaultAsync();
+                var lastStat = await context.GameServerStats.Where(gss => gss.GameServerId == createGameServerStatDto.GameServerId).OrderBy(gss => gss.Timestamp).LastOrDefaultAsync();
 
-                if (lastStat == null || lastStat.PlayerCount != gameServerStatDto.PlayerCount || lastStat.MapName != gameServerStatDto.MapName)
+                if (lastStat == null || lastStat.PlayerCount != createGameServerStatDto.PlayerCount || lastStat.MapName != createGameServerStatDto.MapName)
                 {
-                    gameServerStats.Add(new GameServerStat
-                    {
-                        GameServerId = gameServerStatDto.GameServerId,
-                        PlayerCount = gameServerStatDto.PlayerCount,
-                        MapName = gameServerStatDto.MapName,
-                        Timestamp = DateTime.UtcNow
-                    });
+                    var gameServerStat = mapper.Map<GameServerStat>(createGameServerStatDto);
+                    gameServerStat.Timestamp = DateTime.UtcNow;
+
+                    gameServerStats.Add(gameServerStat);
                 }
             }
 
             await context.GameServerStats.AddRangeAsync(gameServerStats);
             await context.SaveChangesAsync();
 
-            var result = gameServerStats.Select(gss => gss.ToDto());
-
-            return new OkObjectResult(result);
+            return new ApiResponseDto(HttpStatusCode.OK);
         }
 
         [HttpGet]
         [Route("api/game-servers-stats/{serverId}")]
-        public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime cutoff)
+        public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime? cutoff)
+        {
+            if (!cutoff.HasValue)
+                cutoff = DateTime.UtcNow.AddDays(-2);
+
+            if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddDays(-2))
+                cutoff = DateTime.UtcNow.AddDays(-2);
+
+            var response = await ((IGameServersStatsApi)this).GetGameServerStatusStats(serverId, cutoff.Value);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<GameServerStatCollectionDto>> IGameServersStatsApi.GetGameServerStatusStats(Guid serverId, DateTime cutoff)
         {
             var gameServerStats = await context.GameServerStats
                 .Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff)
                 .OrderBy(gss => gss.Timestamp)
                 .ToListAsync();
 
-            var result = gameServerStats.Select(gss => gss.ToDto());
+            var entries = gameServerStats.Select(r => mapper.Map<GameServerStatDto>(r)).ToList();
 
-            return new OkObjectResult(result);
+            var result = new GameServerStatCollectionDto
+            {
+                TotalRecords = entries.Count,
+                FilteredRecords = entries.Count,
+                Entries = entries
+            };
+
+            return new ApiResponseDto<GameServerStatCollectionDto>(HttpStatusCode.OK, result);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ApiResponseDto<RecentPlayersCollectionDto>> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
-            var request = await CreateRequest("repository/recent-players", Method.Get);
+            var request = await CreateRequest("recent-players", Method.Get);
 
             if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());
@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ApiResponseDto> CreateRecentPlayers(List<CreateRecentPlayerDto> createRecentPlayerDtos)
         {
-            var request = await CreateRequest("repository/recent-players", Method.Post);
+            var request = await CreateRequest("recent-players", Method.Post);
             request.AddJsonBody(createRecentPlayerDtos);
 
             var response = await ExecuteAsync(request);

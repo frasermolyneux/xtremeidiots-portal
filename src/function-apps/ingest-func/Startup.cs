@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+
 using XtremeIdiots.Portal.IngestFunc;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -16,8 +17,9 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddRepositoryApiClient(options =>
         {
-            options.ApimBaseUrl = config["apim-base-url"];
+            options.ApimBaseUrl = config["repository-api-base-url"] ?? config["apim-base-url"];
             options.ApimSubscriptionKey = config["apim-subscription-key"];
+            options.ApiPathPrefix = config["repository-api-path-prefix"] ?? "repository";
         });
 
         builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();

@@ -1,7 +1,9 @@
 using FM.GeoLocation.Client.Extensions;
+
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using XtremeIdiots.Portal.AdminWebApp.Areas.Identity.Data;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.ForumsIntegration;
@@ -52,14 +54,16 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddRepositoryApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["apim-base-url"];
+                options.ApimBaseUrl = Configuration["repository-api-base-url"] ?? Configuration["apim-base-url"];
                 options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
+                options.ApiPathPrefix = Configuration["repository-api-path-prefix"] ?? "repository";
             });
 
             services.AddServersApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["apim-base-url"];
+                options.ApimBaseUrl = Configuration["servers-api-base-url"] ?? Configuration["apim-base-url"];
                 options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
+                options.ApiPathPrefix = Configuration["servers-api-path-prefix"] ?? "servers";
             });
 
             services.AddXtremeIdiotsAuth();

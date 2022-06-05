@@ -14,9 +14,11 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
         public bool SystemGenerated { get; set; }
 
         [JsonProperty]
-        public string? ClaimType { get; set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string ClaimType { get; set; }
 
         [JsonProperty]
-        public string? ClaimValue { get; set; }
+        public string ClaimValue { get; set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     }
 }

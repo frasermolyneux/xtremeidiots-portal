@@ -6,8 +6,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Models
 {
     public class ServersGameServerViewModel
     {
-        public GameServerDto GameServer { get; set; }
-        public MapDto Map { get; set; }
+        public ServersGameServerViewModel(GameServerDto gameServer)
+        {
+            GameServer = gameServer;
+        }
+
+        public GameServerDto GameServer { get; private set; }
+        public MapDto? Map { get; set; }
         public List<MapDto> Maps { get; set; } = new List<MapDto>();
         public List<GameServerStatDto> GameServerStats { get; set; } = new List<GameServerStatDto>();
         public List<LivePlayerDto> LivePlayers { get; set; } = new List<LivePlayerDto>();

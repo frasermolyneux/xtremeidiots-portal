@@ -15,7 +15,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         {
             _apimSubscriptionKey = options.Value.ApimSubscriptionKey;
 
-            RestClient = new RestClient(options.Value.ApimBaseUrl);
+            RestClient = new RestClient($"{options.Value.ApimBaseUrl}/{options.Value.ApiPathPrefix}");
             Logger = logger;
             RepositoryApiTokenProvider = repositoryApiTokenProvider;
         }

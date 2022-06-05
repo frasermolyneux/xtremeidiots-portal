@@ -22,7 +22,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ChatMessageSearchEntryDto?> GetChatMessage(Guid id)
         {
-            var request = await CreateRequest($"repository/chat-messages/{id}", Method.Get);
+            var request = await CreateRequest($"chat-messages/{id}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task CreateChatMessage(ChatMessageDto chatMessage)
         {
-            var request = await CreateRequest("repository/chat-messages", Method.Post);
+            var request = await CreateRequest("chat-messages", Method.Post);
             request.AddJsonBody(new List<ChatMessageDto> { chatMessage });
 
             await ExecuteAsync(request);
@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ChatMessageSearchResponseDto?> SearchChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order)
         {
-            var request = await CreateRequest("repository/chat-messages/search", Method.Get);
+            var request = await CreateRequest("chat-messages/search", Method.Get);
 
             if (gameType != null)
                 request.AddQueryParameter("gameType", gameType.ToString());

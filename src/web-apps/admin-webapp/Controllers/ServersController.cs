@@ -31,10 +31,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, GameServerOrder.BannerServerListPosition);
 
-            var result = gameServerDtos.Select(gs => new ServersGameServerViewModel
-            {
-                GameServer = gs
-            }).ToList();
+            var result = gameServerDtos.Select(gs => new ServersGameServerViewModel(gs)).ToList();
 
             return View(result);
         }
@@ -54,13 +51,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (gameServerDto == null)
                 return NotFound();
 
-            var serverQueryStatusResponseStatusDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
             var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
             var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
 
-            MapDto mapDto = null;
-            if (!string.IsNullOrWhiteSpace(serverQueryStatusResponseStatusDto.Map))
-                mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryStatusResponseStatusDto.Map);
+            MapDto? mapDto = null;
+            if (!string.IsNullOrWhiteSpace(gameServerDto.LiveMap))
+                mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, gameServerDto.LiveMap);
 
             var mapNames = gameServerStatusStats.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
             var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
@@ -87,9 +83,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
             }
 
-            return View(new ServersGameServerViewModel
+            return View(new ServersGameServerViewModel(gameServerDto)
             {
-                GameServer = gameServerDto,
                 Map = mapDto,
                 Maps = mapsResponseDto.Entries,
                 GameServerStats = gameServerStatusStats,

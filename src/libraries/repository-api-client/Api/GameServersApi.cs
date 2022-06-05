@@ -28,7 +28,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<GameServerDto>?> GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
         {
-            var request = await CreateRequest("repository/game-servers", Method.Get);
+            var request = await CreateRequest("game-servers", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));
@@ -59,7 +59,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{serverId}-{nameof(GetGameServer)}", out GameServerDto gameServerDto))
                     return gameServerDto;
 
-            var request = await CreateRequest($"repository/game-servers/{serverId}", Method.Get);
+            var request = await CreateRequest($"game-servers/{serverId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -84,13 +84,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task DeleteGameServer(Guid id)
         {
-            var request = await CreateRequest($"repository/game-servers/{id}", Method.Delete);
+            var request = await CreateRequest($"game-servers/{id}", Method.Delete);
             await ExecuteAsync(request);
         }
 
         public async Task CreateGameServer(CreateGameServerDto createGameServerDto)
         {
-            var request = await CreateRequest("repository/game-servers", Method.Post);
+            var request = await CreateRequest("game-servers", Method.Post);
             request.AddJsonBody(new List<CreateGameServerDto> { createGameServerDto });
 
             await ExecuteAsync(request);
@@ -98,7 +98,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
         {
-            var request = await CreateRequest("repository/game-servers", Method.Post);
+            var request = await CreateRequest("game-servers", Method.Post);
             request.AddJsonBody(createGameServerDtos);
 
             await ExecuteAsync(request);
@@ -106,7 +106,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task UpdateGameServer(GameServerDto gameServer)
         {
-            var request = await CreateRequest($"repository/game-servers/{gameServer.Id}", Method.Patch);
+            var request = await CreateRequest($"game-servers/{gameServer.Id}", Method.Patch);
             request.AddJsonBody(gameServer);
 
             await ExecuteAsync(request);
@@ -114,7 +114,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
         {
-            var request = await CreateRequest($"repository/game-servers/{serverId}/ban-file-monitors", Method.Post);
+            var request = await CreateRequest($"game-servers/{serverId}/ban-file-monitors", Method.Post);
             request.AddJsonBody(banFileMonitor);
 
             var response = await ExecuteAsync(request);

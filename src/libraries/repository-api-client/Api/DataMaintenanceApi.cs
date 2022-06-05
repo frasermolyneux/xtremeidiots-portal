@@ -16,21 +16,21 @@ public class DataMaintenanceApi : BaseApi, IDataMaintenanceApi
 
     public async Task PruneChatMessages()
     {
-        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-chat-messages", Method.Delete));
+        await ExecuteAsync(await CreateRequest("data-maintenance/prune-chat-messages", Method.Delete));
     }
 
     public async Task PruneGameServerEvents()
     {
-        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-game-server-events", Method.Delete));
+        await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-events", Method.Delete));
     }
 
     public async Task PruneGameServerStats()
     {
-        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-game-server-stats", Method.Delete));
+        await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-stats", Method.Delete));
     }
 
     public async Task PruneRecentPlayers()
     {
-        await ExecuteAsync(await CreateRequest("repository/data-maintenance/prune-recent-players", Method.Delete));
+        await ExecuteAsync(await CreateRequest("data-maintenance/prune-recent-players", Method.Delete));
     }
 }

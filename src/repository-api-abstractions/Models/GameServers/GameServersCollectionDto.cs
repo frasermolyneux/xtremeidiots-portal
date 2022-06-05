@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 {
-    internal class GameServersCollectionDto : CollectionResponseDto<GameServerDto>
+    internal class GameServersCollectionDto : CollectionDto<GameServerDto>
     {
     }
 }

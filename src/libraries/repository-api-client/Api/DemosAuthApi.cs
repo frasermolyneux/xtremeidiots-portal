@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemoAuthDto?> CreateDemosAuth(DemoAuthDto demoAuthDto)
         {
-            var request = await CreateRequest("repository/demos-auth", Method.Post);
+            var request = await CreateRequest("demos-auth", Method.Post);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
 
             var response = await ExecuteAsync(request);
@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<DemoAuthDto>?> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
-            var request = await CreateRequest("repository/demos-auth", Method.Post);
+            var request = await CreateRequest("demos-auth", Method.Post);
             request.AddJsonBody(demoAuthDtos);
 
             var response = await ExecuteAsync(request);
@@ -52,7 +52,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemoAuthDto?> GetDemosAuth(string userId)
         {
-            var request = await CreateRequest($"repository/demos-auth/{userId}", Method.Get);
+            var request = await CreateRequest($"demos-auth/{userId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -66,7 +66,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemoAuthDto?> GetDemosAuthByAuthKey(string authKey)
         {
-            var request = await CreateRequest($"repository/demos-auth/by-auth-key/{authKey}", Method.Get);
+            var request = await CreateRequest($"demos-auth/by-auth-key/{authKey}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -80,7 +80,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemoAuthDto?> UpdateDemosAuth(DemoAuthDto demoAuthDto)
         {
-            var request = await CreateRequest("repository/demos-auth", Method.Put);
+            var request = await CreateRequest("demos-auth", Method.Put);
             request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
 
             var response = await ExecuteAsync(request);
@@ -96,7 +96,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<DemoAuthDto>?> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos)
         {
-            var request = await CreateRequest("repository/demos-auth", Method.Put);
+            var request = await CreateRequest("demos-auth", Method.Put);
             request.AddJsonBody(demoAuthDtos);
 
             var response = await ExecuteAsync(request);

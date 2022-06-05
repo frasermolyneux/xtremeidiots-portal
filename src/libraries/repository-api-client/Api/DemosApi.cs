@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemoDto?> CreateDemo(CreateDemoDto demoDto, string fileName, string filePath)
         {
-            var request = await CreateRequest("repository/demos", Method.Post);
+            var request = await CreateRequest("demos", Method.Post);
             request.AddJsonBody(demoDto);
 
             var response = await ExecuteAsync(request);
@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (resultDemoDto == null)
                 throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
 
-            var createFileRequest = await CreateRequest($"repository/demos/{resultDemoDto.DemoId}/file", Method.Post);
+            var createFileRequest = await CreateRequest($"demos/{resultDemoDto.DemoId}/file", Method.Post);
             createFileRequest.AddFile(fileName, filePath);
 
             var createFileResponse = await ExecuteAsync(createFileRequest);
@@ -47,13 +47,13 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task DeleteDemo(Guid demoId)
         {
-            var request = await CreateRequest($"repository/demos/{demoId}", Method.Delete);
+            var request = await CreateRequest($"demos/{demoId}", Method.Delete);
             await ExecuteAsync(request);
         }
 
         public async Task<DemoDto?> GetDemo(Guid demoId)
         {
-            var request = await CreateRequest($"repository/demos/{demoId}", Method.Get);
+            var request = await CreateRequest($"demos/{demoId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -67,7 +67,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<DemosSearchResponseDto?> SearchDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
-            var request = await CreateRequest("repository/demos", Method.Get);
+            var request = await CreateRequest("demos", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));

@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("api/reports/{reportId}")]
-        public async Task<IActionResult> GetReportApi(Guid reportId)
+        public async Task<IActionResult> GetReport(Guid reportId)
         {
             var response = await ((IReportsApi)this).GetReport(reportId);
 
@@ -55,7 +55,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("api/reports")]
-        public async Task<IActionResult> GetReportsApi(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
+        public async Task<IActionResult> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -97,7 +97,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpPost]
         [Route("api/reports")]
-        public async Task<IActionResult> CreateReportsApi()
+        public async Task<IActionResult> CreateReports()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -111,7 +111,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
-            if (createReportDtos == null || createReportDtos.Count == 0)
+            if (createReportDtos == null || !createReportDtos.Any())
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
             var response = await ((IReportsApi)this).CreateReports(createReportDtos);
@@ -137,7 +137,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpPatch]
         [Route("api/reports/{reportId}/close")]
-        public async Task<IActionResult> CloseReportApi(Guid reportId)
+        public async Task<IActionResult> CloseReport(Guid reportId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 

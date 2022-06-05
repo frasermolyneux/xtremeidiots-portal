@@ -1582,6 +1582,56 @@
                         "description": "null"
                     }
                 }
+            },
+            "patch": {
+                "summary": "user-profile/{user-profile-id}/claims",
+                "description": "user-profile/{user-profile-id}/claims",
+                "operationId": "patch-user-profile-user-profile-id-claims",
+                "parameters": [
+                    {
+                        "name": "user-profile-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
+            }
+        },
+        "/user-profile/{user-profile-id}/claims/{user-profile-claim-id}": {
+            "delete": {
+                "summary": "user-profile/{user-profile-id}/claims/{user-profile-claim-id}",
+                "description": "user-profile/{user-profile-id}/claims/{user-profile-claim-id}",
+                "operationId": "delete-user-profile-user-profile-id-claims-user-profile-claim-id",
+                "parameters": [
+                    {
+                        "name": "user-profile-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "user-profile-claim-id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
             }
         },
         "/user-profile/{user-profile-id}": {

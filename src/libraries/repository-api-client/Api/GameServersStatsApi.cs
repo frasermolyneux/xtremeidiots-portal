@@ -18,7 +18,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<GameServerStatDto>?> CreateGameServerStats(List<GameServerStatDto> gameServerStatDtos)
         {
-            var request = await CreateRequest($"repository/game-servers-stats", Method.Post);
+            var request = await CreateRequest($"game-servers-stats", Method.Post);
             request.AddJsonBody(gameServerStatDtos);
 
             var response = await ExecuteAsync(request);
@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<GameServerStatDto>> GetGameServerStatusStats(Guid serverId, DateTime cutoff)
         {
-            var request = await CreateRequest($"repository/game-servers-stats/{serverId}", Method.Get);
+            var request = await CreateRequest($"game-servers-stats/{serverId}", Method.Get);
             request.AddQueryParameter("cutoff", cutoff.ToString("MM/dd/yyyy HH:mm:ss"));
 
             var response = await ExecuteAsync(request);

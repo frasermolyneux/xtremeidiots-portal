@@ -5,36 +5,39 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
     public class UserProfileDto
     {
         [JsonProperty]
-        public Guid Id { get; set; }
+        public Guid Id { get; internal set; }
 
         [JsonProperty]
-        public string? IdentityOid { get; set; }
+        public string? IdentityOid { get; internal set; }
 
         [JsonProperty]
-        public string? XtremeIdiotsForumId { get; set; }
+        public string? XtremeIdiotsForumId { get; internal set; }
 
         [JsonProperty]
-        public string? DisplayName { get; set; }
+        public string? DisplayName { get; internal set; }
 
         [JsonProperty]
-        public string? Title { get; set; }
+        public string? Title { get; internal set; }
 
         [JsonProperty]
-        public string? FormattedName { get; set; }
+        public string? FormattedName { get; internal set; }
 
         [JsonProperty]
-        public string? PrimaryGroup { get; set; }
+        public string? PrimaryGroup { get; internal set; }
 
         [JsonProperty]
-        public string? Email { get; set; }
+        public string? Email { get; internal set; }
 
         [JsonProperty]
-        public string? PhotoUrl { get; set; }
+        public string? PhotoUrl { get; internal set; }
 
         [JsonProperty]
-        public string? ProfileUrl { get; set; }
+        public string? ProfileUrl { get; internal set; }
 
         [JsonProperty]
-        public string? TimeZone { get; set; }
+        public string? TimeZone { get; internal set; }
+
+        [JsonProperty]
+        public List<UserProfileClaimDto> UserProfileClaimDtos { get; set; } = new List<UserProfileClaimDto>();
     }
 }

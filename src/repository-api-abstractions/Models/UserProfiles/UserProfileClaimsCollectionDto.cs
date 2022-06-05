@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
 {
-    public class UserProfileResponseDto : CollectionResponseDto<UserProfileDto>
+    public class UserProfileClaimsCollectionDto : CollectionDto<UserProfileClaimDto>
     {
     }
 }

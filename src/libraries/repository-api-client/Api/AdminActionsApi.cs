@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
-            var request = await CreateRequest($"repository/admin-actions", Method.Get);
+            var request = await CreateRequest($"admin-actions", Method.Get);
 
             if (gameType != null)
                 request.AddQueryParameter("gameType", gameType.ToString());
@@ -51,7 +51,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<AdminActionDto?> GetAdminAction(Guid adminActionId)
         {
-            var request = await CreateRequest($"repository/admin-actions/{adminActionId}", Method.Get);
+            var request = await CreateRequest($"admin-actions/{adminActionId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -65,7 +65,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task DeleteAdminAction(Guid adminActionId)
         {
-            var request = await CreateRequest($"repository/admin-actions/{adminActionId}", Method.Delete);
+            var request = await CreateRequest($"admin-actions/{adminActionId}", Method.Delete);
             await ExecuteAsync(request);
         }
     }

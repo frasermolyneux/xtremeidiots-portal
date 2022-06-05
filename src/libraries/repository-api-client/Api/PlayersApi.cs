@@ -32,7 +32,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayer)}", out PlayerDto playerDto))
                     return playerDto;
 
-            var request = await CreateRequest($"repository/players/{playerId}", Method.Get);
+            var request = await CreateRequest($"players/{playerId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -60,7 +60,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerAliases)}", out List<AliasDto> playerAliasDtos))
                     return playerAliasDtos;
 
-            var request = await CreateRequest($"repository/players/{playerId}/aliases", Method.Get);
+            var request = await CreateRequest($"players/{playerId}/aliases", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -88,7 +88,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{playerId}-{nameof(GetPlayerIpAddresses)}", out List<IpAddressDto> playerIpAddressDtos))
                     return playerIpAddressDtos;
 
-            var request = await CreateRequest($"repository/players/{playerId}/ip-addresses", Method.Get);
+            var request = await CreateRequest($"players/{playerId}/ip-addresses", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -116,7 +116,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{playerId}-{ipAddress}-{nameof(GetRelatedPlayers)}", out List<RelatedPlayerDto> relatedPlayerDtos))
                     return relatedPlayerDtos;
 
-            var request = await CreateRequest($"repository/players/{playerId}/related-players", Method.Get);
+            var request = await CreateRequest($"players/{playerId}/related-players", Method.Get);
             request.AddQueryParameter("IpAddress", ipAddress);
 
             var response = await ExecuteAsync(request);
@@ -146,7 +146,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
                 if (memoryCache.TryGetValue($"{gameType}-{guid}-{nameof(GetPlayerByGameType)}", out PlayerDto playerDto))
                     return playerDto;
 
-            var request = await CreateRequest($"repository/players/by-game-type/{gameType}/{guid}", Method.Get);
+            var request = await CreateRequest($"players/by-game-type/{gameType}/{guid}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -170,7 +170,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task CreatePlayer(CreatePlayerDto createPlayerDto)
         {
-            var request = await CreateRequest("repository/players", Method.Post);
+            var request = await CreateRequest("players", Method.Post);
             request.AddJsonBody(new List<CreatePlayerDto> { createPlayerDto });
 
             await ExecuteAsync(request);
@@ -178,7 +178,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task UpdatePlayer(PlayerDto player)
         {
-            var request = await CreateRequest($"repository/players/{player.Id}", Method.Patch);
+            var request = await CreateRequest($"players/{player.Id}", Method.Patch);
             request.AddJsonBody(player);
 
             await ExecuteAsync(request);
@@ -186,7 +186,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)
         {
-            var request = await CreateRequest("repository/players/search", Method.Get);
+            var request = await CreateRequest("players/search", Method.Get);
 
             if (!string.IsNullOrWhiteSpace(gameType))
                 request.AddQueryParameter("gameType", gameType);
@@ -216,7 +216,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId)
         {
-            var request = await CreateRequest($"repository/players/{playerId}/admin-actions", Method.Get);
+            var request = await CreateRequest($"players/{playerId}/admin-actions", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.Content != null)
@@ -227,7 +227,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction)
         {
-            var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions", Method.Post);
+            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions", Method.Post);
             request.AddJsonBody(adminAction);
 
             var response = await ExecuteAsync(request);
@@ -240,7 +240,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction)
         {
-            var request = await CreateRequest($"repository/players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
+            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
             request.AddJsonBody(adminAction);
 
             var response = await ExecuteAsync(request);

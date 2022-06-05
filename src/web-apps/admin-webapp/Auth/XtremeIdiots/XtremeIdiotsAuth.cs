@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+
 using System.Security.Claims;
+
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -76,24 +78,24 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
 
             await _userManager.RemoveClaimsAsync(user, userClaims);
 
-            var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
-            if (userProfileDto == null)
-                userProfileDto = await repositoryApiClient.UserProfiles.CreateUserProfile(new UserProfileDto
+            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+
+            if (userProfileDtoApiResponse.IsNotFound)
+            {
+                _ = await repositoryApiClient.UserProfiles.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
                 {
-                    XtremeIdiotsForumId = member.Id.ToString(),
-                    DisplayName = member.Name,
                     Title = member.Title,
                     FormattedName = member.FormattedName,
                     PrimaryGroup = member.PrimaryGroup.Name,
-                    Email = member.Email,
                     PhotoUrl = member.PhotoUrl,
                     ProfileUrl = member.ProfileUrl.ToString(),
                     TimeZone = member.TimeZone
                 });
 
-            var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
+                userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+            }
 
-            var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+            var claims = userProfileDtoApiResponse.Result.UserProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
             await _userManager.AddClaimsAsync(user, claims);
             await _signInManager.SignInAsync(user, true);
             await _signInManager.RefreshSignInAsync(user);
@@ -114,24 +116,24 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
                 var addLoginResult = await _userManager.AddLoginAsync(user, info);
                 if (addLoginResult.Succeeded)
                 {
-                    var userProfileDto = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
-                    if (userProfileDto == null)
-                        userProfileDto = await repositoryApiClient.UserProfiles.CreateUserProfile(new UserProfileDto
+                    var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+
+                    if (userProfileDtoApiResponse.IsNotFound)
+                    {
+                        _ = await repositoryApiClient.UserProfiles.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
                         {
-                            XtremeIdiotsForumId = member.Id.ToString(),
-                            DisplayName = member.Name,
                             Title = member.Title,
                             FormattedName = member.FormattedName,
                             PrimaryGroup = member.PrimaryGroup.Name,
-                            Email = member.Email,
                             PhotoUrl = member.PhotoUrl,
                             ProfileUrl = member.ProfileUrl.ToString(),
                             TimeZone = member.TimeZone
                         });
 
-                    var userProfileClaimDtos = await repositoryApiClient.UserProfiles.GetUserProfileClaims(userProfileDto.Id);
+                        userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                    }
 
-                    var claims = userProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+                    var claims = userProfileDtoApiResponse.Result.UserProfileClaimDtos.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
                     await _userManager.AddClaimsAsync(user, claims);
                     await _signInManager.SignInAsync(user, true);
                     await _signInManager.RefreshSignInAsync(user);

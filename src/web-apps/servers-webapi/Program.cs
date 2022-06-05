@@ -1,5 +1,6 @@
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Identity.Web;
+
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersWebApi;
 using XtremeIdiots.Portal.ServersWebApi.Factories;
@@ -17,8 +18,9 @@ builder.Services.AddSingleton<IRconClientFactory, RconClientFactory>();
 
 builder.Services.AddRepositoryApiClient(options =>
 {
-    options.ApimBaseUrl = builder.Configuration["apim-base-url"];
+    options.ApimBaseUrl = builder.Configuration["repository-api-base-url"] ?? builder.Configuration["apim-base-url"];
     options.ApimSubscriptionKey = builder.Configuration["apim-subscription-key"];
+    options.ApiPathPrefix = builder.Configuration["repository-api-path-prefix"] ?? "repository";
 });
 
 // Add services to the container.

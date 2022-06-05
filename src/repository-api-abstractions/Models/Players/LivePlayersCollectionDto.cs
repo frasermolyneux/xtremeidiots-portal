@@ -1,6 +1,6 @@
 ﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
-    public class LivePlayersCollectionDto : CollectionResponseDto<LivePlayerDto>
+    public class LivePlayersCollectionDto : CollectionDto<LivePlayerDto>
     {
     }
 }

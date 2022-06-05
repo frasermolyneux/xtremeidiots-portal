@@ -2,7 +2,7 @@
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
-    public class CollectionResponseDto<T>
+    public class CollectionDto<T>
     {
         [JsonProperty]
         public int TotalRecords { get; set; }

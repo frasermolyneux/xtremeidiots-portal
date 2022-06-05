@@ -1,7 +1,9 @@
 ﻿using FM.GeoLocation.Client.Extensions;
+
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc;
 using XtremeIdiots.Portal.ServersApiClient;
@@ -18,14 +20,16 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddRepositoryApiClient(options =>
         {
-            options.ApimBaseUrl = config["apim-base-url"];
+            options.ApimBaseUrl = config["repository-api-base-url"] ?? config["apim-base-url"];
             options.ApimSubscriptionKey = config["apim-subscription-key"];
+            options.ApiPathPrefix = config["repository-api-path-prefix"] ?? "repository";
         });
 
         builder.Services.AddServersApiClient(options =>
         {
-            options.ApimBaseUrl = config["apim-base-url"];
+            options.ApimBaseUrl = config["servers-api-base-url"] ?? config["apim-base-url"];
             options.ApimSubscriptionKey = config["apim-subscription-key"];
+            options.ApiPathPrefix = config["servers-api-path-prefix"] ?? "servers";
         });
 
         builder.Services.AddGeoLocationClient(options =>

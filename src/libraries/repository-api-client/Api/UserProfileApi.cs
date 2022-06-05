@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
 
-using System.Net;
-
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -18,161 +17,114 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<UserProfileResponseDto?> GetUserProfiles(int skipEntries, int takeEntries, string? filterString)
+        public async Task<ApiResponseDto<UserProfileDto>> GetUserProfile(Guid userProfileId)
         {
-            var request = await CreateRequest($"repository/user-profile", Method.Get);
+            var request = await CreateRequest($"user-profile/{userProfileId}", Method.Get);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<UserProfileDto>();
+        }
+
+        public async Task<ApiResponseDto<UserProfileDto>> GetUserProfileByIdentityId(string identityId)
+        {
+            var request = await CreateRequest($"user-profile/by-identity-id/{identityId}", Method.Get);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<UserProfileDto>();
+        }
+
+        public async Task<ApiResponseDto<UserProfileDto>> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId)
+        {
+            var request = await CreateRequest($"user-profile/by-xtremeidiots-id/{xtremeIdiotsId}", Method.Get);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<UserProfileDto>();
+        }
+
+        public async Task<ApiResponseDto<UserProfileCollectionDto>> GetUserProfiles(string? filterString, int skipEntries, int takeEntries, UserProfilesOrder? order)
+        {
+            var request = await CreateRequest("user-profile", Method.Get);
+
+            if (!string.IsNullOrWhiteSpace(filterString))
+                request.AddQueryParameter("filterString", filterString.ToString());
 
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
 
-            if (!string.IsNullOrEmpty(filterString))
-                request.AddQueryParameter("filterString", filterString);
+            if (order.HasValue)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<UserProfileResponseDto>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<UserProfileCollectionDto>();
         }
 
-        public async Task<UserProfileDto?> CreateUserProfile(UserProfileDto userProfileDto)
+        public async Task<ApiResponseDto> CreateUserProfile(CreateUserProfileDto createUserProfileDto)
         {
-            var request = await CreateRequest($"repository/user-profile", Method.Post);
-            request.AddJsonBody(new List<UserProfileDto> { userProfileDto });
+            var request = await CreateRequest("user-profile", Method.Post);
+            request.AddJsonBody(new List<CreateUserProfileDto> { createUserProfileDto });
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileDto>>(response.Content);
-                return result?.FirstOrDefault() ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entity");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<List<UserProfileClaimDto>?> CreateUserProfileClaims(Guid userProfileId, List<UserProfileClaimDto> userProfileClaimDtos)
+        public async Task<ApiResponseDto> CreateUserProfiles(List<CreateUserProfileDto> createUserProfileDtos)
         {
-            var request = await CreateRequest($"repository/user-profile/{userProfileId}/claims", Method.Post);
-            request.AddJsonBody(userProfileClaimDtos);
+            var request = await CreateRequest("user-profile", Method.Post);
+            request.AddJsonBody(createUserProfileDtos);
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileClaimDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<List<UserProfileDto>?> CreateUserProfiles(List<UserProfileDto> userProfileDtos)
+        public async Task<ApiResponseDto> UpdateUserProfile(EditUserProfileDto editUserProfileDto)
         {
-            var request = await CreateRequest($"repository/user-profile", Method.Post);
-            request.AddJsonBody(userProfileDtos);
+            var request = await CreateRequest("user-profile", Method.Put);
+            request.AddJsonBody(new List<EditUserProfileDto> { editUserProfileDto });
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<UserProfileDto?> GetUserProfile(Guid userProfileId)
+        public async Task<ApiResponseDto> UpdateUserProfiles(List<EditUserProfileDto> editUserProfileDtos)
         {
-            var request = await CreateRequest($"repository/user-profile/{userProfileId}", Method.Get);
+            var request = await CreateRequest("user-profile", Method.Put);
+            request.AddJsonBody(editUserProfileDtos);
+
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<UserProfileDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<UserProfileDto?> GetUserProfileByIdentityId(string identityId)
+        public async Task<ApiResponseDto> CreateUserProfileClaim(Guid userProfileId, List<CreateUserProfileClaimDto> createUserProfileClaimDto)
         {
-            var request = await CreateRequest($"repository/user-profile/by-identity-id/{identityId}", Method.Get);
+            var request = await CreateRequest($"user-profile/{userProfileId}/claims", Method.Patch);
+            request.AddJsonBody(createUserProfileClaimDto);
+
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<UserProfileDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<UserProfileDto?> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId)
+        public async Task<ApiResponseDto> SetUserProfileClaims(Guid userProfileId, List<CreateUserProfileClaimDto> createUserProfileClaimDto)
         {
-            var request = await CreateRequest($"repository/user-profile/by-xtremeidiots-id/{xtremeIdiotsId}", Method.Get);
+            var request = await CreateRequest($"user-profile/{userProfileId}/claims", Method.Post);
+            request.AddJsonBody(createUserProfileClaimDto);
+
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<UserProfileDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<List<UserProfileClaimDto>?> GetUserProfileClaims(Guid userProfileId)
+        public async Task<ApiResponseDto> DeleteUserProfileClaim(Guid userProfileId, Guid userProfileClaimId)
         {
-            var request = await CreateRequest($"repository/user-profile/{userProfileId}/claims", Method.Get);
+            var request = await CreateRequest($"user-profile/{userProfileId}/claims/{userProfileClaimId}", Method.Delete);
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileClaimDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<UserProfileDto?> UpdateUserProfile(UserProfileDto userProfileDto)
-        {
-            var request = await CreateRequest($"repository/user-profile", Method.Put);
-            request.AddJsonBody(new List<UserProfileDto> { userProfileDto });
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileDto>>(response.Content);
-                return result?.FirstOrDefault() ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entity");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<List<UserProfileDto>?> UpdateUserProfiles(List<UserProfileDto> userProfileDtos)
-        {
-            var request = await CreateRequest($"repository/user-profile", Method.Post);
-            request.AddJsonBody(userProfileDtos);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<UserProfileDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
     }
 }

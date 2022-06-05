@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<BanFileMonitorDto?> GetBanFileMonitor(Guid banFileMonitorId)
         {
-            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.Get);
+            var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -35,7 +35,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<List<BanFileMonitorDto>?> GetBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
         {
-            var request = await CreateRequest("repository/ban-file-monitors", Method.Get);
+            var request = await CreateRequest("ban-file-monitors", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));
@@ -62,7 +62,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<BanFileMonitorDto?> UpdateBanFileMonitor(BanFileMonitorDto banFileMonitor)
         {
-            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitor.BanFileMonitorId}", Method.Patch);
+            var request = await CreateRequest($"ban-file-monitors/{banFileMonitor.BanFileMonitorId}", Method.Patch);
             request.AddJsonBody(banFileMonitor);
 
             var response = await ExecuteAsync(request);
@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task DeleteBanFileMonitor(Guid banFileMonitorId)
         {
-            var request = await CreateRequest($"repository/ban-file-monitors/{banFileMonitorId}", Method.Delete);
+            var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Delete);
             await ExecuteAsync(request);
         }
     }

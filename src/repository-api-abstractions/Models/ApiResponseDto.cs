@@ -6,6 +6,11 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 {
     public class ApiResponseDto
     {
+        [JsonConstructor]
+        public ApiResponseDto()
+        {
+
+        }
         public ApiResponseDto(HttpStatusCode statusCode)
         {
             StatusCode = statusCode;
@@ -29,6 +34,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 
     public class ApiResponseDto<T> : ApiResponseDto
     {
+        [JsonConstructor]
+        public ApiResponseDto()
+        {
+
+        }
+
         public ApiResponseDto(HttpStatusCode statusCode) : base(statusCode)
         {
             StatusCode = statusCode;

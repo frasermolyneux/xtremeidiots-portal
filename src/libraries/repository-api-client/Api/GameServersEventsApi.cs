@@ -16,7 +16,7 @@ public class GameServersEventsApi : BaseApi, IGameServersEventsApi
 
     public async Task CreateGameServerEvent(GameServerEventDto gameServerEvent)
     {
-        var request = await CreateRequest($"repository/game-servers/{gameServerEvent.GameServerId}/events", Method.Post);
+        var request = await CreateRequest($"game-servers/{gameServerEvent.GameServerId}/events", Method.Post);
         request.AddJsonBody(new List<GameServerEventDto> { gameServerEvent });
 
         await ExecuteAsync(request);

@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.ServersApiClient.Api
 
         public async Task<ServerQueryStatusResponseDto?> GetServerStatus(Guid serverId)
         {
-            var request = await CreateRequest($"servers/query/{serverId}/status", Method.Get);
+            var request = await CreateRequest($"query/{serverId}/status", Method.Get);
             var response = await ExecuteAsync(request);
 
             if (response.StatusCode == HttpStatusCode.NotFound)

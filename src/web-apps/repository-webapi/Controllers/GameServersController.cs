@@ -155,7 +155,7 @@ public class GameServersController : Controller
 
         var entries = gameServers.Select(gs => new GameServerDtoWrapper(gs)).ToList();
 
-        var response = new CollectionResponseDto<GameServerDtoWrapper>
+        var response = new CollectionDto<GameServerDtoWrapper>
         {
             TotalRecords = gameServers.Count,
             FilteredRecords = gameServers.Count,

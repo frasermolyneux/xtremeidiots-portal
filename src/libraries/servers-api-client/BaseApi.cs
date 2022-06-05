@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using RestSharp;
+
 using System.Net;
 
 namespace XtremeIdiots.Portal.ServersApiClient
@@ -13,7 +15,7 @@ namespace XtremeIdiots.Portal.ServersApiClient
         {
             _apimSubscriptionKey = options.Value.ApimSubscriptionKey;
 
-            RestClient = new RestClient(options.Value.ApimBaseUrl);
+            RestClient = new RestClient($"{options.Value.ApimBaseUrl}/{options.Value.ApiPathPrefix}");
             Logger = logger;
             ServersApiTokenProvider = serversApiTokenProvider;
         }

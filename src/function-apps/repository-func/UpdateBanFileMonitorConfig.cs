@@ -1,6 +1,8 @@
 using FluentFTP;
+
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -25,10 +27,10 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 0, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
             var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 0, null);
 
-            if (gameServerDtos == null)
+            if (!gameServersApiResponse.IsSuccess)
             {
                 logger.LogCritical("Failed to retrieve game servers from repository");
                 return;
@@ -40,7 +42,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 return;
             }
 
-            foreach (var gameServerDto in gameServerDtos)
+            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
                 if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
                     continue;

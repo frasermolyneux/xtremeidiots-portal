@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
@@ -39,7 +40,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var models = new List<BanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitors)
             {
-                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
                 models.Add(new BanFileMonitorViewModel
                 {
@@ -48,7 +49,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     RemoteFileSize = banFileMonitor.RemoteFileSize,
                     LastSync = banFileMonitor.LastSync,
                     ServerId = banFileMonitor.ServerId,
-                    GameServer = gameServerDto
+                    GameServer = gameServerApiResponse.Result
                 });
             }
 
@@ -66,9 +67,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BanFileMonitorViewModel model)
         {
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(model.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.ServerId);
 
-            if (gameServerDto == null) return NotFound();
+            if (gameServerApiResponse.IsNotFound)
+                return NotFound();
 
             if (!ModelState.IsValid)
             {
@@ -81,7 +83,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 ServerId = model.ServerId
             };
 
-            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.CreateBanFileMonitor);
+            var canCreateBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.CreateBanFileMonitor);
 
             if (!canCreateBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -91,7 +93,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.GameServers.CreateBanFileMonitorForGameServer(model.ServerId, banFileMonitorDto);
 
             _logger.LogInformation("User {User} has created a new ban file monitor with Id {Id}", User.Username(), banFileMonitorDto.BanFileMonitorId);
-            this.AddAlertSuccess($"The ban file monitor has been created for {gameServerDto.Title}");
+            this.AddAlertSuccess($"The ban file monitor has been created for {gameServerApiResponse.Result.Title}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -100,11 +102,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Details(Guid id)
         {
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
-            if (banFileMonitorDto == null) return NotFound();
+            if (banFileMonitorDto == null)
+                return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.ViewBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.ViewBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -116,7 +119,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 RemoteFileSize = banFileMonitorDto.RemoteFileSize,
                 LastSync = banFileMonitorDto.LastSync,
                 ServerId = banFileMonitorDto.ServerId,
-                GameServer = serverDto
+                GameServer = gameServerApiResponse.Result
             };
 
             return View(viewModel);
@@ -125,13 +128,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
-            if (banFileMonitorDto == null) return NotFound();
+            if (banFileMonitorDto == null)
+                return NotFound();
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -145,7 +148,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 RemoteFileSize = banFileMonitorDto.RemoteFileSize,
                 LastSync = banFileMonitorDto.LastSync,
                 ServerId = banFileMonitorDto.ServerId,
-                GameServer = serverDto
+                GameServer = gameServerApiResponse.Result
             };
 
             return View(viewModel);
@@ -156,17 +159,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Edit(BanFileMonitorViewModel model)
         {
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(model.BanFileMonitorId);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
-            if (banFileMonitorDto == null) return NotFound();
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+
+            if (banFileMonitorDto == null)
+                return NotFound();
 
             if (!ModelState.IsValid)
             {
                 await AddGameServersViewData(model.ServerId);
-                model.GameServer = serverDto;
+                model.GameServer = gameServerApiResponse.Result;
                 return View(model);
             }
 
-            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -185,11 +190,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
             if (banFileMonitorDto == null) return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -205,7 +210,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 RemoteFileSize = banFileMonitorDto.RemoteFileSize,
                 LastSync = banFileMonitorDto.LastSync,
                 ServerId = banFileMonitorDto.ServerId,
-                GameServer = gameServerDto
+                GameServer = gameServerDto.Result
             };
 
             return View(viewModel);
@@ -217,11 +222,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var banFileMonitorDto = await repositoryApiClient.BanFileMonitors.GetBanFileMonitor(id);
-            var serverDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
-            if (banFileMonitorDto == null) return NotFound();
+            if (banFileMonitorDto == null)
+                return NotFound();
 
-            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(serverDto.GameType, serverDto.Id), AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
@@ -239,9 +245,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            ViewData["GameServers"] = new SelectList(gameServerDtos, "Id", "Title", selected);
+            ViewData["GameServers"] = new SelectList(gameServersApiResponse.Result.Entries, "Id", "Title", selected);
         }
     }
 }

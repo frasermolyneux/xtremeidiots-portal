@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
@@ -13,96 +20,123 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
 [ApiController]
 [Authorize(Roles = "ServiceAccount")]
-public class GameServersController : Controller
+public class GameServersController : Controller, IGameServersApi
 {
     private readonly ILogger<GameServersController> logger;
     private readonly PortalDbContext context;
+    private readonly IMapper mapper;
 
     public GameServersController(
         ILogger<GameServersController> logger,
-        PortalDbContext context)
+        PortalDbContext context,
+            IMapper mapper)
     {
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
-    }
-
-    [HttpGet]
-    [Route("api/game-servers")]
-    public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, GameServerFilter? filterOption, int skipEntries, int takeEntries, GameServerOrder? order)
-    {
-        var query = context.GameServers.AsQueryable();
-
-        if (order == null)
-            order = GameServerOrder.BannerServerListPosition;
-
-        if (!string.IsNullOrWhiteSpace(gameTypes))
-        {
-            var split = gameTypes.Split(",");
-
-            var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray().Select(gt => gt.ToGameTypeInt());
-            query = query.Where(gs => filterByGameTypes.Contains(gs.GameType)).AsQueryable();
-        }
-
-        if (!string.IsNullOrWhiteSpace(serverIds))
-        {
-            var split = serverIds.Split(",");
-
-            var filterByMonitorIds = split.Select(id => Guid.Parse(id)).ToArray();
-            query = query.Where(gs => filterByMonitorIds.Contains(gs.ServerId)).AsQueryable();
-        }
-
-        if (filterOption != null)
-        {
-            switch (filterOption)
-            {
-                case GameServerFilter.ShowOnPortalServerList:
-                    query = query.Where(s => s.ShowOnPortalServerList).AsQueryable();
-                    break;
-                case GameServerFilter.ShowOnBannerServerList:
-                    query = query.Where(s => s.ShowOnBannerServerList).AsQueryable();
-                    break;
-                case GameServerFilter.LiveStatusEnabled:
-                    query = query.Where(s => s.LiveStatusEnabled).AsQueryable();
-                    break;
-            }
-        }
-
-        switch (order)
-        {
-            case GameServerOrder.BannerServerListPosition:
-                query = query.OrderBy(gs => gs.BannerServerListPosition).AsQueryable();
-                break;
-            case GameServerOrder.GameType:
-                query = query.OrderBy(gs => gs.GameType).AsQueryable();
-                break;
-        }
-
-        query = query.Skip(skipEntries).AsQueryable();
-        if (takeEntries != 0) query = query.Take(takeEntries).AsQueryable();
-
-        var results = await query.ToListAsync();
-
-        var result = results.Select(gameServer => gameServer.ToDto());
-
-        return new OkObjectResult(result);
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet]
     [Route("api/game-servers/{serverId}")]
-    public async Task<IActionResult> GetGameServer(Guid? serverId)
+    public async Task<IActionResult> GetGameServer(Guid serverId)
     {
-        if (serverId == null)
-            return new BadRequestResult();
+        var response = await ((IGameServersApi)this).GetGameServer(serverId);
 
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto<GameServerDto>> IGameServersApi.GetGameServer(Guid serverId)
+    {
         var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
 
         if (gameServer == null)
-            return new NotFoundResult();
+            return new ApiResponseDto<GameServerDto>(HttpStatusCode.NotFound);
 
-        var gameServerDto = gameServer.ToDto();
+        var result = mapper.Map<GameServerDto>(gameServer);
 
-        return new OkObjectResult(gameServerDto);
+        return new ApiResponseDto<GameServerDto>(HttpStatusCode.OK, result);
     }
+
+    [HttpGet]
+    [Route("api/game-servers")]
+    public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, GameServerFilter? filter, int? skipEntries, int? takeEntries, GameServerOrder? order)
+    {
+        if (!skipEntries.HasValue)
+            skipEntries = 0;
+
+        if (!takeEntries.HasValue)
+            takeEntries = 20;
+
+        GameType[]? gameTypesFilter = null;
+        if (!string.IsNullOrWhiteSpace(gameTypes))
+        {
+            var split = gameTypes.Split(",");
+            gameTypesFilter = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
+        }
+
+        Guid[]? serverIdsFilter = null;
+        if (!string.IsNullOrWhiteSpace(serverIds))
+        {
+            var split = serverIds.Split(",");
+            serverIdsFilter = split.Select(id => Guid.Parse(id)).ToArray();
+        }
+
+        var response = await ((IGameServersApi)this).GetGameServers(gameTypesFilter, serverIdsFilter, filter, skipEntries.Value, takeEntries.Value, order);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto<GameServersCollectionDto>> IGameServersApi.GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
+    {
+        var query = context.GameServers.AsQueryable();
+        query = ApplyFilter(query, gameTypes, null, null);
+        var totalCount = await query.CountAsync();
+
+        query = ApplyFilter(query, gameTypes, serverIds, filter);
+        var filteredCount = await query.CountAsync();
+
+        query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+        var results = await query.ToListAsync();
+
+        var entries = results.Select(m => mapper.Map<GameServerDto>(m)).ToList();
+
+        var result = new GameServersCollectionDto
+        {
+            TotalRecords = totalCount,
+            FilteredRecords = filteredCount,
+            Entries = entries
+        };
+
+        return new ApiResponseDto<GameServersCollectionDto>(HttpStatusCode.OK, result);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     [HttpPost]
     [Route("api/game-servers")]
@@ -314,5 +348,75 @@ public class GameServersController : Controller
             ShowChatLog = gameServer.ShowChatLog;
             RconPassword = gameServer.RconPassword;
         }
+    }
+
+    private IQueryable<GameServer> ApplyFilter(IQueryable<GameServer> query, GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter)
+    {
+        if (gameTypes != null && gameTypes.Length > 0)
+        {
+            var gameTypeInts = gameTypes.Select(gt => gt.ToGameTypeInt()).ToArray();
+            query = query.Where(gs => gameTypeInts.Contains(gs.GameType)).AsQueryable();
+        }
+
+        if (serverIds != null && serverIds.Length > 0)
+            query = query.Where(gs => serverIds.Contains(gs.ServerId)).AsQueryable();
+
+        switch (filter)
+        {
+            case GameServerFilter.ShowOnPortalServerList:
+                query = query.Where(s => s.ShowOnPortalServerList).AsQueryable();
+                break;
+            case GameServerFilter.ShowOnBannerServerList:
+                query = query.Where(s => s.ShowOnBannerServerList).AsQueryable();
+                break;
+            case GameServerFilter.LiveStatusEnabled:
+                query = query.Where(s => s.LiveStatusEnabled).AsQueryable();
+                break;
+        }
+
+        return query;
+    }
+
+    private IQueryable<GameServer> ApplyOrderAndLimits(IQueryable<GameServer> query, int skipEntries, int takeEntries, GameServerOrder? order)
+    {
+        switch (order)
+        {
+            case GameServerOrder.BannerServerListPosition:
+                query = query.OrderBy(gs => gs.BannerServerListPosition).AsQueryable();
+                break;
+            case GameServerOrder.GameType:
+                query = query.OrderBy(gs => gs.GameType).AsQueryable();
+                break;
+        }
+
+        query = query.Skip(skipEntries).AsQueryable();
+        query = query.Take(takeEntries).AsQueryable();
+
+        return query;
+    }
+
+    Task IGameServersApi.CreateGameServer(CreateGameServerDto createGameServerDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task IGameServersApi.CreateGameServers(List<CreateGameServerDto> createGameServerDtos)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task IGameServersApi.UpdateGameServer(GameServerDto gameServer)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<BanFileMonitorDto?> IGameServersApi.CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task IGameServersApi.DeleteGameServer(Guid id)
+    {
+        throw new NotImplementedException();
     }
 }

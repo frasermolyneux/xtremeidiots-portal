@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -28,9 +27,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.FtpCredentials, PortalClaimTypes.RconCredentials };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            foreach (var gameServerDto in gameServerDtos)
+            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
                 var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewFtpCredential);
 
@@ -47,7 +46,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     gameServerDto.RconPassword = string.Empty;
             }
 
-            return View(gameServerDtos);
+            return View(gameServersApiResponse.Result.Entries);
         }
     }
 }

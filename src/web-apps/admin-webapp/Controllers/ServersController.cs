@@ -28,9 +28,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            var result = gameServerDtos.Select(gs => new ServersGameServerViewModel(gs)).ToList();
+            var result = gameServersApiResponse.Result.Entries.Select(gs => new ServersGameServerViewModel(gs)).ToList();
 
             return View(result);
         }
@@ -45,19 +45,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerInfo(Guid id)
         {
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerDto == null)
+            if (gameServerApiResponse.IsNotFound)
                 return NotFound();
 
-            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
-            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
+            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerApiResponse.Result.Id, DateTime.UtcNow.AddDays(-2));
+            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerApiResponse.Result.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
 
-            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, gameServerDto.LiveMap);
+            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.LiveMap);
             var mapDto = mapApiResponse.Result ?? null;
 
             var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-            var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
+            var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
 
@@ -81,7 +81,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
             }
 
-            return View(new ServersGameServerViewModel(gameServerDto)
+            return View(new ServersGameServerViewModel(gameServerApiResponse.Result)
             {
                 Map = mapDto,
                 Maps = mapsCollectionApiResponse.Result.Entries,

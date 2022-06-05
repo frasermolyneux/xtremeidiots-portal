@@ -25,6 +25,17 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.Type.ToAdminActionType())
                 );
 
+            // Game Servers
+            CreateMap<GameServer, GameServerDto>()
+                .ForMember(
+                    dest => dest.Id,
+                    src => src.MapFrom(src => src.ServerId)
+                )
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameType())
+                );
+
             // Game Server Stats
             CreateMap<GameServerStat, GameServerStatDto>();
 

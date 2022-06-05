@@ -2,7 +2,9 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+
 using System.Diagnostics;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Helpers;
@@ -50,39 +52,39 @@ namespace XtremeIdiots.Portal.SyncFunc
             {
                 try
                 {
-                    var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+                    var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
 
-                    if (gameServerDto == null)
+                    if (!gameServerApiResponse.IsSuccess)
                     {
                         logger.LogError($"Failed to retrieve game server with id '{banFileMonitorDto.ServerId}' from the repository");
                         continue;
                     }
 
                     var remoteFileSize = await ftpHelper.GetFileSize(
-                        gameServerDto.FtpHostname,
-                        gameServerDto.FtpPort,
+                        gameServerApiResponse.Result.FtpHostname,
+                        gameServerApiResponse.Result.FtpPort,
                         banFileMonitorDto.FilePath,
-                        gameServerDto.FtpUsername,
-                        gameServerDto.FtpPassword);
+                        gameServerApiResponse.Result.FtpUsername,
+                        gameServerApiResponse.Result.FtpPassword);
 
-                    var banFileSize = await banFilesRepository.GetBanFileSizeForGame(gameServerDto.GameType);
+                    var banFileSize = await banFilesRepository.GetBanFileSizeForGame(gameServerApiResponse.Result.GameType);
 
                     if (remoteFileSize == null)
                     {
                         var telemetry = new EventTelemetry("BanFileInit");
-                        telemetry.Properties.Add("GameType", gameServerDto.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerDto.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerDto.Title);
+                        telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
+                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
+                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
-                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType);
+                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerApiResponse.Result.GameType);
 
                         await ftpHelper.UpdateRemoteFileFromStream(
-                            gameServerDto.FtpHostname,
-                            gameServerDto.FtpPort,
+                            gameServerApiResponse.Result.FtpHostname,
+                            gameServerApiResponse.Result.FtpPort,
                             banFileMonitorDto.FilePath,
-                            gameServerDto.FtpUsername,
-                            gameServerDto.FtpPassword,
+                            gameServerApiResponse.Result.FtpUsername,
+                            gameServerApiResponse.Result.FtpPassword,
                             banFileStream);
 
                         banFileMonitorDto.RemoteFileSize = banFileSize;
@@ -94,19 +96,19 @@ namespace XtremeIdiots.Portal.SyncFunc
                     if (remoteFileSize != banFileMonitorDto.RemoteFileSize)
                     {
                         var telemetry = new EventTelemetry("BanFileChangedOnRemote");
-                        telemetry.Properties.Add("GameType", gameServerDto.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerDto.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerDto.Title);
+                        telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
+                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
+                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
                         var remoteBanFileData = await ftpHelper.GetRemoteFileData(
-                            gameServerDto.FtpHostname,
-                            gameServerDto.FtpPort,
+                            gameServerApiResponse.Result.FtpHostname,
+                            gameServerApiResponse.Result.FtpPort,
                             banFileMonitorDto.FilePath,
-                            gameServerDto.FtpUsername,
-                            gameServerDto.FtpPassword);
+                            gameServerApiResponse.Result.FtpUsername,
+                            gameServerApiResponse.Result.FtpPassword);
 
-                        await banFileIngest.IngestBanFileDataForGame(gameServerDto.GameType.ToString(), remoteBanFileData);
+                        await banFileIngest.IngestBanFileDataForGame(gameServerApiResponse.Result.GameType.ToString(), remoteBanFileData);
 
                         banFileMonitorDto.RemoteFileSize = (long)remoteFileSize;
 
@@ -116,19 +118,19 @@ namespace XtremeIdiots.Portal.SyncFunc
                     if (remoteFileSize != banFileSize && remoteFileSize == banFileMonitorDto.RemoteFileSize)
                     {
                         var telemetry = new EventTelemetry("BanFileChangedOnSource");
-                        telemetry.Properties.Add("GameType", gameServerDto.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerDto.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerDto.Title);
+                        telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
+                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
+                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
-                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerDto.GameType);
+                        var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerApiResponse.Result.GameType);
 
                         await ftpHelper.UpdateRemoteFileFromStream(
-                            gameServerDto.FtpHostname,
-                            gameServerDto.FtpPort,
+                            gameServerApiResponse.Result.FtpHostname,
+                            gameServerApiResponse.Result.FtpPort,
                             banFileMonitorDto.FilePath,
-                            gameServerDto.FtpUsername,
-                            gameServerDto.FtpPassword,
+                            gameServerApiResponse.Result.FtpUsername,
+                            gameServerApiResponse.Result.FtpPassword,
                             banFileStream);
 
                         banFileMonitorDto.RemoteFileSize = banFileSize;

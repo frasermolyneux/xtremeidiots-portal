@@ -55,12 +55,12 @@ public class ConfigGeneratorService : IHostedService
         var mySqlConnection = configuration["mysql-connection"];
 
         var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-        var gameServerDtos = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.ShowOnPortalServerList, 0, 0, null);
-        gameServerDtos = gameServerDtos?.Where(gs => !string.IsNullOrWhiteSpace(gs.RconPassword) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList();
+        var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.ShowOnPortalServerList, 0, 50, null);
+        var validGameServers = gameServersApiResponse.Result.Entries.Where(gs => !string.IsNullOrWhiteSpace(gs.RconPassword) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList();
 
         var outputDirectory = @"C:\Users\FraserMolyneux\OneDrive\Desktop\bot-cofigs";
 
-        foreach (var gameServerDto in gameServerDtos)
+        foreach (var gameServerDto in validGameServers)
         {
             sb.AppendLine("    @{");
             sb.AppendLine($"        Name = '{gameServerDto.Title}'");

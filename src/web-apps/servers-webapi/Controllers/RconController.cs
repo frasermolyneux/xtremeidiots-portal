@@ -2,6 +2,7 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
@@ -33,16 +34,16 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         [Route("api/rcon/{serverId}/status")]
         public async Task<IActionResult> GetServerStatus(Guid serverId)
         {
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(serverId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(serverId);
 
-            if (gameServerDto == null)
+            if (gameServerApiResponse.IsNotFound)
                 return NotFound();
 
-            var queryClient = rconClientFactory.CreateInstance(gameServerDto.GameType, gameServerDto.Id, gameServerDto.Hostname, gameServerDto.QueryPort, gameServerDto.RconPassword);
+            var queryClient = rconClientFactory.CreateInstance(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id, gameServerApiResponse.Result.Hostname, gameServerApiResponse.Result.QueryPort, gameServerApiResponse.Result.RconPassword);
 
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("RconServerStatus");
-            operation.Telemetry.Type = $"{gameServerDto.GameType}Server";
-            operation.Telemetry.Target = $"{gameServerDto.Hostname}:{gameServerDto.QueryPort}";
+            operation.Telemetry.Type = $"{gameServerApiResponse.Result.GameType}Server";
+            operation.Telemetry.Target = $"{gameServerApiResponse.Result.Hostname}:{gameServerApiResponse.Result.QueryPort}";
 
             try
             {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -24,9 +23,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
-            var gameServerDtos = await RepositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnBannerServerList, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await RepositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnBannerServerList, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            var filtered = gameServerDtos.Where(s => !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
+            var filtered = gameServersApiResponse.Result.Entries.Where(s => !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
 
             var htmlBanners = filtered.Select(gs => gs.HtmlBanner).ToList();
 

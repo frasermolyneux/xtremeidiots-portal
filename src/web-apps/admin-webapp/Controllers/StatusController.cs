@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
@@ -31,7 +29,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var models = new List<BanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitorDtos)
             {
-                var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
                 models.Add(new BanFileMonitorViewModel
                 {
@@ -40,7 +38,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     RemoteFileSize = banFileMonitor.RemoteFileSize,
                     LastSync = banFileMonitor.LastSync,
                     ServerId = banFileMonitor.ServerId,
-                    GameServer = gameServerDto
+                    GameServer = gameServerApiResponse.Result
                 });
             }
 

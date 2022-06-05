@@ -53,13 +53,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin };
             var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServers = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 0, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfile(id);
             var userProfileViewModel = new UserProfileViewModel(userProfileDtoApiResponse.Result);
 
-            ViewData["GameServers"] = gameServers;
-            ViewData["GameServersSelect"] = new SelectList(gameServers, "Id", "Title");
+            ViewData["GameServers"] = gameServersApiResponse;
+            ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Entries, "Id", "Title");
 
             return View(userProfileViewModel);
         }
@@ -112,9 +112,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.XtremeIdiotsForumId);
 
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claimValue));
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claimValue));
 
-            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.CreateUserClaim);
+            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.CreateUserClaim);
 
             if (!canCreateUserClaim.Succeeded)
                 return Unauthorized();
@@ -148,9 +148,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (claim == null)
                 return NotFound();
 
-            var gameServerDto = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claim.ClaimValue));
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claim.ClaimValue));
 
-            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.DeleteUserClaim);
+            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.DeleteUserClaim);
 
             if (!canDeleteUserClaim.Succeeded)
                 return Unauthorized();

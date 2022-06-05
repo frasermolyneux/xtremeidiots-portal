@@ -62,42 +62,6 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players/{playerId}/aliases")]
-    public async Task<IActionResult> GetPlayerAliases(Guid playerId)
-    {
-        var player = await context.Players
-            .Include(p => p.PlayerAliases)
-            .SingleAsync(p => p.PlayerId == playerId);
-
-        var result = player.PlayerAliases.Select(alias => new AliasDto
-        {
-            Name = alias.Name,
-            Added = alias.Added,
-            LastUsed = alias.LastUsed
-        }).ToList();
-
-        return new OkObjectResult(result);
-    }
-
-    [HttpGet]
-    [Route("api/players/{playerId}/ip-addresses")]
-    public async Task<IActionResult> GetPlayerIpAddresses(Guid playerId)
-    {
-        var player = await context.Players
-            .Include(p => p.PlayerIpAddresses)
-            .SingleAsync(p => p.PlayerId == playerId);
-
-        var result = player.PlayerIpAddresses.Select(address => new IpAddressDto
-        {
-            Address = address.Address,
-            Added = address.Added,
-            LastUsed = address.LastUsed
-        }).ToList();
-
-        return new OkObjectResult(result);
-    }
-
-    [HttpGet]
     [Route("api/players/{playerId}/related-players")]
     public async Task<IActionResult> GetRelatedPlayers(Guid playerId, string ipAddress)
     {

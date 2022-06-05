@@ -78,6 +78,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.Address)
                 );
 
+            CreateMap<CreatePlayerDto, Player>()
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameTypeInt())
+                );
+
             // Recent Players
             CreateMap<RecentPlayer, RecentPlayerDto>()
                 .ForMember(

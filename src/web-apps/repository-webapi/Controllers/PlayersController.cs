@@ -100,7 +100,7 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     [HttpPost]
     [Route("api/players")]
-    public async Task<IActionResult> CreatePlayer()
+    public async Task<IActionResult> CreatePlayers()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -109,27 +109,32 @@ public class PlayersController : ControllerBase, IPlayersApi
         {
             createPlayerDtos = JsonConvert.DeserializeObject<List<CreatePlayerDto>>(requestBody);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
         }
 
-        if (createPlayerDtos == null || !createPlayerDtos.Any()) return new BadRequestResult();
+        if (createPlayerDtos == null || !createPlayerDtos.Any())
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
+        var response = await ((IPlayersApi)this).CreatePlayers(createPlayerDtos);
+
+        return response.ToHttpResult();
+    }
+
+    Task<ApiResponseDto> IPlayersApi.CreatePlayer(CreatePlayerDto createPlayerDto)
+    {
+        throw new NotImplementedException();
+    }
+
+    async Task<ApiResponseDto> IPlayersApi.CreatePlayers(List<CreatePlayerDto> createPlayerDtos)
+    {
         foreach (var createPlayerDto in createPlayerDtos)
         {
             if (await context.Players.AnyAsync(p => p.GameType == createPlayerDto.GameType.ToGameTypeInt() && p.Guid == createPlayerDto.Guid))
-                return new ConflictObjectResult($"Player with gameType '{createPlayerDto.GameType}' and guid '{createPlayerDto.Guid}' already exists");
+                return new ApiResponseDto(HttpStatusCode.Conflict, $"Player with gameType '{createPlayerDto.GameType}' and guid '{createPlayerDto.Guid}' already exists");
 
-            var player = new Player
-            {
-                Username = createPlayerDto.Username.Trim(),
-                Guid = createPlayerDto.Guid.ToLower().Trim(),
-                GameType = createPlayerDto.GameType.ToGameTypeInt(),
-                FirstSeen = DateTime.UtcNow,
-                LastSeen = DateTime.UtcNow
-            };
+            var player = mapper.Map<Player>(createPlayerDto);
 
             if (IPAddress.TryParse(createPlayerDto.IpAddress, out var ip))
             {
@@ -139,7 +144,6 @@ public class PlayersController : ControllerBase, IPlayersApi
                 {
                     new PlayerIpAddress
                     {
-                        PlayerIpAddressId = Guid.NewGuid(),
                         Address = ip.ToString(),
                         Added = DateTime.UtcNow,
                         LastUsed = DateTime.UtcNow
@@ -151,7 +155,6 @@ public class PlayersController : ControllerBase, IPlayersApi
             {
                 new PlayerAlias
                 {
-                    PlayerAliasId = Guid.NewGuid(),
                     Name = createPlayerDto.Username.Trim(),
                     Added = DateTime.UtcNow,
                     LastUsed = DateTime.UtcNow
@@ -163,7 +166,7 @@ public class PlayersController : ControllerBase, IPlayersApi
 
         await context.SaveChangesAsync();
 
-        return new OkResult();
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
 
     [HttpPatch]
@@ -545,11 +548,6 @@ public class PlayersController : ControllerBase, IPlayersApi
         await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
-    }
-
-    Task IPlayersApi.CreatePlayer(CreatePlayerDto createPlayerDto)
-    {
-        throw new NotImplementedException();
     }
 
     Task IPlayersApi.UpdatePlayer(PlayerDto player)

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -42,12 +43,24 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<PlayerDto>();
         }
 
-        public async Task CreatePlayer(CreatePlayerDto createPlayerDto)
+        public async Task<ApiResponseDto> CreatePlayer(CreatePlayerDto createPlayerDto)
         {
             var request = await CreateRequest("players", Method.Post);
             request.AddJsonBody(new List<CreatePlayerDto> { createPlayerDto });
 
-            await ExecuteAsync(request);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> CreatePlayers(List<CreatePlayerDto> createPlayerDtos)
+        {
+            var request = await CreateRequest("players", Method.Post);
+            request.AddJsonBody(createPlayerDtos);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
 
         public async Task UpdatePlayer(PlayerDto player)

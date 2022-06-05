@@ -63,12 +63,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse();
         }
 
-        public async Task UpdatePlayer(PlayerDto player)
+        public async Task<ApiResponseDto> UpdatePlayer(EditPlayerDto editPlayerDto)
         {
-            var request = await CreateRequest($"players/{player.Id}", Method.Patch);
-            request.AddJsonBody(player);
+            var request = await CreateRequest($"players/{editPlayerDto.Id}", Method.Patch);
+            request.AddJsonBody(editPlayerDto);
 
-            await ExecuteAsync(request);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
 
         public async Task<PlayersSearchResponseDto?> SearchPlayers(string gameType, string filter, string filterString, int takeEntries, int skipEntries, string? order)

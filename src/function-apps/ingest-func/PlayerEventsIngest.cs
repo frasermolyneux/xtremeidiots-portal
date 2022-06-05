@@ -86,10 +86,13 @@ public class PlayerEventsIngest
         {
             if (onPlayerConnected.EventGeneratedUtc > playerDtoApiResponse.Result.LastSeen)
             {
-                playerDtoApiResponse.Result.Username = onPlayerConnected.Username;
-                playerDtoApiResponse.Result.IpAddress = onPlayerConnected.IpAddress;
+                var editPlayerDto = new EditPlayerDto(playerDtoApiResponse.Result.Id)
+                {
+                    Username = onPlayerConnected.Username,
+                    IpAddress = onPlayerConnected.IpAddress
+                };
 
-                await _repositoryApiClient.Players.UpdatePlayer(playerDtoApiResponse.Result);
+                await _repositoryApiClient.Players.UpdatePlayer(editPlayerDto);
             }
         }
     }

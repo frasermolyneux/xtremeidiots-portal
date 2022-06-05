@@ -149,9 +149,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         private static IQueryable<RecentPlayer> ApplyOrderAndLimits(IQueryable<RecentPlayer> query, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
-            query = query.Skip(skipEntries).AsQueryable();
-            query = query.Take(takeEntries).AsQueryable();
-
             if (order.HasValue)
             {
                 switch (order)
@@ -164,6 +161,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                         break;
                 }
             }
+
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
         }

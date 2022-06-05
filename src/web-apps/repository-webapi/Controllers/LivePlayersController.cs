@@ -130,9 +130,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         private IQueryable<LivePlayer> ApplyOrderAndLimits(IQueryable<LivePlayer> query, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
-            query = query.Skip(skipEntries).AsQueryable();
-            query = query.Take(takeEntries).AsQueryable();
-
             if (order.HasValue)
             {
                 switch (order)
@@ -145,6 +142,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                         break;
                 }
             }
+
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
         }

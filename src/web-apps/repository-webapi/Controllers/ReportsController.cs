@@ -210,9 +210,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         private static IQueryable<Report> ApplyOrderAndLimits(IQueryable<Report> query, int skipEntries, int takeEntries, ReportsOrder? order)
         {
-            query = query.Skip(skipEntries).AsQueryable();
-            query = query.Take(takeEntries).AsQueryable();
-
             if (order.HasValue)
             {
                 switch (order)
@@ -225,6 +222,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                         break;
                 }
             }
+
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
         }

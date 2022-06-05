@@ -316,9 +316,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         private IQueryable<UserProfile> ApplyOrderAndLimits(IQueryable<UserProfile> query, int skipEntries, int takeEntries, UserProfilesOrder? order)
         {
-            query = query.Skip(skipEntries).AsQueryable();
-            query = query.Take(takeEntries).AsQueryable();
-
             if (order.HasValue)
             {
                 switch (order)
@@ -331,6 +328,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                         break;
                 }
             }
+
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
         }

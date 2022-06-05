@@ -312,9 +312,6 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     private IQueryable<Player> ApplyOrderAndLimits(IQueryable<Player> query, int skipEntries, int takeEntries, PlayersOrder? order)
     {
-        query = query.Skip(skipEntries).AsQueryable();
-        query = query.Take(takeEntries).AsQueryable();
-
         switch (order)
         {
             case PlayersOrder.UsernameAsc:
@@ -342,6 +339,9 @@ public class PlayersController : ControllerBase, IPlayersApi
                 query = query.OrderByDescending(p => p.GameType).AsQueryable();
                 break;
         }
+
+        query = query.Skip(skipEntries).AsQueryable();
+        query = query.Take(takeEntries).AsQueryable();
 
         return query;
     }

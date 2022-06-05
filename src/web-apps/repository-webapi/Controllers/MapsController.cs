@@ -381,9 +381,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         private IQueryable<Map> ApplyOrderAndLimits(IQueryable<Map> query, int skipEntries, int takeEntries, MapsOrder? order)
         {
-            query = query.Skip(skipEntries).AsQueryable();
-            query = query.Take(takeEntries).AsQueryable();
-
             switch (order)
             {
                 case MapsOrder.MapNameAsc:
@@ -405,6 +402,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     query = query.OrderByDescending(m => m.TotalDislikes).AsQueryable();
                     break;
             }
+
+            query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
         }

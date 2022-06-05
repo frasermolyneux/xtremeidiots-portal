@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -63,14 +62,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     break;
             }
 
-            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(id, null, model.Search?.Value, model.Start, model.Length, order);
+            var mapsApiResponse = await repositoryApiClient.Maps.GetMaps(id, null, null, model.Search?.Value, model.Start, model.Length, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal = mapsResponseDto.TotalRecords,
-                recordsFiltered = mapsResponseDto.FilteredRecords,
-                data = mapsResponseDto.Entries
+                recordsTotal = mapsApiResponse.Result.TotalRecords,
+                recordsFiltered = mapsApiResponse.Result.FilteredRecords,
+                data = mapsApiResponse.Result.Entries
             });
         }
 
@@ -80,12 +79,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-            var map = await repositoryApiClient.Maps.GetMap(gameType, mapName);
+            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameType, mapName);
 
-            if (map == null || string.IsNullOrWhiteSpace(map.MapImageUri))
+            if (!mapApiResponse.IsSuccess || string.IsNullOrWhiteSpace(mapApiResponse.Result.MapImageUri))
                 return Redirect("/images/noimage.jpg");
 
-            return Redirect(map.MapImageUri);
+            return Redirect(mapApiResponse.Result.MapImageUri);
         }
     }
 }

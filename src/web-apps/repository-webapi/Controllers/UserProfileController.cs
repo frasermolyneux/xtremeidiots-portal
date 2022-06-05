@@ -162,7 +162,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             if (createUserProfileDto == null || !createUserProfileDto.Any())
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
             var response = await ((IUserProfileApi)this).CreateUserProfiles(createUserProfileDto);
 
@@ -201,7 +201,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             if (editUserProfileDto == null || !editUserProfileDto.Any())
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
             var response = await ((IUserProfileApi)this).UpdateUserProfiles(editUserProfileDto);
 

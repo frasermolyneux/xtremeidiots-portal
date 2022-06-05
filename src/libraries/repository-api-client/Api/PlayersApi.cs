@@ -53,9 +53,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (!string.IsNullOrWhiteSpace(filterString))
                 request.AddQueryParameter("filterString", filterString);
 
-            if (!string.IsNullOrWhiteSpace(filterString))
-                request.AddQueryParameter("filterString", filterString);
-
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
 

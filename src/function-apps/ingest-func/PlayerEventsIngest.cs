@@ -196,9 +196,10 @@ public class PlayerEventsIngest
 
         if (playerId != Guid.Empty)
         {
-            var map = await _repositoryApiClient.Maps.GetMap(gameType, onMapVote.MapName);
+            var mapApiResponse = await _repositoryApiClient.Maps.GetMap(gameType, onMapVote.MapName);
 
-            await _repositoryApiClient.Maps.UpsertMapVote(map.MapId, playerId, (bool)onMapVote.Like);
+            if (mapApiResponse.IsSuccess)
+                await _repositoryApiClient.Maps.UpsertMapVote(mapApiResponse.Result.MapId, playerId, (bool)onMapVote.Like);
         }
         else
         {

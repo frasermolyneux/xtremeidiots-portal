@@ -1,6 +1,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+
 using System.Net;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -8,6 +10,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 {
     public class MapImageSync
     {
+        private const int TakeEntries = 50;
         private readonly ILogger<MapImageSync> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
 
@@ -33,41 +36,40 @@ namespace XtremeIdiots.Portal.SyncFunc
 
             foreach (var game in gamesToSync)
             {
-                var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(game.Key, null, null, null, null, null);
+                var skip = 0;
+                var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(game.Key, null, MapsFilter.EmptyMapImage, null, skip, TakeEntries, null);
 
-                if (mapsResponseDto == null)
+                do
                 {
-                    logger.LogCritical($"Failed to retrieve maps from repository for game type '{game}'");
-                    continue;
-                }
+                    log.LogInformation($"Processing '{mapsResponseDto.Result.Entries.Count}' maps for '{game.Key}'");
 
-                var mapsToUpdate = mapsResponseDto.Entries.Where(m => string.IsNullOrWhiteSpace(m.MapImageUri)).ToList();
-
-                log.LogInformation($"Total maps retrieved from redirect for {game.Key} is {mapsResponseDto.Entries.Count} with {mapsToUpdate.Count} needing updating");
-
-                foreach (var mapDto in mapsToUpdate)
-                {
-                    var gameTrackerImageUrl = $"https://image.gametracker.com/images/maps/160x120/{game.Value}/{mapDto.MapName}.jpg";
-
-                    try
+                    foreach (var mapDto in mapsResponseDto.Result.Entries)
                     {
-                        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                        var gameTrackerImageUrl = $"https://image.gametracker.com/images/maps/160x120/{game.Value}/{mapDto.MapName}.jpg";
 
-                        using (var client = new WebClient())
+                        try
                         {
-                            client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
+                            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-                            var filePath = Path.GetTempFileName();
-                            client.DownloadFile(new Uri(gameTrackerImageUrl), filePath);
+                            using (var client = new WebClient())
+                            {
+                                client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
 
-                            await repositoryApiClient.Maps.UpdateMapImage(mapDto.MapId, filePath);
+                                var filePath = Path.GetTempFileName();
+                                client.DownloadFile(new Uri(gameTrackerImageUrl), filePath);
+
+                                await repositoryApiClient.Maps.UpdateMapImage(mapDto.MapId, filePath);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            log.LogWarning(ex, $"Failed to retrieve map image from {gameTrackerImageUrl}");
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        log.LogWarning(ex, $"Failed to retrieve map image from {gameTrackerImageUrl}");
-                    }
-                }
+
+                    skip += TakeEntries;
+                    mapsResponseDto = await repositoryApiClient.Maps.GetMaps(game.Key, null, MapsFilter.EmptyMapImage, null, skip, TakeEntries, null);
+                } while (mapsResponseDto.Result.Entries.Any());
             }
         }
     }

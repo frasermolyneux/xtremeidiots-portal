@@ -1,23 +1,25 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IMapsApi
     {
-        Task<List<MapDto>?> CreateMaps(List<MapDto> mapDtos);
-        Task<MapsResponseDto?> GetMaps(GameType? gameType, string[]? mapNames, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order);
-        Task<List<MapDto>?> UpdateMaps(List<MapDto> mapDtos);
+        Task<ApiResponseDto<MapDto>> GetMap(Guid mapId);
+        Task<ApiResponseDto<MapDto>> GetMap(GameType gameType, string mapName);
+        Task<ApiResponseDto<MapsCollectionDto>> GetMaps(GameType? gameType, string[]? mapNames, MapsFilter? filter, string? filterString, int skipEntries, int takeEntries, MapsOrder? order);
 
-        Task<MapDto?> CreateMap(MapDto mapDto);
-        Task<MapDto?> GetMap(Guid mapId);
-        Task<MapDto?> GetMap(GameType gameType, string mapName);
-        Task<MapDto?> UpdateMap(MapDto mapDto);
+        Task<ApiResponseDto> CreateMap(CreateMapDto createMapDto);
+        Task<ApiResponseDto> CreateMaps(List<CreateMapDto> createMapDtos);
 
-        Task DeleteMap(Guid mapId);
-        Task RebuildMapPopularity();
+        Task<ApiResponseDto> UpdateMap(EditMapDto editMapDto);
+        Task<ApiResponseDto> UpdateMaps(List<EditMapDto> editMapDtos);
 
-        Task UpsertMapVote(Guid mapId, Guid playerId, bool like, DateTime? overrideCreated = null);
-        Task UpdateMapImage(Guid mapId, string filePath);
+        Task<ApiResponseDto> DeleteMap(Guid mapId);
+        Task<ApiResponseDto> RebuildMapPopularity();
+
+        Task<ApiResponseDto> UpsertMapVote(Guid mapId, Guid playerId, bool like);
+        Task<ApiResponseDto> UpdateMapImage(Guid mapId, string filePath);
     }
 }

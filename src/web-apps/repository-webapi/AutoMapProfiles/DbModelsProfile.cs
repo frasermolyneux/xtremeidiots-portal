@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 
+using Newtonsoft.Json;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
@@ -32,6 +35,33 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameTypeInt())
+                );
+
+            // Maps
+            CreateMap<Map, MapDto>()
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameType())
+                )
+                .ForMember(
+                    dest => dest.MapFiles,
+                    src => src.MapFrom(src => JsonConvert.DeserializeObject<List<MapFileDto>>(src.MapFiles))
+                );
+
+            CreateMap<CreateMapDto, MapDto>()
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameTypeInt())
+                )
+                .ForMember(
+                    dest => dest.MapFiles,
+                    src => src.MapFrom(src => JsonConvert.SerializeObject(src.MapFiles))
+                );
+
+            CreateMap<EditMapDto, MapDto>()
+                .ForMember(
+                    dest => dest.MapFiles,
+                    src => src.MapFrom(src => JsonConvert.SerializeObject(src.MapFiles))
                 );
 
             // Players

@@ -1,6 +1,8 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
+
 using System.Diagnostics;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -47,23 +49,20 @@ namespace XtremeIdiots.Portal.SyncFunc
             foreach (var game in gamesToSync)
             {
                 var mapRedirectEntries = MapRedirectRepository.GetMapEntriesForGame(game.Value);
-                var mapsResponseDto = await RepositoryApiClient.Maps.GetMaps(game.Key, null, null, null, null, null);
 
-                log.LogInformation($"Total maps retrieved from redirect for {game} is {mapRedirectEntries.Count} and database is {mapsResponseDto.Entries.Count}");
+                log.LogInformation($"Total maps retrieved from redirect for '{game}' is '{mapRedirectEntries.Count}'");
 
-                var mapDtosToCreate = new List<MapDto>();
-                var mapDtosToUpdate = new List<MapDto>();
+                var mapDtosToCreate = new List<CreateMapDto>();
+                var mapDtosToUpdate = new List<EditMapDto>();
 
                 foreach (var mapRedirectEntry in mapRedirectEntries)
                 {
-                    var mapDto = mapsResponseDto.Entries.SingleOrDefault(m => m.GameType == game.Key && m.MapName == mapRedirectEntry.MapName);
+                    var mapApiResponse = await RepositoryApiClient.Maps.GetMap(game.Key, mapRedirectEntry.MapName);
 
-                    if (mapDto == null)
+                    if (mapApiResponse.IsNotFound)
                     {
-                        var mapDtoToCreate = new MapDto
+                        var mapDtoToCreate = new CreateMapDto(game.Key, mapRedirectEntry.MapName)
                         {
-                            MapName = mapRedirectEntry.MapName,
-                            GameType = game.Key,
                             MapFiles = mapRedirectEntry.MapFiles.Where(mf => mf.EndsWith(".iwd") || mf.EndsWith(".ff")).Select(mf => new MapFileDto
                             {
                                 FileName = mf,
@@ -77,15 +76,16 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var mapFiles = mapRedirectEntry.MapFiles.Where(mf => mf.EndsWith(".iwd") || mf.EndsWith(".ff")).ToList();
 
-                        if (mapFiles.Count != mapDto.MapFiles.Count)
+                        if (mapFiles.Count != mapApiResponse.Result.MapFiles.Count)
                         {
-                            mapDto.MapFiles = mapFiles.Select(mf => new MapFileDto
+                            mapDtosToUpdate.Add(new EditMapDto(mapApiResponse.Result.MapId)
                             {
-                                FileName = mf,
-                                Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapDto.MapName}/{mf}"
-                            }).ToList();
-
-                            mapDtosToUpdate.Add(mapDto);
+                                MapFiles = mapFiles.Select(mf => new MapFileDto
+                                {
+                                    FileName = mf,
+                                    Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapApiResponse.Result.MapName}/{mf}"
+                                }).ToList()
+                            });
                         }
                     }
                 }

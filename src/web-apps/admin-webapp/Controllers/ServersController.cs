@@ -5,7 +5,6 @@ using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
@@ -54,12 +53,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var gameServerStatusStats = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerDto.Id, DateTime.UtcNow.AddDays(-2));
             var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerDto.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
 
-            MapDto? mapDto = null;
-            if (!string.IsNullOrWhiteSpace(gameServerDto.LiveMap))
-                mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, gameServerDto.LiveMap);
+            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, gameServerDto.LiveMap);
+            var mapDto = mapApiResponse.Result ?? null;
 
             var mapNames = gameServerStatusStats.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-            var mapsResponseDto = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, null, MapsOrder.MapNameAsc);
+            var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerDto.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
 
@@ -86,7 +84,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             return View(new ServersGameServerViewModel(gameServerDto)
             {
                 Map = mapDto,
-                Maps = mapsResponseDto.Entries,
+                Maps = mapsCollectionApiResponse.Result.Entries,
                 GameServerStats = gameServerStatusStats,
                 LivePlayers = livePlayersResponseDto.Result?.Entries != null ? livePlayersResponseDto.Result.Entries : new List<LivePlayerDto>(),
                 MapTimelineDataPoints = mapTimelineDataPoints

@@ -1,6 +1,7 @@
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
@@ -59,11 +60,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                 var mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryStatusResponseDto.Map);
 
                                 if (mapDto == null)
-                                    await repositoryApiClient.Maps.CreateMap(new MapDto
-                                    {
-                                        GameType = gameServerDto.GameType,
-                                        MapName = serverQueryStatusResponseDto.Map
-                                    });
+                                    await repositoryApiClient.Maps.CreateMap(new CreateMapDto(gameServerDto.GameType, serverQueryStatusResponseDto.Map));
 
                                 memoryCache.Set($"{gameServerDto.GameType}-{serverQueryStatusResponseDto.Map}", true);
                             }

@@ -68,25 +68,34 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players/by-game-type/{gameType}/{playerGuid}")]
-    public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string playerGuid)
+    [Route("api/players/by-game-type/{gameType}/{guid}")]
+    public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid)
     {
-        var player = await context.Players.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == playerGuid);
+        var response = await ((IPlayersApi)this).GetPlayerByGameType(gameType, guid);
 
-        if (player == null) return new NotFoundResult();
+        return response.ToHttpResult();
+    }
 
-        var playerDto = new PlayerDto
-        {
-            Id = player.PlayerId,
-            GameType = player.GameType.ToGameType(),
-            Username = player.Username,
-            Guid = player.Guid,
-            FirstSeen = player.FirstSeen,
-            LastSeen = player.LastSeen,
-            IpAddress = player.IpAddress
-        };
+    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)
+    {
+        var player = await context.Players
+            .Include(p => p.PlayerAliases)
+            .Include(p => p.PlayerIpAddresses)
+            .Include(p => p.AdminActions)
+            .SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
 
-        return new OkObjectResult(playerDto);
+        if (player == null)
+            return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
+
+        var playerIpAddresses = await context.PlayerIpAddresses
+            .Include(ip => ip.PlayerPlayer)
+            .Where(ip => ip.Address == player.IpAddress && ip.PlayerPlayerId != player.PlayerId)
+            .ToListAsync();
+
+        var result = mapper.Map<PlayerDto>(player);
+        result.RelatedPlayerDtos = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+
+        return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
 
     [HttpPost]
@@ -536,11 +545,6 @@ public class PlayersController : ControllerBase, IPlayersApi
         await context.SaveChangesAsync();
 
         return new OkObjectResult(adminActionDto);
-    }
-
-    Task<PlayerDto?> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)
-    {
-        throw new NotImplementedException();
     }
 
     Task IPlayersApi.CreatePlayer(CreatePlayerDto createPlayerDto)

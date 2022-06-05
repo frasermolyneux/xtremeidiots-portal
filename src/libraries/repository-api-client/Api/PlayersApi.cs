@@ -6,8 +6,6 @@ using Newtonsoft.Json;
 
 using RestSharp;
 
-using System.Net;
-
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
@@ -36,32 +34,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<PlayerDto>();
         }
 
-        public async Task<PlayerDto?> GetPlayerByGameType(GameType gameType, string guid)
+        public async Task<ApiResponseDto<PlayerDto>> GetPlayerByGameType(GameType gameType, string guid)
         {
-            if (options.Value.UseMemoryCacheOnGet)
-                if (memoryCache.TryGetValue($"{gameType}-{guid}-{nameof(GetPlayerByGameType)}", out PlayerDto playerDto))
-                    return playerDto;
-
             var request = await CreateRequest($"players/by-game-type/{gameType}/{guid}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-            {
-                var playerDto = JsonConvert.DeserializeObject<PlayerDto>(response.Content);
-
-                if (options.Value.UseMemoryCacheOnGet && playerDto != null)
-                {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(options.Value.MemoryCacheOnGetExpiration));
-                    memoryCache.Set($"{gameType}-{guid}-{nameof(GetPlayerByGameType)}", playerDto, cacheEntryOptions);
-                }
-
-                return playerDto;
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<PlayerDto>();
         }
 
         public async Task CreatePlayer(CreatePlayerDto createPlayerDto)

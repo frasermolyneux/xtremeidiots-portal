@@ -3,9 +3,12 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
+
 using System;
 using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
@@ -68,9 +71,9 @@ public class PlayerEventsIngest
         onPlayerConnectedTelemetry.Properties.Add("Guid", onPlayerConnected.Guid);
         telemetryClient.TrackEvent(onPlayerConnectedTelemetry);
 
-        var existingPlayer = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, onPlayerConnected.Guid);
+        var playerDtoApiResponse = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, onPlayerConnected.Guid);
 
-        if (existingPlayer == null)
+        if (playerDtoApiResponse.IsNotFound)
         {
             var player = new CreatePlayerDto(onPlayerConnected.Username, onPlayerConnected.Guid, onPlayerConnected.GameType.ToGameType())
             {
@@ -81,12 +84,12 @@ public class PlayerEventsIngest
         }
         else
         {
-            if (onPlayerConnected.EventGeneratedUtc > existingPlayer.LastSeen)
+            if (onPlayerConnected.EventGeneratedUtc > playerDtoApiResponse.Result.LastSeen)
             {
-                existingPlayer.Username = onPlayerConnected.Username;
-                existingPlayer.IpAddress = onPlayerConnected.IpAddress;
+                playerDtoApiResponse.Result.Username = onPlayerConnected.Username;
+                playerDtoApiResponse.Result.IpAddress = onPlayerConnected.IpAddress;
 
-                await _repositoryApiClient.Players.UpdatePlayer(existingPlayer);
+                await _repositoryApiClient.Players.UpdatePlayer(playerDtoApiResponse.Result);
             }
         }
     }
@@ -207,14 +210,14 @@ public class PlayerEventsIngest
         if (memoryCache.TryGetValue(cacheKey, out Guid playerId))
             return playerId;
 
-        var player = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
+        var playerDtoApiResponse = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
 
-        if (player != null)
+        if (playerDtoApiResponse.IsSuccess)
         {
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
-            memoryCache.Set(cacheKey, player.Id, cacheEntryOptions);
+            memoryCache.Set(cacheKey, playerDtoApiResponse.Result.Id, cacheEntryOptions);
 
-            return player.Id;
+            return playerDtoApiResponse.Result.Id;
         }
 
         return Guid.Empty;

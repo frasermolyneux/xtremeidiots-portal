@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
@@ -138,6 +140,50 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             await context.SaveChangesAsync();
 
             return new OkResult();
+        }
+
+        [HttpPost]
+        [Route("api/game-servers/{serverId}/ban-file-monitors")]
+        public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            BanFileMonitorDto banFileMonitorDto;
+            try
+            {
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                banFileMonitorDto = JsonConvert.DeserializeObject<BanFileMonitorDto>(requestBody);
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Could not deserialize request body");
+                return new BadRequestResult();
+            }
+
+            if (banFileMonitorDto == null) return new BadRequestResult();
+
+            var server = await context.GameServers.SingleOrDefaultAsync(s => s.ServerId == serverId);
+
+            if (server == null)
+                throw new NullReferenceException(nameof(server));
+
+            var banFileMonitor = new BanFileMonitor
+            {
+                BanFileMonitorId = Guid.NewGuid(),
+                FilePath = banFileMonitorDto.FilePath,
+                //RemoteFileSize = banFileMonitorDto.RemoteFileSize,
+                LastSync = DateTime.UtcNow.AddHours(-4),
+                //LastError = string.Empty,
+                GameServerServer = server
+            };
+
+            context.BanFileMonitors.Add(banFileMonitor);
+            await context.SaveChangesAsync();
+
+            var result = banFileMonitor.ToDto();
+
+            return new OkObjectResult(result);
         }
     }
 }

@@ -2,14 +2,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
@@ -17,18 +14,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
     public class GameServersApi : BaseApi, IGameServersApi
     {
-        private readonly IOptions<RepositoryApiClientOptions> options;
-        private readonly IMemoryCache memoryCache;
-
         public GameServersApi(ILogger<GameServersApi> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
-            this.options = options;
-            this.memoryCache = memoryCache;
+
         }
 
-        public async Task<ApiResponseDto<GameServerDto>> GetGameServer(Guid serverId)
+        public async Task<ApiResponseDto<GameServerDto>> GetGameServer(Guid gameServerId)
         {
-            var request = await CreateRequest($"game-servers/{serverId}", Method.Get);
+            var request = await CreateRequest($"game-servers/{gameServerId}", Method.Get);
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse<GameServerDto>();
@@ -88,38 +81,12 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse();
         }
 
-
-
-
-
-
-
-
-
-
-
-
-        public async Task DeleteGameServer(Guid id)
+        public async Task<ApiResponseDto> DeleteGameServer(Guid gameServerId)
         {
-            var request = await CreateRequest($"game-servers/{id}", Method.Delete);
-            await ExecuteAsync(request);
-        }
-
-
-
-
-
-        public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
-        {
-            var request = await CreateRequest($"game-servers/{serverId}/ban-file-monitors", Method.Post);
-            request.AddJsonBody(banFileMonitor);
-
+            var request = await CreateRequest($"game-servers/{gameServerId}", Method.Delete);
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<BanFileMonitorDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
     }
 }

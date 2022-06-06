@@ -12,8 +12,8 @@ using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -23,32 +23,29 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersController : Controller, IGameServersApi
 {
-    private readonly ILogger<GameServersController> logger;
     private readonly PortalDbContext context;
     private readonly IMapper mapper;
 
     public GameServersController(
-        ILogger<GameServersController> logger,
         PortalDbContext context,
-            IMapper mapper)
+        IMapper mapper)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet]
-    [Route("api/game-servers/{serverId}")]
-    public async Task<IActionResult> GetGameServer(Guid serverId)
+    [Route("api/game-servers/{gameServerId}")]
+    public async Task<IActionResult> GetGameServer(Guid gameServerId)
     {
-        var response = await ((IGameServersApi)this).GetGameServer(serverId);
+        var response = await ((IGameServersApi)this).GetGameServer(gameServerId);
 
         return response.ToHttpResult();
     }
 
-    async Task<ApiResponseDto<GameServerDto>> IGameServersApi.GetGameServer(Guid serverId)
+    async Task<ApiResponseDto<GameServerDto>> IGameServersApi.GetGameServer(Guid gameServerId)
     {
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
 
         if (gameServer == null)
             return new ApiResponseDto<GameServerDto>(HttpStatusCode.NotFound);
@@ -151,8 +148,8 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpPatch]
-    [Route("api/game-servers/{serverId}")]
-    public async Task<IActionResult> UpdateGameServer(Guid serverId)
+    [Route("api/game-servers/{gameServerId}")]
+    public async Task<IActionResult> UpdateGameServer(Guid gameServerId)
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -169,7 +166,7 @@ public class GameServersController : Controller, IGameServersApi
         if (editGameServerDto == null)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-        if (editGameServerDto.Id != serverId)
+        if (editGameServerDto.Id != gameServerId)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
 
         var response = await ((IGameServersApi)this).UpdateGameServer(editGameServerDto);
@@ -191,69 +188,21 @@ public class GameServersController : Controller, IGameServersApi
         return new ApiResponseDto(HttpStatusCode.OK);
     }
 
-
-
-
-
-
-
-
-
-    [HttpPost]
-    [Route("api/game-servers/{serverId}/ban-file-monitors")]
-    public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
+    [HttpDelete]
+    [Route("api/game-servers/{gameServerId}")]
+    public async Task<IActionResult> DeleteGameServer(Guid gameServerId)
     {
-        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+        var response = await ((IGameServersApi)this).DeleteGameServer(gameServerId);
 
-        BanFileMonitorDto banFileMonitorDto;
-        try
-        {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            banFileMonitorDto = JsonConvert.DeserializeObject<BanFileMonitorDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
-        }
-
-        if (banFileMonitorDto == null) return new BadRequestResult();
-
-        var server = await context.GameServers.SingleOrDefaultAsync(s => s.ServerId == serverId);
-
-        if (server == null)
-            throw new NullReferenceException(nameof(server));
-
-        var banFileMonitor = new BanFileMonitor
-        {
-            BanFileMonitorId = Guid.NewGuid(),
-            FilePath = banFileMonitorDto.FilePath,
-            //RemoteFileSize = banFileMonitorDto.RemoteFileSize,
-            LastSync = DateTime.UtcNow.AddHours(-4),
-            //LastError = string.Empty,
-            GameServerServer = server
-        };
-
-        context.BanFileMonitors.Add(banFileMonitor);
-        await context.SaveChangesAsync();
-
-        var result = banFileMonitor.ToDto();
-
-        return new OkObjectResult(result);
+        return response.ToHttpResult();
     }
 
-    [HttpDelete]
-    [Route("api/game-servers/{serverId}")]
-    public async Task<IActionResult> DeleteGameServer(Guid? serverId)
+    async Task<ApiResponseDto> IGameServersApi.DeleteGameServer(Guid gameServerId)
     {
-        if (serverId == null)
-            return new BadRequestResult();
-
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == serverId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
 
         if (gameServer == null)
-            return new NotFoundResult();
+            return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
 
         await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
         await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
@@ -265,36 +214,7 @@ public class GameServersController : Controller, IGameServersApi
 
         await context.SaveChangesAsync();
 
-        return new OkResult();
-    }
-
-    public class GameServerDtoWrapper : GameServerDto
-    {
-        public GameServerDtoWrapper(GameServer gameServer)
-        {
-            Id = gameServer.ServerId;
-            Title = gameServer.Title;
-            HtmlBanner = gameServer.HtmlBanner;
-            GameType = gameServer.GameType.ToGameType();
-            Hostname = gameServer.Hostname;
-            QueryPort = gameServer.QueryPort;
-            FtpHostname = gameServer.FtpHostname;
-            FtpPort = gameServer.FtpPort;
-            FtpUsername = gameServer.FtpUsername;
-            FtpPassword = gameServer.FtpPassword;
-            LiveStatusEnabled = gameServer.LiveStatusEnabled;
-            LiveTitle = gameServer.LiveTitle;
-            LiveMap = gameServer.LiveMap;
-            LiveMod = gameServer.LiveMod;
-            LiveMaxPlayers = gameServer.LiveMaxPlayers;
-            LiveCurrentPlayers = gameServer.LiveCurrentPlayers;
-            LiveLastUpdated = gameServer.LiveLastUpdated;
-            ShowOnBannerServerList = gameServer.ShowOnBannerServerList;
-            BannerServerListPosition = gameServer.BannerServerListPosition;
-            ShowOnPortalServerList = gameServer.ShowOnPortalServerList;
-            ShowChatLog = gameServer.ShowChatLog;
-            RconPassword = gameServer.RconPassword;
-        }
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
 
     private IQueryable<GameServer> ApplyFilter(IQueryable<GameServer> query, GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter)
@@ -341,16 +261,4 @@ public class GameServersController : Controller, IGameServersApi
 
         return query;
     }
-
-    Task<BanFileMonitorDto?> IGameServersApi.CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task IGameServersApi.DeleteGameServer(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-
 }

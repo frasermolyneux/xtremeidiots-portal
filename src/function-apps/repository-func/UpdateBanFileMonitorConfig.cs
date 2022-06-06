@@ -70,7 +70,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                     FilePath = $"/{gameServerDto.LiveMod}/ban.txt"
                                 };
 
-                                await repositoryApiClient.GameServers.CreateBanFileMonitorForGameServer(gameServerDto.Id, banFileMonitorDto);
+                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitorForGameServer(gameServerDto.Id, banFileMonitorDto);
                             }
                         }
                         finally

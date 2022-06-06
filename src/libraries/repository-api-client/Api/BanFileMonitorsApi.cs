@@ -78,5 +78,18 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Delete);
             await ExecuteAsync(request);
         }
+
+        public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
+        {
+            var request = await CreateRequest($"game-servers/{serverId}/ban-file-monitors", Method.Post);
+            request.AddJsonBody(banFileMonitor);
+
+            var response = await ExecuteAsync(request);
+
+            if (response.Content != null)
+                return JsonConvert.DeserializeObject<BanFileMonitorDto>(response.Content);
+            else
+                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+        }
     }
 }

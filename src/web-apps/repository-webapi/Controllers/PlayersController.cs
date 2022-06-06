@@ -22,16 +22,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class PlayersController : ControllerBase, IPlayersApi
 {
-    private readonly ILogger<PlayersController> logger;
     private readonly PortalDbContext context;
     private readonly IMapper mapper;
 
     public PlayersController(
-        ILogger<PlayersController> logger,
         PortalDbContext context,
-            IMapper mapper)
+        IMapper mapper)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }

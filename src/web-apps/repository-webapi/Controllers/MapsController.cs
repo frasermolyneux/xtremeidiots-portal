@@ -23,16 +23,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
     [Authorize(Roles = "ServiceAccount")]
     public class MapsController : Controller, IMapsApi
     {
-        private readonly ILogger<MapsController> logger;
         private readonly PortalDbContext context;
         private readonly IMapper mapper;
 
         public MapsController(
-            ILogger<MapsController> logger,
             PortalDbContext context,
             IMapper mapper)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
@@ -218,21 +215,24 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         [Route("api/maps/{mapId}")]
         public async Task<IActionResult> DeleteMap(Guid mapId)
         {
+            var response = await ((IMapsApi)this).DeleteMap(mapId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IMapsApi.DeleteMap(Guid mapId)
+        {
             var map = await context.Maps
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
-                return NotFound();
+                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
 
             context.Remove(map);
+
             await context.SaveChangesAsync();
 
-            return new OkResult();
-        }
-
-        Task<ApiResponseDto> IMapsApi.DeleteMap(Guid mapId)
-        {
-            throw new NotImplementedException();
+            return new ApiResponseDto(HttpStatusCode.OK);
         }
 
         [HttpPost]

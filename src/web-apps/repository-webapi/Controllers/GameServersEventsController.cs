@@ -20,16 +20,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 [Authorize(Roles = "ServiceAccount")]
 public class GameServersEventsController : ControllerBase, IGameServersEventsApi
 {
-    private readonly ILogger<GameServersEventsController> logger;
     private readonly PortalDbContext context;
     private readonly IMapper mapper;
 
     public GameServersEventsController(
-        ILogger<GameServersEventsController> logger,
         PortalDbContext context,
             IMapper mapper)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
         this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }

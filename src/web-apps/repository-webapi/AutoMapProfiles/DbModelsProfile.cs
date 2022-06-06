@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
@@ -30,6 +31,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     dest => dest.Type,
                     src => src.MapFrom(src => src.Type.ToAdminActionType())
                 );
+
+            // Demo Auth
+            CreateMap<DemoAuthKey, DemoAuthDto>();
+
+            CreateMap<CreateDemoAuthDto, DemoAuthKey>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<EditDemoAuthDto, DemoAuthKey>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Game Servers
             CreateMap<GameServer, GameServerDto>()

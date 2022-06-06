@@ -1,8 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -10,45 +18,64 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class DemosAuthController : Controller
+    public class DemosAuthController : Controller, IDemosAuthApi
     {
-        private readonly ILogger<DemosAuthController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public DemosAuthController(
-            ILogger<DemosAuthController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         [Route("api/demos-auth/{userId}")]
-        public async Task<IActionResult> GetDemoAuthKeyByUserId(string userId)
+        public async Task<IActionResult> GetDemosAuth(string userId)
+        {
+            var response = await ((IDemosAuthApi)this).GetDemosAuth(userId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<DemoAuthDto>> IDemosAuthApi.GetDemosAuth(string userId)
         {
             var demoAuthKey = await context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.UserId == userId);
 
             if (demoAuthKey == null)
-                return NotFound();
+                return new ApiResponseDto<DemoAuthDto>(HttpStatusCode.NotFound);
 
-            var dto = demoAuthKey.ToDto();
+            var result = mapper.Map<DemoAuthDto>(demoAuthKey);
 
-            return new OkObjectResult(dto);
+            return new ApiResponseDto<DemoAuthDto>(HttpStatusCode.OK, result);
         }
 
         [HttpGet]
         [Route("api/demos-auth/by-auth-key/{authKey}")]
         public async Task<IActionResult> GetDemoAuthKeyByAuthKey(string authKey)
         {
+            var response = await ((IDemosAuthApi)this).GetDemosAuthByAuthKey(authKey);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<DemoAuthDto>> IDemosAuthApi.GetDemosAuthByAuthKey(string authKey)
+        {
             var demoAuthKey = await context.DemoAuthKeys.SingleOrDefaultAsync(dak => dak.AuthKey == authKey);
 
             if (demoAuthKey == null)
-                return NotFound();
+                return new ApiResponseDto<DemoAuthDto>(HttpStatusCode.NotFound);
 
-            var dto = demoAuthKey.ToDto();
+            var result = mapper.Map<DemoAuthDto>(demoAuthKey);
 
-            return new OkObjectResult(dto);
+            return new ApiResponseDto<DemoAuthDto>(HttpStatusCode.OK, result);
+        }
+
+        Task<ApiResponseDto> IDemosAuthApi.CreateDemosAuth(CreateDemoAuthDto createDemoAuthDto)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpPost]
@@ -57,34 +84,42 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            List<DemoAuthDto>? demoAuthDtos;
+            List<CreateDemoAuthDto>? createDemoAuthDto;
             try
             {
-                demoAuthDtos = JsonConvert.DeserializeObject<List<DemoAuthDto>>(requestBody);
+                createDemoAuthDto = JsonConvert.DeserializeObject<List<CreateDemoAuthDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
-            if (demoAuthDtos == null || demoAuthDtos.Count == 0)
-                return new BadRequestResult();
+            if (createDemoAuthDto == null || !createDemoAuthDto.Any())
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-            var demoAuthKeys = demoAuthDtos.Select(demoAuthDto => new DemoAuthKey
+            var response = await ((IDemosAuthApi)this).CreateDemosAuths(createDemoAuthDto);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IDemosAuthApi.CreateDemosAuths(List<CreateDemoAuthDto> createDemoAuthDtos)
+        {
+            var demoAuthKeys = createDemoAuthDtos.Select(dak => mapper.Map<DemoAuthKey>(dak)).ToList();
+            demoAuthKeys.ForEach(dak =>
             {
-                UserId = demoAuthDto.UserId,
-                AuthKey = demoAuthDto.AuthKey,
-                Created = demoAuthDto.Created,
-                LastActivity = demoAuthDto.LastActivity
+                dak.Created = DateTime.UtcNow;
+                dak.LastActivity = DateTime.UtcNow;
             });
 
             await context.DemoAuthKeys.AddRangeAsync(demoAuthKeys);
             await context.SaveChangesAsync();
 
-            var dtos = demoAuthKeys.Select(dak => dak.ToDto());
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
 
-            return new OkObjectResult(dtos);
+        Task<ApiResponseDto> IDemosAuthApi.UpdateDemosAuth(EditDemoAuthDto editDemoAuthDto)
+        {
+            throw new NotImplementedException();
         }
 
         [HttpPut]
@@ -93,39 +128,38 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-            List<DemoAuthDto>? demoAuthDtos;
+            List<EditDemoAuthDto>? editDemoAuthDto;
             try
             {
-                demoAuthDtos = JsonConvert.DeserializeObject<List<DemoAuthDto>>(requestBody);
+                editDemoAuthDto = JsonConvert.DeserializeObject<List<EditDemoAuthDto>>(requestBody);
             }
-            catch (Exception ex)
+            catch
             {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
             }
 
-            if (demoAuthDtos == null || demoAuthDtos.Count == 0)
-                return new BadRequestResult();
+            if (editDemoAuthDto == null || !editDemoAuthDto.Any())
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-            var userIds = demoAuthDtos.Select(dak => dak.UserId).ToArray();
+            var response = await ((IDemosAuthApi)this).UpdateDemosAuths(editDemoAuthDto);
 
-            var demoAuthKeys = await context.DemoAuthKeys.Where(dak => userIds.Contains(dak.UserId)).ToListAsync();
-            foreach (var demoAuthDto in demoAuthDtos)
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IDemosAuthApi.UpdateDemosAuths(List<EditDemoAuthDto> editDemoAuthDtos)
+        {
+            foreach (var editDemoAuthDto in editDemoAuthDtos)
             {
-                var demoAuthKey = demoAuthKeys.SingleOrDefault(dak => dak.UserId == demoAuthDto.UserId);
+                var demoAuthKey = await context.DemoAuthKeys.SingleAsync(dak => dak.UserId == editDemoAuthDto.UserId);
 
-                if (demoAuthKey == null)
-                    return new BadRequestResult();
+                mapper.Map(editDemoAuthDto, demoAuthKey);
 
-                demoAuthKey.AuthKey = demoAuthDto.AuthKey;
                 demoAuthKey.LastActivity = DateTime.UtcNow;
             }
 
             await context.SaveChangesAsync();
 
-            var dtos = demoAuthKeys.Select(dak => dak.ToDto());
-
-            return new OkObjectResult(dtos);
+            return new ApiResponseDto(HttpStatusCode.OK);
         }
     }
 }

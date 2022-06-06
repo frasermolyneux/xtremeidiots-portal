@@ -1,14 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
 
-using System.Net;
-
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -18,96 +16,60 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<DemoAuthDto?> CreateDemosAuth(DemoAuthDto demoAuthDto)
-        {
-            var request = await CreateRequest("demos-auth", Method.Post);
-            request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<DemoAuthDto>>(response.Content);
-                return result?.FirstOrDefault() ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entity");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<List<DemoAuthDto>?> CreateDemosAuths(List<DemoAuthDto> demoAuthDtos)
-        {
-            var request = await CreateRequest("demos-auth", Method.Post);
-            request.AddJsonBody(demoAuthDtos);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<DemoAuthDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<DemoAuthDto?> GetDemosAuth(string userId)
+        public async Task<ApiResponseDto<DemoAuthDto>> GetDemosAuth(string userId)
         {
             var request = await CreateRequest($"demos-auth/{userId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<DemoAuthDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<DemoAuthDto>();
         }
 
-        public async Task<DemoAuthDto?> GetDemosAuthByAuthKey(string authKey)
+        public async Task<ApiResponseDto<DemoAuthDto>> GetDemosAuthByAuthKey(string authKey)
         {
             var request = await CreateRequest($"demos-auth/by-auth-key/{authKey}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<DemoAuthDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<DemoAuthDto>();
         }
 
-        public async Task<DemoAuthDto?> UpdateDemosAuth(DemoAuthDto demoAuthDto)
+        public async Task<ApiResponseDto> CreateDemosAuth(CreateDemoAuthDto createDemoAuthDto)
         {
-            var request = await CreateRequest("demos-auth", Method.Put);
-            request.AddJsonBody(new List<DemoAuthDto> { demoAuthDto });
+            var request = await CreateRequest("demos-auth", Method.Post);
+            request.AddJsonBody(new List<CreateDemoAuthDto> { createDemoAuthDto });
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<DemoAuthDto>>(response.Content);
-                return result?.FirstOrDefault() ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entity");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task<List<DemoAuthDto>?> UpdateDemosAuths(List<DemoAuthDto> demoAuthDtos)
+        public async Task<ApiResponseDto> CreateDemosAuths(List<CreateDemoAuthDto> createDemoAuthDtos)
         {
-            var request = await CreateRequest("demos-auth", Method.Put);
-            request.AddJsonBody(demoAuthDtos);
+            var request = await CreateRequest("demos-auth", Method.Post);
+            request.AddJsonBody(createDemoAuthDtos);
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-            {
-                var result = JsonConvert.DeserializeObject<List<DemoAuthDto>>(response.Content);
-                return result ?? throw new Exception($"Response of {request.Method} to '{request.Resource}' has no entities");
-            }
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> UpdateDemosAuth(EditDemoAuthDto editDemoAuthDto)
+        {
+            var request = await CreateRequest("demos-auth", Method.Put);
+            request.AddJsonBody(new List<EditDemoAuthDto> { editDemoAuthDto });
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> UpdateDemosAuths(List<EditDemoAuthDto> editDemoAuthDtos)
+        {
+            var request = await CreateRequest("demos-auth", Method.Put);
+            request.AddJsonBody(editDemoAuthDtos);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
     }
 }

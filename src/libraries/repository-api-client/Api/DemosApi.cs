@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
-
-using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -19,53 +17,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<DemoDto?> CreateDemo(CreateDemoDto demoDto, string fileName, string filePath)
-        {
-            var request = await CreateRequest("demos", Method.Post);
-            request.AddJsonBody(demoDto);
-
-            var response = await ExecuteAsync(request);
-
-            DemoDto? resultDemoDto = null;
-
-            if (response.Content != null)
-                resultDemoDto = JsonConvert.DeserializeObject<DemoDto>(response.Content);
-
-            if (resultDemoDto == null)
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-
-            var createFileRequest = await CreateRequest($"demos/{resultDemoDto.DemoId}/file", Method.Post);
-            createFileRequest.AddFile(fileName, filePath);
-
-            var createFileResponse = await ExecuteAsync(createFileRequest);
-
-            if (createFileResponse.Content != null)
-                return JsonConvert.DeserializeObject<DemoDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task DeleteDemo(Guid demoId)
-        {
-            var request = await CreateRequest($"demos/{demoId}", Method.Delete);
-            await ExecuteAsync(request);
-        }
-
-        public async Task<DemoDto?> GetDemo(Guid demoId)
+        public async Task<ApiResponseDto<DemoDto>> GetDemo(Guid demoId)
         {
             var request = await CreateRequest($"demos/{demoId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<DemoDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<DemoDto>();
         }
 
-        public async Task<DemosSearchResponseDto?> SearchDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
+        public async Task<ApiResponseDto<DemosCollectionDto>> GetDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
             var request = await CreateRequest("demos", Method.Get);
 
@@ -81,15 +41,40 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (order != null)
+            if (order.HasValue)
                 request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<DemosSearchResponseDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<DemosCollectionDto>();
+        }
+
+        public async Task<ApiResponseDto<DemoDto>> CreateDemo(CreateDemoDto createDemoDto)
+        {
+            var request = await CreateRequest("demos", Method.Post);
+            request.AddJsonBody(createDemoDto);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<DemoDto>();
+        }
+
+        public async Task<ApiResponseDto> SetDemoFile(Guid demoId, string fileName, string filePath)
+        {
+            var request = await CreateRequest($"demos/{demoId}/file", Method.Post);
+            request.AddFile(fileName, filePath);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> DeleteDemo(Guid demoId)
+        {
+            var request = await CreateRequest($"demos/{demoId}", Method.Delete);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
     }
 }

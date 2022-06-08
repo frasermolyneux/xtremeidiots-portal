@@ -41,6 +41,24 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             CreateMap<EditDemoAuthDto, DemoAuthKey>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
+            // Demos
+            CreateMap<Demo, DemoDto>()
+                .ForMember(
+                    dest => dest.Game,
+                    src => src.MapFrom(src => src.Game.ToGameType())
+                )
+                .ForMember(
+                    dest => dest.UserId,
+                    src => src.MapFrom(src => src.UserProfile.XtremeIdiotsForumId)
+                )
+                .ForMember(
+                    dest => dest.UploadedBy,
+                    src => src.MapFrom(src => src.UserProfile.DisplayName)
+                );
+
+            CreateMap<CreateDemoDto, Demo>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             // Game Servers
             CreateMap<GameServer, GameServerDto>()
                 .ForMember(

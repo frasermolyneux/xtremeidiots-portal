@@ -1,87 +1,252 @@
-﻿using Azure.Storage.Blobs;
+﻿using AutoMapper;
+
+using Azure.Storage.Blobs;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.CodDemos.Models;
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class DemosController : Controller
+    public class DemosController : Controller, IDemosApi
     {
-        private readonly ILogger<DemosController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
+        private readonly IConfiguration configuration;
 
         public DemosController(
-            ILogger<DemosController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper,
+            IConfiguration configuration)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
+
+        [HttpGet]
+        [Route("api/demos/{demoId}")]
+        public async Task<IActionResult> GetDemo(Guid demoId)
+        {
+            var response = await ((IDemosApi)this).GetDemo(demoId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<DemoDto>> IDemosApi.GetDemo(Guid demoId)
+        {
+            var demo = await context.Demoes.Include(d => d.UserProfile)
+                .SingleOrDefaultAsync(d => d.DemoId == demoId);
+
+            if (demo == null)
+                return new ApiResponseDto<DemoDto>(HttpStatusCode.NotFound);
+
+            var result = mapper.Map<DemoDto>(demo);
+
+            return new ApiResponseDto<DemoDto>(HttpStatusCode.OK, result);
         }
 
         [HttpGet]
         [Route("api/demos")]
-        public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
+        public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int? skipEntries, int? takeEntries, DemoOrder? order)
         {
+            if (!skipEntries.HasValue)
+                skipEntries = 0;
+
+            if (!takeEntries.HasValue)
+                takeEntries = 20;
+
             var demos = context.Demoes.Include(d => d.UserProfile).AsQueryable();
 
-            int[] filterByGameTypes = { };
+            GameType[]? gameTypesFilter = null;
             if (!string.IsNullOrWhiteSpace(gameTypes))
             {
                 var split = gameTypes.Split(",");
-
-                filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).Select(gt => gt.ToGameTypeInt()).ToArray();
+                gameTypesFilter = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
             }
 
-            if (order == null)
-                order = DemoOrder.DateDesc;
+            var response = await ((IDemosApi)this).GetDemos(gameTypesFilter, userId, filterString, skipEntries.Value, takeEntries.Value, order);
 
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<DemosCollectionDto>> IDemosApi.GetDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
+        {
             var query = context.Demoes.Include(d => d.UserProfile).AsQueryable();
-            query = ApplySearchFilter(query, Array.Empty<int>(), null, null);
+            query = ApplyFilter(query, gameTypes, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplySearchFilter(query, filterByGameTypes, userId, filterString);
+            query = ApplyFilter(query, gameTypes, userId, filterString);
             var filteredCount = await query.CountAsync();
 
-            query = ApplySearchOrderAndLimits(query, (DemoOrder)order, skipEntries, takeEntries);
-            var searchResults = await query.ToListAsync();
+            query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+            var results = await query.ToListAsync();
 
-            var entries = searchResults.Select(d => d.ToDto()).ToList();
+            var entries = results.Select(d => mapper.Map<DemoDto>(d)).ToList();
 
-            var response = new DemosSearchResponseDto
+            var result = new DemosCollectionDto
             {
                 TotalRecords = totalCount,
                 FilteredRecords = filteredCount,
                 Entries = entries
             };
 
-            return new OkObjectResult(response);
+            return new ApiResponseDto<DemosCollectionDto>(HttpStatusCode.OK, result);
         }
 
-        private IQueryable<Demo> ApplySearchFilter(IQueryable<Demo> query, int[] filterByGameTypes, string? userId, string? filterString)
+        [HttpPost]
+        [Route("api/demos")]
+        public async Task<IActionResult> CreateDemo()
         {
-            if (userId != null && filterByGameTypes.Count() != 0)
-                query = query.Where(d => filterByGameTypes.Contains(d.Game) && d.UserProfile.XtremeIdiotsForumId == userId).AsQueryable();
-            else if (filterByGameTypes.Count() != 0)
-                query = query.Where(d => filterByGameTypes.Contains(d.Game)).AsQueryable();
-            else if (userId != null)
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            CreateDemoDto? createDemoDto;
+            try
+            {
+                createDemoDto = JsonConvert.DeserializeObject<CreateDemoDto>(requestBody);
+            }
+            catch
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (createDemoDto == null)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
+
+            var response = await ((IDemosApi)this).CreateDemo(createDemoDto);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<DemoDto>> IDemosApi.CreateDemo(CreateDemoDto createDemoDto)
+        {
+            var demo = new Demo
+            {
+                DemoId = Guid.NewGuid(),
+                Game = createDemoDto.Game.ToGameTypeInt(),
+                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId)
+            };
+
+            context.Demoes.Add(demo);
+            await context.SaveChangesAsync();
+
+            var result = mapper.Map<DemoDto>(demo);
+
+            return new ApiResponseDto<DemoDto>(HttpStatusCode.OK, result);
+        }
+
+        [HttpPost]
+        [Route("api/demos/{demoId}/file")]
+        public async Task<IActionResult> SetDemoFile(Guid demoId)
+        {
+            if (Request.Form.Files.Count == 0)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request did not contain any files").ToHttpResult();
+
+            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
+
+            var file = Request.Form.Files.First();
+            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Invalid file type extension").ToHttpResult();
+
+            var filePath = Path.GetTempFileName();
+            using (var stream = System.IO.File.Create(filePath))
+                await file.CopyToAsync(stream);
+
+            var response = await ((IDemosApi)this).SetDemoFile(demoId, file.FileName, filePath);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IDemosApi.SetDemoFile(Guid demoId, string fileName, string filePath)
+        {
+            var demo = context.Demoes.SingleOrDefault(d => d.DemoId == demoId);
+
+            if (demo == null)
+                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+
+            var blobKey = $"{Guid.NewGuid()}.{demo.Game.ToGameType().DemoExtension()}";
+            var blobServiceClient = new BlobServiceClient(configuration["appdata-storage-connectionstring"]);
+            var containerClient = blobServiceClient.GetBlobContainerClient("demos");
+            var blobClient = containerClient.GetBlobClient(blobKey);
+            await blobClient.UploadAsync(filePath);
+
+            var localDemo = new LocalDemo(filePath, demo.Game.ToGameType());
+
+            demo.Name = Path.GetFileNameWithoutExtension(fileName);
+            demo.FileName = blobKey;
+            demo.Date = localDemo.Date;
+            demo.Map = localDemo.Map;
+            demo.Mod = localDemo.Mod;
+            demo.GameType = localDemo.GameType;
+            demo.Server = localDemo.Server;
+            demo.Size = localDemo.Size;
+            demo.DemoFileUri = blobClient.Uri.ToString();
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        [HttpDelete]
+        [Route("api/demos/{demoId}")]
+        public async Task<IActionResult> DeleteDemo(Guid demoId)
+        {
+            var response = await ((IDemosApi)this).DeleteDemo(demoId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IDemosApi.DeleteDemo(Guid demoId)
+        {
+            var demo = await context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
+
+            if (demo == null)
+                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+
+            context.Remove(demo);
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        private IQueryable<Demo> ApplyFilter(IQueryable<Demo> query, GameType[]? gameTypes, string? userId, string? filterString)
+        {
+            if (gameTypes != null && gameTypes.Length > 0)
+            {
+                var gameTypeInts = gameTypes.Select(gt => gt.ToGameTypeInt()).ToArray();
+                query = query.Where(d => gameTypeInts.Contains(d.Game)).AsQueryable();
+            }
+
+            if (!string.IsNullOrWhiteSpace(userId))
+            {
                 query = query.Where(d => d.UserProfile.XtremeIdiotsForumId == userId).AsQueryable();
+            }
 
             if (!string.IsNullOrWhiteSpace(filterString))
+            {
                 query = query.Where(d => d.Name.Contains(filterString) || d.UserProfile.DisplayName.Contains(filterString)).AsQueryable();
+            }
 
             return query;
         }
 
-        private IQueryable<Demo> ApplySearchOrderAndLimits(IQueryable<Demo> query, DemoOrder order, int skipEntries, int takeEntries)
+        private IQueryable<Demo> ApplyOrderAndLimits(IQueryable<Demo> query, int skipEntries, int takeEntries, DemoOrder? order)
         {
             switch (order)
             {
@@ -109,128 +274,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 case DemoOrder.UploadedByDesc:
                     query = query.OrderByDescending(d => d.UserProfile.DisplayName).AsQueryable();
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
 
             query = query.Skip(skipEntries).AsQueryable();
-
-            if (takeEntries != 0) query = query.Take(takeEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
             return query;
-        }
-
-        [HttpPost]
-        [Route("api/demos")]
-        public async Task<IActionResult> CreateDemo()
-        {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            CreateDemoDto? createDemoDto;
-            try
-            {
-                createDemoDto = JsonConvert.DeserializeObject<CreateDemoDto>(requestBody);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (createDemoDto == null)
-                return new BadRequestResult();
-
-            var demo = new Demo
-            {
-                DemoId = Guid.NewGuid(),
-                Game = createDemoDto.Game.ToGameTypeInt(),
-                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId)
-            };
-
-            context.Demoes.Add(demo);
-            await context.SaveChangesAsync();
-
-            var dto = demo.ToDto();
-
-            return new OkObjectResult(dto);
-        }
-
-        [HttpPost]
-        [Route("api/demos/{demoId}/file")]
-        public async Task<IActionResult> CreateDemoFile(Guid demoId)
-        {
-            if (Request.Form.Files.Count == 0)
-                return new BadRequestObjectResult("Request did not contain any files");
-
-            var demo = context.Demoes.SingleOrDefault(d => d.DemoId == demoId);
-
-            if (demo == null)
-                return NotFound();
-
-            var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
-
-            var file = Request.Form.Files.First();
-            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
-                return BadRequest("Invalid file type extension");
-
-            var filePath = Path.GetTempFileName();
-            using (var stream = System.IO.File.Create(filePath))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var blobKey = $"{Guid.NewGuid()}.{demo.Game.ToGameType().DemoExtension()}";
-            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
-            var containerClient = blobServiceClient.GetBlobContainerClient("demos");
-            var blobClient = containerClient.GetBlobClient(blobKey);
-            await blobClient.UploadAsync(filePath);
-
-            var localDemo = new LocalDemo(filePath, demo.Game.ToGameType());
-
-            demo.Name = Path.GetFileNameWithoutExtension(file.FileName);
-            demo.FileName = blobKey;
-            demo.Date = localDemo.Date;
-            demo.Map = localDemo.Map;
-            demo.Mod = localDemo.Mod;
-            demo.GameType = localDemo.GameType;
-            demo.Server = localDemo.Server;
-            demo.Size = localDemo.Size;
-            demo.DemoFileUri = blobClient.Uri.ToString();
-
-            await context.SaveChangesAsync();
-
-            var dto = demo.ToDto();
-
-            return new OkObjectResult(dto);
-        }
-
-        [HttpGet]
-        [Route("api/demos/{demoId}")]
-        public async Task<IActionResult> GetDemo(Guid? demoId)
-        {
-            var demo = await context.Demoes.Include(d => d.UserProfile).SingleOrDefaultAsync(d => d.DemoId == demoId);
-
-            if (demo == null)
-                return NotFound();
-
-            var dto = demo.ToDto();
-
-            return new OkObjectResult(dto);
-        }
-
-        [HttpDelete]
-        [Route("api/demos/{demoId}")]
-        public async Task<IActionResult> DeleteDemo(Guid? demoId)
-        {
-            var demo = await context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
-
-            if (demo == null)
-                throw new NullReferenceException(nameof(demo));
-
-            context.Remove(demo);
-            await context.SaveChangesAsync();
-
-            return new OkResult();
         }
     }
 }

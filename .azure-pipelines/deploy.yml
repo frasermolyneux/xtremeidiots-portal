@@ -101,7 +101,7 @@ stages:
           scriptLocation: 'inlineScript'
           inlineScript: |
             $sqlAdminPassword = (az keyvault secret show --name "sql-portal-$(environment)-$(location)-01-admin-password" --vault-name "kv-portal-$(environment)-$(location)-01" --query 'value') | ConvertFrom-Json
-            $sqlAdminGroupOid = (az ad group show --group "sg-sql-portal-$(environment)-admins" --query 'objectId')  | ConvertFrom-Json
+            $sqlAdminGroupOid = (az ad group show --group "sg-sql-portal-$(environment)-admins" --query 'id')  | ConvertFrom-Json
 
             az deployment sub create `
               --template-file bicep/platform.bicep `

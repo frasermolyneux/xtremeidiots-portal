@@ -1,9 +1,11 @@
-﻿namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+
+namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 
 public interface IDataMaintenanceApi
 {
-    Task PruneChatMessages();
-    Task PruneGameServerEvents();
-    Task PruneGameServerStats();
-    Task PruneRecentPlayers();
+    Task<ApiResponseDto> PruneChatMessages();
+    Task<ApiResponseDto> PruneGameServerEvents();
+    Task<ApiResponseDto> PruneGameServerStats();
+    Task<ApiResponseDto> PruneRecentPlayers();
 }

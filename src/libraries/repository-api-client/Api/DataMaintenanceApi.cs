@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using RestSharp;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api;
 
@@ -14,23 +17,31 @@ public class DataMaintenanceApi : BaseApi, IDataMaintenanceApi
 
     }
 
-    public async Task PruneChatMessages()
+    public async Task<ApiResponseDto> PruneChatMessages()
     {
-        await ExecuteAsync(await CreateRequest("data-maintenance/prune-chat-messages", Method.Delete));
+        var response = await ExecuteAsync(await CreateRequest("data-maintenance/prune-chat-messages", Method.Delete));
+
+        return response.ToApiResponse();
     }
 
-    public async Task PruneGameServerEvents()
+    public async Task<ApiResponseDto> PruneGameServerEvents()
     {
-        await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-events", Method.Delete));
+        var response = await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-events", Method.Delete));
+
+        return response.ToApiResponse();
     }
 
-    public async Task PruneGameServerStats()
+    public async Task<ApiResponseDto> PruneGameServerStats()
     {
-        await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-stats", Method.Delete));
+        var response = await ExecuteAsync(await CreateRequest("data-maintenance/prune-game-server-stats", Method.Delete));
+
+        return response.ToApiResponse();
     }
 
-    public async Task PruneRecentPlayers()
+    public async Task<ApiResponseDto> PruneRecentPlayers()
     {
-        await ExecuteAsync(await CreateRequest("data-maintenance/prune-recent-players", Method.Delete));
+        var response = await ExecuteAsync(await CreateRequest("data-maintenance/prune-recent-players", Method.Delete));
+
+        return response.ToApiResponse();
     }
 }

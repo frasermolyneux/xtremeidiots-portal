@@ -8,6 +8,8 @@ param (
 $applicationId = (az ad app list --filter "displayName eq '$applicationName'" --query '[].appId') | ConvertFrom-Json
 $credentials = (az ad app credential list --id $applicationId) | ConvertFrom-Json
 
+$credentials | Write-Host
+
 if ($credentials.Count -eq 0) {
     $credential = (az ad app credential reset --id $applicationId  --append --years 2 --credential-description $secretIdentifier) | ConvertFrom-Json
     az keyvault secret set --name $secretName --vault-name $keyVaultName --value $credential.password --description 'text/plain'

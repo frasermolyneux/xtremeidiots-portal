@@ -21,7 +21,7 @@ if ($credentials.Count -eq 1) {
 }
 
 if ($credentials.Count -eq 2) {
-    $credentialToDelete = $credentials | Sort-Object { Get-Date($_.endDate) } | Select-Object -First 1
+    $credentialToDelete = $credentials | Sort-Object { Get-Date($_.endDateTime) } | Select-Object -First 1
     az ad app credential delete --id $applicationId --key-id $credentialToDelete.keyId
 
     $credential = (az ad app credential reset --id $applicationId  --append --years 2 --credential-description $secretIdentifier) | ConvertFrom-Json

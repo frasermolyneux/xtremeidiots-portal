@@ -298,7 +298,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            var order = "TimestampDesc";
+            var order = ChatMessageOrder.TimestampDesc;
             if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
@@ -307,33 +307,31 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 switch (orderColumn)
                 {
                     case "timestamp":
-                        order = searchOrder == "asc" ? "TimestampAsc" : "TimestampDesc";
+                        order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
                         break;
                 }
             }
 
-
-            var searchResponse = await repositoryApiClient.ChatMessages.SearchChatMessages(gameType, serverId, playerId, model.Search?.Value, model.Length, model.Start, order);
+            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, serverId, playerId, model.Search?.Value, model.Start, model.Length, order);
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal = searchResponse.TotalRecords,
-                recordsFiltered = searchResponse.FilteredRecords,
-                data = searchResponse.Entries
+                recordsTotal = chatMessagesApiResponse.Result.TotalRecords,
+                recordsFiltered = chatMessagesApiResponse.Result.FilteredRecords,
+                data = chatMessagesApiResponse.Result.Entries
             });
         }
 
         [HttpGet]
         public async Task<IActionResult> ChatLogPermaLink(Guid id)
         {
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.GetChatMessage(id);
 
-            var chatMessage = await repositoryApiClient.ChatMessages.GetChatMessage(id);
-
-            if (chatMessage == null)
+            if (chatMessageApiResponse.IsNotFound)
                 return NotFound();
 
-            return View(chatMessage);
+            return View(chatMessageApiResponse.Result);
         }
     }
 }

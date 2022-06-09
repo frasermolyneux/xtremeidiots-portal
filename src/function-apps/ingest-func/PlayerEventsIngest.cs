@@ -136,16 +136,7 @@ public class PlayerEventsIngest
 
         if (playerId != Guid.Empty)
         {
-            var chatMessage = new ChatMessageDto
-            {
-                GameServerId = (Guid)onChatMessage.ServerId,
-                PlayerId = playerId,
-                Username = onChatMessage.Username,
-                Message = onChatMessage.Message,
-                Type = onChatMessage.Type.ToChatType(),
-                Timestamp = onChatMessage.EventGeneratedUtc
-            };
-
+            var chatMessage = new CreateChatMessageDto((Guid)onChatMessage.ServerId, playerId, onChatMessage.Type.ToChatType(), onChatMessage.Username, onChatMessage.Message, onChatMessage.EventGeneratedUtc);
             await _repositoryApiClient.ChatMessages.CreateChatMessage(chatMessage);
         }
         else

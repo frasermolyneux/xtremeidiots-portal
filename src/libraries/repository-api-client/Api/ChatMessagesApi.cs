@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
-
-using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -20,39 +18,25 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         }
 
-        public async Task<ChatMessageSearchEntryDto?> GetChatMessage(Guid id)
+        public async Task<ApiResponseDto<ChatMessageDto>> GetChatMessage(Guid chatMessageId)
         {
-            var request = await CreateRequest($"chat-messages/{id}", Method.Get);
+            var request = await CreateRequest($"chat-messages/{chatMessageId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ChatMessageSearchEntryDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<ChatMessageDto>();
         }
 
-        public async Task CreateChatMessage(ChatMessageDto chatMessage)
-        {
-            var request = await CreateRequest("chat-messages", Method.Post);
-            request.AddJsonBody(new List<ChatMessageDto> { chatMessage });
-
-            await ExecuteAsync(request);
-        }
-
-        public async Task<ChatMessageSearchResponseDto?> SearchChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int takeEntries, int skipEntries, string? order)
+        public async Task<ApiResponseDto<ChatMessagesCollectionDto>> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int skipEntries, int takeEntries, ChatMessageOrder? order)
         {
             var request = await CreateRequest("chat-messages/search", Method.Get);
 
-            if (gameType != null)
+            if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
-            if (serverId != null)
+            if (serverId.HasValue)
                 request.AddQueryParameter("serverId", serverId.ToString());
 
-            if (playerId != null)
+            if (playerId.HasValue)
                 request.AddQueryParameter("playerId", playerId.ToString());
 
             if (!string.IsNullOrWhiteSpace(filterString))
@@ -61,15 +45,32 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
+            if (order.HasValue)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<ChatMessageSearchResponseDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<ChatMessagesCollectionDto>();
+        }
+
+        public async Task<ApiResponseDto> CreateChatMessage(CreateChatMessageDto createChatMessageDto)
+        {
+            var request = await CreateRequest("chat-messages", Method.Post);
+            request.AddJsonBody(new List<CreateChatMessageDto> { createChatMessageDto });
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> CreateChatMessages(List<CreateChatMessageDto> createChatMessageDtos)
+        {
+            var request = await CreateRequest("chat-messages", Method.Post);
+            request.AddJsonBody(createChatMessageDtos);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
     }
 }

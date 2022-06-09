@@ -1,9 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Newtonsoft.Json;
+
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
@@ -12,34 +19,84 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
 
 [ApiController]
 [Authorize(Roles = "ServiceAccount")]
-public class ChatMessagesController : ControllerBase
+public class ChatMessagesController : ControllerBase, IChatMessagesApi
 {
-    private readonly ILogger<ChatMessagesController> logger;
     private readonly PortalDbContext context;
+    private readonly IMapper mapper;
 
     public ChatMessagesController(
-        ILogger<ChatMessagesController> logger,
-        PortalDbContext context)
+        PortalDbContext context,
+        IMapper mapper)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.context = context ?? throw new ArgumentNullException(nameof(context));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet]
     [Route("api/chat-messages/{chatMessageId}")]
     public async Task<IActionResult> GetChatMessage(Guid chatMessageId)
     {
+        var response = await ((IChatMessagesApi)this).GetChatMessage(chatMessageId);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto<ChatMessageDto>> IChatMessagesApi.GetChatMessage(Guid chatMessageId)
+    {
         var chatLog = await context.ChatLogs
             .Include(cl => cl.GameServerServer)
             .SingleOrDefaultAsync(cl => cl.ChatLogId == chatMessageId);
 
         if (chatLog == null)
-            return new NotFoundResult();
+            return new ApiResponseDto<ChatMessageDto>(HttpStatusCode.NotFound);
 
-        if (chatLog == null)
-            return NotFound();
+        var result = mapper.Map<ChatMessageDto>(chatLog);
 
-        return new OkObjectResult(chatLog.ToSearchEntryDto());
+        return new ApiResponseDto<ChatMessageDto>(HttpStatusCode.OK, result);
+    }
+
+    [HttpGet]
+    [Route("api/chat-messages/search")]
+    public async Task<IActionResult> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, int? skipEntries, int? takeEntries, ChatMessageOrder? order)
+    {
+        if (!skipEntries.HasValue)
+            skipEntries = 0;
+
+        if (!takeEntries.HasValue)
+            takeEntries = 20;
+
+        var response = await ((IChatMessagesApi)this).GetChatMessages(gameType, serverId, playerId, filterString, skipEntries.Value, takeEntries.Value, order);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto<ChatMessagesCollectionDto>> IChatMessagesApi.GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, int skipEntries, int takeEntries, ChatMessageOrder? order)
+    {
+        var query = context.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+        query = ApplyFilter(query, gameType, serverId, playerId, string.Empty);
+        var totalCount = await query.CountAsync();
+
+        query = ApplyFilter(query, gameType, serverId, playerId, filterString);
+        var filteredCount = await query.CountAsync();
+
+        query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+        var results = await query.ToListAsync();
+
+        var entries = results.Select(cm => mapper.Map<ChatMessageDto>(cm)).ToList();
+
+        var result = new ChatMessagesCollectionDto
+        {
+            TotalRecords = totalCount,
+            FilteredRecords = filteredCount,
+            Entries = entries
+        };
+
+        return new ApiResponseDto<ChatMessagesCollectionDto>(HttpStatusCode.OK, result);
+    }
+
+    Task<ApiResponseDto> IChatMessagesApi.CreateChatMessage(CreateChatMessageDto createChatMessageDto)
+    {
+        throw new NotImplementedException();
     }
 
     [HttpPost]
@@ -48,106 +105,66 @@ public class ChatMessagesController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
-        List<ChatMessageDto> chatMessageDtos;
+        List<CreateChatMessageDto>? createChatMessageDtos;
         try
         {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-            chatMessageDtos = JsonConvert.DeserializeObject<List<ChatMessageDto>>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+            createChatMessageDtos = JsonConvert.DeserializeObject<List<CreateChatMessageDto>>(requestBody);
         }
-        catch (Exception ex)
+        catch
         {
-            logger.LogError(ex, "Could not deserialize request body");
-            return new BadRequestResult();
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
         }
 
-        if (chatMessageDtos == null) return new BadRequestResult();
+        if (createChatMessageDtos == null || !createChatMessageDtos.Any())
+            return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
 
-        var chatLogs = chatMessageDtos.Select(chatMessageDto => new ChatLog()
-        {
-            PlayerPlayerId = chatMessageDto.PlayerId,
-            GameServerServerId = chatMessageDto.GameServerId,
-            Username = chatMessageDto.Username,
-            ChatType = chatMessageDto.Type.ToChatTypeInt(),
-            Message = chatMessageDto.Message,
-            Timestamp = chatMessageDto.Timestamp
-        });
+        var response = await ((IChatMessagesApi)this).CreateChatMessages(createChatMessageDtos);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto> IChatMessagesApi.CreateChatMessages(List<CreateChatMessageDto> createChatMessageDtos)
+    {
+        var chatLogs = createChatMessageDtos.Select(cm => mapper.Map<ChatLog>(cm)).ToList();
 
         await context.ChatLogs.AddRangeAsync(chatLogs);
         await context.SaveChangesAsync();
 
-        var result = chatLogs.Select(cl => cl.ToSearchEntryDto());
-
-        return new OkObjectResult(result);
+        return new ApiResponseDto(HttpStatusCode.OK);
     }
 
-    [HttpGet]
-    [Route("api/chat-messages/search")]
-    public async Task<IActionResult> SearchChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, ChatMessageOrder? order, string? filterString, int skipEntries, int takeEntries)
+    private IQueryable<ChatLog> ApplyFilter(IQueryable<ChatLog> query, GameType? gameType, Guid? serverId, Guid? playerId, string? filterString)
     {
-        if (gameType == null)
-            gameType = GameType.Unknown;
+        if (gameType.HasValue)
+            query = query.Where(cl => cl.GameServerServer.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
 
-        if (order == null)
-            order = ChatMessageOrder.TimestampDesc;
+        if (serverId.HasValue)
+            query = query.Where(cl => cl.GameServerServerId == serverId).AsQueryable();
 
-        if (filterString == null)
-            filterString = string.Empty;
-
-        var query = context.ChatLogs.AsQueryable();
-        query = ApplySearchFilter(query, (GameType)gameType, serverId, playerId, string.Empty);
-        var totalCount = await query.CountAsync();
-
-        query = ApplySearchFilter(query, (GameType)gameType, serverId, playerId, filterString);
-        var filteredCount = await query.CountAsync();
-
-        query = ApplySearchOrderAndLimits(query, (ChatMessageOrder)order, skipEntries, takeEntries);
-        var searchResults = await query.ToListAsync();
-
-        var entries = searchResults.Select(cl => cl.ToSearchEntryDto()).ToList();
-
-        var response = new ChatMessageSearchResponseDto
-        {
-            TotalRecords = totalCount,
-            FilteredRecords = filteredCount,
-            Entries = entries
-        };
-
-        return new OkObjectResult(response);
-    }
-
-    private IQueryable<ChatLog> ApplySearchFilter(IQueryable<ChatLog> chatLogs, GameType gameType, Guid? serverId, Guid? playerId, string filterString)
-    {
-        chatLogs = chatLogs.Include(cl => cl.GameServerServer).AsQueryable();
-
-        if (gameType != GameType.Unknown) chatLogs = chatLogs.Where(cl => cl.GameServerServer.GameType == gameType.ToGameTypeInt()).AsQueryable();
-
-        if (serverId != null) chatLogs = chatLogs.Where(cl => cl.GameServerServerId == serverId).AsQueryable();
-
-        if (playerId != null) chatLogs = chatLogs.Where(cl => cl.PlayerPlayerId == playerId).AsQueryable();
+        if (playerId.HasValue)
+            query = query.Where(cl => cl.PlayerPlayerId == playerId).AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filterString))
-            chatLogs = chatLogs.Where(m => m.Message.Contains(filterString)).AsQueryable();
+            query = query.Where(m => m.Message.Contains(filterString)).AsQueryable();
 
-        return chatLogs;
+        return query;
     }
 
-    private IQueryable<ChatLog> ApplySearchOrderAndLimits(IQueryable<ChatLog> chatLogs, ChatMessageOrder order, int skipEntries, int takeEntries)
+    private IQueryable<ChatLog> ApplyOrderAndLimits(IQueryable<ChatLog> query, int skipEntries, int takeEntries, ChatMessageOrder? order)
     {
         switch (order)
         {
             case ChatMessageOrder.TimestampAsc:
-                chatLogs = chatLogs.OrderBy(cl => cl.Timestamp).AsQueryable();
+                query = query.OrderBy(cl => cl.Timestamp).AsQueryable();
                 break;
             case ChatMessageOrder.TimestampDesc:
-                chatLogs = chatLogs.OrderByDescending(cl => cl.Timestamp).AsQueryable();
+                query = query.OrderByDescending(cl => cl.Timestamp).AsQueryable();
                 break;
         }
 
-        chatLogs = chatLogs.Skip(skipEntries).AsQueryable();
+        query = query.Skip(skipEntries).AsQueryable();
+        query = query.Take(takeEntries).AsQueryable();
 
-        if (takeEntries != 0) chatLogs = chatLogs.Take(takeEntries).AsQueryable();
-
-        return chatLogs;
+        return query;
     }
 }

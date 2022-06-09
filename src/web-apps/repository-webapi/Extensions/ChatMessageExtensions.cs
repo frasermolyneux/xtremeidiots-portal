@@ -5,9 +5,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Extensions
 {
     public static class ChatMessageExtensions
     {
-        public static ChatMessageSearchEntryDto ToSearchEntryDto(this ChatLog chatLog)
+        public static ChatMessageDto ToSearchEntryDto(this ChatLog chatLog)
         {
-            var dto = new ChatMessageSearchEntryDto
+            var dto = new ChatMessageDto
             {
                 ChatLogId = chatLog.ChatLogId,
                 Timestamp = chatLog.Timestamp,

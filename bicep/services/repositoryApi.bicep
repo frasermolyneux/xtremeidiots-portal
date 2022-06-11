@@ -269,7 +269,7 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
   properties: {
     title: webApp.name
     description: webApp.name
-    url: 'https://${webApp.properties.defaultHostName}/api/'
+    url: 'https://${webApp.properties.defaultHostName}/'
     protocol: 'http'
     properties: {}
 

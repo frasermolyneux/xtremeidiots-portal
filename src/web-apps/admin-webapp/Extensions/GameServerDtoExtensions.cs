@@ -1,4 +1,4 @@
-﻿using XtremeIdiots.Portal.AdminWebApp.Models;
+﻿using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Extensions

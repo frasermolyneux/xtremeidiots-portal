@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+using XtremeIdiots.Portal.AdminWebApp.Models;
+
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class GameServerDetailsViewModel
     {

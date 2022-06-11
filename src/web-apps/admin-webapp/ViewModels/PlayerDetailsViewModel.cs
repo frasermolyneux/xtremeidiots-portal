@@ -1,8 +1,9 @@
 ﻿using FM.GeoLocation.Contract.Models;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class PlayerDetailsViewModel
     {

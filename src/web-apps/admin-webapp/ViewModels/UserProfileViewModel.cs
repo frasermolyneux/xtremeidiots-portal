@@ -1,6 +1,6 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class UserProfileViewModel
     {

@@ -1,7 +1,7 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class ServerAdminGameServerViewModel
     {

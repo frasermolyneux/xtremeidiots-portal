@@ -1,8 +1,9 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+﻿using XtremeIdiots.Portal.AdminWebApp.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class ServersGameServerViewModel
     {

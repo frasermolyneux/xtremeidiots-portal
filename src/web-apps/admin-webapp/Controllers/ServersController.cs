@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Models;
+using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;

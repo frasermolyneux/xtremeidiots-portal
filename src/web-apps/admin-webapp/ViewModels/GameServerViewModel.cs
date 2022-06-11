@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class GameServerViewModel
     {

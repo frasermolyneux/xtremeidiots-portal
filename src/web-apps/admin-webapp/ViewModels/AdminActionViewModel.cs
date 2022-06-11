@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
-namespace XtremeIdiots.Portal.AdminWebApp.Models
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class AdminActionViewModel
     {
@@ -17,7 +17,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Models
         [MinLength(3, ErrorMessage = "You must enter a reason for the admin action")]
         public string Text { get; set; } = string.Empty;
 
-        public string AdminId { get; set; } = string.Empty;
+        public string? AdminId { get; set; }
+
         public DateTime? Expires { get; set; }
 
         public PlayerDto? PlayerDto { get; set; }

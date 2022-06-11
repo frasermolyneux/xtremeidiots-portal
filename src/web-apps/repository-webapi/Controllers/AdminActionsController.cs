@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json;
 
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -13,20 +19,29 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class AdminActionsController : Controller
+    public class AdminActionsController : Controller, IAdminActionsApi
     {
-        private readonly ILogger<AdminActionsController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
-        public AdminActionsController(ILogger<AdminActionsController> logger, PortalDbContext context)
+        public AdminActionsController(
+            PortalDbContext context,
+            IMapper mapper)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         [Route("api/admin-actions/{adminActionId}")]
         public async Task<IActionResult> GetAdminAction(Guid adminActionId)
+        {
+            var response = await ((IAdminActionsApi)this).GetAdminAction(adminActionId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<AdminActionDto>> IAdminActionsApi.GetAdminAction(Guid adminActionId)
         {
             var adminAction = await context.AdminActions
                 .Include(aa => aa.PlayerPlayer)
@@ -34,24 +49,168 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
             if (adminAction == null)
-                return NotFound();
+                return new ApiResponseDto<AdminActionDto>(HttpStatusCode.NotFound);
 
-            return new OkObjectResult(adminAction.ToDto());
+            var result = mapper.Map<AdminActionDto>(adminAction);
+
+            return new ApiResponseDto<AdminActionDto>(HttpStatusCode.OK, result);
         }
 
         [HttpGet]
         [Route("api/admin-actions")]
-        public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
+        public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int? skipEntries, int? takeEntries, AdminActionOrder? order)
         {
-            if (order == null)
-                order = AdminActionOrder.CreatedDesc;
+            if (!skipEntries.HasValue)
+                skipEntries = 0;
 
+            if (!takeEntries.HasValue)
+                takeEntries = 20;
+
+            var response = await ((IAdminActionsApi)this).GetAdminActions(gameType, playerId, adminId, filter, skipEntries.Value, takeEntries.Value, order);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<AdminActionCollectionDto>> IAdminActionsApi.GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
+        {
             var query = context.AdminActions.Include(aa => aa.PlayerPlayer).Include(aa => aa.UserProfile).AsQueryable();
+            query = ApplyFilter(query, gameType, null, null, null);
+            var totalCount = await query.CountAsync();
 
-            if (gameType != null)
+            query = ApplyFilter(query, gameType, playerId, adminId, filter);
+            var filteredCount = await query.CountAsync();
+
+            query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+            var results = await query.ToListAsync();
+
+            var entries = results.Select(m => mapper.Map<AdminActionDto>(m)).ToList();
+
+            var result = new AdminActionCollectionDto
+            {
+                TotalRecords = totalCount,
+                FilteredRecords = filteredCount,
+                Entries = entries
+            };
+
+            return new ApiResponseDto<AdminActionCollectionDto>(HttpStatusCode.OK, result);
+        }
+
+        [HttpPost]
+        [Route("api/admin-actions")]
+        public async Task<IActionResult> CreateAdminAction()
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            CreateAdminActionDto? createAdminActionDto;
+            try
+            {
+                createAdminActionDto = JsonConvert.DeserializeObject<CreateAdminActionDto>(requestBody);
+            }
+            catch
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (createAdminActionDto == null)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
+
+            var response = await ((IAdminActionsApi)this).CreateAdminAction(createAdminActionDto);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IAdminActionsApi.CreateAdminAction(CreateAdminActionDto createAdminActionDto)
+        {
+            var adminAction = mapper.Map<AdminAction>(createAdminActionDto);
+
+            if (!string.IsNullOrWhiteSpace(createAdminActionDto.AdminId))
+                adminAction.UserProfile = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == createAdminActionDto.AdminId);
+
+            adminAction.Created = DateTime.UtcNow;
+
+            context.AdminActions.Add(adminAction);
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        [HttpPatch]
+        [Route("api/admin-actions/{adminActionId}")]
+        public async Task<IActionResult> UpdateAdminAction(Guid adminActionId)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            EditAdminActionDto? editAdminActionDto;
+            try
+            {
+                editAdminActionDto = JsonConvert.DeserializeObject<EditAdminActionDto>(requestBody);
+            }
+            catch
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (editAdminActionDto == null)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
+
+            if (editAdminActionDto.AdminActionId != adminActionId)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
+
+            var response = await ((IAdminActionsApi)this).UpdateAdminAction(editAdminActionDto);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IAdminActionsApi.UpdateAdminAction(EditAdminActionDto editAdminActionDto)
+        {
+            var adminAction = await context.AdminActions
+                .Include(aa => aa.UserProfile)
+                .SingleOrDefaultAsync(aa => aa.AdminActionId == editAdminActionDto.AdminActionId);
+
+            if (adminAction == null)
+                return new ApiResponseDto(HttpStatusCode.NotFound);
+
+            mapper.Map(editAdminActionDto, adminAction);
+
+            if (!string.IsNullOrWhiteSpace(editAdminActionDto.AdminId) && editAdminActionDto.AdminId != adminAction.UserProfile.XtremeIdiotsForumId)
+                adminAction.UserProfile = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == editAdminActionDto.AdminId);
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+
+        [HttpDelete]
+        [Route("api/admin-actions/{adminActionId}")]
+        public async Task<IActionResult> DeleteAdminAction(Guid adminActionId)
+        {
+            var response = await ((IAdminActionsApi)this).DeleteAdminAction(adminActionId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IAdminActionsApi.DeleteAdminAction(Guid adminActionId)
+        {
+            var adminAction = await context.AdminActions
+                .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
+
+            if (adminAction == null)
+                return new ApiResponseDto(HttpStatusCode.NotFound);
+
+            context.Remove(adminAction);
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        private IQueryable<AdminAction> ApplyFilter(IQueryable<AdminAction> query, GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter)
+        {
+            if (gameType.HasValue)
                 query = query.Where(aa => aa.PlayerPlayer.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
 
-            if (playerId != null)
+            if (playerId.HasValue)
                 query = query.Where(aa => aa.PlayerPlayerId == playerId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(adminId))
@@ -67,6 +226,11 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                     break;
             }
 
+            return query;
+        }
+
+        private IQueryable<AdminAction> ApplyOrderAndLimits(IQueryable<AdminAction> query, int skipEntries, int takeEntries, AdminActionOrder? order)
+        {
             switch (order)
             {
                 case AdminActionOrder.CreatedAsc:
@@ -78,148 +242,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             query = query.Skip(skipEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
-            if (takeEntries != 0) query = query.Take(takeEntries).AsQueryable();
-
-            var results = await query.ToListAsync();
-
-            var result = results.Select(adminAction => adminAction.ToDto());
-
-            return new OkObjectResult(result);
-        }
-
-        [HttpDelete]
-        [Route("api/admin-actions/{adminActionId}")]
-        public async Task<IActionResult> DeleteAdminAction(Guid adminActionId)
-        {
-            var adminAction = await context.AdminActions
-                .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
-
-            if (adminAction == null)
-                return NotFound();
-
-            context.Remove(adminAction);
-            await context.SaveChangesAsync();
-
-            return new OkResult();
-        }
-
-        [HttpGet]
-        [Route("api/players/{playerId}/admin-actions")]
-        public async Task<IActionResult> GetAdminActionsForPlayer(Guid playerId)
-        {
-            var results = await context.AdminActions
-                .Include(aa => aa.PlayerPlayer)
-                .Include(aa => aa.UserProfile)
-                .Where(aa => aa.PlayerPlayerId == playerId)
-                .OrderByDescending(aa => aa.Created)
-                .ToListAsync();
-
-            var result = results.Select(adminAction => adminAction.ToDto());
-
-            return new OkObjectResult(result);
-        }
-
-        [HttpPost]
-        [Route("api/players/{playerId}/admin-actions")]
-        public async Task<IActionResult> CreateAdminActionForPlayer(Guid playerId)
-        {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            AdminActionDto adminActionDto;
-            try
-            {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (adminActionDto == null) return new BadRequestResult();
-            if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
-
-            var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == adminActionDto.PlayerId);
-
-            UserProfile admin = null;
-            if (!string.IsNullOrWhiteSpace(adminActionDto.AdminId))
-            {
-                admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
-            }
-
-            var adminAction = new AdminAction
-            {
-                PlayerPlayer = player,
-                UserProfile = admin,
-                Type = adminActionDto.Type.ToAdminActionTypeInt(),
-                Text = adminActionDto.Text,
-                Created = DateTime.UtcNow,
-                Expires = adminActionDto.Expires,
-                ForumTopicId = adminActionDto.ForumTopicId
-            };
-
-            context.AdminActions.Add(adminAction);
-            await context.SaveChangesAsync();
-
-            return new OkObjectResult(adminActionDto);
-        }
-
-        [HttpPatch]
-        [Route("api/players/{playerId}/admin-actions/{adminActionId}")]
-        public async Task<IActionResult> UpdateAdminActionForPlayer(Guid playerId, Guid adminActionId)
-        {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            AdminActionDto adminActionDto;
-            try
-            {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                adminActionDto = JsonConvert.DeserializeObject<AdminActionDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (adminActionDto == null) return new BadRequestResult();
-            if (adminActionDto.PlayerId != playerId) return new BadRequestResult();
-
-            var adminAction = await context.AdminActions
-                .Include(aa => aa.UserProfile)
-                .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
-
-            if (adminAction == null)
-                throw new NullReferenceException(nameof(adminAction));
-
-            adminAction.Text = adminActionDto.Text;
-            adminAction.Expires = adminActionDto.Expires;
-
-            if (adminAction.UserProfile.XtremeIdiotsForumId != adminActionDto.AdminId)
-            {
-                if (string.IsNullOrWhiteSpace(adminActionDto.AdminId))
-                    adminAction.UserProfile = null;
-                else
-                {
-                    var admin = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == adminActionDto.AdminId);
-
-                    if (admin == null)
-                        throw new NullReferenceException(nameof(admin));
-
-                    adminAction.UserProfile = admin;
-                }
-            }
-
-            if (adminActionDto.ForumTopicId != 0)
-                adminAction.ForumTopicId = adminActionDto.ForumTopicId;
-
-            await context.SaveChangesAsync();
-
-            return new OkObjectResult(adminActionDto);
+            return query;
         }
     }
 }

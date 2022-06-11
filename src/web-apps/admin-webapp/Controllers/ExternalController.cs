@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -24,10 +25,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions()
         {
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
 
             var results = new List<dynamic>();
-            foreach (var adminActionDto in adminActionDtos)
+            foreach (var adminActionDto in adminActionsApiResponse.Result.Entries)
             {
                 string actionText;
                 if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))

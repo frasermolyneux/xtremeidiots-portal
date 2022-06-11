@@ -1,6 +1,8 @@
 ﻿using Azure.Storage.Blobs;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Configuration;
@@ -43,14 +45,14 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, 0, 0, AdminActionOrder.CreatedAsc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, 0, 500, AdminActionOrder.CreatedAsc);
 
             var externalBansStream = await GetExternalBanFileForGame(gameType);
             externalBansStream.Seek(externalBansStream.Length, SeekOrigin.Begin);
 
             await using (var streamWriter = new StreamWriter(externalBansStream))
             {
-                foreach (var adminActionDto in adminActions)
+                foreach (var adminActionDto in adminActionsApiResponse.Result.Entries)
                     streamWriter.WriteLine($"{adminActionDto.Guid} [BANSYNC]-{adminActionDto.Username}");
 
                 streamWriter.Flush();

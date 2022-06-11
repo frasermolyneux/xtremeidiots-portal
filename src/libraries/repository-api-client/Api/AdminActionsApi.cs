@@ -1,15 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using RestSharp;
-
-using System.Net;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -19,91 +17,67 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
+        public async Task<ApiResponseDto<AdminActionDto>> GetAdminAction(Guid adminActionId)
+        {
+            var request = await CreateRequest($"admin-actions/{adminActionId}", Method.Get);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<AdminActionDto>();
+        }
+
+        public async Task<ApiResponseDto<AdminActionCollectionDto>> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
             var request = await CreateRequest($"admin-actions", Method.Get);
 
-            if (gameType != null)
+            if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
-            if (playerId != null)
+            if (playerId.HasValue)
                 request.AddQueryParameter("playerId", playerId.ToString());
 
             if (!string.IsNullOrWhiteSpace(adminId))
                 request.AddQueryParameter("adminId", adminId);
 
-            if (filter != null)
+            if (filter.HasValue)
                 request.AddQueryParameter("filter", filter.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (order != null)
+            if (order.HasValue)
                 request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<AdminActionDto>>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<AdminActionCollectionDto>();
         }
 
-        public async Task<AdminActionDto?> GetAdminAction(Guid adminActionId)
+        public async Task<ApiResponseDto> CreateAdminAction(CreateAdminActionDto createAdminActionDto)
         {
-            var request = await CreateRequest($"admin-actions/{adminActionId}", Method.Get);
+            var request = await CreateRequest($"admin-actions", Method.Post);
+            request.AddJsonBody(createAdminActionDto);
+
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
 
-        public async Task DeleteAdminAction(Guid adminActionId)
+        public async Task<ApiResponseDto> UpdateAdminAction(EditAdminActionDto editAdminActionDto)
+        {
+            var request = await CreateRequest($"admin-actions/{editAdminActionDto.AdminActionId}", Method.Patch);
+            request.AddJsonBody(editAdminActionDto);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> DeleteAdminAction(Guid adminActionId)
         {
             var request = await CreateRequest($"admin-actions/{adminActionId}", Method.Delete);
-            await ExecuteAsync(request);
-        }
-
-        public async Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId)
-        {
-            var request = await CreateRequest($"players/{playerId}/admin-actions", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<AdminActionDto>>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction)
-        {
-            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions", Method.Post);
-            request.AddJsonBody(adminAction);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction)
-        {
-            var request = await CreateRequest($"players/{adminAction.PlayerId}/admin-actions/{adminAction.AdminActionId}", Method.Patch);
-            request.AddJsonBody(adminAction);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<AdminActionDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
         }
     }
 }

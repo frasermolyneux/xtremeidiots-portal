@@ -587,6 +587,16 @@
                         "description": "null"
                     }
                 }
+            },
+            "post": {
+                "summary": "admin-actions",
+                "description": "admin-actions",
+                "operationId": "post-admin-actions",
+                "responses": {
+                    "200": {
+                        "description": "null"
+                    }
+                }
             }
         },
         "/admin-actions/{admin-action-id}": {
@@ -610,10 +620,10 @@
                     }
                 }
             },
-            "delete": {
+            "patch": {
                 "summary": "admin-actions/{admin-action-id}",
                 "description": "admin-actions/{admin-action-id}",
-                "operationId": "delete-admin-actions-admin-action-id",
+                "operationId": "patch-admin-actions-admin-action-id",
                 "parameters": [
                     {
                         "name": "admin-action-id",
@@ -629,64 +639,12 @@
                         "description": "null"
                     }
                 }
-            }
-        },
-        "/players/{player-id}/admin-actions": {
-            "get": {
-                "summary": "players/{player-id}/admin-actions",
-                "description": "players/{player-id}/admin-actions",
-                "operationId": "get-players-player-id-admin-actions",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
             },
-            "post": {
-                "summary": "players/{player-id}/admin-actions",
-                "description": "players/{player-id}/admin-actions",
-                "operationId": "post-players-player-id-admin-actions",
+            "delete": {
+                "summary": "admin-actions/{admin-action-id}",
+                "description": "admin-actions/{admin-action-id}",
+                "operationId": "delete-admin-actions-admin-action-id",
                 "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players/{player-id}/admin-actions/{admin-action-id}": {
-            "patch": {
-                "summary": "players/{player-id}/admin-actions/{admin-action-id}",
-                "description": "players/{player-id}/admin-actions/{admin-action-id}",
-                "operationId": "patch-players-player-id-admin-actions-admin-action-id",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
                     {
                         "name": "admin-action-id",
                         "in": "path",

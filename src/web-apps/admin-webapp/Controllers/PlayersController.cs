@@ -109,12 +109,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (id == null) return NotFound();
 
             var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer((Guid)id);
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActionsForPlayer((Guid)id);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, (Guid)id, null, null, 0, 50, AdminActionOrder.CreatedDesc);
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
                 Player = playerDtoApiResponse.Result,
-                AdminActions = adminActions
+                AdminActions = adminActionsApiResponse.Result.Entries
             };
 
             if (!string.IsNullOrWhiteSpace(playerDtoApiResponse.Result.IpAddress))
@@ -136,17 +136,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> MyActions()
         {
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 0, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 50, AdminActionOrder.CreatedDesc);
 
-            return View(adminActions);
+            return View(adminActionsApiResponse.Result.Entries);
         }
 
         [HttpGet]
         public async Task<IActionResult> Unclaimed()
         {
-            var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 0, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 50, AdminActionOrder.CreatedDesc);
 
-            return View(adminActions);
+            return View(adminActionsApiResponse.Result.Entries);
         }
 
         [HttpGet]

@@ -1,15 +1,18 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IAdminActionsApi
     {
-        Task<AdminActionDto?> GetAdminAction(Guid adminActionId);
-        Task<List<AdminActionDto>?> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order);
-        Task DeleteAdminAction(Guid adminActionId);
-        Task<List<AdminActionDto>?> GetAdminActionsForPlayer(Guid playerId);
-        Task<AdminActionDto?> CreateAdminActionForPlayer(AdminActionDto adminAction);
-        Task<AdminActionDto?> UpdateAdminActionForPlayer(AdminActionDto adminAction);
+        Task<ApiResponseDto<AdminActionDto>> GetAdminAction(Guid adminActionId);
+        Task<ApiResponseDto<AdminActionCollectionDto>> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order);
+
+        Task<ApiResponseDto> CreateAdminAction(CreateAdminActionDto createAdminActionDto);
+
+        Task<ApiResponseDto> UpdateAdminAction(EditAdminActionDto editAdminActionDto);
+
+        Task<ApiResponseDto> DeleteAdminAction(Guid adminActionId);
     }
 }

@@ -61,43 +61,23 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                     if (playerDtoApiResponse == null)
                         throw new Exception("Newly created player could not be retrieved from database");
 
-                    var adminActionDto = new AdminActionDto
-                    {
-                        Type = AdminActionType.Ban
-                    };
+                    var createAdminActionDto = new CreateAdminActionDto(playerDtoApiResponse.Result.Id, AdminActionType.Ban, "Imported from server");
+                    createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(createAdminActionDto.Type, playerDtoApiResponse.Result.GameType, playerDtoApiResponse.Result.Id, playerDtoApiResponse.Result.Username, DateTime.UtcNow, createAdminActionDto.Text, createAdminActionDto.AdminId);
 
-                    adminActionDto.PlayerId = playerDtoApiResponse.Result.Id;
-                    adminActionDto.GameType = playerDtoApiResponse.Result.GameType;
-                    adminActionDto.Username = playerDtoApiResponse.Result.Username;
-                    adminActionDto.Guid = playerDtoApiResponse.Result.Guid;
-
-                    adminActionDto.Text = "Imported from server";
-                    adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
-
-                    await repositoryApiClient.AdminActions.CreateAdminActionForPlayer(adminActionDto);
+                    await repositoryApiClient.AdminActions.CreateAdminAction(createAdminActionDto);
                 }
                 else
                 {
-                    var adminActions = await repositoryApiClient.AdminActions.GetAdminActions(null, playerDtoApiResponse.Result.Id, null, AdminActionFilter.ActiveBans, 0, 0, null);
+                    var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, playerDtoApiResponse.Result.Id, null, AdminActionFilter.ActiveBans, 0, 500, null);
 
-                    if (adminActions?.Count(aa => aa.Type == AdminActionType.Ban) == 0)
+                    if (adminActionsApiResponse.Result.Entries?.Count(aa => aa.Type == AdminActionType.Ban) == 0)
                     {
                         _logger.LogInformation($"BanFileImport - adding import ban to existing player {playerDtoApiResponse.Result.Username} - {playerDtoApiResponse.Result.Guid} ({playerDtoApiResponse.Result.GameType})");
 
-                        var adminActionDto = new AdminActionDto
-                        {
-                            Type = AdminActionType.Ban
-                        };
+                        var createAdminActionDto = new CreateAdminActionDto(playerDtoApiResponse.Result.Id, AdminActionType.Ban, "Imported from server");
+                        createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(createAdminActionDto.Type, playerDtoApiResponse.Result.GameType, playerDtoApiResponse.Result.Id, playerDtoApiResponse.Result.Username, DateTime.UtcNow, createAdminActionDto.Text, createAdminActionDto.AdminId);
 
-                        adminActionDto.PlayerId = playerDtoApiResponse.Result.Id;
-                        adminActionDto.GameType = playerDtoApiResponse.Result.GameType;
-                        adminActionDto.Username = playerDtoApiResponse.Result.Username;
-                        adminActionDto.Guid = playerDtoApiResponse.Result.Guid;
-
-                        adminActionDto.Text = "Imported from server";
-                        adminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionDto);
-
-                        await repositoryApiClient.AdminActions.CreateAdminActionForPlayer(adminActionDto);
+                        await repositoryApiClient.AdminActions.CreateAdminAction(createAdminActionDto);
                     }
                 }
 

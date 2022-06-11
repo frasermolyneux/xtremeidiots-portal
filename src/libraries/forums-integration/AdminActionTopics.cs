@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+
 using System.Globalization;
+
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
 using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 
 namespace XtremeIdiots.Portal.ForumsIntegration
 {
@@ -18,35 +19,35 @@ namespace XtremeIdiots.Portal.ForumsIntegration
             _invisionClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
         }
 
-        public async Task<int> CreateTopicForAdminAction(AdminActionDto model)
+        public async Task<int> CreateTopicForAdminAction(AdminActionType type, GameType gameType, Guid playerId, string username, DateTime created, string text, string? adminId)
         {
             try
             {
                 var userId = 21145; // Admin
-                if (model.AdminId != null)
-                    userId = Convert.ToInt32(model.AdminId);
+
+                if (adminId != null)
+                    userId = Convert.ToInt32(adminId);
 
                 var forumId = 28;
-                switch (model.Type)
+                switch (type)
                 {
                     case AdminActionType.Observation:
-                        forumId = model.GameType.ForumIdForObservations();
+                        forumId = gameType.ForumIdForObservations();
                         break;
                     case AdminActionType.Warning:
-                        forumId = model.GameType.ForumIdForWarnings();
+                        forumId = gameType.ForumIdForWarnings();
                         break;
                     case AdminActionType.Kick:
-                        forumId = model.GameType.ForumIdForKicks();
+                        forumId = gameType.ForumIdForKicks();
                         break;
                     case AdminActionType.TempBan:
-                        forumId = model.GameType.ForumIdForTempBans();
+                        forumId = gameType.ForumIdForTempBans();
                         break;
                     case AdminActionType.Ban:
-                        forumId = model.GameType.ForumIdForBans();
+                        forumId = gameType.ForumIdForBans();
                         break;
                 }
-
-                var postTopicResult = await _invisionClient.Forums.PostTopic(forumId, userId, $"{model.Username} - {model.Type}", PostContent(model), model.Type.ToString());
+                var postTopicResult = await _invisionClient.Forums.PostTopic(forumId, userId, $"{username} - {type}", PostContent(type, playerId, username, created, text), type.ToString());
                 return postTopicResult.TopicId;
             }
             catch (Exception ex)
@@ -56,27 +57,28 @@ namespace XtremeIdiots.Portal.ForumsIntegration
             }
         }
 
-        public async Task UpdateTopicForAdminAction(AdminActionDto model)
+        public async Task UpdateTopicForAdminAction(int topicId, AdminActionType type, GameType gameType, Guid playerId, string username, DateTime created, string text, string? adminId)
         {
-            if (model.ForumTopicId == 0)
+            if (topicId == 0)
                 return;
 
             var userId = 21145; // Admin
-            if (model.AdminId != null)
-                userId = Convert.ToInt32(model.AdminId);
 
-            await _invisionClient.Forums.UpdateTopic(model.ForumTopicId, userId, PostContent(model));
+            if (adminId != null)
+                userId = Convert.ToInt32(adminId);
+
+            await _invisionClient.Forums.UpdateTopic(topicId, userId, PostContent(type, playerId, username, created, text));
         }
 
-        private string PostContent(AdminActionDto model)
+        private string PostContent(AdminActionType type, Guid playerId, string username, DateTime created, string text)
         {
             return "<p>" +
-                   $"   Username: {model.Username}<br>" +
-                   $"   Player Link: <a href=\"https://portal.xtremeidiots.com/Players/Details/{model.PlayerId}\">Portal</a><br>" +
-                   $"   {model.Type} Created: {model.Created.ToString(CultureInfo.InvariantCulture)}" +
+                   $"   Username: {username}<br>" +
+                   $"   Player Link: <a href=\"https://portal.xtremeidiots.com/Players/Details/{playerId}\">Portal</a><br>" +
+                   $"   {type} Created: {created.ToString(CultureInfo.InvariantCulture)}" +
                    "</p>" +
                    "<p>" +
-                   $"   {model.Text}" +
+                   $"   {text}" +
                    "</p>" +
                    "<p>" +
                    "   <small>Do not edit this post directly as it will be overwritten by the Portal. Add comments on posts below or edit the record in the Portal.</small>" +

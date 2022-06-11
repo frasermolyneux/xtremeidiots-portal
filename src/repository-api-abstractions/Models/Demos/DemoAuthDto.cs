@@ -5,15 +5,15 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
     public class DemoAuthDto
     {
         [JsonProperty]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string AuthKey { get; set; } = string.Empty;
+        public string AuthKey { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; internal set; }
 
         [JsonProperty]
-        public DateTime LastActivity { get; set; }
+        public DateTime LastActivity { get; internal set; }
     }
 }

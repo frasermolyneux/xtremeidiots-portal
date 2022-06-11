@@ -5,18 +5,18 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
     public class GameServerEventDto
     {
         [JsonProperty]
-        public Guid Id { get; set; }
+        public Guid Id { get; internal set; }
 
         [JsonProperty]
-        public Guid GameServerId { get; set; }
+        public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
-        public DateTime Timestamp { get; set; }
+        public DateTime Timestamp { get; internal set; }
 
         [JsonProperty]
-        public string EventType { get; set; } = string.Empty;
+        public string EventType { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string EventData { get; set; } = string.Empty;
+        public string EventData { get; internal set; } = string.Empty;
     }
 }

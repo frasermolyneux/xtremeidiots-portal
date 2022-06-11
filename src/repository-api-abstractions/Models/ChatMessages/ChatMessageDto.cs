@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
@@ -7,32 +9,32 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
     public class ChatMessageDto
     {
         [JsonProperty]
-        public Guid ChatLogId { get; set; }
+        public Guid ChatLogId { get; internal set; }
 
         [JsonProperty]
-        public Guid PlayerId { get; set; }
+        public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
-        public Guid ServerId { get; set; }
+        public Guid ServerId { get; internal set; }
 
         [JsonProperty]
-        public string ServerName { get; set; } = string.Empty;
-
-        [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; set; }
-
-        [JsonProperty]
-        public DateTime Timestamp { get; set; }
-
-        [JsonProperty]
-        public string Username { get; set; } = string.Empty;
+        public string ServerName { get; internal set; } = string.Empty;
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public ChatType ChatType { get; set; }
+        public GameType GameType { get; internal set; }
 
         [JsonProperty]
-        public string Message { get; set; } = string.Empty;
+        public DateTime Timestamp { get; internal set; }
+
+        [JsonProperty]
+        public string Username { get; internal set; } = string.Empty;
+
+        [JsonProperty]
+        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
+        public ChatType ChatType { get; internal set; }
+
+        [JsonProperty]
+        public string Message { get; internal set; } = string.Empty;
     }
 }

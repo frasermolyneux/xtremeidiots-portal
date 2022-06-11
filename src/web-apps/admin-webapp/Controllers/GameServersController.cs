@@ -157,17 +157,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerFtp);
 
             if (!canEditGameServerFtp.Succeeded)
-            {
-                gameServerApiResponse.Result.FtpHostname = string.Empty;
-                gameServerApiResponse.Result.FtpPort = 21;
-                gameServerApiResponse.Result.FtpUsername = string.Empty;
-                gameServerApiResponse.Result.FtpPassword = string.Empty;
-            }
+                gameServerApiResponse.Result.ClearFtpCredentials();
 
             var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerRcon);
 
             if (!canEditGameServerRcon.Succeeded)
-                gameServerApiResponse.Result.RconPassword = string.Empty;
+                gameServerApiResponse.Result.ClearRconCredentials();
 
             return View(gameServerApiResponse.Result.ToViewModel());
         }

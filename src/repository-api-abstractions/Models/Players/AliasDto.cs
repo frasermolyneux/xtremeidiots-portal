@@ -5,12 +5,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     public class AliasDto
     {
         [JsonProperty]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime Added { get; set; }
+        public DateTime Added { get; internal set; }
 
         [JsonProperty]
-        public DateTime LastUsed { get; set; }
+        public DateTime LastUsed { get; internal set; }
     }
 }

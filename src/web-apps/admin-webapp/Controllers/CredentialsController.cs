@@ -34,16 +34,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewFtpCredential);
 
                 if (!canViewFtpCredential.Succeeded)
-                {
-                    gameServerDto.FtpHostname = string.Empty;
-                    gameServerDto.FtpUsername = string.Empty;
-                    gameServerDto.FtpPassword = string.Empty;
-                }
+                    gameServerDto.ClearFtpCredentials();
 
                 var canViewRconCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewRconCredential);
 
                 if (!canViewRconCredential.Succeeded)
-                    gameServerDto.RconPassword = string.Empty;
+                    gameServerDto.ClearRconCredentials();
             }
 
             return View(gameServersApiResponse.Result.Entries);

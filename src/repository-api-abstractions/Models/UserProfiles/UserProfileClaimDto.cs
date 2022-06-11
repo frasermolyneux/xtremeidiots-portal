@@ -8,17 +8,15 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
         public Guid Id { get; set; }
 
         [JsonProperty]
-        public Guid UserProfileId { get; set; }
+        public Guid UserProfileId { get; internal set; }
 
         [JsonProperty]
-        public bool SystemGenerated { get; set; }
+        public bool SystemGenerated { get; internal set; }
 
         [JsonProperty]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-        public string ClaimType { get; set; }
+        public string ClaimType { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string ClaimValue { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string ClaimValue { get; internal set; } = string.Empty;
     }
 }

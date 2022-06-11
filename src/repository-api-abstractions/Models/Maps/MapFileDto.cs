@@ -4,10 +4,16 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps
 {
     public class MapFileDto
     {
-        [JsonProperty]
-        public string FileName { get; set; } = string.Empty;
+        public MapFileDto(string fileName, string url)
+        {
+            FileName = fileName;
+            Url = url;
+        }
 
         [JsonProperty]
-        public string Url { get; set; } = string.Empty;
+        public string FileName { get; set; }
+
+        [JsonProperty]
+        public string Url { get; set; }
     }
 }

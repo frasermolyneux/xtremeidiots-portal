@@ -63,11 +63,8 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var mapDtoToCreate = new CreateMapDto(game.Key, mapRedirectEntry.MapName)
                         {
-                            MapFiles = mapRedirectEntry.MapFiles.Where(mf => mf.EndsWith(".iwd") || mf.EndsWith(".ff")).Select(mf => new MapFileDto
-                            {
-                                FileName = mf,
-                                Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapRedirectEntry.MapName}/{mf}"
-                            }).ToList()
+                            MapFiles = mapRedirectEntry.MapFiles.Where(mf => mf.EndsWith(".iwd") || mf.EndsWith(".ff")).Select(mf =>
+                                new MapFileDto(mf, $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapRedirectEntry.MapName}/{mf}")).ToList()
                         };
 
                         mapDtosToCreate.Add(mapDtoToCreate);
@@ -80,11 +77,8 @@ namespace XtremeIdiots.Portal.SyncFunc
                         {
                             mapDtosToUpdate.Add(new EditMapDto(mapApiResponse.Result.MapId)
                             {
-                                MapFiles = mapFiles.Select(mf => new MapFileDto
-                                {
-                                    FileName = mf,
-                                    Url = $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapApiResponse.Result.MapName}/{mf}"
-                                }).ToList()
+                                MapFiles = mapFiles.Select(mf =>
+                                    new MapFileDto(mf, $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapRedirectEntry.MapName}/{mf}")).ToList()
                             });
                         }
                     }

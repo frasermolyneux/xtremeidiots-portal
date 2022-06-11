@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
@@ -7,22 +9,22 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
     public class BanFileMonitorDto
     {
         [JsonProperty]
-        public Guid BanFileMonitorId { get; set; }
+        public Guid BanFileMonitorId { get; internal set; }
 
         [JsonProperty]
-        public string FilePath { get; set; } = string.Empty;
+        public string FilePath { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public long RemoteFileSize { get; set; }
+        public long RemoteFileSize { get; internal set; }
 
         [JsonProperty]
-        public DateTime LastSync { get; set; }
+        public DateTime LastSync { get; internal set; }
 
         [JsonProperty]
-        public Guid ServerId { get; set; }
+        public Guid ServerId { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; set; }
+        public GameType GameType { get; internal set; }
     }
 }

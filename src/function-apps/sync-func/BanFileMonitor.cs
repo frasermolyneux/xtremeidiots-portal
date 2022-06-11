@@ -132,8 +132,6 @@ namespace XtremeIdiots.Portal.SyncFunc
                             gameServerApiResponse.Result.FtpPassword,
                             banFileStream);
 
-                        banFileMonitorDto.RemoteFileSize = banFileSize;
-
                         var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, banFileSize);
                         await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                     }

@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
@@ -7,43 +9,43 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
     public class DemoDto
     {
         [JsonProperty]
-        public Guid DemoId { get; set; }
+        public Guid DemoId { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType Game { get; set; }
+        public GameType Game { get; internal set; }
 
         [JsonProperty]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string FileName { get; set; } = string.Empty;
+        public string FileName { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime? Date { get; set; }
+        public DateTime? Date { get; internal set; }
 
         [JsonProperty]
-        public string Map { get; set; } = string.Empty;
+        public string Map { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string Mod { get; set; } = string.Empty;
+        public string Mod { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string GameType { get; set; } = string.Empty;
+        public string GameType { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string Server { get; set; } = string.Empty;
+        public string Server { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public long Size { get; set; }
+        public long Size { get; internal set; }
 
         [JsonProperty]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string UploadedBy { get; set; } = string.Empty;
+        public string UploadedBy { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string DemoFileUri { get; set; } = string.Empty;
+        public string DemoFileUri { get; internal set; } = string.Empty;
     }
 }

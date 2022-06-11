@@ -9,41 +9,41 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
     public class AdminActionDto
     {
         [JsonProperty]
-        public Guid AdminActionId { get; set; }
+        public Guid AdminActionId { get; internal set; }
 
         [JsonProperty]
-        public Guid PlayerId { get; set; }
-
-        [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; set; }
-
-        [JsonProperty]
-        public string Username { get; set; } = string.Empty;
-
-        [JsonProperty]
-        public string Guid { get; set; } = string.Empty;
+        public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public AdminActionType Type { get; set; }
+        public GameType GameType { get; internal set; }
 
         [JsonProperty]
-        public string Text { get; set; } = string.Empty;
+        public string Username { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime? Expires { get; set; }
+        public string Guid { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public int ForumTopicId { get; set; }
+        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
+        public AdminActionType Type { get; internal set; }
 
         [JsonProperty]
-        public DateTime Created { get; set; }
+        public string Text { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string? AdminId { get; set; }
+        public DateTime? Expires { get; internal set; }
 
         [JsonProperty]
-        public string? AdminName { get; set; }
+        public int ForumTopicId { get; internal set; }
+
+        [JsonProperty]
+        public DateTime Created { get; internal set; }
+
+        [JsonProperty]
+        public string? AdminId { get; internal set; }
+
+        [JsonProperty]
+        public string? AdminName { get; internal set; }
     }
 }

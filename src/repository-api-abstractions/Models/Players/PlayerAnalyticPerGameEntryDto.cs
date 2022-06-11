@@ -7,9 +7,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     public class PlayerAnalyticPerGameEntryDto
     {
         [JsonProperty]
-        public DateTime Created { get; set; }
+        public DateTime Created { get; internal set; }
 
         [JsonProperty]
-        public Dictionary<GameType, int> GameCounts { get; set; } = new Dictionary<GameType, int>();
+        public Dictionary<GameType, int> GameCounts { get; internal set; } = new Dictionary<GameType, int>();
     }
 }

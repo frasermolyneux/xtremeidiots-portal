@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
@@ -8,15 +10,15 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     {
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; set; }
+        public GameType GameType { get; internal set; }
 
         [JsonProperty]
-        public string Username { get; set; } = string.Empty;
+        public string Username { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public Guid PlayerId { get; set; }
+        public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
-        public string IpAddress { get; set; } = string.Empty;
+        public string IpAddress { get; internal set; } = string.Empty;
     }
 }

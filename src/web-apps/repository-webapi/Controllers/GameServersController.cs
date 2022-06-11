@@ -43,7 +43,10 @@ public class GameServersController : Controller, IGameServersApi
 
     async Task<ApiResponseDto<GameServerDto>> IGameServersApi.GetGameServer(Guid gameServerId)
     {
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
+        var gameServer = await context.GameServers
+            .Include(gs => gs.BanFileMonitors)
+            .Include(gs => gs.LivePlayers)
+            .SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
 
         if (gameServer == null)
             return new ApiResponseDto<GameServerDto>(HttpStatusCode.NotFound);
@@ -84,7 +87,7 @@ public class GameServersController : Controller, IGameServersApi
 
     async Task<ApiResponseDto<GameServersCollectionDto>> IGameServersApi.GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
     {
-        var query = context.GameServers.AsQueryable();
+        var query = context.GameServers.Include(gs => gs.BanFileMonitors).Include(gs => gs.LivePlayers).AsQueryable();
         query = ApplyFilter(query, gameTypes, null, null);
         var totalCount = await query.CountAsync();
 

@@ -53,5 +53,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 
         [JsonProperty]
         public Guid? GameServerServerId { get; internal set; }
+
+        [JsonProperty]
+        public PlayerDto? PlayerDto { get; internal set; }
     }
 }

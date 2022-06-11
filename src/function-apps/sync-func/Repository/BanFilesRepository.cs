@@ -53,7 +53,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             await using (var streamWriter = new StreamWriter(externalBansStream))
             {
                 foreach (var adminActionDto in adminActionsApiResponse.Result.Entries)
-                    streamWriter.WriteLine($"{adminActionDto.Guid} [BANSYNC]-{adminActionDto.Username}");
+                    streamWriter.WriteLine($"{adminActionDto.PlayerDto?.Guid} [BANSYNC]-{adminActionDto.PlayerDto?.Username}");
 
                 streamWriter.Flush();
                 externalBansStream.Seek(0, SeekOrigin.Begin);

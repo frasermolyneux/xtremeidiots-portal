@@ -43,7 +43,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<ReportDto>> IReportsApi.GetReport(Guid reportId)
         {
-            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
+            var report = await context.Reports
+                .Include(r => r.UserProfile)
+                .Include(r => r.AdminUserProfile)
+                .SingleOrDefaultAsync(r => r.Id == reportId);
 
             if (report == null)
                 return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);

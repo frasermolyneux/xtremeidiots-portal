@@ -3,6 +3,8 @@
 using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 {
@@ -74,6 +76,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 
         [JsonProperty]
         public string? RconPassword { get; internal set; }
+
+        [JsonProperty]
+        public List<BanFileMonitorDto> BanFileMonitorDtos { get; internal set; } = new List<BanFileMonitorDto>();
+
+        [JsonProperty]
+        public List<LivePlayerDto> LivePlayerDtos { get; internal set; } = new List<LivePlayerDto>();
 
         public void ClearFtpCredentials()
         {

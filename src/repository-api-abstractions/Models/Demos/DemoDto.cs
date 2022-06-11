@@ -3,6 +3,7 @@
 using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
 {
@@ -47,5 +48,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
 
         [JsonProperty]
         public string DemoFileUri { get; internal set; } = string.Empty;
+
+        [JsonProperty]
+        public UserProfileDto? UserProfileDto { get; internal set; }
     }
 }

@@ -111,11 +111,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Type = adminActionApiResponse.Result.Type,
                 Text = adminActionApiResponse.Result.Text,
                 Expires = adminActionApiResponse.Result.Expires,
-                AdminId = adminActionApiResponse.Result.AdminId,
+                AdminId = adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId,
                 PlayerDto = playerApiResponse.Result
             };
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerApiResponse.Result.GameType, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.AdminId), AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerApiResponse.Result.GameType, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -143,7 +143,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return View(model);
             }
 
-            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerApiResponse.Result.GameType, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.AdminId), AuthPolicies.EditAdminAction);
+            var canEditAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(playerApiResponse.Result.GameType, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.EditAdminAction);
 
             if (!canEditAdminAction.Succeeded)
                 return Unauthorized();
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Expires = model.Type == AdminActionType.TempBan ? model.Expires : null
             };
 
-            var canChangeAdminActionAdmin = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.GameType, AuthPolicies.ChangeAdminActionAdmin);
+            var canChangeAdminActionAdmin = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.PlayerDto?.GameType, AuthPolicies.ChangeAdminActionAdmin);
 
             if (canChangeAdminActionAdmin.Succeeded)
                 editAdminActionDto.AdminId = model.AdminId;
@@ -162,10 +162,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.AdminId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId);
 
             logger.LogInformation("User {User} has updated {AdminActionId} against {PlayerId}", User.Username(), model.AdminActionId, model.PlayerId);
-            this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionApiResponse.Result.Username}");
+            this.AddAlertSuccess($"The {model.Type} has been successfully updated for {adminActionApiResponse.Result.PlayerDto?.Username}");
 
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
         }
@@ -178,7 +178,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null)
                 return NotFound();
 
-            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionApiResponse.Result.GameType, adminActionApiResponse.Result.AdminId), AuthPolicies.LiftAdminAction);
+            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -201,7 +201,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
 
-            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionApiResponse.Result.GameType, adminActionApiResponse.Result.AdminId), AuthPolicies.LiftAdminAction);
+            var canLiftAdminAction = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.LiftAdminAction);
 
             if (!canLiftAdminAction.Succeeded)
                 return Unauthorized();
@@ -214,10 +214,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminAction);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.AdminId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId);
 
             logger.LogInformation("User {User} has lifted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully lifted for {adminActionApiResponse.Result.Username}");
+            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully lifted for {adminActionApiResponse.Result.PlayerDto?.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });
         }
@@ -230,7 +230,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null)
                 return NotFound();
 
-            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.GameType, AuthPolicies.ClaimAdminAction);
+            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.PlayerDto.GameType, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -253,7 +253,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
 
-            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.GameType, AuthPolicies.ClaimAdminAction);
+            var canClaimAdminAction = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.PlayerDto.GameType, AuthPolicies.ClaimAdminAction);
 
             if (!canClaimAdminAction.Succeeded)
                 return Unauthorized();
@@ -266,10 +266,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.AdminId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId);
 
             logger.LogInformation("User {User} has claimed {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully claimed for {adminActionApiResponse.Result.Username}");
+            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully claimed for {adminActionApiResponse.Result.PlayerDto?.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });
         }
@@ -287,14 +287,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
 
-            var canCreateAdminActionDiscussionTopic = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.GameType, AuthPolicies.CreateAdminActionTopic);
+            var canCreateAdminActionDiscussionTopic = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.PlayerDto.GameType, AuthPolicies.CreateAdminActionTopic);
 
             if (!canCreateAdminActionDiscussionTopic.Succeeded)
                 return Unauthorized();
 
             var editAdminActionDto = new EditAdminActionDto(adminActionApiResponse.Result.AdminActionId)
             {
-                ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, DateTime.UtcNow, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.AdminId)
+                ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionApiResponse.Result.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, DateTime.UtcNow, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto?.XtremeIdiotsForumId)
             };
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
@@ -339,7 +339,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.DeleteAdminAction(id);
 
             logger.LogInformation("User {User} has deleted {AdminActionId} against {PlayerId}", User.Username(), id, playerId);
-            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully deleted from {adminActionApiResponse.Result.Username}");
+            this.AddAlertSuccess($"The {adminActionApiResponse.Result.Type} has been successfully deleted from {adminActionApiResponse.Result.PlayerDto?.Username}");
 
             return RedirectToAction("Details", "Players", new { id = playerId });
         }

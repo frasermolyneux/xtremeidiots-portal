@@ -52,7 +52,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<RecentPlayersCollectionDto>> IRecentPlayersApi.GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
-            var query = context.RecentPlayers.AsQueryable();
+            var query = context.RecentPlayers.Include(rp => rp.Player).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
             var totalCount = await query.CountAsync();
 

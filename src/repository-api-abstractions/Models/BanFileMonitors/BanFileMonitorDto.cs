@@ -3,6 +3,7 @@
 using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
 {
@@ -26,5 +27,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; internal set; }
+
+        [JsonProperty]
+        public GameServerDto? GameServerDto { get; internal set; }
     }
 }

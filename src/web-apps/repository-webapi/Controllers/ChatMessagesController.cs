@@ -45,6 +45,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
     {
         var chatLog = await context.ChatLogs
             .Include(cl => cl.GameServerServer)
+            .Include(cl => cl.PlayerPlayer)
             .SingleOrDefaultAsync(cl => cl.ChatLogId == chatMessageId);
 
         if (chatLog == null)
@@ -72,7 +73,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
 
     async Task<ApiResponseDto<ChatMessagesCollectionDto>> IChatMessagesApi.GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, int skipEntries, int takeEntries, ChatMessageOrder? order)
     {
-        var query = context.ChatLogs.Include(cl => cl.GameServerServer).AsQueryable();
+        var query = context.ChatLogs.Include(cl => cl.GameServerServer).Include(cl => cl.PlayerPlayer).AsQueryable();
         query = ApplyFilter(query, gameType, serverId, playerId, string.Empty);
         var totalCount = await query.CountAsync();
 

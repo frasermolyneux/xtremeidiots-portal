@@ -49,7 +49,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<LivePlayersCollectionDto>> ILivePlayersApi.GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
-            var query = context.LivePlayers.AsQueryable();
+            var query = context.LivePlayers.Include(lp => lp.Player).AsQueryable();
             query = ApplyFilter(query, gameType, null, null);
             var totalCount = await query.CountAsync();
 

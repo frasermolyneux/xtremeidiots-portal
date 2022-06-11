@@ -14,7 +14,7 @@
                     <h2>
                         @if ((bool) ViewData["LinkToPlayer"])
                         {
-                            <text> @item.Type Record for <a asp-controller="Players" asp-action="Details" asp-route-id="@item.PlayerId">@item.Username</a></text>
+                            <text> @item.Type Record for <a asp-controller="Players" asp-action="Details" asp-route-id="@item.PlayerId">@item.PlayerDto?.Username</a></text>
                         }
                         else
                         {
@@ -22,14 +22,14 @@
                         }
                     </h2>
                     <p>
-                        @if (item.AdminId == null)
+                        @if (item.UserProfileDto == null)
                         {
                             <text><strong>Created By:</strong> System</text>
                         }
                         else
                         {
                             <text><strong>Created By:</strong> </text>
-                            @item.AdminName
+                            @item.UserProfileDto.DisplayName
                         }
 
                         <br/>
@@ -91,22 +91,22 @@
                     </div>
 
                     <p>
-                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(item.GameType, item.Type, item.AdminId), AuthPolicies.EditAdminAction)).Succeeded)
+                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(item.PlayerDto.GameType, item.Type, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.EditAdminAction)).Succeeded)
                         {
                             <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit @item.Type</a>
                         }
 
                         @if (item.Type == AdminActionType.Ban && item.Expires == null || item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(item.GameType, item.AdminId), AuthPolicies.LiftAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(item.PlayerDto.GameType, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.LiftAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
                             }
                         }
 
-                        @if (item.Type == AdminActionType.Ban && item.AdminId == null)
+                        @if (item.Type == AdminActionType.Ban && item.UserProfileDto == null)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item.GameType, AuthPolicies.ClaimAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto.GameType, AuthPolicies.ClaimAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
                             }
@@ -114,7 +114,7 @@
 
                         @if (item.ForumTopicId == 0)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item.GameType, AuthPolicies.CreateAdminActionTopic)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto.GameType, AuthPolicies.CreateAdminActionTopic)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
                             }

@@ -3,6 +3,8 @@
 using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
 {
@@ -13,16 +15,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
 
         [JsonProperty]
         public Guid PlayerId { get; internal set; }
-
-        [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; internal set; }
-
-        [JsonProperty]
-        public string Username { get; internal set; } = string.Empty;
-
-        [JsonProperty]
-        public string Guid { get; internal set; } = string.Empty;
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
@@ -41,9 +33,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public DateTime Created { get; internal set; }
 
         [JsonProperty]
-        public string AdminId { get; internal set; } = string.Empty;
+        public PlayerDto? PlayerDto { get; internal set; }
 
         [JsonProperty]
-        public string AdminName { get; internal set; } = string.Empty;
+        public UserProfileDto? UserProfileDto { get; internal set; }
     }
 }

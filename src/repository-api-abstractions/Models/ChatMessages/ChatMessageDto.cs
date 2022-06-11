@@ -3,6 +3,8 @@
 using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
 {
@@ -36,5 +38,11 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
 
         [JsonProperty]
         public string Message { get; internal set; } = string.Empty;
+
+        [JsonProperty]
+        public PlayerDto? PlayerDto { get; internal set; }
+
+        [JsonProperty]
+        public GameServerDto? GameServerDto { get; internal set; }
     }
 }

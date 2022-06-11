@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
 {
@@ -36,5 +39,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
 
         [JsonProperty]
         public DateTime Timestamp { get; internal set; }
+
+        [JsonProperty]
+        public PlayerDto? PlayerDto { get; internal set; }
     }
 }

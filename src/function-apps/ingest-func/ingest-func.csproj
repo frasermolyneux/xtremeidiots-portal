@@ -4,6 +4,8 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <RootNamespace>XtremeIdiots.Portal.IngestFunc</RootNamespace>
     <UserSecretsId>95f31142-829e-4a5c-b8b9-bf819888e241</UserSecretsId>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.6.0" />

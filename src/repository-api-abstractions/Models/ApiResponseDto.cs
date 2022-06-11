@@ -29,6 +29,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
         public List<string> Errors { get; internal set; } = new List<string>();
 
         public bool IsSuccess => StatusCode == HttpStatusCode.OK && !Errors.Any();
+
         public bool IsNotFound => StatusCode == HttpStatusCode.NotFound;
     }
 

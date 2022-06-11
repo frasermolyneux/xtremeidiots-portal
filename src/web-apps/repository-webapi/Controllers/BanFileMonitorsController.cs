@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/ban-file-monitors/{banFileMonitorId}")]
+        [Route("repository/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> GetBanFileMonitor(Guid banFileMonitorId)
         {
             var response = await ((IBanFileMonitorsApi)this).GetBanFileMonitor(banFileMonitorId);
@@ -56,7 +56,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/ban-file-monitors")]
+        [Route("repository/ban-file-monitors")]
         public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int? skipEntries, int? takeEntries, BanFileMonitorOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/game-servers/{serverId}/ban-file-monitors")]
+        [Route("repository/game-servers/{serverId}/ban-file-monitors")]
         public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -144,7 +144,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPatch]
-        [Route("api/ban-file-monitors/{banFileMonitorId}")]
+        [Route("repository/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> UpdateBanFileMonitor(Guid banFileMonitorId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -186,7 +186,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("api/ban-file-monitors/{banFileMonitorId}")]
+        [Route("repository/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> DeleteBanFileMonitor(Guid banFileMonitorId)
         {
             var response = await ((IBanFileMonitorsApi)this).DeleteBanFileMonitor(banFileMonitorId);

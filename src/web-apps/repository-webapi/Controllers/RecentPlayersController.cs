@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/recent-players")]
+        [Route("repository/recent-players")]
         public async Task<IActionResult> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int? skipEntries, int? takeEntries, RecentPlayersOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/recent-players")]
+        [Route("repository/recent-players")]
         public async Task<IActionResult> CreateRecentPlayers()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

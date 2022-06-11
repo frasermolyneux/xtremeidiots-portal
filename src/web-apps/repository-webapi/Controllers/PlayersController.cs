@@ -33,7 +33,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players/{playerId}")]
+    [Route("repository/players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId)
     {
         var response = await ((IPlayersApi)this).GetPlayer(playerId);
@@ -64,7 +64,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players/by-game-type/{gameType}/{guid}")]
+    [Route("repository/players/by-game-type/{gameType}/{guid}")]
     public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid)
     {
         var response = await ((IPlayersApi)this).GetPlayerByGameType(gameType, guid);
@@ -95,7 +95,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("api/players")]
+    [Route("repository/players")]
     public async Task<IActionResult> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int? skipEntries, int? takeEntries, PlayersOrder? order)
     {
         if (!skipEntries.HasValue)
@@ -139,7 +139,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpPost]
-    [Route("api/players")]
+    [Route("repository/players")]
     public async Task<IActionResult> CreatePlayers()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -210,7 +210,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpPatch]
-    [Route("api/players/{playerId}")]
+    [Route("repository/players/{playerId}")]
     public async Task<IActionResult> UpdatePlayer(Guid playerId)
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

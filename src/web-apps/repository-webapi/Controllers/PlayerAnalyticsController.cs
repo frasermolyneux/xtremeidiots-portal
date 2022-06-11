@@ -25,7 +25,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/player-analytics/cumulative-daily-players")]
+        [Route("repository/player-analytics/cumulative-daily-players")]
         public async Task<IActionResult> GetCumulativeDailyPlayers(DateTime cutoff)
         {
             var response = await ((IPlayerAnalyticsApi)this).GetCumulativeDailyPlayers(cutoff);
@@ -62,7 +62,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/player-analytics/new-daily-players-per-game")]
+        [Route("repository/player-analytics/new-daily-players-per-game")]
         public async Task<IActionResult> GetNewDailyPlayersPerGame(DateTime cutoff)
         {
             var response = await ((IPlayerAnalyticsApi)this).GetNewDailyPlayersPerGame(cutoff);
@@ -98,7 +98,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/player-analytics/players-drop-off-per-game")]
+        [Route("repository/player-analytics/players-drop-off-per-game")]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
             var response = await ((IPlayerAnalyticsApi)this).GetPlayersDropOffPerGameJson(cutoff);

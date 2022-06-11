@@ -23,7 +23,7 @@ public class GameServersSecretsController : ControllerBase
     public PortalDbContext Context { get; }
 
     [HttpGet]
-    [Route("api/game-servers/{serverId}/secret/{secretId}")]
+    [Route("repository/game-servers/{serverId}/secret/{secretId}")]
     public async Task<IActionResult> GetGameServerSecret(string serverId, string secretId)
     {
         if (string.IsNullOrWhiteSpace(serverId)) return new BadRequestResult();
@@ -49,7 +49,7 @@ public class GameServersSecretsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("api/game-servers/{serverId}/secret/{secretId}")]
+    [Route("repository/game-servers/{serverId}/secret/{secretId}")]
     public async Task<IActionResult> SetGameServerSecret(string id, string name)
     {
         if (string.IsNullOrWhiteSpace(id)) return new BadRequestResult();

@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/demos/{demoId}")]
+        [Route("repository/demos/{demoId}")]
         public async Task<IActionResult> GetDemo(Guid demoId)
         {
             var response = await ((IDemosApi)this).GetDemo(demoId);
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/demos")]
+        [Route("repository/demos")]
         public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int? skipEntries, int? takeEntries, DemoOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/demos")]
+        [Route("repository/demos")]
         public async Task<IActionResult> CreateDemo()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -150,7 +150,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/demos/{demoId}/file")]
+        [Route("repository/demos/{demoId}/file")]
         public async Task<IActionResult> SetDemoFile(Guid demoId)
         {
             if (Request.Form.Files.Count == 0)
@@ -202,7 +202,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("api/demos/{demoId}")]
+        [Route("repository/demos/{demoId}")]
         public async Task<IActionResult> DeleteDemo(Guid demoId)
         {
             var response = await ((IDemosApi)this).DeleteDemo(demoId);

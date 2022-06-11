@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user-profile/{userProfileId}")]
+        [Route("repository/user-profile/{userProfileId}")]
         public async Task<IActionResult> GetUserProfile(Guid userProfileId)
         {
             var response = await ((IUserProfileApi)this).GetUserProfile(userProfileId);
@@ -56,7 +56,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user-profile/by-identity-id/{identityId}")]
+        [Route("repository/user-profile/by-identity-id/{identityId}")]
         public async Task<IActionResult> GetUserProfileByIdentityId(string identityId)
         {
             var response = await ((IUserProfileApi)this).GetUserProfileByIdentityId(identityId);
@@ -79,7 +79,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user-profile/by-xtremeidiots-id/{xtremeidiotsId}")]
+        [Route("repository/user-profile/by-xtremeidiots-id/{xtremeidiotsId}")]
         public async Task<IActionResult> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId)
         {
             var response = await ((IUserProfileApi)this).GetUserProfileByXtremeIdiotsId(xtremeIdiotsId);
@@ -102,7 +102,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/user-profile")]
+        [Route("repository/user-profile")]
         public async Task<IActionResult> GetUserProfiles(string? filterString, int? skipEntries, int? takeEntries, UserProfilesOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -146,7 +146,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/user-profile")]
+        [Route("repository/user-profile")]
         public async Task<IActionResult> CreateUserProfiles()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -185,7 +185,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPut]
-        [Route("api/user-profile")]
+        [Route("repository/user-profile")]
         public async Task<IActionResult> UpdateUserProfiles()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -222,7 +222,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPatch]
-        [Route("api/user-profile/{userProfileId}/claims")]
+        [Route("repository/user-profile/{userProfileId}/claims")]
         public async Task<IActionResult> CreateUserProfileClaim(Guid userProfileId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -256,7 +256,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/user-profile/{userProfileId}/claims")]
+        [Route("repository/user-profile/{userProfileId}/claims")]
         public async Task<IActionResult> SetUserProfileClaims(Guid userProfileId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -292,7 +292,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("api/user-profile/{userProfileId}/claims/{userProfileClaimId}")]
+        [Route("repository/user-profile/{userProfileId}/claims/{userProfileClaimId}")]
         public async Task<IActionResult> DeleteUserProfileClaim(Guid userProfileId, Guid userProfileClaimId)
         {
             var response = await ((IUserProfileApi)this).DeleteUserProfileClaim(userProfileId, userProfileClaimId);

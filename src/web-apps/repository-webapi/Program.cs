@@ -31,6 +31,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Repository API", Version = "v1" });
+
     options.SchemaFilter<EnumSchemaFilter>();
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

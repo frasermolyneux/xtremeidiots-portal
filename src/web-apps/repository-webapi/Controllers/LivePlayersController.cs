@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("/api/live-players")]
+        [Route("/repository/live-players")]
         public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int? skipEntries, int? takeEntries, LivePlayersOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -72,7 +72,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/live-players/{serverId}")]
+        [Route("repository/live-players/{serverId}")]
         public async Task<IActionResult> SetLivePlayersForGameServer(Guid serverId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

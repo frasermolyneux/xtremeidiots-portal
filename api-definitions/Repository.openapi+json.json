@@ -2,538 +2,93 @@
     "openapi": "3.0.1",
     "info": {
         "title": "Repository API",
-        "description": "",
-        "version": "1.0"
+        "version": "v1"
     },
     "paths": {
-        "/game-servers/{server-id}": {
+        "/repository/admin-actions/{adminActionId}": {
             "get": {
-                "summary": "game-servers/{server-id}",
-                "description": "Gets a game server entry",
-                "operationId": "get-game-servers-single",
+                "tags": [
+                    "AdminActions"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "adminActionId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "patch": {
-                "summary": "game-servers/{server-id}",
-                "description": "Updates a game server entry",
-                "operationId": "patch-game-servers-single",
+                "tags": [
+                    "AdminActions"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "adminActionId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "example": {
-                                "id": "test-server",
-                                "title": "My Test Server",
-                                "gameType": "testGame",
-                                "ipAddress": "127.0.0.1",
-                                "queryPort": 12345
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "delete": {
-                "summary": "game-servers/{server-id}",
-                "description": "game-servers/{server-id}",
-                "operationId": "delete-game-servers-server-id",
+                "tags": [
+                    "AdminActions"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "adminActionId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/game-servers": {
-            "post": {
-                "summary": "game-servers",
-                "description": "Creates one or more game servers",
-                "operationId": "post-game-servers",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "example": {
-                                "id": "test-server",
-                                "title": "My Test Server",
-                                "gameType": "testGame",
-                                "ipAddress": "127.0.0.1",
-                                "queryPort": 12345
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
+        "/repository/admin-actions": {
             "get": {
-                "summary": "game-servers",
-                "description": "Gets a list of game servers",
-                "operationId": "get-game-servers",
-                "parameters": [
-                    {
-                        "name": "gameTypes",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "serverIds",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filterOption",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    }
+                "tags": [
+                    "AdminActions"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players": {
-            "get": {
-                "summary": "players",
-                "description": "players",
-                "operationId": "get-players",
                 "parameters": [
                     {
                         "name": "gameType",
                         "in": "query",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filter",
-                        "in": "query",
-                        "schema": {
-                            "enum": [
-                                "UsernameAndGuid",
-                                "IpAddress"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filterString",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "post": {
-                "summary": "players",
-                "description": "Creates one or more players",
-                "operationId": "post-players",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "example": {
-                                "GameType": "CallOfDuty4",
-                                "Username": "Charlie",
-                                "Guid": "AAAAA"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players/{player-id}": {
-            "patch": {
-                "summary": "players/{player-id}",
-                "description": "Updates a specified player",
-                "operationId": "post-players-single",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "get": {
-                "summary": "players/{player-id}",
-                "description": "Gets a player entry",
-                "operationId": "get-players-single",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/chat-messages": {
-            "post": {
-                "summary": "chat-messages",
-                "description": "Creates one or more chat messages",
-                "operationId": "post-chat-messages",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/game-servers/{server-id}/secrets/{secret-id}": {
-            "get": {
-                "summary": "game-servers/{server-id}/secrets/{secret-id}",
-                "description": "Gets a game server secret entry",
-                "operationId": "get-game-servers-single-secrets-single",
-                "parameters": [
-                    {
-                        "name": "server-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "secret-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "post": {
-                "summary": "game-servers/{server-id}/secrets/{secret-id}",
-                "description": "Sets a specified secret for a game server",
-                "operationId": "post-game-servers-single-secrets-single",
-                "parameters": [
-                    {
-                        "name": "server-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "secret-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "Authorization",
-                        "in": "header",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/game-server-events": {
-            "post": {
-                "summary": "game-server-events",
-                "description": "Creates one or more server events",
-                "operationId": "game-server-events",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/players/by-game-type/{game-type}/{player-guid}": {
-            "get": {
-                "summary": "players/by-game-type/{game-type}/{player-guid}",
-                "description": "players/by-game-type/{game-type}/{player-guid}",
-                "operationId": "players-by-game-type-game-type-player-guid",
-                "parameters": [
-                    {
-                        "name": "game-type",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "player-guid",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/chat-messages/search": {
-            "get": {
-                "summary": "chat-messages/search",
-                "description": "chat-messages/search",
-                "operationId": "get-chat-messages-search",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "serverId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/GameType"
                         }
                     },
                     {
                         "name": "playerId",
                         "in": "query",
                         "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filterString",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/chat-messages/{chat-message-id}": {
-            "get": {
-                "summary": "chat-messages/{chat-message-id}",
-                "description": "chat-messages/{chat-message-id}",
-                "operationId": "get-chat-messages-chat-message-id",
-                "parameters": [
-                    {
-                        "name": "chat-message-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": ""
-                    }
-                }
-            }
-        },
-        "/players/{player-id}/related-players": {
-            "get": {
-                "summary": "players/{player-id}/related-players",
-                "description": "Gets related players by IP Address",
-                "operationId": "get-players-player-id-related-players",
-                "parameters": [
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/admin-actions": {
-            "get": {
-                "summary": "admin-actions",
-                "description": "admin-actions",
-                "operationId": "get-admin-actions",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "playerId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
@@ -547,231 +102,120 @@
                         "name": "filter",
                         "in": "query",
                         "schema": {
-                            "enum": [
-                                "None",
-                                "ActiveBans",
-                                "UnclaimedBans"
-                            ],
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "enum": [
-                                "None",
-                                "CreatedAsc",
-                                "CreatedDesc"
-                            ],
-                            "type": "string"
+                            "$ref": "#/components/schemas/AdminActionFilter"
                         }
                     },
                     {
                         "name": "skipEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "takeEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/AdminActionOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "post": {
-                "summary": "admin-actions",
-                "description": "admin-actions",
-                "operationId": "post-admin-actions",
+                "tags": [
+                    "AdminActions"
+                ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/admin-actions/{admin-action-id}": {
+        "/repository/ban-file-monitors/{banFileMonitorId}": {
             "get": {
-                "summary": "admin-actions/{admin-action-id}",
-                "description": "admin-actions/{admin-action-id}",
-                "operationId": "get-admin-actions-admin-action-id",
+                "tags": [
+                    "BanFileMonitors"
+                ],
                 "parameters": [
                     {
-                        "name": "admin-action-id",
+                        "name": "banFileMonitorId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "patch": {
-                "summary": "admin-actions/{admin-action-id}",
-                "description": "admin-actions/{admin-action-id}",
-                "operationId": "patch-admin-actions-admin-action-id",
+                "tags": [
+                    "BanFileMonitors"
+                ],
                 "parameters": [
                     {
-                        "name": "admin-action-id",
+                        "name": "banFileMonitorId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "delete": {
-                "summary": "admin-actions/{admin-action-id}",
-                "description": "admin-actions/{admin-action-id}",
-                "operationId": "delete-admin-actions-admin-action-id",
+                "tags": [
+                    "BanFileMonitors"
+                ],
                 "parameters": [
                     {
-                        "name": "admin-action-id",
+                        "name": "banFileMonitorId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/maps": {
+        "/repository/ban-file-monitors": {
             "get": {
-                "summary": "maps",
-                "description": "maps",
-                "operationId": "get-maps",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "mapNames",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filterString",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    }
+                "tags": [
+                    "BanFileMonitors"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "post": {
-                "summary": "maps",
-                "description": "maps",
-                "operationId": "post-maps",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "put": {
-                "summary": "maps",
-                "description": "maps",
-                "operationId": "put-maps",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/maps/{game-type}/{map-name}": {
-            "get": {
-                "summary": "maps/{game-type}/{map-name}",
-                "description": "maps/{game-type}/{map-name}",
-                "operationId": "get-maps-game-type-map-name",
-                "parameters": [
-                    {
-                        "name": "game-type",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "map-name",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/ban-file-monitors": {
-            "get": {
-                "summary": "ban-file-monitors",
-                "description": "ban-file-monitors",
-                "operationId": "get-ban-file-monitors",
                 "parameters": [
                     {
                         "name": "gameTypes",
@@ -791,11 +235,118 @@
                         "name": "serverId",
                         "in": "query",
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/BanFileMonitorOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-servers/{serverId}/ban-file-monitors": {
+            "post": {
+                "tags": [
+                    "BanFileMonitors"
+                ],
+                "parameters": [
+                    {
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/chat-messages/{chatMessageId}": {
+            "get": {
+                "tags": [
+                    "ChatMessages"
+                ],
+                "parameters": [
+                    {
+                        "name": "chatMessageId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/chat-messages/search": {
+            "get": {
+                "tags": [
+                    "ChatMessages"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "playerId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filterString",
                         "in": "query",
                         "schema": {
                             "type": "string"
@@ -805,176 +356,142 @@
                         "name": "skipEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "takeEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/ChatMessageOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/game-servers/{server-id}/ban-file-monitors": {
+        "/repository/chat-messages": {
             "post": {
-                "summary": "game-servers/{server-id}/ban-file-monitors",
-                "description": "game-servers/{server-id}/ban-file-monitors",
-                "operationId": "post-game-servers-server-id-ban-file-monitors",
-                "parameters": [
-                    {
-                        "name": "server-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
+                "tags": [
+                    "ChatMessages"
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/ban-file-monitors/{ban-file-monitor-id}": {
-            "get": {
-                "summary": "ban-file-monitors/{ban-file-monitor-id}",
-                "description": "ban-file-monitors/{ban-file-monitor-id}",
-                "operationId": "get-ban-file-monitors-ban-file-monitor-id",
-                "parameters": [
-                    {
-                        "name": "ban-file-monitor-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
+        "/repository/data-maintenance/prune-chat-messages": {
+            "delete": {
+                "tags": [
+                    "DataMaintenance"
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
-            },
-            "patch": {
-                "summary": "ban-file-monitors/{ban-file-monitor-id}",
-                "description": "ban-file-monitors/{ban-file-monitor-id}",
-                "operationId": "patch-ban-file-monitors-ban-file-monitor-id",
+            }
+        },
+        "/repository/data-maintenance/prune-game-server-events": {
+            "delete": {
+                "tags": [
+                    "DataMaintenance"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/data-maintenance/prune-game-server-stats": {
+            "delete": {
+                "tags": [
+                    "DataMaintenance"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/data-maintenance/prune-recent-players": {
+            "delete": {
+                "tags": [
+                    "DataMaintenance"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/demos/{demoId}": {
+            "get": {
+                "tags": [
+                    "Demos"
+                ],
                 "parameters": [
                     {
-                        "name": "ban-file-monitor-id",
+                        "name": "demoId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "delete": {
-                "summary": "ban-file-monitors/{ban-file-monitor-id}",
-                "description": "ban-file-monitors/{ban-file-monitor-id}",
-                "operationId": "delete-ban-file-monitors-ban-file-monitor-id",
+                "tags": [
+                    "Demos"
+                ],
                 "parameters": [
                     {
-                        "name": "ban-file-monitor-id",
+                        "name": "demoId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/player-analytics/cumulative-daily-players": {
+        "/repository/demos": {
             "get": {
-                "summary": "player-analytics/cumulative-daily-players",
-                "description": "player-analytics/cumulative-daily-players",
-                "operationId": "get-player-analytics-cumulative-daily-players",
-                "parameters": [
-                    {
-                        "name": "cutoff",
-                        "in": "query",
-                        "schema": {
-                            "type": "datetime"
-                        }
-                    }
+                "tags": [
+                    "Demos"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/player-analytics/new-daily-players-per-game": {
-            "get": {
-                "summary": "player-analytics/new-daily-players-per-game",
-                "description": "player-analytics/new-daily-players-per-game",
-                "operationId": "get-player-analytics-new-daily-players-per-game",
-                "parameters": [
-                    {
-                        "name": "cutoff",
-                        "in": "query",
-                        "schema": {
-                            "type": "datetime"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/player-analytics/players-drop-off-per-game": {
-            "get": {
-                "summary": "player-analytics/players-drop-off-per-game",
-                "description": "player-analytics/players-drop-off-per-game",
-                "operationId": "get-player-analytics-players-drop-off-per-game",
-                "parameters": [
-                    {
-                        "name": "cutoff",
-                        "in": "query",
-                        "schema": {
-                            "type": "datetime"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/demos": {
-            "get": {
-                "summary": "demos",
-                "description": "demos",
-                "operationId": "get-demos",
                 "parameters": [
                     {
                         "name": "gameTypes",
@@ -1001,49 +518,74 @@
                         "name": "skipEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "takeEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "order",
                         "in": "query",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/DemoOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "post": {
-                "summary": "demos",
-                "description": "demos",
-                "operationId": "demos",
+                "tags": [
+                    "Demos"
+                ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/demos/{demo-id}": {
-            "get": {
-                "summary": "demos/{demo-id}",
-                "description": "demos/{demo-id}",
-                "operationId": "get-demos-demo-id",
+        "/repository/demos/{demoId}/file": {
+            "post": {
+                "tags": [
+                    "Demos"
+                ],
                 "parameters": [
                     {
-                        "name": "demo-id",
+                        "name": "demoId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/demos-auth/{userId}": {
+            "get": {
+                "tags": [
+                    "DemosAuth"
+                ],
+                "parameters": [
+                    {
+                        "name": "userId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -1053,17 +595,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
-            },
-            "delete": {
-                "summary": "demos/{demo-id}",
-                "description": "demos/{demo-id}",
-                "operationId": "delete-demos-demo-id",
+            }
+        },
+        "/repository/demos-auth/by-auth-key/{authKey}": {
+            "get": {
+                "tags": [
+                    "DemosAuth"
+                ],
                 "parameters": [
                     {
-                        "name": "demo-id",
+                        "name": "authKey",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -1073,353 +617,474 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/maps/{map-id}": {
-            "get": {
-                "summary": "maps/{map-id}",
-                "description": "maps/{map-id}",
-                "operationId": "get-maps-map-id",
-                "parameters": [
-                    {
-                        "name": "map-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
+        "/repository/demos-auth": {
+            "post": {
+                "tags": [
+                    "DemosAuth"
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/maps/popularity": {
-            "post": {
-                "summary": "maps/popularity",
-                "description": "maps/popularity",
-                "operationId": "post-maps-popularity",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/maps/{map-id}/popularity/{player-id}": {
-            "post": {
-                "summary": "maps/{map-id}/popularity/{player-id}",
-                "description": "maps/{map-id}/popularity/{player-id}",
-                "operationId": "post-maps-map-id-popularity-player-id",
-                "parameters": [
-                    {
-                        "name": "map-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "player-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    },
-                    {
-                        "name": "like",
-                        "in": "query",
-                        "schema": {
-                            "type": "bool"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/maps/{map-id}/image": {
-            "post": {
-                "summary": "maps/{map-id}/image",
-                "description": "maps/{map-id}/image",
-                "operationId": "post-maps-map-id-image",
-                "parameters": [
-                    {
-                        "name": "map-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": ""
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/demos-auth/{user-id}": {
-            "get": {
-                "summary": "demos-auth/{user-id}",
-                "description": "demos-auth/{user-id}",
-                "operationId": "get-demos-auth-user-id",
-                "parameters": [
-                    {
-                        "name": "user-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/demos-auth": {
-            "post": {
-                "summary": "demos-auth",
-                "description": "demos-auth",
-                "operationId": "post-demos-auth",
-                "responses": {
-                    "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "put": {
-                "summary": "demos-auth",
-                "description": "demos-auth",
-                "operationId": "demos-auth",
+                "tags": [
+                    "DemosAuth"
+                ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/demos-auth/by-auth-key/{auth-key}": {
+        "/repository/game-servers/{gameServerId}": {
             "get": {
-                "summary": "demos-auth/by-auth-key/{auth-key}",
-                "description": "demos-auth/by-auth-key/{auth-key}",
-                "operationId": "get-demos-auth-by-auth-key-auth-key",
+                "tags": [
+                    "GameServers"
+                ],
                 "parameters": [
                     {
-                        "name": "auth-key",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
-            }
-        },
-        "/live-players/{server-id}": {
-            "post": {
-                "summary": "live-players/{server-id}",
-                "description": "live-players/{server-id}",
-                "operationId": "post-live-players-server-id",
+            },
+            "patch": {
+                "tags": [
+                    "GameServers"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
-            }
-        },
-        "/game-servers-stats": {
-            "post": {
-                "summary": "game-servers-stats",
-                "description": "game-servers-stats",
-                "operationId": "post-game-servers-stats",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/live-players": {
-            "get": {
-                "summary": "live-players",
-                "description": "live-players",
-                "operationId": "get-live-players",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-chat-messages": {
+            },
             "delete": {
-                "summary": "data-maintenance/prune-chat-messages",
-                "description": "Prunes chat messages from the database",
-                "operationId": "delete-prune-chat-messages",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-game-server-events": {
-            "delete": {
-                "summary": "data-maintenance/prune-game-server-events",
-                "description": "Prunes game server events from the database",
-                "operationId": "delete-prune-game-server-events",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-game-server-stats": {
-            "delete": {
-                "summary": "data-maintenance/prune-game-server-stats",
-                "description": "Prunes game server stats from the database",
-                "operationId": "delete-prune-game-server-stats",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/data-maintenance/prune-recent-players": {
-            "delete": {
-                "summary": "data-maintenance/prune-recent-players",
-                "description": "Prunes recent players from the database",
-                "operationId": "delete-prune-recent-players",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/game-servers-stats/{server-id}": {
-            "get": {
-                "summary": "game-servers-stats/{server-id}",
-                "description": "game-servers-stats/{server-id}",
-                "operationId": "get-game-servers-stats-server-id",
+                "tags": [
+                    "GameServers"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-servers": {
+            "get": {
+                "tags": [
+                    "GameServers"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameTypes",
+                        "in": "query",
                         "schema": {
                             "type": "string"
                         }
                     },
                     {
-                        "name": "cutoff",
+                        "name": "serverIds",
                         "in": "query",
                         "schema": {
                             "type": "string"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/user-profile/by-xtremeidiots-id/{xtremeidiots-id}": {
-            "get": {
-                "summary": "user-profile/by-xtremeidiots-id/{xtremeidiots-id}",
-                "description": "user-profile/by-xtremeidiots-id/{xtremeidiots-id}",
-                "operationId": "get-user-profile-by-xtremeidiots-id-xtremeidiots-id",
-                "parameters": [
+                    },
                     {
-                        "name": "xtremeidiots-id",
-                        "in": "path",
-                        "required": true,
+                        "name": "filter",
+                        "in": "query",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/components/schemas/GameServerFilter"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/user-profile": {
-            "post": {
-                "summary": "user-profile",
-                "description": "user-profile",
-                "operationId": "post-user-profile",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "put": {
-                "summary": "user-profile",
-                "description": "user-profile",
-                "operationId": "put-user-profile",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "get": {
-                "summary": "user-profile",
-                "description": "user-profile",
-                "operationId": "get-user-profile",
-                "parameters": [
+                    },
                     {
                         "name": "skipEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
                         }
                     },
                     {
                         "name": "takeEntries",
                         "in": "query",
                         "schema": {
-                            "type": "int"
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameServerOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "GameServers"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-server-events": {
+            "post": {
+                "tags": [
+                    "GameServersEvents"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-servers/{serverId}/secret/{secretId}": {
+            "get": {
+                "tags": [
+                    "GameServersSecrets"
+                ],
+                "parameters": [
+                    {
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "secretId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "GameServersSecrets"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "secretId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-servers-stats": {
+            "post": {
+                "tags": [
+                    "GameServersStats"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/game-servers-stats/{serverId}": {
+            "get": {
+                "tags": [
+                    "GameServersStats"
+                ],
+                "parameters": [
+                    {
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/live-players": {
+            "get": {
+                "tags": [
+                    "LivePlayers"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/LivePlayerFilter"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/LivePlayersOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/live-players/{serverId}": {
+            "post": {
+                "tags": [
+                    "LivePlayers"
+                ],
+                "parameters": [
+                    {
+                        "name": "serverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/maps/{mapId}": {
+            "get": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/maps/{gameType}/{mapName}": {
+            "get": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "mapName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/maps": {
+            "get": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "mapNames",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/MapsFilter"
                         }
                     },
                     {
@@ -1428,383 +1093,951 @@
                         "schema": {
                             "type": "string"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/user-profile/{user-profile-id}/claims": {
-            "get": {
-                "summary": "user-profile/{user-profile-id}/claims",
-                "description": "user-profile/{user-profile-id}/claims",
-                "operationId": "get-user-profile-user-profile-id-claims",
-                "parameters": [
+                    },
                     {
-                        "name": "user-profile-id",
-                        "in": "path",
-                        "required": true,
+                        "name": "skipEntries",
+                        "in": "query",
                         "schema": {
-                            "type": "string"
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/MapsOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
             "post": {
-                "summary": "user-profile/{user-profile-id}/claims",
-                "description": "user-profile/{user-profile-id}/claims",
-                "operationId": "post-user-profile-user-profile-id-claims",
-                "parameters": [
-                    {
-                        "name": "user-profile-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
+                "tags": [
+                    "Maps"
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             },
-            "patch": {
-                "summary": "user-profile/{user-profile-id}/claims",
-                "description": "user-profile/{user-profile-id}/claims",
-                "operationId": "patch-user-profile-user-profile-id-claims",
-                "parameters": [
-                    {
-                        "name": "user-profile-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
+            "put": {
+                "tags": [
+                    "Maps"
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/user-profile/{user-profile-id}/claims/{user-profile-claim-id}": {
+        "/repository/maps/popularity": {
+            "post": {
+                "tags": [
+                    "Maps"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/maps/{mapId}/popularity/{playerId}": {
+            "post": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "playerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "like",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/maps/{mapId}/image": {
+            "post": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/player-analytics/cumulative-daily-players": {
+            "get": {
+                "tags": [
+                    "PlayerAnalytics"
+                ],
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/player-analytics/new-daily-players-per-game": {
+            "get": {
+                "tags": [
+                    "PlayerAnalytics"
+                ],
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/player-analytics/players-drop-off-per-game": {
+            "get": {
+                "tags": [
+                    "PlayerAnalytics"
+                ],
+                "parameters": [
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/players/{playerId}": {
+            "get": {
+                "tags": [
+                    "Players"
+                ],
+                "parameters": [
+                    {
+                        "name": "playerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Players"
+                ],
+                "parameters": [
+                    {
+                        "name": "playerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/players/by-game-type/{gameType}/{guid}": {
+            "get": {
+                "tags": [
+                    "Players"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "guid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/players": {
+            "get": {
+                "tags": [
+                    "Players"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/PlayersFilter"
+                        }
+                    },
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/PlayersOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Players"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/recent-players": {
+            "get": {
+                "tags": [
+                    "RecentPlayers"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/RecentPlayersFilter"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/RecentPlayersOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "RecentPlayers"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/reports/{reportId}": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/reports": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "serverId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "cutoff",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date-time"
+                        }
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/ReportsFilter"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/ReportsOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/reports/{reportId}/close": {
+            "patch": {
+                "tags": [
+                    "Reports"
+                ],
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/{userProfileId}": {
+            "get": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "userProfileId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/by-identity-id/{identityId}": {
+            "get": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "identityId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/by-xtremeidiots-id/{xtremeidiotsId}": {
+            "get": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "xtremeIdiotsId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile": {
+            "get": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "filterString",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "skipEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "takeEntries",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "order",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/UserProfilesOrder"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/{userProfileId}/claims": {
+            "patch": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "userProfileId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "userProfileId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/{userProfileId}/claims/{userProfileClaimId}": {
             "delete": {
-                "summary": "user-profile/{user-profile-id}/claims/{user-profile-claim-id}",
-                "description": "user-profile/{user-profile-id}/claims/{user-profile-claim-id}",
-                "operationId": "delete-user-profile-user-profile-id-claims-user-profile-claim-id",
+                "tags": [
+                    "UserProfile"
+                ],
                 "parameters": [
                     {
-                        "name": "user-profile-id",
+                        "name": "userProfileId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     },
                     {
-                        "name": "user-profile-claim-id",
+                        "name": "userProfileClaimId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/user-profile/{user-profile-id}": {
-            "get": {
-                "summary": "user-profile/{user-profile-id}",
-                "description": "user-profile/{user-profile-id}",
-                "operationId": "get-user-profile-user-profile-id",
-                "parameters": [
-                    {
-                        "name": "user-profile-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/user-profile/by-identity-id/{identity-id}": {
-            "get": {
-                "summary": "user-profile/by-identity-id/{identity-id}",
-                "description": "user-profile/by-identity-id/{identity-id}",
-                "operationId": "get-user-profile-by-identity-id-identity-id",
-                "parameters": [
-                    {
-                        "name": "identity-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/demos/{demo-id}/file": {
-            "post": {
-                "summary": "demos/{demo-id}/file",
-                "description": "demos/{demo-id}/file",
-                "operationId": "post-demos-demo-id-file",
-                "parameters": [
-                    {
-                        "name": "demo-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/reports": {
-            "get": {
-                "summary": "reports",
-                "description": "reports",
-                "operationId": "get-reports",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "serverId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "cutoff",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filter",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "post": {
-                "summary": "reports",
-                "description": "reports",
-                "operationId": "post-reports",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/reports/{report-id}/close": {
-            "patch": {
-                "summary": "reports/{report-id}/close",
-                "description": "reports/{report-id}/close",
-                "operationId": "patch-reports-report-id-close",
-                "parameters": [
-                    {
-                        "name": "report-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/recent-players": {
-            "post": {
-                "summary": "recent-players",
-                "description": "recent-players",
-                "operationId": "post-recent-players",
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            },
-            "get": {
-                "summary": "recent-players",
-                "description": "recent-players",
-                "operationId": "get-recent-players",
-                "parameters": [
-                    {
-                        "name": "gameType",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "serverId",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "cutoff",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "filter",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "skipEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "takeEntries",
-                        "in": "query",
-                        "schema": {
-                            "type": "int"
-                        }
-                    },
-                    {
-                        "name": "order",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "null"
-                    }
-                }
-            }
-        },
-        "/reports/{report-id}": {
-            "get": {
-                "summary": "reports/{report-id}",
-                "operationId": "get-reports-report-id",
-                "parameters": [
-                    {
-                        "name": "report-id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": null
+                        "description": "Success"
                     }
                 }
             }
         }
     },
     "components": {
-        "securitySchemes": {
-            "apiKeyHeader": {
-                "type": "apiKey",
-                "name": "Ocp-Apim-Subscription-Key",
-                "in": "header"
+        "schemas": {
+            "AdminActionFilter": {
+                "enum": [
+                    "ActiveBans",
+                    "UnclaimedBans"
+                ],
+                "type": "string",
+                "format": "int32"
             },
-            "apiKeyQuery": {
+            "AdminActionOrder": {
+                "enum": [
+                    "CreatedAsc",
+                    "CreatedDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "BanFileMonitorOrder": {
+                "enum": [
+                    "BannerServerListPosition",
+                    "GameType"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "ChatMessageOrder": {
+                "enum": [
+                    "TimestampAsc",
+                    "TimestampDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "DemoOrder": {
+                "enum": [
+                    "GameTypeAsc",
+                    "GameTypeDesc",
+                    "NameAsc",
+                    "NameDesc",
+                    "DateAsc",
+                    "DateDesc",
+                    "UploadedByAsc",
+                    "UploadedByDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "GameServerFilter": {
+                "enum": [
+                    "LiveStatusEnabled",
+                    "ShowOnPortalServerList",
+                    "ShowOnBannerServerList"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "GameServerOrder": {
+                "enum": [
+                    "BannerServerListPosition",
+                    "GameType"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "GameType": {
+                "enum": [
+                    "Unknown",
+                    "CallOfDuty2",
+                    "CallOfDuty4",
+                    "CallOfDuty5",
+                    "Insurgency",
+                    "ArkSurvivalEvolved",
+                    "Battlefield1",
+                    "Battlefield3",
+                    "Battlefield4",
+                    "Battlefield5",
+                    "BattlefieldBadCompany2",
+                    "CrysisWars",
+                    "Left4Dead2",
+                    "Minecraft",
+                    "PlayerUnknownsBattleground",
+                    "RisingStormVietnam",
+                    "Rust",
+                    "WarThunder",
+                    "WorldOfWarships",
+                    "WorldWar3",
+                    "UnrealTournament2004",
+                    "Arma",
+                    "Arma2",
+                    "Arma3"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "LivePlayerFilter": {
+                "enum": [
+                    "GeoLocated"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "LivePlayersOrder": {
+                "enum": [
+                    "ScoreAsc",
+                    "ScoreDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "MapsFilter": {
+                "enum": [
+                    "EmptyMapImage"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "MapsOrder": {
+                "enum": [
+                    "MapNameAsc",
+                    "MapNameDesc",
+                    "GameTypeAsc",
+                    "GameTypeDesc",
+                    "PopularityAsc",
+                    "PopularityDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "PlayersFilter": {
+                "enum": [
+                    "UsernameAndGuid",
+                    "IpAddress"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "PlayersOrder": {
+                "enum": [
+                    "UsernameAsc",
+                    "UsernameDesc",
+                    "FirstSeenAsc",
+                    "FirstSeenDesc",
+                    "LastSeenAsc",
+                    "LastSeenDesc",
+                    "GameTypeAsc",
+                    "GameTypeDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "RecentPlayersFilter": {
+                "enum": [
+                    "GeoLocated"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "RecentPlayersOrder": {
+                "enum": [
+                    "TimestampAsc",
+                    "TimestampDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "ReportsFilter": {
+                "enum": [
+                    "OpenReports",
+                    "ClosedReports"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "ReportsOrder": {
+                "enum": [
+                    "TimestampAsc",
+                    "TimestampDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "UserProfilesOrder": {
+                "enum": [
+                    "DisplayNameAsc",
+                    "DisplayNameDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            }
+        },
+        "securitySchemes": {
+            "Bearer": {
                 "type": "apiKey",
-                "name": "subscription-key",
-                "in": "query"
+                "description": "",
+                "name": "Authorization",
+                "in": "header"
             }
         }
     },
     "security": [
         {
-            "apiKeyHeader": []
-        },
-        {
-            "apiKeyQuery": []
+            "Bearer": []
         }
     ]
 }

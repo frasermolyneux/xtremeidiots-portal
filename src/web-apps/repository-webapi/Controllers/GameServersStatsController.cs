@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/game-servers-stats")]
+        [Route("repository/game-servers-stats")]
         public async Task<IActionResult> CreateGameServerStats()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -80,7 +80,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/game-servers-stats/{serverId}")]
+        [Route("repository/game-servers-stats/{serverId}")]
         public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime? cutoff)
         {
             if (!cutoff.HasValue)

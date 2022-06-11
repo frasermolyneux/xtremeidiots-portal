@@ -313,7 +313,7 @@ resource repositoryApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
 
     description: 'API for repository layer'
     displayName: 'Repository API'
-    path: 'repository'
+    path: ''
 
     protocols: [
       'https'

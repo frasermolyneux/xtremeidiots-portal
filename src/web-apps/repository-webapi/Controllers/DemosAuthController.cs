@@ -32,7 +32,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/demos-auth/{userId}")]
+        [Route("repository/demos-auth/{userId}")]
         public async Task<IActionResult> GetDemosAuth(string userId)
         {
             var response = await ((IDemosAuthApi)this).GetDemosAuth(userId);
@@ -53,7 +53,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/demos-auth/by-auth-key/{authKey}")]
+        [Route("repository/demos-auth/by-auth-key/{authKey}")]
         public async Task<IActionResult> GetDemoAuthKeyByAuthKey(string authKey)
         {
             var response = await ((IDemosAuthApi)this).GetDemosAuthByAuthKey(authKey);
@@ -79,7 +79,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("api/demos-auth")]
+        [Route("repository/demos-auth")]
         public async Task<IActionResult> CreateDemoAuthKeys()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -123,7 +123,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPut]
-        [Route("api/demos-auth")]
+        [Route("repository/demos-auth")]
         public async Task<IActionResult> UpdateDemoAuthKeys()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

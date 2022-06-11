@@ -17,16 +17,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
         public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
-        public Guid ServerId { get; internal set; }
-
-        [JsonProperty]
-        public string ServerName { get; internal set; } = string.Empty;
-
-        [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; internal set; }
-
-        [JsonProperty]
         public DateTime Timestamp { get; internal set; }
 
         [JsonProperty]

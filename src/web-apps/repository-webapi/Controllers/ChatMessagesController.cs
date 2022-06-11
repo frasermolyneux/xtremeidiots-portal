@@ -56,7 +56,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
     }
 
     [HttpGet]
-    [Route("repository/chat-messages/search")]
+    [Route("repository/chat-messages")]
     public async Task<IActionResult> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, int? skipEntries, int? takeEntries, ChatMessageOrder? order)
     {
         if (!skipEntries.HasValue)

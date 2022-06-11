@@ -84,7 +84,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return Unauthorized();
 
             var banFileMonitorDto = new CreateBanFileMonitorDto(model.ServerId, model.FilePath, gameServerApiResponse.Result.GameType);
-            await repositoryApiClient.BanFileMonitors.CreateBanFileMonitorForGameServer(model.ServerId, banFileMonitorDto);
+            await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(banFileMonitorDto);
 
             _logger.LogInformation("User {User} has created a new ban file monitor for server {Id}", User.Username(), gameServerApiResponse.Result.Id);
             this.AddAlertSuccess($"The ban file monitor has been created for {gameServerApiResponse.Result.Title}");

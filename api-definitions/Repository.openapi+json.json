@@ -268,23 +268,10 @@
                         "description": "Success"
                     }
                 }
-            }
-        },
-        "/repository/game-servers/{serverId}/ban-file-monitors": {
+            },
             "post": {
                 "tags": [
                     "BanFileMonitors"
-                ],
-                "parameters": [
-                    {
-                        "name": "serverId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
                 ],
                 "responses": {
                     "200": {
@@ -316,7 +303,7 @@
                 }
             }
         },
-        "/repository/chat-messages/search": {
+        "/repository/chat-messages": {
             "get": {
                 "tags": [
                     "ChatMessages"
@@ -381,9 +368,7 @@
                         "description": "Success"
                     }
                 }
-            }
-        },
-        "/repository/chat-messages": {
+            },
             "post": {
                 "tags": [
                     "ChatMessages"

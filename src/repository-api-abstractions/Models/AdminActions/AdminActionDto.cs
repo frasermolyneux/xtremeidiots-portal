@@ -41,9 +41,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public DateTime Created { get; internal set; }
 
         [JsonProperty]
-        public string? AdminId { get; internal set; }
+        public string AdminId { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string? AdminName { get; internal set; }
+        public string AdminName { get; internal set; } = string.Empty;
     }
 }

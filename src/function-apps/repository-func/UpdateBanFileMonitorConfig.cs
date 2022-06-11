@@ -65,7 +65,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))
                             {
                                 var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.Id, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
-                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitorForGameServer(gameServerDto.Id, createBanFileMonitorDto);
+                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
                             }
                         }
                         finally

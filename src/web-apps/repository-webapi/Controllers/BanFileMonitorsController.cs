@@ -109,8 +109,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/game-servers/{serverId}/ban-file-monitors")]
-        public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
+        [Route("repository/ban-file-monitors")]
+        public async Task<IActionResult> CreateBanFileMonitor()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -127,12 +127,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (createBanFileMonitorDto == null)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-            var response = await ((IBanFileMonitorsApi)this).CreateBanFileMonitorForGameServer(serverId, createBanFileMonitorDto);
+            var response = await ((IBanFileMonitorsApi)this).CreateBanFileMonitor(createBanFileMonitorDto);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto> IBanFileMonitorsApi.CreateBanFileMonitorForGameServer(Guid serverId, CreateBanFileMonitorDto createBanFileMonitorDto)
+        async Task<ApiResponseDto> IBanFileMonitorsApi.CreateBanFileMonitor(CreateBanFileMonitorDto createBanFileMonitorDto)
         {
             var banFileMonitor = mapper.Map<BanFileMonitor>(createBanFileMonitorDto);
             banFileMonitor.LastSync = DateTime.UtcNow.AddHours(-4);

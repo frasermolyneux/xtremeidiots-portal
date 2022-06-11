@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers

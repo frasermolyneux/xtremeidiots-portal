@@ -28,7 +28,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
-            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 0, null);
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 0, null);
 
             if (!gameServersApiResponse.IsSuccess)
             {
@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 return;
             }
 
-            if (banFileMonitorDtos == null)
+            if (!banFileMonitorsApiResponse.IsSuccess)
             {
                 logger.LogCritical("Failed to retrieve ban file monitors from repository");
                 return;
@@ -47,7 +47,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
                     continue;
 
-                var banFileMonitorDto = banFileMonitorDtos.SingleOrDefault(bfm => bfm.ServerId == gameServerDto.Id);
+                var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.ServerId == gameServerDto.Id);
 
                 if (banFileMonitorDto == null)
                 {
@@ -64,13 +64,8 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                             if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))
                             {
-                                banFileMonitorDto = new BanFileMonitorDto
-                                {
-                                    GameType = gameServerDto.GameType,
-                                    FilePath = $"/{gameServerDto.LiveMod}/ban.txt"
-                                };
-
-                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitorForGameServer(gameServerDto.Id, banFileMonitorDto);
+                                var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.Id, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
+                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitorForGameServer(gameServerDto.Id, createBanFileMonitorDto);
                             }
                         }
                         finally
@@ -96,8 +91,8 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                                 if (await ftpClient.DirectoryExistsAsync(gameServerDto.LiveMod))
                                 {
-                                    banFileMonitorDto.FilePath = $"/{gameServerDto.LiveMod}/ban.txt";
-                                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(banFileMonitorDto);
+                                    var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
+                                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                                 }
                             }
                             finally

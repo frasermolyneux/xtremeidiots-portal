@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
@@ -22,9 +23,11 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
         {
             // Nullable Handling
             CreateMap<int?, int>().ConvertUsing((src, dest) => src ?? dest);
+            CreateMap<long?, long>().ConvertUsing((src, dest) => src ?? dest);
             CreateMap<bool?, bool>().ConvertUsing((src, dest) => src ?? dest);
             CreateMap<string?, string>().ConvertUsing((src, dest) => src ?? dest);
             CreateMap<double?, double>().ConvertUsing((src, dest) => src ?? dest);
+            CreateMap<Guid?, Guid>().ConvertUsing((src, dest) => src ?? dest);
             CreateMap<DateTime?, DateTime>().ConvertUsing((src, dest) => src ?? dest);
 
             // AdminActions
@@ -33,6 +36,23 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     dest => dest.Type,
                     src => src.MapFrom(src => src.Type.ToAdminActionType())
                 );
+
+            // Ban File Monitors
+            CreateMap<BanFileMonitor, BanFileMonitorDto>()
+                .ForMember(
+                    dest => dest.ServerId,
+                    src => src.MapFrom(src => src.GameServerServerId)
+                )
+                .ForMember(
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameServerServer.GameType.ToGameType())
+                );
+
+            CreateMap<CreateBanFileMonitorDto, BanFileMonitor>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<EditBanFileMonitorDto, BanFileMonitor>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Chat Messages
             CreateMap<ChatLog, ChatMessageDto>()
@@ -54,7 +74,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     dest => dest.ChatType,
                     src => src.MapFrom(src => src.ChatType.ToChatTypeInt())
                 )
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null)); ;
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
             // Demo Auth

@@ -13,7 +13,6 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -245,7 +244,7 @@ public class PlayersController : ControllerBase, IPlayersApi
                 .SingleOrDefaultAsync(p => p.PlayerId == editPlayerDto.Id);
 
         if (player == null)
-            return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);
+            return new ApiResponseDto(HttpStatusCode.NotFound);
 
         player.Username = editPlayerDto.Username;
         player.IpAddress = editPlayerDto.IpAddress ?? null;

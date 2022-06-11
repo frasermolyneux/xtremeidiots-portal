@@ -116,10 +116,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, id, 0, 0, "BannerServerListPosition");
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, id, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
 
             var viewModels = new List<BanFileMonitorViewModel>();
-            foreach (var banFileMonitor in banFileMonitorDtos)
+            foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
                 viewModels.Add(new BanFileMonitorViewModel
                 {
                     BanFileMonitorId = banFileMonitor.BanFileMonitorId,

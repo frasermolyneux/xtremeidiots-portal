@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -24,10 +25,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitorDtos = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 0, "BannerServerListPosition");
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
 
             var models = new List<BanFileMonitorViewModel>();
-            foreach (var banFileMonitor in banFileMonitorDtos)
+            foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
             {
                 var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 

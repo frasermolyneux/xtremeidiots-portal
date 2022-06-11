@@ -7,7 +7,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
     public interface IChatMessagesApi
     {
         Task<ApiResponseDto<ChatMessageDto>> GetChatMessage(Guid chatMessageId);
-
         Task<ApiResponseDto<ChatMessagesCollectionDto>> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int skipEntries, int takeEntries, ChatMessageOrder? order);
 
         Task<ApiResponseDto> CreateChatMessage(CreateChatMessageDto createChatMessageDto);

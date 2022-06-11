@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json;
 
+using System.Net;
+
 using XtremeIdiots.Portal.DataLib;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
@@ -13,63 +19,215 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 {
     [ApiController]
     [Authorize(Roles = "ServiceAccount")]
-    public class BanFileMonitorsController : Controller
+    public class BanFileMonitorsController : Controller, IBanFileMonitorsApi
     {
-        private readonly ILogger<BanFileMonitorsController> logger;
         private readonly PortalDbContext context;
+        private readonly IMapper mapper;
 
         public BanFileMonitorsController(
-            ILogger<BanFileMonitorsController> logger,
-            PortalDbContext context)
+            PortalDbContext context,
+            IMapper mapper)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
         [Route("api/ban-file-monitors/{banFileMonitorId}")]
         public async Task<IActionResult> GetBanFileMonitor(Guid banFileMonitorId)
         {
+            var response = await ((IBanFileMonitorsApi)this).GetBanFileMonitor(banFileMonitorId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<BanFileMonitorDto>> IBanFileMonitorsApi.GetBanFileMonitor(Guid banFileMonitorId)
+        {
             var banFileMonitor = await context.BanFileMonitors
                 .Include(bfm => bfm.GameServerServer)
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
 
             if (banFileMonitor == null)
-                return NotFound();
+                return new ApiResponseDto<BanFileMonitorDto>(HttpStatusCode.NotFound);
 
-            return new OkObjectResult(banFileMonitor.ToDto());
+            var result = mapper.Map<BanFileMonitorDto>(banFileMonitor);
+
+            return new ApiResponseDto<BanFileMonitorDto>(HttpStatusCode.OK, result);
         }
 
         [HttpGet]
         [Route("api/ban-file-monitors")]
-        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
+        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int? skipEntries, int? takeEntries, BanFileMonitorOrder? order)
         {
-            if (order == null)
-                order = BanFileMonitorOrder.BannerServerListPosition;
+            if (!skipEntries.HasValue)
+                skipEntries = 0;
 
-            var query = context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
+            if (!takeEntries.HasValue)
+                takeEntries = 20;
 
-            if (serverId != null)
-            {
-                query = query.Where(bfm => bfm.GameServerServerId == serverId).AsQueryable();
-            }
-
+            GameType[]? gameTypesFilter = null;
             if (!string.IsNullOrWhiteSpace(gameTypes))
             {
                 var split = gameTypes.Split(",");
-
-                var filterByGameTypes = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray().Select(gt => gt.ToGameTypeInt());
-                query = query.Where(bfm => filterByGameTypes.Contains(bfm.GameServerServer.GameType)).AsQueryable();
+                gameTypesFilter = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
             }
 
+            Guid[]? banFileMonitorsIdFilter = null;
             if (!string.IsNullOrWhiteSpace(banFileMonitorIds))
             {
                 var split = banFileMonitorIds.Split(",");
-
-                var filterByMonitorIds = split.Select(id => Guid.Parse(id)).ToArray();
-                query = query.Where(bfm => filterByMonitorIds.Contains(bfm.BanFileMonitorId)).AsQueryable();
+                banFileMonitorsIdFilter = split.Select(id => Guid.Parse(id)).ToArray();
             }
 
+            var response = await ((IBanFileMonitorsApi)this).GetBanFileMonitors(gameTypesFilter, banFileMonitorsIdFilter, serverId, skipEntries.Value, takeEntries.Value, order);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<BanFileMonitorCollectionDto>> IBanFileMonitorsApi.GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
+        {
+            var query = context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
+            query = ApplyFilter(query, gameTypes, null, null);
+            var totalCount = await query.CountAsync();
+
+            query = ApplyFilter(query, gameTypes, banFileMonitorIds, serverId);
+            var filteredCount = await query.CountAsync();
+
+            query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
+            var results = await query.ToListAsync();
+
+            var entries = results.Select(bfm => mapper.Map<BanFileMonitorDto>(bfm)).ToList();
+
+            var result = new BanFileMonitorCollectionDto
+            {
+                TotalRecords = totalCount,
+                FilteredRecords = filteredCount,
+                Entries = entries
+            };
+
+            return new ApiResponseDto<BanFileMonitorCollectionDto>(HttpStatusCode.OK, result);
+        }
+
+        [HttpPost]
+        [Route("api/game-servers/{serverId}/ban-file-monitors")]
+        public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            CreateBanFileMonitorDto? createBanFileMonitorDto;
+            try
+            {
+                createBanFileMonitorDto = JsonConvert.DeserializeObject<CreateBanFileMonitorDto>(requestBody);
+            }
+            catch
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (createBanFileMonitorDto == null)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
+
+            var response = await ((IBanFileMonitorsApi)this).CreateBanFileMonitorForGameServer(serverId, createBanFileMonitorDto);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IBanFileMonitorsApi.CreateBanFileMonitorForGameServer(Guid serverId, CreateBanFileMonitorDto createBanFileMonitorDto)
+        {
+            var banFileMonitor = mapper.Map<BanFileMonitor>(createBanFileMonitorDto);
+            banFileMonitor.LastSync = DateTime.UtcNow.AddHours(-4);
+
+            await context.BanFileMonitors.AddRangeAsync(banFileMonitor);
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        [HttpPatch]
+        [Route("api/ban-file-monitors/{banFileMonitorId}")]
+        public async Task<IActionResult> UpdateBanFileMonitor(Guid banFileMonitorId)
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            EditBanFileMonitorDto? editBanFileMonitorDto;
+            try
+            {
+                editBanFileMonitorDto = JsonConvert.DeserializeObject<EditBanFileMonitorDto>(requestBody);
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (editBanFileMonitorDto == null)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
+
+            if (editBanFileMonitorDto.BanFileMonitorId != banFileMonitorId)
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
+
+            var response = await ((IBanFileMonitorsApi)this).UpdateBanFileMonitor(editBanFileMonitorDto);
+
+            return response.ToHttpResult();
+
+        }
+
+        async Task<ApiResponseDto> IBanFileMonitorsApi.UpdateBanFileMonitor(EditBanFileMonitorDto editBanFileMonitorDto)
+        {
+            var banFileMonitor = await context.BanFileMonitors.SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == editBanFileMonitorDto.BanFileMonitorId);
+
+            if (banFileMonitor == null)
+                return new ApiResponseDto(HttpStatusCode.NotFound);
+
+            mapper.Map(editBanFileMonitorDto, banFileMonitor);
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        [HttpDelete]
+        [Route("api/ban-file-monitors/{banFileMonitorId}")]
+        public async Task<IActionResult> DeleteBanFileMonitor(Guid banFileMonitorId)
+        {
+            var response = await ((IBanFileMonitorsApi)this).DeleteBanFileMonitor(banFileMonitorId);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto> IBanFileMonitorsApi.DeleteBanFileMonitor(Guid banFileMonitorId)
+        {
+            var banFileMonitor = await context.BanFileMonitors
+                .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
+
+            if (banFileMonitor == null)
+                return new ApiResponseDto(HttpStatusCode.NotFound);
+
+            context.Remove(banFileMonitor);
+
+            await context.SaveChangesAsync();
+
+            return new ApiResponseDto(HttpStatusCode.OK);
+        }
+
+        private IQueryable<BanFileMonitor> ApplyFilter(IQueryable<BanFileMonitor> query, GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId)
+        {
+            if (gameTypes != null && gameTypes.Length > 0)
+            {
+                var gameTypeInts = gameTypes.Select(gt => gt.ToGameTypeInt()).ToArray();
+                query = query.Where(bfm => gameTypeInts.Contains(bfm.GameServerServer.GameType)).AsQueryable();
+            }
+
+            if (banFileMonitorIds != null && banFileMonitorIds.Length > 0)
+                query = query.Where(bfm => banFileMonitorIds.Contains(bfm.BanFileMonitorId)).AsQueryable();
+
+            if (serverId.HasValue)
+                query = query.Where(bfm => bfm.GameServerServerId == serverId).AsQueryable();
+
+            return query;
+        }
+
+        private IQueryable<BanFileMonitor> ApplyOrderAndLimits(IQueryable<BanFileMonitor> query, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
+        {
             switch (order)
             {
                 case BanFileMonitorOrder.BannerServerListPosition:
@@ -81,109 +239,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             }
 
             query = query.Skip(skipEntries).AsQueryable();
-            if (takeEntries != 0) query = query.Take(takeEntries).AsQueryable();
+            query = query.Take(takeEntries).AsQueryable();
 
-            var results = await query.ToListAsync();
-
-            var result = results.Select(banFileMonitor => banFileMonitor.ToDto());
-
-            return new OkObjectResult(result);
-        }
-
-        [HttpPatch]
-        [Route("api/ban-file-monitors/{banFileMonitorId}")]
-        public async Task<IActionResult> UpdateBanFileMonitor(Guid banFileMonitorId)
-        {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            BanFileMonitorDto banFileMonitorDto;
-            try
-            {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                banFileMonitorDto = JsonConvert.DeserializeObject<BanFileMonitorDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (banFileMonitorDto == null) return new BadRequestResult();
-            if (banFileMonitorDto.BanFileMonitorId != banFileMonitorId) return new BadRequestResult();
-
-            var banFileMonitor = await context.BanFileMonitors.Include(bfm => bfm.GameServerServer).SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorDto.BanFileMonitorId);
-
-            if (banFileMonitor == null)
-                return NotFound();
-
-            banFileMonitor.FilePath = banFileMonitorDto.FilePath;
-            banFileMonitor.RemoteFileSize = banFileMonitorDto.RemoteFileSize;
-            banFileMonitor.LastSync = banFileMonitorDto.LastSync;
-
-            await context.SaveChangesAsync();
-
-            return new OkObjectResult(banFileMonitor.ToDto());
-        }
-
-        [HttpDelete]
-        [Route("api/ban-file-monitors/{banFileMonitorId}")]
-        public async Task<IActionResult> DeleteBanFileMonitor(Guid banFileMonitorId)
-        {
-            var banFileMonitor = await context.BanFileMonitors
-                .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
-
-            if (banFileMonitor == null)
-                return NotFound();
-
-            context.Remove(banFileMonitor);
-            await context.SaveChangesAsync();
-
-            return new OkResult();
-        }
-
-        [HttpPost]
-        [Route("api/game-servers/{serverId}/ban-file-monitors")]
-        public async Task<IActionResult> CreateBanFileMonitorForGameServer(Guid serverId)
-        {
-            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-
-            BanFileMonitorDto banFileMonitorDto;
-            try
-            {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                banFileMonitorDto = JsonConvert.DeserializeObject<BanFileMonitorDto>(requestBody);
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Could not deserialize request body");
-                return new BadRequestResult();
-            }
-
-            if (banFileMonitorDto == null) return new BadRequestResult();
-
-            var server = await context.GameServers.SingleOrDefaultAsync(s => s.ServerId == serverId);
-
-            if (server == null)
-                throw new NullReferenceException(nameof(server));
-
-            var banFileMonitor = new BanFileMonitor
-            {
-                BanFileMonitorId = Guid.NewGuid(),
-                FilePath = banFileMonitorDto.FilePath,
-                //RemoteFileSize = banFileMonitorDto.RemoteFileSize,
-                LastSync = DateTime.UtcNow.AddHours(-4),
-                //LastError = string.Empty,
-                GameServerServer = server
-            };
-
-            context.BanFileMonitors.Add(banFileMonitor);
-            await context.SaveChangesAsync();
-
-            var result = banFileMonitor.ToDto();
-
-            return new OkObjectResult(result);
+            return query;
         }
     }
 }

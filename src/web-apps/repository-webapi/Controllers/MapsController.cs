@@ -226,7 +226,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
-                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+                return new ApiResponseDto(HttpStatusCode.NotFound);
 
             context.Remove(map);
 

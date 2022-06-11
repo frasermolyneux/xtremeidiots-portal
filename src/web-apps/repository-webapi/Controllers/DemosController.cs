@@ -16,7 +16,6 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
@@ -177,7 +176,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var demo = context.Demoes.SingleOrDefault(d => d.DemoId == demoId);
 
             if (demo == null)
-                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+                return new ApiResponseDto(HttpStatusCode.NotFound);
 
             var blobKey = $"{Guid.NewGuid()}.{demo.Game.ToGameType().DemoExtension()}";
             var blobServiceClient = new BlobServiceClient(configuration["appdata-storage-connectionstring"]);
@@ -216,7 +215,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var demo = await context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
-                return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+                return new ApiResponseDto(HttpStatusCode.NotFound);
 
             context.Remove(demo);
 

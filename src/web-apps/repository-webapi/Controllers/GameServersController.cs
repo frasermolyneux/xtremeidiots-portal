@@ -13,8 +13,6 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 using XtremeIdiots.Portal.RepositoryWebApi.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -179,7 +177,7 @@ public class GameServersController : Controller, IGameServersApi
         var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == editGameServerDto.Id);
 
         if (gameServer == null)
-            return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);
+            return new ApiResponseDto(HttpStatusCode.NotFound);
 
         mapper.Map(editGameServerDto, gameServer);
 
@@ -202,7 +200,7 @@ public class GameServersController : Controller, IGameServersApi
         var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
 
         if (gameServer == null)
-            return new ApiResponseDto<MapDto>(HttpStatusCode.NotFound);
+            return new ApiResponseDto(HttpStatusCode.NotFound);
 
         await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
         await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");

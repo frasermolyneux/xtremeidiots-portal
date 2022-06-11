@@ -1,15 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using Newtonsoft.Json;
 
 using RestSharp;
 
-using System.Net;
-
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
+using XtremeIdiots.Portal.RepositoryApiClient.Extensions;
 
 namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
@@ -19,21 +18,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<BanFileMonitorDto?> GetBanFileMonitor(Guid banFileMonitorId)
+        public async Task<ApiResponseDto<BanFileMonitorDto>> GetBanFileMonitor(Guid banFileMonitorId)
         {
             var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Get);
             var response = await ExecuteAsync(request);
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
-                return null;
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<BanFileMonitorDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<BanFileMonitorDto>();
         }
 
-        public async Task<List<BanFileMonitorDto>?> GetBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, string order)
+        public async Task<ApiResponseDto<BanFileMonitorCollectionDto>> GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
         {
             var request = await CreateRequest("ban-file-monitors", Method.Get);
 
@@ -43,53 +36,46 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (banFileMonitorIds != null)
                 request.AddQueryParameter("banFileMonitorIds", string.Join(",", banFileMonitorIds));
 
-            if (serverId != null)
+            if (serverId.HasValue)
                 request.AddQueryParameter("serverId", serverId.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());
 
-            if (!string.IsNullOrWhiteSpace(order))
-                request.AddQueryParameter("order", order);
+            if (order.HasValue)
+                request.AddQueryParameter("order", order.ToString());
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<List<BanFileMonitorDto>>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse<BanFileMonitorCollectionDto>();
         }
 
-        public async Task<BanFileMonitorDto?> UpdateBanFileMonitor(BanFileMonitorDto banFileMonitor)
-        {
-            var request = await CreateRequest($"ban-file-monitors/{banFileMonitor.BanFileMonitorId}", Method.Patch);
-            request.AddJsonBody(banFileMonitor);
-
-            var response = await ExecuteAsync(request);
-
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<BanFileMonitorDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
-        }
-
-        public async Task DeleteBanFileMonitor(Guid banFileMonitorId)
-        {
-            var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Delete);
-            await ExecuteAsync(request);
-        }
-
-        public async Task<BanFileMonitorDto?> CreateBanFileMonitorForGameServer(Guid serverId, BanFileMonitorDto banFileMonitor)
+        public async Task<ApiResponseDto> CreateBanFileMonitorForGameServer(Guid serverId, CreateBanFileMonitorDto createBanFileMonitorDto)
         {
             var request = await CreateRequest($"game-servers/{serverId}/ban-file-monitors", Method.Post);
-            request.AddJsonBody(banFileMonitor);
+            request.AddJsonBody(createBanFileMonitorDto);
 
             var response = await ExecuteAsync(request);
 
-            if (response.Content != null)
-                return JsonConvert.DeserializeObject<BanFileMonitorDto>(response.Content);
-            else
-                throw new Exception($"Response of {request.Method} to '{request.Resource}' has no content");
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> UpdateBanFileMonitor(EditBanFileMonitorDto editBanFileMonitorDto)
+        {
+            var request = await CreateRequest($"ban-file-monitors/{editBanFileMonitorDto.BanFileMonitorId}", Method.Patch);
+            request.AddJsonBody(editBanFileMonitorDto);
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> DeleteBanFileMonitor(Guid banFileMonitorId)
+        {
+            var request = await CreateRequest($"ban-file-monitors/{banFileMonitorId}", Method.Delete);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
     }
 }

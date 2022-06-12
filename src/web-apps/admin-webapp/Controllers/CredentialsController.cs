@@ -29,6 +29,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
             foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
                 var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.Id), AuthPolicies.ViewFtpCredential);

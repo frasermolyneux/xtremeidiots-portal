@@ -6,7 +6,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
-    public class AdminActionViewModel
+    public class EditAdminActionViewModel
     {
         public Guid AdminActionId { get; set; }
         public Guid PlayerId { get; set; }

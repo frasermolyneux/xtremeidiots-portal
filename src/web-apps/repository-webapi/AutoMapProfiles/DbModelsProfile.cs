@@ -49,6 +49,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.UserProfile)
                 );
 
+            CreateMap<CreateAdminActionDto, AdminAction>();
+
+            CreateMap<EditAdminActionDto, AdminAction>();
+
             // Ban File Monitors
             CreateMap<BanFileMonitor, BanFileMonitorDto>()
                 .ForMember(

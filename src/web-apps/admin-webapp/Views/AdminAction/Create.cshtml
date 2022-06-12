@@ -1,9 +1,9 @@
 ﻿@using XtremeIdiots.Portal.AdminWebApp.ViewModels
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@model AdminActionViewModel
+@model CreateAdminActionViewModel
 
 @{
-    ViewData["Title"] = "Create " + Model.Type + " for " + Model.PlayerDto.Username;
+    ViewData["Title"] = "Create " + Model.Type + " for " + Model.PlayerDto?.Username;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">

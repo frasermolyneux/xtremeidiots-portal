@@ -1,6 +1,6 @@
 ﻿@using XtremeIdiots.Portal.AdminWebApp.Extensions
-@using XtremeIdiots.Portal.AdminWebApp.ViewModels
-@model BanFileMonitorViewModel
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
+@model BanFileMonitorDto
 
 @{
     ViewData["Title"] = "Ban File Monitor Details";
@@ -19,16 +19,16 @@
                     <div class="ibox-content">
                         <dl class="row">
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.GameServer)
+                                Game Server
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.ServerName(Model.GameServer.Title, null)
+                                @Html.ServerName(Model.GameServerDto.LiveTitle, Model.GameServerDto.Title)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.FilePath)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort, Model.FilePath)
+                                @Html.MonitorFtpPath(Model.GameServerDto.FtpHostname, Model.GameServerDto.FtpPort, Model.FilePath)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.RemoteFileSize)

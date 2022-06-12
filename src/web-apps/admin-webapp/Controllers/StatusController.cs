@@ -27,12 +27,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
 
-            var models = new List<BanFileMonitorViewModel>();
+            var models = new List<EditBanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
             {
                 var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
 
-                models.Add(new BanFileMonitorViewModel
+                models.Add(new EditBanFileMonitorViewModel
                 {
                     BanFileMonitorId = banFileMonitor.BanFileMonitorId,
                     FilePath = banFileMonitor.FilePath,

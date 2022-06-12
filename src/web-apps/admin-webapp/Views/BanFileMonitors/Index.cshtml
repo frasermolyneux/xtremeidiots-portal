@@ -2,9 +2,9 @@
 @using Microsoft.AspNetCore.Authorization
 @using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
 @using XtremeIdiots.Portal.AdminWebApp.Extensions
-@using XtremeIdiots.Portal.AdminWebApp.ViewModels
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@model IEnumerable<BanFileMonitorViewModel>
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
+@model IEnumerable<BanFileMonitorDto>
 
 @{
     ViewData["Title"] = "Ban File Monitor Index";
@@ -26,16 +26,16 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.GameServer)
+                                    Game Server
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.FilePath)
+                                    File Path
                                 </th>
                                 <th>
                                     Mod Check
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.LastSync)
+                                    Last Sync
                                 </th>
                                 <th></th>
                             </tr>
@@ -45,27 +45,27 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.GameTypeIcon(item.GameServer.GameType)
-                                        @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                        @Html.GameTypeIcon(item.GameServerDto.GameType)
+                                        @Html.ServerName(item.GameServerDto.Title, item.GameServerDto.LiveTitle)
                                     </td>
                                     <td>
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServerDto.GameType, item.GameServerDto.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
                                         {
-                                            @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                                            @Html.MonitorFtpPath(item.GameServerDto.FtpHostname, item.GameServerDto.FtpPort, item.FilePath, item.GameServerDto.FtpUsername, item.GameServerDto.FtpPassword)
                                         }
                                         else
                                         {
-                                            @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort, item.FilePath)
+                                            @Html.MonitorFtpPath(item.GameServerDto.FtpHostname, item.GameServerDto.FtpPort, item.FilePath)
                                         }
                                     </td>
                                     <td>
-                                        @if(item.FilePath.ToLower().Contains(item.GameServer.LiveMod.ToLower()))
+                                        @if(item.FilePath.ToLower().Contains(item.GameServerDto.LiveMod.ToLower()))
                                         {
-                                            <span class="badge badge-success">@item.GameServer.LiveMod is included in path</span>
+                                            <span class="badge badge-success">@item.GameServerDto.LiveMod is included in path</span>
                                         }
                                         else
                                         {
-                                            <span class="badge badge-danger">@item.GameServer.LiveMod is not included in path</span>
+                                            <span class="badge badge-danger">@item.GameServerDto.LiveMod is not included in path</span>
                                         }
                                     </td>
                                     <td>
@@ -73,24 +73,24 @@
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServerDto.GameType, item.GameServerDto.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
                                             {
                                                 <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit Monitor</a>
                                             }
 
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.EditGameServer)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServerDto.GameType, item.GameServerDto.Id), AuthPolicies.EditGameServer)).Succeeded)
                                             {
-                                                <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServer.Id"><i class="fa fa-edit"></i> Edit Game Server</a>
+                                                <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit" asp-route-id="@item.GameServerDto.Id"><i class="fa fa-edit"></i> Edit Game Server</a>
                                             }
 
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.ViewBanFileMonitor)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServerDto.GameType, item.GameServerDto.Id), AuthPolicies.ViewBanFileMonitor)).Succeeded)
                                             {
                                                 <a type="button" class="btn btn-primary" asp-action="Details" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-info-circle"></i> Details</a>
                                             }
 
                                             <a type="button" class="btn btn-primary" asp-controller="Servers" asp-action="ServerInfo" asp-route-id="@item.ServerId"><i class="fa fa-info-circle"></i> Server Info</a>
 
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.Id), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServerDto.GameType, item.GameServerDto.Id), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
                                             {
                                                 <a type="button" class="btn btn-danger" asp-action="Delete" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-trash"></i> Delete</a>
                                             }

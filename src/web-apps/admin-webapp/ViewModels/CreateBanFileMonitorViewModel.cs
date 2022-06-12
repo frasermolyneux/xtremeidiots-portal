@@ -5,10 +5,8 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
-    public class BanFileMonitorViewModel
+    public class CreateBanFileMonitorViewModel
     {
-        public Guid BanFileMonitorId { get; set; }
-
         [Required][DisplayName("File Path")] public string FilePath { get; set; }
 
         [DisplayName("Remote File Size")] public long RemoteFileSize { get; set; }

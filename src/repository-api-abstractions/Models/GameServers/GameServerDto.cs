@@ -94,5 +94,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         {
             RconPassword = null;
         }
+
+        public void ClearNoPermissionBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds)
+        {
+            BanFileMonitorDtos = BanFileMonitorDtos.Where(bfm => gameTypes.Contains(bfm.GameType) || banFileMonitorIds.Contains(bfm.BanFileMonitorId)).ToList();
+        }
     }
 }

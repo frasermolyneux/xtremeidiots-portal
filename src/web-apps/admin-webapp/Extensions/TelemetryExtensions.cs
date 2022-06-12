@@ -3,6 +3,8 @@
 using System.Security.Claims;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Extensions
@@ -11,38 +13,67 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
     {
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, ClaimsPrincipal claimsPrincipal)
         {
-            eventTelemetry.Properties.Add("LoggedInAdminId", claimsPrincipal.XtremeIdiotsId());
-            eventTelemetry.Properties.Add("LoggedInUsername", claimsPrincipal.Username());
+            eventTelemetry.Properties.TryAdd("LoggedInAdminId", claimsPrincipal.XtremeIdiotsId());
+            eventTelemetry.Properties.TryAdd("LoggedInUsername", claimsPrincipal.Username());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, AdminActionDto adminActionDto)
         {
-            eventTelemetry.Properties.Add("PlayerId", adminActionDto.PlayerId.ToString());
-            eventTelemetry.Properties.Add("AdminActionType", adminActionDto.Type.ToString());
+            eventTelemetry.Properties.TryAdd("PlayerId", adminActionDto.PlayerId.ToString());
+            eventTelemetry.Properties.TryAdd("AdminActionType", adminActionDto.Type.ToString());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, CreateAdminActionDto createAdminActionDto)
         {
-            eventTelemetry.Properties.Add("PlayerId", createAdminActionDto.PlayerId.ToString());
-            eventTelemetry.Properties.Add("AdminActionType", createAdminActionDto.Type.ToString());
+            eventTelemetry.Properties.TryAdd("PlayerId", createAdminActionDto.PlayerId.ToString());
+            eventTelemetry.Properties.TryAdd("AdminActionType", createAdminActionDto.Type.ToString());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, EditAdminActionDto editAdminActionDto)
         {
-            eventTelemetry.Properties.Add("AdminActionId", editAdminActionDto.AdminActionId.ToString());
+            eventTelemetry.Properties.TryAdd("AdminActionId", editAdminActionDto.AdminActionId.ToString());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, PlayerDto playerDto)
         {
-            eventTelemetry.Properties.Add("PlayerId", playerDto.Id.ToString());
+            eventTelemetry.Properties.TryAdd("PlayerId", playerDto.Id.ToString());
+
+            return eventTelemetry;
+        }
+
+        public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, GameServerDto gameServerDto)
+        {
+            eventTelemetry.Properties.TryAdd("GameServerId", gameServerDto.Id.ToString());
+
+            return eventTelemetry;
+        }
+
+        public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, BanFileMonitorDto banFileMonitorDto)
+        {
+            eventTelemetry.Properties.TryAdd("BanFileMonitorId", banFileMonitorDto.BanFileMonitorId.ToString());
+            eventTelemetry.Properties.TryAdd("GameServerId", banFileMonitorDto.ServerId.ToString());
+
+            return eventTelemetry;
+        }
+
+        public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, CreateBanFileMonitorDto createBanFileMonitorDto)
+        {
+            eventTelemetry.Properties.TryAdd("GameServerId", createBanFileMonitorDto.ServerId.ToString());
+
+            return eventTelemetry;
+        }
+
+        public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, EditBanFileMonitorDto editBanFileMonitorDto)
+        {
+            eventTelemetry.Properties.TryAdd("GameServerId", editBanFileMonitorDto.BanFileMonitorId.ToString());
 
             return eventTelemetry;
         }

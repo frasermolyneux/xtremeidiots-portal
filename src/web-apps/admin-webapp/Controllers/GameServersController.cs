@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
-using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
@@ -37,9 +36,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            var viewModels = gameServersApiResponse.Result.Entries.Select(gs => gs.ToViewModel()).ToList();
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return View(viewModels);
+            return View(gameServersApiResponse.Result.Entries);
         }
 
         [HttpGet]
@@ -117,27 +117,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, id, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
+            gameServerApiResponse.Result.ClearNoPermissionBanFileMonitors(gameTypes, banFileMonitorIds);
 
-            var viewModels = new List<BanFileMonitorViewModel>();
-            foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
-                viewModels.Add(new BanFileMonitorViewModel
-                {
-                    BanFileMonitorId = banFileMonitor.BanFileMonitorId,
-                    FilePath = banFileMonitor.FilePath,
-                    RemoteFileSize = banFileMonitor.RemoteFileSize,
-                    LastSync = banFileMonitor.LastSync,
-                    ServerId = banFileMonitor.ServerId,
-                    GameServer = gameServerApiResponse.Result
-                });
-
-            var model = new GameServerDetailsViewModel
-            {
-                GameServerViewModel = gameServerApiResponse.Result.ToViewModel(),
-                BanFileMonitors = viewModels
-            };
-
-            return View(model);
+            return View(gameServerApiResponse.Result);
         }
 
         [HttpGet]

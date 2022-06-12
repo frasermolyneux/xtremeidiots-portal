@@ -8,12 +8,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
     public class BannersController : Controller
     {
+        private readonly IRepositoryApiClient repositoryApiClient;
+
         public BannersController(IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryApiClient = repositoryApiClient;
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         }
-
-        public IRepositoryApiClient RepositoryApiClient { get; }
 
         public IActionResult GameServersList()
         {
@@ -23,11 +23,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
-            var gameServersApiResponse = await RepositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnBannerServerList, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnBannerServerList, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            var filtered = gameServersApiResponse.Result.Entries.Where(s => !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var htmlBanners = filtered.Select(gs => gs.HtmlBanner).ToList();
+            var htmlBanners = gameServersApiResponse.Result.Entries.Select(gs => gs.HtmlBanner).ToList();
 
             return Json(htmlBanners);
         }

@@ -235,7 +235,7 @@ public class GameServersController : Controller, IGameServersApi
                 query = query.Where(s => s.ShowOnPortalServerList).AsQueryable();
                 break;
             case GameServerFilter.ShowOnBannerServerList:
-                query = query.Where(s => s.ShowOnBannerServerList).AsQueryable();
+                query = query.Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner)).AsQueryable();
                 break;
             case GameServerFilter.LiveStatusEnabled:
                 query = query.Where(s => s.LiveStatusEnabled).AsQueryable();

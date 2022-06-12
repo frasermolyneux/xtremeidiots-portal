@@ -175,6 +175,8 @@ public class PlayersController : ControllerBase, IPlayersApi
                 return new ApiResponseDto(HttpStatusCode.Conflict, $"Player with gameType '{createPlayerDto.GameType}' and guid '{createPlayerDto.Guid}' already exists");
 
             var player = mapper.Map<Player>(createPlayerDto);
+            player.FirstSeen = DateTime.UtcNow;
+            player.LastSeen = DateTime.UtcNow;
 
             if (IPAddress.TryParse(createPlayerDto.IpAddress, out var ip))
             {

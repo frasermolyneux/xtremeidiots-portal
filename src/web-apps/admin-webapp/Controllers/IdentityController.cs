@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
+
 using System.Security.Claims;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -21,7 +20,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string returnUrl = null)
+        public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
 
@@ -31,7 +30,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult LoginWithXtremeIdiots(string returnUrl = null)
+        public IActionResult LoginWithXtremeIdiots(string? returnUrl = null)
         {
             var redirectUrl = Url.Action("ExternalLoginCallback", "Identity", new { ReturnUrl = returnUrl });
             var properties = _xtremeIdiotsAuth.ConfigureExternalAuthenticationProperties(redirectUrl);
@@ -40,7 +39,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
         {
             if (remoteError != null)
             {
@@ -78,16 +77,16 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public async Task<IActionResult> Logout(string returnUrl = null)
+        public async Task<IActionResult> Logout(string? returnUrl = null)
         {
-            _logger.LogInformation("User {User} logged out", User.Identity.Name);
+            _logger.LogInformation("User {User} logged out", User.Identity?.Name);
 
             await _xtremeIdiotsAuth.SignOutAsync();
 
             return RedirectToLocal(returnUrl);
         }
 
-        private IActionResult RedirectToLocal(string returnUrl)
+        private IActionResult RedirectToLocal(string? returnUrl)
         {
             if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
                 return Redirect(returnUrl);

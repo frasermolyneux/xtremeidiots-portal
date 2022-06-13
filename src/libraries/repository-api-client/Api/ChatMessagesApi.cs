@@ -26,7 +26,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<ChatMessageDto>();
         }
 
-        public async Task<ApiResponseDto<ChatMessagesCollectionDto>> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string filterString, int skipEntries, int takeEntries, ChatMessageOrder? order)
+        public async Task<ApiResponseDto<ChatMessagesCollectionDto>> GetChatMessages(GameType? gameType, Guid? serverId, Guid? playerId, string? filterString, int skipEntries, int takeEntries, ChatMessageOrder? order)
         {
             var request = await CreateRequest("chat-messages", Method.Get);
 

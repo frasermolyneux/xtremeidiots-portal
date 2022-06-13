@@ -1,10 +1,8 @@
 ﻿using FM.GeoLocation.Contract.Interfaces;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.InvisionApiClient;
 
@@ -28,7 +26,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     try
                     {
                         var response = await forumsClient.Core.GetCoreHello();
-                        var checkResponse = response.CommunityUrl == "https://www.xtremeidiots.com/";
+                        var checkResponse = response?.CommunityUrl == "https://www.xtremeidiots.com/";
                         return new Tuple<bool, string>(checkResponse, "OK");
                     }
                     catch (Exception ex)
@@ -77,15 +75,28 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             foreach (var healthCheckComponent in _healthCheckComponents)
             {
-                var (isHealthy, additionalData) = await healthCheckComponent.HealthFunc.Invoke();
-
-                result.Components.Add(new HealthCheckComponentStatus
+                if (healthCheckComponent.HealthFunc != null)
                 {
-                    Name = healthCheckComponent.Name,
-                    Critical = healthCheckComponent.Critical,
-                    IsHealthy = isHealthy,
-                    AdditionalData = additionalData
-                });
+                    var (isHealthy, additionalData) = await healthCheckComponent.HealthFunc.Invoke();
+
+                    result.Components.Add(new HealthCheckComponentStatus
+                    {
+                        Name = healthCheckComponent.Name,
+                        Critical = healthCheckComponent.Critical,
+                        IsHealthy = isHealthy,
+                        AdditionalData = additionalData
+                    });
+                }
+                else
+                {
+                    result.Components.Add(new HealthCheckComponentStatus
+                    {
+                        Name = healthCheckComponent.Name,
+                        Critical = healthCheckComponent.Critical,
+                        IsHealthy = false,
+                        AdditionalData = "Invalid health check function"
+                    });
+                }
             }
 
             var actionResult = new JsonResult(result);
@@ -108,17 +119,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
         public class HealthCheckComponent
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public bool Critical { get; set; }
-            public Func<Task<Tuple<bool, string>>> HealthFunc { get; set; }
+            public Func<Task<Tuple<bool, string>>>? HealthFunc { get; set; }
         }
 
         public class HealthCheckComponentStatus
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
             public bool Critical { get; set; }
             public bool IsHealthy { get; set; }
-            public string AdditionalData { get; set; }
+            public string? AdditionalData { get; set; }
         }
     }
 }

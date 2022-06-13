@@ -39,6 +39,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, GameServerFilter.LiveStatusEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
             var results = gameServersApiResponse.Result.Entries.Select(gs => new ServerAdminGameServerViewModel
             {
                 GameServer = gs
@@ -51,6 +54,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> ViewRcon(Guid id)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
@@ -65,16 +71,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
+
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var serverRcoStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(id);
+            var serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(id);
 
             return Json(new
             {
-                data = serverRcoStatusResponseDto.Players
+                data = serverRconStatusResponseDto?.Players
             });
         }
 
@@ -82,6 +91,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> RestartServer(Guid id)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
@@ -109,6 +121,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
+
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
@@ -134,6 +149,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> FastRestartMap(Guid id)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
@@ -161,6 +179,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
+
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
@@ -186,6 +207,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
 
             var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
 
@@ -245,7 +269,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse == null)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewServerChatLog);
@@ -262,7 +286,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse == null)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewServerChatLog);
@@ -276,17 +300,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayerChatLog(Guid id)
         {
-            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer(id);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id);
 
-            if (playerDtoApiResponse == null)
+            if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerDtoApiResponse.Result.GameType, AuthPolicies.ViewGameChatLog);
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerApiResponse.Result.GameType, AuthPolicies.ViewGameChatLog);
 
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerDtoApiResponse.Result.GameType, null, playerDtoApiResponse.Result.Id);
+            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.Id);
         }
 
         private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)
@@ -314,6 +338,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             }
 
             var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, serverId, playerId, model.Search?.Value, model.Start, model.Length, order);
+
+            if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
 
             return Json(new
             {

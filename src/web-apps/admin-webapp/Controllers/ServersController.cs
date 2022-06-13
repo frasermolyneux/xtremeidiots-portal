@@ -6,9 +6,8 @@ using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApiClient;
-using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -16,20 +15,20 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
     public class ServersController : Controller
     {
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IServersApiClient serversApiClient;
 
         public ServersController(
-            IRepositoryApiClient repositoryApiClient,
-            IServersApiClient serversApiClient)
+            IRepositoryApiClient repositoryApiClient)
         {
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.serversApiClient = serversApiClient;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 50, GameServerOrder.BannerServerListPosition);
+
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
 
             var result = gameServersApiResponse.Result.Entries.Select(gs => new ServersGameServerViewModel(gs)).ToList();
 
@@ -48,46 +47,58 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
+            MapDto? mapDto = null;
+            if (!string.IsNullOrWhiteSpace(gameServerApiResponse.Result.LiveMap))
+            {
+                var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.LiveMap);
+                mapDto = mapApiResponse.Result ?? null;
+            }
+
             var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerApiResponse.Result.Id, DateTime.UtcNow.AddDays(-2));
-            var livePlayersResponseDto = await repositoryApiClient.LivePlayers.GetLivePlayers(null, gameServerApiResponse.Result.Id, LivePlayerFilter.GeoLocated, 0, 50, LivePlayersOrder.ScoreDesc);
-
-            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.LiveMap);
-            var mapDto = mapApiResponse.Result ?? null;
-
-            var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-            var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
+            var gameServerStatDtos = new List<GameServerStatDto>();
+            var maps = new List<MapDto>();
 
-            GameServerStatDto? current = null;
-            foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Entries.OrderBy(gss => gss.Timestamp))
+            if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result != null)
             {
-                if (current == null)
+                gameServerStatDtos = gameServerStatsResponseDto.Result.Entries;
+
+                GameServerStatDto? current = null;
+                foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Entries.OrderBy(gss => gss.Timestamp))
                 {
-                    current = gameServerStatusStatDto;
-                    continue;
+                    if (current == null)
+                    {
+                        current = gameServerStatusStatDto;
+                        continue;
+                    }
+
+                    if (current.MapName != gameServerStatusStatDto.MapName)
+                    {
+                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
+                        current = gameServerStatusStatDto;
+                        continue;
+                    }
+
+                    if (current == gameServerStatsResponseDto.Result.Entries.Last())
+                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
                 }
 
-                if (current.MapName != gameServerStatusStatDto.MapName)
-                {
-                    mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
-                    current = gameServerStatusStatDto;
-                    continue;
-                }
+                var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
+                var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
-                if (current == gameServerStatsResponseDto.Result.Entries.Last())
-                    mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
+                if (mapsCollectionApiResponse.Result != null)
+                    maps = mapsCollectionApiResponse.Result.Entries;
             }
 
             return View(new ServersGameServerViewModel(gameServerApiResponse.Result)
             {
                 Map = mapDto,
-                Maps = mapsCollectionApiResponse.Result.Entries,
-                GameServerStats = gameServerStatsResponseDto.Result.Entries,
-                LivePlayers = livePlayersResponseDto.Result?.Entries != null ? livePlayersResponseDto.Result.Entries : new List<LivePlayerDto>(),
+                Maps = maps,
+                GameServerStats = gameServerStatDtos,
                 MapTimelineDataPoints = mapTimelineDataPoints
             });
         }

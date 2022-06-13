@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         }
 
-        public AuthenticationProperties ConfigureExternalAuthenticationProperties(string redirectUrl)
+        public AuthenticationProperties ConfigureExternalAuthenticationProperties(string? redirectUrl)
         {
             return _signInManager.ConfigureExternalAuthenticationProperties("XtremeIdiots", redirectUrl);
         }

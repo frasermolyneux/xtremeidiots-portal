@@ -95,6 +95,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var playerCollectionApiResponse = await repositoryApiClient.Players.GetPlayers(gameType, filter, model.Search?.Value, model.Start, model.Length, order);
 
+            if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
             return Json(new
             {
                 model.Draw,
@@ -105,23 +108,22 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(Guid? id)
+        public async Task<IActionResult> Details(Guid id)
         {
-            if (id == null) return NotFound();
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id);
 
-            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayer((Guid)id);
-            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, (Guid)id, null, null, 0, 50, AdminActionOrder.CreatedDesc);
+            if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
+                return NotFound();
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = playerDtoApiResponse.Result,
-                AdminActions = adminActionsApiResponse.Result.Entries
+                Player = playerApiResponse.Result
             };
 
-            if (!string.IsNullOrWhiteSpace(playerDtoApiResponse.Result.IpAddress))
+            if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.IpAddress))
                 try
                 {
-                    var geoLocation = await _geoLocationClient.LookupAddress(playerDtoApiResponse.Result.IpAddress);
+                    var geoLocation = await _geoLocationClient.LookupAddress(playerApiResponse.Result.IpAddress);
 
                     if (geoLocation.Success)
                         playerDetailsViewModel.GeoLocation = geoLocation.GeoLocationDto;
@@ -139,6 +141,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 50, AdminActionOrder.CreatedDesc);
 
+            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
             return View(adminActionsApiResponse.Result.Entries);
         }
 
@@ -146,6 +151,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Unclaimed()
         {
             var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 50, AdminActionOrder.CreatedDesc);
+
+            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
 
             return View(adminActionsApiResponse.Result.Entries);
         }
@@ -162,25 +170,34 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff)
         {
-            var data = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(cutoff);
 
-            return Json(data.Result.Entries);
+            if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            return Json(playerAnalyticsResponse.Result.Entries);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff)
         {
-            var data = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(cutoff);
 
-            return Json(data.Result.Entries);
+            if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            return Json(playerAnalyticsResponse.Result.Entries);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var data = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(cutoff);
 
-            return Json(data.Result.Entries);
+            if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            return Json(playerAnalyticsResponse.Result.Entries);
         }
     }
 }

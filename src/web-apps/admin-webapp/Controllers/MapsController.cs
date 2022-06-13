@@ -64,6 +64,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var mapsApiResponse = await repositoryApiClient.Maps.GetMaps(id, null, null, model.Search?.Value, model.Start, model.Length, order);
 
+            if (!mapsApiResponse.IsSuccess || mapsApiResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
             return Json(new
             {
                 model.Draw,
@@ -81,7 +84,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameType, mapName);
 
-            if (!mapApiResponse.IsSuccess || string.IsNullOrWhiteSpace(mapApiResponse.Result.MapImageUri))
+            if (!mapApiResponse.IsSuccess || mapApiResponse.Result == null || string.IsNullOrWhiteSpace(mapApiResponse.Result.MapImageUri))
                 return Redirect("/images/noimage.jpg");
 
             return Redirect(mapApiResponse.Result.MapImageUri);

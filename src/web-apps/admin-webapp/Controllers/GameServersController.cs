@@ -106,7 +106,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             var canViewGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewGameServer);
@@ -127,7 +127,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             AddGameTypeViewData(gameServerApiResponse.Result.GameType);
@@ -156,7 +156,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.ServerId);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             if (!ModelState.IsValid)
@@ -211,7 +211,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
@@ -229,7 +229,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
-            if (gameServerApiResponse.IsNotFound)
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
             var canDeleteGameServer = await _authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);

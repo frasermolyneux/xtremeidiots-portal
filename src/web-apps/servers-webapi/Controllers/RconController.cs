@@ -31,15 +31,15 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/rcon/{serverId}/status")]
-        public async Task<IActionResult> GetServerStatus(Guid serverId)
+        [Route("api/rcon/{gameServerId}/status")]
+        public async Task<IActionResult> GetServerStatus(Guid gameServerId)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(serverId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(gameServerId);
 
             if (gameServerApiResponse.IsNotFound)
                 return NotFound();
 
-            var queryClient = rconClientFactory.CreateInstance(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.Id, gameServerApiResponse.Result.Hostname, gameServerApiResponse.Result.QueryPort, gameServerApiResponse.Result.RconPassword);
+            var queryClient = rconClientFactory.CreateInstance(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.Hostname, gameServerApiResponse.Result.QueryPort, gameServerApiResponse.Result.RconPassword);
 
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("RconServerStatus");
             operation.Telemetry.Type = $"{gameServerApiResponse.Result.GameType}Server";

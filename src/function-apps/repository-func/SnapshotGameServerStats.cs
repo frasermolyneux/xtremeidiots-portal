@@ -48,7 +48,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     ServerQueryStatusResponseDto serverQueryStatusResponseDto = null;
                     try
                     {
-                        serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
+                        serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
 
                         if (serverQueryStatusResponseDto == null)
                             throw new Exception("Server query response was null");
@@ -72,7 +72,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         continue;
                     }
 
-                    gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.Id, serverQueryStatusResponseDto.PlayerCount, serverQueryStatusResponseDto.Map));
+                    gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, serverQueryStatusResponseDto.PlayerCount, serverQueryStatusResponseDto.Map));
                 }
             }
 

@@ -53,8 +53,8 @@ public class PlayersController : ControllerBase, IPlayersApi
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
 
         var playerIpAddresses = await context.PlayerIpAddresses
-            .Include(ip => ip.PlayerPlayer)
-            .Where(ip => ip.Address == player.IpAddress && ip.PlayerPlayerId != player.PlayerId)
+            .Include(ip => ip.Player)
+            .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
             .ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);
@@ -84,8 +84,8 @@ public class PlayersController : ControllerBase, IPlayersApi
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
 
         var playerIpAddresses = await context.PlayerIpAddresses
-            .Include(ip => ip.PlayerPlayer)
-            .Where(ip => ip.Address == player.IpAddress && ip.PlayerPlayerId != player.PlayerId)
+            .Include(ip => ip.Player)
+            .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
             .ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);

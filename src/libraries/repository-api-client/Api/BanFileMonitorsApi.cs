@@ -26,7 +26,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<BanFileMonitorDto>();
         }
 
-        public async Task<ApiResponseDto<BanFileMonitorCollectionDto>> GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
+        public async Task<ApiResponseDto<BanFileMonitorCollectionDto>> GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? gameServerId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
         {
             var request = await CreateRequest("ban-file-monitors", Method.Get);
 
@@ -36,8 +36,8 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             if (banFileMonitorIds != null)
                 request.AddQueryParameter("banFileMonitorIds", string.Join(",", banFileMonitorIds));
 
-            if (serverId.HasValue)
-                request.AddQueryParameter("serverId", serverId.ToString());
+            if (gameServerId.HasValue)
+                request.AddQueryParameter("gameServerId", gameServerId.ToString());
 
             request.AddQueryParameter("takeEntries", takeEntries.ToString());
             request.AddQueryParameter("skipEntries", skipEntries.ToString());

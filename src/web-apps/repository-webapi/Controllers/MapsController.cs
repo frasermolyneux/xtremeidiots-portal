@@ -283,14 +283,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         async Task<ApiResponseDto> IMapsApi.UpsertMapVote(Guid mapId, Guid playerId, bool like)
         {
             var mapVote = await context.MapVotes
-                .SingleOrDefaultAsync(mv => mv.MapMapId == mapId && mv.PlayerPlayerId == playerId);
+                .SingleOrDefaultAsync(mv => mv.MapId == mapId && mv.PlayerId == playerId);
 
             if (mapVote == null)
             {
                 var mapVoteToAdd = new MapVote
                 {
-                    MapMapId = mapId,
-                    PlayerPlayerId = playerId,
+                    MapId = mapId,
+                    PlayerId = playerId,
                     Like = like,
                     Timestamp = DateTime.UtcNow
                 };

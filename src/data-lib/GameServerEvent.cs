@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.DataLib
     public partial class GameServerEvent
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid GameServerEventId { get; set; }
         public Guid GameServerId { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Timestamp { get; set; }

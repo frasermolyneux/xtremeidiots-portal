@@ -45,7 +45,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             var userProfile = await context.UserProfiles
                 .Include(up => up.UserProfileClaims)
-                .SingleOrDefaultAsync(up => up.Id == userProfileId);
+                .SingleOrDefaultAsync(up => up.UserProfileId == userProfileId);
 
             if (userProfile == null)
                 return new ApiResponseDto<UserProfileDto>(HttpStatusCode.NotFound);
@@ -212,7 +212,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             foreach (var editUserProfileDto in editUserProfileDtos)
             {
-                var userProfile = await context.UserProfiles.SingleAsync(up => up.Id == editUserProfileDto.Id);
+                var userProfile = await context.UserProfiles.SingleAsync(up => up.UserProfileId == editUserProfileDto.Id);
                 mapper.Map(editUserProfileDto, userProfile);
             }
 

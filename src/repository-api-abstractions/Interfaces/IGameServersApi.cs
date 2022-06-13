@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
     public interface IGameServersApi
     {
         Task<ApiResponseDto<GameServerDto>> GetGameServer(Guid gameServerId);
-        Task<ApiResponseDto<GameServersCollectionDto>> GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order);
+        Task<ApiResponseDto<GameServersCollectionDto>> GetGameServers(GameType[]? gameTypes, Guid[]? gameServerIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order);
 
         Task<ApiResponseDto> CreateGameServer(CreateGameServerDto createGameServerDto);
         Task<ApiResponseDto> CreateGameServers(List<CreateGameServerDto> createGameServerDtos);

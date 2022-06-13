@@ -109,8 +109,8 @@
                             {
                                 <tr>
                                     @{
-                                        Guid.TryParse(claim.ClaimValue, out var serverId);
-                                        var server = gameServers.FirstOrDefault(s => s.Id == serverId);
+                                        Guid.TryParse(claim.ClaimValue, out var gameServerId);
+                                        var server = gameServers.FirstOrDefault(s => s.GameServerId == gameServerId);
                                     }
 
                                     <td>@claim.ClaimType</td>

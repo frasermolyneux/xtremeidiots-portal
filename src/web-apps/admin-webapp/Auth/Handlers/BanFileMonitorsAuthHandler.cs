@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -54,12 +52,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
@@ -71,12 +69,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
@@ -88,12 +86,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
@@ -105,12 +103,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }

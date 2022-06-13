@@ -1,23 +1,23 @@
 ﻿CREATE TABLE [dbo].[RecentPlayers]
 (
-    [Id] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [RecentPlayerId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [PlayerId] UNIQUEIDENTIFIER NULL,
+    [GameServerId] UNIQUEIDENTIFIER NULL,
     [Name] NVARCHAR (60) NOT NULL,
     [IpAddress] NVARCHAR (60) NULL,
     [Lat] FLOAT (53) NULL,
     [Long] FLOAT (53) NULL,
     [CountryCode] NVARCHAR (60) NULL,
     [GameType] INT DEFAULT 0 NOT NULL,
-    [PlayerId] UNIQUEIDENTIFIER NULL,
-    [ServerId] UNIQUEIDENTIFIER NULL,
     [Timestamp] DATETIME NOT NULL,
-    CONSTRAINT [PK_dbo.RecentPlayers] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_dbo.RecentPlayers_dbo.GameServers_ServerId] FOREIGN KEY ([ServerId]) REFERENCES [dbo].[GameServers] ([ServerId]),
+    CONSTRAINT [PK_dbo.RecentPlayers] PRIMARY KEY CLUSTERED ([RecentPlayerId] ASC),
+    CONSTRAINT [FK_dbo.RecentPlayers_dbo.GameServers_GameServerId] FOREIGN KEY ([GameServerId]) REFERENCES [dbo].[GameServers] ([GameServerId]),
     CONSTRAINT [FK_dbo.RecentPlayers_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 )
 
 GO
-CREATE NONCLUSTERED INDEX [IX_GameServer_ServerId]
-    ON [dbo].[RecentPlayers]([ServerId] ASC);
+CREATE NONCLUSTERED INDEX [IX_GameServers_GameServerId]
+    ON [dbo].[RecentPlayers]([GameServerId] ASC);
 
 GO
 CREATE NONCLUSTERED INDEX [IX_Players_PlayerId]

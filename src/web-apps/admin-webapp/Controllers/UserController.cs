@@ -52,9 +52,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> ManageProfile(Guid id)
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin };
-            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+            var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfile(id);
             var userProfileViewModel = new UserProfileViewModel(userProfileDtoApiResponse.Result);

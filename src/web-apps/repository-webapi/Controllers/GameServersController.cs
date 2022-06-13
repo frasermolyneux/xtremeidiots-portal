@@ -46,7 +46,7 @@ public class GameServersController : Controller, IGameServersApi
         var gameServer = await context.GameServers
             .Include(gs => gs.BanFileMonitors)
             .Include(gs => gs.LivePlayers)
-            .SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
+            .SingleOrDefaultAsync(gs => gs.GameServerId == gameServerId);
 
         if (gameServer == null)
             return new ApiResponseDto<GameServerDto>(HttpStatusCode.NotFound);
@@ -58,7 +58,7 @@ public class GameServersController : Controller, IGameServersApi
 
     [HttpGet]
     [Route("repository/game-servers")]
-    public async Task<IActionResult> GetGameServer(string? gameTypes, string? serverIds, GameServerFilter? filter, int? skipEntries, int? takeEntries, GameServerOrder? order)
+    public async Task<IActionResult> GetGameServer(string? gameTypes, string? gameServerIds, GameServerFilter? filter, int? skipEntries, int? takeEntries, GameServerOrder? order)
     {
         if (!skipEntries.HasValue)
             skipEntries = 0;
@@ -73,25 +73,25 @@ public class GameServersController : Controller, IGameServersApi
             gameTypesFilter = split.Select(gt => Enum.Parse<GameType>(gt)).ToArray();
         }
 
-        Guid[]? serverIdsFilter = null;
-        if (!string.IsNullOrWhiteSpace(serverIds))
+        Guid[]? gameServerIdsFilter = null;
+        if (!string.IsNullOrWhiteSpace(gameServerIds))
         {
-            var split = serverIds.Split(",");
-            serverIdsFilter = split.Select(id => Guid.Parse(id)).ToArray();
+            var split = gameServerIds.Split(",");
+            gameServerIdsFilter = split.Select(id => Guid.Parse(id)).ToArray();
         }
 
-        var response = await ((IGameServersApi)this).GetGameServers(gameTypesFilter, serverIdsFilter, filter, skipEntries.Value, takeEntries.Value, order);
+        var response = await ((IGameServersApi)this).GetGameServers(gameTypesFilter, gameServerIdsFilter, filter, skipEntries.Value, takeEntries.Value, order);
 
         return response.ToHttpResult();
     }
 
-    async Task<ApiResponseDto<GameServersCollectionDto>> IGameServersApi.GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
+    async Task<ApiResponseDto<GameServersCollectionDto>> IGameServersApi.GetGameServers(GameType[]? gameTypes, Guid[]? gameServerIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
     {
         var query = context.GameServers.Include(gs => gs.BanFileMonitors).Include(gs => gs.LivePlayers).AsQueryable();
         query = ApplyFilter(query, gameTypes, null, null);
         var totalCount = await query.CountAsync();
 
-        query = ApplyFilter(query, gameTypes, serverIds, filter);
+        query = ApplyFilter(query, gameTypes, gameServerIds, filter);
         var filteredCount = await query.CountAsync();
 
         query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
@@ -177,7 +177,7 @@ public class GameServersController : Controller, IGameServersApi
 
     async Task<ApiResponseDto> IGameServersApi.UpdateGameServer(EditGameServerDto editGameServerDto)
     {
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == editGameServerDto.Id);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId == editGameServerDto.Id);
 
         if (gameServer == null)
             return new ApiResponseDto(HttpStatusCode.NotFound);
@@ -200,16 +200,16 @@ public class GameServersController : Controller, IGameServersApi
 
     async Task<ApiResponseDto> IGameServersApi.DeleteGameServer(Guid gameServerId)
     {
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId == gameServerId);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId == gameServerId);
 
         if (gameServer == null)
             return new ApiResponseDto(HttpStatusCode.NotFound);
 
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.BanFileMonitors)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatLogs)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.ServerId}'");
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{gameServer.ServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.BanFileMonitors)}] WHERE [GameServerId] = '{gameServer.GameServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatMessages)}] WHERE [GameServerId] = '{gameServer.GameServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerEvents)}] WHERE [GameServerId] = '{gameServer.GameServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.GameServerStats)}] WHERE [GameServerId] = '{gameServer.GameServerId}'");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServerId] = '{gameServer.GameServerId}'");
 
         context.GameServers.Remove(gameServer);
 
@@ -218,7 +218,7 @@ public class GameServersController : Controller, IGameServersApi
         return new ApiResponseDto(HttpStatusCode.OK);
     }
 
-    private IQueryable<GameServer> ApplyFilter(IQueryable<GameServer> query, GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter)
+    private IQueryable<GameServer> ApplyFilter(IQueryable<GameServer> query, GameType[]? gameTypes, Guid[]? gameServerIds, GameServerFilter? filter)
     {
         if (gameTypes != null && gameTypes.Length > 0)
         {
@@ -226,8 +226,8 @@ public class GameServersController : Controller, IGameServersApi
             query = query.Where(gs => gameTypeInts.Contains(gs.GameType)).AsQueryable();
         }
 
-        if (serverIds != null && serverIds.Length > 0)
-            query = query.Where(gs => serverIds.Contains(gs.ServerId)).AsQueryable();
+        if (gameServerIds != null && gameServerIds.Length > 0)
+            query = query.Where(gs => gameServerIds.Contains(gs.GameServerId)).AsQueryable();
 
         switch (filter)
         {

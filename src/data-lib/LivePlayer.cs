@@ -8,12 +8,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("GameServerServerId", Name = "IX_GameServer_ServerId")]
+    [Index("GameServerId", Name = "IX_GameServer_GameServerId")]
     [Index("PlayerId", Name = "IX_Players_PlayerId")]
     public partial class LivePlayer
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid LivePlayerId { get; set; }
+        public Guid? PlayerId { get; set; }
+        public Guid? GameServerId { get; set; }
         [Required]
         [StringLength(60)]
         public string Name { get; set; }
@@ -31,13 +33,10 @@ namespace XtremeIdiots.Portal.DataLib
         [StringLength(60)]
         public string CountryCode { get; set; }
         public int GameType { get; set; }
-        public Guid? PlayerId { get; set; }
-        [Column("GameServer_ServerId")]
-        public Guid? GameServerServerId { get; set; }
 
-        [ForeignKey("GameServerServerId")]
+        [ForeignKey("GameServerId")]
         [InverseProperty("LivePlayers")]
-        public virtual GameServer GameServerServer { get; set; }
+        public virtual GameServer GameServer { get; set; }
         [ForeignKey("PlayerId")]
         [InverseProperty("LivePlayers")]
         public virtual Player Player { get; set; }

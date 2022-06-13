@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.DataLib
 
         public virtual DbSet<AdminAction> AdminActions { get; set; }
         public virtual DbSet<BanFileMonitor> BanFileMonitors { get; set; }
-        public virtual DbSet<ChatLog> ChatLogs { get; set; }
+        public virtual DbSet<ChatMessage> ChatMessages { get; set; }
         public virtual DbSet<Demo> Demoes { get; set; }
         public virtual DbSet<DemoAuthKey> DemoAuthKeys { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
@@ -45,10 +45,10 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.AdminActionId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.PlayerPlayer)
+                entity.HasOne(d => d.Player)
                     .WithMany(p => p.AdminActions)
-                    .HasForeignKey(d => d.PlayerPlayerId)
-                    .HasConstraintName("FK_dbo.AdminActions_dbo.Player2_Player_PlayerId");
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.AdminActions_dbo.Players_PlayerId");
 
                 entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.AdminActions)
@@ -60,25 +60,25 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.BanFileMonitorId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.GameServerServer)
+                entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.BanFileMonitors)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.BanFileMonitors_dbo.GameServers_GameServer_ServerId");
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.BanFileMonitors_dbo.GameServers_GameServerId");
             });
 
-            modelBuilder.Entity<ChatLog>(entity =>
+            modelBuilder.Entity<ChatMessage>(entity =>
             {
-                entity.Property(e => e.ChatLogId).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.ChatMessageId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.GameServerServer)
-                    .WithMany(p => p.ChatLogs)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.ChatLogs_dbo.GameServers_GameServer_ServerId");
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.ChatMessages)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.ChatMessages_dbo.GameServers_GameServerId");
 
-                entity.HasOne(d => d.PlayerPlayer)
-                    .WithMany(p => p.ChatLogs)
-                    .HasForeignKey(d => d.PlayerPlayerId)
-                    .HasConstraintName("FK_dbo.ChatLogs_dbo.Player2_Player_PlayerId");
+                entity.HasOne(d => d.Player)
+                    .WithMany(p => p.ChatMessages)
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.ChatMessages_dbo.Players_PlayerId");
             });
 
             modelBuilder.Entity<Demo>(entity =>
@@ -93,10 +93,7 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<GameServer>(entity =>
             {
-                entity.HasKey(e => e.ServerId)
-                    .HasName("PK_dbo.GameServers");
-
-                entity.Property(e => e.ServerId).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.GameServerId).HasDefaultValueSql("newsequentialid()");
 
                 entity.Property(e => e.FtpPort).HasDefaultValueSql("21");
 
@@ -105,7 +102,7 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<GameServerEvent>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.GameServerEventId).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.GameServerEvents)
@@ -116,7 +113,7 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<GameServerStat>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.GameServerStatId).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.GameServerStats)
@@ -126,12 +123,12 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<LivePlayer>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.LivePlayerId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.GameServerServer)
+                entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.LivePlayers)
-                    .HasForeignKey(d => d.GameServerServerId)
-                    .HasConstraintName("FK_dbo.LivePlayers_dbo.GameServers_GameServer_ServerId");
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.LivePlayers_dbo.GameServers_GameServer_GameServerId");
 
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.LivePlayers)
@@ -148,14 +145,14 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.MapVoteId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.MapMap)
+                entity.HasOne(d => d.Map)
                     .WithMany(p => p.MapVotes)
-                    .HasForeignKey(d => d.MapMapId)
+                    .HasForeignKey(d => d.MapId)
                     .HasConstraintName("FK_dbo.MapVotes_dbo.Maps_Map_MapId");
 
-                entity.HasOne(d => d.PlayerPlayer)
+                entity.HasOne(d => d.Player)
                     .WithMany(p => p.MapVotes)
-                    .HasForeignKey(d => d.PlayerPlayerId)
+                    .HasForeignKey(d => d.PlayerId)
                     .HasConstraintName("FK_dbo.MapVotes_dbo.Player2_Player_PlayerId");
             });
 
@@ -168,55 +165,55 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.PlayerAliasId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.PlayerPlayer)
+                entity.HasOne(d => d.Player)
                     .WithMany(p => p.PlayerAliases)
-                    .HasForeignKey(d => d.PlayerPlayerId)
-                    .HasConstraintName("FK_dbo.PlayerAlias_dbo.Player2_Player_PlayerId");
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.PlayerAlias_dbo.Players_PlayerId");
             });
 
             modelBuilder.Entity<PlayerIpAddress>(entity =>
             {
                 entity.Property(e => e.PlayerIpAddressId).HasDefaultValueSql("newsequentialid()");
 
-                entity.HasOne(d => d.PlayerPlayer)
+                entity.HasOne(d => d.Player)
                     .WithMany(p => p.PlayerIpAddresses)
-                    .HasForeignKey(d => d.PlayerPlayerId)
-                    .HasConstraintName("FK_dbo.PlayerIpAddresses_dbo.Player2_Player_PlayerId");
+                    .HasForeignKey(d => d.PlayerId)
+                    .HasConstraintName("FK_dbo.PlayerIpAddresses_dbo.Players_PlayerId");
             });
 
             modelBuilder.Entity<RecentPlayer>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.RecentPlayerId).HasDefaultValueSql("newsequentialid()");
+
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.RecentPlayers)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.RecentPlayers_dbo.GameServers_GameServerId");
 
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.RecentPlayers)
                     .HasForeignKey(d => d.PlayerId)
                     .HasConstraintName("FK_dbo.RecentPlayers_dbo.Players_PlayerId");
-
-                entity.HasOne(d => d.Server)
-                    .WithMany(p => p.RecentPlayers)
-                    .HasForeignKey(d => d.ServerId)
-                    .HasConstraintName("FK_dbo.RecentPlayers_dbo.GameServers_ServerId");
             });
 
             modelBuilder.Entity<Report>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.ReportId).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.AdminUserProfile)
                     .WithMany(p => p.ReportAdminUserProfiles)
                     .HasForeignKey(d => d.AdminUserProfileId)
                     .HasConstraintName("FK_dbo.Reports_dbo.AdminUserProfiles_Id");
 
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.Reports)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.Reports_dbo.GameServers_GameServerId");
+
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.Reports)
                     .HasForeignKey(d => d.PlayerId)
                     .HasConstraintName("FK_dbo.Reports_dbo.Players_PlayerId");
-
-                entity.HasOne(d => d.Server)
-                    .WithMany(p => p.Reports)
-                    .HasForeignKey(d => d.ServerId)
-                    .HasConstraintName("FK_dbo.Reports_dbo.GameServers_ServerId");
 
                 entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.ReportUserProfiles)
@@ -226,12 +223,12 @@ namespace XtremeIdiots.Portal.DataLib
 
             modelBuilder.Entity<UserProfile>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.UserProfileId).HasDefaultValueSql("newsequentialid()");
             });
 
             modelBuilder.Entity<UserProfileClaim>(entity =>
             {
-                entity.Property(e => e.Id).HasDefaultValueSql("newsequentialid()");
+                entity.Property(e => e.UserProfileClaimId).HasDefaultValueSql("newsequentialid()");
 
                 entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.UserProfileClaims)

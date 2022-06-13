@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("/repository/live-players")]
-        public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int? skipEntries, int? takeEntries, LivePlayersOrder? order)
+        public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? gameServerId, LivePlayerFilter? filter, int? skipEntries, int? takeEntries, LivePlayersOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -42,18 +42,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (!takeEntries.HasValue)
                 takeEntries = 20;
 
-            var response = await ((ILivePlayersApi)this).GetLivePlayers(gameType, serverId, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((ILivePlayersApi)this).GetLivePlayers(gameType, gameServerId, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto<LivePlayersCollectionDto>> ILivePlayersApi.GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
+        async Task<ApiResponseDto<LivePlayersCollectionDto>> ILivePlayersApi.GetLivePlayers(GameType? gameType, Guid? gameServerId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
             var query = context.LivePlayers.Include(lp => lp.Player).AsQueryable();
             query = ApplyFilter(query, gameType, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query, gameType, serverId, filter);
+            query = ApplyFilter(query, gameType, gameServerId, filter);
             var filteredCount = await query.CountAsync();
 
             query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
@@ -72,8 +72,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/live-players/{serverId}")]
-        public async Task<IActionResult> SetLivePlayersForGameServer(Guid serverId)
+        [Route("repository/live-players/{gameServerId}")]
+        public async Task<IActionResult> SetLivePlayersForGameServer(Guid gameServerId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
 
@@ -90,14 +90,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (createLivePlayerDtos == null)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-            var response = await ((ILivePlayersApi)this).SetLivePlayersForGameServer(serverId, createLivePlayerDtos);
+            var response = await ((ILivePlayersApi)this).SetLivePlayersForGameServer(gameServerId, createLivePlayerDtos);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto> ILivePlayersApi.SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)
+        async Task<ApiResponseDto> ILivePlayersApi.SetLivePlayersForGameServer(Guid gameServerId, List<CreateLivePlayerDto> createLivePlayerDtos)
         {
-            await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServer_ServerId] = '{serverId}'");
+            await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.LivePlayers)}] WHERE [GameServerId] = '{gameServerId}'");
 
             var livePlayers = createLivePlayerDtos.Select(lp => mapper.Map<LivePlayer>(lp)).ToList();
 
@@ -107,13 +107,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        private IQueryable<LivePlayer> ApplyFilter(IQueryable<LivePlayer> query, GameType? gameType, Guid? serverId, LivePlayerFilter? filter)
+        private IQueryable<LivePlayer> ApplyFilter(IQueryable<LivePlayer> query, GameType? gameType, Guid? gameServerId, LivePlayerFilter? filter)
         {
             if (gameType.HasValue)
                 query = query.Where(lp => lp.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
 
-            if (serverId.HasValue)
-                query = query.Where(lp => lp.GameServerServerId == serverId).AsQueryable();
+            if (gameServerId.HasValue)
+                query = query.Where(lp => lp.GameServerId == gameServerId).AsQueryable();
 
             if (filter != null)
             {

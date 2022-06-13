@@ -9,10 +9,10 @@
         dataUrl = "/ServerAdmin/GetGameChatLogAjax/" + ViewData["GameType"];
     }
 
-    if (ViewData["ServerId"] != null)
+    if (ViewData["GameServerId"] != null)
     {
         ViewData["Title"] = "Server ChatLog Index";
-        dataUrl = "/ServerAdmin/GetServerChatLogAjax/" + ViewData["ServerId"];
+        dataUrl = "/ServerAdmin/GetServerChatLogAjax/" + ViewData["GameServerId"];
         showServer = false;
     }
 }

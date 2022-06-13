@@ -6,7 +6,7 @@
     [FirstSeen] DATETIME         NOT NULL,
     [LastSeen]  DATETIME         NOT NULL,
     [IpAddress] NVARCHAR (MAX)   NULL,
-    CONSTRAINT [PK_dbo.Player2] PRIMARY KEY CLUSTERED ([PlayerId] ASC)
+    CONSTRAINT [PK_dbo.Players] PRIMARY KEY CLUSTERED ([PlayerId] ASC)
 );
 
 

@@ -74,13 +74,13 @@
                                         <div class="btn-group btn-group-sm" role="group" aria-label="Basic example">
                                             @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType, AuthPolicies.ViewLiveRcon)).Succeeded)
                                             {
-                                                <a type="button" class="btn btn-primary" asp-action="ViewRcon" asp-route-id="@item.GameServer.Id"><i class="fa fa-terminal"></i> View Rcon</a>
+                                                <a type="button" class="btn btn-primary" asp-action="ViewRcon" asp-route-id="@item.GameServer.GameServerId"><i class="fa fa-terminal"></i> View Rcon</a>
                                             }
 
                                             @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType, AuthPolicies.ViewServerChatLog)).Succeeded
                                                  && ChatLogSupportedGames.Games.Contains(item.GameServer.GameType))
                                             {
-                                                <a type="button" class="btn btn-primary" asp-action="ServerChatLog" asp-route-id="@item.GameServer.Id"><i class="fa fa-comments"></i> View ChatLog</a>
+                                                <a type="button" class="btn btn-primary" asp-action="ServerChatLog" asp-route-id="@item.GameServer.GameServerId"><i class="fa fa-comments"></i> View ChatLog</a>
                                             }
                                         </div>
                                     </td>

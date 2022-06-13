@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -53,7 +54,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
@@ -61,7 +62,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.RconCredentials, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.RconCredentials, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
@@ -92,12 +93,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, serverId) = (Tuple<GameType, Guid>)context.Resource;
+                var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
                 if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.FtpCredentials, serverId.ToString()))
+                if (context.User.HasClaim(PortalClaimTypes.FtpCredentials, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }

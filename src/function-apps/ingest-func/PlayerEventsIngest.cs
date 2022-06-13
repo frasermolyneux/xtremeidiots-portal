@@ -86,7 +86,7 @@ public class PlayerEventsIngest
         {
             if (onPlayerConnected.EventGeneratedUtc > playerDtoApiResponse.Result.LastSeen)
             {
-                var editPlayerDto = new EditPlayerDto(playerDtoApiResponse.Result.Id)
+                var editPlayerDto = new EditPlayerDto(playerDtoApiResponse.Result.PlayerId)
                 {
                     Username = onPlayerConnected.Username,
                     IpAddress = onPlayerConnected.IpAddress
@@ -210,9 +210,9 @@ public class PlayerEventsIngest
         if (playerDtoApiResponse.IsSuccess)
         {
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
-            memoryCache.Set(cacheKey, playerDtoApiResponse.Result.Id, cacheEntryOptions);
+            memoryCache.Set(cacheKey, playerDtoApiResponse.Result.PlayerId, cacheEntryOptions);
 
-            return playerDtoApiResponse.Result.Id;
+            return playerDtoApiResponse.Result.PlayerId;
         }
 
         return Guid.Empty;

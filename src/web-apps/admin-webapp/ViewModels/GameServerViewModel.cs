@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class GameServerViewModel
     {
-        public Guid ServerId { get; set; }
+        public Guid GameServerId { get; set; }
         [Required][MaxLength(60)] public string? Title { get; set; }
         [Required][DisplayName("Game")] public GameType GameType { get; set; }
         [Required] public string? Hostname { get; set; }

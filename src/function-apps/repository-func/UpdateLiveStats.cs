@@ -79,7 +79,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, $"Failed to update live stats for server '{gameServerDto.Id}'");
+                    logger.LogError(ex, $"Failed to update live stats for server '{gameServerDto.GameServerId}'");
                     continue;
                 }
 
@@ -89,12 +89,12 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     Sum = livePlayerDtos.Count
                 };
 
-                telemetry.Properties.Add("serverId", gameServerDto.Id.ToString());
-                telemetry.Properties.Add("serverName", gameServerDto.Title);
+                telemetry.Properties.Add("GameServerId", gameServerDto.GameServerId.ToString());
+                telemetry.Properties.Add("GameServerName", gameServerDto.Title);
 
                 telemetryClient.TrackMetric(telemetry);
 
-                await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.Id, livePlayerDtos);
+                await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
             }
         }
 
@@ -103,16 +103,16 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             ServerRconStatusResponseDto? serverRconStatusResponseDto = null;
             try
             {
-                serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(gameServerDto.Id);
+                serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(gameServerDto.GameServerId);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to get rcon server status for '{gameServerDto.Id}'");
+                logger.LogError(ex, $"Failed to get rcon server status for '{gameServerDto.GameServerId}'");
                 return new List<CreateLivePlayerDto>();
             }
 
             if (serverRconStatusResponseDto == null)
-                throw new NullReferenceException($"Server rcon status was null for '{gameServerDto.Id}'");
+                throw new NullReferenceException($"Server rcon status was null for '{gameServerDto.GameServerId}'");
 
             var livePlayerDtos = new List<CreateLivePlayerDto>();
             foreach (var rconPlayer in serverRconStatusResponseDto.Players)
@@ -125,7 +125,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     Rate = rconPlayer.Rate,
                     IpAddress = rconPlayer.IpAddress,
                     GameType = gameServerDto.GameType,
-                    GameServerServerId = gameServerDto.Id
+                    GameServerServerId = gameServerDto.GameServerId
                 };
 
                 if (!string.IsNullOrWhiteSpace(rconPlayer.Guid))
@@ -163,16 +163,16 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             ServerQueryStatusResponseDto? serverQueryStatusResponseDto = null;
             try
             {
-                serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(gameServerDto.Id);
+                serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Failed to get query server status for '{gameServerDto.Id}'");
+                logger.LogError(ex, $"Failed to get query server status for '{gameServerDto.GameServerId}'");
                 return livePlayerDtos;
             }
 
             if (serverQueryStatusResponseDto == null)
-                throw new NullReferenceException($"Server query status was null for '{gameServerDto.Id}'");
+                throw new NullReferenceException($"Server query status was null for '{gameServerDto.GameServerId}'");
 
             foreach (var livePlayerDto in livePlayerDtos)
             {
@@ -184,7 +184,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 }
             }
 
-            var editGameServerDto = new EditGameServerDto(gameServerDto.Id)
+            var editGameServerDto = new EditGameServerDto(gameServerDto.GameServerId)
             {
                 LiveTitle = serverQueryStatusResponseDto.ServerName,
                 LiveMap = serverQueryStatusResponseDto.Map,
@@ -234,7 +234,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     Lat = livePlayer.Lat,
                     Long = livePlayer.Long,
                     CountryCode = livePlayer.CountryCode,
-                    ServerId = livePlayer.GameServerServerId
+                    GameServerId = livePlayer.GameServerServerId
                 };
 
                 createRecentPlayerDtos.Add(createRecentPlayerDto);
@@ -256,9 +256,9 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             if (playerDtoApiResponse.IsSuccess)
             {
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
-                memoryCache.Set(cacheKey, playerDtoApiResponse.Result.Id, cacheEntryOptions);
+                memoryCache.Set(cacheKey, playerDtoApiResponse.Result.PlayerId, cacheEntryOptions);
 
-                return playerDtoApiResponse.Result.Id;
+                return playerDtoApiResponse.Result.PlayerId;
             }
 
             return null;

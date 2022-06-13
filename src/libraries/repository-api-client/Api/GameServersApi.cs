@@ -27,15 +27,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<GameServerDto>();
         }
 
-        public async Task<ApiResponseDto<GameServersCollectionDto>> GetGameServers(GameType[]? gameTypes, Guid[]? serverIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
+        public async Task<ApiResponseDto<GameServersCollectionDto>> GetGameServers(GameType[]? gameTypes, Guid[]? gameServerIds, GameServerFilter? filter, int skipEntries, int takeEntries, GameServerOrder? order)
         {
             var request = await CreateRequest("game-servers", Method.Get);
 
             if (gameTypes != null)
                 request.AddQueryParameter("gameTypes", string.Join(",", gameTypes));
 
-            if (serverIds != null)
-                request.AddQueryParameter("serverIds", string.Join(",", serverIds));
+            if (gameServerIds != null)
+                request.AddQueryParameter("gameServerIds", string.Join(",", gameServerIds));
 
             if (filter.HasValue)
                 request.AddQueryParameter("filter", filter.ToString());

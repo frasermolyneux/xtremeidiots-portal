@@ -44,14 +44,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, PlayerDto playerDto)
         {
-            eventTelemetry.Properties.TryAdd("PlayerId", playerDto.Id.ToString());
+            eventTelemetry.Properties.TryAdd("PlayerId", playerDto.PlayerId.ToString());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, GameServerDto gameServerDto)
         {
-            eventTelemetry.Properties.TryAdd("GameServerId", gameServerDto.Id.ToString());
+            eventTelemetry.Properties.TryAdd("GameServerId", gameServerDto.GameServerId.ToString());
 
             return eventTelemetry;
         }
@@ -59,14 +59,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, BanFileMonitorDto banFileMonitorDto)
         {
             eventTelemetry.Properties.TryAdd("BanFileMonitorId", banFileMonitorDto.BanFileMonitorId.ToString());
-            eventTelemetry.Properties.TryAdd("GameServerId", banFileMonitorDto.ServerId.ToString());
+            eventTelemetry.Properties.TryAdd("GameServerId", banFileMonitorDto.GameServerId.ToString());
 
             return eventTelemetry;
         }
 
         public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, CreateBanFileMonitorDto createBanFileMonitorDto)
         {
-            eventTelemetry.Properties.TryAdd("GameServerId", createBanFileMonitorDto.ServerId.ToString());
+            eventTelemetry.Properties.TryAdd("GameServerId", createBanFileMonitorDto.GameServerId.ToString());
 
             return eventTelemetry;
         }

@@ -8,9 +8,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
 {
     public class CreateBanFileMonitorDto
     {
-        public CreateBanFileMonitorDto(Guid serverId, string filePath, GameType gameType)
+        public CreateBanFileMonitorDto(Guid gameServerId, string filePath, GameType gameType)
         {
-            ServerId = serverId;
+            GameServerId = gameServerId;
             FilePath = filePath;
             GameType = gameType;
         }
@@ -19,7 +19,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
         public string FilePath { get; private set; }
 
         [JsonProperty]
-        public Guid ServerId { get; private set; }
+        public Guid GameServerId { get; private set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]

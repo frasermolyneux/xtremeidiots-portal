@@ -17,7 +17,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
         public Guid UserProfileId { get; internal set; }
 
         [JsonProperty]
-        public Guid ServerId { get; internal set; }
+        public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
         public GameType GameType { get; internal set; }

@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("ServerId", Name = "IX_GameServer_ServerId")]
+    [Index("GameServerId", Name = "IX_GameServer_GameServerId")]
     [Index("PlayerId", Name = "IX_Players_PlayerId")]
     [Index("UserProfileId", Name = "IX_UserProfiles_Id")]
     public partial class Report
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid ReportId { get; set; }
         public Guid? PlayerId { get; set; }
         public Guid? UserProfileId { get; set; }
-        public Guid? ServerId { get; set; }
+        public Guid? GameServerId { get; set; }
         public int GameType { get; set; }
         public string Comments { get; set; }
         [Column(TypeName = "datetime")]
@@ -31,12 +31,12 @@ namespace XtremeIdiots.Portal.DataLib
         [ForeignKey("AdminUserProfileId")]
         [InverseProperty("ReportAdminUserProfiles")]
         public virtual UserProfile AdminUserProfile { get; set; }
+        [ForeignKey("GameServerId")]
+        [InverseProperty("Reports")]
+        public virtual GameServer GameServer { get; set; }
         [ForeignKey("PlayerId")]
         [InverseProperty("Reports")]
         public virtual Player Player { get; set; }
-        [ForeignKey("ServerId")]
-        [InverseProperty("Reports")]
-        public virtual GameServer Server { get; set; }
         [ForeignKey("UserProfileId")]
         [InverseProperty("ReportUserProfiles")]
         public virtual UserProfile UserProfile { get; set; }

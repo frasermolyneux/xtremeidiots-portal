@@ -37,12 +37,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => src.Type.ToAdminActionType())
                 )
                 .ForMember(
-                    dest => dest.PlayerId,
-                    src => src.MapFrom(src => src.PlayerPlayerId)
-                )
-                .ForMember(
                     dest => dest.PlayerDto,
-                    src => src.MapFrom(src => src.PlayerPlayer)
+                    src => src.MapFrom(src => src.Player)
                 )
                 .ForMember(
                     dest => dest.UserProfileDto,
@@ -56,59 +52,39 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             // Ban File Monitors
             CreateMap<BanFileMonitor, BanFileMonitorDto>()
                 .ForMember(
-                    dest => dest.ServerId,
-                    src => src.MapFrom(src => src.GameServerServerId)
-                )
-                .ForMember(
                     dest => dest.GameType,
-                    src => src.MapFrom(src => src.GameServerServer.GameType.ToGameType())
+                    src => src.MapFrom(src => src.GameServer.GameType.ToGameType())
                 )
                 .ForMember(
                     dest => dest.GameServerDto,
-                    src => src.MapFrom(src => src.GameServerServer)
+                    src => src.MapFrom(src => src.GameServer)
                 );
 
             CreateMap<CreateBanFileMonitorDto, BanFileMonitor>()
-                .ForMember(
-                    dest => dest.GameServerServerId,
-                    src => src.MapFrom(src => src.ServerId)
-                )
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<EditBanFileMonitorDto, BanFileMonitor>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Chat Messages
-            CreateMap<ChatLog, ChatMessageDto>()
-                .ForMember(
-                    dest => dest.PlayerId,
-                    src => src.MapFrom(src => src.PlayerPlayerId)
-                )
+            CreateMap<ChatMessage, ChatMessageDto>()
                 .ForMember(
                     dest => dest.ChatType,
                     src => src.MapFrom(src => src.ChatType.ToChatType())
                 )
                 .ForMember(
                     dest => dest.PlayerDto,
-                    src => src.MapFrom(src => src.PlayerPlayer)
+                    src => src.MapFrom(src => src.Player)
                 )
                 .ForMember(
                     dest => dest.GameServerDto,
-                    src => src.MapFrom(src => src.GameServerServer)
+                    src => src.MapFrom(src => src.GameServer)
                 );
 
-            CreateMap<CreateChatMessageDto, ChatLog>()
+            CreateMap<CreateChatMessageDto, ChatMessage>()
                 .ForMember(
                     dest => dest.ChatType,
                     src => src.MapFrom(src => src.ChatType.ToChatTypeInt())
-                )
-                .ForMember(
-                    dest => dest.GameServerServerId,
-                    src => src.MapFrom(src => src.GameServerId)
-                )
-                .ForMember(
-                    dest => dest.PlayerPlayerId,
-                    src => src.MapFrom(src => src.PlayerId)
                 )
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
@@ -146,10 +122,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
 
             // Game Servers
             CreateMap<GameServer, GameServerDto>()
-                .ForMember(
-                    dest => dest.Id,
-                    src => src.MapFrom(src => src.ServerId)
-                )
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameType())
@@ -230,10 +202,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             // Players
             CreateMap<Player, PlayerDto>()
                 .ForMember(
-                    dest => dest.Id,
-                    src => src.MapFrom(src => src.PlayerId)
-                )
-                .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameType())
                 )
@@ -256,15 +224,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             CreateMap<PlayerIpAddress, RelatedPlayerDto>()
                 .ForMember(
                     dest => dest.GameType,
-                    src => src.MapFrom(src => src.PlayerPlayer.GameType.ToGameType())
+                    src => src.MapFrom(src => src.Player.GameType.ToGameType())
                 )
                 .ForMember(
                     dest => dest.Username,
-                    src => src.MapFrom(src => src.PlayerPlayer.Username)
+                    src => src.MapFrom(src => src.Player.Username)
                 )
                 .ForMember(
                     dest => dest.PlayerId,
-                    src => src.MapFrom(src => src.PlayerPlayer.PlayerId)
+                    src => src.MapFrom(src => src.Player.PlayerId)
                 )
                 .ForMember(
                     dest => dest.IpAddress,

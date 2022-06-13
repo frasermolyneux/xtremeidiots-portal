@@ -41,7 +41,7 @@
                                 @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
                             </dd>
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.FtpHostname)
@@ -66,7 +66,7 @@
                                 </dd>
                             }
 
-                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.ViewRconCredential)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.ViewRconCredential)).Succeeded)
                             {
                                 <dt class="col-sm-2">
                                     @Html.DisplayNameFor(model => model.RconPassword)
@@ -110,7 +110,7 @@
                     </div>
                     <div class="ibox-footer">
                         <div class="btn-group btn-group-sm" role="group">
-                            <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.Id"><i class="fa fa-edit"></i> Edit</a>
+                            <a type="button" class="btn btn-primary" asp-action="Edit" asp-route-id="@Model.GameServerId"><i class="fa fa-edit"></i> Edit</a>
                             <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                                 {
                                     <tr>
                                         <td>
-                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.ViewFtpCredential)).Succeeded)
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
                                                 @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort, item.FilePath, Model.FtpUsername, Model.FtpPassword)
                                             }
@@ -160,17 +160,17 @@
                                         </td>
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.EditBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.EditBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Edit" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-edit"></i> Edit Monitor</a>
                                                 }
 
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.ViewBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.ViewBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-primary" asp-controller="BanFileMonitors" asp-action="Details" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-info-circle"></i> Details</a>
                                                 }
 
-                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.Id), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
+                                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.DeleteBanFileMonitor)).Succeeded)
                                                 {
                                                     <a type="button" class="btn btn-danger" asp-controller="BanFileMonitors" asp-action="Delete" asp-route-id="@item.BanFileMonitorId"><i class="fa fa-trash"></i> Delete</a>
                                                 }

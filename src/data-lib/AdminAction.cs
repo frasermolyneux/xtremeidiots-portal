@@ -8,25 +8,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("PlayerPlayerId", Name = "IX_Player_PlayerId")]
+    [Index("PlayerId", Name = "IX_Players_PlayerId")]
     public partial class AdminAction
     {
         [Key]
         public Guid AdminActionId { get; set; }
+        public Guid? UserProfileId { get; set; }
+        public Guid? PlayerId { get; set; }
+        public int ForumTopicId { get; set; }
         public int Type { get; set; }
         public string Text { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Created { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime? Expires { get; set; }
-        public Guid? UserProfileId { get; set; }
-        [Column("Player_PlayerId")]
-        public Guid? PlayerPlayerId { get; set; }
-        public int ForumTopicId { get; set; }
 
-        [ForeignKey("PlayerPlayerId")]
+        [ForeignKey("PlayerId")]
         [InverseProperty("AdminActions")]
-        public virtual Player PlayerPlayer { get; set; }
+        public virtual Player Player { get; set; }
         [ForeignKey("UserProfileId")]
         [InverseProperty("AdminActions")]
         public virtual UserProfile UserProfile { get; set; }

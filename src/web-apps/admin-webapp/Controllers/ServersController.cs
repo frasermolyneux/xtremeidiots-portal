@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 mapDto = mapApiResponse.Result ?? null;
             }
 
-            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerApiResponse.Result.Id, DateTime.UtcNow.AddDays(-2));
+            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerApiResponse.Result.GameServerId, DateTime.UtcNow.AddDays(-2));
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
             var gameServerStatDtos = new List<GameServerStatDto>();

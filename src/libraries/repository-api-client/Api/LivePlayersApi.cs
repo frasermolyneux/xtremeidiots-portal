@@ -17,15 +17,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
         }
 
-        public async Task<ApiResponseDto<LivePlayersCollectionDto>> GetLivePlayers(GameType? gameType, Guid? serverId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
+        public async Task<ApiResponseDto<LivePlayersCollectionDto>> GetLivePlayers(GameType? gameType, Guid? gameServerId, LivePlayerFilter? filter, int skipEntries, int takeEntries, LivePlayersOrder? order)
         {
             var request = await CreateRequest($"live-players", Method.Get);
 
             if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
-            if (serverId.HasValue)
-                request.AddQueryParameter("serverId", serverId.ToString());
+            if (gameServerId.HasValue)
+                request.AddQueryParameter("gameServerId", gameServerId.ToString());
 
             if (filter.HasValue)
                 request.AddQueryParameter("filter", filter.ToString());
@@ -41,9 +41,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<LivePlayersCollectionDto>();
         }
 
-        public async Task<ApiResponseDto> SetLivePlayersForGameServer(Guid serverId, List<CreateLivePlayerDto> createLivePlayerDtos)
+        public async Task<ApiResponseDto> SetLivePlayersForGameServer(Guid gameServerId, List<CreateLivePlayerDto> createLivePlayerDtos)
         {
-            var request = await CreateRequest($"live-players/{serverId}", Method.Post);
+            var request = await CreateRequest($"live-players/{gameServerId}", Method.Post);
             request.AddJsonBody(createLivePlayerDtos);
 
             var response = await ExecuteAsync(request);

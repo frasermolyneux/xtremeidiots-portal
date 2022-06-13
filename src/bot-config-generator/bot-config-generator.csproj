@@ -23,13 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="templates\gameType_serverId.ini">
+    <None Update="templates\gameType_gameServerId.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="templates\gameType_serverId.xml">
+    <None Update="templates\gameType_gameServerId.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="templates\plugin_portal_gameType_serverId.ini">
+    <None Update="templates\plugin_portal_gameType_gameServerId.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

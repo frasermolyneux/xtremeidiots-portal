@@ -36,6 +36,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
         public Guid PlayerId { get; private set; }
 
         [JsonProperty]
-        public Guid? ServerId { get; set; }
+        public Guid? GameServerId { get; set; }
     }
 }

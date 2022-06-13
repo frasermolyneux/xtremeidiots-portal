@@ -232,7 +232,7 @@
                         }
                     },
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "query",
                         "schema": {
                             "type": "string",
@@ -317,7 +317,7 @@
                         }
                     },
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "query",
                         "schema": {
                             "type": "string",
@@ -708,7 +708,7 @@
                         }
                     },
                     {
-                        "name": "serverIds",
+                        "name": "gameServerIds",
                         "in": "query",
                         "schema": {
                             "type": "string"
@@ -774,14 +774,14 @@
                 }
             }
         },
-        "/repository/game-servers/{serverId}/secret/{secretId}": {
+        "/repository/game-servers/{gameServerId}/secret/{secretId}": {
             "get": {
                 "tags": [
                     "GameServersSecrets"
                 ],
                 "parameters": [
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -809,21 +809,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "name",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -858,14 +844,14 @@
                 }
             }
         },
-        "/repository/game-servers-stats/{serverId}": {
+        "/repository/game-servers-stats/{gameServerId}": {
             "get": {
                 "tags": [
                     "GameServersStats"
                 ],
                 "parameters": [
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -903,7 +889,7 @@
                         }
                     },
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "query",
                         "schema": {
                             "type": "string",
@@ -948,14 +934,14 @@
                 }
             }
         },
-        "/repository/live-players/{serverId}": {
+        "/repository/live-players/{gameServerId}": {
             "post": {
                 "tags": [
                     "LivePlayers"
                 ],
                 "parameters": [
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -1426,7 +1412,7 @@
                         }
                     },
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "query",
                         "schema": {
                             "type": "string",
@@ -1526,7 +1512,7 @@
                         }
                     },
                     {
-                        "name": "serverId",
+                        "name": "gameServerId",
                         "in": "query",
                         "schema": {
                             "type": "string",

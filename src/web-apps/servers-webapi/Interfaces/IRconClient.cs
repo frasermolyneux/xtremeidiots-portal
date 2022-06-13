@@ -4,7 +4,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Interfaces
 {
     public interface IRconClient
     {
-        void Configure(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword);
+        void Configure(GameType gameType, Guid gameServerId, string hostname, int queryPort, string rconPassword);
         List<IRconPlayer> GetPlayers();
         Task Say(string message);
         Task<string> Restart();

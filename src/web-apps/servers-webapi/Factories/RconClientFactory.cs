@@ -13,7 +13,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Factories
             _logger = logger;
         }
 
-        public IRconClient CreateInstance(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
+        public IRconClient CreateInstance(GameType gameType, Guid gameServerId, string hostname, int queryPort, string rconPassword)
         {
             IRconClient rconClient;
 
@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Factories
                     throw new Exception("Unsupported game type");
             }
 
-            rconClient.Configure(gameType, serverId, hostname, queryPort, rconPassword);
+            rconClient.Configure(gameType, gameServerId, hostname, queryPort, rconPassword);
             return rconClient;
         }
     }

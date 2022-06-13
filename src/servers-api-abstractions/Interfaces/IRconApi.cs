@@ -4,6 +4,6 @@ namespace XtremeIdiots.Portal.ServersApi.Abstractions.Interfaces
 {
     public interface IRconApi
     {
-        Task<ServerRconStatusResponseDto?> GetServerStatus(Guid serverId);
+        Task<ServerRconStatusResponseDto?> GetServerStatus(Guid gameServerId);
     }
 }

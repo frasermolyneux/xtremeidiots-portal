@@ -15,7 +15,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 
         [DisplayName("Last Read")] public DateTime LastSync { get; set; }
 
-        [DisplayName("Server")] public Guid ServerId { get; set; }
+        [DisplayName("Server")] public Guid GameServerId { get; set; }
 
         [DisplayName("Server")] public GameServerDto? GameServer { get; set; }
     }

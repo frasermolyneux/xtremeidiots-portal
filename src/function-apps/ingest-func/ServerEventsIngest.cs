@@ -3,9 +3,6 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
-using System;
-using System.Threading.Tasks;
-
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -44,13 +41,13 @@ public class ServerEventsIngest
         if (onServerConnected == null)
             throw new Exception("OnServerConnected event was null");
 
-        if (!Guid.TryParse(onServerConnected.Id, out Guid serverId))
+        if (!Guid.TryParse(onServerConnected.Id, out Guid gameServerId))
             throw new Exception("OnServerConnected event contained null or empty 'onServerConnected'");
 
         _log.LogInformation(
             $"OnServerConnected :: Id: '{onServerConnected.Id}', GameType: '{onServerConnected.GameType}'");
 
-        var existingServer = await _repositoryApiClient.GameServers.GetGameServer(serverId);
+        var existingServer = await _repositoryApiClient.GameServers.GetGameServer(gameServerId);
 
         if (existingServer == null)
         {

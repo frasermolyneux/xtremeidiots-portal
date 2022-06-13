@@ -35,7 +35,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
         public Guid? PlayerId { get; internal set; }
 
         [JsonProperty]
-        public Guid? ServerId { get; internal set; }
+        public Guid? GameServerId { get; internal set; }
 
         [JsonProperty]
         public DateTime Timestamp { get; internal set; }

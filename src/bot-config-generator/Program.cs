@@ -64,15 +64,15 @@ public class ConfigGeneratorService : IHostedService
         {
             sb.AppendLine("    @{");
             sb.AppendLine($"        Name = '{gameServerDto.Title}'");
-            sb.AppendLine($"        TaskName = '{gameServerDto.GameType}_{gameServerDto.Id}'");
-            sb.AppendLine($"        LogFileName = '{gameServerDto.GameType}_{gameServerDto.Id}'");
+            sb.AppendLine($"        TaskName = '{gameServerDto.GameType}_{gameServerDto.GameServerId}'");
+            sb.AppendLine($"        LogFileName = '{gameServerDto.GameType}_{gameServerDto.GameServerId}'");
             sb.AppendLine("    }");
 
             Console.WriteLine($"Generating bot configs for '{gameServerDto.Title}'");
 
-            var mainTemplate = File.ReadAllText(@"templates\gameType_serverId.ini");
-            var scheduledTask = File.ReadAllText(@"templates\gameType_serverId.xml");
-            var pluginPortal = File.ReadAllText(@"templates\plugin_portal_gameType_serverId.ini");
+            var mainTemplate = File.ReadAllText(@"templates\gameType_gameServerId.ini");
+            var scheduledTask = File.ReadAllText(@"templates\gameType_gameServerId.xml");
+            var pluginPortal = File.ReadAllText(@"templates\plugin_portal_gameType_gameServerId.ini");
 
             if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname))
             {
@@ -109,11 +109,11 @@ public class ConfigGeneratorService : IHostedService
             }
 
             mainTemplate = mainTemplate.Replace("__MYSQL_CONNECTION__", mySqlConnection);
-            mainTemplate = mainTemplate.Replace("__SERVER_ID__", gameServerDto.Id.ToString());
+            mainTemplate = mainTemplate.Replace("__SERVER_ID__", gameServerDto.GameServerId.ToString());
             mainTemplate = mainTemplate.Replace("__GAME_TYPE__", gameServerDto.GameType.ToString());
-            scheduledTask = scheduledTask.Replace("__SERVER_ID__", gameServerDto.Id.ToString());
+            scheduledTask = scheduledTask.Replace("__SERVER_ID__", gameServerDto.GameServerId.ToString());
             scheduledTask = scheduledTask.Replace("__GAME_TYPE__", gameServerDto.GameType.ToString());
-            pluginPortal = pluginPortal.Replace("__SERVER_ID__", gameServerDto.Id.ToString());
+            pluginPortal = pluginPortal.Replace("__SERVER_ID__", gameServerDto.GameServerId.ToString());
             mainTemplate = mainTemplate.Replace("__RCON_PASSWORD__", gameServerDto.RconPassword);
             mainTemplate = mainTemplate.Replace("__QUERY_PORT__", gameServerDto.QueryPort.ToString());
             mainTemplate = mainTemplate.Replace("__IP_ADDRESS__", gameServerDto.Hostname);
@@ -132,9 +132,9 @@ public class ConfigGeneratorService : IHostedService
                     break;
             }
 
-            var outputMainFilePath = Path.Join(outputDirectory, $"{gameServerDto.GameType}_{gameServerDto.Id}.ini");
-            var outputScheduledTask = Path.Join(outputDirectory, $"{gameServerDto.GameType}_{gameServerDto.Id}.xml");
-            var outputPlugin = Path.Join(outputDirectory, $"plugin_portal_{gameServerDto.GameType}_{gameServerDto.Id}.ini");
+            var outputMainFilePath = Path.Join(outputDirectory, $"{gameServerDto.GameType}_{gameServerDto.GameServerId}.ini");
+            var outputScheduledTask = Path.Join(outputDirectory, $"{gameServerDto.GameType}_{gameServerDto.GameServerId}.xml");
+            var outputPlugin = Path.Join(outputDirectory, $"plugin_portal_{gameServerDto.GameType}_{gameServerDto.GameServerId}.ini");
 
             if (File.Exists(outputMainFilePath)) File.Delete(outputMainFilePath);
             if (File.Exists(outputScheduledTask)) File.Delete(outputScheduledTask);

@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var report = await context.Reports
                 .Include(r => r.UserProfile)
                 .Include(r => r.AdminUserProfile)
-                .SingleOrDefaultAsync(r => r.Id == reportId);
+                .SingleOrDefaultAsync(r => r.ReportId == reportId);
 
             if (report == null)
                 return new ApiResponseDto<ReportDto>(HttpStatusCode.NotFound);
@@ -58,7 +58,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("repository/reports")]
-        public async Task<IActionResult> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
+        public async Task<IActionResult> GetReports(GameType? gameType, Guid? gameServerId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -69,18 +69,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddDays(-14))
                 cutoff = DateTime.UtcNow.AddDays(-14);
 
-            var response = await ((IReportsApi)this).GetReports(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((IReportsApi)this).GetReports(gameType, gameServerId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto<ReportsCollectionDto>> IReportsApi.GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
+        async Task<ApiResponseDto<ReportsCollectionDto>> IReportsApi.GetReports(GameType? gameType, Guid? gameServerId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
         {
             var query = context.Reports.Include(r => r.UserProfile).Include(r => r.AdminUserProfile).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query, gameType, serverId, cutoff, filter);
+            query = ApplyFilter(query, gameType, gameServerId, cutoff, filter);
             var filteredCount = await query.CountAsync();
 
             query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
@@ -128,7 +128,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             foreach (var report in reports)
             {
-                var gameServer = context.GameServers.Single(gs => gs.ServerId == report.ServerId);
+                var gameServer = context.GameServers.Single(gs => gs.GameServerId == report.GameServerId);
                 report.GameType = gameServer.GameType;
             }
 
@@ -164,12 +164,12 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto> IReportsApi.CloseReport(Guid reportId, CloseReportDto closeReportDto)
         {
-            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == reportId);
+            var report = await context.Reports.SingleOrDefaultAsync(r => r.ReportId == reportId);
 
             if (report == null)
                 return new ApiResponseDto(HttpStatusCode.NotFound);
 
-            var userProfile = await context.UserProfiles.SingleOrDefaultAsync(up => up.Id == closeReportDto.AdminUserProfileId);
+            var userProfile = await context.UserProfiles.SingleOrDefaultAsync(up => up.UserProfileId == closeReportDto.AdminUserProfileId);
 
             if (userProfile == null)
                 return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not user profile with specified user profile id");
@@ -184,13 +184,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        private static IQueryable<Report> ApplyFilter(IQueryable<Report> query, GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter)
+        private static IQueryable<Report> ApplyFilter(IQueryable<Report> query, GameType? gameType, Guid? gameServerId, DateTime? cutoff, ReportsFilter? filter)
         {
             if (gameType.HasValue)
                 query = query.Where(r => r.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
 
-            if (serverId.HasValue)
-                query = query.Where(r => r.ServerId == serverId).AsQueryable();
+            if (gameServerId.HasValue)
+                query = query.Where(r => r.GameServerId == gameServerId).AsQueryable();
 
             if (cutoff.HasValue)
                 query = query.Where(r => r.Timestamp > cutoff).AsQueryable();

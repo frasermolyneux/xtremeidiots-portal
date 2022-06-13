@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.DataLib
     public partial class GameServerStat
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid GameServerStatId { get; set; }
         public Guid? GameServerId { get; set; }
         public int PlayerCount { get; set; }
         [Required]

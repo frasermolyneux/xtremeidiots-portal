@@ -28,4 +28,347 @@
     <Property Name="ParentElementType" Value="SqlSchema" />
     <Property Name="NewName" Value="[UserProfiles]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="18e425e4-b0fe-4e39-85bc-dc35d9a9e005" ChangeDateTime="06/13/2022 18:29:39">
+    <Property Name="ElementName" Value="[dbo].[AdminActions].[Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[AdminActions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="33ce421f-7b82-40f8-be3c-0f0fcb852865" ChangeDateTime="06/13/2022 18:29:55">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.AdminActions_dbo.Player2_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[AdminActions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.AdminActions_dbo.Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="86b41ab1-71f9-4e86-849c-9173a2ac29b3" ChangeDateTime="06/13/2022 18:30:07">
+    <Property Name="ElementName" Value="[dbo].[AdminActions].[IX_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[AdminActions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a030a540-8c7b-4d26-97c8-3697b69be6fe" ChangeDateTime="06/13/2022 18:30:46">
+    <Property Name="ElementName" Value="[dbo].[BanFileMonitors].[GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[BanFileMonitors]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c3254d66-6960-4292-ad70-1f86c4509d60" ChangeDateTime="06/13/2022 18:31:11">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.BanFileMonitors_dbo.GameServers_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[BanFileMonitors]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.BanFileMonitors_dbo.GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="6ff4ffc6-967a-4bc9-9449-6038bdad05fe" ChangeDateTime="06/13/2022 18:31:18">
+    <Property Name="ElementName" Value="[dbo].[BanFileMonitors].[IX_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[BanFileMonitors]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServers_ServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="66062354-3db5-4c45-b7cc-12df41437262" ChangeDateTime="06/13/2022 18:31:44">
+    <Property Name="ElementName" Value="[dbo].[ChatLogs].[GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="94844598-d7f9-40ce-8e12-7194fcc1c793" ChangeDateTime="06/13/2022 18:31:58">
+    <Property Name="ElementName" Value="[dbo].[ChatLogs].[Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5c2d7a1e-9288-4efd-983f-c06ef50c6799" ChangeDateTime="06/13/2022 18:32:11">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.ChatLogs_dbo.GameServers_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.ChatLogs_dbo.GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="44c6d2a1-161b-4a7e-8e4f-b2b6ca31e850" ChangeDateTime="06/13/2022 18:32:22">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.ChatLogs_dbo.Player2_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.ChatLogs_dbo.Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="90023548-c978-422f-93db-56c175c4d9ec" ChangeDateTime="06/13/2022 18:32:36">
+    <Property Name="ElementName" Value="[dbo].[ChatLogs].[IX_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a05c5482-c6b1-4965-b967-824dcdbc6734" ChangeDateTime="06/13/2022 18:32:45">
+    <Property Name="ElementName" Value="[dbo].[ChatLogs].[IX_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bedaafea-e81f-417d-8f4a-9f4643acfe40" ChangeDateTime="06/13/2022 18:33:30">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1e320133-1de8-42e1-b2ec-f06cbac4d6b2" ChangeDateTime="06/13/2022 18:33:44">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[IX_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="9e2129d8-2048-4937-94ac-eccf3409a12c" ChangeDateTime="06/13/2022 18:34:57">
+    <Property Name="ElementName" Value="[dbo].[LivePlayers].[GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[LivePlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3ea8f13d-f6c1-4a65-9158-bf04b4314ffd" ChangeDateTime="06/13/2022 18:35:05">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.LivePlayers_dbo.GameServers_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[LivePlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.LivePlayers_dbo.GameServers_GameServer_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5f889840-4dfb-465a-9368-eda0e7018d97" ChangeDateTime="06/13/2022 18:35:15">
+    <Property Name="ElementName" Value="[dbo].[LivePlayers].[IX_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[LivePlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServer_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5e6529bd-e803-4caa-9e83-a34920cdd188" ChangeDateTime="06/13/2022 18:35:49">
+    <Property Name="ElementName" Value="[dbo].[MapVotes].[Map_MapId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[MapVotes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[MapId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="48824149-be54-42c3-a326-b3b09e483c03" ChangeDateTime="06/13/2022 18:35:55">
+    <Property Name="ElementName" Value="[dbo].[MapVotes].[Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[MapVotes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="873d7cb4-78e9-4a20-9059-47941171cb8a" ChangeDateTime="06/13/2022 18:36:01">
+    <Property Name="ElementName" Value="[dbo].[MapVotes].[IX_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[MapVotes]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="edcc22ec-07c2-457d-a1c7-67ed72f36487" ChangeDateTime="06/13/2022 18:36:06">
+    <Property Name="ElementName" Value="[dbo].[MapVotes].[IX_Map_MapId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="" />
+    <Property Name="ParentElementType" Value="" />
+    <Property Name="NewName" Value="[IX_Maps_MapId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="cb6760db-34c7-41ec-a512-fdf3bcaa0ceb" ChangeDateTime="06/13/2022 18:36:37">
+    <Property Name="ElementName" Value="[dbo].[PlayerAlias].[Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerAlias]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2c12bd83-c206-4cfd-bbfc-e1720dbf982d" ChangeDateTime="06/13/2022 18:36:49">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.PlayerAlias_dbo.Player2_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerAlias]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.PlayerAlias_dbo.Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="81d7c3f1-81b1-45c2-b120-e926f7a13d1d" ChangeDateTime="06/13/2022 18:36:56">
+    <Property Name="ElementName" Value="[dbo].[PlayerAlias].[IX_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerAlias]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="4f2ebe16-24fa-41e5-8999-af0237150e08" ChangeDateTime="06/13/2022 18:37:16">
+    <Property Name="ElementName" Value="[dbo].[PlayerIpAddresses].[Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerIpAddresses]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b565e0ee-b04a-41ae-aca3-c51452475254" ChangeDateTime="06/13/2022 18:37:25">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.PlayerIpAddresses_dbo.Player2_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerIpAddresses]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.PlayerIpAddresses_dbo.Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="173dbd2c-8e0b-4ec5-9933-632db9b28fe5" ChangeDateTime="06/13/2022 18:37:33">
+    <Property Name="ElementName" Value="[dbo].[PlayerIpAddresses].[IX_Player_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[PlayerIpAddresses]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="eb1faeef-75c7-4cb4-9a42-0c5f9f309ca9" ChangeDateTime="06/13/2022 18:38:01">
+    <Property Name="ElementName" Value="[dbo].[PK_dbo.Player2]" />
+    <Property Name="ElementType" Value="SqlPrimaryKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Players]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PK_dbo.Players]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a23f66b0-1c67-42a1-a881-b703b8348421" ChangeDateTime="06/13/2022 18:38:14">
+    <Property Name="ElementName" Value="[dbo].[RecentPlayers].[ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[RecentPlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="74b7b749-e173-48ac-a66a-98061e8b9cdc" ChangeDateTime="06/13/2022 18:38:21">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.RecentPlayers_dbo.GameServers_ServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[RecentPlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.RecentPlayers_dbo.GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ac32f0d3-be0d-4cb4-8eb3-1de9aee1288f" ChangeDateTime="06/13/2022 18:38:28">
+    <Property Name="ElementName" Value="[dbo].[RecentPlayers].[IX_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[RecentPlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="fa74c8e7-716b-4476-9bf3-4f6ab344d5a9" ChangeDateTime="06/13/2022 18:38:53">
+    <Property Name="ElementName" Value="[dbo].[UserProfiles].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[UserProfiles]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[UserProfileId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ec862289-6493-4137-91ae-c2fbdfef580e" ChangeDateTime="06/13/2022 18:39:14">
+    <Property Name="ElementName" Value="[dbo].[ChatLogs]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[ChatMessages]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="2023954e-7e07-45ea-944b-91fd8d590692" ChangeDateTime="06/13/2022 18:39:22">
+    <Property Name="ElementName" Value="[dbo].[ChatMessages].[ChatLogId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ChatMessageId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="6c35caa9-d67a-4c6c-95be-448b6a658237" ChangeDateTime="06/13/2022 18:39:32">
+    <Property Name="ElementName" Value="[dbo].[PK_dbo.ChatLogs]" />
+    <Property Name="ElementType" Value="SqlPrimaryKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PK_dbo.ChatMessage]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="f25bf1df-fc7c-470b-a93a-94d4b8cc5935" ChangeDateTime="06/13/2022 18:39:40">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.ChatLogs_dbo.GameServers_GameServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="" />
+    <Property Name="ParentElementType" Value="" />
+    <Property Name="NewName" Value="[FK_dbo.ChatMessages_dbo.GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="de98e3fa-f55c-4c3c-8be7-c4cec4040ef7" ChangeDateTime="06/13/2022 18:39:55">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.ChatLogs_dbo.Players_PlayerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.ChatMessages_dbo.Players_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="a483e323-3684-461d-b8ea-8a30eac4e4ac" ChangeDateTime="06/13/2022 18:40:05">
+    <Property Name="ElementName" Value="[dbo].[ChatMessages].[IX_ChatLogs]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_ChatMessages]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="c60e31bd-8bb2-424b-bc57-285263c5fc8a" ChangeDateTime="06/13/2022 18:40:35">
+    <Property Name="ElementName" Value="[dbo].[GameServerEvents].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServerEvents]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="GameServerEventId" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="bbf2faa5-c14e-45f2-bff6-683b0f1e50a6" ChangeDateTime="06/13/2022 18:40:47">
+    <Property Name="ElementName" Value="[dbo].[GameServerEvents].[GameServerEventId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServerEvents]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerEventId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="75be4a0a-e973-47e0-a3d1-173fc2d56581" ChangeDateTime="06/13/2022 18:40:59">
+    <Property Name="ElementName" Value="[dbo].[GameServerStats].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServerStats]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerStatId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1542ba14-e72e-4c24-8815-e6a300f107ad" ChangeDateTime="06/13/2022 18:41:10">
+    <Property Name="ElementName" Value="[dbo].[LivePlayers].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[LivePlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[LivePlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ab7480e0-7e06-4ddd-b8ef-a044f7fcf481" ChangeDateTime="06/13/2022 18:41:34">
+    <Property Name="ElementName" Value="[dbo].[RecentPlayers].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[RecentPlayers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[RecentPlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="9b412fc9-3339-44d5-b435-a7f5d5fbd42a" ChangeDateTime="06/13/2022 18:41:58">
+    <Property Name="ElementName" Value="[dbo].[Reports].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Reports]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ReportId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5fb8fe1a-6569-4b65-8428-a149bed64e00" ChangeDateTime="06/13/2022 18:42:12">
+    <Property Name="ElementName" Value="[dbo].[UserProfileClaims].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[UserProfileClaims]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[UserProfileClaimId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="faae4e5d-c1d4-4f50-b7c2-cdcc6cfb4d4b" ChangeDateTime="06/13/2022 18:57:28">
+    <Property Name="ElementName" Value="[dbo].[BanFileMonitors].[IX_GameServers_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[BanFileMonitors]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="adf08c95-0f64-4b1b-9e5c-2041912cc3ed" ChangeDateTime="06/13/2022 18:58:00">
+    <Property Name="ElementName" Value="[dbo].[Reports].[ServerId]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Reports]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5fd27785-4261-4f82-a734-fece9cacdeb8" ChangeDateTime="06/13/2022 18:58:09">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.Reports_dbo.GameServers_ServerId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Reports]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.Reports_dbo.GameServers_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="241a3057-af0d-4b27-8f27-b9a9bfab9f0e" ChangeDateTime="06/13/2022 18:58:18">
+    <Property Name="ElementName" Value="[dbo].[Reports].[IX_GameServer_ServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[Reports]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServer_GameServerId]" />
+  </Operation>
 </Operations>

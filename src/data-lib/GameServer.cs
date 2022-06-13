@@ -8,13 +8,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("ServerId", Name = "IX_ServerId", IsUnique = true)]
+    [Index("GameServerId", Name = "IX_GameServerId", IsUnique = true)]
     public partial class GameServer
     {
         public GameServer()
         {
             BanFileMonitors = new HashSet<BanFileMonitor>();
-            ChatLogs = new HashSet<ChatLog>();
+            ChatMessages = new HashSet<ChatMessage>();
             GameServerEvents = new HashSet<GameServerEvent>();
             GameServerStats = new HashSet<GameServerStat>();
             LivePlayers = new HashSet<LivePlayer>();
@@ -23,7 +23,7 @@ namespace XtremeIdiots.Portal.DataLib
         }
 
         [Key]
-        public Guid ServerId { get; set; }
+        public Guid GameServerId { get; set; }
         [StringLength(60)]
         public string Title { get; set; }
         public string HtmlBanner { get; set; }
@@ -48,19 +48,19 @@ namespace XtremeIdiots.Portal.DataLib
         public bool ShowChatLog { get; set; }
         public string RconPassword { get; set; }
 
-        [InverseProperty("GameServerServer")]
+        [InverseProperty("GameServer")]
         public virtual ICollection<BanFileMonitor> BanFileMonitors { get; set; }
-        [InverseProperty("GameServerServer")]
-        public virtual ICollection<ChatLog> ChatLogs { get; set; }
+        [InverseProperty("GameServer")]
+        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
         [InverseProperty("GameServer")]
         public virtual ICollection<GameServerEvent> GameServerEvents { get; set; }
         [InverseProperty("GameServer")]
         public virtual ICollection<GameServerStat> GameServerStats { get; set; }
-        [InverseProperty("GameServerServer")]
+        [InverseProperty("GameServer")]
         public virtual ICollection<LivePlayer> LivePlayers { get; set; }
-        [InverseProperty("Server")]
+        [InverseProperty("GameServer")]
         public virtual ICollection<RecentPlayer> RecentPlayers { get; set; }
-        [InverseProperty("Server")]
+        [InverseProperty("GameServer")]
         public virtual ICollection<Report> Reports { get; set; }
     }
 }

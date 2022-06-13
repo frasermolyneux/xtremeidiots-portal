@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
     public class GameServerDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
         public string? Title { get; internal set; }

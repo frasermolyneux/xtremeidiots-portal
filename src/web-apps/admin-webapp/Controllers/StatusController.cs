@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var models = new List<EditBanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
             {
-                var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.ServerId);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.GameServerId);
 
                 models.Add(new EditBanFileMonitorViewModel
                 {
@@ -38,7 +38,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     FilePath = banFileMonitor.FilePath,
                     RemoteFileSize = banFileMonitor.RemoteFileSize,
                     LastSync = banFileMonitor.LastSync,
-                    ServerId = banFileMonitor.ServerId,
+                    GameServerId = banFileMonitor.GameServerId,
                     GameServer = gameServerApiResponse.Result
                 });
             }

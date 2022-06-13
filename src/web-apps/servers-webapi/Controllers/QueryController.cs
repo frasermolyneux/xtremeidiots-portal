@@ -32,10 +32,10 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/query/{serverId}/status")]
-        public async Task<IActionResult> GetServerStatus(Guid serverId)
+        [Route("api/query/{gameServerId}/status")]
+        public async Task<IActionResult> GetServerStatus(Guid gameServerId)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(serverId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(gameServerId);
 
             if (gameServerApiResponse.IsNotFound)
                 return NotFound();
@@ -48,14 +48,14 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
 
             try
             {
-                if (!memoryCache.TryGetValue($"{gameServerApiResponse.Result.Id}-query-status", out IQueryResponse statusResult))
+                if (!memoryCache.TryGetValue($"{gameServerApiResponse.Result.GameServerId}-query-status", out IQueryResponse statusResult))
                 {
                     statusResult = await queryClient.GetServerStatus();
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(300));
 
-                    memoryCache.Set($"{gameServerApiResponse.Result.Id}-query-status", statusResult, cacheEntryOptions);
+                    memoryCache.Set($"{gameServerApiResponse.Result.GameServerId}-query-status", statusResult, cacheEntryOptions);
                 }
 
                 if (statusResult != null)

@@ -1,11 +1,11 @@
 ﻿CREATE TABLE [dbo].[PlayerAlias] (
     [PlayerAliasId]   UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [PlayerId] UNIQUEIDENTIFIER NULL,
     [Name]            NVARCHAR (60)    NULL,
     [Added]           DATETIME         NOT NULL,
     [LastUsed]        DATETIME         NOT NULL,
-    [Player_PlayerId] UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.PlayerAlias] PRIMARY KEY CLUSTERED ([PlayerAliasId] ASC),
-    CONSTRAINT [FK_dbo.PlayerAlias_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
+    CONSTRAINT [FK_dbo.PlayerAlias_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 
@@ -15,6 +15,6 @@ CREATE NONCLUSTERED INDEX [IX_Name]
 
 
 GO
-CREATE NONCLUSTERED INDEX [IX_Player_PlayerId]
-    ON [dbo].[PlayerAlias]([Player_PlayerId] ASC);
+CREATE NONCLUSTERED INDEX [IX_Players_PlayerId]
+    ON [dbo].[PlayerAlias]([PlayerId] ASC);
 

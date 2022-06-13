@@ -1,8 +1,10 @@
 ﻿using Polly;
+
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
 using XtremeIdiots.Portal.ServersWebApi.Models;
@@ -25,12 +27,12 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Configure(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
+        public void Configure(GameType gameType, Guid gameServerId, string hostname, int queryPort, string rconPassword)
         {
-            _logger.LogDebug("[{ServerId}] Configuring Quake3 rcon client for {GameType} with endpoint {Hostname}:{QueryPort}", serverId, gameType, hostname, queryPort);
+            _logger.LogDebug("[{GameServerId}] Configuring Quake3 rcon client for {GameType} with endpoint {Hostname}:{QueryPort}", gameServerId, gameType, hostname, queryPort);
 
             _gameType = gameType;
-            _serverId = serverId;
+            _serverId = gameServerId;
             _hostname = hostname;
             _queryPort = queryPort;
             _rconPassword = rconPassword;
@@ -38,7 +40,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public List<IRconPlayer> GetPlayers()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to get a list of players from the server", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to get a list of players from the server", _serverId);
 
             var players = new List<IRconPlayer>();
 
@@ -66,7 +68,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 int.TryParse(ping, out int pingInt);
                 int.TryParse(rate, out int rateInt);
 
-                _logger.LogDebug("[{ServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
+                _logger.LogDebug("[{GameServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
 
                 players.Add(new Quake3RconPlayer
                 {
@@ -86,7 +88,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public Task Say(string message)
         {
-            _logger.LogDebug("[{ServerId}] Attempting to send '{message}' to the server", _serverId, message);
+            _logger.LogDebug("[{GameServerId}] Attempting to send '{message}' to the server", _serverId, message);
 
             Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
@@ -97,7 +99,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public Task<string> Restart()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to send restart the server", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to send restart the server", _serverId);
 
             var packets = Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
@@ -108,7 +110,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public Task<string> RestartMap()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to restart the current map", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to restart the current map", _serverId);
 
             var packets = Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
@@ -119,7 +121,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public Task<string> FastRestartMap()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to fast restart the current map", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to fast restart the current map", _serverId);
 
             var packets = Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
@@ -130,7 +132,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public Task<string> NextMap()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to rotate to the next map", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to rotate to the next map", _serverId);
 
             var packets = Policy.Handle<Exception>()
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
@@ -145,7 +147,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 .WaitAndRetry(GetRetryTimeSpans(), (result, timeSpan, retryCount, context) => { _logger.LogWarning("[{serverName}] Failed to execute rcon command - retry count: {count}", _serverId, retryCount); })
                 .Execute(() => GetCommandPackets("status"));
 
-            _logger.LogDebug("[{ServerId}] Total status packets retrieved from server: {Count}", _serverId, packets.Count);
+            _logger.LogDebug("[{GameServerId}] Total status packets retrieved from server: {Count}", _serverId, packets.Count);
 
             return GetStringFromPackets(packets);
         }

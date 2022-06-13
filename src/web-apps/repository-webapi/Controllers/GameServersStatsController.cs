@@ -80,8 +80,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/game-servers-stats/{serverId}")]
-        public async Task<IActionResult> GetGameServerStatusStats(Guid serverId, DateTime? cutoff)
+        [Route("repository/game-servers-stats/{gameServerId}")]
+        public async Task<IActionResult> GetGameServerStatusStats(Guid gameServerId, DateTime? cutoff)
         {
             if (!cutoff.HasValue)
                 cutoff = DateTime.UtcNow.AddDays(-2);
@@ -89,15 +89,15 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddDays(-2))
                 cutoff = DateTime.UtcNow.AddDays(-2);
 
-            var response = await ((IGameServersStatsApi)this).GetGameServerStatusStats(serverId, cutoff.Value);
+            var response = await ((IGameServersStatsApi)this).GetGameServerStatusStats(gameServerId, cutoff.Value);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto<GameServerStatCollectionDto>> IGameServersStatsApi.GetGameServerStatusStats(Guid serverId, DateTime cutoff)
+        async Task<ApiResponseDto<GameServerStatCollectionDto>> IGameServersStatsApi.GetGameServerStatusStats(Guid gameServerId, DateTime cutoff)
         {
             var gameServerStats = await context.GameServerStats
-                .Where(gss => gss.GameServerId == serverId && gss.Timestamp >= cutoff)
+                .Where(gss => gss.GameServerId == gameServerId && gss.Timestamp >= cutoff)
                 .OrderBy(gss => gss.Timestamp)
                 .ToListAsync();
 

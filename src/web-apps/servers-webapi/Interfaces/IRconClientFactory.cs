@@ -4,6 +4,6 @@ namespace XtremeIdiots.Portal.ServersWebApi.Interfaces
 {
     public interface IRconClientFactory
     {
-        IRconClient CreateInstance(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword);
+        IRconClient CreateInstance(GameType gameType, Guid gameServerId, string hostname, int queryPort, string rconPassword);
     }
 }

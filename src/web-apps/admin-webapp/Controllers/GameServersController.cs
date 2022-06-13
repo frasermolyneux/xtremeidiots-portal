@@ -32,9 +32,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, PortalClaimTypes.GameServer };
-            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+            var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(GameServerViewModel model)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.ServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.GameServerId);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -170,7 +170,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var editGameServerDto = new EditGameServerDto(gameServerApiResponse.Result.Id);
+            var editGameServerDto = new EditGameServerDto(gameServerApiResponse.Result.GameServerId);
 
             editGameServerDto.Title = model.Title;
             editGameServerDto.Hostname = model.Hostname;
@@ -200,7 +200,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
 
-            _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.Id, gameServerApiResponse.Result.GameType);
+            _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
             this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been updated for {gameServerApiResponse.Result.GameType}");
 
             return RedirectToAction(nameof(Index));
@@ -239,7 +239,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             await repositoryApiClient.GameServers.DeleteGameServer(id);
 
-            _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.Id, gameServerApiResponse.Result.GameType);
+            _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
             this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been deleted for {gameServerApiResponse.Result.GameType}");
 
             return RedirectToAction(nameof(Index));

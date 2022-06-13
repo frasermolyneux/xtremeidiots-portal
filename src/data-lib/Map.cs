@@ -28,7 +28,7 @@ namespace XtremeIdiots.Portal.DataLib
         public double LikePercentage { get; set; }
         public double DislikePercentage { get; set; }
 
-        [InverseProperty("MapMap")]
+        [InverseProperty("Map")]
         public virtual ICollection<MapVote> MapVotes { get; set; }
     }
 }

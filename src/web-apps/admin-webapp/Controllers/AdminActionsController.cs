@@ -49,7 +49,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var viewModel = new CreateAdminActionViewModel
             {
                 Type = adminActionType,
-                PlayerId = playerApiResponse.Result.Id,
+                PlayerId = playerApiResponse.Result.PlayerId,
                 PlayerDto = playerApiResponse.Result,
                 Expires = adminActionType == AdminActionType.TempBan ? DateTime.UtcNow.AddDays(7) : null
             };
@@ -77,13 +77,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canCreateAdminAction.Succeeded)
                 return Unauthorized();
 
-            var createAdminActionDto = new CreateAdminActionDto(playerApiResponse.Result.Id, model.Type, model.Text)
+            var createAdminActionDto = new CreateAdminActionDto(playerApiResponse.Result.PlayerId, model.Type, model.Text)
             {
                 AdminId = User.XtremeIdiotsId(),
                 Expires = model.Expires,
             };
 
-            createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(model.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.Id, playerApiResponse.Result.Username, DateTime.UtcNow, model.Text, createAdminActionDto.AdminId);
+            createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(model.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.PlayerId, playerApiResponse.Result.Username, DateTime.UtcNow, model.Text, createAdminActionDto.AdminId);
 
             await repositoryApiClient.AdminActions.CreateAdminAction(createAdminActionDto);
 
@@ -156,7 +156,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.Id, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("EditAdminAction").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -205,7 +205,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.Id, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("BanLifted").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -254,7 +254,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.Id, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("BanClaimed").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -279,7 +279,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var editAdminActionDto = new EditAdminActionDto(adminActionApiResponse.Result.AdminActionId)
             {
-                ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.Id, adminActionApiResponse.Result.PlayerDto.Username, DateTime.UtcNow, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId)
+                ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, DateTime.UtcNow, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId)
             };
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);

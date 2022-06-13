@@ -12,5 +12,5 @@
     [UserProfileId] UNIQUEIDENTIFIER NULL,
     [DemoFileUri] NVARCHAR(MAX) NULL, 
     CONSTRAINT [PK_dbo.Demoes] PRIMARY KEY CLUSTERED ([DemoId] ASC),
-    CONSTRAINT [FK_dbo.Demoes_dbo.UserProfiles_Id] FOREIGN KEY ([UserProfileId]) REFERENCES [dbo].[UserProfiles] ([Id])
+    CONSTRAINT [FK_dbo.Demoes_dbo.UserProfiles_Id] FOREIGN KEY ([UserProfileId]) REFERENCES [dbo].[UserProfiles] ([UserProfileId])
 );

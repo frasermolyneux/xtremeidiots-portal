@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[GameServers] (
-    [ServerId]                 UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [GameServerId]                 UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
     [Title]                    NVARCHAR (60)    NULL,
     [HtmlBanner]               NVARCHAR (MAX)   NULL,
     [GameType]                 INT              DEFAULT 0 NOT NULL,
@@ -21,11 +21,10 @@
     [ShowOnPortalServerList]   BIT              DEFAULT 0 NOT NULL,
     [ShowChatLog]              BIT              DEFAULT 0 NOT NULL,
     [RconPassword]             NVARCHAR (MAX)   NULL ,
-    CONSTRAINT [PK_dbo.GameServers] PRIMARY KEY CLUSTERED ([ServerId] ASC)
+    CONSTRAINT [PK_dbo.GameServers] PRIMARY KEY CLUSTERED ([GameServerId] ASC)
 );
 
-
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [IX_ServerId]
-    ON [dbo].[GameServers]([ServerId] ASC);
+CREATE UNIQUE NONCLUSTERED INDEX [IX_GameServerId]
+    ON [dbo].[GameServers]([GameServerId] ASC);
 

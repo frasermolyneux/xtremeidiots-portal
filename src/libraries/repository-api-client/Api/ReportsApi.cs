@@ -25,15 +25,15 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<ReportDto>();
         }
 
-        public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? serverId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
+        public async Task<ApiResponseDto<ReportsCollectionDto>> GetReports(GameType? gameType, Guid? gameServerId, DateTime? cutoff, ReportsFilter? filter, int skipEntries, int takeEntries, ReportsOrder? order)
         {
             var request = await CreateRequest("reports", Method.Get);
 
             if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());
 
-            if (serverId.HasValue)
-                request.AddQueryParameter("serverId", serverId.ToString());
+            if (gameServerId.HasValue)
+                request.AddQueryParameter("gameServerId", gameServerId.ToString());
 
             if (cutoff.HasValue)
                 request.AddQueryParameter("cutoff", cutoff.Value.ToString("MM/dd/yyyy HH:mm:ss"));

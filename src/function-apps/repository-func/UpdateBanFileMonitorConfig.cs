@@ -47,7 +47,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
                     continue;
 
-                var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.ServerId == gameServerDto.Id);
+                var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.GameServerId == gameServerDto.GameServerId);
 
                 if (banFileMonitorDto == null)
                 {
@@ -64,7 +64,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                             if (await ftpClient.FileExistsAsync($"/{gameServerDto.LiveMod}/ban.txt"))
                             {
-                                var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.Id, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
+                                var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.GameServerId, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
                                 await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
                             }
                         }

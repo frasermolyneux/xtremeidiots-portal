@@ -1,9 +1,11 @@
 ﻿using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using XtremeIdiots.Portal.DataLib;
 
 namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers;
@@ -23,12 +25,12 @@ public class GameServersSecretsController : ControllerBase
     public PortalDbContext Context { get; }
 
     [HttpGet]
-    [Route("repository/game-servers/{serverId}/secret/{secretId}")]
-    public async Task<IActionResult> GetGameServerSecret(string serverId, string secretId)
+    [Route("repository/game-servers/{gameServerId}/secret/{secretId}")]
+    public async Task<IActionResult> GetGameServerSecret(string gameServerId, string secretId)
     {
-        if (string.IsNullOrWhiteSpace(serverId)) return new BadRequestResult();
+        if (string.IsNullOrWhiteSpace(gameServerId)) return new BadRequestResult();
 
-        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId.ToString() == serverId);
+        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId.ToString() == gameServerId);
         if (gameServer == null) return new BadRequestResult();
 
         var client = new SecretClient(new Uri(_configuration["gameservers-keyvault-endpoint"]),
@@ -36,7 +38,7 @@ public class GameServersSecretsController : ControllerBase
 
         try
         {
-            var keyVaultResponse = await client.GetSecretAsync($"{serverId}-{secretId}");
+            var keyVaultResponse = await client.GetSecretAsync($"{gameServerId}-{secretId}");
             return new OkObjectResult(keyVaultResponse.Value);
         }
         catch (RequestFailedException ex)
@@ -49,12 +51,12 @@ public class GameServersSecretsController : ControllerBase
     }
 
     [HttpPost]
-    [Route("repository/game-servers/{serverId}/secret/{secretId}")]
-    public async Task<IActionResult> SetGameServerSecret(string id, string name)
+    [Route("repository/game-servers/{gameServerId}/secret/{secretId}")]
+    public async Task<IActionResult> SetGameServerSecret(string gameServerId, string secretId)
     {
-        if (string.IsNullOrWhiteSpace(id)) return new BadRequestResult();
+        if (string.IsNullOrWhiteSpace(gameServerId)) return new BadRequestResult();
 
-        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.ServerId.ToString() == id);
+        var gameServer = await Context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId.ToString() == gameServerId);
         if (gameServer == null) return new BadRequestResult();
 
         var client = new SecretClient(new Uri(_configuration["gameservers-keyvault-endpoint"]),
@@ -64,10 +66,10 @@ public class GameServersSecretsController : ControllerBase
 
         try
         {
-            var keyVaultResponse = await client.GetSecretAsync($"{id}-{name}");
+            var keyVaultResponse = await client.GetSecretAsync($"{gameServerId}-{secretId}");
 
             if (keyVaultResponse.Value.Value != rawSecretValue)
-                keyVaultResponse = await client.SetSecretAsync($"{id}-{name}", rawSecretValue);
+                keyVaultResponse = await client.SetSecretAsync($"{gameServerId}-{secretId}", rawSecretValue);
 
             return new OkObjectResult(keyVaultResponse.Value);
         }
@@ -77,7 +79,7 @@ public class GameServersSecretsController : ControllerBase
                 throw;
         }
 
-        var newSecretKeyVaultResponse = await client.SetSecretAsync($"{id}-{name}", rawSecretValue);
+        var newSecretKeyVaultResponse = await client.SetSecretAsync($"{gameServerId}-{secretId}", rawSecretValue);
         return new OkObjectResult(newSecretKeyVaultResponse.Value);
     }
 }

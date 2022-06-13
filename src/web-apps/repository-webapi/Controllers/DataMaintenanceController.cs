@@ -33,7 +33,7 @@ public class DataMaintenanceController : ControllerBase, IDataMaintenanceApi
 
     async Task<ApiResponseDto> IDataMaintenanceApi.PruneChatMessages()
     {
-        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatLogs)}] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
+        await context.Database.ExecuteSqlRawAsync($"DELETE FROM [dbo].[{nameof(context.ChatMessages)}] WHERE [Timestamp] < CAST('{DateTime.UtcNow.AddMonths(-6):yyyy-MM-dd} 12:00:00' AS date)");
         return new ApiResponseDto(HttpStatusCode.OK);
     }
 

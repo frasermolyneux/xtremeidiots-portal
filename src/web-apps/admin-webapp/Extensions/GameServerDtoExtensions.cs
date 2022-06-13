@@ -9,7 +9,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
         {
             var viewModel = new GameServerViewModel
             {
-                ServerId = gameServerDto.Id,
+                GameServerId = gameServerDto.GameServerId,
                 Title = gameServerDto.Title,
                 GameType = gameServerDto.GameType,
                 Hostname = gameServerDto.Hostname,

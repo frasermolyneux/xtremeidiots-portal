@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         async Task<ApiResponseDto<AdminActionDto>> IAdminActionsApi.GetAdminAction(Guid adminActionId)
         {
             var adminAction = await context.AdminActions
-                .Include(aa => aa.PlayerPlayer)
+                .Include(aa => aa.Player)
                 .Include(aa => aa.UserProfile)
                 .SingleOrDefaultAsync(aa => aa.AdminActionId == adminActionId);
 
@@ -73,7 +73,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<AdminActionCollectionDto>> IAdminActionsApi.GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int skipEntries, int takeEntries, AdminActionOrder? order)
         {
-            var query = context.AdminActions.Include(aa => aa.PlayerPlayer).Include(aa => aa.UserProfile).AsQueryable();
+            var query = context.AdminActions.Include(aa => aa.Player).Include(aa => aa.UserProfile).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
             var totalCount = await query.CountAsync();
 
@@ -208,10 +208,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         private IQueryable<AdminAction> ApplyFilter(IQueryable<AdminAction> query, GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter)
         {
             if (gameType.HasValue)
-                query = query.Where(aa => aa.PlayerPlayer.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
+                query = query.Where(aa => aa.Player.GameType == ((GameType)gameType).ToGameTypeInt()).AsQueryable();
 
             if (playerId.HasValue)
-                query = query.Where(aa => aa.PlayerPlayerId == playerId).AsQueryable();
+                query = query.Where(aa => aa.PlayerId == playerId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(adminId))
                 query = query.Where(aa => aa.UserProfile.XtremeIdiotsForumId == adminId).AsQueryable();

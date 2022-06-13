@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         async Task<ApiResponseDto<BanFileMonitorDto>> IBanFileMonitorsApi.GetBanFileMonitor(Guid banFileMonitorId)
         {
             var banFileMonitor = await context.BanFileMonitors
-                .Include(bfm => bfm.GameServerServer)
+                .Include(bfm => bfm.GameServer)
                 .SingleOrDefaultAsync(bfm => bfm.BanFileMonitorId == banFileMonitorId);
 
             if (banFileMonitor == null)
@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("repository/ban-file-monitors")]
-        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? serverId, int? skipEntries, int? takeEntries, BanFileMonitorOrder? order)
+        public async Task<IActionResult> GetBanFileMonitors(string? gameTypes, string? banFileMonitorIds, Guid? gameServerId, int? skipEntries, int? takeEntries, BanFileMonitorOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -79,18 +79,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 banFileMonitorsIdFilter = split.Select(id => Guid.Parse(id)).ToArray();
             }
 
-            var response = await ((IBanFileMonitorsApi)this).GetBanFileMonitors(gameTypesFilter, banFileMonitorsIdFilter, serverId, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((IBanFileMonitorsApi)this).GetBanFileMonitors(gameTypesFilter, banFileMonitorsIdFilter, gameServerId, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto<BanFileMonitorCollectionDto>> IBanFileMonitorsApi.GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
+        async Task<ApiResponseDto<BanFileMonitorCollectionDto>> IBanFileMonitorsApi.GetBanFileMonitors(GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? gameServerId, int skipEntries, int takeEntries, BanFileMonitorOrder? order)
         {
-            var query = context.BanFileMonitors.Include(bfm => bfm.GameServerServer).AsQueryable();
+            var query = context.BanFileMonitors.Include(bfm => bfm.GameServer).AsQueryable();
             query = ApplyFilter(query, gameTypes, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query, gameTypes, banFileMonitorIds, serverId);
+            query = ApplyFilter(query, gameTypes, banFileMonitorIds, gameServerId);
             var filteredCount = await query.CountAsync();
 
             query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
@@ -209,19 +209,19 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        private IQueryable<BanFileMonitor> ApplyFilter(IQueryable<BanFileMonitor> query, GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? serverId)
+        private IQueryable<BanFileMonitor> ApplyFilter(IQueryable<BanFileMonitor> query, GameType[]? gameTypes, Guid[]? banFileMonitorIds, Guid? gameServerId)
         {
             if (gameTypes != null && gameTypes.Length > 0)
             {
                 var gameTypeInts = gameTypes.Select(gt => gt.ToGameTypeInt()).ToArray();
-                query = query.Where(bfm => gameTypeInts.Contains(bfm.GameServerServer.GameType)).AsQueryable();
+                query = query.Where(bfm => gameTypeInts.Contains(bfm.GameServer.GameType)).AsQueryable();
             }
 
             if (banFileMonitorIds != null && banFileMonitorIds.Length > 0)
                 query = query.Where(bfm => banFileMonitorIds.Contains(bfm.BanFileMonitorId)).AsQueryable();
 
-            if (serverId.HasValue)
-                query = query.Where(bfm => bfm.GameServerServerId == serverId).AsQueryable();
+            if (gameServerId.HasValue)
+                query = query.Where(bfm => bfm.GameServerId == gameServerId).AsQueryable();
 
             return query;
         }
@@ -231,10 +231,10 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             switch (order)
             {
                 case BanFileMonitorOrder.BannerServerListPosition:
-                    query = query.OrderBy(bfm => bfm.GameServerServer.BannerServerListPosition).AsQueryable();
+                    query = query.OrderBy(bfm => bfm.GameServer.BannerServerListPosition).AsQueryable();
                     break;
                 case BanFileMonitorOrder.GameType:
-                    query = query.OrderBy(bfm => bfm.GameServerServer.GameType).AsQueryable();
+                    query = query.OrderBy(bfm => bfm.GameServer.GameType).AsQueryable();
                     break;
             }
 

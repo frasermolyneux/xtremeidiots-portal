@@ -35,9 +35,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Index()
         {
             var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, PortalClaimTypes.ServerAdmin };
-            var (gameTypes, serverIds) = User.ClaimedGamesAndItems(requiredClaims);
+            var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, serverIds, GameServerFilter.LiveStatusEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveStatusEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -277,7 +277,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
 
-            ViewData["ServerId"] = id;
+            ViewData["GameServerId"] = id;
             return View(nameof(ChatLogIndex));
         }
 
@@ -310,10 +310,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.Id);
+            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.PlayerId);
         }
 
-        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? serverId, Guid? playerId)
+        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -337,7 +337,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 }
             }
 
-            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, serverId, playerId, model.Search?.Value, model.Start, model.Length, order);
+            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order);
 
             if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

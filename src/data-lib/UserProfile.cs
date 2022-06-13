@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.DataLib
         }
 
         [Key]
-        public Guid Id { get; set; }
+        public Guid UserProfileId { get; set; }
         [StringLength(50)]
         public string IdentityOid { get; set; }
         [StringLength(50)]

@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         [HttpGet]
         [Route("repository/recent-players")]
-        public async Task<IActionResult> GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int? skipEntries, int? takeEntries, RecentPlayersOrder? order)
+        public async Task<IActionResult> GetRecentPlayers(GameType? gameType, Guid? gameServerId, DateTime? cutoff, RecentPlayersFilter? filter, int? skipEntries, int? takeEntries, RecentPlayersOrder? order)
         {
             if (!skipEntries.HasValue)
                 skipEntries = 0;
@@ -45,18 +45,18 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (cutoff.HasValue && cutoff.Value < DateTime.UtcNow.AddHours(-48))
                 cutoff = DateTime.UtcNow.AddHours(-48);
 
-            var response = await ((IRecentPlayersApi)this).GetRecentPlayers(gameType, serverId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
+            var response = await ((IRecentPlayersApi)this).GetRecentPlayers(gameType, gameServerId, cutoff, filter, skipEntries.Value, takeEntries.Value, order);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto<RecentPlayersCollectionDto>> IRecentPlayersApi.GetRecentPlayers(GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
+        async Task<ApiResponseDto<RecentPlayersCollectionDto>> IRecentPlayersApi.GetRecentPlayers(GameType? gameType, Guid? gameServerId, DateTime? cutoff, RecentPlayersFilter? filter, int skipEntries, int takeEntries, RecentPlayersOrder? order)
         {
             var query = context.RecentPlayers.Include(rp => rp.Player).AsQueryable();
             query = ApplyFilter(query, gameType, null, null, null);
             var totalCount = await query.CountAsync();
 
-            query = ApplyFilter(query, gameType, serverId, cutoff, filter);
+            query = ApplyFilter(query, gameType, gameServerId, cutoff, filter);
             var filteredCount = await query.CountAsync();
 
             query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
@@ -123,13 +123,13 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        private static IQueryable<RecentPlayer> ApplyFilter(IQueryable<RecentPlayer> query, GameType? gameType, Guid? serverId, DateTime? cutoff, RecentPlayersFilter? filter)
+        private static IQueryable<RecentPlayer> ApplyFilter(IQueryable<RecentPlayer> query, GameType? gameType, Guid? gameServerId, DateTime? cutoff, RecentPlayersFilter? filter)
         {
             if (gameType.HasValue)
                 query = query.Where(rp => rp.GameType == gameType.Value.ToGameTypeInt()).AsQueryable();
 
-            if (serverId.HasValue)
-                query = query.Where(rp => rp.ServerId == serverId).AsQueryable();
+            if (gameServerId.HasValue)
+                query = query.Where(rp => rp.GameServerId == gameServerId).AsQueryable();
 
             if (cutoff.HasValue)
                 query = query.Where(rp => rp.Timestamp > cutoff).AsQueryable();

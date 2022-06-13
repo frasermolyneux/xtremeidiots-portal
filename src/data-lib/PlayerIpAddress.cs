@@ -9,22 +9,21 @@ using Microsoft.EntityFrameworkCore;
 namespace XtremeIdiots.Portal.DataLib
 {
     [Index("Address", Name = "IX_Address")]
-    [Index("PlayerPlayerId", Name = "IX_Player_PlayerId")]
+    [Index("PlayerId", Name = "IX_Players_PlayerId")]
     public partial class PlayerIpAddress
     {
         [Key]
         public Guid PlayerIpAddressId { get; set; }
+        public Guid? PlayerId { get; set; }
         [StringLength(60)]
         public string Address { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Added { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime LastUsed { get; set; }
-        [Column("Player_PlayerId")]
-        public Guid? PlayerPlayerId { get; set; }
 
-        [ForeignKey("PlayerPlayerId")]
+        [ForeignKey("PlayerId")]
         [InverseProperty("PlayerIpAddresses")]
-        public virtual Player PlayerPlayer { get; set; }
+        public virtual Player Player { get; set; }
     }
 }

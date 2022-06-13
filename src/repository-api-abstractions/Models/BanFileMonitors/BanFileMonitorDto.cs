@@ -22,7 +22,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
         public DateTime LastSync { get; internal set; }
 
         [JsonProperty]
-        public Guid ServerId { get; internal set; }
+        public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]

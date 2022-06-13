@@ -34,7 +34,7 @@
                     <div>
                         <ul class="list-group clear-list">
                             <li class="list-group-item fist-item">
-                                <span class="pull-right"> @Model.Player.Id</span>
+                                <span class="pull-right"> @Model.Player.PlayerId</span>
                                 Player ID
                             </li>
                             <li class="list-group-item">
@@ -77,35 +77,35 @@
                                     @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
-                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Observation">Add Observation</a>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Observation">Add Observation</a>
                                         </li>
                                     }
 
                                     @if ((await AuthorizationService.AuthorizeAsync(User,new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Warning), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
-                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Warning">Add Warning</a>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Warning">Add Warning</a>
                                         </li>
                                     }
 
                                     @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Kick), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
-                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Kick">Add Kick</a>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Kick">Add Kick</a>
                                         </li>
                                     }
 
                                     @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.TempBan), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
-                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="TempBan">Add Temp Ban</a>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="TempBan">Add Temp Ban</a>
                                         </li>
                                     }
 
                                     @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Ban), AuthPolicies.CreateAdminAction)).Succeeded)
                                     {
                                         <li>
-                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.Id" asp-route-adminActionType="Ban">Add Ban</a>
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Ban">Add Ban</a>
                                         </li>
                                     }
                                 </ul>
@@ -285,7 +285,7 @@
                 stateSave: true,
                 order: [[1, "desc"]],
                 ajax: {
-                    url: '/ServerAdmin/GetPlayerChatLog/@Model.Player.Id',
+                    url: '/ServerAdmin/GetPlayerChatLog/@Model.Player.PlayerId',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",

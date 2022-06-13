@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
 using XtremeIdiots.Portal.ServersWebApi.Models;
@@ -31,12 +32,12 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public void Configure(GameType gameType, Guid serverId, string hostname, int queryPort, string rconPassword)
+        public void Configure(GameType gameType, Guid gameServerId, string hostname, int queryPort, string rconPassword)
         {
-            _logger.LogDebug("[{ServerId}] Configuring Source rcon client for {GameType} with endpoint {Hostname}:{QueryPort}", serverId, gameType, hostname, queryPort);
+            _logger.LogDebug("[{GameServerId}] Configuring Source rcon client for {GameType} with endpoint {Hostname}:{QueryPort}", gameServerId, gameType, hostname, queryPort);
 
             _gameType = gameType;
-            _serverId = serverId;
+            _serverId = gameServerId;
             _hostname = hostname;
             _queryPort = queryPort;
             _rconPassword = rconPassword;
@@ -44,7 +45,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         public List<IRconPlayer> GetPlayers()
         {
-            _logger.LogDebug("[{ServerId}] Attempting to get a list of players from the server", _serverId);
+            _logger.LogDebug("[{GameServerId}] Attempting to get a list of players from the server", _serverId);
 
             var players = new List<IRconPlayer>();
 
@@ -69,7 +70,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 int.TryParse(ping, out int pingInt);
                 int.TryParse(rate, out int rateInt);
 
-                _logger.LogDebug("[{ServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
+                _logger.LogDebug("[{GameServerId}] Player {Name} with {Guid} and {IpAddress} parsed from result", _serverId, name, guid, ipAddress);
 
                 players.Add(new SourceRconPlayer
                 {
@@ -116,7 +117,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
             var statusPackets = GetCommandPackets("status");
 
-            _logger.LogDebug("[{ServerId}] Total status packets retrieved from server: {Count}", _serverId, statusPackets.Count);
+            _logger.LogDebug("[{GameServerId}] Total status packets retrieved from server: {Count}", _serverId, statusPackets.Count);
 
             var response = new StringBuilder();
             foreach (var packet in statusPackets) response.Append(packet.Body.Trim());
@@ -146,24 +147,24 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 if (_tcpClient != null && _tcpClient.Connected)
                     return;
 
-                _logger.LogDebug("[{ServerId}] Creating a new TcpClient and attempting to authenticate", _serverId);
+                _logger.LogDebug("[{GameServerId}] Creating a new TcpClient and attempting to authenticate", _serverId);
 
                 _tcpClient = new TcpClient(_hostname, _queryPort) { ReceiveTimeout = 5000 };
 
                 var authPackets = GetAuthPackets(_rconPassword);
                 var authResultPacket = authPackets.SingleOrDefault(packet => packet.Type == 2);
 
-                _logger.LogDebug("[{ServerId}] Total auth packets retrieved from server: {Count}", _serverId, authPackets.Count());
+                _logger.LogDebug("[{GameServerId}] Total auth packets retrieved from server: {Count}", _serverId, authPackets.Count());
 
                 if (authResultPacket == null)
                 {
-                    _logger.LogError("[{ServerId}] Could not establish authenticated session with server", _serverId);
+                    _logger.LogError("[{GameServerId}] Could not establish authenticated session with server", _serverId);
                     throw new Exception("Could not establish authenticated session with server");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{ServerId}] Could not establish TCP connection to server", _serverId);
+                _logger.LogError(ex, "[{GameServerId}] Could not establish TCP connection to server", _serverId);
                 throw;
             }
         }

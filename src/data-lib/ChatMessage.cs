@@ -8,23 +8,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("MapId", Name = "IX_Maps_MapId")]
+    [Index("PlayerId", "GameServerId", Name = "IX_ChatMessages")]
+    [Index("GameServerId", Name = "IX_GameServers_GameServerId")]
     [Index("PlayerId", Name = "IX_Players_PlayerId")]
-    public partial class MapVote
+    [Index("Timestamp", Name = "IX_Timestamp")]
+    public partial class ChatMessage
     {
         [Key]
-        public Guid MapVoteId { get; set; }
-        public Guid? MapId { get; set; }
+        public Guid ChatMessageId { get; set; }
+        public Guid? GameServerId { get; set; }
         public Guid? PlayerId { get; set; }
-        public bool Like { get; set; }
+        public string Username { get; set; }
+        public int ChatType { get; set; }
+        public string Message { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Timestamp { get; set; }
 
-        [ForeignKey("MapId")]
-        [InverseProperty("MapVotes")]
-        public virtual Map Map { get; set; }
+        [ForeignKey("GameServerId")]
+        [InverseProperty("ChatMessages")]
+        public virtual GameServer GameServer { get; set; }
         [ForeignKey("PlayerId")]
-        [InverseProperty("MapVotes")]
+        [InverseProperty("ChatMessages")]
         public virtual Player Player { get; set; }
     }
 }

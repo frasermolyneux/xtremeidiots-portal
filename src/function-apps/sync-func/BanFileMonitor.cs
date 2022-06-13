@@ -53,11 +53,11 @@ namespace XtremeIdiots.Portal.SyncFunc
             {
                 try
                 {
-                    var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.ServerId);
+                    var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitorDto.GameServerId);
 
                     if (!gameServerApiResponse.IsSuccess)
                     {
-                        logger.LogError($"Failed to retrieve game server with id '{banFileMonitorDto.ServerId}' from the repository");
+                        logger.LogError($"Failed to retrieve game server with id '{banFileMonitorDto.GameServerId}' from the repository");
                         continue;
                     }
 
@@ -74,8 +74,8 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var telemetry = new EventTelemetry("BanFileInit");
                         telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
+                        telemetry.Properties.Add("GameServerId", gameServerApiResponse.Result.GameServerId.ToString());
+                        telemetry.Properties.Add("GameServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
                         var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerApiResponse.Result.GameType);
@@ -97,8 +97,8 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var telemetry = new EventTelemetry("BanFileChangedOnRemote");
                         telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
+                        telemetry.Properties.Add("GameServerId", gameServerApiResponse.Result.GameServerId.ToString());
+                        telemetry.Properties.Add("GameServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
                         var remoteBanFileData = await ftpHelper.GetRemoteFileData(
@@ -118,8 +118,8 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var telemetry = new EventTelemetry("BanFileChangedOnSource");
                         telemetry.Properties.Add("GameType", gameServerApiResponse.Result.GameType.ToString());
-                        telemetry.Properties.Add("ServerId", gameServerApiResponse.Result.Id.ToString());
-                        telemetry.Properties.Add("ServerName", gameServerApiResponse.Result.Title);
+                        telemetry.Properties.Add("GameServerId", gameServerApiResponse.Result.GameServerId.ToString());
+                        telemetry.Properties.Add("GameServerName", gameServerApiResponse.Result.Title);
                         telemetryClient.TrackEvent(telemetry);
 
                         var banFileStream = await banFilesRepository.GetBanFileForGame(gameServerApiResponse.Result.GameType);
@@ -138,7 +138,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, $"Failed to process 'BanFileImportAndUpdate' for id '{banFileMonitorDto.ServerId}'");
+                    logger.LogError(ex, $"Failed to process 'BanFileImportAndUpdate' for id '{banFileMonitorDto.GameServerId}'");
                 }
             }
         }

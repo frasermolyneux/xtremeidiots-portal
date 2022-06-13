@@ -11,7 +11,7 @@ namespace XtremeIdiots.Portal.DataLib
     public partial class UserProfileClaim
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid UserProfileClaimId { get; set; }
         public Guid UserProfileId { get; set; }
         public bool SystemGenerated { get; set; }
         [Required]

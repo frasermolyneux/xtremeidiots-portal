@@ -1,17 +1,17 @@
 ﻿CREATE TABLE [dbo].[PlayerIpAddresses] (
     [PlayerIpAddressId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [PlayerId]   UNIQUEIDENTIFIER NULL,
     [Address]           NVARCHAR (60)    NULL,
     [Added]             DATETIME         NOT NULL,
     [LastUsed]          DATETIME         NOT NULL,
-    [Player_PlayerId]   UNIQUEIDENTIFIER NULL,
     CONSTRAINT [PK_dbo.PlayerIpAddresses] PRIMARY KEY CLUSTERED ([PlayerIpAddressId] ASC),
-    CONSTRAINT [FK_dbo.PlayerIpAddresses_dbo.Player2_Player_PlayerId] FOREIGN KEY ([Player_PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
+    CONSTRAINT [FK_dbo.PlayerIpAddresses_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
 
 
 GO
-CREATE NONCLUSTERED INDEX [IX_Player_PlayerId]
-    ON [dbo].[PlayerIpAddresses]([Player_PlayerId] ASC);
+CREATE NONCLUSTERED INDEX [IX_Players_PlayerId]
+    ON [dbo].[PlayerIpAddresses]([PlayerId] ASC);
 
 
 GO

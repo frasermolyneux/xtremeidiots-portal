@@ -22,7 +22,7 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[ChatLogs]",
+         "Name": "[dbo].[ChatMessages]",
          "ObjectType": 0
       },
       {

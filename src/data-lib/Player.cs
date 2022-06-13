@@ -16,7 +16,7 @@ namespace XtremeIdiots.Portal.DataLib
         public Player()
         {
             AdminActions = new HashSet<AdminAction>();
-            ChatLogs = new HashSet<ChatLog>();
+            ChatMessages = new HashSet<ChatMessage>();
             LivePlayers = new HashSet<LivePlayer>();
             MapVotes = new HashSet<MapVote>();
             PlayerAliases = new HashSet<PlayerAlias>();
@@ -36,17 +36,17 @@ namespace XtremeIdiots.Portal.DataLib
         public DateTime LastSeen { get; set; }
         public string IpAddress { get; set; }
 
-        [InverseProperty("PlayerPlayer")]
+        [InverseProperty("Player")]
         public virtual ICollection<AdminAction> AdminActions { get; set; }
-        [InverseProperty("PlayerPlayer")]
-        public virtual ICollection<ChatLog> ChatLogs { get; set; }
+        [InverseProperty("Player")]
+        public virtual ICollection<ChatMessage> ChatMessages { get; set; }
         [InverseProperty("Player")]
         public virtual ICollection<LivePlayer> LivePlayers { get; set; }
-        [InverseProperty("PlayerPlayer")]
+        [InverseProperty("Player")]
         public virtual ICollection<MapVote> MapVotes { get; set; }
-        [InverseProperty("PlayerPlayer")]
+        [InverseProperty("Player")]
         public virtual ICollection<PlayerAlias> PlayerAliases { get; set; }
-        [InverseProperty("PlayerPlayer")]
+        [InverseProperty("Player")]
         public virtual ICollection<PlayerIpAddress> PlayerIpAddresses { get; set; }
         [InverseProperty("Player")]
         public virtual ICollection<RecentPlayer> RecentPlayers { get; set; }

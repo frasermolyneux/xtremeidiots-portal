@@ -10,7 +10,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     public class PlayerDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]

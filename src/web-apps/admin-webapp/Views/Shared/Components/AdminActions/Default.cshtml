@@ -3,6 +3,7 @@
 @using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 @model List<AdminActionDto>
 
 @foreach (var item in Model)
@@ -91,14 +92,14 @@
                     </div>
 
                     <p>
-                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(item.PlayerDto.GameType, item.Type, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.EditAdminAction)).Succeeded)
+                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType, string>(item.PlayerDto != null ? item.PlayerDto.GameType : ((PlayerDto)ViewData["Player"]).GameType, item.Type, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.EditAdminAction)).Succeeded)
                         {
                             <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Edit @item.Type</a>
                         }
 
                         @if (item.Type == AdminActionType.Ban && item.Expires == null || item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(item.PlayerDto.GameType, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.LiftAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(item.PlayerDto != null ? item.PlayerDto.GameType : ((PlayerDto)ViewData["Player"]).GameType, item.UserProfileDto?.XtremeIdiotsForumId), AuthPolicies.LiftAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-trash"></span> Lift Ban</a>
                             }
@@ -106,7 +107,7 @@
 
                         @if (item.Type == AdminActionType.Ban && item.UserProfileDto == null)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto.GameType, AuthPolicies.ClaimAdminAction)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto != null ? item.PlayerDto.GameType : ((PlayerDto)ViewData["Player"]).GameType, AuthPolicies.ClaimAdminAction)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Claim Ban</a>
                             }
@@ -114,7 +115,7 @@
 
                         @if (item.ForumTopicId == 0)
                         {
-                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto.GameType, AuthPolicies.CreateAdminActionTopic)).Succeeded)
+                            @if ((await AuthorizationService.AuthorizeAsync(User, item.PlayerDto != null ? item.PlayerDto.GameType : ((PlayerDto)ViewData["Player"]).GameType, AuthPolicies.CreateAdminActionTopic)).Succeeded)
                             {
                                 <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic" asp-route-id="@item.AdminActionId" class="btn btn-sm btn-primary"><span class="fa fa-edit"></span> Create Discussion Topic</a>
                             }

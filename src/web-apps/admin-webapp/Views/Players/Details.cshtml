@@ -267,7 +267,7 @@
 
 </div>
 
-@await Component.InvokeAsync("AdminActions", new {adminActions = Model.Player.AdminActionDtos, linkToPlayer = false})
+@await Component.InvokeAsync("AdminActions", new {adminActions = Model.Player.AdminActionDtos, linkToPlayer = false, playerDto = Model.Player})
 
 </div>
 

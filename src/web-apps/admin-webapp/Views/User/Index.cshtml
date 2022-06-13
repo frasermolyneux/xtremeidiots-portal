@@ -61,8 +61,8 @@
                 },
                 columns: [
                     {
-                        data: 'id',
-                        name: 'id',
+                        data: 'userProfileId',
+                        name: 'userProfileId',
                         sortable: true
                     },
                     {
@@ -78,13 +78,13 @@
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return logOutUserLink(row['id'], '@Html.AntiForgeryToken()');
+                            return logOutUserLink(row['userProfileId'], '@Html.AntiForgeryToken()');
                         }
                     },
                     {
                         sortable: false,
                         render: function(data, type, row) {
-                            return manageClaimsLink(row['id']);
+                            return manageClaimsLink(row['userProfileId']);
                         }
                     }
                 ]

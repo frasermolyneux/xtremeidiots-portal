@@ -4,7 +4,7 @@
 @model GameServerDto
 
 @{
-    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, null);
+    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">

@@ -476,4 +476,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[FK_dbo.Demos_dbo.UserProfiles_UserProfileId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="8c8c0602-a7d6-4b2a-b6a8-5a7994cc467f" ChangeDateTime="06/14/2022 18:28:01">
+    <Property Name="ElementName" Value="[dbo].[FK_GameServerEvents_GameServer]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServerEvents]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_GameServerEvents_GameServerId]" />
+  </Operation>
 </Operations>

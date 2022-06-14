@@ -6,5 +6,5 @@
     [EventType] VARCHAR(50) NOT NULL, 
     [EventData] VARCHAR(MAX) NULL, 
     CONSTRAINT [PK_GameServerEvents] PRIMARY KEY ([GameServerEventId]),
-    CONSTRAINT [FK_GameServerEvents_GameServer] FOREIGN KEY ([GameServerId]) REFERENCES [dbo].[GameServers] ([GameServerId])
+    CONSTRAINT [FK_GameServerEvents_GameServerId] FOREIGN KEY ([GameServerId]) REFERENCES [dbo].[GameServers] ([GameServerId])
 ) 

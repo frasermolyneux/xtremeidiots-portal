@@ -27,7 +27,7 @@ public class ServerEventsIngest
         [ServiceBusTrigger("server_connected_queue", Connection = "service-bus-connection-string")]
         string myQueueItem)
     {
-        OnServerConnected onServerConnected;
+        OnServerConnected? onServerConnected;
         try
         {
             onServerConnected = JsonConvert.DeserializeObject<OnServerConnected>(myQueueItem);
@@ -47,12 +47,8 @@ public class ServerEventsIngest
         _log.LogInformation(
             $"OnServerConnected :: Id: '{onServerConnected.Id}', GameType: '{onServerConnected.GameType}'");
 
-        var existingServer = await _repositoryApiClient.GameServers.GetGameServer(gameServerId);
-
-        if (existingServer == null)
-        {
-            //await _repositoryApiClient.GameServers.CreateGameServer(gameServer);
-        }
+        var gameServerEvent = new CreateGameServerEventDto(gameServerId, "OnServerConnected", JsonConvert.SerializeObject(onServerConnected));
+        await _repositoryApiClient.GameServersEvents.CreateGameServerEvent(gameServerEvent);
     }
 
     [FunctionName("ProcessOnMapChange")]
@@ -60,7 +56,7 @@ public class ServerEventsIngest
         [ServiceBusTrigger("map_change_queue", Connection = "service-bus-connection-string")]
         string myQueueItem)
     {
-        OnMapChange onMapChange;
+        OnMapChange? onMapChange;
         try
         {
             onMapChange = JsonConvert.DeserializeObject<OnMapChange>(myQueueItem);
@@ -81,7 +77,6 @@ public class ServerEventsIngest
             $"ProcessOnMapChange :: GameName: '{onMapChange.GameName}', GameType: '{onMapChange.GameType}', MapName: '{onMapChange.MapName}'");
 
         var gameServerEvent = new CreateGameServerEventDto((Guid)onMapChange.ServerId, "MapChange", JsonConvert.SerializeObject(onMapChange));
-
         await _repositoryApiClient.GameServersEvents.CreateGameServerEvent(gameServerEvent);
     }
 }

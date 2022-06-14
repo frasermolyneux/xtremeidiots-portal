@@ -21,8 +21,8 @@ function renderPlayerName(gameType, username, playerId) {
     return gameTypeIcon(gameType) + " <a href='/Players/Details/" + playerId + "'>" + safeUsername + "</a>";
 }
 
-function chatLogUrl(chatLogId) {
-    return "<a href='/ServerAdmin/ChatLogPermaLink/" + chatLogId + "'>PermLink</a>";
+function chatLogUrl(chatMessageId) {
+    return "<a href='/ServerAdmin/ChatLogPermaLink/" + chatMessageId + "'>PermLink</a>";
 }
 
 function gameTypeIcon(gameType) {

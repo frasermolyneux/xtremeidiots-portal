@@ -46,10 +46,9 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                             if (member != null)
                             {
-                                var editUserProfileDto = new EditUserProfileDto(userProfileDto.Id)
+                                var editUserProfileDto = new EditUserProfileDto(userProfileDto.UserProfileId)
                                 {
                                     DisplayName = userProfileDto.DisplayName,
-                                    Title = userProfileDto.Title,
                                     FormattedName = userProfileDto.FormattedName,
                                     PrimaryGroup = userProfileDto.PrimaryGroup,
                                     Email = userProfileDto.Email,
@@ -60,18 +59,18 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                                 await repositoryApiClient.UserProfiles.UpdateUserProfile(editUserProfileDto);
 
-                                var nonSystemGeneratedClaims = userProfileDto.UserProfileClaimDtos
-                                    .Where(upc => !upc.SystemGenerated).Select(upc => new CreateUserProfileClaimDto(userProfileDto.Id, upc.ClaimType, upc.ClaimValue, upc.SystemGenerated))
+                                var nonSystemGeneratedClaims = userProfileDto.UserProfileClaims
+                                    .Where(upc => !upc.SystemGenerated).Select(upc => new CreateUserProfileClaimDto(userProfileDto.UserProfileId, upc.ClaimType, upc.ClaimValue, upc.SystemGenerated))
                                     .ToList();
 
-                                var activeClaims = GetClaimsForMember(userProfileDto.Id, member);
+                                var activeClaims = GetClaimsForMember(userProfileDto.UserProfileId, member);
                                 var claimsToSave = activeClaims.Concat(nonSystemGeneratedClaims).ToList();
 
-                                await repositoryApiClient.UserProfiles.SetUserProfileClaims(userProfileDto.Id, claimsToSave);
+                                await repositoryApiClient.UserProfiles.SetUserProfileClaims(userProfileDto.UserProfileId, claimsToSave);
                             }
                             else
                             {
-                                await repositoryApiClient.UserProfiles.SetUserProfileClaims(userProfileDto.Id, new List<CreateUserProfileClaimDto>());
+                                await repositoryApiClient.UserProfiles.SetUserProfileClaims(userProfileDto.UserProfileId, new List<CreateUserProfileClaimDto>());
                             }
                         }
                         catch (Exception ex)

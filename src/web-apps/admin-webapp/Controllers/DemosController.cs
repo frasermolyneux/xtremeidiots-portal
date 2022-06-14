@@ -10,6 +10,7 @@ using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -43,10 +44,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DemoClient()
         {
-            var demoAuthApiResponse = await repositoryApiClient.DemosAuth.GetDemosAuth(User.XtremeIdiotsId());
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(User.XtremeIdiotsId());
 
-            if (!demoAuthApiResponse.IsNotFound && demoAuthApiResponse.Result != null)
-                ViewData["ClientAuthKey"] = demoAuthApiResponse.Result.AuthKey;
+            if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result != null)
+                ViewData["ClientAuthKey"] = userProfileApiResponse.Result.DemoAuthKey;
 
             var demoManagerClientDto = await _demosForumsClient.GetDemoManagerClient();
             return View(demoManagerClientDto);
@@ -56,18 +57,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegenerateAuthKey()
         {
-            var demoAuthApiResponse = await repositoryApiClient.DemosAuth.GetDemosAuth(User.XtremeIdiotsId());
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(User.XtremeIdiotsId());
 
-            if (demoAuthApiResponse.IsNotFound)
+            if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
+                return NotFound();
+
+            var editUserProfileDto = new EditUserProfileDto(userProfileApiResponse.Result.UserProfileId)
             {
-                var createDemoAuth = new CreateDemoAuthDto(User.XtremeIdiotsId(), Guid.NewGuid().ToString());
-                await repositoryApiClient.DemosAuth.CreateDemosAuth(createDemoAuth);
-            }
-            else
-            {
-                var editDemoAuth = new EditDemoAuthDto(User.XtremeIdiotsId(), Guid.NewGuid().ToString());
-                await repositoryApiClient.DemosAuth.UpdateDemosAuth(editDemoAuth);
-            }
+                DemoAuthKey = Guid.NewGuid().ToString()
+            };
+
+            await repositoryApiClient.UserProfiles.UpdateUserProfile(editUserProfileDto);
 
             _logger.LogInformation("User {User} has regenerated their demo auth key", User.Username());
             this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
@@ -236,12 +236,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var demoAuthApiResponse = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByDemoAuthKey(authKey);
 
-            if (demoAuthApiResponse.IsNotFound || demoAuthApiResponse.Result == null)
+            if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var userId = demoAuthApiResponse.Result.UserId;
+            var userId = userProfileApiResponse.Result.XtremeIdiotsForumId;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Content($"AuthError: An internal auth error occured processing your request for userId: {userId}");
 
@@ -293,12 +293,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var demoAuthApiResponse = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByDemoAuthKey(authKey);
 
-            if (demoAuthApiResponse.IsNotFound || demoAuthApiResponse.Result == null)
+            if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var userId = demoAuthApiResponse.Result.UserId;
+            var userId = userProfileApiResponse.Result.XtremeIdiotsForumId;
 
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
@@ -342,9 +342,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var demoAuthApiResponse = await repositoryApiClient.DemosAuth.GetDemosAuthByAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByDemoAuthKey(authKey);
 
-            if (demoAuthApiResponse.IsNotFound || demoAuthApiResponse.Result == null)
+            if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
             var demoApiResponse = await repositoryApiClient.Demos.GetDemo(id);

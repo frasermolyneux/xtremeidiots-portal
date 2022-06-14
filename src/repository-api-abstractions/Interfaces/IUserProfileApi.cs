@@ -9,6 +9,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
         Task<ApiResponseDto<UserProfileDto>> GetUserProfile(Guid userProfileId);
         Task<ApiResponseDto<UserProfileDto>> GetUserProfileByIdentityId(string identityId);
         Task<ApiResponseDto<UserProfileDto>> GetUserProfileByXtremeIdiotsId(string xtremeIdiotsId);
+        Task<ApiResponseDto<UserProfileDto>> GetUserProfileByDemoAuthKey(string demoAuthKey);
         Task<ApiResponseDto<UserProfileCollectionDto>> GetUserProfiles(string? filterString, int skipEntries, int takeEntries, UserProfilesOrder? order);
 
         Task<ApiResponseDto> CreateUserProfile(CreateUserProfileDto createUserProfileClaimDto);

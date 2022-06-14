@@ -18,6 +18,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
         public string? XtremeIdiotsForumId { get; private set; }
 
         [JsonProperty]
+        public string? DemoAuthKey { get; set; }
+
+        [JsonProperty]
         public string? DisplayName { get; private set; }
 
         [JsonProperty]

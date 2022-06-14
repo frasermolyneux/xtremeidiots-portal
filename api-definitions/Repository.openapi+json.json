@@ -563,72 +563,6 @@
                 }
             }
         },
-        "/repository/demos-auth/{userId}": {
-            "get": {
-                "tags": [
-                    "DemosAuth"
-                ],
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            }
-        },
-        "/repository/demos-auth/by-auth-key/{authKey}": {
-            "get": {
-                "tags": [
-                    "DemosAuth"
-                ],
-                "parameters": [
-                    {
-                        "name": "authKey",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            }
-        },
-        "/repository/demos-auth": {
-            "post": {
-                "tags": [
-                    "DemosAuth"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "DemosAuth"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            }
-        },
         "/repository/game-servers/{gameServerId}": {
             "get": {
                 "tags": [
@@ -1651,6 +1585,28 @@
                 "parameters": [
                     {
                         "name": "xtremeIdiotsId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/repository/user-profile/by-demo-auth-key/{demoAuthKey}": {
+            "get": {
+                "tags": [
+                    "UserProfile"
+                ],
+                "parameters": [
+                    {
+                        "name": "demoAuthKey",
                         "in": "path",
                         "required": true,
                         "schema": {

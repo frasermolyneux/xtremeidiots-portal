@@ -9,7 +9,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             IBanFileMonitorsApi banFileMonitorsApiClient,
             IChatMessagesApi chatMessagesApiClient,
             IDataMaintenanceApi dataMaintenanceApiClient,
-            IDemosAuthApi demosAuthApiClient,
             IDemosApi demosApiClient,
             IGameServersApi gameServersApiClient,
             IGameServersEventsApi gameServersEventsApiClient,
@@ -26,7 +25,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             BanFileMonitors = banFileMonitorsApiClient;
             ChatMessages = chatMessagesApiClient;
             DataMaintenance = dataMaintenanceApiClient;
-            DemosAuth = demosAuthApiClient;
             Demos = demosApiClient;
             GameServers = gameServersApiClient;
             GameServersEvents = gameServersEventsApiClient;
@@ -44,7 +42,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         public IBanFileMonitorsApi BanFileMonitors { get; }
         public IChatMessagesApi ChatMessages { get; }
         public IDataMaintenanceApi DataMaintenance { get; }
-        public IDemosAuthApi DemosAuth { get; }
         public IDemosApi Demos { get; }
         public IGameServersApi GameServers { get; }
         public IGameServersEventsApi GameServersEvents { get; }

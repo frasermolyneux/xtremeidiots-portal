@@ -41,6 +41,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse<UserProfileDto>();
         }
 
+        public async Task<ApiResponseDto<UserProfileDto>> GetUserProfileByDemoAuthKey(string demoAuthKey)
+        {
+            var request = await CreateRequest($"user-profile/by-demo-auth-key/{demoAuthKey}", Method.Get);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse<UserProfileDto>();
+        }
+
         public async Task<ApiResponseDto<UserProfileCollectionDto>> GetUserProfiles(string? filterString, int skipEntries, int takeEntries, UserProfilesOrder? order)
         {
             var request = await CreateRequest("user-profile", Method.Get);

@@ -120,11 +120,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canCreateUserClaim.Succeeded)
                 return Unauthorized();
 
-            if (!userProfileResponseDto.Result.UserProfileClaimDtos.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
+            if (!userProfileResponseDto.Result.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
             {
-                var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileResponseDto.Result.Id, claimType, claimValue, false);
+                var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileResponseDto.Result.UserProfileId, claimType, claimValue, false);
 
-                await repositoryApiClient.UserProfiles.CreateUserProfileClaim(userProfileResponseDto.Result.Id, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
+                await repositoryApiClient.UserProfiles.CreateUserProfileClaim(userProfileResponseDto.Result.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
 
                 this.AddAlertSuccess($"The {claimType} claim has been added to {user.UserName}");
                 _logger.LogInformation("User {User} has added a {ClaimType} with {ClaimValue} to {TargetUser}", User.Username(), claimType, claimValue, user.UserName);
@@ -144,7 +144,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
 
-            var claim = userProfileResponseDto.Result.UserProfileClaimDtos.SingleOrDefault(c => c.Id == claimId);
+            var claim = userProfileResponseDto.Result.UserProfileClaims.SingleOrDefault(c => c.Id == claimId);
 
             if (claim == null)
                 return NotFound();

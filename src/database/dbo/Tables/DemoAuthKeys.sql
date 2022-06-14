@@ -1,7 +1,0 @@
-﻿CREATE TABLE [dbo].[DemoAuthKeys]
-(
-	[UserId] NVARCHAR(50) NOT NULL PRIMARY KEY, 
-    [AuthKey] NVARCHAR(50) NOT NULL,
-	[Created] DATETIME NOT NULL, 
-	[LastActivity] DATETIME NOT NULL 
-)

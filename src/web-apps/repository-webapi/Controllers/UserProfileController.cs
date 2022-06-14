@@ -101,6 +101,30 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto<UserProfileDto>(HttpStatusCode.OK, result);
         }
 
+
+        [HttpGet]
+        [Route("repository/user-profile/by-demo-auth-key/{demoAuthKey}")]
+        public async Task<IActionResult> GetUserProfileByDemoAuthKey(string demoAuthKey)
+        {
+            var response = await ((IUserProfileApi)this).GetUserProfileByDemoAuthKey(demoAuthKey);
+
+            return response.ToHttpResult();
+        }
+
+        async Task<ApiResponseDto<UserProfileDto>> IUserProfileApi.GetUserProfileByDemoAuthKey(string demoAuthKey)
+        {
+            var userProfile = await context.UserProfiles
+                .Include(up => up.UserProfileClaims)
+                .SingleOrDefaultAsync(up => up.DemoAuthKey == demoAuthKey);
+
+            if (userProfile == null)
+                return new ApiResponseDto<UserProfileDto>(HttpStatusCode.NotFound);
+
+            var result = mapper.Map<UserProfileDto>(userProfile);
+
+            return new ApiResponseDto<UserProfileDto>(HttpStatusCode.OK, result);
+        }
+
         [HttpGet]
         [Route("repository/user-profile")]
         public async Task<IActionResult> GetUserProfiles(string? filterString, int? skipEntries, int? takeEntries, UserProfilesOrder? order)

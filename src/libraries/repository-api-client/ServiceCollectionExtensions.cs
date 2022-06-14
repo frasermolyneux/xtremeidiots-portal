@@ -18,7 +18,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
             serviceCollection.AddSingleton<IBanFileMonitorsApi, BanFileMonitorsApi>();
             serviceCollection.AddSingleton<IChatMessagesApi, ChatMessagesApi>();
             serviceCollection.AddSingleton<IDataMaintenanceApi, DataMaintenanceApi>();
-            serviceCollection.AddSingleton<IDemosAuthApi, DemosAuthApi>();
             serviceCollection.AddSingleton<IDemosApi, DemosApi>();
             serviceCollection.AddSingleton<IGameServersApi, GameServersApi>();
             serviceCollection.AddSingleton<IGameServersEventsApi, GameServersEventsApi>();

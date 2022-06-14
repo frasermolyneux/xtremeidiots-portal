@@ -8,7 +8,6 @@ namespace XtremeIdiots.Portal.RepositoryApiClient
         IBanFileMonitorsApi BanFileMonitors { get; }
         IChatMessagesApi ChatMessages { get; }
         IDataMaintenanceApi DataMaintenance { get; }
-        IDemosAuthApi DemosAuth { get; }
         IDemosApi Demos { get; }
         IGameServersApi GameServers { get; }
         IGameServersEventsApi GameServersEvents { get; }

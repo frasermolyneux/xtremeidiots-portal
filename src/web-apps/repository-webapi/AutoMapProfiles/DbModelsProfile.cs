@@ -72,16 +72,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 )
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-
-            // Demo Auth
-            CreateMap<DemoAuthKey, DemoAuthDto>();
-
-            CreateMap<CreateDemoAuthDto, DemoAuthKey>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            CreateMap<EditDemoAuthDto, DemoAuthKey>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
             // Demos
             CreateMap<Demo, DemoDto>()
                 .ForMember(
@@ -261,11 +251,14 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             // User Profile
             CreateMap<UserProfile, UserProfileDto>()
                 .ForMember(
-                    dest => dest.UserProfileClaimDtos,
+                    dest => dest.UserProfileClaims,
                     src => src.MapFrom(src => src.UserProfileClaims)
                 );
 
             CreateMap<UserProfileClaim, UserProfileClaimDto>();
+
+            CreateMap<EditUserProfileDto, UserProfile>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<CreateUserProfileDto, UserProfile>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

@@ -53,7 +53,7 @@
                     </div>
                     <div class="ibox-content">
                         <form asp-action="CreateUserClaim">
-                            <input id="id" name="id" type="hidden" value="@Model.UserProfile.Id"/>
+                            <input id="id" name="id" type="hidden" value="@Model.UserProfile.UserProfileId"/>
 
                             <div class="form-group">
                                 <label class="control-label">Permission Type</label>
@@ -105,7 +105,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach (var claim in Model.UserProfile.UserProfileClaimDtos)
+                            @foreach (var claim in Model.UserProfile.UserProfileClaims)
                             {
                                 <tr>
                                     @{
@@ -131,7 +131,7 @@
                                             if (server != null)
                                             {
                                                 <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
-                                                    <input id="id" name="id" type="hidden" value="@Model.UserProfile.Id"/>
+                                                    <input id="id" name="id" type="hidden" value="@Model.UserProfile.UserProfileId"/>
                                                     <input id="claimId" name="claimId" type="hidden" value="@claim.Id"/>
 
                                                     <button class="btn btn-danger" type="submit">

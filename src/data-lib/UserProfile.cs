@@ -25,10 +25,10 @@ namespace XtremeIdiots.Portal.DataLib
         public string IdentityOid { get; set; }
         [StringLength(50)]
         public string XtremeIdiotsForumId { get; set; }
+        [StringLength(50)]
+        public string DemoAuthKey { get; set; }
         [StringLength(128)]
         public string DisplayName { get; set; }
-        [StringLength(50)]
-        public string Title { get; set; }
         [StringLength(128)]
         public string FormattedName { get; set; }
         [StringLength(128)]

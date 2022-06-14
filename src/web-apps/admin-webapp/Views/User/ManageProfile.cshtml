@@ -132,7 +132,7 @@
                                             {
                                                 <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
                                                     <input id="id" name="id" type="hidden" value="@Model.UserProfile.UserProfileId"/>
-                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.Id"/>
+                                                    <input id="claimId" name="claimId" type="hidden" value="@claim.UserProfileClaimId"/>
 
                                                     <button class="btn btn-danger" type="submit">
                                                         <i class="fa fa-trash"></i> Delete Permission

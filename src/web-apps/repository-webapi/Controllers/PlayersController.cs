@@ -58,7 +58,7 @@ public class PlayersController : ControllerBase, IPlayersApi
             .ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);
-        result.RelatedPlayerDtos = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+        result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
 
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
@@ -89,7 +89,7 @@ public class PlayersController : ControllerBase, IPlayersApi
             .ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);
-        result.RelatedPlayerDtos = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+        result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
 
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
@@ -230,7 +230,7 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (editPlayerDto == null)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-        if (editPlayerDto.Id != playerId)
+        if (editPlayerDto.PlayerId != playerId)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
 
         var response = await ((IPlayersApi)this).UpdatePlayer(editPlayerDto);
@@ -243,7 +243,7 @@ public class PlayersController : ControllerBase, IPlayersApi
         var player = await context.Players
                 .Include(p => p.PlayerAliases)
                 .Include(p => p.PlayerIpAddresses)
-                .SingleOrDefaultAsync(p => p.PlayerId == editPlayerDto.Id);
+                .SingleOrDefaultAsync(p => p.PlayerId == editPlayerDto.PlayerId);
 
         if (player == null)
             return new ApiResponseDto(HttpStatusCode.NotFound);

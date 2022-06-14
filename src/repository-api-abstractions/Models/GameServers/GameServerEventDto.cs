@@ -18,5 +18,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 
         [JsonProperty]
         public string EventData { get; internal set; } = string.Empty;
+
+        [JsonProperty]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public GameServerDto GameServer { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     }
 }

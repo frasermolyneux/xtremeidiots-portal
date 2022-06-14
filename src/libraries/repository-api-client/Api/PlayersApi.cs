@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ApiResponseDto> UpdatePlayer(EditPlayerDto editPlayerDto)
         {
-            var request = await CreateRequest($"players/{editPlayerDto.Id}", Method.Patch);
+            var request = await CreateRequest($"players/{editPlayerDto.PlayerId}", Method.Patch);
             request.AddJsonBody(editPlayerDto);
 
             var response = await ExecuteAsync(request);

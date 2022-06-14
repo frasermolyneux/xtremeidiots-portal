@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
@@ -32,15 +33,18 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
         public string IpAddress { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public List<AliasDto> AliasDtos { get; internal set; } = new List<AliasDto>();
+        public List<AliasDto> PlayerAliases { get; internal set; } = new List<AliasDto>();
 
         [JsonProperty]
-        public List<IpAddressDto> IpAddressDtos { get; internal set; } = new List<IpAddressDto>();
+        public List<IpAddressDto> PlayerIpAddresses { get; internal set; } = new List<IpAddressDto>();
 
         [JsonProperty]
-        public List<AdminActionDto> AdminActionDtos { get; internal set; } = new List<AdminActionDto>();
+        public List<AdminActionDto> AdminActions { get; internal set; } = new List<AdminActionDto>();
 
         [JsonProperty]
-        public List<RelatedPlayerDto> RelatedPlayerDtos { get; internal set; } = new List<RelatedPlayerDto>();
+        public List<ReportDto> Reports { get; internal set; } = new List<ReportDto>();
+
+        [JsonProperty]
+        public List<RelatedPlayerDto> RelatedPlayers { get; internal set; } = new List<RelatedPlayerDto>();
     }
 }

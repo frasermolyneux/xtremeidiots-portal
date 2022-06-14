@@ -236,7 +236,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         {
             foreach (var editUserProfileDto in editUserProfileDtos)
             {
-                var userProfile = await context.UserProfiles.SingleAsync(up => up.UserProfileId == editUserProfileDto.Id);
+                var userProfile = await context.UserProfiles.SingleAsync(up => up.UserProfileId == editUserProfileDto.UserProfileId);
                 mapper.Map(editUserProfileDto, userProfile);
             }
 

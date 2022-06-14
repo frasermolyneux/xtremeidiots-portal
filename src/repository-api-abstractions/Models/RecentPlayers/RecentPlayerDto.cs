@@ -10,7 +10,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
     public class RecentPlayerDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid RecentPlayerId { get; internal set; }
 
         [JsonProperty]
         public string? Name { get; internal set; }
@@ -41,6 +41,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
         public DateTime Timestamp { get; internal set; }
 
         [JsonProperty]
-        public PlayerDto? PlayerDto { get; internal set; }
+        public PlayerDto? Player { get; internal set; }
     }
 }

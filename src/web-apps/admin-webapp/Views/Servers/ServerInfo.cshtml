@@ -111,7 +111,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#home">Players</a>
                     </li>
-                    @if (Model.GameServer.LivePlayerDtos.Any())
+                    @if (Model.GameServer.LivePlayers.Any())
                     {
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#menu1">Player Map</a>
@@ -140,7 +140,7 @@
                                     </th>
                                 </tr>
 
-                                @foreach (var item in Model.GameServer.LivePlayerDtos)
+                                @foreach (var item in Model.GameServer.LivePlayers)
                                 {
                                     <tr>
                                        <td>
@@ -160,7 +160,7 @@
                             </table>
                         }
                     </div>
-                    @if (Model.GameServer.LivePlayerDtos.Any())
+                    @if (Model.GameServer.LivePlayers.Any())
                     {
                         <div class="tab-pane container fade" id="menu1">
                             <div id="map" style="height: 600px; width: 100%;"></div>
@@ -259,7 +259,7 @@
 
 @section Scripts {
 
-    @if (Model.GameServer.LivePlayerDtos.Any())
+    @if (Model.GameServer.LivePlayers.Any())
     {
         <script>
             function initMap() {
@@ -271,7 +271,7 @@
                     });
 
                 var locations = [
-                    @foreach (var player in Model.GameServer.LivePlayerDtos)
+                    @foreach (var player in Model.GameServer.LivePlayers)
                     {
                         if (player.Lat == null && player.Long == null)
                         {

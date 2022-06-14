@@ -144,7 +144,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
 
-            var claim = userProfileResponseDto.Result.UserProfileClaims.SingleOrDefault(c => c.Id == claimId);
+            var claim = userProfileResponseDto.Result.UserProfileClaims.SingleOrDefault(c => c.UserProfileClaimId == claimId);
 
             if (claim == null)
                 return NotFound();

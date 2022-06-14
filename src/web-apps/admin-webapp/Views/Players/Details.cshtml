@@ -166,7 +166,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach(var aliasDto in Model.Player.AliasDtos)
+                                @foreach(var aliasDto in Model.Player.PlayerAliases)
                                 {
                                 <tr>
                                     <td>@aliasDto.Name</td>
@@ -194,7 +194,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach(var ipAddressDto in Model.Player.IpAddressDtos)
+                                @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
                                 {
                                 <tr>
                                     <td>@ipAddressDto.Address</td>
@@ -221,7 +221,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach(var relatedPlayerDto in Model.Player.RelatedPlayerDtos)
+                                    @foreach(var relatedPlayerDto in Model.Player.RelatedPlayers)
                                     {
                                     <tr>
                                         <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
@@ -267,7 +267,7 @@
 
 </div>
 
-@await Component.InvokeAsync("AdminActions", new {adminActions = Model.Player.AdminActionDtos, linkToPlayer = false, playerDto = Model.Player})
+@await Component.InvokeAsync("AdminActions", new {adminActions = Model.Player.AdminActions, linkToPlayer = false, playerDto = Model.Player})
 
 </div>
 

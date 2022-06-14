@@ -4,13 +4,13 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 {
     public class EditPlayerDto
     {
-        public EditPlayerDto(Guid id)
+        public EditPlayerDto(Guid playerId)
         {
-            Id = id;
+            PlayerId = playerId;
         }
 
         [JsonProperty]
-        public Guid Id { get; set; }
+        public Guid PlayerId { get; set; }
 
         [JsonProperty]
         public string? Username { get; set; }

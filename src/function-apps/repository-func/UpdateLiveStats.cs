@@ -125,7 +125,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     Rate = rconPlayer.Rate,
                     IpAddress = rconPlayer.IpAddress,
                     GameType = gameServerDto.GameType,
-                    GameServerServerId = gameServerDto.GameServerId
+                    GameServerId = gameServerDto.GameServerId
                 };
 
                 if (!string.IsNullOrWhiteSpace(rconPlayer.Guid))
@@ -234,7 +234,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     Lat = livePlayer.Lat,
                     Long = livePlayer.Long,
                     CountryCode = livePlayer.CountryCode,
-                    GameServerId = livePlayer.GameServerServerId
+                    GameServerId = livePlayer.GameServerId
                 };
 
                 createRecentPlayerDtos.Add(createRecentPlayerDto);

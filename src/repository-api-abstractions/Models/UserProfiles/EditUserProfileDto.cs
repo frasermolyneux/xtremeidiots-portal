@@ -4,13 +4,13 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
 {
     public class EditUserProfileDto
     {
-        public EditUserProfileDto(Guid id)
+        public EditUserProfileDto(Guid userProfileId)
         {
-            Id = id;
+            UserProfileId = userProfileId;
         }
 
         [JsonProperty]
-        public Guid Id { get; private set; }
+        public Guid UserProfileId { get; private set; }
 
         [JsonProperty]
         public string? IdentityOid { get; set; }

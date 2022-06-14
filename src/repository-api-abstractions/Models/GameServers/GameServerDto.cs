@@ -82,10 +82,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public DateTime? LiveLastUpdated { get; internal set; }
 
         [JsonProperty]
-        public List<BanFileMonitorDto> BanFileMonitorDtos { get; internal set; } = new List<BanFileMonitorDto>();
+        public List<BanFileMonitorDto> BanFileMonitors { get; internal set; } = new List<BanFileMonitorDto>();
 
         [JsonProperty]
-        public List<LivePlayerDto> LivePlayerDtos { get; internal set; } = new List<LivePlayerDto>();
+        public List<LivePlayerDto> LivePlayers { get; internal set; } = new List<LivePlayerDto>();
 
         public void ClearFtpCredentials()
         {
@@ -101,7 +101,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 
         public void ClearNoPermissionBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds)
         {
-            BanFileMonitorDtos = BanFileMonitorDtos.Where(bfm => bfm.GameServer != null && gameTypes.Contains(bfm.GameServer.GameType) || banFileMonitorIds.Contains(bfm.BanFileMonitorId)).ToList();
+            BanFileMonitors = BanFileMonitors.Where(bfm => bfm.GameServer != null && gameTypes.Contains(bfm.GameServer.GameType) || banFileMonitorIds.Contains(bfm.BanFileMonitorId)).ToList();
         }
     }
 }

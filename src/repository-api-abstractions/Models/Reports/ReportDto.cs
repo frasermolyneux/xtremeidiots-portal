@@ -8,7 +8,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Reports
     public class ReportDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid ReportId { get; internal set; }
 
         [JsonProperty]
         public Guid PlayerId { get; internal set; }

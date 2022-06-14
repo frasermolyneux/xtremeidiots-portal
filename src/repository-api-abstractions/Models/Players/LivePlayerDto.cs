@@ -9,7 +9,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
     public class LivePlayerDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid LivePlayerId { get; internal set; }
 
         [JsonProperty]
         public string? Name { get; internal set; }
@@ -55,6 +55,6 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
         public Guid? GameServerServerId { get; internal set; }
 
         [JsonProperty]
-        public PlayerDto? PlayerDto { get; internal set; }
+        public PlayerDto? Player { get; internal set; }
     }
 }

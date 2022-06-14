@@ -97,7 +97,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 
         public void ClearNoPermissionBanFileMonitors(GameType[] gameTypes, Guid[] banFileMonitorIds)
         {
-            BanFileMonitorDtos = BanFileMonitorDtos.Where(bfm => gameTypes.Contains(bfm.GameType) || banFileMonitorIds.Contains(bfm.BanFileMonitorId)).ToList();
+            BanFileMonitorDtos = BanFileMonitorDtos.Where(bfm => bfm.GameServer != null && gameTypes.Contains(bfm.GameServer.GameType) || banFileMonitorIds.Contains(bfm.BanFileMonitorId)).ToList();
         }
     }
 }

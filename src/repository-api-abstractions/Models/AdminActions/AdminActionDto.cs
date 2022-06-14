@@ -27,7 +27,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public AdminActionType Type { get; internal set; }
 
         [JsonProperty]
-        public string Text { get; internal set; } = string.Empty;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string Text { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
         public DateTime Created { get; internal set; }
@@ -36,9 +38,11 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public DateTime? Expires { get; internal set; }
 
         [JsonProperty]
-        public PlayerDto? PlayerDto { get; internal set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public PlayerDto Player { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
-        public UserProfileDto? UserProfileDto { get; internal set; }
+        public UserProfileDto? UserProfile { get; internal set; }
     }
 }

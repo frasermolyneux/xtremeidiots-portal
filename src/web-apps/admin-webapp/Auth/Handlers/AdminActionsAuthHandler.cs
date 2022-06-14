@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
@@ -74,9 +75,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
             if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
 
-            if (context.Resource is Tuple<GameType, AdminActionType, string>)
+            if (context.Resource is Tuple<GameType, AdminActionType, string?>)
             {
-                var (gameType, adminActionType, adminId) = (Tuple<GameType, AdminActionType, string>)context.Resource;
+                var (gameType, adminActionType, adminId) = (Tuple<GameType, AdminActionType, string?>)context.Resource;
 
                 if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);

@@ -8,17 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("GameServerId", Name = "IX_GameServers_GameServerId")]
+    [Index("GameServerId", Name = "IX_GameServerId")]
     public partial class BanFileMonitor
     {
         [Key]
         public Guid BanFileMonitorId { get; set; }
-        public Guid? GameServerId { get; set; }
+        public Guid GameServerId { get; set; }
+        [Required]
         public string FilePath { get; set; }
-        public long RemoteFileSize { get; set; }
+        public long? RemoteFileSize { get; set; }
         [Column(TypeName = "datetime")]
-        public DateTime LastSync { get; set; }
-        public string LastError { get; set; }
+        public DateTime? LastSync { get; set; }
 
         [ForeignKey("GameServerId")]
         [InverseProperty("BanFileMonitors")]

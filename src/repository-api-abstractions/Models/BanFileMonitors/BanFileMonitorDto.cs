@@ -1,8 +1,5 @@
 ﻿using Newtonsoft.Json;
 
-using System.Text.Json.Serialization;
-
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
@@ -13,22 +10,22 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
         public Guid BanFileMonitorId { get; internal set; }
 
         [JsonProperty]
-        public string FilePath { get; internal set; } = string.Empty;
-
-        [JsonProperty]
-        public long RemoteFileSize { get; internal set; }
-
-        [JsonProperty]
-        public DateTime LastSync { get; internal set; }
-
-        [JsonProperty]
         public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType GameType { get; internal set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string FilePath { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
-        public GameServerDto? GameServerDto { get; internal set; }
+        public long? RemoteFileSize { get; internal set; }
+
+        [JsonProperty]
+        public DateTime? LastSync { get; internal set; }
+
+        [JsonProperty]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public GameServerDto GameServer { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     }
 }

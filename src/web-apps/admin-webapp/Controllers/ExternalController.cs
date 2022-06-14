@@ -39,17 +39,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 else
                     actionText = $"added a {adminActionDto.Type} to";
 
-                var adminName = adminActionDto.UserProfileDto != null ? adminActionDto.UserProfileDto.DisplayName : "Unknown";
-                var adminId = adminActionDto.UserProfileDto != null ? adminActionDto.UserProfileDto.XtremeIdiotsForumId : null;
+                var adminName = adminActionDto.UserProfile != null ? adminActionDto.UserProfile.DisplayName : "Unknown";
+                var adminId = adminActionDto.UserProfile != null ? adminActionDto.UserProfile.XtremeIdiotsForumId : null;
 
                 results.Add(new
                 {
-                    GameIconUrl = $"https://portal.xtremeidiots.com/images/game-icons/{adminActionDto.PlayerDto?.GameType.ToString()}.png",
+                    GameIconUrl = $"https://portal.xtremeidiots.com/images/game-icons/{adminActionDto.Player?.GameType.ToString()}.png",
                     AdminName = adminName,
                     AdminId = adminId,
                     ActionType = adminActionDto.Type.ToString(),
                     ActionText = actionText,
-                    PlayerName = adminActionDto.PlayerDto?.Username,
+                    PlayerName = adminActionDto.Player?.Username,
                     PlayerLink = $"https://portal.xtremeidiots.com/Players/Details/{adminActionDto.PlayerId}"
                 });
             }

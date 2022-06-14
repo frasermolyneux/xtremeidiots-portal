@@ -35,14 +35,6 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 .ForMember(
                     dest => dest.Type,
                     src => src.MapFrom(src => src.Type.ToAdminActionType())
-                )
-                .ForMember(
-                    dest => dest.PlayerDto,
-                    src => src.MapFrom(src => src.Player)
-                )
-                .ForMember(
-                    dest => dest.UserProfileDto,
-                    src => src.MapFrom(src => src.UserProfile)
                 );
 
             CreateMap<CreateAdminActionDto, AdminAction>();
@@ -50,15 +42,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             CreateMap<EditAdminActionDto, AdminAction>();
 
             // Ban File Monitors
-            CreateMap<BanFileMonitor, BanFileMonitorDto>()
-                .ForMember(
-                    dest => dest.GameType,
-                    src => src.MapFrom(src => src.GameServer.GameType.ToGameType())
-                )
-                .ForMember(
-                    dest => dest.GameServerDto,
-                    src => src.MapFrom(src => src.GameServer)
-                );
+            CreateMap<BanFileMonitor, BanFileMonitorDto>();
 
             CreateMap<CreateBanFileMonitorDto, BanFileMonitor>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

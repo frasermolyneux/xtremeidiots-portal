@@ -17,24 +17,24 @@
             <li>
                 <div>
                     <p style="text-align: left">
-                        @Html.GameTypeIconExternal(item.PlayerDto.GameType)
+                        @Html.GameTypeIconExternal(item.Player.GameType)
 
                         @{
                             var text = "";
 
                             if (item.Expires <= DateTime.UtcNow && (item.Type == AdminActionType.Ban || item.Type == AdminActionType.TempBan))
                             {
-                                text = item.UserProfileDto != null ? $"{item.UserProfileDto.DisplayName} lifted a {item.Type} on" : $"Unknown lifted a {item.Type} on";
+                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} lifted a {item.Type} on" : $"Unknown lifted a {item.Type} on";
                             }
                             else
                             {
-                                text = item.UserProfileDto != null ? $"{item.UserProfileDto.DisplayName} added a {item.Type} to" : $"Unknown added a {item.Type} to";
+                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} added a {item.Type} to" : $"Unknown added a {item.Type} to";
                             }
                         }
 
                         @Html.Raw(text)
 
-                        <a target="_blank" href="https://portal.xtremeidiots.com/Players/Details/@item.PlayerId">@item.PlayerDto?.Username</a>
+                        <a target="_blank" href="https://portal.xtremeidiots.com/Players/Details/@item.PlayerId">@item.Player?.Username</a>
                     </p>
                 </div>
 

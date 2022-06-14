@@ -64,6 +64,7 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.BanFileMonitors)
                     .HasForeignKey(d => d.GameServerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.BanFileMonitors_dbo.GameServers_GameServerId");
             });
 

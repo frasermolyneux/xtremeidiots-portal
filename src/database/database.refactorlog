@@ -385,4 +385,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[FK_dbo.AdminActions_dbo.UserProfiles_UserProfileId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="a62b391d-d55b-4ad0-a9d5-c1139acc0e9b" ChangeDateTime="06/14/2022 15:21:44">
+    <Property Name="ElementName" Value="[dbo].[BanFileMonitors].[IX_GameServers_GameServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[BanFileMonitors]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServerId]" />
+  </Operation>
 </Operations>

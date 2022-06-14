@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -9,7 +9,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
     {
         public IActionResult Display(int id, [FromServices] IWebHostEnvironment webHostEnvironment)
         {
-            if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
             {
                 var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
 

@@ -4,10 +4,10 @@
     {
         GameTypeAsc,
         GameTypeDesc,
-        NameAsc,
-        NameDesc,
-        DateAsc,
-        DateDesc,
+        TitleAsc,
+        TitleDesc,
+        CreatedAsc,
+        CreatedDesc,
         UploadedByAsc,
         UploadedByDesc
     }

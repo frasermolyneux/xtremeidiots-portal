@@ -2,6 +2,7 @@
 {
     public static class UserProfileClaimType
     {
+        public static string UserProfileId => nameof(UserProfileId);
         public static string XtremeIdiotsId => nameof(XtremeIdiotsId);
         public static string PhotoUrl => nameof(PhotoUrl);
         public static string SeniorAdmin => nameof(SeniorAdmin);

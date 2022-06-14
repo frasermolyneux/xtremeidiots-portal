@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
@@ -30,38 +28,38 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleDeleteUserClaim(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
                 var gameType = (GameType)context.Resource;
 
-                if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == gameType.ToString()))
+                if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin && claim.Value == gameType.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleCreateUserClaim(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
                 var gameType = (GameType)context.Resource;
 
-                if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin && claim.Value == gameType.ToString()))
+                if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin && claim.Value == gameType.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleAccessUsers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
         }
     }

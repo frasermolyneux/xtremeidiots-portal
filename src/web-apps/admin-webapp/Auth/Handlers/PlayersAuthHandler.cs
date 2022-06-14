@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
@@ -30,40 +28,40 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleViewPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, context.Resource.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, context.Resource.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, context.Resource.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, context.Resource.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, context.Resource.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.Moderator, context.Resource.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleDeletePlayer(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
         }
 
         private void HandleAccessPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.GameAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.Moderator))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
                 context.Succeed(requirement);
         }
     }

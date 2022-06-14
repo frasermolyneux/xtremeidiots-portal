@@ -1,9 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -37,17 +33,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleDeleteDemo(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.Resource is Tuple<GameType, string>)
+            if (context.Resource is Tuple<GameType, Guid>)
             {
-                var (gameType, userId) = (Tuple<GameType, string>)context.Resource;
+                var (gameType, userProfileId) = (Tuple<GameType, Guid>)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.XtremeIdiotsId() == userId)
+                if (context.User.UserProfileId() == userProfileId.ToString())
                     context.Succeed(requirement);
             }
         }

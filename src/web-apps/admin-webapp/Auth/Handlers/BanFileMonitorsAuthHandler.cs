@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
@@ -35,80 +34,80 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleAccessBanFileMonitors(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == PortalClaimTypes.BanFileMonitor))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.BanFileMonitor))
                 context.Succeed(requirement);
         }
 
         private void HandleCreateBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
                 var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleDeleteBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
                 var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleEditBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
                 var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleViewBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is Tuple<GameType, Guid>)
             {
                 var (gameType, gameServerId) = (Tuple<GameType, Guid>)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.BanFileMonitor, gameServerId.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.BanFileMonitor, gameServerId.ToString()))
                     context.Succeed(requirement);
             }
         }

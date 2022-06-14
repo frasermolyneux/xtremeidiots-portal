@@ -6,12 +6,12 @@ namespace XtremeIdiots.CodDemos.Models
     {
         GameType Version { get; }
         string? Name { get; }
-        DateTime Date { get; }
+        DateTime Created { get; }
         string? Map { get; }
         string? Mod { get; }
-        string? GameType { get; }
-        string? Server { get; }
-        long Size { get; }
+        string? GameMode { get; }
+        string? ServerName { get; }
+        long FileSize { get; }
         Stream Open();
     }
 }

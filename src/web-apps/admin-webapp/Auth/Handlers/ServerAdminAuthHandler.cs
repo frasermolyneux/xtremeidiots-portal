@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
@@ -39,103 +37,103 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleViewServerChatLog(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
                 var gameType = (GameType)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.Moderator, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.Moderator, gameType.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleViewLiveRcon(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
                 var gameType = (GameType)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(PortalClaimTypes.LiveRcon, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.LiveRcon, gameType.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleViewGlobalChatLog(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.GameAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
         }
 
         private void HandleViewGameChatLog(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
             if (context.Resource is GameType)
             {
                 var gameType = (GameType)context.Resource;
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.HeadAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
                     context.Succeed(requirement);
 
-                if (context.User.HasClaim(XtremeIdiotsClaimTypes.GameAdmin, gameType.ToString()))
+                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
                     context.Succeed(requirement);
             }
         }
 
         private void HandleAccessServerAdmin(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.GameAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.Moderator))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == PortalClaimTypes.ServerAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.ServerAdmin))
                 context.Succeed(requirement);
         }
 
         private void HandleAccessLiveRcon(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.GameAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == PortalClaimTypes.LiveRcon))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.LiveRcon))
                 context.Succeed(requirement);
         }
     }

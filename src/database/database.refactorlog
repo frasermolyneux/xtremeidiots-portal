@@ -406,4 +406,74 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[IX_PlayerId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="122738bb-98f3-4338-9e57-c1d727f048a2" ChangeDateTime="06/14/2022 18:09:49">
+    <Property Name="ElementName" Value="[dbo].[Demoes]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[Demos]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="33f42ed9-30ef-4baa-8859-edeed73f1436" ChangeDateTime="06/14/2022 18:10:03">
+    <Property Name="ElementName" Value="[dbo].[Demos].[GameType]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameMode]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1d8b741d-2900-4a57-a29f-bf752f846240" ChangeDateTime="06/14/2022 18:10:19">
+    <Property Name="ElementName" Value="[dbo].[Demos].[Server]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ServerName]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="fc6342e2-4a4c-4e7b-a11a-a4af81505cfd" ChangeDateTime="06/14/2022 18:10:27">
+    <Property Name="ElementName" Value="[dbo].[Demos].[Size]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FileSize]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0a60d1ce-aef1-490b-a1c1-9cba74b7c328" ChangeDateTime="06/14/2022 18:10:53">
+    <Property Name="ElementName" Value="[dbo].[Demos].[Date]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[Created]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="230c0c71-a731-403c-bd08-370cddc0bea7" ChangeDateTime="06/14/2022 18:11:01">
+    <Property Name="ElementName" Value="[dbo].[Demos].[Name]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[Title]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="eac4b39a-0ffa-403b-af23-7eba96fd31ee" ChangeDateTime="06/14/2022 18:12:51">
+    <Property Name="ElementName" Value="[dbo].[Demos].[Game]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[GameType]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ee92a3e8-3157-4364-9cf8-1bdc975f00c1" ChangeDateTime="06/14/2022 18:13:02">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.Demoes_dbo.UserProfiles_Id]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.Demoes_dbo.UserProfiles_UserProfileId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="39db1d73-b543-4904-be2f-bca58827db8a" ChangeDateTime="06/14/2022 18:13:54">
+    <Property Name="ElementName" Value="[dbo].[PK_dbo.Demoes]" />
+    <Property Name="ElementType" Value="SqlPrimaryKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PK_dbo.Demos]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="ef1deda6-fe26-4a59-8350-5a80e0021392" ChangeDateTime="06/14/2022 18:14:00">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.Demoes_dbo.UserProfiles_UserProfileId]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[Demos]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.Demos_dbo.UserProfiles_UserProfileId]" />
+  </Operation>
 </Operations>

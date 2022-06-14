@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual DbSet<AdminAction> AdminActions { get; set; }
         public virtual DbSet<BanFileMonitor> BanFileMonitors { get; set; }
         public virtual DbSet<ChatMessage> ChatMessages { get; set; }
-        public virtual DbSet<Demo> Demoes { get; set; }
+        public virtual DbSet<Demo> Demos { get; set; }
         public virtual DbSet<GameServer> GameServers { get; set; }
         public virtual DbSet<GameServerEvent> GameServerEvents { get; set; }
         public virtual DbSet<GameServerStat> GameServerStats { get; set; }
@@ -91,7 +91,7 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.Demos)
                     .HasForeignKey(d => d.UserProfileId)
-                    .HasConstraintName("FK_dbo.Demoes_dbo.UserProfiles_Id");
+                    .HasConstraintName("FK_dbo.Demos_dbo.UserProfiles_UserProfileId");
             });
 
             modelBuilder.Entity<GameServer>(entity =>

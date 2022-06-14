@@ -38,8 +38,8 @@ namespace XtremeIdiots.CodDemos.Models
 
                     Map = map;
                     Mod = mod;
-                    GameType = gameType;
-                    Server = server;
+                    GameMode = gameType;
+                    ServerName = server;
                     IWDs = iwdNames == null ? new string[0] : iwdNames.Split(' ');
                     FFs = ffNames == null
                         ? new string[0]
@@ -66,8 +66,8 @@ namespace XtremeIdiots.CodDemos.Models
             {
                 Map = "???";
                 Mod = "???";
-                GameType = "???";
-                Server = "File corrupted!";
+                GameMode = "???";
+                ServerName = "File corrupted!";
                 IWDs = new string[0];
                 FFs = new string[0];
                 _isCorrupted = true;
@@ -137,7 +137,7 @@ namespace XtremeIdiots.CodDemos.Models
         /// <summary>
         ///     Gets the UTC date this instance was recorded at.
         /// </summary>
-        public DateTime Date => File.GetCreationTimeUtc(Path);
+        public DateTime Created => File.GetCreationTimeUtc(Path);
 
         /// <summary>
         ///     Gets the map this instance was recorded in.
@@ -152,17 +152,17 @@ namespace XtremeIdiots.CodDemos.Models
         /// <summary>
         ///     Gets the game type this instance was recorded in.
         /// </summary>
-        public string? GameType { get; }
+        public string? GameMode { get; }
 
         /// <summary>
         ///     Gets the server this instance was recorded on.
         /// </summary>
-        public string? Server { get; }
+        public string? ServerName { get; }
 
         /// <summary>
         ///     Gets the size of the file.
         /// </summary>
-        public long Size => new FileInfo(Path).Length;
+        public long FileSize => new FileInfo(Path).Length;
 
         /// <summary>
         ///     Opens a stream of the demo file.

@@ -3,8 +3,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.InvisionApiClient;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     }
                     catch (Exception ex)
                     {
-                        if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                        if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                             return new Tuple<bool, string>(false, ex.Message);
 
                         return new Tuple<bool, string>(false, "Failed to establish connection to the forums API");
@@ -52,14 +52,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                         if (isHealthy)
                             return new Tuple<bool, string>(true, "OK");
 
-                        if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                        if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                             return new Tuple<bool, string>(false, additionalData);
 
                         return new Tuple<bool, string>(false, "Failed to establish connection to the GeoLocation API");
                     }
                     catch (Exception ex)
                     {
-                        if (User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+                        if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                             return new Tuple<bool, string>(false, ex.Message);
 
                         return new Tuple<bool, string>(false, "Failed to establish connection to the GeoLocation API");

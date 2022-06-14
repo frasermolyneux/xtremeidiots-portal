@@ -13,17 +13,20 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
         public Guid DemoId { get; internal set; }
 
         [JsonProperty]
-        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
-        public GameType Game { get; internal set; }
+        public Guid UserProfileId { get; internal set; }
 
         [JsonProperty]
-        public string Name { get; internal set; } = string.Empty;
+        [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
+        public GameType GameType { get; internal set; }
+
+        [JsonProperty]
+        public string Title { get; internal set; } = string.Empty;
 
         [JsonProperty]
         public string FileName { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime? Date { get; internal set; }
+        public DateTime? Created { get; internal set; }
 
         [JsonProperty]
         public string Map { get; internal set; } = string.Empty;
@@ -32,24 +35,19 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
         public string Mod { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string GameType { get; internal set; } = string.Empty;
+        public string GameMode { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public string Server { get; internal set; } = string.Empty;
+        public string ServerName { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public long Size { get; internal set; }
+        public long FileSize { get; internal set; }
 
         [JsonProperty]
-        public string UserId { get; internal set; } = string.Empty;
+        public string FileUri { get; internal set; } = string.Empty;
+
 
         [JsonProperty]
-        public string UploadedBy { get; internal set; } = string.Empty;
-
-        [JsonProperty]
-        public string DemoFileUri { get; internal set; } = string.Empty;
-
-        [JsonProperty]
-        public UserProfileDto? UserProfileDto { get; internal set; }
+        public UserProfileDto? UserProfile { get; internal set; }
     }
 }

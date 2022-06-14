@@ -8,22 +8,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class Demo
     {
         [Key]
         public Guid DemoId { get; set; }
-        public int Game { get; set; }
-        public string Name { get; set; }
+        public Guid? UserProfileId { get; set; }
+        public int GameType { get; set; }
+        public string Title { get; set; }
         public string FileName { get; set; }
         [Column(TypeName = "datetime")]
-        public DateTime? Date { get; set; }
+        public DateTime? Created { get; set; }
         public string Map { get; set; }
         public string Mod { get; set; }
-        public string GameType { get; set; }
-        public string Server { get; set; }
-        public long Size { get; set; }
-        public Guid? UserProfileId { get; set; }
-        public string DemoFileUri { get; set; }
+        public string GameMode { get; set; }
+        public string ServerName { get; set; }
+        public long FileSize { get; set; }
+        public string FileUri { get; set; }
 
         [ForeignKey("UserProfileId")]
         [InverseProperty("Demos")]

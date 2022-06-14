@@ -75,20 +75,8 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
             // Demos
             CreateMap<Demo, DemoDto>()
                 .ForMember(
-                    dest => dest.Game,
-                    src => src.MapFrom(src => src.Game.ToGameType())
-                )
-                .ForMember(
-                    dest => dest.UserId,
-                    src => src.MapFrom(src => src.UserProfile.XtremeIdiotsForumId)
-                )
-                .ForMember(
-                    dest => dest.UploadedBy,
-                    src => src.MapFrom(src => src.UserProfile.DisplayName)
-                )
-                .ForMember(
-                    dest => dest.UserProfileDto,
-                    src => src.MapFrom(src => src.UserProfile)
+                    dest => dest.GameType,
+                    src => src.MapFrom(src => src.GameType.ToGameType())
                 );
 
             CreateMap<CreateDemoDto, Demo>()

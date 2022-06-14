@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 {
@@ -21,13 +20,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
         private void HandleAccessStatus(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.HeadAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
                 context.Succeed(requirement);
 
-            if (context.User.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.GameAdmin))
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
         }
     }

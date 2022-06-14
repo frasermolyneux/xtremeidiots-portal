@@ -99,7 +99,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator };
+            var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.Moderator };
             var gameTypes = User.ClaimedGameTypes(requiredClaims);
 
             string? filterUserId = null;
@@ -118,7 +118,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
             }
 
-            var order = DemoOrder.DateDesc;
+            var order = DemoOrder.CreatedDesc;
             if (model.Order != null)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
@@ -130,10 +130,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                         order = searchOrder == "asc" ? DemoOrder.GameTypeAsc : DemoOrder.GameTypeDesc;
                         break;
                     case "name":
-                        order = searchOrder == "asc" ? DemoOrder.NameAsc : DemoOrder.NameDesc;
+                        order = searchOrder == "asc" ? DemoOrder.TitleAsc : DemoOrder.TitleDesc;
                         break;
                     case "date":
-                        order = searchOrder == "asc" ? DemoOrder.DateAsc : DemoOrder.DateDesc;
+                        order = searchOrder == "asc" ? DemoOrder.CreatedAsc : DemoOrder.CreatedDesc;
                         break;
                     case "uploadedBy":
                         order = searchOrder == "asc" ? DemoOrder.UploadedByAsc : DemoOrder.UploadedByDesc;
@@ -149,7 +149,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var portalDemoEntries = new List<PortalDemoDto>();
             foreach (var demoDto in demosApiResponse.Result.Entries)
             {
-                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoDto.Game, demoDto.UserId), AuthPolicies.DeleteDemo);
+                var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoDto.GameType, demoDto.UserProfileId), AuthPolicies.DeleteDemo);
 
                 var portalDemoDto = new PortalDemoDto(demoDto);
 
@@ -176,7 +176,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            return Redirect(demoApiResult.Result.DemoFileUri);
+            return Redirect(demoApiResult.Result.FileUri);
         }
 
         [HttpGet]
@@ -187,7 +187,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoApiResult.Result.Game, demoApiResult.Result.UserId), AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.GameType, demoApiResult.Result.UserProfileId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
@@ -207,18 +207,18 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, string>(demoApiResult.Result.Game, demoApiResult.Result.UserId), AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.GameType, demoApiResult.Result.UserProfileId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
 
             await repositoryApiClient.Demos.DeleteDemo(id);
 
-            _logger.LogInformation("User {User} has deleted {DemoId} under {GameType}", User.Username(), demoApiResult.Result.DemoId, demoApiResult.Result.Game);
-            this.AddAlertSuccess($"The demo {demoApiResult.Result.Name} has been successfully deleted from {demoApiResult.Result.Game}");
+            _logger.LogInformation("User {User} has deleted {DemoId} under {GameType}", User.Username(), demoApiResult.Result.DemoId, demoApiResult.Result.GameType);
+            this.AddAlertSuccess($"The demo {demoApiResult.Result.Title} has been successfully deleted from {demoApiResult.Result.GameType}");
 
             if (filterGame)
-                return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Game });
+                return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.GameType });
             return RedirectToAction(nameof(Index));
         }
 
@@ -247,7 +247,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var claimsPrincipal = await _signInManager.ClaimsFactory.CreateAsync(user);
 
-            var requiredClaims = new[] { XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin, XtremeIdiotsClaimTypes.GameAdmin, XtremeIdiotsClaimTypes.Moderator };
+            var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.Moderator };
             var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
 
             string? filterUserId = null;
@@ -256,7 +256,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             filterGameTypes = gameTypes.ToArray();
             if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
 
-            var demosApiResponse = await repositoryApiClient.Demos.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.DateDesc);
+            var demosApiResponse = await repositoryApiClient.Demos.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.CreatedDesc);
 
             if (!demosApiResponse.IsSuccess || demosApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -264,14 +264,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var demos = demosApiResponse.Result.Entries.Select(demo => new
             {
                 demo.DemoId,
-                Version = demo.Game.ToString(),
-                demo.Name,
-                demo.Date,
+                Version = demo.GameType.ToString(),
+                demo.Title,
+                demo.Created,
                 demo.Map,
                 demo.Mod,
-                demo.GameType,
-                demo.Server,
-                demo.Size,
+                demo.GameMode,
+                demo.ServerName,
+                demo.FileSize,
                 Identifier = demo.FileName,
                 demo.FileName
             }).ToList();
@@ -315,7 +315,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             using (var stream = System.IO.File.Create(filePath))
                 await file.CopyToAsync(stream);
 
-            var demoDto = new CreateDemoDto(gameType, userId);
+            var demoDto = new CreateDemoDto(gameType, userProfileApiResponse.Result.UserProfileId);
 
             var createDemoApiResponse = await repositoryApiClient.Demos.CreateDemo(demoDto);
             if (createDemoApiResponse.IsSuccess && createDemoApiResponse.Result != null)
@@ -352,7 +352,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (demoApiResponse.IsNotFound || demoApiResponse.Result == null)
                 return NotFound();
             else
-                return Redirect(demoApiResponse.Result.DemoFileUri);
+                return Redirect(demoApiResponse.Result.FileUri);
         }
 
         public class PortalDemoDto
@@ -360,17 +360,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             public PortalDemoDto(DemoDto demo)
             {
                 DemoId = demo.DemoId;
-                Game = demo.Game.ToString();
-                Name = demo.Name;
+                Game = demo.GameType.ToString();
+                Name = demo.Title;
                 FileName = demo.FileName;
-                Date = demo.Date;
+                Date = demo.Created;
                 Map = demo.Map;
                 Mod = demo.Mod;
-                GameType = demo.GameType;
-                Server = demo.Server;
-                Size = demo.Size;
-                UserId = demo.UserId;
-                UploadedBy = demo.UploadedBy;
+                GameType = demo.GameMode;
+                Server = demo.ServerName;
+                Size = demo.FileSize;
+                UserId = demo.UserProfile?.XtremeIdiotsForumId ?? "21145";
+                UploadedBy = demo.UserProfile?.DisplayName ?? "Admin";
             }
 
             public Guid DemoId { get; set; }

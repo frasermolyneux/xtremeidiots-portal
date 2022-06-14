@@ -49,7 +49,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<DemoDto>> IDemosApi.GetDemo(Guid demoId)
         {
-            var demo = await context.Demoes.Include(d => d.UserProfile)
+            var demo = await context.Demos.Include(d => d.UserProfile)
                 .SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
@@ -70,7 +70,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (!takeEntries.HasValue)
                 takeEntries = 20;
 
-            var demos = context.Demoes.Include(d => d.UserProfile).AsQueryable();
+            var demos = context.Demos.Include(d => d.UserProfile).AsQueryable();
 
             GameType[]? gameTypesFilter = null;
             if (!string.IsNullOrWhiteSpace(gameTypes))
@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto<DemosCollectionDto>> IDemosApi.GetDemos(GameType[]? gameTypes, string? userId, string? filterString, int skipEntries, int takeEntries, DemoOrder? order)
         {
-            var query = context.Demoes.Include(d => d.UserProfile).AsQueryable();
+            var query = context.Demos.Include(d => d.UserProfile).AsQueryable();
             query = ApplyFilter(query, gameTypes, null, null);
             var totalCount = await query.CountAsync();
 
@@ -137,11 +137,11 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             var demo = new Demo
             {
                 DemoId = Guid.NewGuid(),
-                Game = createDemoDto.Game.ToGameTypeInt(),
-                UserProfile = await context.UserProfiles.SingleAsync(u => u.XtremeIdiotsForumId == createDemoDto.UserId)
+                GameType = createDemoDto.GameType.ToGameTypeInt(),
+                UserProfileId = createDemoDto.UserProfileId
             };
 
-            context.Demoes.Add(demo);
+            context.Demos.Add(demo);
             await context.SaveChangesAsync();
 
             var result = mapper.Map<DemoDto>(demo);
@@ -173,28 +173,28 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto> IDemosApi.SetDemoFile(Guid demoId, string fileName, string filePath)
         {
-            var demo = context.Demoes.SingleOrDefault(d => d.DemoId == demoId);
+            var demo = context.Demos.SingleOrDefault(d => d.DemoId == demoId);
 
             if (demo == null)
                 return new ApiResponseDto(HttpStatusCode.NotFound);
 
-            var blobKey = $"{Guid.NewGuid()}.{demo.Game.ToGameType().DemoExtension()}";
+            var blobKey = $"{Guid.NewGuid()}.{demo.GameType.ToGameType().DemoExtension()}";
             var blobServiceClient = new BlobServiceClient(configuration["appdata-storage-connectionstring"]);
             var containerClient = blobServiceClient.GetBlobContainerClient("demos");
             var blobClient = containerClient.GetBlobClient(blobKey);
             await blobClient.UploadAsync(filePath);
 
-            var localDemo = new LocalDemo(filePath, demo.Game.ToGameType());
+            var localDemo = new LocalDemo(filePath, demo.GameType.ToGameType());
 
-            demo.Name = Path.GetFileNameWithoutExtension(fileName);
+            demo.Title = Path.GetFileNameWithoutExtension(fileName);
             demo.FileName = blobKey;
-            demo.Date = localDemo.Date;
+            demo.Created = localDemo.Created;
             demo.Map = localDemo.Map;
             demo.Mod = localDemo.Mod;
-            demo.GameType = localDemo.GameType;
-            demo.Server = localDemo.Server;
-            demo.Size = localDemo.Size;
-            demo.DemoFileUri = blobClient.Uri.ToString();
+            demo.GameMode = localDemo.GameMode;
+            demo.ServerName = localDemo.ServerName;
+            demo.FileSize = localDemo.FileSize;
+            demo.FileUri = blobClient.Uri.ToString();
 
             await context.SaveChangesAsync();
 
@@ -212,7 +212,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
         async Task<ApiResponseDto> IDemosApi.DeleteDemo(Guid demoId)
         {
-            var demo = await context.Demoes.SingleOrDefaultAsync(d => d.DemoId == demoId);
+            var demo = await context.Demos.SingleOrDefaultAsync(d => d.DemoId == demoId);
 
             if (demo == null)
                 return new ApiResponseDto(HttpStatusCode.NotFound);
@@ -229,7 +229,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             if (gameTypes != null && gameTypes.Length > 0)
             {
                 var gameTypeInts = gameTypes.Select(gt => gt.ToGameTypeInt()).ToArray();
-                query = query.Where(d => gameTypeInts.Contains(d.Game)).AsQueryable();
+                query = query.Where(d => gameTypeInts.Contains(d.GameType)).AsQueryable();
             }
 
             if (!string.IsNullOrWhiteSpace(userId))
@@ -239,7 +239,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             if (!string.IsNullOrWhiteSpace(filterString))
             {
-                query = query.Where(d => d.Name.Contains(filterString) || d.UserProfile.DisplayName.Contains(filterString)).AsQueryable();
+                query = query.Where(d => d.Title.Contains(filterString) || d.UserProfile.DisplayName.Contains(filterString)).AsQueryable();
             }
 
             return query;
@@ -250,22 +250,22 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             switch (order)
             {
                 case DemoOrder.GameTypeAsc:
-                    query = query.OrderBy(d => d.Game).AsQueryable();
+                    query = query.OrderBy(d => d.GameType).AsQueryable();
                     break;
                 case DemoOrder.GameTypeDesc:
-                    query = query.OrderByDescending(d => d.Game).AsQueryable();
+                    query = query.OrderByDescending(d => d.GameType).AsQueryable();
                     break;
-                case DemoOrder.NameAsc:
-                    query = query.OrderBy(d => d.Name).AsQueryable();
+                case DemoOrder.TitleAsc:
+                    query = query.OrderBy(d => d.Title).AsQueryable();
                     break;
-                case DemoOrder.NameDesc:
-                    query = query.OrderByDescending(d => d.Name).AsQueryable();
+                case DemoOrder.TitleDesc:
+                    query = query.OrderByDescending(d => d.Title).AsQueryable();
                     break;
-                case DemoOrder.DateAsc:
-                    query = query.OrderBy(d => d.Date).AsQueryable();
+                case DemoOrder.CreatedAsc:
+                    query = query.OrderBy(d => d.Created).AsQueryable();
                     break;
-                case DemoOrder.DateDesc:
-                    query = query.OrderByDescending(d => d.Date).AsQueryable();
+                case DemoOrder.CreatedDesc:
+                    query = query.OrderByDescending(d => d.Created).AsQueryable();
                     break;
                 case DemoOrder.UploadedByAsc:
                     query = query.OrderBy(d => d.UserProfile.DisplayName).AsQueryable();

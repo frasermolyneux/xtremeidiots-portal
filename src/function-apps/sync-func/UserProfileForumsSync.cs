@@ -90,6 +90,7 @@ namespace XtremeIdiots.Portal.SyncFunc
         {
             var claims = new List<CreateUserProfileClaimDto>
             {
+                new CreateUserProfileClaimDto(userProfileId, UserProfileClaimType.UserProfileId, userProfileId.ToString(), true),
                 new CreateUserProfileClaimDto(userProfileId, UserProfileClaimType.XtremeIdiotsId, member.Id.ToString(), true),
                 new CreateUserProfileClaimDto(userProfileId, "Email", member.Email, true),
                 new CreateUserProfileClaimDto(userProfileId, UserProfileClaimType.PhotoUrl, member.PhotoUrl, true),

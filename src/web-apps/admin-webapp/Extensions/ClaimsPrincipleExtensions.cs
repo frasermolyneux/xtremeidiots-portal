@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Extensions
@@ -8,22 +8,27 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
     {
         public static string Username(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(ClaimTypes.Name).Value;
+            return claimsPrincipal.FindFirst(ClaimTypes.Name)?.Value;
         }
 
         public static string Email(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(ClaimTypes.Email).Value;
+            return claimsPrincipal.FindFirst(ClaimTypes.Email)?.Value;
         }
 
         public static string XtremeIdiotsId(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.XtremeIdiotsId).Value;
+            return claimsPrincipal.FindFirst(UserProfileClaimType.XtremeIdiotsId)?.Value;
+        }
+
+        public static string UserProfileId(this ClaimsPrincipal claimsPrincipal)
+        {
+            return claimsPrincipal.FindFirst(UserProfileClaimType.UserProfileId)?.Value;
         }
 
         public static string PhotoUrl(this ClaimsPrincipal claimsPrincipal)
         {
-            return claimsPrincipal.FindFirst(XtremeIdiotsClaimTypes.PhotoUrl).Value;
+            return claimsPrincipal.FindFirst(UserProfileClaimType.PhotoUrl)?.Value;
         }
 
         public static Tuple<GameType[], Guid[]> ClaimedGamesAndItems(this ClaimsPrincipal claimsPrincipal, IEnumerable<string> requiredClaims)
@@ -31,7 +36,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             var gameTypes = new List<GameType>();
             var servers = new List<Guid>();
 
-            if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (claimsPrincipal.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
 
             var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
@@ -53,7 +58,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
         {
             var gameTypes = new List<GameType>();
 
-            if (claimsPrincipal.HasClaim(claim => claim.Type == XtremeIdiotsClaimTypes.SeniorAdmin))
+            if (claimsPrincipal.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 gameTypes = Enum.GetValues(typeof(GameType)).Cast<GameType>().ToList();
 
             var claims = claimsPrincipal.Claims.Where(claim => requiredClaims.Contains(claim.Type));
@@ -69,7 +74,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
         {
             var requiredClaims = new[]
             {
-                XtremeIdiotsClaimTypes.SeniorAdmin, XtremeIdiotsClaimTypes.HeadAdmin
+                UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin
             };
 
             return claimsPrincipal.ClaimedGameTypes(requiredClaims);

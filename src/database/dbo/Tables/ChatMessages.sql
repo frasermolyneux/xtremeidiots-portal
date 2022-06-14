@@ -1,11 +1,11 @@
 ﻿CREATE TABLE [dbo].[ChatMessages] (
-    [ChatMessageId]             UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
-    [GameServerId]          UNIQUEIDENTIFIER NOT NULL,
-    [PlayerId]              UNIQUEIDENTIFIER NOT NULL,
-    [Username]              NVARCHAR (MAX)   NOT NULL,
-    [ChatType]              INT              NOT NULL,
-    [Message]               NVARCHAR (MAX)   NOT NULL,
-    [Timestamp]             DATETIME         NOT NULL,
+    [ChatMessageId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [GameServerId] UNIQUEIDENTIFIER NOT NULL,
+    [PlayerId] UNIQUEIDENTIFIER NOT NULL,
+    [Username] NVARCHAR (MAX) NOT NULL,
+    [ChatType] INT NOT NULL,
+    [Message] NVARCHAR (MAX) NOT NULL,
+    [Timestamp]  DATETIME NOT NULL,
     CONSTRAINT [PK_dbo.ChatMessage] PRIMARY KEY CLUSTERED ([ChatMessageId] ASC),
     CONSTRAINT [FK_dbo.ChatMessages_dbo.GameServers_GameServerId] FOREIGN KEY ([GameServerId]) REFERENCES [dbo].[GameServers] ([GameServerId]),
     CONSTRAINT [FK_dbo.ChatMessages_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])

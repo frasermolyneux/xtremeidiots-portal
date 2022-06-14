@@ -48,12 +48,13 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.AdminActions)
                     .HasForeignKey(d => d.PlayerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.AdminActions_dbo.Players_PlayerId");
 
                 entity.HasOne(d => d.UserProfile)
                     .WithMany(p => p.AdminActions)
                     .HasForeignKey(d => d.UserProfileId)
-                    .HasConstraintName("FK_dbo.AdminActions_dbo.UserProfiles_Id");
+                    .HasConstraintName("FK_dbo.AdminActions_dbo.UserProfiles_UserProfileId");
             });
 
             modelBuilder.Entity<BanFileMonitor>(entity =>

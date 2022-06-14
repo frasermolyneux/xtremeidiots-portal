@@ -371,4 +371,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[IX_GameServer_GameServerId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="aec54a10-ad46-4231-9cfd-a3c72f40cd70" ChangeDateTime="06/14/2022 15:15:44">
+    <Property Name="ElementName" Value="[dbo].[AdminActions].[IX_Players_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[AdminActions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_PlayerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="35ac71dc-845f-435d-b67c-71c2b45f1e02" ChangeDateTime="06/14/2022 15:16:33">
+    <Property Name="ElementName" Value="[dbo].[FK_dbo.AdminActions_dbo.UserProfiles_Id]" />
+    <Property Name="ElementType" Value="SqlForeignKeyConstraint" />
+    <Property Name="ParentElementName" Value="[dbo].[AdminActions]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[FK_dbo.AdminActions_dbo.UserProfiles_UserProfileId]" />
+  </Operation>
 </Operations>

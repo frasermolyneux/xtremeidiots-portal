@@ -155,8 +155,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
-            if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+            if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("EditAdminAction").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -204,8 +204,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
-            if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+            if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("BanLifted").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -253,8 +253,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
-            if (adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
+            if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.PlayerDto.GameType, adminActionApiResponse.Result.PlayerDto.PlayerId, adminActionApiResponse.Result.PlayerDto.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfileDto.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("BanClaimed").Enrich(User).Enrich(adminActionApiResponse.Result.PlayerDto).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);

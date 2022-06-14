@@ -17,6 +17,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public Guid PlayerId { get; internal set; }
 
         [JsonProperty]
+        public Guid? UserProfileId { get; internal set; }
+
+        [JsonProperty]
+        public int? ForumTopicId { get; internal set; }
+
+        [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public AdminActionType Type { get; internal set; }
 
@@ -24,13 +30,10 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
         public string Text { get; internal set; } = string.Empty;
 
         [JsonProperty]
-        public DateTime? Expires { get; internal set; }
-
-        [JsonProperty]
-        public int ForumTopicId { get; internal set; }
-
-        [JsonProperty]
         public DateTime Created { get; internal set; }
+
+        [JsonProperty]
+        public DateTime? Expires { get; internal set; }
 
         [JsonProperty]
         public PlayerDto? PlayerDto { get; internal set; }

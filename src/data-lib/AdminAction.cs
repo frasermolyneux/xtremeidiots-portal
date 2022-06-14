@@ -8,15 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("PlayerId", Name = "IX_Players_PlayerId")]
+    [Index("PlayerId", Name = "IX_PlayerId")]
+    [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class AdminAction
     {
         [Key]
         public Guid AdminActionId { get; set; }
+        public Guid PlayerId { get; set; }
         public Guid? UserProfileId { get; set; }
-        public Guid? PlayerId { get; set; }
-        public int ForumTopicId { get; set; }
+        public int? ForumTopicId { get; set; }
         public int Type { get; set; }
+        [Required]
         public string Text { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Created { get; set; }

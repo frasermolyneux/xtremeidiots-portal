@@ -392,4 +392,18 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[IX_GameServerId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="c27f20ea-6826-4973-afc2-ee63c2b1b5b6" ChangeDateTime="06/14/2022 15:58:06">
+    <Property Name="ElementName" Value="[dbo].[ChatMessages].[IX_GameServers_GameServerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_GameServerId]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="24319fe4-282a-4be7-96f1-d47a2abc68b0" ChangeDateTime="06/14/2022 15:58:17">
+    <Property Name="ElementName" Value="[dbo].[ChatMessages].[IX_Players_PlayerId]" />
+    <Property Name="ElementType" Value="SqlIndex" />
+    <Property Name="ParentElementName" Value="[dbo].[ChatMessages]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[IX_PlayerId]" />
+  </Operation>
 </Operations>

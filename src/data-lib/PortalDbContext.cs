@@ -75,11 +75,13 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.HasOne(d => d.GameServer)
                     .WithMany(p => p.ChatMessages)
                     .HasForeignKey(d => d.GameServerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.ChatMessages_dbo.GameServers_GameServerId");
 
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.ChatMessages)
                     .HasForeignKey(d => d.PlayerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.ChatMessages_dbo.Players_PlayerId");
             });
 

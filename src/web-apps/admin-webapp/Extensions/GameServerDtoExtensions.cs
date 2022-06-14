@@ -19,12 +19,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
                 FtpUsername = gameServerDto.FtpUsername,
                 FtpPassword = gameServerDto.FtpPassword,
                 RconPassword = gameServerDto.RconPassword,
-                LiveStatusEnabled = gameServerDto.LiveStatusEnabled,
-                ShowOnBannerServerList = gameServerDto.ShowOnBannerServerList,
-                BannerServerListPosition = gameServerDto.BannerServerListPosition,
+                LiveTrackingEnabled = gameServerDto.LiveTrackingEnabled,
+                BannerServerListEnabled = gameServerDto.BannerServerListEnabled,
+                ServerListPosition = gameServerDto.ServerListPosition,
                 HtmlBanner = gameServerDto.HtmlBanner,
-                ShowOnPortalServerList = gameServerDto.ShowOnPortalServerList,
-                ShowChatLog = gameServerDto.ShowChatLog
+                PortalServerListEnabled = gameServerDto.PortalServerListEnabled,
+                ChatLogEnabled = gameServerDto.ChatLogEnabled
             };
 
             return viewModel;

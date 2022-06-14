@@ -77,16 +77,16 @@
                             }
 
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                                @Html.DisplayNameFor(model => model.BannerServerListEnabled)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.ShowOnBannerServerList)
+                                @Html.DisplayFor(model => model.BannerServerListEnabled)
                             </dd>
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.BannerServerListPosition)
+                                @Html.DisplayNameFor(model => model.ServerListPosition)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.BannerServerListPosition)
+                                @Html.DisplayFor(model => model.ServerListPosition)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.HtmlBanner)
@@ -95,16 +95,16 @@
                                 @Html.Raw(Model.HtmlBanner)
                             </dd>
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                                @Html.DisplayNameFor(model => model.PortalServerListEnabled)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.ShowOnPortalServerList)
+                                @Html.DisplayFor(model => model.PortalServerListEnabled)
                             </dd>
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.ShowChatLog)
+                                @Html.DisplayNameFor(model => model.ChatLogEnabled)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.ShowChatLog)
+                                @Html.DisplayFor(model => model.ChatLogEnabled)
                             </dd>
                         </dl>
                     </div>
@@ -148,11 +148,11 @@
                                         <td>
                                             @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(Model.GameType, Model.GameServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
-                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort, item.FilePath, Model.FtpUsername, Model.FtpPassword)
+                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort.Value, item.FilePath, Model.FtpUsername, Model.FtpPassword)
                                             }
                                             else
                                             {
-                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort, item.FilePath)
+                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort.Value, item.FilePath)
                                             }
                                         </td>
                                         <td>

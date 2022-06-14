@@ -5,7 +5,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
     public class GameServerEventDto
     {
         [JsonProperty]
-        public Guid Id { get; internal set; }
+        public Guid GameServerEventId { get; internal set; }
 
         [JsonProperty]
         public Guid GameServerId { get; internal set; }

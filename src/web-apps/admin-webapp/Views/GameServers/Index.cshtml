@@ -21,7 +21,7 @@
                             <thead>
                             <tr>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.BannerServerListPosition)
+                                    @Html.DisplayNameFor(model => model.ServerListPosition)
                                 </th>
                                 <th>
                                     @Html.DisplayNameFor(model => model.GameType)
@@ -33,16 +33,16 @@
                                     @Html.DisplayNameFor(model => model.Hostname)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.LiveStatusEnabled)
+                                    @Html.DisplayNameFor(model => model.LiveTrackingEnabled)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                                    @Html.DisplayNameFor(model => model.PortalServerListEnabled)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                                    @Html.DisplayNameFor(model => model.BannerServerListEnabled)
                                 </th>
                                 <th>
-                                    @Html.DisplayNameFor(model => model.ShowChatLog)
+                                    @Html.DisplayNameFor(model => model.ChatLogEnabled)
                                 </th>
                                 <th></th>
                             </tr>
@@ -52,7 +52,7 @@
                             {
                                 <tr>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.BannerServerListPosition)
+                                        @Html.DisplayFor(modelItem => item.ServerListPosition)
                                     </td>
                                     <td>
                                         @Html.GameTypeIcon(item.GameType)
@@ -64,16 +64,16 @@
                                         @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.LiveStatusEnabled)
+                                        @Html.DisplayFor(modelItem => item.LiveTrackingEnabled)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.ShowOnPortalServerList)
+                                        @Html.DisplayFor(modelItem => item.PortalServerListEnabled)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.ShowOnBannerServerList)
+                                        @Html.DisplayFor(modelItem => item.BannerServerListEnabled)
                                     </td>
                                     <td>
-                                        @Html.DisplayFor(modelItem => item.ShowChatLog)
+                                        @Html.DisplayFor(modelItem => item.ChatLogEnabled)
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm" role="group">

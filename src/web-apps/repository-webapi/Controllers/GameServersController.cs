@@ -167,7 +167,7 @@ public class GameServersController : Controller, IGameServersApi
         if (editGameServerDto == null)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null").ToHttpResult();
 
-        if (editGameServerDto.Id != gameServerId)
+        if (editGameServerDto.GameServerId != gameServerId)
             return new ApiResponseDto(HttpStatusCode.BadRequest, "Request entity identifiers did not match").ToHttpResult();
 
         var response = await ((IGameServersApi)this).UpdateGameServer(editGameServerDto);
@@ -177,7 +177,7 @@ public class GameServersController : Controller, IGameServersApi
 
     async Task<ApiResponseDto> IGameServersApi.UpdateGameServer(EditGameServerDto editGameServerDto)
     {
-        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId == editGameServerDto.Id);
+        var gameServer = await context.GameServers.SingleOrDefaultAsync(gs => gs.GameServerId == editGameServerDto.GameServerId);
 
         if (gameServer == null)
             return new ApiResponseDto(HttpStatusCode.NotFound);
@@ -231,14 +231,14 @@ public class GameServersController : Controller, IGameServersApi
 
         switch (filter)
         {
-            case GameServerFilter.ShowOnPortalServerList:
-                query = query.Where(s => s.ShowOnPortalServerList).AsQueryable();
+            case GameServerFilter.PortalServerListEnabled:
+                query = query.Where(s => s.PortalServerListEnabled).AsQueryable();
                 break;
-            case GameServerFilter.ShowOnBannerServerList:
-                query = query.Where(s => s.ShowOnBannerServerList && !string.IsNullOrWhiteSpace(s.HtmlBanner)).AsQueryable();
+            case GameServerFilter.BannerServerListEnabled:
+                query = query.Where(s => s.BannerServerListEnabled && !string.IsNullOrWhiteSpace(s.HtmlBanner)).AsQueryable();
                 break;
-            case GameServerFilter.LiveStatusEnabled:
-                query = query.Where(s => s.LiveStatusEnabled).AsQueryable();
+            case GameServerFilter.LiveTrackingEnabled:
+                query = query.Where(s => s.LiveTrackingEnabled).AsQueryable();
                 break;
         }
 
@@ -250,7 +250,7 @@ public class GameServersController : Controller, IGameServersApi
         switch (order)
         {
             case GameServerOrder.BannerServerListPosition:
-                query = query.OrderBy(gs => gs.BannerServerListPosition).AsQueryable();
+                query = query.OrderBy(gs => gs.ServerListPosition).AsQueryable();
                 break;
             case GameServerOrder.GameType:
                 query = query.OrderBy(gs => gs.GameType).AsQueryable();

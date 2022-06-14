@@ -4,19 +4,16 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 {
     public class EditGameServerDto
     {
-        public EditGameServerDto(Guid id)
+        public EditGameServerDto(Guid gameServerId)
         {
-            Id = id;
+            GameServerId = gameServerId;
         }
 
         [JsonProperty]
-        public Guid Id { get; private set; }
+        public Guid GameServerId { get; private set; }
 
         [JsonProperty]
         public string? Title { get; set; }
-
-        [JsonProperty]
-        public string? HtmlBanner { get; set; }
 
         [JsonProperty]
         public string? Hostname { get; set; }
@@ -37,7 +34,25 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? FtpPassword { get; set; }
 
         [JsonProperty]
-        public bool? LiveStatusEnabled { get; set; }
+        public string? RconPassword { get; set; }
+
+        [JsonProperty]
+        public int? ServerListPosition { get; set; }
+
+        [JsonProperty]
+        public string? HtmlBanner { get; set; }
+
+        [JsonProperty]
+        public bool? BannerServerListEnabled { get; set; }
+
+        [JsonProperty]
+        public bool? PortalServerListEnabled { get; set; }
+
+        [JsonProperty]
+        public bool? ChatLogEnabled { get; set; }
+
+        [JsonProperty]
+        public bool? LiveTrackingEnabled { get; set; }
 
         [JsonProperty]
         public string? LiveTitle { get; set; }
@@ -56,20 +71,5 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
 
         [JsonProperty]
         public DateTime? LiveLastUpdated { get; set; }
-
-        [JsonProperty]
-        public bool? ShowOnBannerServerList { get; set; }
-
-        [JsonProperty]
-        public int? BannerServerListPosition { get; set; }
-
-        [JsonProperty]
-        public bool? ShowOnPortalServerList { get; set; }
-
-        [JsonProperty]
-        public bool? ShowChatLog { get; set; }
-
-        [JsonProperty]
-        public string? RconPassword { get; set; }
     }
 }

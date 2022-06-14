@@ -114,18 +114,18 @@
                         <div class="ibox-content">
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="LiveStatusEnabled"/> @Html.DisplayNameFor(model => model.LiveStatusEnabled)
+                                    <input class="form-check-input" asp-for="LiveTrackingEnabled"/> @Html.DisplayNameFor(model => model.LiveTrackingEnabled)
                                 </label>
                             </div>
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="ShowOnBannerServerList"/> @Html.DisplayNameFor(model => model.ShowOnBannerServerList)
+                                    <input class="form-check-input" asp-for="BannerServerListEnabled"/> @Html.DisplayNameFor(model => model.BannerServerListEnabled)
                                 </label>
                             </div>
                             <div class="form-group">
-                                <label asp-for="BannerServerListPosition" class="control-label"></label>
-                                <input asp-for="BannerServerListPosition" class="form-control"/>
-                                <span asp-validation-for="BannerServerListPosition" class="text-danger"></span>
+                                <label asp-for="ServerListPosition" class="control-label"></label>
+                                <input asp-for="ServerListPosition" class="form-control"/>
+                                <span asp-validation-for="ServerListPosition" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="HtmlBanner" class="control-label"></label>
@@ -135,12 +135,12 @@
                             <hr/>
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="ShowOnPortalServerList"/> @Html.DisplayNameFor(model => model.ShowOnPortalServerList)
+                                    <input class="form-check-input" asp-for="PortalServerListEnabled"/> @Html.DisplayNameFor(model => model.PortalServerListEnabled)
                                 </label>
                             </div>
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="ShowChatLog"/> @Html.DisplayNameFor(model => model.ShowChatLog)
+                                    <input class="form-check-input" asp-for="ChatLogEnabled"/> @Html.DisplayNameFor(model => model.ChatLogEnabled)
                                 </label>
                             </div>
                         </div>

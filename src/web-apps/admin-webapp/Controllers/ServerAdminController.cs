@@ -37,7 +37,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveStatusEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

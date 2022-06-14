@@ -14,17 +14,18 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public Guid GameServerId { get; internal set; }
 
         [JsonProperty]
-        public string? Title { get; internal set; }
-
-        [JsonProperty]
-        public string? HtmlBanner { get; internal set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string Title { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
         [System.Text.Json.Serialization.JsonConverter(typeof(JsonStringEnumConverter))]
         public GameType GameType { get; internal set; }
 
         [JsonProperty]
-        public string? Hostname { get; internal set; }
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string Hostname { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
         public int QueryPort { get; internal set; }
@@ -33,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? FtpHostname { get; internal set; }
 
         [JsonProperty]
-        public int FtpPort { get; internal set; }
+        public int? FtpPort { get; internal set; }
 
         [JsonProperty]
         public string? FtpUsername { get; internal set; }
@@ -42,7 +43,25 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? FtpPassword { get; internal set; }
 
         [JsonProperty]
-        public bool LiveStatusEnabled { get; internal set; }
+        public string? RconPassword { get; internal set; }
+
+        [JsonProperty]
+        public int ServerListPosition { get; internal set; }
+
+        [JsonProperty]
+        public string? HtmlBanner { get; internal set; }
+
+        [JsonProperty]
+        public bool BannerServerListEnabled { get; internal set; }
+
+        [JsonProperty]
+        public bool PortalServerListEnabled { get; internal set; }
+
+        [JsonProperty]
+        public bool ChatLogEnabled { get; internal set; }
+
+        [JsonProperty]
+        public bool LiveTrackingEnabled { get; internal set; }
 
         [JsonProperty]
         public string? LiveTitle { get; internal set; }
@@ -54,28 +73,13 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? LiveMod { get; internal set; }
 
         [JsonProperty]
-        public int LiveMaxPlayers { get; internal set; }
+        public int? LiveMaxPlayers { get; internal set; }
 
         [JsonProperty]
-        public int LiveCurrentPlayers { get; internal set; }
+        public int? LiveCurrentPlayers { get; internal set; }
 
         [JsonProperty]
-        public DateTime LiveLastUpdated { get; internal set; }
-
-        [JsonProperty]
-        public bool ShowOnBannerServerList { get; internal set; }
-
-        [JsonProperty]
-        public int BannerServerListPosition { get; internal set; }
-
-        [JsonProperty]
-        public bool ShowOnPortalServerList { get; internal set; }
-
-        [JsonProperty]
-        public bool ShowChatLog { get; internal set; }
-
-        [JsonProperty]
-        public string? RconPassword { get; internal set; }
+        public DateTime? LiveLastUpdated { get; internal set; }
 
         [JsonProperty]
         public List<BanFileMonitorDto> BanFileMonitorDtos { get; internal set; } = new List<BanFileMonitorDto>();

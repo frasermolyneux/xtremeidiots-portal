@@ -55,7 +55,7 @@ public class ConfigGeneratorService : IHostedService
         var mySqlConnection = configuration["mysql-connection"];
 
         var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-        var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.ShowOnPortalServerList, 0, 50, null);
+        var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.PortalServerListEnabled, 0, 50, null);
         var validGameServers = gameServersApiResponse.Result.Entries.Where(gs => !string.IsNullOrWhiteSpace(gs.RconPassword) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList();
 
         var outputDirectory = @"C:\Users\FraserMolyneux\OneDrive\Desktop\bot-cofigs";
@@ -74,12 +74,12 @@ public class ConfigGeneratorService : IHostedService
             var scheduledTask = File.ReadAllText(@"templates\gameType_gameServerId.xml");
             var pluginPortal = File.ReadAllText(@"templates\plugin_portal_gameType_gameServerId.ini");
 
-            if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname))
+            if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
             {
                 FtpClient? ftpClient = null;
                 try
                 {
-                    ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                    ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort.Value, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
                     ftpClient.ValidateAnyCertificate = true;
                     ftpClient.AutoConnect();
 

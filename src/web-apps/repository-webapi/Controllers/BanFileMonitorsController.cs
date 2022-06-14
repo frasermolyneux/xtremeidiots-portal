@@ -231,7 +231,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             switch (order)
             {
                 case BanFileMonitorOrder.BannerServerListPosition:
-                    query = query.OrderBy(bfm => bfm.GameServer.BannerServerListPosition).AsQueryable();
+                    query = query.OrderBy(bfm => bfm.GameServer.ServerListPosition).AsQueryable();
                     break;
                 case BanFileMonitorOrder.GameType:
                     query = query.OrderBy(bfm => bfm.GameServer.GameType).AsQueryable();

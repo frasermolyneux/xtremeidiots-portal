@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+
 using System.Text.Json.Serialization;
+
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
@@ -31,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? FtpHostname { get; set; }
 
         [JsonProperty]
-        public int FtpPort { get; set; }
+        public int? FtpPort { get; set; }
 
         [JsonProperty]
         public string? FtpUsername { get; set; }
@@ -43,21 +45,21 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public string? RconPassword { get; set; }
 
         [JsonProperty]
-        public bool LiveStatusEnabled { get; set; }
-
-        [JsonProperty]
-        public int BannerServerListPosition { get; set; }
-
-        [JsonProperty]
-        public bool ShowOnBannerServerList { get; set; }
-
-        [JsonProperty]
-        public bool ShowOnPortalServerList { get; set; }
-
-        [JsonProperty]
-        public bool ShowChatLog { get; set; }
+        public int ServerListPosition { get; set; }
 
         [JsonProperty]
         public string? HtmlBanner { get; set; }
+
+        [JsonProperty]
+        public bool BannerServerListEnabled { get; set; }
+
+        [JsonProperty]
+        public bool PortalServerListEnabled { get; set; }
+
+        [JsonProperty]
+        public bool ChatLogEnabled { get; set; }
+
+        [JsonProperty]
+        public bool LiveTrackingEnabled { get; set; }
     }
 }

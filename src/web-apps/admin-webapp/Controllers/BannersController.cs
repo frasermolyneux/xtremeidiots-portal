@@ -23,7 +23,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnBannerServerList, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

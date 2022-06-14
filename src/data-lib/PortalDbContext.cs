@@ -100,7 +100,11 @@ namespace XtremeIdiots.Portal.DataLib
 
                 entity.Property(e => e.FtpPort).HasDefaultValueSql("21");
 
+                entity.Property(e => e.LiveCurrentPlayers).HasDefaultValueSql("0");
+
                 entity.Property(e => e.LiveLastUpdated).HasDefaultValueSql("'1900-01-01t00:00:00.000'");
+
+                entity.Property(e => e.LiveMaxPlayers).HasDefaultValueSql("0");
             });
 
             modelBuilder.Entity<GameServerEvent>(entity =>
@@ -111,7 +115,7 @@ namespace XtremeIdiots.Portal.DataLib
                     .WithMany(p => p.GameServerEvents)
                     .HasForeignKey(d => d.GameServerId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_GameServerEvents_GameServer");
+                    .HasConstraintName("FK_GameServerEvents_GameServerId");
             });
 
             modelBuilder.Entity<GameServerStat>(entity =>

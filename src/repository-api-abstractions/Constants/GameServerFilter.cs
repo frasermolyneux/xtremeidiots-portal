@@ -2,8 +2,8 @@
 {
     public enum GameServerFilter
     {
-        LiveStatusEnabled,
-        ShowOnPortalServerList,
-        ShowOnBannerServerList
+        LiveTrackingEnabled,
+        PortalServerListEnabled,
+        BannerServerListEnabled
     }
 }

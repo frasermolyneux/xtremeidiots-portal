@@ -51,14 +51,14 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                 if (banFileMonitorDto == null)
                 {
-                    if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword))
+                    if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
                     {
                         logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not exist - creating");
 
                         FtpClient? ftpClient = null;
                         try
                         {
-                            ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                            ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort.Value, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
                             ftpClient.ValidateAnyCertificate = true;
                             ftpClient.AutoConnect();
 
@@ -78,14 +78,14 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 {
                     if (!banFileMonitorDto.FilePath.ToLower().Contains(gameServerDto.LiveMod))
                     {
-                        if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword))
+                        if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
                         {
                             logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not have current mod in path - updating");
 
                             FtpClient? ftpClient = null;
                             try
                             {
-                                ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
+                                ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort.Value, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
                                 ftpClient.ValidateAnyCertificate = true;
                                 ftpClient.AutoConnect();
 

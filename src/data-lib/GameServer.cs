@@ -24,29 +24,31 @@ namespace XtremeIdiots.Portal.DataLib
 
         [Key]
         public Guid GameServerId { get; set; }
+        [Required]
         [StringLength(60)]
         public string Title { get; set; }
-        public string HtmlBanner { get; set; }
         public int GameType { get; set; }
+        [Required]
         public string Hostname { get; set; }
         public int QueryPort { get; set; }
         public string FtpHostname { get; set; }
-        public int FtpPort { get; set; }
+        public int? FtpPort { get; set; }
         public string FtpUsername { get; set; }
         public string FtpPassword { get; set; }
-        public bool LiveStatusEnabled { get; set; }
+        public string RconPassword { get; set; }
+        public int ServerListPosition { get; set; }
+        public string HtmlBanner { get; set; }
+        public bool BannerServerListEnabled { get; set; }
+        public bool PortalServerListEnabled { get; set; }
+        public bool ChatLogEnabled { get; set; }
+        public bool LiveTrackingEnabled { get; set; }
         public string LiveTitle { get; set; }
         public string LiveMap { get; set; }
         public string LiveMod { get; set; }
-        public int LiveMaxPlayers { get; set; }
-        public int LiveCurrentPlayers { get; set; }
+        public int? LiveMaxPlayers { get; set; }
+        public int? LiveCurrentPlayers { get; set; }
         [Column(TypeName = "datetime")]
-        public DateTime LiveLastUpdated { get; set; }
-        public bool ShowOnBannerServerList { get; set; }
-        public int BannerServerListPosition { get; set; }
-        public bool ShowOnPortalServerList { get; set; }
-        public bool ShowChatLog { get; set; }
-        public string RconPassword { get; set; }
+        public DateTime? LiveLastUpdated { get; set; }
 
         [InverseProperty("GameServer")]
         public virtual ICollection<BanFileMonitor> BanFileMonitors { get; set; }

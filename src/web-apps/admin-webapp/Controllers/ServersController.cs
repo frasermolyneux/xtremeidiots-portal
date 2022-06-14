@@ -25,7 +25,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.ShowOnPortalServerList, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.PortalServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

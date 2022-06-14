@@ -60,40 +60,40 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             }
 
 #pragma warning disable CS8604 // Possible null reference argument. // ModelState check is just above.
-            var gameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
+            var createGameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
 #pragma warning restore CS8604 // Possible null reference argument.
-            var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.CreateGameServer);
+            var canCreateGameServer = await _authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.CreateGameServer);
 
             if (!canCreateGameServer.Succeeded)
                 return Unauthorized();
 
-            gameServerDto.Title = model.Title;
-            gameServerDto.Hostname = model.Hostname;
-            gameServerDto.QueryPort = model.QueryPort;
+            createGameServerDto.Title = model.Title;
+            createGameServerDto.Hostname = model.Hostname;
+            createGameServerDto.QueryPort = model.QueryPort;
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
-                gameServerDto.FtpHostname = model.FtpHostname;
-                gameServerDto.FtpPort = model.FtpPort;
-                gameServerDto.FtpUsername = model.FtpUsername;
-                gameServerDto.FtpPassword = model.FtpPassword;
+                createGameServerDto.FtpHostname = model.FtpHostname;
+                createGameServerDto.FtpPort = model.FtpPort;
+                createGameServerDto.FtpUsername = model.FtpUsername;
+                createGameServerDto.FtpPassword = model.FtpPassword;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerDto.GameType, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
-                gameServerDto.RconPassword = model.RconPassword;
+                createGameServerDto.RconPassword = model.RconPassword;
 
-            gameServerDto.LiveStatusEnabled = model.LiveStatusEnabled;
-            gameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
-            gameServerDto.BannerServerListPosition = model.BannerServerListPosition;
-            gameServerDto.HtmlBanner = model.HtmlBanner;
-            gameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
-            gameServerDto.ShowChatLog = model.ShowChatLog;
+            createGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
+            createGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
+            createGameServerDto.ServerListPosition = model.ServerListPosition;
+            createGameServerDto.HtmlBanner = model.HtmlBanner;
+            createGameServerDto.PortalServerListEnabled = model.PortalServerListEnabled;
+            createGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
 
-            await repositoryApiClient.GameServers.CreateGameServer(gameServerDto);
+            await repositoryApiClient.GameServers.CreateGameServer(createGameServerDto);
 
             _logger.LogInformation("User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
             this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
@@ -191,12 +191,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (canEditGameServerRcon.Succeeded)
                 editGameServerDto.RconPassword = model.RconPassword;
 
-            editGameServerDto.LiveStatusEnabled = model.LiveStatusEnabled;
-            editGameServerDto.ShowOnBannerServerList = model.ShowOnBannerServerList;
-            editGameServerDto.BannerServerListPosition = model.BannerServerListPosition;
+            editGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
+            editGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
+            editGameServerDto.ServerListPosition = model.ServerListPosition;
             editGameServerDto.HtmlBanner = model.HtmlBanner;
-            editGameServerDto.ShowOnPortalServerList = model.ShowOnPortalServerList;
-            editGameServerDto.ShowChatLog = model.ShowChatLog;
+            editGameServerDto.PortalServerListEnabled = model.PortalServerListEnabled;
+            editGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
 
             await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
 

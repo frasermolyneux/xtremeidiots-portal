@@ -60,9 +60,9 @@
                                     <td>
                                         @{
                                             double percentage = 0;
-                                            if (item.GameServer.LiveCurrentPlayers != 0 && item.GameServer.LiveMaxPlayers != 0)
+                                            if (item.GameServer.LiveCurrentPlayers != null && item.GameServer.LiveCurrentPlayers != 0 && item.GameServer.LiveMaxPlayers != null && item.GameServer.LiveMaxPlayers != 0)
                                             {
-                                                percentage = (double) item.GameServer.LiveCurrentPlayers / item.GameServer.LiveMaxPlayers * 100;
+                                                percentage = (double) item.GameServer.LiveCurrentPlayers.Value / item.GameServer.LiveMaxPlayers.Value * 100;
                                             }
                                         }
 

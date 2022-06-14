@@ -73,7 +73,7 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 
         public async Task<ApiResponseDto> UpdateGameServer(EditGameServerDto editGameServerDto)
         {
-            var request = await CreateRequest($"game-servers/{editGameServerDto.Id}", Method.Patch);
+            var request = await CreateRequest($"game-servers/{editGameServerDto.GameServerId}", Method.Patch);
             request.AddJsonBody(editGameServerDto);
 
             var response = await ExecuteAsync(request);

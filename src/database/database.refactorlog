@@ -483,4 +483,39 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[FK_GameServerEvents_GameServerId]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="dabd00da-a883-45ff-9548-3f1cfeb74c39" ChangeDateTime="06/14/2022 18:44:27">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[BannerServerListPosition]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ServerListPosition]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="3579f2f7-cbda-4540-be8b-681b6b60cbac" ChangeDateTime="06/14/2022 18:44:55">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[ShowChatLog]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[ChatLogEnabled]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="484337ca-5162-4f76-9295-c48ae3a7d8d1" ChangeDateTime="06/14/2022 18:45:23">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[ShowOnPortalServerList]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[PortalServerListEnabled]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="1ca1e75b-32da-4fec-9ed2-70f846dbfc15" ChangeDateTime="06/14/2022 18:45:32">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[ShowOnBannerServerList]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[BannerServerListEnabled]" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5f6acf33-6583-4891-87e6-8574e03d177d" ChangeDateTime="06/14/2022 18:48:55">
+    <Property Name="ElementName" Value="[dbo].[GameServers].[LiveStatusEnabled]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[GameServers]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="[LiveTrackingEnabled]" />
+  </Operation>
 </Operations>

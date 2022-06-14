@@ -88,7 +88,7 @@ namespace XtremeIdiots.Portal.SyncFunc
                             gameServerApiResponse.Result.FtpPassword,
                             banFileStream);
 
-                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, banFileSize);
+                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, banFileSize, DateTime.UtcNow);
                         await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                         continue;
                     }
@@ -110,7 +110,7 @@ namespace XtremeIdiots.Portal.SyncFunc
 
                         await banFileIngest.IngestBanFileDataForGame(gameServerApiResponse.Result.GameType.ToString(), remoteBanFileData);
 
-                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, (long)remoteFileSize);
+                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, (long)remoteFileSize, DateTime.UtcNow);
                         await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                     }
 
@@ -132,7 +132,16 @@ namespace XtremeIdiots.Portal.SyncFunc
                             gameServerApiResponse.Result.FtpPassword,
                             banFileStream);
 
-                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, banFileSize);
+                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, banFileSize, DateTime.UtcNow);
+                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
+                    }
+
+                    if (remoteFileSize == banFileMonitorDto.RemoteFileSize)
+                    {
+                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId)
+                        {
+                            LastSync = DateTime.UtcNow
+                        };
                         await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                     }
                 }

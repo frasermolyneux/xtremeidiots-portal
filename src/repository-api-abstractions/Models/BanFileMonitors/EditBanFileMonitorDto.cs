@@ -5,17 +5,22 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors
     public class EditBanFileMonitorDto
     {
         [JsonConstructor]
+        public EditBanFileMonitorDto(Guid banFileMonitorId)
+        {
+            BanFileMonitorId = banFileMonitorId;
+        }
+
         public EditBanFileMonitorDto(Guid banFileMonitorId, string filePath)
         {
             BanFileMonitorId = banFileMonitorId;
             FilePath = filePath;
         }
 
-        public EditBanFileMonitorDto(Guid banFileMonitorId, long remoteFileSize)
+        public EditBanFileMonitorDto(Guid banFileMonitorId, long remoteFileSize, DateTime lastSync)
         {
             BanFileMonitorId = banFileMonitorId;
             RemoteFileSize = remoteFileSize;
-            LastSync = DateTime.UtcNow;
+            LastSync = lastSync;
         }
 
         [JsonProperty]

@@ -18,6 +18,7 @@ namespace XtremeIdiots.Portal.DataLib
             GameServerEvents = new HashSet<GameServerEvent>();
             GameServerStats = new HashSet<GameServerStat>();
             LivePlayers = new HashSet<LivePlayer>();
+            MapVotes = new HashSet<MapVote>();
             RecentPlayers = new HashSet<RecentPlayer>();
             Reports = new HashSet<Report>();
         }
@@ -60,6 +61,8 @@ namespace XtremeIdiots.Portal.DataLib
         public virtual ICollection<GameServerStat> GameServerStats { get; set; }
         [InverseProperty("GameServer")]
         public virtual ICollection<LivePlayer> LivePlayers { get; set; }
+        [InverseProperty("GameServer")]
+        public virtual ICollection<MapVote> MapVotes { get; set; }
         [InverseProperty("GameServer")]
         public virtual ICollection<RecentPlayer> RecentPlayers { get; set; }
         [InverseProperty("GameServer")]

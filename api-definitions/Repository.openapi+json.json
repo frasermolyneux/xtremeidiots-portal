@@ -1062,37 +1062,10 @@
                 }
             }
         },
-        "/repository/maps/{mapId}/popularity/{playerId}": {
+        "/repository/maps/votes": {
             "post": {
                 "tags": [
                     "Maps"
-                ],
-                "parameters": [
-                    {
-                        "name": "mapId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "playerId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    },
-                    {
-                        "name": "like",
-                        "in": "query",
-                        "schema": {
-                            "type": "boolean"
-                        }
-                    }
                 ],
                 "responses": {
                     "200": {
@@ -1800,10 +1773,10 @@
                 "enum": [
                     "GameTypeAsc",
                     "GameTypeDesc",
-                    "NameAsc",
-                    "NameDesc",
-                    "DateAsc",
-                    "DateDesc",
+                    "TitleAsc",
+                    "TitleDesc",
+                    "CreatedAsc",
+                    "CreatedDesc",
                     "UploadedByAsc",
                     "UploadedByDesc"
                 ],
@@ -1812,9 +1785,9 @@
             },
             "GameServerFilter": {
                 "enum": [
-                    "LiveStatusEnabled",
-                    "ShowOnPortalServerList",
-                    "ShowOnBannerServerList"
+                    "LiveTrackingEnabled",
+                    "PortalServerListEnabled",
+                    "BannerServerListEnabled"
                 ],
                 "type": "string",
                 "format": "int32"

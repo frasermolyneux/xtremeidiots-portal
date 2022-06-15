@@ -46,6 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         async Task<ApiResponseDto<MapDto>> IMapsApi.GetMap(Guid mapId)
         {
             var map = await context.Maps
+                .Include(m => m.MapVotes)
                 .SingleOrDefaultAsync(m => m.MapId == mapId);
 
             if (map == null)
@@ -68,6 +69,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         async Task<ApiResponseDto<MapDto>> IMapsApi.GetMap(GameType gameType, string mapName)
         {
             var map = await context.Maps
+                .Include(m => m.MapVotes)
                 .SingleOrDefaultAsync(m => m.GameType == gameType.ToGameTypeInt() && m.MapName == mapName);
 
             if (map == null)
@@ -271,38 +273,55 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
             return new ApiResponseDto(HttpStatusCode.OK);
         }
 
-        [HttpPost]
-        [Route("/repository/maps/{mapId}/popularity/{playerId}")]
-        public async Task<IActionResult> UpsertMapVote(Guid mapId, Guid playerId, bool like)
+        Task<ApiResponseDto> IMapsApi.UpsertMapVote(UpsertMapVoteDto upsertMapVoteDto)
         {
-            var response = await ((IMapsApi)this).UpsertMapVote(mapId, playerId, like);
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        [Route("/repository/maps/votes")]
+        public async Task<IActionResult> UpsertMapVotes()
+        {
+            var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+            List<UpsertMapVoteDto>? upsertMapVoteDtos;
+            try
+            {
+                upsertMapVoteDtos = JsonConvert.DeserializeObject<List<UpsertMapVoteDto>>(requestBody);
+            }
+            catch
+            {
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Could not deserialize request body").ToHttpResult();
+            }
+
+            if (upsertMapVoteDtos == null || !upsertMapVoteDtos.Any())
+                return new ApiResponseDto(HttpStatusCode.BadRequest, "Request body was null or did not contain any entries").ToHttpResult();
+
+            var response = await ((IMapsApi)this).UpsertMapVotes(upsertMapVoteDtos);
 
             return response.ToHttpResult();
         }
 
-        async Task<ApiResponseDto> IMapsApi.UpsertMapVote(Guid mapId, Guid playerId, bool like)
+        async Task<ApiResponseDto> IMapsApi.UpsertMapVotes(List<UpsertMapVoteDto> upsertMapVoteDtos)
         {
-            var mapVote = await context.MapVotes
-                .SingleOrDefaultAsync(mv => mv.MapId == mapId && mv.PlayerId == playerId);
-
-            if (mapVote == null)
+            foreach (var upsertMapVote in upsertMapVoteDtos)
             {
-                var mapVoteToAdd = new MapVote
-                {
-                    MapId = mapId,
-                    PlayerId = playerId,
-                    Like = like,
-                    Timestamp = DateTime.UtcNow
-                };
+                var mapVote = await context.MapVotes.SingleOrDefaultAsync(mv => mv.MapId == upsertMapVote.MapId && mv.PlayerId == upsertMapVote.PlayerId && mv.GameServerId == upsertMapVote.GameServerId);
 
-                context.MapVotes.Add(mapVoteToAdd);
-            }
-            else
-            {
-                if (mapVote.Like != like)
+                if (mapVote == null)
                 {
-                    mapVote.Like = like;
-                    mapVote.Timestamp = DateTime.UtcNow;
+                    var newMapVote = mapper.Map<MapVote>(upsertMapVote);
+                    newMapVote.Timestamp = DateTime.UtcNow;
+
+                    context.MapVotes.Add(newMapVote);
+                }
+                else
+                {
+                    if (mapVote.Like != upsertMapVote.Like)
+                    {
+                        mapVote.Like = upsertMapVote.Like;
+                        mapVote.Timestamp = DateTime.UtcNow;
+                    }
                 }
             }
 

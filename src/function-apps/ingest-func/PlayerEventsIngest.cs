@@ -6,13 +6,11 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
-using System;
-using System.Threading.Tasks;
-
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
@@ -136,7 +134,7 @@ public class PlayerEventsIngest
 
         if (playerId != Guid.Empty)
         {
-            var chatMessage = new CreateChatMessageDto((Guid)onChatMessage.ServerId, playerId, onChatMessage.Type.ToChatType(), onChatMessage.Username, onChatMessage.Message, onChatMessage.EventGeneratedUtc);
+            var chatMessage = new CreateChatMessageDto(onChatMessage.ServerId, playerId, onChatMessage.Type.ToChatType(), onChatMessage.Username, onChatMessage.Message, onChatMessage.EventGeneratedUtc);
             await _repositoryApiClient.ChatMessages.CreateChatMessage(chatMessage);
         }
         else
@@ -189,8 +187,11 @@ public class PlayerEventsIngest
         {
             var mapApiResponse = await _repositoryApiClient.Maps.GetMap(gameType, onMapVote.MapName);
 
-            if (mapApiResponse.IsSuccess)
-                await _repositoryApiClient.Maps.UpsertMapVote(mapApiResponse.Result.MapId, playerId, (bool)onMapVote.Like);
+            if (mapApiResponse.IsSuccess && mapApiResponse.Result != null)
+            {
+                var upsertMapVoteDto = new UpsertMapVoteDto(mapApiResponse.Result.MapId, playerId, onMapVote.ServerId, onMapVote.Like);
+                await _repositoryApiClient.Maps.UpsertMapVote(upsertMapVoteDto);
+            }
         }
         else
         {

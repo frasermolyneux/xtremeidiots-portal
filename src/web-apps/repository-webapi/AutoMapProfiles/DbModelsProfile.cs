@@ -141,6 +141,9 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 )
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
+            CreateMap<MapVote, MapVoteDto>();
+            CreateMap<UpsertMapVoteDto, MapVote>();
+
             // Players
             CreateMap<Player, PlayerDto>()
                 .ForMember(

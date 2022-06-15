@@ -15,13 +15,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
     public class MapsApi : BaseApi, IMapsApi
     {
-        private readonly IOptions<RepositoryApiClientOptions> options;
-        private readonly IMemoryCache memoryCache;
-
         public MapsApi(ILogger<MapsApi> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
-            this.options = options;
-            this.memoryCache = memoryCache;
+
         }
 
         public async Task<ApiResponseDto<MapDto>> GetMap(Guid mapId)
@@ -123,10 +119,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse();
         }
 
-        public async Task<ApiResponseDto> UpsertMapVote(Guid mapId, Guid playerId, bool like)
+        public async Task<ApiResponseDto> UpsertMapVote(UpsertMapVoteDto upsertMapVoteDto)
         {
-            var request = await CreateRequest($"maps/{mapId}/popularity/{playerId}", Method.Post);
-            request.AddQueryParameter("like", like.ToString());
+            var request = await CreateRequest($"maps/votes", Method.Post);
+            request.AddJsonBody(new List<UpsertMapVoteDto> { upsertMapVoteDto });
+
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
+        }
+
+        public async Task<ApiResponseDto> UpsertMapVotes(List<UpsertMapVoteDto> upsertMapVoteDtos)
+        {
+            var request = await CreateRequest($"maps/votes", Method.Post);
+            request.AddJsonBody(upsertMapVoteDtos);
 
             var response = await ExecuteAsync(request);
 

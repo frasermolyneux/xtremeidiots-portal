@@ -19,7 +19,9 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
         Task<ApiResponseDto> DeleteMap(Guid mapId);
         Task<ApiResponseDto> RebuildMapPopularity();
 
-        Task<ApiResponseDto> UpsertMapVote(Guid mapId, Guid playerId, bool like);
+        Task<ApiResponseDto> UpsertMapVote(UpsertMapVoteDto upsertMapVoteDto);
+        Task<ApiResponseDto> UpsertMapVotes(List<UpsertMapVoteDto> upsertMapVoteDtos);
+
         Task<ApiResponseDto> UpdateMapImage(Guid mapId, string filePath);
     }
 }

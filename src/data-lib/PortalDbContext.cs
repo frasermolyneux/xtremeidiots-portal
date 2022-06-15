@@ -152,14 +152,21 @@ namespace XtremeIdiots.Portal.DataLib
             {
                 entity.Property(e => e.MapVoteId).HasDefaultValueSql("newsequentialid()");
 
+                entity.HasOne(d => d.GameServer)
+                    .WithMany(p => p.MapVotes)
+                    .HasForeignKey(d => d.GameServerId)
+                    .HasConstraintName("FK_dbo.MapVotes_dbo.GameServers_GameServerId");
+
                 entity.HasOne(d => d.Map)
                     .WithMany(p => p.MapVotes)
                     .HasForeignKey(d => d.MapId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.MapVotes_dbo.Maps_MapId");
 
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.MapVotes)
                     .HasForeignKey(d => d.PlayerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_dbo.MapVotes_dbo.Players_PlayerId");
             });
 

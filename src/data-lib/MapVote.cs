@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("GameServerId", Name = "IX_GameServerId")]
     [Index("MapId", Name = "IX_MapId")]
     [Index("MapVoteId", Name = "IX_MapVoteId", IsUnique = true)]
     [Index("PlayerId", Name = "IX_PlayerId")]
@@ -15,12 +16,16 @@ namespace XtremeIdiots.Portal.DataLib
     {
         [Key]
         public Guid MapVoteId { get; set; }
-        public Guid? MapId { get; set; }
-        public Guid? PlayerId { get; set; }
+        public Guid MapId { get; set; }
+        public Guid PlayerId { get; set; }
+        public Guid? GameServerId { get; set; }
         public bool Like { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Timestamp { get; set; }
 
+        [ForeignKey("GameServerId")]
+        [InverseProperty("MapVotes")]
+        public virtual GameServer GameServer { get; set; }
         [ForeignKey("MapId")]
         [InverseProperty("MapVotes")]
         public virtual Map Map { get; set; }

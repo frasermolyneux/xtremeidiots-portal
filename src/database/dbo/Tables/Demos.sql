@@ -16,5 +16,9 @@
 );
 
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_DemoId]
+    ON [dbo].[Demos]([DemoId] ASC);
+
+GO
 CREATE NONCLUSTERED INDEX [IX_UserProfileId]
     ON [dbo].[Demos]([UserProfileId] ASC);

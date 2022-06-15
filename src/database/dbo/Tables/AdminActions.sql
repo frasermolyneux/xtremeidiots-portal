@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[AdminActions] (
-    [AdminActionId]  UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [AdminActionId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
     [PlayerId] UNIQUEIDENTIFIER NOT NULL,
     [UserProfileId] UNIQUEIDENTIFIER NULL,
     [ForumTopicId] INT DEFAULT NULL NULL,
@@ -11,6 +11,10 @@
     CONSTRAINT [FK_dbo.AdminActions_dbo.UserProfiles_UserProfileId] FOREIGN KEY ([UserProfileId]) REFERENCES [dbo].[UserProfiles] ([UserProfileId]),
     CONSTRAINT [FK_dbo.AdminActions_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_AdminActionId]
+    ON [dbo].[AdminActions]([AdminActionId] ASC);
 
 GO
 CREATE NONCLUSTERED INDEX [IX_PlayerId]

@@ -1,5 +1,4 @@
-﻿CREATE TABLE [dbo].[UserProfiles]
-(
+﻿CREATE TABLE [dbo].[UserProfiles] (
 	[UserProfileId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT newsequentialid(), 
     [IdentityOid] NVARCHAR(50) NULL, 
     [XtremeIdiotsForumId] NVARCHAR(50) NULL, 
@@ -12,3 +11,7 @@
     [ProfileUrl] NVARCHAR(MAX) NULL, 
     [TimeZone] NVARCHAR(50) NULL 
 )
+
+GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_UserProfileId]
+    ON [dbo].[UserProfiles]([UserProfileId] ASC);

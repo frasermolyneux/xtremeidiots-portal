@@ -1,5 +1,4 @@
-﻿CREATE TABLE [dbo].[Reports]
-(
+﻿CREATE TABLE [dbo].[Reports] (
 	[ReportId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
 	[PlayerId] UNIQUEIDENTIFIER NULL,
     [UserProfileId] UNIQUEIDENTIFIER NULL,
@@ -19,13 +18,21 @@
 )
 
 GO
-CREATE NONCLUSTERED INDEX [IX_GameServer_GameServerId]
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ReportId]
+    ON [dbo].[Reports]([ReportId] ASC);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_GameServerId]
     ON [dbo].[Reports]([GameServerId] ASC);
 
 GO
-CREATE NONCLUSTERED INDEX [IX_Players_PlayerId]
+CREATE NONCLUSTERED INDEX [IX_PlayerId]
     ON [dbo].[Reports]([PlayerId] ASC);
 
 GO
-CREATE NONCLUSTERED INDEX [IX_UserProfiles_Id]
+CREATE NONCLUSTERED INDEX [IX_UserProfileId]
     ON [dbo].[Reports]([UserProfileId] ASC);
+
+GO
+CREATE NONCLUSTERED INDEX [IX_AdminUserProfileId]
+    ON [dbo].[Reports]([AdminUserProfileId] ASC);

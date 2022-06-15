@@ -10,7 +10,8 @@ namespace XtremeIdiots.Portal.DataLib
 {
     [Table("PlayerAlias")]
     [Index("Name", Name = "IX_Name")]
-    [Index("PlayerId", Name = "IX_Players_PlayerId")]
+    [Index("PlayerAliasId", Name = "IX_PlayerAliasId", IsUnique = true)]
+    [Index("PlayerId", Name = "IX_PlayerId")]
     public partial class PlayerAlias
     {
         [Key]

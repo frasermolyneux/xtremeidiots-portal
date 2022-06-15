@@ -14,10 +14,12 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
         public DateTime Timestamp { get; internal set; }
 
         [JsonProperty]
-        public string EventType { get; internal set; } = string.Empty;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        public string EventType { get; internal set; }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         [JsonProperty]
-        public string EventData { get; internal set; } = string.Empty;
+        public string? EventData { get; internal set; }
 
         [JsonProperty]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

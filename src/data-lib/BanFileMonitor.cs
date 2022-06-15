@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("BanFileMonitorId", Name = "IX_BanFileMonitorId", IsUnique = true)]
     [Index("GameServerId", Name = "IX_GameServerId")]
     public partial class BanFileMonitor
     {

@@ -27,4 +27,3 @@
 GO
 CREATE UNIQUE NONCLUSTERED INDEX [IX_GameServerId]
     ON [dbo].[GameServers]([GameServerId] ASC);
-

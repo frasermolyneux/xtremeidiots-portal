@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("AdminActionId", Name = "IX_AdminActionId", IsUnique = true)]
     [Index("PlayerId", Name = "IX_PlayerId")]
     [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class AdminAction

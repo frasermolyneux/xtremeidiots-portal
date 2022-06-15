@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("DemoId", Name = "IX_DemoId", IsUnique = true)]
     [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class Demo
     {

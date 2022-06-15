@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
+    [Index("UserProfileClaimId", Name = "IX_UserProfileClaimId", IsUnique = true)]
+    [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class UserProfileClaim
     {
         [Key]

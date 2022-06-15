@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("GameServerId", Name = "IX_GameServer_GameServerId")]
-    [Index("PlayerId", Name = "IX_Players_PlayerId")]
-    [Index("UserProfileId", Name = "IX_UserProfiles_Id")]
+    [Index("AdminUserProfileId", Name = "IX_AdminUserProfileId")]
+    [Index("GameServerId", Name = "IX_GameServerId")]
+    [Index("PlayerId", Name = "IX_PlayerId")]
+    [Index("ReportId", Name = "IX_ReportId", IsUnique = true)]
+    [Index("UserProfileId", Name = "IX_UserProfileId")]
     public partial class Report
     {
         [Key]

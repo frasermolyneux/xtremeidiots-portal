@@ -20,6 +20,10 @@
 );
 
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_LivePlayerId]
+    ON [dbo].[LivePlayers]([LivePlayerId] ASC);
+
+GO
 CREATE NONCLUSTERED INDEX [IX_GameServer_GameServerId]
     ON [dbo].[LivePlayers]([GameServerId] ASC);
 

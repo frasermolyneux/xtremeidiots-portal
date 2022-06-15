@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[BanFileMonitors] (
-    [BanFileMonitorId]  UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
+    [BanFileMonitorId] UNIQUEIDENTIFIER DEFAULT (newsequentialid()) NOT NULL,
     [GameServerId] UNIQUEIDENTIFIER NOT NULL,
     [FilePath]  NVARCHAR (MAX) NOT NULL,
     [RemoteFileSize] BIGINT NULL,
@@ -9,6 +9,9 @@
 );
 
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_BanFileMonitorId]
+    ON [dbo].[BanFileMonitors]([BanFileMonitorId] ASC);
+
+GO
 CREATE NONCLUSTERED INDEX [IX_GameServerId]
     ON [dbo].[BanFileMonitors]([GameServerId] ASC);
-

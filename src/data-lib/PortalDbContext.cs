@@ -155,12 +155,12 @@ namespace XtremeIdiots.Portal.DataLib
                 entity.HasOne(d => d.Map)
                     .WithMany(p => p.MapVotes)
                     .HasForeignKey(d => d.MapId)
-                    .HasConstraintName("FK_dbo.MapVotes_dbo.Maps_Map_MapId");
+                    .HasConstraintName("FK_dbo.MapVotes_dbo.Maps_MapId");
 
                 entity.HasOne(d => d.Player)
                     .WithMany(p => p.MapVotes)
                     .HasForeignKey(d => d.PlayerId)
-                    .HasConstraintName("FK_dbo.MapVotes_dbo.Player2_Player_PlayerId");
+                    .HasConstraintName("FK_dbo.MapVotes_dbo.Players_PlayerId");
             });
 
             modelBuilder.Entity<Player>(entity =>

@@ -12,6 +12,10 @@
 );
 
 GO
+CREATE UNIQUE NONCLUSTERED INDEX [IX_ChatMessageId]
+    ON [dbo].[ChatMessages]([ChatMessageId] ASC);
+
+GO
 CREATE NONCLUSTERED INDEX [IX_GameServerId]
     ON [dbo].[ChatMessages]([GameServerId] ASC);
 

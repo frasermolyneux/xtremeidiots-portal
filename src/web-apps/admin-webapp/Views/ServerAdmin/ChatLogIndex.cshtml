@@ -85,7 +85,7 @@
                         name: 'username',
                         sortable: false,
                         render: function(data, type, row) {
-                            return renderPlayerName(row['playerDto']['gameType'], row['username'], row['playerId']);
+                            return renderPlayerName(row['player']['gameType'], row['username'], row['playerId']);
                         }
                     },
                     {
@@ -106,7 +106,7 @@
                                 name: 'serverName',
                                 sortable: false,
                                 render: function(data, type, row) {
-                                    return row['gameServerDto']['liveTitle'];
+                                    return row['gameServer']['liveTitle'];
                                 }   
                             },
                         </text>

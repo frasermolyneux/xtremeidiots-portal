@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
-using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -57,12 +56,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfile(id);
-            var userProfileViewModel = new UserProfileViewModel(userProfileDtoApiResponse.Result);
 
-            ViewData["GameServers"] = gameServersApiResponse;
-            ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Entries, "Id", "Title");
+            ViewData["GameServers"] = gameServersApiResponse.Result.Entries;
+            ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Entries, "GameServerId", "Title");
 
-            return View(userProfileViewModel);
+            return View(userProfileDtoApiResponse.Result);
         }
 
         [HttpPost]

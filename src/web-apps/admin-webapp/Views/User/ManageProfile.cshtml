@@ -1,10 +1,11 @@
 ﻿@using XtremeIdiots.Portal.AdminWebApp.ViewModels
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
-@model UserProfileViewModel
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles
+@model UserProfileDto
 
 @{
-    ViewData["Title"] = "Manage User Profile - " + Model.UserProfile.DisplayName;
+    ViewData["Title"] = "Manage User Profile - " + Model.DisplayName;
 
     var gameServers = (List<GameServerDto>) ViewData["GameServers"];
 }
@@ -26,16 +27,16 @@
                     <div class="ibox-content">
                         <dl class="row">
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.UserProfile.DisplayName)
+                                @Html.DisplayNameFor(model => model.DisplayName)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.UserProfile.DisplayName)
+                                @Html.DisplayFor(model => model.DisplayName)
                             </dd>
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.UserProfile.Email)
+                                @Html.DisplayNameFor(model => model.Email)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.UserProfile.Email)
+                                @Html.DisplayFor(model => model.Email)
                             </dd>
                         </dl>
                     </div>
@@ -53,7 +54,7 @@
                     </div>
                     <div class="ibox-content">
                         <form asp-action="CreateUserClaim">
-                            <input id="id" name="id" type="hidden" value="@Model.UserProfile.UserProfileId"/>
+                            <input id="id" name="id" type="hidden" value="@Model.UserProfileId"/>
 
                             <div class="form-group">
                                 <label class="control-label">Permission Type</label>
@@ -99,13 +100,13 @@
                         <table class="table table-responsive w-100 d-block d-md-table">
                             <thead>
                             <tr>
-                                <td>Permission Type</td>
-                                <td>Game Server</td>
-                                <td></td>
+                                <th>Claim Type</th>
+                                <th>Claim Value</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach (var claim in Model.UserProfile.UserProfileClaims)
+                            @foreach (var claim in Model.UserProfileClaims)
                             {
                                 <tr>
                                     @{
@@ -118,7 +119,7 @@
                                         @{
                                             if (server == null)
                                             {
-                                                <text>Invalid Claim or you do not have permissions over this claim</text>
+                                                <text>@claim.ClaimValue</text>
                                             }
                                             else
                                             {
@@ -131,7 +132,7 @@
                                             if (server != null)
                                             {
                                                 <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
-                                                    <input id="id" name="id" type="hidden" value="@Model.UserProfile.UserProfileId"/>
+                                                    <input id="id" name="id" type="hidden" value="@Model.UserProfileId"/>
                                                     <input id="claimId" name="claimId" type="hidden" value="@claim.UserProfileClaimId"/>
 
                                                     <button class="btn btn-danger" type="submit">

@@ -6,6 +6,7 @@
     [ChatType] INT NOT NULL,
     [Message] NVARCHAR (MAX) NOT NULL,
     [Timestamp]  DATETIME NOT NULL,
+    [Locked] BIT DEFAULT 0 NOT NULL,
     CONSTRAINT [PK_dbo.ChatMessage] PRIMARY KEY CLUSTERED ([ChatMessageId] ASC),
     CONSTRAINT [FK_dbo.ChatMessages_dbo.GameServers_GameServerId] FOREIGN KEY ([GameServerId]) REFERENCES [dbo].[GameServers] ([GameServerId]),
     CONSTRAINT [FK_dbo.ChatMessages_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])

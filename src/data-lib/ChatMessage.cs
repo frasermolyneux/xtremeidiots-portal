@@ -26,6 +26,7 @@ namespace XtremeIdiots.Portal.DataLib
         public string Message { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Timestamp { get; set; }
+        public bool Locked { get; set; }
 
         [ForeignKey("GameServerId")]
         [InverseProperty("ChatMessages")]

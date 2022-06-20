@@ -44,9 +44,9 @@ public class PlayersController : ControllerBase, IPlayersApi
     async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayer(Guid playerId)
     {
         var player = await context.Players
-            .Include(p => p.PlayerAliases)
-            .Include(p => p.PlayerIpAddresses)
-            .Include(p => p.AdminActions)
+            .Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed))
+            .Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed))
+            .Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile)
             .SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null)
@@ -75,9 +75,9 @@ public class PlayersController : ControllerBase, IPlayersApi
     async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)
     {
         var player = await context.Players
-            .Include(p => p.PlayerAliases)
-            .Include(p => p.PlayerIpAddresses)
-            .Include(p => p.AdminActions)
+            .Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed))
+            .Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed))
+            .Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile)
             .SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
 
         if (player == null)

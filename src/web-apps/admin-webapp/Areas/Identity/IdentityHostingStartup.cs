@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
+
 using XtremeIdiots.Portal.AdminWebApp.Areas.Identity;
 using XtremeIdiots.Portal.AdminWebApp.Areas.Identity.Data;
 
@@ -25,6 +27,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.User.RequireUniqueEmail = true;
+                    options.User.AllowedUserNameCharacters = string.Empty;
                 }).AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<IdentityDataContext>();
 

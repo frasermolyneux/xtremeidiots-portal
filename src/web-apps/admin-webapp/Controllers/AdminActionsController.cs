@@ -150,13 +150,25 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var canChangeAdminActionAdmin = await authorizationService.AuthorizeAsync(User, adminActionApiResponse.Result.Player.GameType, AuthPolicies.ChangeAdminActionAdmin);
 
-            if (canChangeAdminActionAdmin.Succeeded)
-                editAdminActionDto.AdminId = model.AdminId;
+            if (canChangeAdminActionAdmin.Succeeded && adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId != model.AdminId)
+            {
+                if (string.IsNullOrWhiteSpace(model.AdminId))
+                {
+                    editAdminActionDto.AdminId = "21145"; // Admin
+                }
+                else
+                {
+                    editAdminActionDto.AdminId = model.AdminId;
+                }
+            }
 
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, model.Text, adminActionApiResponse.Result.UserProfile.XtremeIdiotsForumId);
+            {
+                var adminForumId = canChangeAdminActionAdmin.Succeeded && adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId != model.AdminId ? editAdminActionDto.AdminId : adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId;
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, model.Text, adminForumId);
+            }
 
             var eventTelemetry = new EventTelemetry("EditAdminAction").Enrich(User).Enrich(adminActionApiResponse.Result.Player).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -205,7 +217,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfile.XtremeIdiotsForumId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId);
 
             var eventTelemetry = new EventTelemetry("BanLifted").Enrich(User).Enrich(adminActionApiResponse.Result.Player).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -254,7 +266,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
-                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId);
+                await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, User.XtremeIdiotsId());
 
             var eventTelemetry = new EventTelemetry("BanClaimed").Enrich(User).Enrich(adminActionApiResponse.Result.Player).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);

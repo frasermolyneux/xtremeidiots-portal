@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Configuration;
 using XtremeIdiots.Portal.SyncFunc.Interfaces;
@@ -45,14 +46,14 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             var blobClient = containerClient.GetBlobClient(blobKey);
 
-            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, 0, 500, AdminActionOrder.CreatedAsc);
+            var adminActionsApiResponse = await GetActiveBans(gameType);
 
             var externalBansStream = await GetExternalBanFileForGame(gameType);
             externalBansStream.Seek(externalBansStream.Length, SeekOrigin.Begin);
 
             await using (var streamWriter = new StreamWriter(externalBansStream))
             {
-                foreach (var adminActionDto in adminActionsApiResponse.Result.Entries)
+                foreach (var adminActionDto in adminActionsApiResponse)
                     streamWriter.WriteLine($"{adminActionDto.Player?.Guid} [BANSYNC]-{adminActionDto.Player?.Username}");
 
                 streamWriter.Flush();
@@ -111,6 +112,25 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
             }
 
             return new MemoryStream();
+        }
+
+        private async Task<List<AdminActionDto>> GetActiveBans(GameType gameType)
+        {
+            const int TakeEntries = 500;
+            var adminActions = new List<AdminActionDto>();
+
+            var skip = 0;
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, skip, TakeEntries, AdminActionOrder.CreatedAsc);
+
+            do
+            {
+                adminActions.Concat(adminActionsApiResponse.Result.Entries);
+
+                skip += TakeEntries;
+                adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, skip, TakeEntries, AdminActionOrder.CreatedAsc);
+            } while (adminActionsApiResponse.Result.Entries.Count > 0);
+
+            return adminActions;
         }
     }
 }

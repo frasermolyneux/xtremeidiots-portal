@@ -124,7 +124,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Repository
 
             do
             {
-                adminActions.Concat(adminActionsApiResponse.Result.Entries);
+                adminActions = adminActions.Concat(adminActionsApiResponse.Result.Entries).ToList();
 
                 skip += TakeEntries;
                 adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(gameType, null, null, AdminActionFilter.ActiveBans, skip, TakeEntries, AdminActionOrder.CreatedAsc);

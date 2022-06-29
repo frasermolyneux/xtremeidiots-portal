@@ -63,6 +63,25 @@ public class PlayersController : ControllerBase, IPlayersApi
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
 
+    [HttpHead]
+    [Route("repository/players/by-game-type/{gameType}/{guid}")]
+    public async Task<IActionResult> HeadPlayerByGameType(GameType gameType, string guid)
+    {
+        var response = await ((IPlayersApi)this).HeadPlayerByGameType(gameType, guid);
+
+        return response.ToHttpResult();
+    }
+
+    async Task<ApiResponseDto> IPlayersApi.HeadPlayerByGameType(GameType gameType, string guid)
+    {
+        var player = await context.Players.AnyAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
+
+        if (player == false)
+            return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
+
+        return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK);
+    }
+
     [HttpGet]
     [Route("repository/players/by-game-type/{gameType}/{guid}")]
     public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid)

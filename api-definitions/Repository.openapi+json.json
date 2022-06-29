@@ -1208,6 +1208,34 @@
             }
         },
         "/repository/players/by-game-type/{gameType}/{guid}": {
+            "head": {
+                "tags": [
+                    "Players"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameType",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/GameType"
+                        }
+                    },
+                    {
+                        "name": "guid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
             "get": {
                 "tags": [
                     "Players"

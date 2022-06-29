@@ -40,7 +40,7 @@ public class PlayerEventsIngest
         [ServiceBusTrigger("player_connected_queue", Connection = "service-bus-connection-string")]
         string myQueueItem)
     {
-        OnPlayerConnected onPlayerConnected;
+        OnPlayerConnected? onPlayerConnected;
         try
         {
             onPlayerConnected = JsonConvert.DeserializeObject<OnPlayerConnected>(myQueueItem);
@@ -69,9 +69,9 @@ public class PlayerEventsIngest
         onPlayerConnectedTelemetry.Properties.Add("Guid", onPlayerConnected.Guid);
         telemetryClient.TrackEvent(onPlayerConnectedTelemetry);
 
-        var playerDtoApiResponse = await _repositoryApiClient.Players.GetPlayerByGameType(gameType, onPlayerConnected.Guid);
+        var playerExistsApiResponse = await _repositoryApiClient.Players.HeadPlayerByGameType(gameType, onPlayerConnected.Guid);
 
-        if (playerDtoApiResponse.IsNotFound)
+        if (playerExistsApiResponse.IsNotFound)
         {
             var player = new CreatePlayerDto(onPlayerConnected.Username, onPlayerConnected.Guid, onPlayerConnected.GameType.ToGameType())
             {
@@ -82,9 +82,10 @@ public class PlayerEventsIngest
         }
         else
         {
-            if (onPlayerConnected.EventGeneratedUtc > playerDtoApiResponse.Result.LastSeen)
+            var playerId = await GetPlayerId(gameType, onPlayerConnected.Guid);
+            if (playerId != Guid.Empty)
             {
-                var editPlayerDto = new EditPlayerDto(playerDtoApiResponse.Result.PlayerId)
+                var editPlayerDto = new EditPlayerDto(playerId)
                 {
                     Username = onPlayerConnected.Username,
                     IpAddress = onPlayerConnected.IpAddress
@@ -100,7 +101,7 @@ public class PlayerEventsIngest
         [ServiceBusTrigger("chat_message_queue", Connection = "service-bus-connection-string")]
         string myQueueItem)
     {
-        OnChatMessage onChatMessage;
+        OnChatMessage? onChatMessage;
         try
         {
             onChatMessage = JsonConvert.DeserializeObject<OnChatMessage>(myQueueItem);
@@ -148,7 +149,7 @@ public class PlayerEventsIngest
      [ServiceBusTrigger("map_vote_queue", Connection = "service-bus-connection-string")]
         string myQueueItem)
     {
-        OnMapVote onMapVote;
+        OnMapVote? onMapVote;
         try
         {
             onMapVote = JsonConvert.DeserializeObject<OnMapVote>(myQueueItem);
@@ -167,9 +168,6 @@ public class PlayerEventsIngest
 
         if (string.IsNullOrWhiteSpace(onMapVote.Guid))
             throw new Exception("OnMapVote event contained null or empty 'Guid'");
-
-        if (onMapVote.Like == null)
-            throw new Exception("OnMapVote event contained null 'Like'");
 
         if (!Enum.TryParse(onMapVote.GameType, out GameType gameType))
             throw new Exception("OnMapVote event contained invalid 'GameType'");

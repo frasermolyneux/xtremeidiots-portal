@@ -15,13 +15,9 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
 {
     public class PlayersApi : BaseApi, IPlayersApi
     {
-        private readonly IOptions<RepositoryApiClientOptions> options;
-        private readonly IMemoryCache memoryCache;
-
         public PlayersApi(ILogger<PlayersApi> logger, IOptions<RepositoryApiClientOptions> options, IRepositoryApiTokenProvider repositoryApiTokenProvider, IMemoryCache memoryCache) : base(logger, options, repositoryApiTokenProvider)
         {
-            this.options = options;
-            this.memoryCache = memoryCache;
+
         }
 
         public async Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId)
@@ -30,6 +26,14 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse<PlayerDto>();
+        }
+
+        public async Task<ApiResponseDto> HeadPlayerByGameType(GameType gameType, string guid)
+        {
+            var request = await CreateRequest($"players/by-game-type/{gameType}/{guid}", Method.Head);
+            var response = await ExecuteAsync(request);
+
+            return response.ToApiResponse();
         }
 
         public async Task<ApiResponseDto<PlayerDto>> GetPlayerByGameType(GameType gameType, string guid)

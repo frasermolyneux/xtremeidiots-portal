@@ -34,20 +34,27 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     [HttpGet]
     [Route("repository/players/{playerId}")]
-    public async Task<IActionResult> GetPlayer(Guid playerId)
+    public async Task<IActionResult> GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions)
     {
-        var response = await ((IPlayersApi)this).GetPlayer(playerId);
+        var response = await ((IPlayersApi)this).GetPlayer(playerId, playerEntityOptions);
 
         return response.ToHttpResult();
     }
 
-    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayer(Guid playerId)
+    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions)
     {
-        var player = await context.Players
-            .Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed))
-            .Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed))
-            .Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile)
-            .SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var query = context.Players.AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+            query = query.Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed)).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+            query = query.Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed)).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+            query = query.Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile).AsQueryable();
+
+        var player = await query.SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);

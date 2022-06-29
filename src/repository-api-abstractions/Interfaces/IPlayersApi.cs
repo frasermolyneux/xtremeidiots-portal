@@ -6,7 +6,7 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Interfaces
 {
     public interface IPlayersApi
     {
-        Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId);
+        Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions);
         Task<ApiResponseDto> HeadPlayerByGameType(GameType gameType, string guid);
         Task<ApiResponseDto<PlayerDto>> GetPlayerByGameType(GameType gameType, string guid);
         Task<ApiResponseDto<PlayersCollectionDto>> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order);

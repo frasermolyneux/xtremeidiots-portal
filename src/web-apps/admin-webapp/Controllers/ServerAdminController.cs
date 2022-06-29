@@ -300,7 +300,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayerChatLog(Guid id)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();

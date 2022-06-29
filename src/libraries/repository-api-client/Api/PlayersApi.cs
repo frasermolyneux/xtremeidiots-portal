@@ -19,10 +19,11 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
         {
 
         }
-
-        public async Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId)
+        public async Task<ApiResponseDto<PlayerDto>> GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions)
         {
             var request = await CreateRequest($"players/{playerId}", Method.Get);
+            request.AddQueryParameter(nameof(playerEntityOptions), playerEntityOptions);
+
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse<PlayerDto>();

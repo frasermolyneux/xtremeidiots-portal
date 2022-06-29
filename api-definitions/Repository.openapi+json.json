@@ -1177,6 +1177,13 @@
                             "type": "string",
                             "format": "uuid"
                         }
+                    },
+                    {
+                        "name": "playerEntityOptions",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/PlayerEntityOptions"
+                        }
                     }
                 ],
                 "responses": {
@@ -1888,6 +1895,16 @@
                     "GameTypeDesc",
                     "PopularityAsc",
                     "PopularityDesc"
+                ],
+                "type": "string",
+                "format": "int32"
+            },
+            "PlayerEntityOptions": {
+                "enum": [
+                    "None",
+                    "Aliases",
+                    "IpAddresses",
+                    "AdminActions"
                 ],
                 "type": "string",
                 "format": "int32"

@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateAdminActionViewModel model)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();

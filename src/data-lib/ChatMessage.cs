@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.DataLib
 {
-    [Index("ChatMessageId", Name = "IX_ChatMessageId", IsUnique = true)]
     [Index("PlayerId", "GameServerId", Name = "IX_ChatMessages")]
     [Index("GameServerId", Name = "IX_GameServerId")]
     [Index("PlayerId", Name = "IX_PlayerId")]

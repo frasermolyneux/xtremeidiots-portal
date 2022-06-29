@@ -9,10 +9,6 @@
 );
 
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [IX_PlayerAliasId]
-    ON [dbo].[PlayerAlias]([PlayerAliasId] ASC);
-
-GO
 CREATE NONCLUSTERED INDEX [IX_PlayerId]
     ON [dbo].[PlayerAlias]([PlayerId] ASC);
 

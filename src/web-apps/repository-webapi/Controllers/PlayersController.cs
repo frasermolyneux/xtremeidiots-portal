@@ -59,13 +59,17 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
 
-        var playerIpAddresses = await context.PlayerIpAddresses
-            .Include(ip => ip.Player)
-            .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
-            .ToListAsync();
-
         var result = mapper.Map<PlayerDto>(player);
-        result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.RelatedPlayers))
+        {
+            var playerIpAddresses = await context.PlayerIpAddresses
+                .Include(ip => ip.Player)
+                .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
+                .ToListAsync();
+
+            result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+        }
 
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }
@@ -91,20 +95,27 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     [HttpGet]
     [Route("repository/players/by-game-type/{gameType}/{guid}")]
-    public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid)
+    public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid, PlayerEntityOptions playerEntityOptions)
     {
-        var response = await ((IPlayersApi)this).GetPlayerByGameType(gameType, guid);
+        var response = await ((IPlayersApi)this).GetPlayerByGameType(gameType, guid, playerEntityOptions);
 
         return response.ToHttpResult();
     }
 
-    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid)
+    async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid, PlayerEntityOptions playerEntityOptions)
     {
-        var player = await context.Players
-            .Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed))
-            .Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed))
-            .Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile)
-            .SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
+        var query = context.Players.AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+            query = query.Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed)).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+            query = query.Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed)).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+            query = query.Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile).AsQueryable();
+
+        var player = await query.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
 
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
@@ -122,7 +133,7 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     [HttpGet]
     [Route("repository/players")]
-    public async Task<IActionResult> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int? skipEntries, int? takeEntries, PlayersOrder? order)
+    public async Task<IActionResult> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int? skipEntries, int? takeEntries, PlayersOrder? order, PlayerEntityOptions playerEntityOptions)
     {
         if (!skipEntries.HasValue)
             skipEntries = 0;
@@ -130,18 +141,23 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (!takeEntries.HasValue)
             takeEntries = 20;
 
-        var response = await ((IPlayersApi)this).GetPlayers(gameType, filter, filterString, skipEntries.Value, takeEntries.Value, order);
+        var response = await ((IPlayersApi)this).GetPlayers(gameType, filter, filterString, skipEntries.Value, takeEntries.Value, order, playerEntityOptions);
 
         return response.ToHttpResult();
     }
 
-    async Task<ApiResponseDto<PlayersCollectionDto>> IPlayersApi.GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order)
+    async Task<ApiResponseDto<PlayersCollectionDto>> IPlayersApi.GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order, PlayerEntityOptions playerEntityOptions)
     {
-        var query = context.Players
-            .Include(p => p.PlayerAliases)
-            .Include(p => p.PlayerIpAddresses)
-            .Include(p => p.AdminActions)
-            .AsQueryable();
+        var query = context.Players.AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+            query = query.Include(p => p.PlayerAliases).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+            query = query.Include(p => p.PlayerIpAddresses).AsQueryable();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+            query = query.Include(p => p.AdminActions).AsQueryable();
 
         query = ApplyFilter(query, gameType, null, null);
         var totalCount = await query.CountAsync();

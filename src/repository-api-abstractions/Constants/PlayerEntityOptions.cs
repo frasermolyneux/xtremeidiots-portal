@@ -6,6 +6,7 @@
         None = 0,
         Aliases = 1,
         IpAddresses = 2,
-        AdminActions = 4
+        AdminActions = 4,
+        RelatedPlayers = 8
     }
 }

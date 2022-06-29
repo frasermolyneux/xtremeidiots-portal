@@ -251,9 +251,9 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             if (memoryCache.TryGetValue(cacheKey, out Guid playerId))
                 return playerId;
 
-            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameType, guid);
+            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None);
 
-            if (playerDtoApiResponse.IsSuccess)
+            if (playerDtoApiResponse.IsSuccess && playerDtoApiResponse.Result != null)
             {
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
                 memoryCache.Set(cacheKey, playerDtoApiResponse.Result.PlayerId, cacheEntryOptions);

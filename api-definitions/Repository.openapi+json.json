@@ -1263,6 +1263,13 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "playerEntityOptions",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/PlayerEntityOptions"
+                        }
                     }
                 ],
                 "responses": {
@@ -1320,6 +1327,13 @@
                         "in": "query",
                         "schema": {
                             "$ref": "#/components/schemas/PlayersOrder"
+                        }
+                    },
+                    {
+                        "name": "playerEntityOptions",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/PlayerEntityOptions"
                         }
                     }
                 ],
@@ -1904,7 +1918,8 @@
                     "None",
                     "Aliases",
                     "IpAddresses",
-                    "AdminActions"
+                    "AdminActions",
+                    "RelatedPlayers"
                 ],
                 "type": "string",
                 "format": "int32"

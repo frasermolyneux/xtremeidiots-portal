@@ -37,17 +37,20 @@ namespace XtremeIdiots.Portal.RepositoryApiClient.Api
             return response.ToApiResponse();
         }
 
-        public async Task<ApiResponseDto<PlayerDto>> GetPlayerByGameType(GameType gameType, string guid)
+        public async Task<ApiResponseDto<PlayerDto>> GetPlayerByGameType(GameType gameType, string guid, PlayerEntityOptions playerEntityOptions)
         {
             var request = await CreateRequest($"players/by-game-type/{gameType}/{guid}", Method.Get);
+            request.AddQueryParameter(nameof(playerEntityOptions), playerEntityOptions);
+
             var response = await ExecuteAsync(request);
 
             return response.ToApiResponse<PlayerDto>();
         }
 
-        public async Task<ApiResponseDto<PlayersCollectionDto>> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order)
+        public async Task<ApiResponseDto<PlayersCollectionDto>> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int skipEntries, int takeEntries, PlayersOrder? order, PlayerEntityOptions playerEntityOptions)
         {
             var request = await CreateRequest("players", Method.Get);
+            request.AddQueryParameter(nameof(playerEntityOptions), playerEntityOptions);
 
             if (gameType.HasValue)
                 request.AddQueryParameter("gameType", gameType.ToString());

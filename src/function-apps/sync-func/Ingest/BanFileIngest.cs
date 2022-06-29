@@ -48,7 +48,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
                     _logger.LogWarning($"Could not validate guid {guid} for {gameType}");
                     continue;
                 }
-                var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
+                var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid, PlayerEntityOptions.None);
 
                 if (playerDtoApiResponse.IsNotFound)
                 {
@@ -56,7 +56,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Ingest
 
                     await repositoryApiClient.Players.CreatePlayer(new CreatePlayerDto(name, guid, gameType.ToGameType()));
 
-                    playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid);
+                    playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameTypeEnum, guid, PlayerEntityOptions.None);
 
                     if (playerDtoApiResponse == null)
                         throw new Exception("Newly created player could not be retrieved from database");

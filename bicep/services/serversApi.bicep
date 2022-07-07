@@ -74,44 +74,44 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
       appSettings: [
         {
-          'name': 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
         }
         {
-          'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
         }
         {
-          'name': 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          'value': '~2'
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~2'
         }
         {
-          'name': 'ASPNETCORE_ENVIRONMENT'
-          'value': 'Production'
+          name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Production'
         }
         {
-          'name': 'WEBSITE_RUN_FROM_PACKAGE'
-          'value': '1'
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
         }
         {
-          'name': 'AzureAd:TenantId'
-          'value': tenant().tenantId
+          name: 'AzureAd:TenantId'
+          value: tenant().tenantId
         }
         {
-          'name': 'AzureAd:Instance'
-          'value': environment().authentication.loginEndpoint
+          name: 'AzureAd:Instance'
+          value: environment().authentication.loginEndpoint
         }
         {
-          'name': 'AzureAd:ClientId'
-          'value': parServersApiAppId
+          name: 'AzureAd:ClientId'
+          value: parServersApiAppId
         }
         {
-          'name': 'AzureAd:ClientSecret'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
+          name: 'AzureAd:ClientSecret'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
         }
         {
-          'name': 'AzureAd:Audience'
-          'value': 'api://portal-servers-api-${parEnvironment}'
+          name: 'AzureAd:Audience'
+          value: 'api://portal-servers-api-${parEnvironment}'
         }
         {
           name: 'apim-base-url'
@@ -154,44 +154,44 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
 
       appSettings: [
         {
-          'name': 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
         }
         {
-          'name': 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
         }
         {
-          'name': 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          'value': '~2'
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~2'
         }
         {
-          'name': 'ASPNETCORE_ENVIRONMENT'
-          'value': 'Production'
+          name: 'ASPNETCORE_ENVIRONMENT'
+          value: 'Production'
         }
         {
-          'name': 'WEBSITE_RUN_FROM_PACKAGE'
-          'value': '1'
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
         }
         {
-          'name': 'AzureAd:TenantId'
-          'value': tenant().tenantId
+          name: 'AzureAd:TenantId'
+          value: tenant().tenantId
         }
         {
-          'name': 'AzureAd:Instance'
-          'value': environment().authentication.loginEndpoint
+          name: 'AzureAd:Instance'
+          value: environment().authentication.loginEndpoint
         }
         {
-          'name': 'AzureAd:ClientId'
-          'value': parServersApiAppId
+          name: 'AzureAd:ClientId'
+          value: parServersApiAppId
         }
         {
-          'name': 'AzureAd:ClientSecret'
-          'value': '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
+          name: 'AzureAd:ClientSecret'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
         }
         {
-          'name': 'AzureAd:Audience'
-          'value': 'api://portal-servers-api-${parEnvironment}'
+          name: 'AzureAd:Audience'
+          value: 'api://portal-servers-api-${parEnvironment}'
         }
         {
           name: 'apim-base-url'
@@ -364,7 +364,7 @@ resource serversApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics
     httpCorrelationProtocol: 'W3C'
     logClientIp: true
     loggerId: resourceId('Microsoft.ApiManagement/service/loggers', apiManagement.name, appInsights.name)
-    operationNameFormat: 'Name'
+    operationNameFormat: 'name'
 
     sampling: {
       percentage: 100

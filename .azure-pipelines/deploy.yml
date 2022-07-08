@@ -3,10 +3,16 @@ trigger: none
 pool:
   vmImage: 'ubuntu-latest'
 
+resources:
+  pipelines:
+  - pipeline: xtremeidiots-portal.Validate
+    source: xtremeidiots-portal.Validate
+    trigger: true
+
 variables:
   environment: 'prd'
   location: 'uksouth'
-  subscription: 'XI-Pay-As-You-Go'
+  subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd'
 
 stages: 
 - stage: Build

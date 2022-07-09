@@ -26,7 +26,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: parAppInsightsName
 }
 
-resource apiManagement 'Microsoft.ApiManagement/service@2021-08-01' existing = {
+resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
   name: parApiManagementName
 }
 

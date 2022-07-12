@@ -85,13 +85,16 @@ stages:
                 parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
                 parSqlAdminPassword=Placeholder
 
-            az deployment group validate `
-              --resource-group 'rg-portal-prd-uksouth' `
-              --template-file bicep/services.bicep `
-              --parameters @params/services.prd.json `
-              parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
-              parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
-              parServersApiAppId=00000000-0000-0000-0000-000000000000
+            if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
+            {
+              az deployment group validate `
+                --resource-group 'rg-portal-prd-uksouth' `
+                --template-file bicep/services.bicep `
+                --parameters @params/services.prd.json `
+                parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+                parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+                parServersApiAppId=00000000-0000-0000-0000-000000000000
+            }
 
       - task: AzureCLI@2
         name: RunWhatIfDeploy
@@ -108,10 +111,13 @@ stages:
                 parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
                 parSqlAdminPassword=Placeholder
 
-            az deployment group what-if `
-              --resource-group 'rg-portal-prd-uksouth' `
-              --template-file bicep/services.bicep `
-              --parameters @params/services.prd.json `
-              parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
-              parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
-              parServersApiAppId=00000000-0000-0000-0000-000000000000
+            if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
+            {
+              az deployment group what-if `
+                --resource-group 'rg-portal-prd-uksouth' `
+                --template-file bicep/services.bicep `
+                --parameters @params/services.prd.json `
+                parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+                parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+                parServersApiAppId=00000000-0000-0000-0000-000000000000
+            }

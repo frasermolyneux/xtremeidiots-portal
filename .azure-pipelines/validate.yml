@@ -55,7 +55,7 @@ stages:
 
   - template: templates/build-sql-database.yml
 
-  - stage: ValidateBicep
+- stage: ValidateBicep
   jobs: 
   - job: LintCode
     displayName: Lint Code

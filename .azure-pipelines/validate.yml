@@ -54,3 +54,64 @@ stages:
       projectName: 'servers-webapi'
 
   - template: templates/build-sql-database.yml
+
+  - stage: ValidateBicep
+  jobs: 
+  - job: LintCode
+    displayName: Lint Code
+    steps:
+      - script: |
+          az bicep build --file bicep/platform.bicep
+          az bicep build --file bicep/services.bicep
+        name: LintBicepCode
+        displayName: Run Bicep Linter
+
+  - job: ValidateBicepCode
+    dependsOn: [LintCode]
+    displayName: Validate Bicep Code
+    steps:
+      - task: AzureCLI@2
+        name: RunPreflightValidation
+        displayName: Run Preflight Validation
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub validate `
+              --template-file bicep/platform.bicep `
+              --location 'uksouth' `
+              --parameters @params/platform.prd.json `
+                parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
+                parSqlAdminPassword=Placeholder
+
+            az deployment group validate `
+              --resource-group 'rg-portal-prd-uksouth' `
+              --template-file bicep/services.bicep `
+              --parameters @params/services.prd.json `
+              parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+              parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+              parServersApiAppId=00000000-0000-0000-0000-000000000000
+
+      - task: AzureCLI@2
+        name: RunWhatIfDeploy
+        displayName: Run What-If Deploy
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub what-if `
+              --template-file bicep/platform.bicep `
+              --location 'uksouth' `
+              --parameters @params/platform.prd.json `
+                parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
+                parSqlAdminPassword=Placeholder
+
+            az deployment group what-if `
+              --resource-group 'rg-portal-prd-uksouth' `
+              --template-file bicep/services.bicep `
+              --parameters @params/services.prd.json `
+              parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+              parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+              parServersApiAppId=00000000-0000-0000-0000-000000000000

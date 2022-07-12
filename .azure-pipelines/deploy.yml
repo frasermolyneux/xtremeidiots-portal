@@ -12,7 +12,7 @@ resources:
 variables:
   environment: 'prd'
   location: 'uksouth'
-  subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd'
+  subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 
 stages: 
 - stage: Build
@@ -66,231 +66,231 @@ stages:
     parameters:
       publishArtifact: true
 
-- stage: DeployPrdPlatform
-
-  jobs:
-  - job: DeployAADResources
-    steps:
-      - task: AzureCLI@2
-        displayName: Create Database AAD Groups
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateDatabaseAADGroups.ps1'
-
-      - task: AzureCLI@2
-        displayName: Create Application Registrations
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
-
-      - task: AzureCLI@2
-        displayName: Create Application Credentials
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
-
-  - job: DeployPlatformBicep
-    dependsOn: [DeployAADResources]
-    steps:
-      - task: AzureCLI@2
-        displayName: DeployPlatformBicep
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            $sqlAdminPassword = (az keyvault secret show --name "sql-portal-$(environment)-$(location)-01-admin-password" --vault-name "kv-portal-$(environment)-$(location)-01" --query 'value') | ConvertFrom-Json
-            $sqlAdminGroupOid = (az ad group show --group "sg-sql-portal-$(environment)-admins" --query 'id')  | ConvertFrom-Json
-
-            az deployment sub create `
-              --template-file bicep/platform.bicep `
-              --location $(location) `
-              --parameters @params/platform.prd.json `
-                parLocation=$(location) `
-                parEnvironment=$(environment) `
-                parSqlAdminGroupOid=$sqlAdminGroupOid `
-                parSqlAdminPassword=$sqlAdminPassword
-
-  - job: DeployPlatformPermissions
-    dependsOn: [DeployPlatformBicep]
-    steps:
-      - task: AzureCLI@2
-        displayName: SetDeployPrincipalPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          addSpnToEnvironment: true
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetDeployPrincipalPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: CreateSqlServerRoleAssignment
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '"sql-portal-$(environment)-$(location)-01" "rg-portal-$(environment)-$(location)-01"'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
-
-- stage: DeployPrdServices
-
-  jobs:
-  - job: DeployServicesBicep
-    steps:
-    - task: AzureCLI@2
-      displayName: DeployServicesBicep
-      inputs:
-        azureSubscription: $(subscription)
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $eventsApiAppName = "portal-events-api-$(environment)"
-          $repositoryApiName = "portal-repository-api-$(environment)"
-          $serversApiName = "portal-servers-api-$(environment)"
-
-          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
-          $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
-          $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
-
-          az deployment group create --resource-group "rg-portal-$(environment)-$(location)-01" `
-              --template-file bicep/services.bicep `
-              --parameters @params/services.prd.json `
-              parLocation=$(location) `
-              parEnvironment=$(environment) `
-              parEventsApiAppId=$eventsApiAppId `
-              parRepositoryApiAppId=$repositoryApiAppId `
-              parServersApiAppId=$serversApiAppId 
-
-  - job: DeployServicesPermissions
-    dependsOn: [DeployServicesBicep]
-    steps:
-      - task: AzureCLI@2
-        displayName: SetIngestApiFuncAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetRepositoryApiAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryApiAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetRepositoryAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetServersWebApiPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersWebApiPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetAdminWebAppPermissions
-        inputs:
-          azureSubscription: $(subscription)
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '$(environment)'
-          scriptPath: '$(Build.sourcesDirectory)/scripts/SetAdminWebAppPermissions.ps1'
-
-- stage: DeployPrdArtifacts
-
-  jobs:
-  - template: templates/deploy-sql-database.yml
-    parameters:
-      jobName: DeploySqlDatabase
-      serverName: "sql-portal-$(environment)-$(location)-01.database.windows.net"
-      databaseName: 'portaldb'
-      subscription: $(subscription)
-      sqlCmdArgs: '/Variables:env=$(environment)'
-
-  - template: templates/deploy-web-app.yml
-    parameters:
-      dependsOn: ['DeploySqlDatabase']
-      projectName: repository-webapi
-      jobName: DeployRepositoryWebApi
-      webAppName: "webapi-repository-portal-$(environment)-$(location)-01"
-      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-      blueGreenDeploy: true
-
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: repository-func
-      jobName: DeployRepositoryFunctionApp
-      functionAppName: "fn-repository-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: ingest-func
-      jobName: DeployIngestFunctionApp
-      functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: events-func
-      jobName: DeployEventsFunctionApp
-      functionAppName: "fn-events-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-      blueGreenDeploy: true
-
-  - template: templates/deploy-function-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: sync-func
-      jobName: DeploySyncFunctionApp
-      functionAppName: "fn-sync-portal-$(environment)-$(location)-01"
-      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-
-  - template: templates/deploy-web-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: servers-webapi
-      jobName: DeployServersWebApi
-      webAppName: "webapi-servers-portal-prd-uksouth-01"
-      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-      blueGreenDeploy: true
-
-  - template: templates/deploy-web-app.yml
-    parameters:
-      dependsOn: ['DeployRepositoryWebApi']
-      projectName: admin-webapp
-      jobName: DeployAdminWebApp
-      webAppName: "webapp-admin-portal-$(environment)-$(location)-01"
-      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-      subscription: $(subscription)
-      blueGreenDeploy: true
+#- stage: DeployPrdPlatform
+#
+#  jobs:
+#  - job: DeployAADResources
+#    steps:
+#      - task: AzureCLI@2
+#        displayName: Create Database AAD Groups
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateDatabaseAADGroups.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: Create Application Registrations
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: Create Application Credentials
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
+#
+#  - job: DeployPlatformBicep
+#    dependsOn: [DeployAADResources]
+#    steps:
+#      - task: AzureCLI@2
+#        displayName: DeployPlatformBicep
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'inlineScript'
+#          inlineScript: |
+#            $sqlAdminPassword = (az keyvault secret show --name "sql-portal-$(environment)-$(location)-01-admin-password" --vault-name "kv-portal-$(environment)-$(location)-01" --query 'value') | ConvertFrom-Json
+#            $sqlAdminGroupOid = (az ad group show --group "sg-sql-portal-$(environment)-admins" --query 'id')  | ConvertFrom-Json
+#
+#            az deployment sub create `
+#              --template-file bicep/platform.bicep `
+#              --location $(location) `
+#              --parameters @params/platform.prd.json `
+#                parLocation=$(location) `
+#                parEnvironment=$(environment) `
+#                parSqlAdminGroupOid=$sqlAdminGroupOid `
+#                parSqlAdminPassword=$sqlAdminPassword
+#
+#  - job: DeployPlatformPermissions
+#    dependsOn: [DeployPlatformBicep]
+#    steps:
+#      - task: AzureCLI@2
+#        displayName: SetDeployPrincipalPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          addSpnToEnvironment: true
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetDeployPrincipalPermissions.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: CreateSqlServerRoleAssignment
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '"sql-portal-$(environment)-$(location)-01" "rg-portal-$(environment)-$(location)-01"'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
+#
+#- stage: DeployPrdServices
+#
+#  jobs:
+#  - job: DeployServicesBicep
+#    steps:
+#    - task: AzureCLI@2
+#      displayName: DeployServicesBicep
+#      inputs:
+#        azureSubscription: $(subscription)
+#        scriptType: 'pscore'
+#        scriptLocation: 'inlineScript'
+#        inlineScript: |
+#          $eventsApiAppName = "portal-events-api-$(environment)"
+#          $repositoryApiName = "portal-repository-api-$(environment)"
+#          $serversApiName = "portal-servers-api-$(environment)"
+#
+#          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+#          $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
+#          $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
+#
+#          az deployment group create --resource-group "rg-portal-$(environment)-$(location)-01" `
+#              --template-file bicep/services.bicep `
+#              --parameters @params/services.prd.json `
+#              parLocation=$(location) `
+#              parEnvironment=$(environment) `
+#              parEventsApiAppId=$eventsApiAppId `
+#              parRepositoryApiAppId=$repositoryApiAppId `
+#              parServersApiAppId=$serversApiAppId 
+#
+#  - job: DeployServicesPermissions
+#    dependsOn: [DeployServicesBicep]
+#    steps:
+#      - task: AzureCLI@2
+#        displayName: SetIngestApiFuncAppPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: SetRepositoryApiAppPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryApiAppPermissions.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: SetRepositoryAppPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: SetServersWebApiPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersWebApiPermissions.ps1'
+#
+#      - task: AzureCLI@2
+#        displayName: SetAdminWebAppPermissions
+#        inputs:
+#          azureSubscription: $(subscription)
+#          scriptType: 'pscore'
+#          scriptLocation: 'scriptPath'
+#          arguments: '$(environment)'
+#          scriptPath: '$(Build.sourcesDirectory)/scripts/SetAdminWebAppPermissions.ps1'
+#
+#- stage: DeployPrdArtifacts
+#
+#  jobs:
+#  - template: templates/deploy-sql-database.yml
+#    parameters:
+#      jobName: DeploySqlDatabase
+#      serverName: "sql-portal-$(environment)-$(location)-01.database.windows.net"
+#      databaseName: 'portaldb'
+#      subscription: $(subscription)
+#      sqlCmdArgs: '/Variables:env=$(environment)'
+#
+#  - template: templates/deploy-web-app.yml
+#    parameters:
+#      dependsOn: ['DeploySqlDatabase']
+#      projectName: repository-webapi
+#      jobName: DeployRepositoryWebApi
+#      webAppName: "webapi-repository-portal-$(environment)-$(location)-01"
+#      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#      blueGreenDeploy: true
+#
+#  - template: templates/deploy-function-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: repository-func
+#      jobName: DeployRepositoryFunctionApp
+#      functionAppName: "fn-repository-portal-$(environment)-$(location)-01"
+#      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#
+#  - template: templates/deploy-function-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: ingest-func
+#      jobName: DeployIngestFunctionApp
+#      functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
+#      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#
+#  - template: templates/deploy-function-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: events-func
+#      jobName: DeployEventsFunctionApp
+#      functionAppName: "fn-events-portal-$(environment)-$(location)-01"
+#      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#      blueGreenDeploy: true
+#
+#  - template: templates/deploy-function-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: sync-func
+#      jobName: DeploySyncFunctionApp
+#      functionAppName: "fn-sync-portal-$(environment)-$(location)-01"
+#      functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#
+#  - template: templates/deploy-web-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: servers-webapi
+#      jobName: DeployServersWebApi
+#      webAppName: "webapi-servers-portal-prd-uksouth-01"
+#      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#      blueGreenDeploy: true
+#
+#  - template: templates/deploy-web-app.yml
+#    parameters:
+#      dependsOn: ['DeployRepositoryWebApi']
+#      projectName: admin-webapp
+#      jobName: DeployAdminWebApp
+#      webAppName: "webapp-admin-portal-$(environment)-$(location)-01"
+#      webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
+#      subscription: $(subscription)
+#      blueGreenDeploy: true

@@ -10,8 +10,7 @@ schedules:
       include:
       - main
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: 'Dedicated'
 
 stages: 
 - stage: Build

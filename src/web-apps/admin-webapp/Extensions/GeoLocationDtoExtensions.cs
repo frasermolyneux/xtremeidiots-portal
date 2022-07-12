@@ -1,5 +1,6 @@
-﻿using FM.GeoLocation.Contract.Models;
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
+
+using MX.GeoLocation.LookupApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Extensions
 {

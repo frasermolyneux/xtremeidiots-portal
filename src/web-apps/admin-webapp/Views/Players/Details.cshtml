@@ -1,5 +1,4 @@
 ﻿@inject IAuthorizationService AuthorizationService
-@using FM.GeoLocation.Contract
 @using Microsoft.AspNetCore.Authorization
 @using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
 @using XtremeIdiots.Portal.AdminWebApp.Extensions
@@ -46,7 +45,7 @@
                             {
                                 <li class="list-group-item">
                                     <span class="pull-right">
-                                        <a target="_blank" href="@GeoLocationUrls.LookupAddress(Model.Player.IpAddress)">
+                                        <a target="_blank" href="https://www.geo-location.net/Home/LookupAddress/(Model.Player.IpAddress)">
                                             @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
                                         </a>
                                     </span>
@@ -147,7 +146,7 @@
                 <div class="tab-content">
                     <div class="ibox-content tab-pane container active" style="height: 100%" id="location">
                         <div id="map" style="height: 450px; width: 100%;"></div>
-                        <a target="_blank" href="https://geo-location.net/">Powered by geo-location.net</a>
+                        <a target="_blank" href="https://www.geo-location.net/">Powered by geo-location.net</a>
                     </div>
 
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">

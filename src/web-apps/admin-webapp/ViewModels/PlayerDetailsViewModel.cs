@@ -1,4 +1,5 @@
-﻿using FM.GeoLocation.Contract.Models;
+﻿
+using MX.GeoLocation.LookupApi.Abstractions.Models;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 

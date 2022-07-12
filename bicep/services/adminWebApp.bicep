@@ -9,6 +9,10 @@ param parAppInsightsName string
 param parApiManagementName string
 param parSqlServerName string
 
+param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parTags object
+
 // Variables
 var varAdminWebAppName = 'webapp-admin-portal-${parEnvironment}-${parLocation}-01'
 
@@ -52,6 +56,21 @@ resource identityDatabase 'Microsoft.Sql/servers/databases@2021-11-01-preview' =
     zoneRedundant: false
     readScale: 'Disabled'
     requestedBackupStorageRedundancy: 'Zone'
+  }
+}
+
+module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: 'publicWebAppApiManagementSubscription'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+
+  params: {
+    parApiManagementName: parApiManagementName
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parWorkloadName: varAdminWebAppName
+    parKeyVaultName: parKeyVaultName
+    parSubscriptionScope: '/apis/geolocation-api'
+    parTags: parTags
   }
 }
 
@@ -154,6 +173,18 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'xtremeidiots-auth-client-secret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
         }
+        {
+          name: 'geolocation_apim_base_url'
+          value: 'https://apim-mx-platform-prd-uksouth.azure-api.net'
+        }
+        {
+          name: 'geolocation_apim_subscription_key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varAdminWebAppName}-subscription-apikey)'
+        }
+        {
+          name: 'geolocation_api_application_audience'
+          value: 'api://geolocation-lookup-api-prd'
+        }
       ]
     }
   }
@@ -237,6 +268,18 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         {
           name: 'xtremeidiots-auth-client-secret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+        }
+        {
+          name: 'geolocation_apim_base_url'
+          value: 'https://apim-mx-platform-prd-uksouth.azure-api.net'
+        }
+        {
+          name: 'geolocation_apim_subscription_key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varAdminWebAppName}-subscription-apikey)'
+        }
+        {
+          name: 'geolocation_api_application_audience'
+          value: 'api://geolocation-lookup-api-prd'
         }
       ]
     }

@@ -1,10 +1,11 @@
-using FM.GeoLocation.Contract.Interfaces;
 
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+
+using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
@@ -22,7 +23,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         private readonly ILogger<UpdateLiveStats> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
-        private readonly IGeoLocationClient geoLocationClient;
+        private readonly IGeoLocationApiClient geoLocationClient;
         private readonly TelemetryClient telemetryClient;
         private readonly IMemoryCache memoryCache;
 
@@ -30,7 +31,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             ILogger<UpdateLiveStats> logger,
             IRepositoryApiClient repositoryApiClient,
             IServersApiClient serversApiClient,
-            IGeoLocationClient geoLocationClient,
+            IGeoLocationApiClient geoLocationClient,
             TelemetryClient telemetryClient,
             IMemoryCache memoryCache)
         {
@@ -206,13 +207,13 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 if (string.IsNullOrWhiteSpace(livePlayerDto.IpAddress))
                     continue;
 
-                var lookupAddressResponse = await geoLocationClient.LookupAddress(livePlayerDto.IpAddress);
+                var lookupAddressResponse = await geoLocationClient.GeoLookup.GetGeoLocation(livePlayerDto.IpAddress);
 
-                if (lookupAddressResponse.Success)
+                if (lookupAddressResponse.IsSuccess && lookupAddressResponse.Result != null)
                 {
-                    livePlayerDto.Lat = lookupAddressResponse.GeoLocationDto.Latitude;
-                    livePlayerDto.Long = lookupAddressResponse.GeoLocationDto.Longitude;
-                    livePlayerDto.CountryCode = lookupAddressResponse.GeoLocationDto.CountryCode;
+                    livePlayerDto.Lat = lookupAddressResponse.Result.Latitude;
+                    livePlayerDto.Long = lookupAddressResponse.Result.Longitude;
+                    livePlayerDto.CountryCode = lookupAddressResponse.Result.CountryCode;
                 }
             }
 

@@ -1,7 +1,8 @@
-﻿using FM.GeoLocation.Contract.Interfaces;
-
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using MX.GeoLocation.GeoLocationApi.Client;
 
 using Newtonsoft.Json;
 
@@ -17,11 +18,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
     public class PlayersController : Controller
     {
-        private readonly IGeoLocationClient _geoLocationClient;
+        private readonly IGeoLocationApiClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
 
         public PlayersController(
-            IGeoLocationClient geoLocationClient,
+            IGeoLocationApiClient geoLocationClient,
             IRepositoryApiClient repositoryApiClient)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
@@ -123,10 +124,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.IpAddress))
                 try
                 {
-                    var geoLocation = await _geoLocationClient.LookupAddress(playerApiResponse.Result.IpAddress);
+                    var geoLocation = await _geoLocationClient.GeoLookup.GetGeoLocation(playerApiResponse.Result.IpAddress);
 
-                    if (geoLocation.Success)
-                        playerDetailsViewModel.GeoLocation = geoLocation.GeoLocationDto;
+                    if (geoLocation.IsSuccess && geoLocation.Result != null)
+                        playerDetailsViewModel.GeoLocation = geoLocation.Result;
                 }
                 catch
                 {

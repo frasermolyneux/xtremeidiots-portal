@@ -112,7 +112,8 @@ stages:
             az deployment sub create `
               --template-file bicep/platform.bicep `
               --location $(location) `
-              --parameters parLocation=$(location) `
+              --parameters @params/platform.prd.json `
+                parLocation=$(location) `
                 parEnvironment=$(environment) `
                 parSqlAdminGroupOid=$sqlAdminGroupOid `
                 parSqlAdminPassword=$sqlAdminPassword
@@ -161,7 +162,8 @@ stages:
 
           az deployment group create --resource-group "rg-portal-$(environment)-$(location)-01" `
               --template-file bicep/services.bicep `
-              --parameters parLocation=$(location) `
+              --parameters @params/services.prd.json `
+              parLocation=$(location) `
               parEnvironment=$(environment) `
               parEventsApiAppId=$eventsApiAppId `
               parRepositoryApiAppId=$repositoryApiAppId `

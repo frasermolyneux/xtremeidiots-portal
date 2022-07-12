@@ -10,8 +10,10 @@ $principalIdStaging = $webAppStaging.identity.principalId
 
 . "./scripts/functions/GrantRepositoryApiPermissionsToApp.ps1" -principalId $principalId -environment $environment
 . "./scripts/functions/GrantServersApiPermissionsToApp.ps1" -principalId $principalId -environment $environment
+. "./scripts/functions/GrantLookupApiPermissionsToApp.ps1" -principalId $principalId
 . "./scripts/functions/GrantRepositoryApiPermissionsToApp.ps1" -principalId $principalIdStaging -environment $environment
 . "./scripts/functions/GrantServersApiPermissionsToApp.ps1" -principalId $principalIdStaging -environment $environment
+. "./scripts/functions/GrantLookupApiPermissionsToApp.ps1" -principalId $principalIdStaging
 
 . "./scripts/functions/AddPrincipalToAADGroup.ps1" -principalId $principalId -groupName "sg-sql-portal-$environment-identitydb-readers"
 . "./scripts/functions/AddPrincipalToAADGroup.ps1" -principalId $principalId -groupName "sg-sql-portal-$environment-identitydb-writers"

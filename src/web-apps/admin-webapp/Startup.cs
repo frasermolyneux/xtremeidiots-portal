@@ -1,8 +1,8 @@
-using FM.GeoLocation.Client.Extensions;
-
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.AdminWebApp.Areas.Identity.Data;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
@@ -29,17 +29,10 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddLogging();
             services.AddApplicationInsightsTelemetry();
 
-            services.AddGeoLocationClient(options =>
+            services.AddGeoLocationApiClient(options =>
             {
-                options.BaseUrl = Configuration["geolocation-baseurl"];
-                options.ApiKey = Configuration["geolocation-apikey"];
-                options.UseMemoryCache = true;
-                options.BubbleExceptions = false;
-                options.CacheEntryLifeInMinutes = 60;
-                options.RetryTimespans = new[]
-                {
-                    TimeSpan.FromSeconds(1)
-                };
+                options.ApimBaseUrl = Configuration["geolocation_apim_base_url"];
+                options.ApimSubscriptionKey = Configuration["geolocation_apim_subscription_key"];
             });
 
             services.AddInvisionApiClient(options =>

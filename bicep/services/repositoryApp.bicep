@@ -9,6 +9,10 @@ param parAppInsightsName string
 param parApiManagementName string
 param parServiceBusName string
 
+param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parTags object
+
 // Variables
 var varRepositoryFuncAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}-01'
 
@@ -34,6 +38,21 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
 }
 
 // Module Resources
+module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: 'publicWebAppApiManagementSubscription'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+
+  params: {
+    parApiManagementName: parApiManagementName
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parWorkloadName: varRepositoryFuncAppName
+    parKeyVaultName: parKeyVaultName
+    parSubscriptionScope: '/apis/geolocation-api'
+    parTags: parTags
+  }
+}
+
 resource apiManagementSubscription 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
   name: '${apiManagement.name}-${varRepositoryFuncAppName}-subscription'
   parent: apiManagement
@@ -131,6 +150,18 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'geolocation-apikey'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=geolocation-apikey)'
+        }
+        {
+          name: 'geolocation_apim_base_url'
+          value: 'https://apim-mx-platform-prd-uksouth.azure-api.net'
+        }
+        {
+          name: 'geolocation_apim_subscription_key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varRepositoryFuncAppName}-subscription-apikey)'
+        }
+        {
+          name: 'geolocation_api_application_audience'
+          value: 'api://geolocation-lookup-api-prd'
         }
       ]
     }

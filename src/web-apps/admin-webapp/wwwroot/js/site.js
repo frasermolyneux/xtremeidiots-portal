@@ -76,7 +76,7 @@ function deleteDemoLink(demoId, gameType = null) {
 }
 
 function geoLocationIpLink(ipAddress) {
-    return "<a href='https://geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
+    return "<a href='https://www.geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
 }
 
 function manageClaimsLink(userId) {

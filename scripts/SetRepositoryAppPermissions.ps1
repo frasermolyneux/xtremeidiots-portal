@@ -7,3 +7,4 @@ $principalId = $identity.principalId
 
 . "./scripts/functions/GrantRepositoryApiPermissionsToApp.ps1" -principalId $principalId -environment $environment
 . "./scripts/functions/GrantServersApiPermissionsToApp.ps1" -principalId $principalId -environment $environment
+. "./scripts/functions/GrantLookupApiPermissionsToApp.ps1" -principalId $principalId

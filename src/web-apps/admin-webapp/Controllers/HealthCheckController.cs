@@ -1,5 +1,4 @@
-﻿using FM.GeoLocation.Contract.Interfaces;
-
+﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +12,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
     {
         private readonly List<HealthCheckComponent> _healthCheckComponents = new();
 
-        public HealthCheckController(
-            IInvisionApiClient forumsClient,
-            IGeoLocationClient geoLocationClient)
+        public HealthCheckController(IInvisionApiClient forumsClient)
         {
             _healthCheckComponents.Add(new HealthCheckComponent
             {
@@ -35,34 +32,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                             return new Tuple<bool, string>(false, ex.Message);
 
                         return new Tuple<bool, string>(false, "Failed to establish connection to the forums API");
-                    }
-                }
-            });
-
-            _healthCheckComponents.Add(new HealthCheckComponent
-            {
-                Name = "geolocation-api",
-                Critical = true,
-                HealthFunc = async () =>
-                {
-                    try
-                    {
-                        var (isHealthy, additionalData) = await geoLocationClient.HealthCheck();
-
-                        if (isHealthy)
-                            return new Tuple<bool, string>(true, "OK");
-
-                        if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                            return new Tuple<bool, string>(false, additionalData);
-
-                        return new Tuple<bool, string>(false, "Failed to establish connection to the GeoLocation API");
-                    }
-                    catch (Exception ex)
-                    {
-                        if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                            return new Tuple<bool, string>(false, ex.Message);
-
-                        return new Tuple<bool, string>(false, "Failed to establish connection to the GeoLocation API");
                     }
                 }
             });

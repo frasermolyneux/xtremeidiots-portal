@@ -7,6 +7,10 @@ param parEventsApiAppId string
 param parRepositoryApiAppId string
 param parServersApiAppId string
 
+param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parTags object
+
 // Variables
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}-01'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
@@ -25,6 +29,9 @@ module adminWebApp 'services/adminWebApp.bicep' = {
     parAppInsightsName: varAppInsightsName
     parApiManagementName: varApimName
     parSqlServerName: varSqlServerName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parTags: parTags
   }
 }
 
@@ -79,6 +86,9 @@ module repositoryApp 'services/repositoryApp.bicep' = {
     parAppInsightsName: varAppInsightsName
     parApiManagementName: varApimName
     parServiceBusName: varServiceBusName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parTags: parTags
   }
 }
 

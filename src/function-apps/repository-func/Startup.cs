@@ -1,8 +1,9 @@
-﻿using FM.GeoLocation.Client.Extensions;
-
+﻿
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
+
+using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc;
@@ -32,19 +33,10 @@ public class Startup : FunctionsStartup
             options.ApiPathPrefix = config["servers-api-path-prefix"] ?? "servers";
         });
 
-        builder.Services.AddGeoLocationClient(options =>
+        builder.Services.AddGeoLocationApiClient(options =>
         {
-            options.BaseUrl = config["geolocation-baseurl"];
-            options.ApiKey = config["geolocation-apikey"];
-            options.UseMemoryCache = true;
-            options.BubbleExceptions = false;
-            options.CacheEntryLifeInMinutes = 60;
-            options.RetryTimespans = new[]
-            {
-                    TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(3),
-                    TimeSpan.FromSeconds(5)
-                };
+            options.ApimBaseUrl = config["geolocation_apim_base_url"];
+            options.ApimSubscriptionKey = config["geolocation_apim_subscription_key"];
         });
 
         builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();

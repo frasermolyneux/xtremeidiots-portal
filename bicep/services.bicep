@@ -7,8 +7,17 @@ param parEventsApiAppId string
 param parRepositoryApiAppId string
 param parServersApiAppId string
 
+param parConnectivitySubscriptionId string
+param parFrontDoorResourceGroupName string
+param parDnsResourceGroupName string
+param parFrontDoorName string
+param parAdminWebAppDnsPrefix string
+param parParentDnsName string
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
+param parApiManagementName string
+param parWebAppsResourceGroupName string
+param parAppServicePlanName string
 param parTags object
 
 // Variables
@@ -31,6 +40,7 @@ module adminWebApp 'services/adminWebApp.bicep' = {
     parSqlServerName: varSqlServerName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parPlatformApiManagementName: parApiManagementName
     parTags: parTags
   }
 }
@@ -88,6 +98,7 @@ module repositoryApp 'services/repositoryApp.bicep' = {
     parServiceBusName: varServiceBusName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parPlatformApiManagementName: parApiManagementName
     parTags: parTags
   }
 }

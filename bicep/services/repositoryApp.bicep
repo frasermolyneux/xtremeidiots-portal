@@ -11,6 +11,7 @@ param parServiceBusName string
 
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
+param parPlatformApiManagementName string
 param parTags object
 
 // Variables
@@ -37,17 +38,22 @@ resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
   name: parServiceBusName
 }
 
+resource platformApiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
+  name: parPlatformApiManagementName
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+}
+
 // Module Resources
 module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
   name: 'publicWebAppApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
-    parApiManagementName: parApiManagementName
+    parApiManagementName: platformApiManagement.name
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
     parWorkloadName: varRepositoryFuncAppName
-    parKeyVaultName: parKeyVaultName
+    parKeyVaultName: keyVault.name
     parSubscriptionScope: '/apis/geolocation-api'
     parTags: parTags
   }
@@ -157,7 +163,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'geolocation_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varRepositoryFuncAppName}-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${platformApiManagement.name}-${varRepositoryFuncAppName}-subscription-apikey)'
         }
         {
           name: 'geolocation_api_application_audience'

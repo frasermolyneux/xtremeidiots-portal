@@ -7,6 +7,14 @@ param parSqlAdminGroupOid string
 @secure()
 param parSqlAdminPassword string
 
+param parLoggingSubscriptionId string
+param parLoggingResourceGroupName string
+param parLoggingWorkspaceName string
+param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parApiManagementName string
+param parTags object
+
 // Variables
 var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}-01'
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}-01'

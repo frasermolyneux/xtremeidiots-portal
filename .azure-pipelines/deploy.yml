@@ -69,7 +69,7 @@ stages:
 
   jobs:
   - job: DeployAADResources
-    steps:
+    #steps:
       #- task: AzureCLI@2
       #  displayName: Create Database AAD Groups
       #  inputs:
@@ -97,7 +97,7 @@ stages:
 
   - job: DeployPlatformBicep
     dependsOn: [DeployAADResources]
-    steps:
+    #steps:
       #- task: AzureCLI@2
       #  displayName: DeployPlatformBicep
       #  inputs:
@@ -119,7 +119,7 @@ stages:
 
   - job: DeployPlatformPermissions
     dependsOn: [DeployPlatformBicep]
-    steps:
+    #steps:
       #- task: AzureCLI@2
       #  displayName: SetDeployPrincipalPermissions
       #  inputs:
@@ -143,7 +143,7 @@ stages:
 
   jobs:
   - job: DeployServicesBicep
-    steps:
+   #steps:
     #- task: AzureCLI@2
     #  displayName: DeployServicesBicep
     #  inputs:
@@ -170,7 +170,7 @@ stages:
 
   - job: DeployServicesPermissions
     dependsOn: [DeployServicesBicep]
-    steps:
+    #steps:
       #- task: AzureCLI@2
       #  displayName: SetIngestApiFuncAppPermissions
       #  inputs:
@@ -218,7 +218,7 @@ stages:
 
 - stage: DeployPrdArtifacts
 
-  jobs:
+  #jobs:
   #- template: templates/deploy-sql-database.yml
   #  parameters:
   #    jobName: DeploySqlDatabase

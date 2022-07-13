@@ -30,3 +30,21 @@ if (($b3BotsClientPermissions.resourceAccess | Where-Object { $_.id -eq '85755f6
 if (($b3BotsClientPermissions.resourceAccess | Where-Object { $_.id -eq '042608f6-317d-43b7-8fad-4618705abfcc' }).Count -eq 0) {
     az ad app permission add --id "$b3botsClientId" --api "$eventsApiAppId" --api-permissions '042608f6-317d-43b7-8fad-4618705abfcc=Role' 
 }
+
+. "./.azure-pipelines/scripts/functions/CreateAppRegistrationCredential.ps1" `
+    -keyVaultName "kv-portal-$environment-$location" `
+    -applicationName "portal-events-api-$location" `
+    -secretPrefix "portal-events-api-$location" `
+    -secretDisplayName "fnportalevents"
+
+. "./.azure-pipelines/scripts/functions/CreateAppRegistrationCredential.ps1" `
+    -keyVaultName "kv-portal-$environment-$location" `
+    -applicationName "portal-repository-api-$environment" `
+    -secretPrefix "portal-repository-api-$environment" `
+    -secretDisplayName "webportalrepo"
+
+. "./.azure-pipelines/scripts/functions/CreateAppRegistrationCredential.ps1" `
+    -keyVaultName "kv-portal-$environment-$location" `
+    -applicationName "portal-servers-api-$environment" `
+    -secretPrefix "portal-servers-api-$environment" `
+    -secretDisplayName "webportalsvrs"

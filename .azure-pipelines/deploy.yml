@@ -83,14 +83,6 @@ stages:
           arguments: "'prd' 'uksouth'"
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: Create Application Credentials
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
-
 #  - job: DeployPlatformBicep
 #    dependsOn: [DeployAADResources]
     #steps:

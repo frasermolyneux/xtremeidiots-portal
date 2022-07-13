@@ -44,6 +44,17 @@ module keyVault 'modules/keyVault.bicep' = {
   }
 }
 
+module apiManagementKeyVaultPermissions 'modules/keyVaultAccessPolicy.bicep' = {
+  name: '${apiManagement.name}-${keyVault.name}'
+  scope: resourceGroup(defaultResourceGroup.name)
+
+  params: {
+    parKeyVaultName: keyVault.outputs.outKeyVaultName
+    parPrincipalId: apiManagement.identity.principalId
+    parSecretsPermissions: [ 'get' ]
+  }
+}
+
 module appInsights 'modules/appInsights.bicep' = {
   name: 'appInsights'
   scope: resourceGroup(defaultResourceGroup.name)

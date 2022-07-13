@@ -74,15 +74,6 @@ stages:
           arguments: "'prd'"
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateDatabaseAADGroups.ps1'
 
-      - task: AzureCLI@2
-        displayName: Create Application Registrations
-        inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: "'prd' 'uksouth'"
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
-
   - job: DeployPlatformBicep
     dependsOn: [DeployAADResources]
     steps:
@@ -98,18 +89,36 @@ stages:
               --location $(location) `
               --parameters @params/platform.prd.json
 
-#  - job: DeployPlatformPermissions
-#    dependsOn: [DeployPlatformBicep]
-    #steps:
-      #- task: AzureCLI@2
-      #  displayName: SetDeployPrincipalPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    addSpnToEnvironment: true
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetDeployPrincipalPermissions.ps1'
+  - job: DeployPlatformPermissions
+    dependsOn: [DeployPlatformBicep]
+    steps:
+      - task: AzureCLI@2
+        displayName: SetDeployPrincipalPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '"prd" "uksouth"'
+          addSpnToEnvironment: true
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetDeployPrincipalPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: Create Application Registrations
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: "'prd' 'uksouth'"
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
+
+      - task: AzureCLI@2
+        displayName: CreateAppRegistrationsCredentials
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '"prd" "uksouth"'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrationsCredentials.ps1'
 
       #- task: AzureCLI@2
       #  displayName: CreateSqlServerRoleAssignment

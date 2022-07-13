@@ -77,7 +77,7 @@ stages:
       - task: AzureCLI@2
         displayName: Create Application Registrations
         inputs:
-          azureSubscription: $(subscription)
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
@@ -85,7 +85,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: Create Application Credentials
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
@@ -96,7 +96,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: DeployPlatformBicep
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'inlineScript'
       #    inlineScript: |
@@ -118,7 +118,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetDeployPrincipalPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    addSpnToEnvironment: true
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
@@ -128,7 +128,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: CreateSqlServerRoleAssignment
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '"sql-portal-$(environment)-$(location)-01" "rg-portal-$(environment)-$(location)-01"'
@@ -142,7 +142,7 @@ stages:
     #- task: AzureCLI@2
     #  displayName: DeployServicesBicep
     #  inputs:
-    #    azureSubscription: $(subscription)
+    #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
     #    scriptType: 'pscore'
     #    scriptLocation: 'inlineScript'
     #    inlineScript: |
@@ -169,7 +169,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetIngestApiFuncAppPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '$(environment)'
@@ -178,7 +178,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetRepositoryApiAppPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '$(environment)'
@@ -187,7 +187,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetRepositoryAppPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '$(environment)'
@@ -196,7 +196,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetServersWebApiPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '$(environment)'
@@ -205,7 +205,7 @@ stages:
       #- task: AzureCLI@2
       #  displayName: SetAdminWebAppPermissions
       #  inputs:
-      #    azureSubscription: $(subscription)
+      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
       #    scriptType: 'pscore'
       #    scriptLocation: 'scriptPath'
       #    arguments: '$(environment)'
@@ -219,7 +219,7 @@ stages:
   #    jobName: DeploySqlDatabase
   #    serverName: "sql-portal-$(environment)-$(location)-01.database.windows.net"
   #    databaseName: 'portaldb'
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    sqlCmdArgs: '/Variables:env=$(environment)'
 
   #- template: templates/deploy-web-app.yml
@@ -229,7 +229,7 @@ stages:
   #    jobName: DeployRepositoryWebApi
   #    webAppName: "webapi-repository-portal-$(environment)-$(location)-01"
   #    webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
   #- template: templates/deploy-function-app.yml
@@ -239,7 +239,7 @@ stages:
   #    jobName: DeployRepositoryFunctionApp
   #    functionAppName: "fn-repository-portal-$(environment)-$(location)-01"
   #    functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 
   #- template: templates/deploy-function-app.yml
   #  parameters:
@@ -248,7 +248,7 @@ stages:
   #    jobName: DeployIngestFunctionApp
   #    functionAppName: "fn-ingest-portal-$(environment)-$(location)-01"
   #    functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 
   #- template: templates/deploy-function-app.yml
   #  parameters:
@@ -257,7 +257,7 @@ stages:
   #    jobName: DeployEventsFunctionApp
   #    functionAppName: "fn-events-portal-$(environment)-$(location)-01"
   #    functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
   #- template: templates/deploy-function-app.yml
@@ -267,7 +267,7 @@ stages:
   #    jobName: DeploySyncFunctionApp
   #    functionAppName: "fn-sync-portal-$(environment)-$(location)-01"
   #    functionAppResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 #
   #- template: templates/deploy-web-app.yml
   #  parameters:
@@ -276,7 +276,7 @@ stages:
   #    jobName: DeployServersWebApi
   #    webAppName: "webapi-servers-portal-prd-uksouth-01"
   #    webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
   #- template: templates/deploy-web-app.yml
@@ -286,5 +286,5 @@ stages:
   #    jobName: DeployAdminWebApp
   #    webAppName: "webapp-admin-portal-$(environment)-$(location)-01"
   #    webAppNameResourceGroup: "rg-portal-$(environment)-$(location)-01"
-  #    subscription: $(subscription)
+  #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true

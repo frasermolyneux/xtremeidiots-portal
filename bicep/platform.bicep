@@ -3,10 +3,6 @@ targetScope = 'subscription'
 param parLocation string
 param parEnvironment string
 
-param parSqlAdminGroupOid string
-@secure()
-param parSqlAdminPassword string
-
 param parLoggingSubscriptionId string
 param parLoggingResourceGroupName string
 param parLoggingWorkspaceName string
@@ -16,19 +12,21 @@ param parApiManagementName string
 param parTags object
 
 // Variables
-//var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}-01'
-//var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}-01'
-//var varLogWorkspaceName = 'log-portal-${parEnvironment}-${parLocation}-01'
-//var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
-//var varApimName = 'apim-portal-${parEnvironment}-${parLocation}-01'
-//var varAppServicePlanName = 'plan-portal-${parEnvironment}-${parLocation}-01'
-//var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}-01'
+var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}'
+//var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
+//var varLogWorkspaceName = 'log-portal-${parEnvironment}-${parLocation}'
+//var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
+//var varApimName = 'apim-portal-${parEnvironment}-${parLocation}'
+//var varAppServicePlanName = 'plan-portal-${parEnvironment}-${parLocation}'
+//var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
-//resource portalResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-//  name: varResourceGroupName
-//  location: parLocation
-//  properties: {}
-//}
+resource portalResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: varResourceGroupName
+  location: parLocation
+  tags: parTags
+
+  properties: {}
+}
 //
 //// Platform
 //module keyVault 'platform/keyVault.bicep' = {

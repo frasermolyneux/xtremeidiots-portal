@@ -83,27 +83,20 @@ stages:
           arguments: "'prd' 'uksouth'"
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
 
-#  - job: DeployPlatformBicep
-#    dependsOn: [DeployAADResources]
-    #steps:
-      #- task: AzureCLI@2
-      #  displayName: DeployPlatformBicep
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'inlineScript'
-      #    inlineScript: |
-      #      $sqlAdminPassword = (az keyvault secret show --name "sql-portal-prd-$(location)-01-admin-password" --vault-name "kv-portal-prd-$(location)-01" --query 'value') | ConvertFrom-Json
-      #      $sqlAdminGroupOid = (az ad group show --group "sg-sql-portal-prd-admins" --query 'id')  | ConvertFrom-Json
-
-      #      az deployment sub create `
-      #        --template-file bicep/platform.bicep `
-      #        --location $(location) `
-      #        --parameters @params/platform.prd.json `
-      #          parLocation=$(location) `
-      #          parEnvironment=prd `
-      #          parSqlAdminGroupOid=$sqlAdminGroupOid `
-      #          parSqlAdminPassword=$sqlAdminPassword
+  - job: DeployPlatformBicep
+    dependsOn: [DeployAADResources]
+    steps:
+      - task: AzureCLI@2
+        displayName: DeployPlatformBicep
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            az deployment sub create `
+              --template-file bicep/platform.bicep `
+              --location $(location) `
+              --parameters @params/platform.prd.json
 
 #  - job: DeployPlatformPermissions
 #    dependsOn: [DeployPlatformBicep]

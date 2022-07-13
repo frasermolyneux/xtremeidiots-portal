@@ -19,6 +19,7 @@ param (
     -appRoles "servers-api-approles.json"
 
 # TODO: Sort this next bit of code out
+$eventsApiAppId = (az ad app list --filter "displayName eq 'portal-events-api-$environment'" --query '[].appId') | ConvertFrom-Json
 $b3BotsClientId = (az ad app list --filter "displayName eq 'portal-b3bots-client-$environment'" --query '[].appId') | ConvertFrom-Json
 $b3BotsClientPermissions = (az ad app permission list --id $b3botsClientId) | ConvertFrom-Json
 $b3BotsClientPermissions

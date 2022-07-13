@@ -71,7 +71,7 @@ stages:
           azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
-          arguments: 'prd'
+          arguments: "'prd' 'uksouth'"
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateDatabaseAADGroups.ps1'
 
       - task: AzureCLI@2

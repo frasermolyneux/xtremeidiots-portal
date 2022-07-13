@@ -43,7 +43,7 @@ resource apiManagementLogger 'Microsoft.ApiManagement/service/loggers@2021-08-01
 
   properties: {
     credentials: {
-      instrumentationKey: '{{${appInsights.name}-instrumentationkey}}'
+      instrumentationKey: '{{${appInsightsInstrumentationKeyNamedValue.properties.displayName}}}'
     }
     loggerType: 'applicationInsights'
     resourceId: appInsights.id

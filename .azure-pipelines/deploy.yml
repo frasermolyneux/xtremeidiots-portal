@@ -8,11 +8,6 @@ resources:
     source: xtremeidiots-portal.Validate
     trigger: true
 
-variables:
-  environment: 'prd'
-  location: 'uksouth'
-  subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-
 stages: 
 - stage: Build
   jobs:
@@ -69,23 +64,23 @@ stages:
 
   jobs:
   - job: DeployAADResources
-    #steps:
-      #- task: AzureCLI@2
-      #  displayName: Create Database AAD Groups
-      #  inputs:
-      #    azureSubscription: $(subscription)
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: '$(environment)'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/CreateDatabaseAADGroups.ps1'
+    steps:
+      - task: AzureCLI@2
+        displayName: Create Database AAD Groups
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: '$(environment)'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateDatabaseAADGroups.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: Create Application Registrations
-      #  inputs:
-      #    azureSubscription: $(subscription)
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/createAppRegistrations.ps1'
+      - task: AzureCLI@2
+        displayName: Create Application Registrations
+        inputs:
+          azureSubscription: $(subscription)
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
 
       #- task: AzureCLI@2
       #  displayName: Create Application Credentials
@@ -95,8 +90,8 @@ stages:
       #    scriptLocation: 'scriptPath'
       #    scriptPath: '$(Build.sourcesDirectory)/scripts/appRegistrationCredentials.ps1'
 
-  - job: DeployPlatformBicep
-    dependsOn: [DeployAADResources]
+#  - job: DeployPlatformBicep
+#    dependsOn: [DeployAADResources]
     #steps:
       #- task: AzureCLI@2
       #  displayName: DeployPlatformBicep
@@ -117,8 +112,8 @@ stages:
       #          parSqlAdminGroupOid=$sqlAdminGroupOid `
       #          parSqlAdminPassword=$sqlAdminPassword
 
-  - job: DeployPlatformPermissions
-    dependsOn: [DeployPlatformBicep]
+#  - job: DeployPlatformPermissions
+#    dependsOn: [DeployPlatformBicep]
     #steps:
       #- task: AzureCLI@2
       #  displayName: SetDeployPrincipalPermissions
@@ -139,10 +134,10 @@ stages:
       #    arguments: '"sql-portal-$(environment)-$(location)-01" "rg-portal-$(environment)-$(location)-01"'
       #    scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
 
-- stage: DeployPrdServices
+#- stage: DeployPrdServices
 
-  jobs:
-  - job: DeployServicesBicep
+#  jobs:
+#  - job: DeployServicesBicep
    #steps:
     #- task: AzureCLI@2
     #  displayName: DeployServicesBicep
@@ -168,8 +163,8 @@ stages:
     #          parRepositoryApiAppId=$repositoryApiAppId `
     #          parServersApiAppId=$serversApiAppId 
 
-  - job: DeployServicesPermissions
-    dependsOn: [DeployServicesBicep]
+ # - job: DeployServicesPermissions
+ #   dependsOn: [DeployServicesBicep]
     #steps:
       #- task: AzureCLI@2
       #  displayName: SetIngestApiFuncAppPermissions
@@ -216,7 +211,7 @@ stages:
       #    arguments: '$(environment)'
       #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetAdminWebAppPermissions.ps1'
 
-- stage: DeployPrdArtifacts
+#- stage: DeployPrdArtifacts
 
   #jobs:
   #- template: templates/deploy-sql-database.yml

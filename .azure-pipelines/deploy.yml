@@ -120,43 +120,33 @@ stages:
           arguments: '"prd" "uksouth"'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrationsCredentials.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: CreateSqlServerRoleAssignment
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: '"sql-portal-prd-uksouth-01" "rg-portal-prd-uksouth-01"'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/CreateSqlServerRoleAssignment.ps1'
 
-#- stage: DeployPrdServices
+- stage: DeployPrdServices
 
-#  jobs:
-#  - job: DeployServicesBicep
-   #steps:
-    #- task: AzureCLI@2
-    #  displayName: DeployServicesBicep
-    #  inputs:
-    #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-    #    scriptType: 'pscore'
-    #    scriptLocation: 'inlineScript'
-    #    inlineScript: |
-    #      $eventsApiAppName = "portal-events-api-prd"
-    #      $repositoryApiName = "portal-repository-api-prd"
-    #      $serversApiName = "portal-servers-api-prd"
+  jobs:
+  - job: DeployServicesBicep
+   steps:
+    - task: AzureCLI@2
+      displayName: DeployServicesBicep
+      inputs:
+        azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+        scriptType: 'pscore'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          $eventsApiAppName = "portal-events-api-prd"
+          $repositoryApiName = "portal-repository-api-prd"
+          $serversApiName = "portal-servers-api-prd"
 
-    #      $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
-    #      $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
-    #      $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
+          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+          $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
+          $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
 
-    #      az deployment group create --resource-group "rg-portal-prd-uksouth-01" `
-    #          --template-file bicep/services.bicep `
-    #          --parameters @params/services.prd.json `
-    #          parLocation=uksouth `
-    #          parEnvironment=prd `
-    #          parEventsApiAppId=$eventsApiAppId `
-    #          parRepositoryApiAppId=$repositoryApiAppId `
-    #          parServersApiAppId=$serversApiAppId 
+          az deployment group create --resource-group "rg-portal-prd-uksouth-01" `
+              --template-file bicep/services.bicep `
+              --parameters @params/services.prd.json `
+              parEventsApiAppId=$eventsApiAppId `
+              parRepositoryApiAppId=$repositoryApiAppId `
+              parServersApiAppId=$serversApiAppId 
 
  # - job: DeployServicesPermissions
  #   dependsOn: [DeployServicesBicep]

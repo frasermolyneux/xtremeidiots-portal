@@ -18,32 +18,40 @@ param parApiManagementResourceGroupName string
 param parApiManagementName string
 param parWebAppsResourceGroupName string
 param parAppServicePlanName string
+param parSqlServerResourceGroupName string
+param parSqlServerName string
+
 param parTags object
 
 // Variables
-//var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}-01'
-//var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}-01'
-//var varApimName = 'apim-portal-${parEnvironment}-${parLocation}-01'
-//var varAppServicePlanName = 'plan-portal-${parEnvironment}-${parLocation}-01'
-//var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}-01'
-//var varSqlServerName = 'sql-portal-${parEnvironment}-${parLocation}-01'
-//
-//module adminWebApp 'services/adminWebApp.bicep' = {
-//  name: 'adminWebApp'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parSqlServerName: varSqlServerName
-//    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-//    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-//    parPlatformApiManagementName: parApiManagementName
-//    parTags: parTags
-//  }
-//}
+var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
+var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
+var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
+
+module adminWebApp 'services/adminWebApp.bicep' = {
+  name: 'adminWebApp'
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServiceBusName: varServiceBusName
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parFrontDoorName: parFrontDoorName
+    parAdminWebAppDnsPrefix: parAdminWebAppDnsPrefix
+    parParentDnsName: parParentDnsName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parSqlServerResourceGroupName: parSqlServerResourceGroupName
+    parSqlServerName: parSqlServerName
+    parTags: parTags
+  }
+}
 //
 //module eventsApp 'services/eventsApp.bicep' = {
 //  name: 'eventsApp'

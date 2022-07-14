@@ -41,6 +41,12 @@
         "parAppServicePlanName": {
             "value": "plan-platform-prd-uksouth"
         },
+        "parSqlServerResourceGroupName": {
+            "value": "rg-platform-sql-prd-uksouth"
+        },
+        "parSqlServerName": {
+            "value": "sql-platform-prd-uksouth"
+        },
         "parTags": {
             "value": {
                 "Environment": "prd",

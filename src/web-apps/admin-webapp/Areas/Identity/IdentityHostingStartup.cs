@@ -21,7 +21,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
             builder.ConfigureServices((context, services) =>
             {
                 services.AddDbContext<IdentityDataContext>(options =>
-                    options.UseSqlServer(context.Configuration["sql-connection-string"]));
+                    options.UseSqlServer(context.Configuration["sql_connection_string"]));
 
                 services.AddIdentity<IdentityUser, IdentityRole>(options =>
                 {
@@ -42,8 +42,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                 services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                     .AddOAuth("XtremeIdiots", options =>
                     {
-                        options.ClientId = context.Configuration["xtremeidiots-auth-client-id"];
-                        options.ClientSecret = context.Configuration["xtremeidiots-auth-client-secret"];
+                        options.ClientId = context.Configuration["xtremeidiots_auth_client_id"];
+                        options.ClientSecret = context.Configuration["xtremeidiots_auth_client_secret"];
                         options.CallbackPath = new PathString("/signin-xtremeidiots");
 
                         options.AuthorizationEndpoint = "https://www.xtremeidiots.com/oauth/authorize/";

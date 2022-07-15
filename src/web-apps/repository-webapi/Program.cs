@@ -18,7 +18,7 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddDbContext<PortalDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration["sql-connection-string"], sqlOptions =>
+    options.UseSqlServer(builder.Configuration["sql_connection_string"], sqlOptions =>
     {
         sqlOptions.EnableRetryOnFailure(3, TimeSpan.FromSeconds(5), null);
         sqlOptions.CommandTimeout(180);

@@ -37,8 +37,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddInvisionApiClient(options =>
             {
-                options.BaseUrl = Configuration["xtremeidiots-forums-base-url"];
-                options.ApiKey = Configuration["xtremeidiots-forums-api-key"];
+                options.BaseUrl = Configuration["xtremeidiots_forums_base_url"];
+                options.ApiKey = Configuration["xtremeidiots_forums_api_key"];
             });
 
             services.AddAdminActionTopics();
@@ -47,16 +47,16 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddRepositoryApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["repository-api-base-url"] ?? Configuration["apim-base-url"];
-                options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
-                options.ApiPathPrefix = Configuration["repository-api-path-prefix"] ?? "repository";
+                options.BaseUrl = Configuration["repository_api_base_url"] ?? Configuration["apim_base_url"];
+                options.ApiKey = Configuration["apim_subscription_key"];
+                options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
             });
 
             services.AddServersApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["servers-api-base-url"] ?? Configuration["apim-base-url"];
-                options.ApimSubscriptionKey = Configuration["apim-subscription-key"];
-                options.ApiPathPrefix = Configuration["servers-api-path-prefix"] ?? "servers";
+                options.BaseUrl = Configuration["servers_api_base_url"] ?? Configuration["apim_base_url"];
+                options.ApiKey = Configuration["apim_subscription_key"];
+                options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers";
             });
 
             services.AddXtremeIdiotsAuth();
@@ -65,7 +65,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins(Configuration["xtremeidiots-forums-base-url"])
+                    builder => builder.WithOrigins(Configuration["xtremeidiots_forums_base_url"])
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

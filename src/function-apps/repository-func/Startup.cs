@@ -21,16 +21,16 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddRepositoryApiClient(options =>
         {
-            options.ApimBaseUrl = config["repository-api-base-url"] ?? config["apim-base-url"];
-            options.ApimSubscriptionKey = config["apim-subscription-key"];
-            options.ApiPathPrefix = config["repository-api-path-prefix"] ?? "repository";
+            options.BaseUrl = config["repository_api_base_url"] ?? config["apim_base_url"];
+            options.ApiKey = config["apim_subscription_key"];
+            options.ApiPathPrefix = config["repository_api_path_prefix"] ?? "repository";
         });
 
         builder.Services.AddServersApiClient(options =>
         {
-            options.ApimBaseUrl = config["servers-api-base-url"] ?? config["apim-base-url"];
-            options.ApimSubscriptionKey = config["apim-subscription-key"];
-            options.ApiPathPrefix = config["servers-api-path-prefix"] ?? "servers";
+            options.BaseUrl = config["servers_api_base_url"] ?? config["apim_base_url"];
+            options.ApiKey = config["apim_subscription_key"];
+            options.ApiPathPrefix = config["servers_api_path_prefix"] ?? "servers";
         });
 
         builder.Services.AddGeoLocationApiClient(options =>

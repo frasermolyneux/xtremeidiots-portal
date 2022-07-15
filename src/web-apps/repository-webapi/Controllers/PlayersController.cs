@@ -33,7 +33,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("repository/players/{playerId}")]
+    [Route("players/{playerId}")]
     public async Task<IActionResult> GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions)
     {
         var response = await ((IPlayersApi)this).GetPlayer(playerId, playerEntityOptions);
@@ -75,7 +75,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpHead]
-    [Route("repository/players/by-game-type/{gameType}/{guid}")]
+    [Route("players/by-game-type/{gameType}/{guid}")]
     public async Task<IActionResult> HeadPlayerByGameType(GameType gameType, string guid)
     {
         var response = await ((IPlayersApi)this).HeadPlayerByGameType(gameType, guid);
@@ -94,7 +94,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("repository/players/by-game-type/{gameType}/{guid}")]
+    [Route("players/by-game-type/{gameType}/{guid}")]
     public async Task<IActionResult> GetPlayerByGameType(GameType gameType, string guid, PlayerEntityOptions playerEntityOptions)
     {
         var response = await ((IPlayersApi)this).GetPlayerByGameType(gameType, guid, playerEntityOptions);
@@ -132,7 +132,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpGet]
-    [Route("repository/players")]
+    [Route("players")]
     public async Task<IActionResult> GetPlayers(GameType? gameType, PlayersFilter? filter, string? filterString, int? skipEntries, int? takeEntries, PlayersOrder? order, PlayerEntityOptions playerEntityOptions)
     {
         if (!skipEntries.HasValue)
@@ -181,7 +181,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpPost]
-    [Route("repository/players")]
+    [Route("players")]
     public async Task<IActionResult> CreatePlayers()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -254,7 +254,7 @@ public class PlayersController : ControllerBase, IPlayersApi
     }
 
     [HttpPatch]
-    [Route("repository/players/{playerId}")]
+    [Route("players/{playerId}")]
     public async Task<IActionResult> UpdatePlayer(Guid playerId)
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

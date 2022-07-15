@@ -24,9 +24,9 @@ builder.ConfigureAppConfiguration((hostContext, builder) =>
 
     services.AddRepositoryApiClient(options =>
     {
-        options.ApimBaseUrl = hostContext.Configuration["repository-api-base-url"] ?? hostContext.Configuration["apim-base-url"];
-        options.ApimSubscriptionKey = hostContext.Configuration["apim-subscription-key"];
-        options.ApiPathPrefix = hostContext.Configuration["repository-api-path-prefix"] ?? "repository";
+        options.BaseUrl = hostContext.Configuration["repository_api_base_url"] ?? hostContext.Configuration["apim_base_url"];
+        options.ApiKey = hostContext.Configuration["apim_subscription_key"];
+        options.ApiPathPrefix = hostContext.Configuration["repository_api_path_prefix"] ?? "repository";
     });
 
     services.AddHostedService<ConfigGeneratorService>();

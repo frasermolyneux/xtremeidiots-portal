@@ -132,7 +132,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/maps")]
+        [Route("maps")]
         public async Task<IActionResult> CreateMaps()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -177,7 +177,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPut]
-        [Route("repository/maps")]
+        [Route("maps")]
         public async Task<IActionResult> UpdateMaps()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -214,7 +214,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("repository/maps/{mapId}")]
+        [Route("maps/{mapId}")]
         public async Task<IActionResult> DeleteMap(Guid mapId)
         {
             var response = await ((IMapsApi)this).DeleteMap(mapId);
@@ -238,7 +238,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/maps/popularity")]
+        [Route("maps/popularity")]
         public async Task<IActionResult> RebuildMapPopularity()
         {
             var response = await ((IMapsApi)this).RebuildMapPopularity();
@@ -359,7 +359,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new ApiResponseDto(HttpStatusCode.NotFound);
 
             var blobKey = $"{map.GameType.ToGameType()}_{map.MapName}.jpg";
-            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata-storage-connectionstring"));
+            var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("appdata_storage_connectionstring"));
             var containerClient = blobServiceClient.GetBlobContainerClient("map-images");
 
             var blobClient = containerClient.GetBlobClient(blobKey);

@@ -2,7 +2,9 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using RestSharp;
+
 using System.Net;
 using System.Text;
 
@@ -21,7 +23,9 @@ namespace XtremeIdiots.Portal.InvisionApiClient
             if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
                 throw new ArgumentNullException(nameof(options.Value.ApiKey));
 
-            RestClient = new RestClient(options.Value.BaseUrl);
+            RestClient = string.IsNullOrWhiteSpace(options.Value.ApiPathPrefix)
+                ? new RestClient($"{options.Value.BaseUrl}")
+                : new RestClient($"{options.Value.BaseUrl}/{options.Value.ApiPathPrefix}");
 
             Logger = logger;
             this.options = options;

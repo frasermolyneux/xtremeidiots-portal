@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/reports/{reportId}")]
+        [Route("reports/{reportId}")]
         public async Task<IActionResult> GetReport(Guid reportId)
         {
             var response = await ((IReportsApi)this).GetReport(reportId);
@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/reports")]
+        [Route("reports")]
         public async Task<IActionResult> GetReports(GameType? gameType, Guid? gameServerId, DateTime? cutoff, ReportsFilter? filter, int? skipEntries, int? takeEntries, ReportsOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -99,7 +99,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/reports")]
+        [Route("reports")]
         public async Task<IActionResult> CreateReports()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -139,7 +139,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPatch]
-        [Route("repository/reports/{reportId}/close")]
+        [Route("reports/{reportId}/close")]
         public async Task<IActionResult> CloseReport(Guid reportId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

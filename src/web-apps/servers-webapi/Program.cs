@@ -18,9 +18,9 @@ builder.Services.AddSingleton<IRconClientFactory, RconClientFactory>();
 
 builder.Services.AddRepositoryApiClient(options =>
 {
-    options.ApimBaseUrl = builder.Configuration["repository-api-base-url"] ?? builder.Configuration["apim-base-url"];
-    options.ApimSubscriptionKey = builder.Configuration["apim-subscription-key"];
-    options.ApiPathPrefix = builder.Configuration["repository-api-path-prefix"] ?? "repository";
+    options.BaseUrl = builder.Configuration["repository_api_base_url"] ?? builder.Configuration["apim_base_url"];
+    options.ApiKey = builder.Configuration["apim_subscription_key"];
+    options.ApiPathPrefix = builder.Configuration["repository_api_path_prefix"] ?? "repository";
 });
 
 // Add services to the container.

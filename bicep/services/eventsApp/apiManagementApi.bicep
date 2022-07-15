@@ -47,7 +47,7 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
   properties: {
     title: parFunctionAppName
     description: parFunctionAppName
-    url: 'https://${parFunctionAppHostname}/api/'
+    url: 'https://${parFunctionAppHostname}/'
     protocol: 'http'
     properties: {}
 
@@ -99,7 +99,7 @@ resource api 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
 
     description: 'API for player/server events'
     displayName: 'Events API'
-    path: ''
+    path: 'events'
 
     protocols: [
       'https'

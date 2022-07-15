@@ -23,7 +23,7 @@ public class DataMaintenanceController : ControllerBase, IDataMaintenanceApi
     }
 
     [HttpDelete]
-    [Route("repository/data-maintenance/prune-chat-messages")]
+    [Route("data-maintenance/prune-chat-messages")]
     public async Task<IActionResult> PruneChatMessages()
     {
         var response = await ((IDataMaintenanceApi)this).PruneChatMessages();
@@ -38,7 +38,7 @@ public class DataMaintenanceController : ControllerBase, IDataMaintenanceApi
     }
 
     [HttpDelete]
-    [Route("repository/data-maintenance/prune-game-server-events")]
+    [Route("data-maintenance/prune-game-server-events")]
     public async Task<IActionResult> PruneGameServerEvents()
     {
         var response = await ((IDataMaintenanceApi)this).PruneGameServerEvents();
@@ -53,7 +53,7 @@ public class DataMaintenanceController : ControllerBase, IDataMaintenanceApi
     }
 
     [HttpDelete]
-    [Route("repository/data-maintenance/prune-game-server-stats")]
+    [Route("data-maintenance/prune-game-server-stats")]
     public async Task<IActionResult> PruneGameServerStats()
     {
         var response = await ((IDataMaintenanceApi)this).PruneGameServerStats();
@@ -68,7 +68,7 @@ public class DataMaintenanceController : ControllerBase, IDataMaintenanceApi
     }
 
     [HttpDelete]
-    [Route("repository/data-maintenance/prune-recent-players")]
+    [Route("data-maintenance/prune-recent-players")]
     public async Task<IActionResult> PruneRecentPlayers()
     {
         var response = await ((IDataMaintenanceApi)this).PruneRecentPlayers();

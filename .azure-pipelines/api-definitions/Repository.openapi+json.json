@@ -5,7 +5,7 @@
         "version": "v1"
     },
     "paths": {
-        "/repository/admin-actions/{adminActionId}": {
+        "/admin-actions/{adminActionId}": {
             "get": {
                 "tags": [
                     "AdminActions"
@@ -70,7 +70,7 @@
                 }
             }
         },
-        "/repository/admin-actions": {
+        "/admin-actions": {
             "get": {
                 "tags": [
                     "AdminActions"
@@ -146,7 +146,7 @@
                 }
             }
         },
-        "/repository/ban-file-monitors/{banFileMonitorId}": {
+        "/ban-file-monitors/{banFileMonitorId}": {
             "get": {
                 "tags": [
                     "BanFileMonitors"
@@ -211,7 +211,7 @@
                 }
             }
         },
-        "/repository/ban-file-monitors": {
+        "/ban-file-monitors": {
             "get": {
                 "tags": [
                     "BanFileMonitors"
@@ -280,7 +280,7 @@
                 }
             }
         },
-        "/repository/chat-messages/{chatMessageId}": {
+        "/chat-messages/{chatMessageId}": {
             "get": {
                 "tags": [
                     "ChatMessages"
@@ -303,7 +303,7 @@
                 }
             }
         },
-        "/repository/chat-messages": {
+        "/chat-messages": {
             "get": {
                 "tags": [
                     "ChatMessages"
@@ -380,7 +380,7 @@
                 }
             }
         },
-        "/repository/data-maintenance/prune-chat-messages": {
+        "/data-maintenance/prune-chat-messages": {
             "delete": {
                 "tags": [
                     "DataMaintenance"
@@ -392,7 +392,7 @@
                 }
             }
         },
-        "/repository/data-maintenance/prune-game-server-events": {
+        "/data-maintenance/prune-game-server-events": {
             "delete": {
                 "tags": [
                     "DataMaintenance"
@@ -404,7 +404,7 @@
                 }
             }
         },
-        "/repository/data-maintenance/prune-game-server-stats": {
+        "/data-maintenance/prune-game-server-stats": {
             "delete": {
                 "tags": [
                     "DataMaintenance"
@@ -416,7 +416,7 @@
                 }
             }
         },
-        "/repository/data-maintenance/prune-recent-players": {
+        "/data-maintenance/prune-recent-players": {
             "delete": {
                 "tags": [
                     "DataMaintenance"
@@ -428,7 +428,7 @@
                 }
             }
         },
-        "/repository/demos/{demoId}": {
+        "/demos/{demoId}": {
             "get": {
                 "tags": [
                     "Demos"
@@ -472,7 +472,7 @@
                 }
             }
         },
-        "/repository/demos": {
+        "/demos": {
             "get": {
                 "tags": [
                     "Demos"
@@ -540,7 +540,7 @@
                 }
             }
         },
-        "/repository/demos/{demoId}/file": {
+        "/demos/{demoId}/file": {
             "post": {
                 "tags": [
                     "Demos"
@@ -563,7 +563,7 @@
                 }
             }
         },
-        "/repository/game-servers/{gameServerId}": {
+        "/game-servers/{gameServerId}": {
             "get": {
                 "tags": [
                     "GameServers"
@@ -628,7 +628,7 @@
                 }
             }
         },
-        "/repository/game-servers": {
+        "/game-servers": {
             "get": {
                 "tags": [
                     "GameServers"
@@ -696,7 +696,7 @@
                 }
             }
         },
-        "/repository/game-server-events": {
+        "/game-server-events": {
             "post": {
                 "tags": [
                     "GameServersEvents"
@@ -708,7 +708,7 @@
                 }
             }
         },
-        "/repository/game-servers/{gameServerId}/secret/{secretId}": {
+        "/game-servers/{gameServerId}/secret/{secretId}": {
             "get": {
                 "tags": [
                     "GameServersSecrets"
@@ -766,7 +766,7 @@
                 }
             }
         },
-        "/repository/game-servers-stats": {
+        "/game-servers-stats": {
             "post": {
                 "tags": [
                     "GameServersStats"
@@ -778,7 +778,7 @@
                 }
             }
         },
-        "/repository/game-servers-stats/{gameServerId}": {
+        "/game-servers-stats/{gameServerId}": {
             "get": {
                 "tags": [
                     "GameServersStats"
@@ -868,7 +868,7 @@
                 }
             }
         },
-        "/repository/live-players/{gameServerId}": {
+        "/live-players/{gameServerId}": {
             "post": {
                 "tags": [
                     "LivePlayers"
@@ -893,27 +893,6 @@
         },
         "/repository/maps/{mapId}": {
             "get": {
-                "tags": [
-                    "Maps"
-                ],
-                "parameters": [
-                    {
-                        "name": "mapId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            },
-            "delete": {
                 "tags": [
                     "Maps"
                 ],
@@ -1028,7 +1007,9 @@
                         "description": "Success"
                     }
                 }
-            },
+            }
+        },
+        "/maps": {
             "post": {
                 "tags": [
                     "Maps"
@@ -1050,7 +1031,30 @@
                 }
             }
         },
-        "/repository/maps/popularity": {
+        "/maps/{mapId}": {
+            "delete": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/maps/popularity": {
             "post": {
                 "tags": [
                     "Maps"
@@ -1097,7 +1101,7 @@
                 }
             }
         },
-        "/repository/player-analytics/cumulative-daily-players": {
+        "/player-analytics/cumulative-daily-players": {
             "get": {
                 "tags": [
                     "PlayerAnalytics"
@@ -1119,7 +1123,7 @@
                 }
             }
         },
-        "/repository/player-analytics/new-daily-players-per-game": {
+        "/player-analytics/new-daily-players-per-game": {
             "get": {
                 "tags": [
                     "PlayerAnalytics"
@@ -1141,7 +1145,7 @@
                 }
             }
         },
-        "/repository/player-analytics/players-drop-off-per-game": {
+        "/player-analytics/players-drop-off-per-game": {
             "get": {
                 "tags": [
                     "PlayerAnalytics"
@@ -1163,7 +1167,7 @@
                 }
             }
         },
-        "/repository/players/{playerId}": {
+        "/players/{playerId}": {
             "get": {
                 "tags": [
                     "Players"
@@ -1214,7 +1218,7 @@
                 }
             }
         },
-        "/repository/players/by-game-type/{gameType}/{guid}": {
+        "/players/by-game-type/{gameType}/{guid}": {
             "head": {
                 "tags": [
                     "Players"
@@ -1279,7 +1283,7 @@
                 }
             }
         },
-        "/repository/players": {
+        "/players": {
             "get": {
                 "tags": [
                     "Players"
@@ -1354,7 +1358,7 @@
                 }
             }
         },
-        "/repository/recent-players": {
+        "/recent-players": {
             "get": {
                 "tags": [
                     "RecentPlayers"
@@ -1431,7 +1435,7 @@
                 }
             }
         },
-        "/repository/reports/{reportId}": {
+        "/reports/{reportId}": {
             "get": {
                 "tags": [
                     "Reports"
@@ -1454,7 +1458,7 @@
                 }
             }
         },
-        "/repository/reports": {
+        "/reports": {
             "get": {
                 "tags": [
                     "Reports"
@@ -1531,7 +1535,7 @@
                 }
             }
         },
-        "/repository/reports/{reportId}/close": {
+        "/reports/{reportId}/close": {
             "patch": {
                 "tags": [
                     "Reports"
@@ -1554,7 +1558,7 @@
                 }
             }
         },
-        "/repository/user-profile/{userProfileId}": {
+        "/user-profile/{userProfileId}": {
             "get": {
                 "tags": [
                     "UserProfile"
@@ -1577,7 +1581,7 @@
                 }
             }
         },
-        "/repository/user-profile/by-identity-id/{identityId}": {
+        "/user-profile/by-identity-id/{identityId}": {
             "get": {
                 "tags": [
                     "UserProfile"
@@ -1599,7 +1603,7 @@
                 }
             }
         },
-        "/repository/user-profile/by-xtremeidiots-id/{xtremeidiotsId}": {
+        "/user-profile/by-xtremeidiots-id/{xtremeidiotsId}": {
             "get": {
                 "tags": [
                     "UserProfile"
@@ -1621,7 +1625,7 @@
                 }
             }
         },
-        "/repository/user-profile/by-demo-auth-key/{demoAuthKey}": {
+        "/user-profile/by-demo-auth-key/{demoAuthKey}": {
             "get": {
                 "tags": [
                     "UserProfile"
@@ -1643,7 +1647,7 @@
                 }
             }
         },
-        "/repository/user-profile": {
+        "/user-profile": {
             "get": {
                 "tags": [
                     "UserProfile"
@@ -1707,7 +1711,7 @@
                 }
             }
         },
-        "/repository/user-profile/{userProfileId}/claims": {
+        "/user-profile/{userProfileId}/claims": {
             "patch": {
                 "tags": [
                     "UserProfile"
@@ -1751,7 +1755,7 @@
                 }
             }
         },
-        "/repository/user-profile/{userProfileId}/claims/{userProfileClaimId}": {
+        "/user-profile/{userProfileId}/claims/{userProfileClaimId}": {
             "delete": {
                 "tags": [
                     "UserProfile"

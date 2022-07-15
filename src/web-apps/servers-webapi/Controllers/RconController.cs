@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("api/rcon/{gameServerId}/status")]
+        [Route("rcon/{gameServerId}/status")]
         public async Task<IActionResult> GetServerStatus(Guid gameServerId)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(gameServerId);

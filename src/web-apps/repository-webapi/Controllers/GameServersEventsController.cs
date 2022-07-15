@@ -37,7 +37,7 @@ public class GameServersEventsController : ControllerBase, IGameServersEventsApi
     }
 
     [HttpPost]
-    [Route("repository/game-server-events")]
+    [Route("game-server-events")]
     public async Task<IActionResult> CreateGameServerEvents()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

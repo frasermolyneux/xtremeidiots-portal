@@ -13,9 +13,18 @@ namespace XtremeIdiots.Portal.ServersApiClient
 
         public BaseApi(ILogger logger, IOptions<ServersApiClientOptions> options, IServersApiTokenProvider serversApiTokenProvider)
         {
-            _apimSubscriptionKey = options.Value.ApimSubscriptionKey;
+            if (string.IsNullOrWhiteSpace(options.Value.BaseUrl))
+                throw new ArgumentNullException(nameof(options.Value.BaseUrl));
 
-            RestClient = new RestClient($"{options.Value.ApimBaseUrl}/{options.Value.ApiPathPrefix}");
+            if (string.IsNullOrWhiteSpace(options.Value.ApiKey))
+                throw new ArgumentNullException(nameof(options.Value.ApiKey));
+
+            _apimSubscriptionKey = options.Value.ApiKey;
+
+            RestClient = string.IsNullOrWhiteSpace(options.Value.ApiPathPrefix)
+                ? new RestClient($"{options.Value.BaseUrl}")
+                : new RestClient($"{options.Value.BaseUrl}/{options.Value.ApiPathPrefix}");
+
             Logger = logger;
             ServersApiTokenProvider = serversApiTokenProvider;
         }
@@ -30,7 +39,7 @@ namespace XtremeIdiots.Portal.ServersApiClient
 
             var request = new RestRequest(resource, method);
 
-            request.AddHeader("Ocp-Apim-Subscription-Key", _apimSubscriptionKey);
+            request.AddHeader("Ocp-apim_subscription_key", _apimSubscriptionKey);
             request.AddHeader("Authorization", $"Bearer {accessToken}");
 
             return request;

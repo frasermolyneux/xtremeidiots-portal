@@ -33,7 +33,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
     }
 
     [HttpGet]
-    [Route("repository/chat-messages/{chatMessageId}")]
+    [Route("chat-messages/{chatMessageId}")]
     public async Task<IActionResult> GetChatMessage(Guid chatMessageId)
     {
         var response = await ((IChatMessagesApi)this).GetChatMessage(chatMessageId);
@@ -57,7 +57,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
     }
 
     [HttpGet]
-    [Route("repository/chat-messages")]
+    [Route("chat-messages")]
     public async Task<IActionResult> GetChatMessages(GameType? gameType, Guid? gameServerId, Guid? playerId, string? filterString, int? skipEntries, int? takeEntries, ChatMessageOrder? order)
     {
         if (!skipEntries.HasValue)
@@ -101,7 +101,7 @@ public class ChatMessagesController : ControllerBase, IChatMessagesApi
     }
 
     [HttpPost]
-    [Route("repository/chat-messages")]
+    [Route("chat-messages")]
     public async Task<IActionResult> CreateChatMessages()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

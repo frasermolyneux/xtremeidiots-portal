@@ -72,7 +72,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/live-players/{gameServerId}")]
+        [Route("live-players/{gameServerId}")]
         public async Task<IActionResult> SetLivePlayersForGameServer(Guid gameServerId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();

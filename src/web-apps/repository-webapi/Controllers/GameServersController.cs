@@ -33,7 +33,7 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpGet]
-    [Route("repository/game-servers/{gameServerId}")]
+    [Route("game-servers/{gameServerId}")]
     public async Task<IActionResult> GetGameServer(Guid gameServerId)
     {
         var response = await ((IGameServersApi)this).GetGameServer(gameServerId);
@@ -57,7 +57,7 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpGet]
-    [Route("repository/game-servers")]
+    [Route("game-servers")]
     public async Task<IActionResult> GetGameServer(string? gameTypes, string? gameServerIds, GameServerFilter? filter, int? skipEntries, int? takeEntries, GameServerOrder? order)
     {
         if (!skipEntries.HasValue)
@@ -115,7 +115,7 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpPost]
-    [Route("repository/game-servers")]
+    [Route("game-servers")]
     public async Task<IActionResult> CreateGameServers()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -149,7 +149,7 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpPatch]
-    [Route("repository/game-servers/{gameServerId}")]
+    [Route("game-servers/{gameServerId}")]
     public async Task<IActionResult> UpdateGameServer(Guid gameServerId)
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -190,7 +190,7 @@ public class GameServersController : Controller, IGameServersApi
     }
 
     [HttpDelete]
-    [Route("repository/game-servers/{gameServerId}")]
+    [Route("game-servers/{gameServerId}")]
     public async Task<IActionResult> DeleteGameServer(Guid gameServerId)
     {
         var response = await ((IGameServersApi)this).DeleteGameServer(gameServerId);

@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/admin-actions/{adminActionId}")]
+        [Route("admin-actions/{adminActionId}")]
         public async Task<IActionResult> GetAdminAction(Guid adminActionId)
         {
             var response = await ((IAdminActionsApi)this).GetAdminAction(adminActionId);
@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/admin-actions")]
+        [Route("admin-actions")]
         public async Task<IActionResult> GetAdminActions(GameType? gameType, Guid? playerId, string? adminId, AdminActionFilter? filter, int? skipEntries, int? takeEntries, AdminActionOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -96,7 +96,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/admin-actions")]
+        [Route("admin-actions")]
         public async Task<IActionResult> CreateAdminAction()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -135,7 +135,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPatch]
-        [Route("repository/admin-actions/{adminActionId}")]
+        [Route("admin-actions/{adminActionId}")]
         public async Task<IActionResult> UpdateAdminAction(Guid adminActionId)
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -182,7 +182,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
 
         [HttpDelete]
-        [Route("repository/admin-actions/{adminActionId}")]
+        [Route("admin-actions/{adminActionId}")]
         public async Task<IActionResult> DeleteAdminAction(Guid adminActionId)
         {
             var response = await ((IAdminActionsApi)this).DeleteAdminAction(adminActionId);

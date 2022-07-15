@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/demos/{demoId}")]
+        [Route("demos/{demoId}")]
         public async Task<IActionResult> GetDemo(Guid demoId)
         {
             var response = await ((IDemosApi)this).GetDemo(demoId);
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("repository/demos")]
+        [Route("demos")]
         public async Task<IActionResult> GetDemos(string? gameTypes, string? userId, string? filterString, int? skipEntries, int? takeEntries, DemoOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/demos")]
+        [Route("demos")]
         public async Task<IActionResult> CreateDemo()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -150,7 +150,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("repository/demos/{demoId}/file")]
+        [Route("demos/{demoId}/file")]
         public async Task<IActionResult> SetDemoFile(Guid demoId)
         {
             if (Request.Form.Files.Count == 0)
@@ -179,7 +179,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
                 return new ApiResponseDto(HttpStatusCode.NotFound);
 
             var blobKey = $"{Guid.NewGuid()}.{demo.GameType.ToGameType().DemoExtension()}";
-            var blobServiceClient = new BlobServiceClient(configuration["appdata-storage-connectionstring"]);
+            var blobServiceClient = new BlobServiceClient(configuration["appdata_storage_connectionstring"]);
             var containerClient = blobServiceClient.GetBlobContainerClient("demos");
             var blobClient = containerClient.GetBlobClient(blobKey);
             await blobClient.UploadAsync(filePath);
@@ -202,7 +202,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpDelete]
-        [Route("repository/demos/{demoId}")]
+        [Route("demos/{demoId}")]
         public async Task<IActionResult> DeleteDemo(Guid demoId)
         {
             var response = await ((IDemosApi)this).DeleteDemo(demoId);

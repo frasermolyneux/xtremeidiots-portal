@@ -22,28 +22,28 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddRepositoryApiClient(options =>
         {
-            options.ApimBaseUrl = config["repository-api-base-url"] ?? config["apim-base-url"];
-            options.ApimSubscriptionKey = config["apim-subscription-key"];
-            options.ApiPathPrefix = config["repository-api-path-prefix"] ?? "repository";
+            options.BaseUrl = config["repository_api_base_url"] ?? config["apim_base_url"];
+            options.ApiKey = config["apim_subscription_key"];
+            options.ApiPathPrefix = config["repository_api_path_prefix"] ?? "repository";
         });
 
         builder.Services.AddMapRedirectRepository(options =>
         {
-            options.MapRedirectBaseUrl = config["map-redirect-base-url"];
-            options.ApiKey = config["map-redirect-api-key"];
+            options.MapRedirectBaseUrl = config["map_redirect_base_url"];
+            options.ApiKey = config["map_redirect_api_key"];
         });
 
         builder.Services.AddInvisionApiClient(options =>
         {
-            options.BaseUrl = config["xtremeidiots-forums-base-url"];
-            options.ApiKey = config["xtremeidiots-forums-api-key"];
+            options.BaseUrl = config["xtremeidiots_forums_base_url"];
+            options.ApiKey = config["xtremeidiots_forums_api_key"];
         });
 
         builder.Services.AddAdminActionTopics();
 
         builder.Services.AddBanFilesRepository(options =>
         {
-            options.ConnectionString = config["appdata-storage-connectionstring"];
+            options.ConnectionString = config["appdata_storage_connectionstring"];
         });
 
         builder.Services.AddSingleton<IFtpHelper, FtpHelper>();

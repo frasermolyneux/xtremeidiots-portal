@@ -1,74 +1,56 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Servers API",
-        "description": "",
+        "title": "servers-webapi",
         "version": "1.0"
     },
     "paths": {
-        "/query/{server-id}/status": {
+        "/query/{gameServerId}/status": {
             "get": {
-                "summary": "query/{server-id}/status",
-                "operationId": "get-query-server-id-status",
+                "tags": [
+                    "Query"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "Success"
                     }
                 }
             }
         },
-        "/rcon/{server-id}/status": {
+        "/rcon/{gameServerId}/status": {
             "get": {
-                "summary": "rcon/{server-id}/status",
-                "operationId": "get-rcon-server-id-status",
+                "tags": [
+                    "Rcon"
+                ],
                 "parameters": [
                     {
-                        "name": "server-id",
+                        "name": "gameServerId",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": ""
+                            "type": "string",
+                            "format": "uuid"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": null
+                        "description": "Success"
                     }
                 }
             }
         }
     },
-    "components": {
-        "securitySchemes": {
-            "apiKeyHeader": {
-                "type": "apiKey",
-                "name": "Ocp-Apim-Subscription-Key",
-                "in": "header"
-            },
-            "apiKeyQuery": {
-                "type": "apiKey",
-                "name": "subscription-key",
-                "in": "query"
-            }
-        }
-    },
-    "security": [
-        {
-            "apiKeyHeader": []
-        },
-        {
-            "apiKeyQuery": []
-        }
-    ]
+    "components": {}
 }

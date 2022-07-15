@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public class ServersApiTokenProvider : IServersApiTokenProvider
         this.configuration = configuration;
     }
 
-    private string ServersApiApplicationAudience => configuration["servers-api-application-audience"];
+    private string ServersApiApplicationAudience => configuration["servers_api_application_audience"];
 
     public async Task<string> GetAccessToken()
     {

@@ -27,6 +27,8 @@ param parTags object
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
 
+var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
+
 module repositoryApi 'services/repositoryApi.bicep' = {
   name: 'repositoryApi'
   params: {
@@ -106,21 +108,23 @@ module adminWebApp 'services/adminWebApp.bicep' = {
     parTags: parTags
   }
 }
-//
-//module eventsApp 'services/eventsApp.bicep' = {
-//  name: 'eventsApp'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parServiceBusName: varServiceBusName
-//    parEventsApiAppId: parEventsApiAppId
-//  }
-//}
-//
+
+module eventsApp 'services/eventsApp.bicep' = {
+  name: 'eventsApp'
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServiceBusName: varServiceBusName
+    parEventsApiAppId: parEventsApiAppId
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parTags: parTags
+  }
+}
+
 //module ingestApp 'services/ingestApp.bicep' = {
 //  name: 'ingestApp'
 //  params: {

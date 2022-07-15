@@ -27,27 +27,6 @@ param parTags object
 // Variables
 var varWorkloadName = 'webapi-repository-portal-${parEnvironment}'
 
-// Existing Resources
-resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
-  name: parKeyVaultName
-}
-
-resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
-  name: parAppServicePlanName
-}
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: parAppInsightsName
-}
-
-resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
-  name: parApiManagementName
-}
-
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
-  name: parSqlServerName
-}
-
 // Module Resources
 module appDataStorage 'repositoryApi/appDataStorage.bicep' = {
   name: 'repositoryApiAppDataStorage'

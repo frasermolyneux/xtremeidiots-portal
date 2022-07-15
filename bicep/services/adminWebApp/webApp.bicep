@@ -92,12 +92,20 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: apiManagement.properties.gatewayUrl
         }
         {
-          name: 'portal_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-subscription-apikey)'
+          name: 'portal_repository_apim_subscription_key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-repository-subscription-apikey)'
+        }
+        {
+          name: 'portal_servers_apim_subscription_key'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-servers-subscription-apikey)'
         }
         {
           name: 'geolocation_apim_subscription_key'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-geoloc-subscription-apikey)'
+        }
+        {
+          name: 'repository_api_application_audience'
+          value: 'api://portal-repository-api-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'
@@ -185,6 +193,10 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         {
           name: 'portal_servers_apim_subscription_key'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-servers-subscription-apikey)'
+        }
+        {
+          name: 'repository_api_application_audience'
+          value: 'api://portal-repository-api-${parEnvironment}'
         }
         {
           name: 'geolocation_apim_subscription_key'

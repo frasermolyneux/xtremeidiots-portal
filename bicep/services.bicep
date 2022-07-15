@@ -51,12 +51,39 @@ module repositoryApi 'services/repositoryApi.bicep' = {
   }
 }
 
+module serversApi 'services/serversApi.bicep' = {
+  name: 'serversApi'
+
+  dependsOn: [
+    repositoryApi
+  ]
+
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServersApiAppId: parServersApiAppId
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parTags: parTags
+  }
+}
+
 module adminWebApp 'services/adminWebApp.bicep' = {
   name: 'adminWebApp'
 
-  // TODO: This will depend on the repository and servers APIs for the APIM subscriptions
   dependsOn: [
     repositoryApi
+    serversApi
   ]
 
   params: {
@@ -126,18 +153,7 @@ module adminWebApp 'services/adminWebApp.bicep' = {
 //  }
 //}
 //
-//module serversApi 'services/serversApi.bicep' = {
-//  name: 'serversApi'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parServersApiAppId: parServersApiAppId
-//  }
-//}
+
 //
 //module syncApp 'services/syncApp.bicep' = {
 //  name: 'syncApp'

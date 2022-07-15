@@ -37,13 +37,43 @@ module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManageme
     parWorkloadResourceGroupName: resourceGroup().name
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: parKeyVaultName
-    parSubscriptionScopeIdentifier: 'geoloc'
+    parSubscriptionScopeIdentifier: 'geolocation'
     parSubscriptionScope: '/apis/geolocation-api'
     parTags: parTags
   }
 }
 
-// TODO: Need subscriptions for repository and servers APIs
+module adminWebAppRepositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: 'adminWebAppRepositoryApiManagementSubscription'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+
+  params: {
+    parApiManagementName: parApiManagementName
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parWorkloadName: varAdminWebAppName
+    parKeyVaultName: parKeyVaultName
+    parSubscriptionScopeIdentifier: 'portal-repository'
+    parSubscriptionScope: '/apis/repository-api'
+    parTags: parTags
+  }
+}
+
+module adminWebAppServersApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: 'adminWebAppServersApiManagementSubscription'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+
+  params: {
+    parApiManagementName: parApiManagementName
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parWorkloadName: varAdminWebAppName
+    parKeyVaultName: parKeyVaultName
+    parSubscriptionScopeIdentifier: 'portal-servers'
+    parSubscriptionScope: '/apis/servers-api'
+    parTags: parTags
+  }
+}
 
 module webApp 'adminWebApp/webApp.bicep' = {
   name: 'adminWebApp'

@@ -4,14 +4,28 @@ targetScope = 'resourceGroup'
 param parLocation string
 param parEnvironment string
 param parKeyVaultName string
-param parAppServicePlanName string
 param parAppInsightsName string
-param parApiManagementName string
-param parSqlServerName string
+
 param parRepositoryApiAppId string
 
+param parConnectivitySubscriptionId string
+param parFrontDoorResourceGroupName string
+param parDnsResourceGroupName string
+param parFrontDoorName string
+param parParentDnsName string
+
+param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parApiManagementName string
+param parWebAppsResourceGroupName string
+param parAppServicePlanName string
+param parSqlServerResourceGroupName string
+param parSqlServerName string
+
+param parTags object
+
 // Variables
-var varRepositoryWebAppName = 'webapi-repository-portal-${parEnvironment}-${parLocation}-01'
+var varWorkloadName = 'webapi-repository-portal-${parEnvironment}'
 
 // Existing Resources
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
@@ -35,360 +49,86 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
 }
 
 // Module Resources
-resource repositoryApiAppDataStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: 'sarepoappdata${parEnvironment}'
-  location: parLocation
-  kind: 'StorageV2'
+module appDataStorage 'repositoryApi/appDataStorage.bicep' = {
+  name: 'repositoryApiAppDataStorage'
 
-  sku: {
-    name: 'Standard_LRS'
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: parKeyVaultName
+    parTags: parTags
   }
 }
 
-resource repositoryApiAppDataStorageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
-  name: 'default'
-  parent: repositoryApiAppDataStorageAccount
-  properties: {}
-}
+module webApp 'repositoryApi/webApp.bicep' = {
+  name: 'repositoryApiWebApp'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
-resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: 'map-images'
-  parent: repositoryApiAppDataStorageAccountBlobServices
-  properties: {
-    publicAccess: 'Blob'
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: parKeyVaultName
+    parAppInsightsName: parAppInsightsName
+    parRepositoryApiAppId: parRepositoryApiAppId
+    parAppDataStorageAccountName: appDataStorage.outputs.outStorageAccountName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parAppServicePlanName: parAppServicePlanName
+    parSqlServerResourceGroupName: parSqlServerResourceGroupName
+    parSqlServerName: parSqlServerName
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parTags: parTags
   }
 }
 
-resource repositoryApiDemosContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-09-01' = {
-  name: 'demos'
-  parent: repositoryApiAppDataStorageAccountBlobServices
-  properties: {
-    publicAccess: 'Blob'
+module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: 'repositoryApiWebAppKeyVaultAccessPolicy'
+
+  params: {
+    parKeyVaultName: parKeyVaultName
+    parPrincipalId: webApp.outputs.outWebAppIdentityPrincipalId
   }
 }
 
-resource repositoryApiAppDataConnectionSecret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  name: '${repositoryApiAppDataStorageAccount.name}-connectionstring'
-  parent: keyVault
+module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: 'repositoryApiWebAppStagingKeyVaultAccessPolicy'
 
-  properties: {
-    contentType: 'text/plain'
-    value: 'DefaultEndpointsProtocol=https;AccountName=${repositoryApiAppDataStorageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(repositoryApiAppDataStorageAccount.id, repositoryApiAppDataStorageAccount.apiVersion).keys[0].value}'
+  params: {
+    parKeyVaultName: parKeyVaultName
+    parPrincipalId: webApp.outputs.outWebAppStagingIdentityPrincipalId
   }
 }
 
-resource webApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: varRepositoryWebAppName
-  location: parLocation
-  kind: 'app'
+module apiManagementRepositoryApi 'repositoryApi/apiManagementApi.bicep' = {
+  name: 'apiManagementRepositoryApi'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
-  identity: {
-    type: 'SystemAssigned'
-  }
-
-  properties: {
-    serverFarmId: appServicePlan.id
-
-    httpsOnly: true
-
-    siteConfig: {
-      alwaysOn: true
-      ftpsState: 'Disabled'
-
-      netFrameworkVersion: 'v6.0'
-      minTlsVersion: '1.2'
-
-      appSettings: [
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
-        }
-        {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
-        }
-        {
-          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~2'
-        }
-        {
-          name: 'ASPNETCORE_ENVIRONMENT'
-          value: 'Production'
-        }
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-        {
-          name: 'AzureAd:TenantId'
-          value: tenant().tenantId
-        }
-        {
-          name: 'AzureAd:Instance'
-          value: environment().authentication.loginEndpoint
-        }
-        {
-          name: 'AzureAd:ClientId'
-          value: parRepositoryApiAppId
-        }
-        {
-          name: 'AzureAd:ClientSecret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
-        }
-        {
-          name: 'AzureAd:Audience'
-          value: 'api://portal-repository-api-${parEnvironment}'
-        }
-        {
-          name: 'sql-connection-string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
-        }
-        {
-          name: 'appdata-storage-connectionstring'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
-        }
-      ]
-    }
+  params: {
+    parApiManagementName: parApiManagementName
+    parFrontDoorDns: varWorkloadName
+    parParentDnsName: parParentDnsName
+    parEnvironment: parEnvironment
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parKeyVaultName: parKeyVaultName
+    parAppInsightsName: parAppInsightsName
   }
 }
 
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
-  name: 'staging'
-  location: parLocation
-  kind: 'app'
-  parent: webApp
+module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
+  name: 'repositoryApiFrontDoorEndpoint'
+  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 
-  identity: {
-    type: 'SystemAssigned'
-  }
-
-  properties: {
-    serverFarmId: appServicePlan.id
-
-    httpsOnly: true
-
-    siteConfig: {
-      alwaysOn: true
-      ftpsState: 'Disabled'
-
-      netFrameworkVersion: 'v6.0'
-      minTlsVersion: '1.2'
-
-      appSettings: [
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
-        }
-        {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
-        }
-        {
-          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~2'
-        }
-        {
-          name: 'ASPNETCORE_ENVIRONMENT'
-          value: 'Production'
-        }
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-        {
-          name: 'AzureAd:TenantId'
-          value: tenant().tenantId
-        }
-        {
-          name: 'AzureAd:Instance'
-          value: environment().authentication.loginEndpoint
-        }
-        {
-          name: 'AzureAd:ClientId'
-          value: parRepositoryApiAppId
-        }
-        {
-          name: 'AzureAd:ClientSecret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
-        }
-        {
-          name: 'AzureAd:Audience'
-          value: 'api://portal-repository-api-${parEnvironment}'
-        }
-        {
-          name: 'sql-connection-string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
-        }
-        {
-          name: 'appdata-storage-connectionstring'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${repositoryApiAppDataStorageAccount.name}-connectionstring)'
-        }
-      ]
-    }
-  }
-}
-
-resource webAppKeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-11-01-preview' = {
-  name: 'add'
-  parent: keyVault
-
-  properties: {
-    accessPolicies: [
-      {
-        objectId: webApp.identity.principalId
-        permissions: {
-          certificates: []
-          keys: []
-          secrets: [
-            'get'
-          ]
-          storage: []
-        }
-        tenantId: tenant().tenantId
-      }
-      {
-        objectId: webAppStagingSlot.identity.principalId
-        permissions: {
-          certificates: []
-          keys: []
-          secrets: [
-            'get'
-          ]
-          storage: []
-        }
-        tenantId: tenant().tenantId
-      }
-    ]
-  }
-}
-
-resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
-  name: webApp.name
-  parent: apiManagement
-
-  properties: {
-    title: webApp.name
-    description: webApp.name
-    url: 'https://${webApp.properties.defaultHostName}/'
-    protocol: 'http'
-    properties: {}
-
-    tls: {
-      validateCertificateChain: true
-      validateCertificateName: true
-    }
-  }
-}
-
-resource repositoryApiActiveBackendNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
-  name: 'repository-api-active-backend'
-  parent: apiManagement
-
-  properties: {
-    displayName: 'repository-api-active-backend'
-    value: apiBackend.name
-    secret: false
-  }
-}
-
-resource repositoryApiAudienceNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
-  name: 'repository-api-audience'
-  parent: apiManagement
-
-  properties: {
-    displayName: 'repository-api-audience'
-    value: 'api://portal-repository-api-${parEnvironment}'
-    secret: false
-  }
-}
-
-resource repositoryApi 'Microsoft.ApiManagement/service/apis@2021-08-01' = {
-  name: 'repositoryApi'
-  parent: apiManagement
-
-  properties: {
-    apiRevision: '1.0'
-    apiType: 'http'
-    type: 'http'
-
-    description: 'API for repository layer'
-    displayName: 'Repository API'
-    path: ''
-
-    protocols: [
-      'https'
-    ]
-
-    subscriptionRequired: true
-    subscriptionKeyParameterNames: {
-      header: 'Ocp-Apim-Subscription-Key'
-    }
-
-    format: 'openapi+json'
-    value: loadTextContent('./../../api-definitions/Repository.openapi+json.json')
-  }
-}
-
-resource repositoryApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2021-08-01' = {
-  name: 'policy'
-  parent: repositoryApi
-  properties: {
-    format: 'xml'
-    value: '''
-<policies>
-  <inbound>
-      <base/>
-      <set-backend-service backend-id="{{repository-api-active-backend}}" />
-      <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" downstream-caching-type="none" />
-      <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="JWT validation was unsuccessful" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true">
-          <openid-config url="{{tenant-login-url}}{{tenant-id}}/v2.0/.well-known/openid-configuration" />
-          <audiences>
-              <audience>{{repository-api-audience}}</audience>
-          </audiences>
-          <issuers>
-              <issuer>https://sts.windows.net/{{tenant-id}}/</issuer>
-          </issuers>
-          <required-claims>
-              <claim name="roles" match="any">
-                <value>ServiceAccount</value>
-              </claim>
-          </required-claims>
-      </validate-jwt>
-  </inbound>
-  <backend>
-      <forward-request />
-  </backend>
-  <outbound>
-      <base/>
-      <cache-store duration="3600" />
-  </outbound>
-  <on-error />
-</policies>'''
-  }
-
-  dependsOn: [
-    repositoryApiActiveBackendNamedValue
-    repositoryApiAudienceNamedValue
-  ]
-}
-
-resource repositoryApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2021-08-01' = {
-  name: 'applicationinsights'
-  parent: repositoryApi
-
-  properties: {
-    alwaysLog: 'allErrors'
-
-    httpCorrelationProtocol: 'W3C'
-    logClientIp: true
-    loggerId: resourceId('Microsoft.ApiManagement/service/loggers', apiManagement.name, appInsights.name)
-    operationNameFormat: 'name'
-
-    sampling: {
-      percentage: 100
-      samplingType: 'fixed'
-    }
-
-    verbosity: 'information'
+  params: {
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parWorkloadName: varWorkloadName
+    parOriginHostName: webApp.outputs.outWebAppDefaultHostName
+    parDnsZoneHostnamePrefix: varWorkloadName
+    parCustomHostname: '${varWorkloadName}.${parParentDnsName}'
+    parTags: parTags
   }
 }

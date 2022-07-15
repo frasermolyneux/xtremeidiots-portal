@@ -26,24 +26,48 @@ param parTags object
 // Variables
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
-var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
+
+module repositoryApi 'services/repositoryApi.bicep' = {
+  name: 'repositoryApi'
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parRepositoryApiAppId: parRepositoryApiAppId
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parSqlServerResourceGroupName: parSqlServerResourceGroupName
+    parSqlServerName: parSqlServerName
+    parTags: parTags
+  }
+}
 
 module adminWebApp 'services/adminWebApp.bicep' = {
   name: 'adminWebApp'
 
   // TODO: This will depend on the repository and servers APIs for the APIM subscriptions
+  dependsOn: [
+    repositoryApi
+  ]
 
   params: {
     parLocation: parLocation
     parEnvironment: parEnvironment
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
-    parServiceBusName: varServiceBusName
     parConnectivitySubscriptionId: parConnectivitySubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
     parDnsResourceGroupName: parDnsResourceGroupName
     parFrontDoorName: parFrontDoorName
-    parAdminWebAppDnsPrefix: parAdminWebAppDnsPrefix
     parParentDnsName: parParentDnsName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
@@ -83,19 +107,7 @@ module adminWebApp 'services/adminWebApp.bicep' = {
 //  }
 //}
 //
-//module repositoryApi 'services/repositoryApi.bicep' = {
-//  name: 'repositoryApi'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parSqlServerName: varSqlServerName
-//    parRepositoryApiAppId: parRepositoryApiAppId
-//  }
-//}
+
 //
 //module repositoryApp 'services/repositoryApp.bicep' = {
 //  name: 'repositoryApp'

@@ -5,13 +5,11 @@ param parLocation string
 param parEnvironment string
 param parKeyVaultName string
 param parAppInsightsName string
-param parServiceBusName string
 
 param parConnectivitySubscriptionId string
 param parFrontDoorResourceGroupName string
 param parDnsResourceGroupName string
 param parFrontDoorName string
-param parAdminWebAppDnsPrefix string
 param parParentDnsName string
 
 param parStrategicServicesSubscriptionId string
@@ -26,6 +24,7 @@ param parTags object
 
 // Variables
 var varAdminWebAppName = 'webapp-admin-portal-${parEnvironment}-${parLocation}'
+var varWorkloadName = 'webapp-admin-portal-${parEnvironment}'
 
 // Module Resources
 module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
@@ -86,7 +85,7 @@ module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bice
 }
 
 module webAppIdentitySqlDatabase './../modules/sqlDatabase.bicep' = {
-  name: 'webAppIdentitySqlDatabase'
+  name: 'adminWebAppIdentitySqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
 
   params: {
@@ -96,6 +95,22 @@ module webAppIdentitySqlDatabase './../modules/sqlDatabase.bicep' = {
     parSkuCapacity: 5
     parSkuName: 'Basic'
     parSkuTier: 'Basic'
+    parTags: parTags
+  }
+}
+
+module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
+  name: 'adminWebAppFrontDoorEndpoint'
+  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+
+  params: {
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parWorkloadName: varWorkloadName
+    parOriginHostName: webApp.outputs.outWebAppDefaultHostName
+    parDnsZoneHostnamePrefix: varWorkloadName
+    parCustomHostname: '${varWorkloadName}.${parParentDnsName}'
     parTags: parTags
   }
 }

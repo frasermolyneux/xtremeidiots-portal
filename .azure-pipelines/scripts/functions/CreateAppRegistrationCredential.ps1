@@ -33,7 +33,7 @@ if ($credentials.Count -eq 2) {
     }
 
     $credentialToDelete = $credentials | Sort-Object { Get-Date($_.endDateTime) } | Select-Object -First 1
-    if ($credentialToDelete.endDateTime -lt ((Get-Date) - $credentialToDelete.endDateTime).AddMonths(-1)) {
+    if (Get-Date($credentialToDelete.endDateTime) -lt ((Get-Date) - (Get-Date($credentialToDelete.endDateTime))).AddMonths(-1)) {
         Write-Host "Near Expiry Credential: Reset credential with expiry '$($credentialToDelete.endDateTime)' and store in Key Vault with name '$secretPrefix-clientsecret' in '$keyVaultName'"
 
         az ad app credential delete --id "$applicationId" --key-id $credentialToDelete.keyId

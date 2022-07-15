@@ -141,7 +141,7 @@ stages:
           $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
           $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
 
-          az deployment group create --resource-group "rg-portal-prd-uksouth-01" `
+          az deployment group create --resource-group "rg-portal-prd-uksouth" `
               --template-file bicep/services.bicep `
               --parameters @params/services.prd.json `
               parEventsApiAppId=$eventsApiAppId `
@@ -202,7 +202,7 @@ stages:
   #- template: templates/deploy-sql-database.yml
   #  parameters:
   #    jobName: DeploySqlDatabase
-  #    serverName: "sql-portal-prd-uksouth-01.database.windows.net"
+  #    serverName: "sql-portal-prd-uksouth.database.windows.net"
   #    databaseName: 'portaldb'
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    sqlCmdArgs: '/Variables:env=prd'
@@ -212,8 +212,8 @@ stages:
   #    dependsOn: ['DeploySqlDatabase']
   #    projectName: repository-webapi
   #    jobName: DeployRepositoryWebApi
-  #    webAppName: "webapi-repository-portal-prd-uksouth-01"
-  #    webAppNameResourceGroup: "rg-portal-prd-uksouth-01"
+  #    webAppName: "webapi-repository-portal-prd-uksouth"
+  #    webAppNameResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
@@ -222,8 +222,8 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: repository-func
   #    jobName: DeployRepositoryFunctionApp
-  #    functionAppName: "fn-repository-portal-prd-uksouth-01"
-  #    functionAppResourceGroup: "rg-portal-prd-uksouth-01"
+  #    functionAppName: "fn-repository-portal-prd-uksouth"
+  #    functionAppResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 
   #- template: templates/deploy-function-app.yml
@@ -231,8 +231,8 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: ingest-func
   #    jobName: DeployIngestFunctionApp
-  #    functionAppName: "fn-ingest-portal-prd-uksouth-01"
-  #    functionAppResourceGroup: "rg-portal-prd-uksouth-01"
+  #    functionAppName: "fn-ingest-portal-prd-uksouth"
+  #    functionAppResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 
   #- template: templates/deploy-function-app.yml
@@ -240,8 +240,8 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: events-func
   #    jobName: DeployEventsFunctionApp
-  #    functionAppName: "fn-events-portal-prd-uksouth-01"
-  #    functionAppResourceGroup: "rg-portal-prd-uksouth-01"
+  #    functionAppName: "fn-events-portal-prd-uksouth"
+  #    functionAppResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
@@ -250,8 +250,8 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: sync-func
   #    jobName: DeploySyncFunctionApp
-  #    functionAppName: "fn-sync-portal-prd-uksouth-01"
-  #    functionAppResourceGroup: "rg-portal-prd-uksouth-01"
+  #    functionAppName: "fn-sync-portal-prd-uksouth"
+  #    functionAppResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
 #
   #- template: templates/deploy-web-app.yml
@@ -259,8 +259,8 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: servers-webapi
   #    jobName: DeployServersWebApi
-  #    webAppName: "webapi-servers-portal-prd-uksouth-01"
-  #    webAppNameResourceGroup: "rg-portal-prd-uksouth-01"
+  #    webAppName: "webapi-servers-portal-prd-uksouth"
+  #    webAppNameResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true
 
@@ -269,7 +269,7 @@ stages:
   #    dependsOn: ['DeployRepositoryWebApi']
   #    projectName: admin-webapp
   #    jobName: DeployAdminWebApp
-  #    webAppName: "webapp-admin-portal-prd-uksouth-01"
-  #    webAppNameResourceGroup: "rg-portal-prd-uksouth-01"
+  #    webAppName: "webapp-admin-portal-prd-uksouth"
+  #    webAppNameResourceGroup: "rg-portal-prd-uksouth"
   #    subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
   #    blueGreenDeploy: true

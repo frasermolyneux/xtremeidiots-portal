@@ -30,6 +30,9 @@ var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
 module adminWebApp 'services/adminWebApp.bicep' = {
   name: 'adminWebApp'
+
+  // TODO: This will depend on the repository and servers APIs for the APIM subscriptions
+
   params: {
     parLocation: parLocation
     parEnvironment: parEnvironment

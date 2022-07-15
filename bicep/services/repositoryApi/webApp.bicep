@@ -101,31 +101,31 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '1'
         }
         {
-          name: 'AzureAd:TenantId'
+          name: 'AzureAd__TenantId'
           value: tenant().tenantId
         }
         {
-          name: 'AzureAd:Instance'
+          name: 'AzureAd__Instance'
           value: environment().authentication.loginEndpoint
         }
         {
-          name: 'AzureAd:ClientId'
+          name: 'AzureAd__ClientId'
           value: parRepositoryApiAppId
         }
         {
-          name: 'AzureAd:ClientSecret'
+          name: 'AzureAd__ClientSecret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
         }
         {
-          name: 'AzureAd:Audience'
+          name: 'AzureAd__Audience'
           value: 'api://portal-repository-api-${parEnvironment}'
         }
         {
-          name: 'sql-connection-string'
+          name: 'sql_connection_string'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
         }
         {
-          name: 'appdata-storage-connectionstring'
+          name: 'appdata_storage_connectionstring'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appDataStorageAccount.name}-connectionstring)'
         }
       ]
@@ -180,31 +180,31 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
           value: '1'
         }
         {
-          name: 'AzureAd:TenantId'
+          name: 'AzureAd__TenantId'
           value: tenant().tenantId
         }
         {
-          name: 'AzureAd:Instance'
+          name: 'AzureAd__Instance'
           value: environment().authentication.loginEndpoint
         }
         {
-          name: 'AzureAd:ClientId'
+          name: 'AzureAd__ClientId'
           value: parRepositoryApiAppId
         }
         {
-          name: 'AzureAd:ClientSecret'
+          name: 'AzureAd__ClientSecret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
         }
         {
-          name: 'AzureAd:Audience'
+          name: 'AzureAd__Audience'
           value: 'api://portal-repository-api-${parEnvironment}'
         }
         {
-          name: 'sql-connection-string'
+          name: 'sql_connection_string'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
         }
         {
-          name: 'appdata-storage-connectionstring'
+          name: 'appdata_storage_connectionstring'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appDataStorageAccount.name}-connectionstring)'
         }
       ]

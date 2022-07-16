@@ -13,7 +13,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
 
   properties: {
     accessPolicies: []
-    createMode: 'default'
+    createMode: 'recover' // Must be set to 'default' if the Key Vault does not exist. Setting to 'recover' avoids the accessPolicies being wiped each time.
 
     enablePurgeProtection: true
     enableRbacAuthorization: false

@@ -223,7 +223,7 @@ stages:
       jobName: DeployRepositoryWebApi
       webAppName: "webapi-repository-portal-prd-uksouth"
       webAppNameResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
       blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
@@ -233,7 +233,7 @@ stages:
       jobName: DeployRepositoryFunctionApp
       functionAppName: "fn-repository-portal-prd-uksouth"
       functionAppResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -242,7 +242,7 @@ stages:
       jobName: DeployIngestFunctionApp
       functionAppName: "fn-ingest-portal-prd-uksouth"
       functionAppResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
 
   - template: templates/deploy-function-app.yml
     parameters:
@@ -251,7 +251,7 @@ stages:
       jobName: DeployEventsFunctionApp
       functionAppName: "fn-events-portal-prd-uksouth"
       functionAppResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
       blueGreenDeploy: true
 
   - template: templates/deploy-function-app.yml
@@ -261,7 +261,7 @@ stages:
       jobName: DeploySyncFunctionApp
       functionAppName: "fn-sync-portal-prd-uksouth"
       functionAppResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
 
   - template: templates/deploy-web-app.yml
     parameters:
@@ -270,7 +270,7 @@ stages:
       jobName: DeployServersWebApi
       webAppName: "webapi-servers-portal-prd-uksouth"
       webAppNameResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
       blueGreenDeploy: true
 
   - template: templates/deploy-web-app.yml
@@ -280,5 +280,5 @@ stages:
       jobName: DeployAdminWebApp
       webAppName: "webapp-admin-portal-prd-uksouth"
       webAppNameResourceGroup: "rg-portal-prd-uksouth"
-      subscription: 'spn-ado-XtremeIdiots-xtremeidiots-portal-prd-webapps'
+      subscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
       blueGreenDeploy: true

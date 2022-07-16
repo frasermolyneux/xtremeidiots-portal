@@ -98,8 +98,16 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '1'
         }
         {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+        }
+        {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~3'
         }
         {
           name: 'AzureWebJobsStorage'

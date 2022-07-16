@@ -90,7 +90,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~2'
+          value: '~3'
         }
         {
           name: 'ASPNETCORE_ENVIRONMENT'
@@ -169,7 +169,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~2'
+          value: '~3'
         }
         {
           name: 'ASPNETCORE_ENVIRONMENT'

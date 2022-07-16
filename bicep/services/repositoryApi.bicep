@@ -82,6 +82,21 @@ module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
+module sqlDatabase './../modules/sqlDatabase.bicep' = {
+  name: '${varDeploymentPrefix}-sqlDatabase'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
+
+  params: {
+    parSqlServerName: parSqlServerName
+    parLocation: parLocation
+    parDatabaseName: 'portaldb-${parEnvironment}'
+    parSkuCapacity: 10
+    parSkuName: 'Standard'
+    parSkuTier: 'Standard'
+    parTags: parTags
+  }
+}
+
 module apiManagementApi 'repositoryApi/apiManagementApi.bicep' = {
   name: '${varDeploymentPrefix}-apiManagementApi'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)

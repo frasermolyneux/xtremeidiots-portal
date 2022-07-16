@@ -125,7 +125,7 @@ module sqlDatabase './../modules/sqlDatabase.bicep' = {
   params: {
     parSqlServerName: parSqlServerName
     parLocation: parLocation
-    parDatabaseName: 'portalidentity-${parEnvironment}'
+    parDatabaseName: 'portalidentitydb-${parEnvironment}'
     parSkuCapacity: 5
     parSkuName: 'Basic'
     parSkuTier: 'Basic'

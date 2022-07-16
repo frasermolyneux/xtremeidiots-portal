@@ -201,7 +201,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           name: 'sql_connection_string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb;'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portaldb-${parEnvironment};'
         }
         {
           name: 'appdata_storage_connectionstring'

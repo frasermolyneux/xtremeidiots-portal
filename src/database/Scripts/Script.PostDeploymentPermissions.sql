@@ -13,18 +13,18 @@ Post-Deployment Script Template
 PRINT 'Environment Var: $(env)'
 PRINT 'Database Name (Predefined Var): $(DatabaseName)'
 
-IF (NOT EXISTS(SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-portal-$(env)-$(DatabaseName)-readers'))  
+IF (NOT EXISTS(SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-platform-$(env)-$(DatabaseName)-readers'))  
 BEGIN  
-	PRINT 'Adding user: sg-sql-portal-$(env)-$(DatabaseName)-readers to [db_datareader]'
-	CREATE USER [sg-sql-portal-$(env)-$(DatabaseName)-readers] FROM EXTERNAL PROVIDER
-	ALTER ROLE [db_datareader] ADD MEMBER [sg-sql-portal-$(env)-$(DatabaseName)-readers]
-	SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-portal-$(env)-$(DatabaseName)-readers'
+	PRINT 'Adding user: sg-sql-platform-$(env)-$(DatabaseName)-readers to [db_datareader]'
+	CREATE USER [sg-sql-platform-$(env)-$(DatabaseName)-readers] FROM EXTERNAL PROVIDER
+	ALTER ROLE [db_datareader] ADD MEMBER [sg-sql-platform-$(env)-$(DatabaseName)-readers]
+	SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-platform-$(env)-$(DatabaseName)-readers'
 END  
 
-IF (NOT EXISTS(SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-portal-$(env)-$(DatabaseName)-writers'))  
+IF (NOT EXISTS(SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-platform-$(env)-$(DatabaseName)-writers'))  
 BEGIN  
-	PRINT 'Adding user: sg-sql-portal-$(env)-$(DatabaseName)-writers to [db_datawriter]'
-	CREATE USER [sg-sql-portal-$(env)-$(DatabaseName)-writers] FROM EXTERNAL PROVIDER
-	ALTER ROLE [db_datawriter] ADD MEMBER [sg-sql-portal-$(env)-$(DatabaseName)-writers]
-	SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-portal-$(env)-$(DatabaseName)-writers'
+	PRINT 'Adding user: sg-sql-platform-$(env)-$(DatabaseName)-writers to [db_datawriter]'
+	CREATE USER [sg-sql-platform-$(env)-$(DatabaseName)-writers] FROM EXTERNAL PROVIDER
+	ALTER ROLE [db_datawriter] ADD MEMBER [sg-sql-platform-$(env)-$(DatabaseName)-writers]
+	SELECT * FROM sys.database_principals WHERE [name] = 'sg-sql-platform-$(env)-$(DatabaseName)-writers'
 END  

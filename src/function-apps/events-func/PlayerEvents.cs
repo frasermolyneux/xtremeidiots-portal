@@ -1,8 +1,9 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
-using System;
+
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.EventsFunc;
@@ -10,7 +11,7 @@ namespace XtremeIdiots.Portal.EventsFunc;
 public class PlayerEvents
 {
     [FunctionName("OnPlayerConnected")]
-    [return: ServiceBus("player_connected_queue", Connection = "service-bus-connection-string")]
+    [return: ServiceBus("player_connected_queue", Connection = "service_bus_connection_string")]
     public string OnPlayerConnected([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
         ILogger log)
     {
@@ -30,7 +31,7 @@ public class PlayerEvents
     }
 
     [FunctionName("OnChatMessage")]
-    [return: ServiceBus("chat_message_queue", Connection = "service-bus-connection-string")]
+    [return: ServiceBus("chat_message_queue", Connection = "service_bus_connection_string")]
     public static string OnChatMessage([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
         ILogger log)
     {
@@ -50,7 +51,7 @@ public class PlayerEvents
     }
 
     [FunctionName("OnMapVote")]
-    [return: ServiceBus("map_vote_queue", Connection = "service-bus-connection-string")]
+    [return: ServiceBus("map_vote_queue", Connection = "service_bus_connection_string")]
     public static string OnMapVote([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
     ILogger log)
     {

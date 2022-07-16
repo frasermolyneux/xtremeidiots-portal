@@ -24,7 +24,7 @@ public class ServerEventsIngest
 
     [FunctionName("ProcessOnServerConnected")]
     public async Task ProcessOnServerConnected(
-        [ServiceBusTrigger("server_connected_queue", Connection = "service-bus-connection-string")]
+        [ServiceBusTrigger("server_connected_queue", Connection = "service_bus_connection_string")]
         string myQueueItem)
     {
         OnServerConnected? onServerConnected;
@@ -53,7 +53,7 @@ public class ServerEventsIngest
 
     [FunctionName("ProcessOnMapChange")]
     public async Task ProcessOnMapChange(
-        [ServiceBusTrigger("map_change_queue", Connection = "service-bus-connection-string")]
+        [ServiceBusTrigger("map_change_queue", Connection = "service_bus_connection_string")]
         string myQueueItem)
     {
         OnMapChange? onMapChange;

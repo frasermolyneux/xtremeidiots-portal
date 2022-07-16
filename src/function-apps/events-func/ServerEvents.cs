@@ -1,8 +1,9 @@
 ﻿using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
-using System;
+
 using XtremeIdiots.Portal.EventsApi.Abstractions.Models;
 
 namespace XtremeIdiots.Portal.EventsFunc;
@@ -10,7 +11,7 @@ namespace XtremeIdiots.Portal.EventsFunc;
 public class ServerEvents
 {
     [FunctionName("OnServerConnected")]
-    [return: ServiceBus("server_connected_queue", Connection = "service-bus-connection-string")]
+    [return: ServiceBus("server_connected_queue", Connection = "service_bus_connection_string")]
     public string OnServerConnected([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
         ILogger log)
     {
@@ -30,7 +31,7 @@ public class ServerEvents
     }
 
     [FunctionName("OnMapChange")]
-    [return: ServiceBus("map_change_queue", Connection = "service-bus-connection-string")]
+    [return: ServiceBus("map_change_queue", Connection = "service_bus_connection_string")]
     public static string OnMapChange([HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] string input,
         ILogger log)
     {

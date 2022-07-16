@@ -111,6 +111,7 @@ module adminWebApp 'services/adminWebApp.bicep' = {
 
 module eventsApp 'services/eventsApp.bicep' = {
   name: 'eventsApp'
+
   params: {
     parLocation: parLocation
     parEnvironment: parEnvironment
@@ -125,49 +126,56 @@ module eventsApp 'services/eventsApp.bicep' = {
   }
 }
 
-//module ingestApp 'services/ingestApp.bicep' = {
-//  name: 'ingestApp'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parServiceBusName: varServiceBusName
-//  }
-//}
-//
+module ingestApp 'services/ingestApp.bicep' = {
+  name: 'ingestApp'
 
-//
-//module repositoryApp 'services/repositoryApp.bicep' = {
-//  name: 'repositoryApp'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parServiceBusName: varServiceBusName
-//    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-//    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-//    parPlatformApiManagementName: parApiManagementName
-//    parTags: parTags
-//  }
-//}
-//
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServiceBusName: varServiceBusName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parTags: parTags
+  }
+}
 
-//
-//module syncApp 'services/syncApp.bicep' = {
-//  name: 'syncApp'
-//  params: {
-//    parLocation: parLocation
-//    parEnvironment: parEnvironment
-//    parKeyVaultName: varKeyVaultName
-//    parAppServicePlanName: varAppServicePlanName
-//    parAppInsightsName: varAppInsightsName
-//    parApiManagementName: varApimName
-//    parServiceBusName: varServiceBusName
-//  }
-//}
+module repositoryApp 'services/repositoryApp.bicep' = {
+  name: 'repositoryApp'
+
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServiceBusName: varServiceBusName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parTags: parTags
+  }
+}
+
+module syncApp 'services/syncApp.bicep' = {
+  name: 'syncApp'
+
+  params: {
+    parLocation: parLocation
+    parEnvironment: parEnvironment
+    parKeyVaultName: varKeyVaultName
+    parAppInsightsName: varAppInsightsName
+    parServiceBusName: varServiceBusName
+    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
+    parWebAppsResourceGroupName: parWebAppsResourceGroupName
+    parAppServicePlanName: parAppServicePlanName
+    parTags: parTags
+  }
+}

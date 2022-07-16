@@ -1,4 +1,5 @@
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
@@ -71,6 +72,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
+
+app.MapGet("/", [AllowAnonymous] () => "OK");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

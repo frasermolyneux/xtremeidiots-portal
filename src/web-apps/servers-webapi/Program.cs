@@ -1,4 +1,5 @@
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
 
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -32,6 +33,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.MapGet("/", [AllowAnonymous] () => "OK");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

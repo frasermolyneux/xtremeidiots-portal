@@ -113,6 +113,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: 'api://portal-repository-api-${parEnvironment}'
         }
         {
+          name: 'servers_api_application_audience'
+          value: 'api://portal-servers-api-${parEnvironment}'
+        }
+        {
           name: 'geolocation_api_application_audience'
           value: 'api://geolocation-lookup-api-prd'
         }
@@ -206,6 +210,10 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         {
           name: 'repository_api_application_audience'
           value: 'api://portal-repository-api-${parEnvironment}'
+        }
+        {
+          name: 'servers_api_application_audience'
+          value: 'api://portal-servers-api-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'

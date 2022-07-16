@@ -22,8 +22,8 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddRepositoryApiClient(options =>
         {
-            options.BaseUrl = config["repository_api_base_url"] ?? config["apim_base_url"];
-            options.ApiKey = config["apim_subscription_key"];
+            options.BaseUrl = config["apim_base_url"] ?? config["repository_base_url"];
+            options.ApiKey = config["portal_repository_apim_subscription_key"];
             options.ApiPathPrefix = config["repository_api_path_prefix"] ?? "repository";
         });
 

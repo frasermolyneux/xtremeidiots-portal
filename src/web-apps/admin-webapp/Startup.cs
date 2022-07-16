@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddGeoLocationApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["geolocation_apim_base_url"];
+                options.ApimBaseUrl = Configuration["apim_base_url"] ?? Configuration["geolocation_base_url"];
                 options.ApimSubscriptionKey = Configuration["geolocation_apim_subscription_key"];
             });
 
@@ -47,15 +47,15 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddRepositoryApiClient(options =>
             {
-                options.BaseUrl = Configuration["repository_api_base_url"] ?? Configuration["apim_base_url"];
-                options.ApiKey = Configuration["apim_subscription_key"];
+                options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["repository_base_url"];
+                options.ApiKey = Configuration["portal_repository_apim_subscription_key"];
                 options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
             });
 
             services.AddServersApiClient(options =>
             {
-                options.BaseUrl = Configuration["servers_api_base_url"] ?? Configuration["apim_base_url"];
-                options.ApiKey = Configuration["apim_subscription_key"];
+                options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["servers_base_url"];
+                options.ApiKey = Configuration["portal_servers_apim_subscription_key"];
                 options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers";
             });
 

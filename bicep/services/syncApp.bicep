@@ -38,7 +38,7 @@ module repositoryApiManagementSubscription './../modules/apiManagementSubscripti
 }
 
 module appDataStorage 'syncApp/appDataStorage.bicep' = {
-  name: '${varDeploymentPrefix}syncAppAppDataStorage'
+  name: '${varDeploymentPrefix}-appDataStorage'
 
   params: {
     parDeploymentPrefix: varDeploymentPrefix

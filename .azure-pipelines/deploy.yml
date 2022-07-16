@@ -148,53 +148,62 @@ stages:
               parRepositoryApiAppId=$repositoryApiAppId `
               parServersApiAppId=$serversApiAppId 
 
- # - job: DeployServicesPermissions
- #   dependsOn: [DeployServicesBicep]
-    #steps:
-      #- task: AzureCLI@2
-      #  displayName: SetIngestApiFuncAppPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetIngestApiFuncAppPermissions.ps1'
+  - job: DeployServicesPermissions
+    dependsOn: [DeployServicesBicep]
+    steps:
+      - task: AzureCLI@2
+        displayName: SetIngestApiFuncAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetIngestApiFuncAppPermissions.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: SetRepositoryApiAppPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryApiAppPermissions.ps1'
+      - task: AzureCLI@2
+        displayName: SetRepositoryApiAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetRepositoryApiAppPermissions.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: SetRepositoryAppPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetRepositoryAppPermissions.ps1'
+      - task: AzureCLI@2
+        displayName: SetRepositoryAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetRepositoryAppPermissions.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: SetServersWebApiPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetServersWebApiPermissions.ps1'
+      - task: AzureCLI@2
+        displayName: SetServersWebApiPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetServersWebApiPermissions.ps1'
 
-      #- task: AzureCLI@2
-      #  displayName: SetAdminWebAppPermissions
-      #  inputs:
-      #    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-      #    scriptType: 'pscore'
-      #    scriptLocation: 'scriptPath'
-      #    arguments: 'prd'
-      #    scriptPath: '$(Build.sourcesDirectory)/scripts/SetAdminWebAppPermissions.ps1'
+      - task: AzureCLI@2
+        displayName: SetAdminWebAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetAdminWebAppPermissions.ps1'
+
+      - task: AzureCLI@2
+        displayName: SetSyncAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
 
 #- stage: DeployPrdArtifacts
 

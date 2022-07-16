@@ -15,9 +15,12 @@ param parAppServicePlanName string
 
 param parTags object
 
+// Variables
+var varDeploymentPrefix = 'eventsApp' //Prevent deployment naming conflicts
+
 // Module Resources
-module storageAccount './../modules/funcAppStorageAccount.bicep' = {
-  name: 'eventsFuncStorageAccount'
+module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+  name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
     parLocation: parLocation
@@ -29,7 +32,7 @@ module storageAccount './../modules/funcAppStorageAccount.bicep' = {
 }
 
 module functionApp 'eventsApp/functionApp.bicep' = {
-  name: 'eventsAppFunctionApp'
+  name: '${varDeploymentPrefix}-functionApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -38,7 +41,7 @@ module functionApp 'eventsApp/functionApp.bicep' = {
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
     parServiceBusName: parServiceBusName
-    parStorageAccountName: storageAccount.outputs.outStorageAccountName
+    parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parEventsApiAppId: parEventsApiAppId
     parAppServicePlanName: parAppServicePlanName
     parWorkloadSubscriptionId: subscription().subscriptionId
@@ -47,8 +50,8 @@ module functionApp 'eventsApp/functionApp.bicep' = {
   }
 }
 
-module functionAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'eventsAppFunctionAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -56,8 +59,8 @@ module functionAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep'
   }
 }
 
-module functionAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'eventsAppFunctionAppStagingKeyVaultAccessPolicy'
+module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -66,7 +69,7 @@ module functionAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy
 }
 
 module serviceBusQueues 'eventsApp/serviceBusQueues.bicep' = {
-  name: 'serviceBusQueues'
+  name: '${varDeploymentPrefix}-serviceBusQueues'
 
   params: {
     parServiceBusName: parServiceBusName

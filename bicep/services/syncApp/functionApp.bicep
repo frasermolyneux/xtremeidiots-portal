@@ -21,6 +21,7 @@ param parWorkloadResourceGroupName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'syncApp' //Prevent deployment naming conflicts
 var varFunctionAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}'
 
 // Existing In-Scope Resources
@@ -145,8 +146,8 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-module functionAppHostKeySecret './../../modules/keyVaultSecret.bicep' = {
-  name: 'functionAppHostKeySecret'
+module keyVaultSecret './../../modules/keyVaultSecret.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultSecret'
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 
   params: {

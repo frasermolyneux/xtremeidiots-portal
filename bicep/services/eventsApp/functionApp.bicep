@@ -18,6 +18,7 @@ param parWorkloadResourceGroupName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'eventsApp'
 var varFunctionAppName = 'fn-events-portal-${parEnvironment}-${parLocation}'
 
 // Existing In-Scope Resources
@@ -206,8 +207,8 @@ resource functionAppAuthSettings 'Microsoft.Web/sites/config@2021-03-01' = {
   }
 }
 
-module functionAppHostKeySecret './../../modules/keyVaultSecret.bicep' = {
-  name: 'functionAppHostKeySecret'
+module keyVaultSecret './../../modules/keyVaultSecret.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultSecret'
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 
   params: {

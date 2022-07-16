@@ -23,15 +23,17 @@ param parAppServicePlanName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'serversApi' //Prevent deployment naming conflicts
 var varServersWebAppName = 'webapi-servers-portal-${parEnvironment}-${parLocation}'
 var varWorkloadName = 'webapi-servers-portal-${parEnvironment}'
 
 // Module Resources
-module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'adminWebAppGeoLocationApiManagementSubscription'
+module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -44,7 +46,7 @@ module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManageme
 }
 
 module webApp 'serversApi/webApp.bicep' = {
-  name: 'serversApiWebApp'
+  name: '${varDeploymentPrefix}-webApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -63,8 +65,8 @@ module webApp 'serversApi/webApp.bicep' = {
   }
 }
 
-module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'serversApiKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -72,8 +74,8 @@ module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'serversApiStagingKeyVaultAccessPolicy'
+module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -81,8 +83,8 @@ module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bice
   }
 }
 
-module apiManagementServersApi 'serversApi/apiManagementApi.bicep' = {
-  name: 'apiManagementServersApi'
+module apiManagementApi 'serversApi/apiManagementApi.bicep' = {
+  name: '${varDeploymentPrefix}-apiManagementApi'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
@@ -98,10 +100,11 @@ module apiManagementServersApi 'serversApi/apiManagementApi.bicep' = {
 }
 
 module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
-  name: 'serversApiFrontDoorEndpoint'
+  name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
     parDnsResourceGroupName: parDnsResourceGroupName

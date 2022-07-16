@@ -16,14 +16,16 @@ param parAppServicePlanName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'syncApp' //Prevent deployment naming conflicts
 var varSyncFuncAppName = 'fn-sync-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module syncAppRepositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'syncAppRepositoryApiManagementSubscription'
+module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -36,7 +38,7 @@ module syncAppRepositoryApiManagementSubscription './../modules/apiManagementSub
 }
 
 module appDataStorage 'syncApp/appDataStorage.bicep' = {
-  name: 'syncAppAppDataStorage'
+  name: '${varDeploymentPrefix}syncAppAppDataStorage'
 
   params: {
     parLocation: parLocation
@@ -46,8 +48,8 @@ module appDataStorage 'syncApp/appDataStorage.bicep' = {
   }
 }
 
-module storageAccount './../modules/funcAppStorageAccount.bicep' = {
-  name: 'syncAppStorageAccount'
+module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+  name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
     parLocation: parLocation
@@ -59,7 +61,7 @@ module storageAccount './../modules/funcAppStorageAccount.bicep' = {
 }
 
 module functionApp 'syncApp/functionApp.bicep' = {
-  name: 'syncAppFunctionApp'
+  name: '${varDeploymentPrefix}-functionApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -68,7 +70,7 @@ module functionApp 'syncApp/functionApp.bicep' = {
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
     parServiceBusName: parServiceBusName
-    parStorageAccountName: storageAccount.outputs.outStorageAccountName
+    parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parAppDataStorageAccountName: appDataStorage.outputs.outStorageAccountName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
@@ -80,8 +82,8 @@ module functionApp 'syncApp/functionApp.bicep' = {
   }
 }
 
-module functionAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'syncAppFunctionAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName

@@ -16,14 +16,16 @@ param parAppServicePlanName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'ingestApp' //Prevent deployment naming conflicts
 var varIngestFuncAppName = 'fn-ingest-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module ingestAppRepositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'ingestAppRepositoryApiManagementSubscription'
+module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -35,8 +37,8 @@ module ingestAppRepositoryApiManagementSubscription './../modules/apiManagementS
   }
 }
 
-module storageAccount './../modules/funcAppStorageAccount.bicep' = {
-  name: 'ingestAppStorageAccount'
+module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+  name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
     parLocation: parLocation
@@ -48,7 +50,7 @@ module storageAccount './../modules/funcAppStorageAccount.bicep' = {
 }
 
 module functionApp 'ingestApp/functionApp.bicep' = {
-  name: 'ingestAppFunctionApp'
+  name: '${varDeploymentPrefix}-functionApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -57,7 +59,7 @@ module functionApp 'ingestApp/functionApp.bicep' = {
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
     parServiceBusName: parServiceBusName
-    parStorageAccountName: storageAccount.outputs.outStorageAccountName
+    parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
     parApiManagementName: parApiManagementName
@@ -68,8 +70,8 @@ module functionApp 'ingestApp/functionApp.bicep' = {
   }
 }
 
-module functionAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'eventsAppFunctionAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName

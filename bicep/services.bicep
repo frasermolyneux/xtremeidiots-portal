@@ -11,7 +11,6 @@ param parConnectivitySubscriptionId string
 param parFrontDoorResourceGroupName string
 param parDnsResourceGroupName string
 param parFrontDoorName string
-param parAdminWebAppDnsPrefix string
 param parParentDnsName string
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
@@ -26,11 +25,13 @@ param parTags object
 // Variables
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
-
 var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
+var varDeploymentPrefix = 'portalServices' //Prevent deployment naming conflicts
+
 module repositoryApi 'services/repositoryApi.bicep' = {
-  name: 'repositoryApi'
+  name: '${varDeploymentPrefix}-repositoryApi'
+
   params: {
     parLocation: parLocation
     parEnvironment: parEnvironment
@@ -54,7 +55,7 @@ module repositoryApi 'services/repositoryApi.bicep' = {
 }
 
 module serversApi 'services/serversApi.bicep' = {
-  name: 'serversApi'
+  name: '${varDeploymentPrefix}-serversApi'
 
   dependsOn: [
     repositoryApi
@@ -81,7 +82,7 @@ module serversApi 'services/serversApi.bicep' = {
 }
 
 module adminWebApp 'services/adminWebApp.bicep' = {
-  name: 'adminWebApp'
+  name: '${varDeploymentPrefix}-adminWebApp'
 
   dependsOn: [
     repositoryApi
@@ -110,7 +111,7 @@ module adminWebApp 'services/adminWebApp.bicep' = {
 }
 
 module eventsApp 'services/eventsApp.bicep' = {
-  name: 'eventsApp'
+  name: '${varDeploymentPrefix}-eventsApp'
 
   params: {
     parLocation: parLocation
@@ -127,7 +128,7 @@ module eventsApp 'services/eventsApp.bicep' = {
 }
 
 module ingestApp 'services/ingestApp.bicep' = {
-  name: 'ingestApp'
+  name: '${varDeploymentPrefix}-ingestApp'
 
   params: {
     parLocation: parLocation
@@ -145,7 +146,7 @@ module ingestApp 'services/ingestApp.bicep' = {
 }
 
 module repositoryApp 'services/repositoryApp.bicep' = {
-  name: 'repositoryApp'
+  name: '${varDeploymentPrefix}-repositoryApp'
 
   params: {
     parLocation: parLocation
@@ -163,7 +164,7 @@ module repositoryApp 'services/repositoryApp.bicep' = {
 }
 
 module syncApp 'services/syncApp.bicep' = {
-  name: 'syncApp'
+  name: '${varDeploymentPrefix}-syncApp'
 
   params: {
     parLocation: parLocation

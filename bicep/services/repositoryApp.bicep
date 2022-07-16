@@ -16,14 +16,16 @@ param parAppServicePlanName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'repositoryApp' //Prevent deployment naming conflicts
 var varRepositoryFuncAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module repositoryAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'repositoryAppGeoLocationApiManagementSubscription'
+module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -35,11 +37,12 @@ module repositoryAppGeoLocationApiManagementSubscription './../modules/apiManage
   }
 }
 
-module repositoryAppRepositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'repositoryAppRepositoryApiManagementSubscription'
+module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -51,11 +54,12 @@ module repositoryAppRepositoryApiManagementSubscription './../modules/apiManagem
   }
 }
 
-module repositoryAppServersApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'repositoryAppServersApiManagementSubscription'
+module serversApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-serversApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -67,8 +71,8 @@ module repositoryAppServersApiManagementSubscription './../modules/apiManagement
   }
 }
 
-module storageAccount './../modules/funcAppStorageAccount.bicep' = {
-  name: 'repositoryAppStorageAccount'
+module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+  name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
     parLocation: parLocation
@@ -80,7 +84,7 @@ module storageAccount './../modules/funcAppStorageAccount.bicep' = {
 }
 
 module functionApp 'repositoryApp/functionApp.bicep' = {
-  name: 'repositoryAppFunctionApp'
+  name: '${varDeploymentPrefix}-functionApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -89,7 +93,7 @@ module functionApp 'repositoryApp/functionApp.bicep' = {
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
     parServiceBusName: parServiceBusName
-    parStorageAccountName: storageAccount.outputs.outStorageAccountName
+    parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
     parApiManagementName: parApiManagementName
@@ -100,8 +104,8 @@ module functionApp 'repositoryApp/functionApp.bicep' = {
   }
 }
 
-module functionAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'repositoryAppFunctionAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName

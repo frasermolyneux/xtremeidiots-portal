@@ -23,15 +23,17 @@ param parSqlServerName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'adminWebApp' //Prevent deployment naming conflicts
 var varAdminWebAppName = 'webapp-admin-portal-${parEnvironment}-${parLocation}'
 var varWorkloadName = 'webapp-admin-portal-${parEnvironment}'
 
 // Module Resources
-module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'adminWebAppGeoLocationApiManagementSubscription'
+module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -43,11 +45,12 @@ module adminWebAppGeoLocationApiManagementSubscription './../modules/apiManageme
   }
 }
 
-module adminWebAppRepositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'adminWebAppRepositoryApiManagementSubscription'
+module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -59,11 +62,12 @@ module adminWebAppRepositoryApiManagementSubscription './../modules/apiManagemen
   }
 }
 
-module adminWebAppServersApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
-  name: 'adminWebAppServersApiManagementSubscription'
+module serversApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+  name: '${varDeploymentPrefix}-serversApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parApiManagementName: parApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -76,7 +80,7 @@ module adminWebAppServersApiManagementSubscription './../modules/apiManagementSu
 }
 
 module webApp 'adminWebApp/webApp.bicep' = {
-  name: 'adminWebApp'
+  name: '${varDeploymentPrefix}-webApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -96,8 +100,8 @@ module webApp 'adminWebApp/webApp.bicep' = {
   }
 }
 
-module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'adminWebAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -105,8 +109,8 @@ module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'adminWebAppStagingKeyVaultAccessPolicy'
+module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -114,8 +118,8 @@ module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bice
   }
 }
 
-module webAppIdentitySqlDatabase './../modules/sqlDatabase.bicep' = {
-  name: 'adminWebAppIdentitySqlDatabase'
+module sqlDatabase './../modules/sqlDatabase.bicep' = {
+  name: '${varDeploymentPrefix}-sqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
 
   params: {
@@ -130,10 +134,11 @@ module webAppIdentitySqlDatabase './../modules/sqlDatabase.bicep' = {
 }
 
 module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
-  name: 'adminWebAppFrontDoorEndpoint'
+  name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
     parDnsResourceGroupName: parDnsResourceGroupName

@@ -18,6 +18,8 @@ var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
 var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
+var varDeploymentPrefix = 'portalPlatform' //Prevent deployment naming conflicts
+
 // Existing Out-Of-Scope Resources
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
   name: parApiManagementName
@@ -34,7 +36,7 @@ resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
 }
 
 module keyVault 'modules/keyVault.bicep' = {
-  name: 'keyVault'
+  name: '${varDeploymentPrefix}-keyVault'
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
@@ -44,8 +46,8 @@ module keyVault 'modules/keyVault.bicep' = {
   }
 }
 
-module apiManagementKeyVaultPermissions 'modules/keyVaultAccessPolicy.bicep' = {
-  name: '${apiManagement.name}-${keyVault.name}'
+module keyVaultAccessPolicy 'modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
@@ -56,8 +58,9 @@ module apiManagementKeyVaultPermissions 'modules/keyVaultAccessPolicy.bicep' = {
 }
 
 module appInsights 'modules/appInsights.bicep' = {
-  name: 'appInsights'
+  name: '${varDeploymentPrefix}-appInsights'
   scope: resourceGroup(defaultResourceGroup.name)
+
   params: {
     parAppInsightsName: varAppInsightsName
     parKeyVaultName: keyVault.outputs.outKeyVaultName
@@ -70,7 +73,7 @@ module appInsights 'modules/appInsights.bicep' = {
 }
 
 module apiManagementLogger 'modules/apiManagementLogger.bicep' = {
-  name: '${apiManagement.name}-${varAppInsightsName}'
+  name: '${varDeploymentPrefix}-apiManagementLogger'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
@@ -83,8 +86,9 @@ module apiManagementLogger 'modules/apiManagementLogger.bicep' = {
 }
 
 module serviceBus 'platform/serviceBus.bicep' = {
-  name: 'serviceBus'
+  name: '${varDeploymentPrefix}-serviceBus'
   scope: resourceGroup(defaultResourceGroup.name)
+
   params: {
     parServiceBusName: varServiceBusName
     parKeyVaultName: keyVault.outputs.outKeyVaultName

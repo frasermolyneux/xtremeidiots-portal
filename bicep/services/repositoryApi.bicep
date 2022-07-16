@@ -25,11 +25,12 @@ param parSqlServerName string
 param parTags object
 
 // Variables
+var varDeploymentPrefix = 'repositoryApi' //Prevent deployment naming conflicts
 var varWorkloadName = 'webapi-repository-portal-${parEnvironment}'
 
 // Module Resources
 module appDataStorage 'repositoryApi/appDataStorage.bicep' = {
-  name: 'repositoryApiAppDataStorage'
+  name: '${varDeploymentPrefix}-appDataStorage'
 
   params: {
     parLocation: parLocation
@@ -40,7 +41,7 @@ module appDataStorage 'repositoryApi/appDataStorage.bicep' = {
 }
 
 module webApp 'repositoryApi/webApp.bicep' = {
-  name: 'repositoryApiWebApp'
+  name: '${varDeploymentPrefix}-webApp'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parWebAppsResourceGroupName)
 
   params: {
@@ -62,8 +63,8 @@ module webApp 'repositoryApi/webApp.bicep' = {
   }
 }
 
-module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'repositoryApiWebAppKeyVaultAccessPolicy'
+module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -71,8 +72,8 @@ module webAppKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
-  name: 'repositoryApiWebAppStagingKeyVaultAccessPolicy'
+module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
     parKeyVaultName: parKeyVaultName
@@ -80,8 +81,8 @@ module webAppStagingKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bice
   }
 }
 
-module apiManagementRepositoryApi 'repositoryApi/apiManagementApi.bicep' = {
-  name: 'apiManagementRepositoryApi'
+module apiManagementApi 'repositoryApi/apiManagementApi.bicep' = {
+  name: '${varDeploymentPrefix}-apiManagementApi'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
   params: {
@@ -97,10 +98,11 @@ module apiManagementRepositoryApi 'repositoryApi/apiManagementApi.bicep' = {
 }
 
 module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
-  name: 'repositoryApiFrontDoorEndpoint'
+  name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
     parDnsResourceGroupName: parDnsResourceGroupName

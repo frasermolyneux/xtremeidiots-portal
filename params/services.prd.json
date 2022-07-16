@@ -20,9 +20,6 @@
         "parFrontDoorName": {
             "value": "fd-mx-platform-prd"
         },
-        "parAdminWebAppDnsPrefix": {
-            "value": "portal"
-        },
         "parParentDnsName": {
             "value": "xtremeidiots.dev"
         },

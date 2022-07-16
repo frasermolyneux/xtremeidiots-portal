@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
 // Parameters
+param parDeploymentPrefix string
 param parFrontDoorName string
 param parParentDnsName string
 param parDnsResourceGroupName string
@@ -119,7 +120,7 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' 
 }
 
 module dnsCNAME 'dnsCNAME.bicep' = {
-  name: 'dns-${parWorkloadName}.${parParentDnsName}'
+  name: '${parDeploymentPrefix}-${parWorkloadName}-${parParentDnsName}-dnsCNAME'
   scope: resourceGroup(parDnsResourceGroupName)
 
   params: {

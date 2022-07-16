@@ -33,6 +33,7 @@ module appDataStorage 'repositoryApi/appDataStorage.bicep' = {
   name: '${varDeploymentPrefix}-appDataStorage'
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parLocation: parLocation
     parEnvironment: parEnvironment
     parKeyVaultName: parKeyVaultName

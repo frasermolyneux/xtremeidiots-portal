@@ -41,6 +41,7 @@ module appDataStorage 'syncApp/appDataStorage.bicep' = {
   name: '${varDeploymentPrefix}syncAppAppDataStorage'
 
   params: {
+    parDeploymentPrefix: varDeploymentPrefix
     parLocation: parLocation
     parEnvironment: parEnvironment
     parKeyVaultName: parKeyVaultName

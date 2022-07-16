@@ -1,6 +1,7 @@
 targetScope = 'resourceGroup'
 
 // Parameters
+param parDeploymentPrefix string
 param parLocation string
 param parEnvironment string
 param parKeyVaultName string
@@ -42,6 +43,17 @@ resource repositoryApiDemosContainer 'Microsoft.Storage/storageAccounts/blobServ
   parent: storageAccountBlobServices
   properties: {
     publicAccess: 'Blob'
+  }
+}
+
+module keyVaultSecret './../../modules/keyVaultSecret.bicep' = {
+  name: '${parDeploymentPrefix}-${storageAccount.name}-keyVaultSecret'
+
+  params: {
+    parKeyVaultName: parKeyVaultName
+    parSecretName: '${storageAccount.name}-connectionstring'
+    parSecretValue: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+    parTags: parTags
   }
 }
 

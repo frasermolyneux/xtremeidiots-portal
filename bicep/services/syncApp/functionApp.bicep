@@ -22,7 +22,7 @@ param parTags object
 
 // Variables
 var varDeploymentPrefix = 'syncApp' //Prevent deployment naming conflicts
-var varFunctionAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}'
+var varFunctionAppName = 'fn-sync-portal-${parEnvironment}-${parLocation}'
 
 // Existing In-Scope Resources
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {

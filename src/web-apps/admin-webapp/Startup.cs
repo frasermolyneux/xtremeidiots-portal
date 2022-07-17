@@ -87,6 +87,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
                 app.UseHsts();
             }
 
+            app.UseForwardedHeaders();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

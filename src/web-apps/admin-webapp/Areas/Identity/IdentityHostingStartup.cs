@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,11 +41,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
 
                 services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });
 
-                services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
                     .AddOAuth("XtremeIdiots", options =>
                     {
                         options.ClientId = context.Configuration["xtremeidiots_auth_client_id"];
                         options.ClientSecret = context.Configuration["xtremeidiots_auth_client_secret"];
+
                         options.CallbackPath = new PathString("/signin-xtremeidiots");
 
                         options.AuthorizationEndpoint = "https://www.xtremeidiots.com/oauth/authorize/";
@@ -74,6 +77,30 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                             }
                         };
                     });
+
+                services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
+                {
+                    options.Events = new OpenIdConnectEvents
+                    {
+                        OnRedirectToIdentityProvider = (context) =>
+                        {
+                            // Override the redirect_uri
+                            //  Ideally extract this from config 
+                            //  Or context.Request.Headers["X-Forwarded-Host"]
+                            //  see: https://docs.microsoft.com/en-us/azure/frontdoor/front-door-http-headers-protocol#front-door-to-backend
+
+                            context.ProtocolMessage.RedirectUri = "https://portal.xtremeidiots.com/signin-xtremeidiots";
+                            return Task.FromResult(0);
+                        }
+                    };
+                });
+
+                services.Configure<ForwardedHeadersOptions>(options =>
+                {
+                    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                    options.KnownNetworks.Clear();
+                    options.KnownProxies.Clear();
+                });
 
                 services.ConfigureApplicationCookie(options =>
                 {

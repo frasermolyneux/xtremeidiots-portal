@@ -8,6 +8,8 @@ parameters:
 - name: projectName
   type: string
   default: 'function-app'
+- name: environment
+  type: string
 - name: functionAppName
   type: string
 - name: functionAppResourceGroup
@@ -18,39 +20,43 @@ parameters:
 - name: subscription
 
 jobs:
-- job: ${{ parameters.jobName }}
+- deployment: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
+  environment: ${{ parameters.environment }}
 
-  steps: 
-    - download: current
-      displayName: 'Download ${{ parameters.projectName }} artifact'
-      artifact: ${{ parameters.projectName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps: 
+        - download: current
+          displayName: 'Download ${{ parameters.projectName }} artifact'
+          artifact: ${{ parameters.projectName }}
 
-    - ${{ if eq(parameters.blueGreenDeploy, false) }}:
-      - task: AzureFunctionApp@1
-        displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          appName: '${{ parameters.functionAppName }}'
-          package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+        - ${{ if eq(parameters.blueGreenDeploy, false) }}:
+          - task: AzureFunctionApp@1
+            displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
+            inputs:
+              azureSubscription: '${{ parameters.subscription }}'
+              appName: '${{ parameters.functionAppName }}'
+              package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
-      - task: AzureFunctionApp@1
-        displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          appName: '${{ parameters.functionAppName }}'
-          deployToSlotOrASE: true
-          slotName: 'staging'
-          resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
-          package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+        - ${{ if eq(parameters.blueGreenDeploy, true) }}:
+          - task: AzureFunctionApp@1
+            displayName: 'Azure Function App Deploy: ${{ parameters.projectName }}'
+            inputs:
+              azureSubscription: '${{ parameters.subscription }}'
+              appName: '${{ parameters.functionAppName }}'
+              deployToSlotOrASE: true
+              slotName: 'staging'
+              resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
+              package: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
-      - task: AzureAppServiceManage@0
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          webAppName: '${{ parameters.functionAppName }}'
-          action: 'Swap Slots'
-          resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
-          sourceSlot: 'staging'
-          swapWithProduction: 'true'
+        - ${{ if eq(parameters.blueGreenDeploy, true) }}:
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: '${{ parameters.subscription }}'
+              webAppName: '${{ parameters.functionAppName }}'
+              action: 'Swap Slots'
+              resourceGroupName: '${{ parameters.functionAppResourceGroup }}'
+              sourceSlot: 'staging'
+              swapWithProduction: 'true'

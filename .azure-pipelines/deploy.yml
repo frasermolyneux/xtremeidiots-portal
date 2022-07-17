@@ -154,7 +154,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetIngestApiFuncAppPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'
@@ -163,7 +163,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetRepositoryApiAppPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'
@@ -172,7 +172,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetRepositoryAppPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'
@@ -181,7 +181,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetServersWebApiPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'
@@ -190,7 +190,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetAdminWebAppPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'
@@ -199,7 +199,7 @@ stages:
       - task: AzureCLI@2
         displayName: SetSyncAppPermissions
         inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
           scriptType: 'pscore'
           scriptLocation: 'scriptPath'
           arguments: 'prd'

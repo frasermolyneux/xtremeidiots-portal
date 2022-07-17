@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.ServersApiClient
 
             var request = new RestRequest(resource, method);
 
-            request.AddHeader("Ocp-apim_subscription_key", _apimSubscriptionKey);
+            request.AddHeader("Ocp-Apim-Subscription-Key", _apimSubscriptionKey);
             request.AddHeader("Authorization", $"Bearer {accessToken}");
 
             return request;

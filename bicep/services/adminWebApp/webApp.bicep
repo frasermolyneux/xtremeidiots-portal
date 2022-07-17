@@ -221,7 +221,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           name: 'sql_connection_string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=identitydb;'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portalidentitydb-${parEnvironment};'
         }
         {
           name: 'xtremeidiots_forums_base_url'

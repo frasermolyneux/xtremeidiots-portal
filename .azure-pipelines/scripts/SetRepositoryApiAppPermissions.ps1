@@ -2,10 +2,10 @@ param (
     $environment
 )
 
-$webApp = (az webapp show --name "webapi-repository-portal-$environment-uksouth" --resource-group "rg-portal-$environment-uksouth") | ConvertFrom-Json
+$webApp = (az webapp show --name "webapi-repository-portal-$environment-uksouth" --resource-group "rg-platform-webapps-prd-uksouth") | ConvertFrom-Json
 $principalId = $webApp.identity.principalId
 
-$webAppStaging = (az webapp show --name "webapi-repository-portal-$environment-uksouth" --resource-group "rg-portal-$environment-uksouth" --slot 'staging') | ConvertFrom-Json
+$webAppStaging = (az webapp show --name "webapi-repository-portal-$environment-uksouth" --resource-group "rg-platform-webapps-prd-uksouth" --slot 'staging') | ConvertFrom-Json
 $principalIdStaging = $webAppStaging.identity.principalId
 
 

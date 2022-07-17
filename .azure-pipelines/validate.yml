@@ -81,9 +81,7 @@ stages:
             az deployment sub validate `
               --template-file bicep/platform.bicep `
               --location 'uksouth' `
-              --parameters @params/platform.prd.json `
-                parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
-                parSqlAdminPassword=Placeholder
+              --parameters @params/platform.prd.json
 
             if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
             {
@@ -107,9 +105,7 @@ stages:
             az deployment sub what-if `
               --template-file bicep/platform.bicep `
               --location 'uksouth' `
-              --parameters @params/platform.prd.json `
-                parSqlAdminGroupOid=00000000-0000-0000-0000-000000000000 `
-                parSqlAdminPassword=Placeholder
+              --parameters @params/platform.prd.json
 
             if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
             {

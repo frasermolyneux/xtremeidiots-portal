@@ -152,6 +152,15 @@ stages:
     dependsOn: [DeployServicesBicep]
     steps:
       - task: AzureCLI@2
+        displayName: SetB3BotsClientAppPermissions
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'scriptPath'
+          arguments: 'prd'
+          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetB3BotsClientAppPermissions.ps1'
+
+      - task: AzureCLI@2
         displayName: SetIngestApiFuncAppPermissions
         inputs:
           azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'

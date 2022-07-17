@@ -1,3 +1,9 @@
+param (
+    $principalId,
+    $environment
+)
+
+$b3BotsClientName = "portal-b3bots-client-$environment"
 $b3BotsClientId = (az ad app list --filter "displayName eq '$b3BotsClientName'" --query '[].appId') | ConvertFrom-Json
 
 $b3BotsClientPermissions = (az ad app permission list --id "$b3botsClientId") | ConvertFrom-Json

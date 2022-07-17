@@ -2,10 +2,10 @@ param (
     $environment
 )
 
-$webApp = (az webapp show --name "webapp-admin-portal-$environment-uksouth-01" --resource-group "rg-portal-$environment-uksouth-01") | ConvertFrom-Json
+$webApp = (az webapp show --name "webapp-admin-portal-$environment-uksouth" --resource-group "rg-portal-$environment-uksouth") | ConvertFrom-Json
 $principalId = $webApp.identity.principalId
 
-$webAppStaging = (az webapp show --name "webapp-admin-portal-$environment-uksouth-01" --resource-group "rg-portal-$environment-uksouth-01" --slot 'staging') | ConvertFrom-Json
+$webAppStaging = (az webapp show --name "webapp-admin-portal-$environment-uksouth" --resource-group "rg-portal-$environment-uksouth" --slot 'staging') | ConvertFrom-Json
 $principalIdStaging = $webAppStaging.identity.principalId
 
 . "./.azure-pipelines/scripts/functions/GrantRepositoryApiPermissionsToApp.ps1" -principalId $principalId -environment $environment

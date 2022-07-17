@@ -1,5 +1,4 @@
 param (
-    $principalId,
     $environment
 )
 

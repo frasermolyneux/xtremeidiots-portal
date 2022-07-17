@@ -8,6 +8,8 @@ parameters:
 - name: projectName
   type: string
   default: 'web-app'
+- name: environment
+  type: string
 - name: webAppName
   type: string
 - name: webAppNameResourceGroup
@@ -18,40 +20,44 @@ parameters:
 - name: subscription
 
 jobs:
-- job: ${{ parameters.jobName }}
+- deployment: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
+  environment: ${{ parameters.environment }}
 
-  steps: 
-    - download: current
-      displayName: 'Download ${{ parameters.projectName }} artifact'
-      artifact: ${{ parameters.projectName }}
+  strategy:
+    runOnce:
+      deploy:
+        steps: 
+          - download: current
+            displayName: 'Download ${{ parameters.projectName }} artifact'
+            artifact: ${{ parameters.projectName }}
 
-    - ${{ if eq(parameters.blueGreenDeploy, false) }}:
-      - task: AzureRmWebAppDeployment@4
-        displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          webAppName: '${{ parameters.webAppName }}'
-          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
-          packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+          - ${{ if eq(parameters.blueGreenDeploy, false) }}:
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
+              inputs:
+                azureSubscription: '${{ parameters.subscription }}'
+                webAppName: '${{ parameters.webAppName }}'
+                resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+                packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
-      - task: AzureRmWebAppDeployment@4
-        displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          WebAppName: '${{ parameters.webAppName }}'
-          deployToSlotOrASE: true
-          slotName: 'staging'
-          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
-          packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
+          - ${{ if eq(parameters.blueGreenDeploy, true) }}:
+            - task: AzureRmWebAppDeployment@4
+              displayName: 'Azure App Service Deploy: ${{ parameters.projectName }}'
+              inputs:
+                azureSubscription: '${{ parameters.subscription }}'
+                WebAppName: '${{ parameters.webAppName }}'
+                deployToSlotOrASE: true
+                slotName: 'staging'
+                resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+                packageForLinux: '$(Pipeline.Workspace)/${{ parameters.projectName }}/${{ parameters.projectName }}.zip'
 
-    - ${{ if eq(parameters.blueGreenDeploy, true) }}:
-      - task: AzureAppServiceManage@0
-        inputs:
-          azureSubscription: '${{ parameters.subscription }}'
-          webAppName: '${{ parameters.webAppName }}'
-          action: 'Swap Slots'
-          resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
-          sourceSlot: 'staging'
-          swapWithProduction: 'true'
+          - ${{ if eq(parameters.blueGreenDeploy, true) }}:
+            - task: AzureAppServiceManage@0
+              inputs:
+                azureSubscription: '${{ parameters.subscription }}'
+                webAppName: '${{ parameters.webAppName }}'
+                action: 'Swap Slots'
+                resourceGroupName: '${{ parameters.webAppNameResourceGroup }}'
+                sourceSlot: 'staging'
+                swapWithProduction: 'true'

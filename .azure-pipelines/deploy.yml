@@ -219,6 +219,7 @@ stages:
   - template: templates/deploy-web-app.yml
     parameters:
       dependsOn: ['DeploySqlDatabase']
+      environment: 'platform-webapps-prd-uksouth.webapi-repository-portal-prd-uksouth'
       projectName: repository-webapi
       jobName: DeployRepositoryWebApi
       webAppName: "webapi-repository-portal-prd-uksouth"
@@ -229,6 +230,7 @@ stages:
   - template: templates/deploy-function-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.fn-repository-portal-prd-uksouth'
       projectName: repository-func
       jobName: DeployRepositoryFunctionApp
       functionAppName: "fn-repository-portal-prd-uksouth"
@@ -238,6 +240,7 @@ stages:
   - template: templates/deploy-function-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.fn-ingest-portal-prd-uksouth'
       projectName: ingest-func
       jobName: DeployIngestFunctionApp
       functionAppName: "fn-ingest-portal-prd-uksouth"
@@ -247,6 +250,7 @@ stages:
   - template: templates/deploy-function-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.fn-events-portal-prd-uksouth'
       projectName: events-func
       jobName: DeployEventsFunctionApp
       functionAppName: "fn-events-portal-prd-uksouth"
@@ -257,6 +261,7 @@ stages:
   - template: templates/deploy-function-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.fn-sync-portal-prd-uksouth'
       projectName: sync-func
       jobName: DeploySyncFunctionApp
       functionAppName: "fn-sync-portal-prd-uksouth"
@@ -266,6 +271,7 @@ stages:
   - template: templates/deploy-web-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.webapi-servers-portal-prd-uksouth'
       projectName: servers-webapi
       jobName: DeployServersWebApi
       webAppName: "webapi-servers-portal-prd-uksouth"
@@ -276,6 +282,7 @@ stages:
   - template: templates/deploy-web-app.yml
     parameters:
       dependsOn: ['DeployRepositoryWebApi']
+      environment: 'platform-webapps-prd-uksouth.webapp-admin-portal-prd-uksouth'
       projectName: admin-webapp
       jobName: DeployAdminWebApp
       webAppName: "webapp-admin-portal-prd-uksouth"

@@ -11,50 +11,56 @@ parameters:
 - name: projectName
   type: string
   default: 'function-app'
+- name: environment
+  type: string
 - name: nugetConfigPath
   type: string
   default: ''
 
 jobs:
-- job: ${{ parameters.jobName }}
+- deployment: ${{ parameters.jobName }}
   dependsOn: ${{ parameters.dependsOn }}
+  environment: ${{ parameters.environment }}
 
   variables:
     buildConfiguration: 'Release'
 
-  steps:
-  - task: UseDotNet@2
-    inputs:
-      version: 6.0.x
-      performMultiLevelLookup: true
-      includePreviewVersions: true
-  
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'restore'
-      projects: '**/${{ parameters.projectName }}.csproj'
-      ${{ if ne(parameters.nugetConfigPath, '') }}:
-        feedsToUse: 'config'
-        nugetConfigPath: ${{ parameters.nugetConfigPath }}
+  strategy:
+    runOnce:
+      deploy:
+        steps: 
+        - task: UseDotNet@2
+          inputs:
+            version: 6.0.x
+            performMultiLevelLookup: true
+            includePreviewVersions: true
+        
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'restore'
+            projects: '**/${{ parameters.projectName }}.csproj'
+            ${{ if ne(parameters.nugetConfigPath, '') }}:
+              feedsToUse: 'config'
+              nugetConfigPath: ${{ parameters.nugetConfigPath }}
 
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      projects: '**/${{ parameters.projectName }}.csproj'
-      arguments: '--configuration $(buildConfiguration)'
-    displayName: 'dotnet build $(buildConfiguration)'
+        - task: DotNetCoreCLI@2
+          inputs:
+            command: 'build'
+            projects: '**/${{ parameters.projectName }}.csproj'
+            arguments: '--configuration $(buildConfiguration)'
+          displayName: 'dotnet build $(buildConfiguration)'
 
-  - task: ArchiveFiles@2
-    condition: and(succeeded(), eq('${{ parameters.publishArtifact }}', 'true'))
-    displayName: "Package ${{ parameters.projectName }} to artifact staging directory"
-    inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/${{ parameters.projectName }}/bin/Release/net6.0/'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.projectName }}.zip'
-      replaceExistingArchive: true
+        - task: ArchiveFiles@2
+          condition: and(succeeded(), eq('${{ parameters.publishArtifact }}', 'true'))
+          displayName: "Package ${{ parameters.projectName }} to artifact staging directory"
+          inputs:
+            rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/${{ parameters.projectName }}/bin/Release/net6.0/'
+            includeRootFolder: false
+            archiveType: 'zip'
+            archiveFile: '$(Build.ArtifactStagingDirectory)/${{ parameters.projectName }}.zip'
+            replaceExistingArchive: true
 
-  - publish: $(Build.artifactStagingDirectory)/${{ parameters.projectName }}.zip
-    condition: and(succeeded(), eq('${{ parameters.publishArtifact }}', 'true'))
-    displayName: Publish ${{ parameters.projectName }} artifact
-    artifact: ${{ parameters.projectName }}
+        - publish: $(Build.artifactStagingDirectory)/${{ parameters.projectName }}.zip
+          condition: and(succeeded(), eq('${{ parameters.publishArtifact }}', 'true'))
+          displayName: Publish ${{ parameters.projectName }} artifact
+          artifact: ${{ parameters.projectName }}

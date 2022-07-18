@@ -47,7 +47,7 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
   properties: {
     title: parFunctionAppName
     description: parFunctionAppName
-    url: 'https://${parFunctionAppHostname}/'
+    url: 'https://${parFunctionAppHostname}/api/'
     protocol: 'http'
     properties: {}
 

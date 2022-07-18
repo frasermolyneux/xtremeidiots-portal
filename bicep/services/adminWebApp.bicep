@@ -133,7 +133,7 @@ module sqlDatabase './../modules/sqlDatabase.bicep' = {
   }
 }
 
-module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
+module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

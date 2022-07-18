@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("/repository/live-players")]
+        [Route("live-players")]
         public async Task<IActionResult> GetLivePlayers(GameType? gameType, Guid? gameServerId, LivePlayerFilter? filter, int? skipEntries, int? takeEntries, LivePlayersOrder? order)
         {
             if (!skipEntries.HasValue)

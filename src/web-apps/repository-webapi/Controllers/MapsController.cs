@@ -35,7 +35,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("/repository/maps/{mapId}")]
+        [Route("maps/{mapId}")]
         public async Task<IActionResult> GetMap(Guid mapId)
         {
             var response = await ((IMapsApi)this).GetMap(mapId);
@@ -58,7 +58,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("/repository/maps/{gameType}/{mapName}")]
+        [Route("maps/{gameType}/{mapName}")]
         public async Task<IActionResult> GetMap(GameType gameType, string mapName)
         {
             var response = await ((IMapsApi)this).GetMap(gameType, mapName);
@@ -81,7 +81,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpGet]
-        [Route("/repository/maps")]
+        [Route("maps")]
         public async Task<IActionResult> GetMaps(GameType? gameType, string? mapNames, MapsFilter? filter, string? filterString, int? skipEntries, int? takeEntries, MapsOrder? order)
         {
             if (!skipEntries.HasValue)
@@ -279,7 +279,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("/repository/maps/votes")]
+        [Route("maps/votes")]
         public async Task<IActionResult> UpsertMapVotes()
         {
             var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -331,7 +331,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
         }
 
         [HttpPost]
-        [Route("/repository/maps/{mapId}/image")]
+        [Route("maps/{mapId}/image")]
         public async Task<IActionResult> UpdateMapImage(Guid mapId)
         {
             if (Request.Form.Files.Count == 0)

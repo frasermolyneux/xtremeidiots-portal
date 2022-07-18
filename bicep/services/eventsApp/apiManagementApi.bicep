@@ -28,13 +28,13 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 
 // Module Resources
 resource backendHostKeyNamedValue 'Microsoft.ApiManagement/service/namedValues@2021-08-01' = {
-  name: parFunctionAppName
+  name: '${parFunctionAppName}-hostkey'
   parent: apiManagement
 
   properties: {
-    displayName: '${parFunctionAppName}-appkey'
+    displayName: '${parFunctionAppName}-hostkey'
     keyVault: {
-      secretIdentifier: '${keyVault.properties.vaultUri}secrets/${parFunctionAppName}-appkey'
+      secretIdentifier: '${keyVault.properties.vaultUri}secrets/${parFunctionAppName}-hostkey'
     }
     secret: true
   }
@@ -54,7 +54,7 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
     credentials: {
       query: {
         code: [
-          '{{${parFunctionAppName}}}'
+          '{{${backendHostKeyNamedValue.name}}}'
         ]
       }
     }

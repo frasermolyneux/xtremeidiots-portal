@@ -119,10 +119,15 @@ module eventsApp 'services/eventsApp.bicep' = {
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
     parServiceBusName: varServiceBusName
+
     parEventsApiAppId: parEventsApiAppId
+
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
+    parApiManagementResourceGroupName: parApiManagementResourceGroupName
+    parApiManagementName: parApiManagementName
     parWebAppsResourceGroupName: parWebAppsResourceGroupName
     parAppServicePlanName: parAppServicePlanName
+
     parTags: parTags
   }
 }

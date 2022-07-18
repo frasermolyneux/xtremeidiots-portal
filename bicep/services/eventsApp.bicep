@@ -9,8 +9,6 @@ param parServiceBusName string
 
 param parEventsApiAppId string
 
-param parParentDnsName string
-
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
 param parApiManagementName string
@@ -21,7 +19,6 @@ param parTags object
 
 // Variables
 var varDeploymentPrefix = 'eventsApp' //Prevent deployment naming conflicts
-var varWorkloadName = 'fn-events-portal-${parEnvironment}'
 
 // Module Resources
 module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {

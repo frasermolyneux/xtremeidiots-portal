@@ -78,23 +78,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                         };
                     });
 
-                services.Configure<OpenIdConnectOptions>(OpenIdConnectDefaults.AuthenticationScheme, options =>
-                {
-                    options.Events = new OpenIdConnectEvents
-                    {
-                        OnRedirectToIdentityProvider = (context) =>
-                        {
-                            // Override the redirect_uri
-                            //  Ideally extract this from config 
-                            //  Or context.Request.Headers["X-Forwarded-Host"]
-                            //  see: https://docs.microsoft.com/en-us/azure/frontdoor/front-door-http-headers-protocol#front-door-to-backend
-
-                            context.ProtocolMessage.RedirectUri = "https://portal.xtremeidiots.com/signin-xtremeidiots";
-                            return Task.FromResult(0);
-                        }
-                    };
-                });
-
                 services.Configure<ForwardedHeadersOptions>(options =>
                 {
                     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;

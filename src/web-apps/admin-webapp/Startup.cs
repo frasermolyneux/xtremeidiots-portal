@@ -79,6 +79,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseForwardedHeaders();
+
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
             else
@@ -86,8 +88,6 @@ namespace XtremeIdiots.Portal.AdminWebApp
                 app.UseExceptionHandler("/Errors/Display/500");
                 app.UseHsts();
             }
-
-            app.UseForwardedHeaders();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

@@ -37,6 +37,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                 {
                     options.CheckConsentNeeded = context => true;
                     options.MinimumSameSitePolicy = SameSiteMode.None;
+                    options.Secure = CookieSecurePolicy.Always;
                 });
 
                 services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });

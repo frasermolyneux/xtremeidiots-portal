@@ -77,9 +77,28 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddMemoryCache();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             app.UseForwardedHeaders();
+            app.Use(async (context, next) =>
+            {
+                // Request method, scheme, and path
+                logger.LogInformation("Request Method: {Method}", context.Request.Method);
+                logger.LogInformation("Request Scheme: {Scheme}", context.Request.Scheme);
+                logger.LogInformation("Request Path: {Path}", context.Request.Path);
+
+                // Headers
+                foreach (var header in context.Request.Headers)
+                {
+                    logger.LogInformation("Header: {Key}: {Value}", header.Key, header.Value);
+                }
+
+                // Connection: RemoteIp
+                logger.LogInformation("Request RemoteIp: {RemoteIpAddress}",
+                    context.Connection.RemoteIpAddress);
+
+                await next();
+            });
 
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
@@ -92,13 +111,12 @@ namespace XtremeIdiots.Portal.AdminWebApp
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseCookiePolicy();
             app.UseRouting();
 
             app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseCookiePolicy();
 
             app.UseStatusCodePagesWithRedirects("/Errors/Display/{0}");
 

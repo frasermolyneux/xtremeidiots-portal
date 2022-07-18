@@ -9,7 +9,11 @@ param parServiceBusName string
 
 param parEventsApiAppId string
 
+param parParentDnsName string
+
 param parStrategicServicesSubscriptionId string
+param parApiManagementResourceGroupName string
+param parApiManagementName string
 param parWebAppsResourceGroupName string
 param parAppServicePlanName string
 
@@ -17,6 +21,7 @@ param parTags object
 
 // Variables
 var varDeploymentPrefix = 'eventsApp' //Prevent deployment naming conflicts
+var varWorkloadName = 'fn-events-portal-${parEnvironment}'
 
 // Module Resources
 module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
@@ -73,5 +78,21 @@ module serviceBusQueues 'eventsApp/serviceBusQueues.bicep' = {
 
   params: {
     parServiceBusName: parServiceBusName
+  }
+}
+
+module apiManagementApi 'eventsApp/apiManagementApi.bicep' = {
+  name: '${varDeploymentPrefix}-apiManagementApi'
+  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+
+  params: {
+    parApiManagementName: parApiManagementName
+    parFunctionAppName: functionApp.outputs.outFunctionAppName
+    parFunctionAppHostname: functionApp.outputs.outFunctionAppDefaultHostName
+    parEnvironment: parEnvironment
+    parWorkloadSubscriptionId: subscription().subscriptionId
+    parWorkloadResourceGroupName: resourceGroup().name
+    parKeyVaultName: parKeyVaultName
+    parAppInsightsName: parAppInsightsName
   }
 }

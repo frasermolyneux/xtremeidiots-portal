@@ -2,8 +2,9 @@ targetScope = 'resourceGroup'
 
 // Parameters
 param parApiManagementName string
+param parFrontDoorDns string
+param parParentDnsName string
 param parFunctionAppName string
-param parFunctionAppHostname string
 param parEnvironment string
 param parWorkloadSubscriptionId string
 param parWorkloadResourceGroupName string
@@ -47,7 +48,7 @@ resource apiBackend 'Microsoft.ApiManagement/service/backends@2021-08-01' = {
   properties: {
     title: parFunctionAppName
     description: parFunctionAppName
-    url: 'https://${parFunctionAppHostname}/api/'
+    url: 'https://${parFrontDoorDns}.${parParentDnsName}/api'
     protocol: 'http'
     properties: {}
 

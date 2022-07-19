@@ -9,6 +9,12 @@ param parServiceBusName string
 
 param parEventsApiAppId string
 
+param parConnectivitySubscriptionId string
+param parFrontDoorResourceGroupName string
+param parDnsResourceGroupName string
+param parFrontDoorName string
+param parParentDnsName string
+
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
 param parApiManagementName string
@@ -19,6 +25,7 @@ param parTags object
 
 // Variables
 var varDeploymentPrefix = 'eventsApp' //Prevent deployment naming conflicts
+var varWorkloadName = 'fn-events-portal-${parEnvironment}'
 
 // Module Resources
 module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
@@ -43,11 +50,19 @@ module functionApp 'eventsApp/functionApp.bicep' = {
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
     parServiceBusName: parServiceBusName
+
     parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parEventsApiAppId: parEventsApiAppId
+
     parAppServicePlanName: parAppServicePlanName
+
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parFrontDoorName: parFrontDoorName
+
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
+
     parTags: parTags
   }
 }
@@ -84,12 +99,30 @@ module apiManagementApi 'eventsApp/apiManagementApi.bicep' = {
 
   params: {
     parApiManagementName: parApiManagementName
+    parFrontDoorDns: varWorkloadName
     parFunctionAppName: functionApp.outputs.outFunctionAppName
-    parFunctionAppHostname: functionApp.outputs.outFunctionAppDefaultHostName
+    parParentDnsName: parParentDnsName
     parEnvironment: parEnvironment
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
+  }
+}
+
+module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
+  name: '${varDeploymentPrefix}-frontDoorEndpoint'
+  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+
+  params: {
+    parDeploymentPrefix: varDeploymentPrefix
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parWorkloadName: varWorkloadName
+    parOriginHostName: functionApp.outputs.outFunctionAppDefaultHostName
+    parDnsZoneHostnamePrefix: varWorkloadName
+    parCustomHostname: '${varWorkloadName}.${parParentDnsName}'
+    parTags: parTags
   }
 }

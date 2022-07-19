@@ -809,7 +809,7 @@
                 }
             }
         },
-        "/repository/live-players": {
+        "/live-players": {
             "get": {
                 "tags": [
                     "LivePlayers"
@@ -891,8 +891,29 @@
                 }
             }
         },
-        "/repository/maps/{mapId}": {
+        "/maps/{mapId}": {
             "get": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "mapId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            },
+            "delete": {
                 "tags": [
                     "Maps"
                 ],
@@ -914,7 +935,7 @@
                 }
             }
         },
-        "/repository/maps/{gameType}/{mapName}": {
+        "/maps/{gameType}/{mapName}": {
             "get": {
                 "tags": [
                     "Maps"
@@ -944,7 +965,7 @@
                 }
             }
         },
-        "/repository/maps": {
+        "/maps": {
             "get": {
                 "tags": [
                     "Maps"
@@ -1007,9 +1028,7 @@
                         "description": "Success"
                     }
                 }
-            }
-        },
-        "/maps": {
+            },
             "post": {
                 "tags": [
                     "Maps"
@@ -1031,29 +1050,6 @@
                 }
             }
         },
-        "/maps/{mapId}": {
-            "delete": {
-                "tags": [
-                    "Maps"
-                ],
-                "parameters": [
-                    {
-                        "name": "mapId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "format": "uuid"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success"
-                    }
-                }
-            }
-        },
         "/maps/popularity": {
             "post": {
                 "tags": [
@@ -1066,7 +1062,7 @@
                 }
             }
         },
-        "/repository/maps/votes": {
+        "/maps/votes": {
             "post": {
                 "tags": [
                     "Maps"
@@ -1078,7 +1074,7 @@
                 }
             }
         },
-        "/repository/maps/{mapId}/image": {
+        "/maps/{mapId}/image": {
             "post": {
                 "tags": [
                     "Maps"
@@ -1554,6 +1550,25 @@
                 "responses": {
                     "200": {
                         "description": "Success"
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "tags": [
+                    "repository-webapi"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 }
             }

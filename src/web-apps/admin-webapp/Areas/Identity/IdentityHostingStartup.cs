@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,6 +43,16 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                 services.Configure<SecurityStampValidatorOptions>(options => { options.ValidationInterval = TimeSpan.FromMinutes(15); });
 
                 services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+                    .AddCookie(options =>
+                    {
+                        options.AccessDeniedPath = "/Errors/Display/401";
+                        options.Cookie.Name = "XIPortal";
+                        options.Cookie.HttpOnly = true;
+                        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                        options.LoginPath = "/Identity/Login";
+                        options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+                        options.SlidingExpiration = true;
+                    })
                     .AddOAuth("XtremeIdiots", options =>
                     {
                         options.ClientId = context.Configuration["xtremeidiots_auth_client_id"];
@@ -79,24 +88,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                             }
                         };
                     });
-
-                services.Configure<ForwardedHeadersOptions>(options =>
-                {
-                    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-                    options.KnownNetworks.Clear();
-                    options.KnownProxies.Clear();
-                });
-
-                services.ConfigureApplicationCookie(options =>
-                {
-                    options.AccessDeniedPath = "/Errors/Display/401";
-                    options.Cookie.Name = "XIPortal";
-                    options.Cookie.HttpOnly = true;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
-                    options.LoginPath = "/Identity/Login";
-                    options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
-                    options.SlidingExpiration = true;
-                });
 
                 services.AddDataProtection()
                     .PersistKeysToDbContext<IdentityDataContext>();

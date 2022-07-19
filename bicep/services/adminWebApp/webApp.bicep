@@ -13,6 +13,10 @@ param parAppServicePlanName string
 param parSqlServerResourceGroupName string
 param parSqlServerName string
 
+param parConnectivitySubscriptionId string
+param parFrontDoorResourceGroupName string
+param parFrontDoorName string
+
 param parWorkloadSubscriptionId string
 param parWorkloadResourceGroupName string
 
@@ -27,6 +31,11 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
 }
 
 // Existing Out-Of-Scope Resources
+resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
+  name: parFrontDoorName
+  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+}
+
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: parAppInsightsName
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
@@ -70,6 +79,28 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       linuxFxVersion: 'DOTNETCORE|6.0'
       netFrameworkVersion: 'v6.0'
       minTlsVersion: '1.2'
+
+      ipSecurityRestrictions: [
+        {
+          ipAddress: 'AzureFrontDoor.Backend'
+          action: 'allow'
+          tag: 'ServiceTag'
+          priority: 1000
+          name: 'RestrictToFrontDoor'
+          headers: {
+            'x-azure-fdid': [
+              frontDoor.properties.frontDoorId
+            ]
+          }
+        }
+        {
+          ipAddress: 'Any'
+          action: 'Deny'
+          priority: 2147483647
+          name: 'Deny all'
+          description: 'Deny all access'
+        }
+      ]
 
       appSettings: [
         {
@@ -169,6 +200,28 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
       linuxFxVersion: 'DOTNETCORE|6.0'
       netFrameworkVersion: 'v6.0'
       minTlsVersion: '1.2'
+
+      ipSecurityRestrictions: [
+        {
+          ipAddress: 'AzureFrontDoor.Backend'
+          action: 'allow'
+          tag: 'ServiceTag'
+          priority: 1000
+          name: 'RestrictToFrontDoor'
+          headers: {
+            'x-azure-fdid': [
+              frontDoor.properties.frontDoorId
+            ]
+          }
+        }
+        {
+          ipAddress: 'Any'
+          action: 'Deny'
+          priority: 2147483647
+          name: 'Deny all'
+          description: 'Deny all access'
+        }
+      ]
 
       appSettings: [
         {

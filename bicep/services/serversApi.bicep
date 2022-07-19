@@ -54,13 +54,21 @@ module webApp 'serversApi/webApp.bicep' = {
     parEnvironment: parEnvironment
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
+
     parServersApiAppId: parServersApiAppId
+
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
     parApiManagementName: parApiManagementName
     parAppServicePlanName: parAppServicePlanName
+
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parFrontDoorName: parFrontDoorName
+
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
+
     parTags: parTags
   }
 }

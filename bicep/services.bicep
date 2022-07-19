@@ -122,6 +122,12 @@ module eventsApp 'services/eventsApp.bicep' = {
 
     parEventsApiAppId: parEventsApiAppId
 
+    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsResourceGroupName: parDnsResourceGroupName
+    parFrontDoorName: parFrontDoorName
+    parParentDnsName: parParentDnsName
+
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
     parApiManagementName: parApiManagementName

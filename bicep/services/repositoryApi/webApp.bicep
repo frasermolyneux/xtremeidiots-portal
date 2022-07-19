@@ -91,7 +91,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       ipSecurityRestrictions: [
         {
           ipAddress: 'AzureFrontDoor.Backend'
-          action: 'allow'
+          action: 'Allow'
           tag: 'ServiceTag'
           priority: 1000
           name: 'RestrictToFrontDoor'
@@ -192,7 +192,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
       ipSecurityRestrictions: [
         {
           ipAddress: 'AzureFrontDoor.Backend'
-          action: 'allow'
+          action: 'Allow'
           tag: 'ServiceTag'
           priority: 1000
           name: 'RestrictToFrontDoor'

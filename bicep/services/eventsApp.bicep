@@ -110,7 +110,7 @@ module apiManagementApi 'eventsApp/apiManagementApi.bicep' = {
   }
 }
 
-module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
+module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

@@ -1,3 +1,8 @@
+parameters:
+- name: skipBicepValidate
+  type: boolean
+  default: false
+
 trigger:
   branches:
     include:
@@ -78,7 +83,6 @@ stages:
           steps:
             - task: AzureCLI@2
               name: RunPreflightValidation
-              displayName: Run Preflight Validation
               inputs:
                 azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
                 scriptType: 'pscore'
@@ -89,7 +93,7 @@ stages:
                     --location 'uksouth' `
                     --parameters @params/platform.prd.json
 
-                  if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
+                  if ('${{ parameters.skipBicepValidate }}' -eq $false)
                   {
                     az deployment group validate `
                       --resource-group 'rg-portal-prd-uksouth' `
@@ -112,7 +116,7 @@ stages:
                     --location 'uksouth' `
                     --parameters @params/platform.prd.json
 
-                  if ((az group exists --name 'rg-portal-prd-uksouth') -eq $true)
+                  if ('${{ parameters.skipBicepValidate }}' -eq $false)
                   {
                     az deployment group what-if `
                       --resource-group 'rg-portal-prd-uksouth' `

@@ -6,7 +6,10 @@ resources:
   pipelines:
   - pipeline: xtremeidiots-portal.Validate
     source: xtremeidiots-portal.Validate
-    trigger: true
+    trigger:
+      branches:
+        include:
+        - main
 
 stages: 
 - stage: Build

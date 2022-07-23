@@ -79,7 +79,7 @@ stages:
 
   - deployment: DeployPlatformBicep
     dependsOn: [DeployAADResources]
-    environment: 'xtremeidiots-portal'
+    environment: 'xtremeidiots-portal-prd'
 
     strategy:
       runOnce:

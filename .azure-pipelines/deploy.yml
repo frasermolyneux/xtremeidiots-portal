@@ -6,7 +6,10 @@ resources:
   pipelines:
   - pipeline: xtremeidiots-portal.Validate
     source: xtremeidiots-portal.Validate
-    trigger: true
+    trigger:
+      branches:
+        include:
+        - main
 
 stages: 
 - stage: Build
@@ -74,20 +77,25 @@ stages:
           arguments: "'prd'"
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateDatabaseAADGroups.ps1'
 
-  - job: DeployPlatformBicep
+  - deployment: DeployPlatformBicep
     dependsOn: [DeployAADResources]
-    steps:
-      - task: AzureCLI@2
-        displayName: DeployPlatformBicep
-        inputs:
-          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-          scriptType: 'pscore'
-          scriptLocation: 'inlineScript'
-          inlineScript: |
-            az deployment sub create `
-              --template-file bicep/platform.bicep `
-              --location uksouth `
-              --parameters @params/platform.prd.json
+    environment: 'xtremeidiots-portal'
+
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureCLI@2
+              displayName: DeployPlatformBicep
+              inputs:
+                azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  az deployment sub create `
+                    --template-file bicep/platform.bicep `
+                    --location uksouth `
+                    --parameters @params/platform.prd.json
 
   - job: DeployPlatformPermissions
     dependsOn: [DeployPlatformBicep]
@@ -124,29 +132,34 @@ stages:
 - stage: DeployPrdServices
 
   jobs:
-  - job: DeployServicesBicep
-    steps:
-    - task: AzureCLI@2
-      displayName: DeployServicesBicep
-      inputs:
-        azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-        scriptType: 'pscore'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          $eventsApiAppName = "portal-events-api-prd"
-          $repositoryApiName = "portal-repository-api-prd"
-          $serversApiName = "portal-servers-api-prd"
+  - deployment: DeployServicesBicep
+    environment: 'xtremeidiots-portal-prd'
 
-          $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
-          $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
-          $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureCLI@2
+            displayName: DeployServicesBicep
+            inputs:
+              azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                $eventsApiAppName = "portal-events-api-prd"
+                $repositoryApiName = "portal-repository-api-prd"
+                $serversApiName = "portal-servers-api-prd"
 
-          az deployment group create --resource-group "rg-portal-prd-uksouth" `
-              --template-file bicep/services.bicep `
-              --parameters @params/services.prd.json `
-              parEventsApiAppId=$eventsApiAppId `
-              parRepositoryApiAppId=$repositoryApiAppId `
-              parServersApiAppId=$serversApiAppId 
+                $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
+                $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
+                $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
+
+                az deployment group create --resource-group "rg-portal-prd-uksouth" `
+                    --template-file bicep/services.bicep `
+                    --parameters @params/services.prd.json `
+                    parEventsApiAppId=$eventsApiAppId `
+                    parRepositoryApiAppId=$repositoryApiAppId `
+                    parServersApiAppId=$serversApiAppId 
 
   - job: DeployServicesPermissions
     dependsOn: [DeployServicesBicep]

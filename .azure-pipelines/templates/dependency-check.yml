@@ -33,6 +33,7 @@ jobs:
 
   - task: PublishTestResults@2
     displayName: Publish Dependency Check Results
+    condition: always()
     inputs:
       testResultsFiles: '*.xml'
       searchFolder: $(Common.TestResultsDirectory)\dependency-check

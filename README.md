@@ -1,20 +1,31 @@
-# XI.PortalV2
+# XtremeIdiots Portal
 
-XtremeIdiots Portal solution that provides player and server management for the XtremeIdiots community.
+This repository contains XtremeIdiots Portal solution that provides player and game server management for the XtremeIdiots community. There are several integrations with the game servers to collect player data and services to enforce player bans.
 
-* [Documentation](docs/index.md)
+The primary users for the website are the community admins that perform the game server and player management.
+
+---
+
+## Documentation
+
+* [manual-steps](/docs/manual-steps.md)
+
+---
+
+## Related Projects
+
+* [azure-landing-zones](https://github.com/frasermolyneux/azure-landing-zones)
+* [platform-connectivity](https://github.com/frasermolyneux/platform-connectivity)
+* [platform-strategic-services](https://github.com/frasermolyneux/platform-strategic-services)
 
 ---
 
 ## Build Status
 
-[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/portal.Deploy?branchName=master&stageName=Build)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=129&branchName=master)
+[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status/xtremeidiots-portal.Validate?branchName=main)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=155&branchName=main)
 
 ---
 
 ## Deployment Status
 
-* DeployPrdInfrastructure - [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/portal.Deploy?branchName=master&stageName=DeployPrdInfrastructure)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=129&branchName=master)
-* DeployPrdCore - [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/portal.Deploy?branchName=master&stageName=DeployPrdCore)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=129&branchName=master)
-* DeployPrdAppsAndDatabase - [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/portal.Deploy?branchName=master&stageName=DeployPrdAppsAndDatabase)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=129&branchName=master)
-* DeployPrdPermissions - [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots/_apis/build/status/portal.Deploy?branchName=master&stageName=DeployPrdPermissions)](https://dev.azure.com/frasermolyneux/XtremeIdiots/_build/latest?definitionId=129&branchName=master)
+[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status/xtremeidiots-portal.Deploy?branchName=main)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=156&branchName=main)

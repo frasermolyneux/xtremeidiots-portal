@@ -1,4 +1,5 @@
 ﻿using FluentFTP;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 
@@ -98,7 +99,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
 
                 using (var stream = new MemoryStream())
                 {
-                    await client.DownloadAsync(stream, filePath);
+                    await client.DownloadStreamAsync(stream, filePath);
 
                     using (var streamReader = new StreamReader(stream))
                     {
@@ -136,7 +137,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
                 client.ValidateAnyCertificate = true;
                 await client.ConnectAsync();
                 data.Seek(0, SeekOrigin.Begin);
-                await client.UploadAsync(data, filePath);
+                await client.UploadStreamAsync(data, filePath);
             }
             catch (Exception ex)
             {

@@ -29,6 +29,11 @@ pool: 'Dedicated'
 stages: 
 - stage: Build
   jobs:
+  - template: templates/dependency-check.yml
+    parameters: 
+      jobName: 'DependencyCheck'
+      failOnCVSS: 4
+
   - template: templates/build-web-app.yml
     parameters: 
       jobName: 'BuildAdminWebApp'

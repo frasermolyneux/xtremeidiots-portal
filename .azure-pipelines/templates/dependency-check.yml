@@ -1,0 +1,39 @@
+parameters:
+- name: jobName
+  type: string
+  default: DependencyCheck
+- name: dependsOn
+  type: object
+  default: []
+- name: scanPath
+  type: string
+  default: '**/*.csproj'
+- name: suppressionFilePath
+  type: string
+  default: './.azure-pipelines/dependency-suppression.xml'
+- name: failOnCVSS
+  type: number
+  default: 4
+
+jobs:
+- job: ${{ parameters.jobName }}
+  dependsOn: ${{ parameters.dependsOn }}
+
+  steps:
+  - checkout: self
+
+  - task: dependency-check-build-task@6
+    displayName: Dependency Check
+    inputs:
+      projectName: $(Build.Repository.Name)-$(Build.SourceBranchName)
+      scanPath: ${{ parameters.scanPath }}
+      format: HTML,JUNIT
+      failOnCVSS: ${{ parameters.failOnCVSS }}
+      suppressionPath: '${{ parameters.suppressionFilePath }}'
+
+  - task: PublishTestResults@2
+    displayName: Publish Dependency Check Results
+    inputs:
+      testResultsFiles: '*.xml'
+      searchFolder: $(Common.TestResultsDirectory)\dependency-check
+      testRunTitle: $(Build.Repository.Name)-$(Build.SourceBranchName)

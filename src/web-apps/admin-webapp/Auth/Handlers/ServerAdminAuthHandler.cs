@@ -30,6 +30,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
                 if (requirement is ViewServerChatLog)
                     HandleViewServerChatLog(context, requirement);
+
+                if (requirement is ManageMaps)
+                    HandleManageMaps(context, requirement);
             }
 
             return Task.CompletedTask;
@@ -134,6 +137,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
                 context.Succeed(requirement);
 
             if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.LiveRcon))
+                context.Succeed(requirement);
+        }
+
+        private static void HandleManageMaps(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        {
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                context.Succeed(requirement);
+
+            var requiredClaims = new string[] { UserProfileClaimType.HeadAdmin };
+
+            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
         }
     }

@@ -6,5 +6,6 @@ namespace XtremeIdiots.Portal.ServersApiClient
     {
         public IQueryApi Query { get; }
         public IRconApi Rcon { get; }
+        public IMapsApi Maps { get; }
     }
 }

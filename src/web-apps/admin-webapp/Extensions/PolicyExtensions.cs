@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Requirements;
 
@@ -64,6 +65,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             options.AddPolicy(AuthPolicies.ViewGlobalChatLog, policy => { policy.Requirements.Add(new ViewGlobalChatLog()); });
             options.AddPolicy(AuthPolicies.ViewLiveRcon, policy => { policy.Requirements.Add(new ViewLiveRcon()); });
             options.AddPolicy(AuthPolicies.ViewServerChatLog, policy => { policy.Requirements.Add(new ViewServerChatLog()); });
+            options.AddPolicy(AuthPolicies.ManageMaps, policy => { policy.Requirements.Add(new ManageMaps()); });
 
             // Servers
             options.AddPolicy(AuthPolicies.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });

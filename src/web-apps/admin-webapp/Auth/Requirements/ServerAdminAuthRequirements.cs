@@ -25,4 +25,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Requirements
     public class ViewServerChatLog : IAuthorizationRequirement
     {
     }
+
+    public class ManageMaps : IAuthorizationRequirement
+    {
+    }
 }

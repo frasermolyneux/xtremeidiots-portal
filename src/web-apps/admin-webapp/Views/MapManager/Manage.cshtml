@@ -1,0 +1,181 @@
+﻿@using XtremeIdiots.Portal.AdminWebApp.Extensions
+@using XtremeIdiots.Portal.AdminWebApp.ViewModels
+@model ManageMapsViewModel
+
+@{
+    ViewData["Title"] = "Map Manager";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+<div class="row">
+    <div class="col-sm-3">
+
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)</h5>
+            </div>
+
+            <div class="ibox-content">
+
+                <table class="table table-responsive w-100 d-block d-md-table">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>Hostname</strong>
+                        </td>
+                        <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
+                    </tr>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMod))
+                    {
+                        <tr>
+                            <td>
+                                <strong>Mod</strong>
+                            </td>
+                            <td>@Model.GameServer.LiveMod</td>
+                        </tr>  
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMap))
+                    {
+                        <tr>
+                            <td>
+                                <strong>Map</strong>
+                            </td>
+                            <td>@Model.GameServer.LiveMap</td>
+                        </tr>       
+                    }
+
+                    @if (Model.GameServer.LiveCurrentPlayers != 0 && Model.GameServer.LiveMaxPlayers != 0)
+                    {
+                        <tr>
+                            <td>
+                                <strong>Player Count</strong>
+                            </td>
+                            <td>@Model.GameServer.LiveCurrentPlayers / @Model.GameServer.LiveMaxPlayers</td>
+                        </tr>       
+                    }
+
+                    <tr>
+                        <td>
+                            <strong>Connect</strong>
+                        </td>
+                        <td>
+                            @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.SteamIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                            @Html.HlswIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                        </td>
+                    </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <partial name="PushMapToRemotePartial" model="@(new PushMapToRemoteViewModel(Model.GameServer.GameServerId))"></partial>
+
+    </div>
+
+    <div class="col-sm-4">
+
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Current Map Rotation</h5>
+            </div>
+
+            <div class="ibox-content">
+
+                <table class="table">
+                    <tr>
+                        <th>
+                            @Html.Label("Name")
+                        </th>
+                        <th>
+                            @Html.Label("Files")
+                        </th>
+                        <th>
+                            @Html.Label("Popularity")
+                        </th>
+                        <th>
+                        </th>
+                    </tr>
+
+                    @foreach (var item in Model.Maps)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MapName)
+                            </td>
+                            <td>
+                                @foreach (var mapFile in item.MapFiles)
+                                {
+                                    <li>
+                                        <a href="@mapFile.Url">@mapFile.FileName</a>
+                                    </li>
+                                }
+                            </td>
+                            <td>
+                                @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage, item.TotalLikes, item.TotalDislikes, item.TotalVotes)
+                            </td>
+                            <td>
+                                @Html.MapImage(item.MapImageUri)
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-sm-4">
+
+        <div class="ibox">
+            <div class="ibox-title">
+                <h5>Remote Server Maps</h5>
+            </div>
+
+            <div class="ibox-content">
+
+                <table class="table">
+                    <tr>
+                        <th>
+                            @Html.Label("Name")
+                        </th>
+                        <th>
+                            @Html.Label("Path")
+                        </th>
+                        <th>
+                            @Html.Label("Modified")
+                        </th>
+                    </tr>
+
+                    @foreach (var item in Model.ServerMaps)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FullName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Modified)
+                            </td>
+                        </tr>
+                    }
+
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+</div>

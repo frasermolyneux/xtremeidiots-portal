@@ -16,6 +16,7 @@ namespace XtremeIdiots.Portal.ServersApiClient
 
             serviceCollection.AddSingleton<IQueryApi, QueryApi>();
             serviceCollection.AddSingleton<IRconApi, RconApi>();
+            serviceCollection.AddSingleton<IMapsApi, MapsApi>();
 
             serviceCollection.AddSingleton<IServersApiClient, ServersApiClient>();
         }

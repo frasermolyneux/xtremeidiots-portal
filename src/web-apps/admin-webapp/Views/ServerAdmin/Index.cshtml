@@ -82,6 +82,11 @@
                                             {
                                                 <a type="button" class="btn btn-primary" asp-action="ServerChatLog" asp-route-id="@item.GameServer.GameServerId"><i class="fa fa-comments"></i> View ChatLog</a>
                                             }
+
+                                            @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType, AuthPolicies.ManageMaps)).Succeeded)
+                                            {
+                                                <a type="button" class="btn btn-primary" asp-controller="MapManager" asp-action="Manage" asp-route-id="@item.GameServer.GameServerId"><i class="fa fa-terminal"></i> Manage Maps</a>
+                                            }
                                         </div>
                                     </td>
                                 </tr>

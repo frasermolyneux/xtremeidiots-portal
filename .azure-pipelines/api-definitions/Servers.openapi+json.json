@@ -5,6 +5,60 @@
         "version": "1.0"
     },
     "paths": {
+        "/maps/{gameServerId}": {
+            "get": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameServerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/maps/{gameServerId}/{mapName}": {
+            "post": {
+                "tags": [
+                    "Maps"
+                ],
+                "parameters": [
+                    {
+                        "name": "gameServerId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "mapName",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
         "/query/{gameServerId}/status": {
             "get": {
                 "tags": [

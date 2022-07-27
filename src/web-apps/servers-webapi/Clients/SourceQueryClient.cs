@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 using XtremeIdiots.Portal.ServersWebApi.Interfaces;
 using XtremeIdiots.Portal.ServersWebApi.Models;
 
@@ -95,8 +96,10 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
             return players;
         }
 
-        private static Dictionary<string, string> GetParams(byte[] responseBytes)
+        private Dictionary<string, string> GetParams(byte[] responseBytes)
         {
+            _logger.LogInformation($"GetParams :: {Encoding.UTF8.GetString(responseBytes)}");
+
             var serverParams = new Dictionary<string, string>();
 
             serverParams["protocolver"] = responseBytes[5].ToString();

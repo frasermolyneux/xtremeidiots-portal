@@ -34,10 +34,23 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
         public Task<IQueryResponse> GetServerStatus()
         {
             var (_, infoQueryBytes) = Query(A2S_INFO());
+
+            if (infoQueryBytes?.Length == 9) // Challenge received from server
+            {
+                var challenge = new[] { infoQueryBytes[5], infoQueryBytes[6], infoQueryBytes[7], infoQueryBytes[8] };
+                var infoAndChallenge = A2S_INFO().Concat(challenge).ToArray();
+
+                var (_, fullInfoQueryBytes) = Query(infoAndChallenge);
+                infoQueryBytes = fullInfoQueryBytes;
+            }
+
+            if (infoQueryBytes == null)
+                throw new Exception("Failed to query source server");
+
             var serverParams = GetParams(infoQueryBytes);
 
             var (_, playersPreQueryBytes) = Query(A2S_PLAYERS_PRE());
-            var challengeResponse = playersPreQueryBytes.Skip(5).ToArray();
+            var challengeResponse = playersPreQueryBytes?.Skip(5).ToArray();
             var (_, playersQueryBytes) = Query(A2S_PLAYERS(challengeResponse));
 
             var players = ParsePlayers(playersQueryBytes);
@@ -98,8 +111,6 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
 
         private Dictionary<string, string> GetParams(byte[] responseBytes)
         {
-            _logger.LogInformation($"GetParams :: {Encoding.UTF8.GetString(responseBytes)}");
-
             var serverParams = new Dictionary<string, string>();
 
             serverParams["protocolver"] = responseBytes[5].ToString();
@@ -145,11 +156,12 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
         }
 
 
-        private Tuple<string, byte[]> Query(byte[] commandBytes)
+        private Tuple<string, byte[]?> Query(byte[] commandBytes)
         {
-            _logger.LogInformation("Executing command against server");
+            var command = Encoding.UTF8.GetString(commandBytes);
+            _logger.LogInformation($"Executing command '{command}' against server");
 
-            UdpClient udpClient = null;
+            UdpClient? udpClient = null;
 
             try
             {
@@ -170,7 +182,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                 } while (udpClient.Available > 0);
 
                 var responseText = new StringBuilder();
-                byte[] responseBytes = null;
+                byte[]? responseBytes = null;
 
                 foreach (var datagram in datagrams)
                 {
@@ -181,7 +193,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Clients
                     responseText.Append(datagramText);
                 }
 
-                return new Tuple<string, byte[]>(responseText.ToString(), responseBytes);
+                return new Tuple<string, byte[]?>(responseText.ToString(), responseBytes);
             }
             catch (Exception ex)
             {

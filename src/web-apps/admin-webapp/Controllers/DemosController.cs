@@ -265,13 +265,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             {
                 demo.DemoId,
                 Version = demo.GameType.ToString(),
-                demo.Title,
-                demo.Created,
+                Name = demo.Title,
+                Date = demo.Created,
                 demo.Map,
                 demo.Mod,
-                demo.GameMode,
-                demo.ServerName,
-                demo.FileSize,
+                GameType = demo.GameMode,
+                Server = demo.ServerName,
+                Size = demo.FileSize,
                 Identifier = demo.FileName,
                 demo.FileName
             }).ToList();

@@ -137,7 +137,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-prd-clientsecret)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-${parEnvironment}-clientsecret)'
         }
         {
           name: 'service_bus_connection_string'
@@ -230,7 +230,7 @@ resource functionAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           name: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-prd-clientsecret)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-${parEnvironment}-clientsecret)'
         }
         {
           name: 'service_bus_connection_string'

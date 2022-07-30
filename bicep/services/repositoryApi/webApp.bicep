@@ -145,7 +145,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'AzureAd__ClientSecret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-${parEnvironment}-clientsecret)'
         }
         {
           name: 'AzureAd__Audience'
@@ -246,7 +246,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
         }
         {
           name: 'AzureAd__ClientSecret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-prd-clientsecret)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-repository-api-${parEnvironment}-clientsecret)'
         }
         {
           name: 'AzureAd__Audience'

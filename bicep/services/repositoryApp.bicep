@@ -20,7 +20,7 @@ var varDeploymentPrefix = 'repositoryApp' //Prevent deployment naming conflicts
 var varRepositoryFuncAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -37,7 +37,7 @@ module geolocationApiManagementSubscription './../modules/apiManagementSubscript
   }
 }
 
-module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -54,7 +54,7 @@ module repositoryApiManagementSubscription './../modules/apiManagementSubscripti
   }
 }
 
-module serversApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-serversApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -71,7 +71,7 @@ module serversApiManagementSubscription './../modules/apiManagementSubscription.
   }
 }
 
-module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
@@ -104,7 +104,7 @@ module functionApp 'repositoryApp/functionApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {

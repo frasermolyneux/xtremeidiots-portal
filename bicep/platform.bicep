@@ -35,7 +35,7 @@ resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
   properties: {}
 }
 
-module keyVault 'modules/keyVault.bicep' = {
+module keyVault 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvault:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVault'
   scope: resourceGroup(defaultResourceGroup.name)
 
@@ -46,7 +46,7 @@ module keyVault 'modules/keyVault.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'modules/keyVaultAccessPolicy.bicep' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
   scope: resourceGroup(defaultResourceGroup.name)
 
@@ -57,7 +57,7 @@ module keyVaultAccessPolicy 'modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module appInsights 'modules/appInsights.bicep' = {
+module appInsights 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/appinsights:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-appInsights'
   scope: resourceGroup(defaultResourceGroup.name)
 
@@ -72,7 +72,7 @@ module appInsights 'modules/appInsights.bicep' = {
   }
 }
 
-module apiManagementLogger 'modules/apiManagementLogger.bicep' = {
+module apiManagementLogger 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementlogger:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-apiManagementLogger'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 

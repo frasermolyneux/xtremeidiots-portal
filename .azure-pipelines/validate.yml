@@ -29,7 +29,7 @@ resources:
     - repository: ado-pipeline-templates
       type: github
       name: frasermolyneux/ado-pipeline-templates
-      endpoint: XtremeIdiots
+      endpoint: github.com_frasermolyneux
 
 pool: 'Dedicated'
 

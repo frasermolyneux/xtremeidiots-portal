@@ -90,7 +90,7 @@ module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/mod
   }
 }
 
-module sqlDatabase './../modules/sqlDatabase.bicep' = {
+module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatabase:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-sqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
 

@@ -276,7 +276,7 @@ resource functionAppAuthSettings 'Microsoft.Web/sites/config@2021-03-01' = {
   }
 }
 
-module keyVaultSecret './../../modules/keyVaultSecret.bicep' = {
+module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultsecret:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultSecret'
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 

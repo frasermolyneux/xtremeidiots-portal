@@ -86,11 +86,20 @@ stages:
   - job: LintCode
     displayName: Lint Code
     steps:
-      - script: |
-          az bicep build --file bicep/platform.bicep
-          az bicep build --file bicep/services.bicep
+      - task: AzureCLI@2
         name: LintBicepCode
         displayName: Run Bicep Linter
+        inputs:
+          azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+          scriptType: 'pscore'
+          scriptLocation: 'inlineScript'
+          inlineScript: |
+            $files = Get-ChildItem '$(Build.sourcesDirectory)/bicep/*.bicep'
+
+            foreach ($file in $files) {
+              Write-Host "Running az bicep build for '$($file.FullName)'"
+              az bicep build --file $file.FullName --stdout
+            }
 
   - deployment: ValidateBicepCode
     dependsOn: [LintCode]
@@ -100,6 +109,8 @@ stages:
       runOnce:
         deploy:
           steps:
+            - checkout: self
+            
             - task: AzureCLI@2
               name: RunPreflightValidation
               inputs:

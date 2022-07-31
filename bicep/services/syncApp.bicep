@@ -20,7 +20,7 @@ var varDeploymentPrefix = 'syncApp' //Prevent deployment naming conflicts
 var varSyncFuncAppName = 'fn-sync-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -49,7 +49,7 @@ module appDataStorage 'syncApp/appDataStorage.bicep' = {
   }
 }
 
-module funcAppStorageAccount './../modules/funcAppStorageAccount.bicep' = {
+module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
@@ -83,7 +83,7 @@ module functionApp 'syncApp/functionApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {

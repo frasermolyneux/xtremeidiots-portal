@@ -28,7 +28,7 @@ var varServersWebAppName = 'webapi-servers-portal-${parEnvironment}-${parLocatio
 var varWorkloadName = 'webapi-servers-portal-${parEnvironment}'
 
 // Module Resources
-module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -73,7 +73,7 @@ module webApp 'serversApi/webApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
@@ -82,7 +82,7 @@ module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
@@ -107,7 +107,7 @@ module apiManagementApi 'serversApi/apiManagementApi.bicep' = {
   }
 }
 
-module frontDoorEndpoint './../modules/frontDoorEndpoint.bicep' = {
+module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

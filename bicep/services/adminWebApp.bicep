@@ -28,7 +28,7 @@ var varAdminWebAppName = 'webapp-admin-portal-${parEnvironment}-${parLocation}'
 var varWorkloadName = 'webapp-admin-portal-${parEnvironment}'
 
 // Module Resources
-module geolocationApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -45,7 +45,7 @@ module geolocationApiManagementSubscription './../modules/apiManagementSubscript
   }
 }
 
-module repositoryApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -62,7 +62,7 @@ module repositoryApiManagementSubscription './../modules/apiManagementSubscripti
   }
 }
 
-module serversApiManagementSubscription './../modules/apiManagementSubscription.bicep' = {
+module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-serversApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -107,7 +107,7 @@ module webApp 'adminWebApp/webApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
@@ -116,7 +116,7 @@ module keyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
+module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
@@ -125,7 +125,7 @@ module slotKeyVaultAccessPolicy './../modules/keyVaultAccessPolicy.bicep' = {
   }
 }
 
-module sqlDatabase './../modules/sqlDatabase.bicep' = {
+module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatabase:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-sqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
 
@@ -140,7 +140,7 @@ module sqlDatabase './../modules/sqlDatabase.bicep' = {
   }
 }
 
-module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
+module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

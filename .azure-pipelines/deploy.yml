@@ -91,6 +91,8 @@ stages:
       runOnce:
         deploy:
           steps:
+            - checkout: self
+
             - task: AzureCLI@2
               displayName: DeployPlatformBicep
               inputs:
@@ -145,6 +147,8 @@ stages:
       runOnce:
         deploy:
           steps:
+          - checkout: self
+          
           - task: AzureCLI@2
             displayName: DeployServicesBicep
             inputs:

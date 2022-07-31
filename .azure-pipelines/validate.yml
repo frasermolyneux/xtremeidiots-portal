@@ -41,7 +41,7 @@ stages:
       jobName: 'DependencyCheck'
       failOnCVSS: 4
 
-  - template: jobs/build-web-app.yml
+  - template: jobs/build-web-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildAdminWebApp'
       projectName: 'admin-webapp'
@@ -52,7 +52,7 @@ stages:
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
 
-  - template: jobs/build-function-app.yml
+  - template: jobs/build-function-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildIngestFunctionApp'
       projectName: 'ingest-func'
@@ -74,7 +74,7 @@ stages:
       jobName: 'BuildSyncFunctionApp'
       projectName: 'sync-func'
 
-  - template: jobs/build-web-app.yml
+  - template: jobs/build-web-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildServersWebApi'
       projectName: 'servers-webapi'

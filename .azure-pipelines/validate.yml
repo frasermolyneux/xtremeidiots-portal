@@ -24,55 +24,62 @@ schedules:
       include:
       - main
 
+resources:
+  repositories:
+    - repository: ado-pipeline-templates
+      type: github
+      name: frasermolyneux/ado-pipeline-templates
+      endpoint: github.com_frasermolyneux
+
 pool: 'Dedicated'
 
 stages: 
 - stage: Build
   jobs:
-  - template: templates/dependency-check.yml
+  - template: jobs/dependency-check.yml@ado-pipeline-templates
     parameters: 
       jobName: 'DependencyCheck'
       failOnCVSS: 4
 
-  - template: templates/build-web-app.yml
+  - template: jobs/build-web-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildAdminWebApp'
       projectName: 'admin-webapp'
       nugetConfigPath: './src/nuget.config'
 
-  - template: templates/build-function-app.yml
+  - template: jobs/build-function-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildEventsFunctionApp'
       projectName: 'events-func'
 
-  - template: templates/build-function-app.yml
+  - template: jobs/build-function-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildIngestFunctionApp'
       projectName: 'ingest-func'
 
-  - template: templates/build-web-app.yml
+  - template: jobs/build-web-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildRepositoryWebApi'
       projectName: 'repository-webapi'
       nugetConfigPath: './src/nuget.config'
 
-  - template: templates/build-function-app.yml
+  - template: jobs/build-function-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildRepositoryFunctionApp'
       projectName: 'repository-func'
       nugetConfigPath: './src/nuget.config'
 
-  - template: templates/build-function-app.yml
+  - template: jobs/build-function-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildSyncFunctionApp'
       projectName: 'sync-func'
 
-  - template: templates/build-web-app.yml
+  - template: jobs/build-web-app.yml@ado-pipeline-templates
     parameters: 
       jobName: 'BuildServersWebApi'
       projectName: 'servers-webapi'
 
-  - template: templates/build-sql-database.yml
+  - template: jobs/build-sql-database.yml@ado-pipeline-templates
 
 - stage: ValidateBicep
   jobs: 

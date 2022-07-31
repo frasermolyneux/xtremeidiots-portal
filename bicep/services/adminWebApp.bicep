@@ -140,7 +140,7 @@ module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatab
   }
 }
 
-module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
+module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

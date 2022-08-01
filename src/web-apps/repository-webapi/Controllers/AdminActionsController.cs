@@ -172,7 +172,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.Controllers
 
             mapper.Map(editAdminActionDto, adminAction);
 
-            if (!string.IsNullOrWhiteSpace(editAdminActionDto.AdminId) && editAdminActionDto.AdminId != adminAction.UserProfile.XtremeIdiotsForumId)
+            if (!string.IsNullOrWhiteSpace(editAdminActionDto.AdminId) && editAdminActionDto.AdminId != adminAction.UserProfile?.XtremeIdiotsForumId)
                 adminAction.UserProfile = await context.UserProfiles.SingleOrDefaultAsync(u => u.XtremeIdiotsForumId == editAdminActionDto.AdminId);
 
             await context.SaveChangesAsync();

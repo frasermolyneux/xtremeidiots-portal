@@ -10,7 +10,6 @@
 
 
   <ItemGroup>
-    <PackageReference Include="lookup-api-client" Version="1.0.5696" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
@@ -31,6 +30,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.7" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.6432" />
   </ItemGroup>
 
 

@@ -9,13 +9,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FluentFTP" Version="39.0.1" />
-    <PackageReference Include="lookup-api-client" Version="1.0.5696" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.6.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.1" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.6432" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />

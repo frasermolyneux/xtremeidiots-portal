@@ -35,8 +35,8 @@ public class Startup : FunctionsStartup
 
         builder.Services.AddGeoLocationApiClient(options =>
         {
-            options.ApimBaseUrl = config["apim_base_url"] ?? config["geolocation_base_url"];
-            options.ApimSubscriptionKey = config["geolocation_apim_subscription_key"];
+            options.BaseUrl = config["apim_base_url"] ?? config["geolocation_base_url"];
+            options.ApiKey = config["geolocation_apim_subscription_key"];
         });
 
         builder.Services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();

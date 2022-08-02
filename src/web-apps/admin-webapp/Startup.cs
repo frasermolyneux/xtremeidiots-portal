@@ -32,8 +32,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddGeoLocationApiClient(options =>
             {
-                options.ApimBaseUrl = Configuration["apim_base_url"] ?? Configuration["geolocation_base_url"];
-                options.ApimSubscriptionKey = Configuration["geolocation_apim_subscription_key"];
+                options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["geolocation_base_url"];
+                options.ApiKey = Configuration["geolocation_apim_subscription_key"];
             });
 
             services.AddInvisionApiClient(options =>

@@ -30,7 +30,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.7" />
-    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.6432" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.6436" />
   </ItemGroup>
 
 

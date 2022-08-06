@@ -28,9 +28,6 @@ stages:
 - stage: Build
   jobs:
 
-  workspace:
-    clean: all
-
   - template: jobs/dependency-check.yml@ado-pipeline-templates
     parameters: 
       jobName: 'DependencyCheck'

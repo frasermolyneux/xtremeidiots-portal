@@ -43,7 +43,7 @@ module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyva
   name: '${parDeploymentPrefix}-${storageAccount.name}-keyVaultSecret'
 
   params: {
-    parKeyVaultName: parKeyVaultName
+    parKeyVaultName: keyVault.name
     parSecretName: '${storageAccount.name}-connectionstring'
     parSecretValue: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
     parTags: parTags

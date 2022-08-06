@@ -55,8 +55,6 @@ module webApp 'repositoryApi/webApp.bicep' = {
     parAppDataStorageAccountName: appDataStorage.outputs.outStorageAccountName
 
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-    parApiManagementName: parApiManagementName
     parAppServicePlanName: parAppServicePlanName
     parSqlServerResourceGroupName: parSqlServerResourceGroupName
     parSqlServerName: parSqlServerName
@@ -116,7 +114,6 @@ module apiManagementApi 'repositoryApi/apiManagementApi.bicep' = {
     parEnvironment: parEnvironment
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
-    parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
   }
 }

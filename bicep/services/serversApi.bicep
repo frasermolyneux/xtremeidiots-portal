@@ -102,7 +102,6 @@ module apiManagementApi 'serversApi/apiManagementApi.bicep' = {
     parEnvironment: parEnvironment
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
-    parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
   }
 }

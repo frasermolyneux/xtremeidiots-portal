@@ -10,8 +10,6 @@ param parRepositoryApiAppId string
 param parAppDataStorageAccountName string
 
 param parStrategicServicesSubscriptionId string
-param parApiManagementResourceGroupName string
-param parApiManagementName string
 param parAppServicePlanName string
 param parSqlServerResourceGroupName string
 param parSqlServerName string
@@ -42,11 +40,6 @@ resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
   name: parKeyVaultName
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
-}
-
-resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
-  name: parApiManagementName
-  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
@@ -111,6 +104,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       ]
 
       appSettings: [
+        {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
@@ -212,6 +209,10 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
       ]
 
       appSettings: [
+        {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'

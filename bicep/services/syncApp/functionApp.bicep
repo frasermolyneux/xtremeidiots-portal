@@ -5,7 +5,6 @@ param parLocation string
 param parEnvironment string
 param parKeyVaultName string
 param parAppInsightsName string
-param parServiceBusName string
 
 param parStorageAccountName string
 param parAppDataStorageAccountName string
@@ -50,11 +49,6 @@ resource appDataStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' ex
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 }
 
-resource serviceBus 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
-  name: parServiceBusName
-  scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
-}
-
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
   name: parApiManagementName
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
@@ -85,6 +79,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
       minTlsVersion: '1.2'
 
       appSettings: [
+        {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
           value: '~4'

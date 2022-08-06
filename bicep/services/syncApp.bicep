@@ -70,7 +70,6 @@ module functionApp 'syncApp/functionApp.bicep' = {
     parEnvironment: parEnvironment
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
-    parServiceBusName: parServiceBusName
     parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parAppDataStorageAccountName: appDataStorage.outputs.outStorageAccountName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId

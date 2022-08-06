@@ -80,6 +80,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
 
       appSettings: [
         {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
+        {
           name: 'FUNCTIONS_EXTENSION_VERSION'
           value: '~4'
         }

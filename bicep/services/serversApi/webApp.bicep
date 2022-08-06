@@ -99,6 +99,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
       appSettings: [
         {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
+        {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
         }
@@ -203,6 +207,10 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
       ]
 
       appSettings: [
+        {
+          name: 'READ_ONLY_MODE'
+          value: (parEnvironment == 'prd') ? 'true' : 'false'
+        }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'

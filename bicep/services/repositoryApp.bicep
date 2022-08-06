@@ -92,7 +92,6 @@ module functionApp 'repositoryApp/functionApp.bicep' = {
     parEnvironment: parEnvironment
     parKeyVaultName: parKeyVaultName
     parAppInsightsName: parAppInsightsName
-    parServiceBusName: parServiceBusName
     parStorageAccountName: funcAppStorageAccount.outputs.outStorageAccountName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName

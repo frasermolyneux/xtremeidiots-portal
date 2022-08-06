@@ -152,7 +152,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-resource functionAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
+resource functionAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvironment == 'prd') {
   name: 'staging'
   location: parLocation
   kind: 'functionapp'
@@ -301,4 +301,4 @@ output outFunctionAppDefaultHostName string = functionApp.properties.defaultHost
 output outFunctionAppIdentityPrincipalId string = functionApp.identity.principalId
 output outFunctionAppName string = functionApp.name
 
-output outFunctionAppStagingIdentityPrincipalId string = functionAppStagingSlot.identity.principalId
+output outFunctionAppStagingIdentityPrincipalId string = (parEnvironment == 'prd') ? functionAppStagingSlot.identity.principalId : ''

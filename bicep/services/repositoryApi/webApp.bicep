@@ -161,7 +161,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = {
+resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvironment == 'prd') {
   name: 'staging'
   location: parLocation
   kind: 'app'
@@ -271,4 +271,4 @@ output outWebAppDefaultHostName string = webApp.properties.defaultHostName
 output outWebAppIdentityPrincipalId string = webApp.identity.principalId
 output outWebAppName string = webApp.name
 
-output outWebAppStagingIdentityPrincipalId string = webAppStagingSlot.identity.principalId
+output outWebAppStagingIdentityPrincipalId string = (parEnvironment == 'prd') ? webAppStagingSlot.identity.principalId : ''

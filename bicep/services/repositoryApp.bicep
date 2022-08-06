@@ -5,7 +5,6 @@ param parLocation string
 param parEnvironment string
 param parKeyVaultName string
 param parAppInsightsName string
-param parServiceBusName string
 
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string

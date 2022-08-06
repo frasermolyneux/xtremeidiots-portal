@@ -138,13 +138,14 @@ stages:
       environmentName: 'Prd'
       environmentTag: 'prd'
 
-- template: templates/deploy-environment.yml
-  parameters:
-    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
-    environment: 'xtremeidiots-portal-prd'
-    environmentName: 'Prd'
-    environmentTag: 'prd'
-    webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
-    webAppsEnvironment: 'platform-webapps-prd-uksouth'
-    webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
-    blueGreenDeploy: true
+- ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
+  - template: templates/deploy-environment.yml
+    parameters:
+      azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+      environment: 'xtremeidiots-portal-prd'
+      environmentName: 'Prd'
+      environmentTag: 'prd'
+      webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
+      webAppsEnvironment: 'platform-webapps-prd-uksouth'
+      webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
+      blueGreenDeploy: true

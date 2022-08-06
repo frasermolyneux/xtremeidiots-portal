@@ -206,7 +206,8 @@ stages:
 
   - template: jobs/deploy-sql-database.yml@ado-pipeline-templates
     parameters:
-      jobName: DeploySqlDatabase
+      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
+      jobName: Deploy${{ parameters.environmentName }}SqlDatabase
       serverName: "sql-platform-${{ parameters.environmentTag }}-uksouth.database.windows.net"
       databaseName: 'portaldb-${{ parameters.environmentTag }}'
       subscription: ${{ parameters.azureSubscription }}
@@ -214,10 +215,10 @@ stages:
 
   - template: jobs/deploy-web-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeploySqlDatabase']
+      dependsOn: ['Deploy${{ parameters.environmentName }}SqlDatabase']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: repository-webapi
-      jobName: DeployRepositoryWebApi
+      jobName: Deploy${{ parameters.environmentName }}RepositoryWebApi
       webAppName: "webapi-repository-portal-${{ parameters.environmentTag }}-uksouth"
       webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
@@ -225,30 +226,30 @@ stages:
 
   - template: jobs/deploy-function-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: repository-func
-      jobName: DeployRepositoryFunctionApp
+      jobName: Deploy${{ parameters.environmentName }}RepositoryFunctionApp
       functionAppName: "fn-repository-portal-${{ parameters.environmentTag }}-uksouth"
       functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
 
   - template: jobs/deploy-function-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: ingest-func
-      jobName: DeployIngestFunctionApp
+      jobName: Deploy${{ parameters.environmentName }}IngestFunctionApp
       functionAppName: "fn-ingest-portal-${{ parameters.environmentTag }}-uksouth"
       functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
 
   - template: jobs/deploy-function-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: events-func
-      jobName: DeployEventsFunctionApp
+      jobName: Deploy${{ parameters.environmentName }}EventsFunctionApp
       functionAppName: "fn-events-portal-${{ parameters.environmentTag }}-uksouth"
       functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
@@ -256,20 +257,20 @@ stages:
 
   - template: jobs/deploy-function-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: sync-func
-      jobName: DeploySyncFunctionApp
+      jobName: Deploy${{ parameters.environmentName }}SyncFunctionApp
       functionAppName: "fn-sync-portal-${{ parameters.environmentTag }}-uksouth"
       functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
 
   - template: jobs/deploy-web-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: servers-webapi
-      jobName: DeployServersWebApi
+      jobName: Deploy${{ parameters.environmentName }}ServersWebApi
       webAppName: "webapi-servers-portal-${{ parameters.environmentTag }}-uksouth"
       webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
@@ -277,10 +278,10 @@ stages:
 
   - template: jobs/deploy-web-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['DeployRepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: admin-webapp
-      jobName: DeployAdminWebApp
+      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
       webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
       webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}

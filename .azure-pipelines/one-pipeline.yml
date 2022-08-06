@@ -118,9 +118,6 @@ stages:
       - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
         displayName: 'Publish sync-func artifact'
         artifact: sync-func
-      - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
-        displayName: 'Publish sync-func artifact'
-        artifact: sync-func
       - publish: '$(Build.ArtifactStagingDirectory)/database'
         displayName: Publish database artifact
         artifact: database

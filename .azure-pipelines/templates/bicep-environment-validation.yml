@@ -1,0 +1,71 @@
+parameters:
+- name: dependsOn
+  type: object
+  default: []
+- name: azureSubscription
+  type: string
+- name: environment
+  type: string
+- name: environmentName
+  type: string
+- name: environmentTag
+  type: string
+jobs:
+- deployment: ValidateBicepAgainst${{ parameters.environmentName }}Environment
+  dependsOn: ${{ parameters.dependsOn }}
+  environment: ${{ parameters.environment }}
+
+  workspace:
+    clean: all
+
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - checkout: self
+
+          - task: AzureCLI@2
+            name: RunPreflightValidation
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment sub validate `
+                  --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
+                  --location 'uksouth' `
+                  --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
+
+                if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
+                  Write-Host "Performing az deployment group validation as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
+                  az deployment group validate `
+                    --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
+                    --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
+                    --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `
+                      parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+                      parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+                      parServersApiAppId=00000000-0000-0000-0000-000000000000
+                }
+
+          - task: AzureCLI@2
+            name: RunWhatIfDeploy
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment sub what-if `
+                  --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
+                  --location 'uksouth' `
+                  --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
+
+                if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
+                  Write-Host "Performing az deployment group what-if as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
+                  az deployment group what-if `
+                    --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
+                    --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
+                    --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `
+                      parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
+                      parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
+                      parServersApiAppId=00000000-0000-0000-0000-000000000000
+                }

@@ -1,0 +1,153 @@
+trigger:
+  branches:
+    include:
+    - '*'
+    exclude:
+    - 'docs/*'
+
+pr:
+  branches:
+    include:
+    - '*'
+    exclude:
+    - 'docs/*'
+
+pool: 'Dedicated'
+
+resources:
+  repositories:
+    - repository: ado-pipeline-templates
+      type: github
+      name: frasermolyneux/ado-pipeline-templates
+      endpoint: github.com_frasermolyneux
+
+variables:
+  buildConfiguration: 'Release'
+
+stages: 
+- stage: Build
+  jobs:
+
+  workspace:
+    clean: all
+
+  - template: jobs/dependency-check.yml@ado-pipeline-templates
+    parameters: 
+      jobName: 'DependencyCheck'
+      failOnCVSS: 4
+
+  - template: jobs/build-net-core-projects.yml@ado-pipeline-templates
+    parameters: 
+      jobName: 'BuildNetCoreProjects'
+      buildConfiguration: $(buildConfiguration)
+      additionalBuildSteps:
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish admin-webapp project'
+        inputs:
+          command: 'publish'
+          publishWebProjects: false
+          projects: '**/admin-webapp.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip'
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish repository-webapi project'
+        inputs:
+          command: 'publish'
+          publishWebProjects: false
+          projects: '**/repository-webapi.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/repository-webapi.zip'
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish servers-webapi project'
+        inputs:
+          command: 'publish'
+          publishWebProjects: false
+          projects: '**/servers-webapi.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/servers-webapi.zip'
+      - task: ArchiveFiles@2
+        displayName: "Package events-func project"
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/events-func/bin/Release/net6.0/'
+          includeRootFolder: false
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/events-func.zip'
+      - task: ArchiveFiles@2
+        displayName: "Package ingest-func project"
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/ingest-func/bin/Release/net6.0/'
+          includeRootFolder: false
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/ingest-func.zip'
+      - task: ArchiveFiles@2
+        displayName: "Package repository-func project"
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/repository-func/bin/Release/net6.0/'
+          includeRootFolder: false
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/repository-func.zip'
+      - task: ArchiveFiles@2
+        displayName: "Package sync-func project"
+        inputs:
+          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/sync-func/bin/Release/net6.0/'
+          includeRootFolder: false
+          archiveType: 'zip'
+          archiveFile: '$(Build.ArtifactStagingDirectory)/sync-func.zip'
+      - task: MSBuild@1
+        inputs:
+          solution: '**/database.sqlproj'
+          platform: 'AnyCPU'
+          configuration: $(buildConfiguration)
+      - task: CopyFiles@2
+        inputs:
+          sourceFolder: '$(Build.SourcesDirectory)/src/database/bin/Release/'
+          targetFolder: '$(Build.ArtifactStagingDirectory)/database'
+      additionalPublishSteps: 
+      - publish: '$(Build.artifactStagingDirectory)/admin-webapp.zip'
+        displayName: 'Publish admin-webapp artifact'
+        artifact: admin-webapp
+      - publish: '$(Build.artifactStagingDirectory)/repository-webapi.zip'
+        displayName: 'Publish repository-webapi artifact'
+        artifact: repository-webapi
+      - publish: '$(Build.artifactStagingDirectory)/servers-webapi.zip'
+        displayName: 'Publish servers-webapi artifact'
+        artifact: servers-webapi
+      - publish: '$(Build.artifactStagingDirectory)/events-func.zip'
+        displayName: 'Publish events-func artifact'
+        artifact: events-func
+      - publish: '$(Build.artifactStagingDirectory)/ingest-func.zip'
+        displayName: 'Publish ingest-func artifact'
+        artifact: ingest-func
+      - publish: '$(Build.artifactStagingDirectory)/repository-func.zip'
+        displayName: 'Publish repository-func artifact'
+        artifact: repository-func
+      - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
+        displayName: 'Publish sync-func artifact'
+        artifact: sync-func
+      - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
+        displayName: 'Publish sync-func artifact'
+        artifact: sync-func
+      - publish: '$(Build.ArtifactStagingDirectory)/database'
+        displayName: Publish database artifact
+        artifact: database
+
+  - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
+    parameters: 
+      jobName: 'BicepLinter'
+      azureSubscription: 'spn-ado-XtremeIdiots-Public-devtest'
+
+  - template: templates/bicep-environment-validation.yml
+    parameters:
+      dependsOn: [BicepLinter]
+      azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+      environment: 'xtremeidiots-portal-prd'
+      environmentName: 'Prd'
+      environmentTag: 'prd'
+
+- template: templates/deploy-environment.yml
+  parameters:
+    azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+    environment: 'xtremeidiots-portal-prd'
+    environmentName: 'Prd'
+    environmentTag: 'prd'
+    webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
+    webAppsEnvironment: 'platform-webapps-prd-uksouth'
+    webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
+    blueGreenDeploy: true

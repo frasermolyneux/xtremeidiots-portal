@@ -12,5 +12,8 @@ namespace XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
 
         [JsonProperty]
         public DateTime LastUsed { get; internal set; }
+
+        [JsonProperty]
+        public int ConfidenceScore { get; internal set; }
     }
 }

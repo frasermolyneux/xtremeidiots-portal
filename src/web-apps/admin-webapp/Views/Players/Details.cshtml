@@ -162,6 +162,9 @@
                                     <th>
                                         Last Used
                                     </th>
+                                    <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the Alias has been linked to the GUID">
+                                        Confidence
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,6 +174,7 @@
                                     <td>@aliasDto.Name</td>
                                     <td>@Html.ToUserTime(User, aliasDto.Added)</td>
                                     <td>@Html.ToUserTime(User, aliasDto.LastUsed)</td>
+                                    <td>@Html.ToConfidenceLabel(aliasDto.ConfidenceScore, aliasDto.LastUsed)</td>
                                 </tr> 
                                 }
                             </tbody>
@@ -190,6 +194,9 @@
                                     <th>
                                         Last Used
                                     </th>
+                                    <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
+                                        Confidence
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -199,6 +206,7 @@
                                     <td>@ipAddressDto.Address</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>
+                                    <td>@Html.ToConfidenceLabel(ipAddressDto.ConfidenceScore, ipAddressDto.LastUsed)</td>
                                 </tr> 
                                 }
                             </tbody>
@@ -276,6 +284,10 @@
     <script type="text/javascript">
 
         $(document).ready(function() {
+
+            $(function () {
+                $('[data-toggle="tooltip"]').tooltip()
+            })
 
             $('#chatLogTable').DataTable({
                 processing: true,

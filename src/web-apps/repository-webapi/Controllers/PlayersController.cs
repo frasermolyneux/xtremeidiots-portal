@@ -253,7 +253,8 @@ public class PlayersController : ControllerBase, IPlayersApi
                     {
                         Address = ip.ToString(),
                         Added = DateTime.UtcNow,
-                        LastUsed = DateTime.UtcNow
+                        LastUsed = DateTime.UtcNow,
+                        ConfidenceScore = 1
                     }
                 };
             }
@@ -264,7 +265,8 @@ public class PlayersController : ControllerBase, IPlayersApi
                 {
                     Name = createPlayerDto.Username.Trim(),
                     Added = DateTime.UtcNow,
-                    LastUsed = DateTime.UtcNow
+                    LastUsed = DateTime.UtcNow,
+                    ConfidenceScore = 1
                 }
             };
 
@@ -321,6 +323,7 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (playerAlias != null)
         {
             playerAlias.LastUsed = DateTime.UtcNow;
+            playerAlias.ConfidenceScore++;
         }
         else
         {
@@ -328,7 +331,8 @@ public class PlayersController : ControllerBase, IPlayersApi
             {
                 Name = editPlayerDto.Username,
                 Added = DateTime.UtcNow,
-                LastUsed = DateTime.UtcNow
+                LastUsed = DateTime.UtcNow,
+                ConfidenceScore = 1
             });
         }
 
@@ -336,6 +340,8 @@ public class PlayersController : ControllerBase, IPlayersApi
         if (playerIpAddress != null)
         {
             playerIpAddress.LastUsed = DateTime.UtcNow;
+            playerIpAddress.ConfidenceScore++;
+
         }
         else
         {
@@ -343,7 +349,8 @@ public class PlayersController : ControllerBase, IPlayersApi
             {
                 Address = editPlayerDto.IpAddress,
                 Added = DateTime.UtcNow,
-                LastUsed = DateTime.UtcNow
+                LastUsed = DateTime.UtcNow,
+                ConfidenceScore = 1
             });
         }
 

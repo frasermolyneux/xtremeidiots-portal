@@ -150,15 +150,6 @@ public class PlayersController : ControllerBase, IPlayersApi
     {
         var query = context.Players.AsQueryable();
 
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
-            query = query.Include(p => p.PlayerAliases).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
-            query = query.Include(p => p.PlayerIpAddresses).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
-            query = query.Include(p => p.AdminActions).AsQueryable();
-
         query = ApplyFilter(query, gameType, null, null);
         var totalCount = await query.CountAsync();
 
@@ -167,6 +158,38 @@ public class PlayersController : ControllerBase, IPlayersApi
 
         query = ApplyOrderAndLimits(query, skipEntries, takeEntries, order);
         var results = await query.ToListAsync();
+
+        var playerIds = results.Select(e => (Guid?)e.PlayerId).ToList();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+        {
+            var playerAliases = await context.PlayerAliases.Where(pa => playerIds.Contains(pa.PlayerId)).ToListAsync();
+
+            results.ForEach(player =>
+            {
+                player.PlayerAliases = playerAliases.Where(a => a.PlayerId == player.PlayerId).ToList();
+            });
+        }
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+        {
+            var playerIpAddresses = await context.PlayerIpAddresses.Where(pip => playerIds.Contains(pip.PlayerId)).ToListAsync();
+
+            results.ForEach(player =>
+            {
+                player.PlayerIpAddresses = playerIpAddresses.Where(a => a.PlayerId == player.PlayerId).ToList();
+            });
+        }
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+        {
+            var adminActions = await context.AdminActions.Where(aa => playerIds.Contains(aa.PlayerId)).ToListAsync();
+
+            results.ForEach(player =>
+            {
+                player.AdminActions = adminActions.Where(a => a.PlayerId == player.PlayerId).ToList();
+            });
+        }
 
         var entries = results.Select(p => mapper.Map<PlayerDto>(p)).ToList();
 
@@ -336,14 +359,25 @@ public class PlayersController : ControllerBase, IPlayersApi
 
         if (filter.HasValue && !string.IsNullOrWhiteSpace(filterString))
         {
-            switch (filter)
+            if (filterString.Length == 32) // Search is for a player GUID; perform a smart query
             {
-                case PlayersFilter.UsernameAndGuid:
-                    query = query.Where(p => p.Username.Contains(filterString) || p.Guid.Contains(filterString) || p.PlayerAliases.Any(a => a.Name.Contains(filterString))).AsQueryable();
-                    break;
-                case PlayersFilter.IpAddress:
-                    query = query.Where(p => p.IpAddress.Contains(filterString) || p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString))).AsQueryable();
-                    break;
+                query = query.Where(p => p.Guid == filterString).AsQueryable();
+            }
+            else if (IPAddress.TryParse(filterString, out IPAddress? filterIpAddress)) // Search is for an IP Address; perform a smart query
+            {
+                query = query.Where(p => p.IpAddress == filterString || p.PlayerIpAddresses.Any(ip => ip.Address == filterString)).AsQueryable();
+            }
+            else
+            {
+                switch (filter)
+                {
+                    case PlayersFilter.UsernameAndGuid:
+                        query = query.Where(p => p.Username.Contains(filterString) || p.Guid.Contains(filterString) || p.PlayerAliases.Any(a => a.Name.Contains(filterString))).AsQueryable();
+                        break;
+                    case PlayersFilter.IpAddress:
+                        query = query.Where(p => p.IpAddress.Contains(filterString) || p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString))).AsQueryable();
+                        break;
+                }
             }
         }
 

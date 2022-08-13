@@ -22,6 +22,7 @@ namespace XtremeIdiots.Portal.DataLib
         public DateTime Added { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime LastUsed { get; set; }
+        public int ConfidenceScore { get; set; }
 
         [ForeignKey("PlayerId")]
         [InverseProperty("PlayerAliases")]

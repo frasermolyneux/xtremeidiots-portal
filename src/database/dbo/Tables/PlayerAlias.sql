@@ -4,6 +4,7 @@
     [Name] NVARCHAR (60) NULL,
     [Added] DATETIME NOT NULL,
     [LastUsed] DATETIME NOT NULL,
+    [ConfidenceScore] INT NOT NULL DEFAULT 0, 
     CONSTRAINT [PK_dbo.PlayerAlias] PRIMARY KEY CLUSTERED ([PlayerAliasId] ASC),
     CONSTRAINT [FK_dbo.PlayerAlias_dbo.Players_PlayerId] FOREIGN KEY ([PlayerId]) REFERENCES [dbo].[Players] ([PlayerId])
 );

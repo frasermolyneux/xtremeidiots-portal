@@ -43,21 +43,19 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayer(Guid playerId, PlayerEntityOptions playerEntityOptions)
     {
-        var query = context.Players.AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
-            query = query.Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed)).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
-            query = query.Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed)).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
-            query = query.Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile).AsQueryable();
-
-        var player = await query.SingleOrDefaultAsync(p => p.PlayerId == playerId);
+        var player = await context.Players.SingleOrDefaultAsync(p => p.PlayerId == playerId);
 
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+            player.PlayerAliases = await context.PlayerAliases.OrderByDescending(pa => pa.LastUsed).Where(pa => pa.PlayerId == player.PlayerId).ToListAsync();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+            player.PlayerIpAddresses = await context.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed).Where(pip => pip.PlayerId == player.PlayerId).ToListAsync();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+            player.AdminActions = await context.AdminActions.OrderByDescending(aa => aa.Created).Where(aa => aa.PlayerId == player.PlayerId).ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);
 
@@ -104,29 +102,31 @@ public class PlayersController : ControllerBase, IPlayersApi
 
     async Task<ApiResponseDto<PlayerDto>> IPlayersApi.GetPlayerByGameType(GameType gameType, string guid, PlayerEntityOptions playerEntityOptions)
     {
-        var query = context.Players.AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
-            query = query.Include(p => p.PlayerAliases.OrderByDescending(pa => pa.LastUsed)).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
-            query = query.Include(p => p.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed)).AsQueryable();
-
-        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
-            query = query.Include(p => p.AdminActions.OrderByDescending(aa => aa.Created)).ThenInclude(aa => aa.UserProfile).AsQueryable();
-
-        var player = await query.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
+        var player = await context.Players.SingleOrDefaultAsync(p => p.GameType == gameType.ToGameTypeInt() && p.Guid == guid);
 
         if (player == null)
             return new ApiResponseDto<PlayerDto>(HttpStatusCode.NotFound);
 
-        var playerIpAddresses = await context.PlayerIpAddresses
-            .Include(ip => ip.Player)
-            .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
-            .ToListAsync();
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.Aliases))
+            player.PlayerAliases = await context.PlayerAliases.OrderByDescending(pa => pa.LastUsed).Where(pa => pa.PlayerId == player.PlayerId).ToListAsync();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.IpAddresses))
+            player.PlayerIpAddresses = await context.PlayerIpAddresses.OrderByDescending(pip => pip.LastUsed).Where(pip => pip.PlayerId == player.PlayerId).ToListAsync();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.AdminActions))
+            player.AdminActions = await context.AdminActions.OrderByDescending(aa => aa.Created).Where(aa => aa.PlayerId == player.PlayerId).ToListAsync();
 
         var result = mapper.Map<PlayerDto>(player);
-        result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+
+        if (playerEntityOptions.HasFlag(PlayerEntityOptions.RelatedPlayers))
+        {
+            var playerIpAddresses = await context.PlayerIpAddresses
+                .Include(ip => ip.Player)
+                .Where(ip => ip.Address == player.IpAddress && ip.PlayerId != player.PlayerId)
+                .ToListAsync();
+
+            result.RelatedPlayers = playerIpAddresses.Select(pip => mapper.Map<RelatedPlayerDto>(pip)).ToList();
+        }
 
         return new ApiResponseDto<PlayerDto>(HttpStatusCode.OK, result);
     }

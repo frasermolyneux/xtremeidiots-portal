@@ -366,25 +366,22 @@ public class PlayersController : ControllerBase, IPlayersApi
 
         if (filter.HasValue && !string.IsNullOrWhiteSpace(filterString))
         {
-            if (filterString.Length == 32) // Search is for a player GUID; perform a smart query
+            switch (filter)
             {
-                query = query.Where(p => p.Guid == filterString).AsQueryable();
-            }
-            else if (IPAddress.TryParse(filterString, out IPAddress? filterIpAddress)) // Search is for an IP Address; perform a smart query
-            {
-                query = query.Where(p => p.IpAddress == filterString || p.PlayerIpAddresses.Any(ip => ip.Address == filterString)).AsQueryable();
-            }
-            else
-            {
-                switch (filter)
-                {
-                    case PlayersFilter.UsernameAndGuid:
+                case PlayersFilter.UsernameAndGuid:
+                    if (filterString.Length == 32) // Search is for a player GUID; perform a smart query
+                        query = query.Where(p => p.Guid == filterString).AsQueryable();
+                    else
                         query = query.Where(p => p.Username.Contains(filterString) || p.Guid.Contains(filterString) || p.PlayerAliases.Any(a => a.Name.Contains(filterString))).AsQueryable();
-                        break;
-                    case PlayersFilter.IpAddress:
+
+                    break;
+                case PlayersFilter.IpAddress:
+                    if (IPAddress.TryParse(filterString, out IPAddress? filterIpAddress)) // Search is for an IP Address; perform a smart query
+                        query = query.Where(p => p.IpAddress == filterString || p.PlayerIpAddresses.Any(ip => ip.Address == filterString)).AsQueryable();
+                    else
                         query = query.Where(p => p.IpAddress.Contains(filterString) || p.PlayerIpAddresses.Any(ip => ip.Address.Contains(filterString))).AsQueryable();
-                        break;
-                }
+
+                    break;
             }
         }
 

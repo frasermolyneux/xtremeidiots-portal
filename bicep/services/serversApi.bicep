@@ -28,7 +28,7 @@ var varServersWebAppName = 'webapi-servers-portal-${parEnvironment}-${parLocatio
 var varWorkloadName = 'webapi-servers-portal-${parEnvironment}'
 
 // Module Resources
-module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
+module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -73,7 +73,7 @@ module webApp 'serversApi/webApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
@@ -82,7 +82,7 @@ module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules
   }
 }
 
-module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = if (parEnvironment == 'prd') {
+module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = if (parEnvironment == 'prd') {
   name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
@@ -106,7 +106,7 @@ module apiManagementApi 'serversApi/apiManagementApi.bicep' = {
   }
 }
 
-module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
+module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:latest' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

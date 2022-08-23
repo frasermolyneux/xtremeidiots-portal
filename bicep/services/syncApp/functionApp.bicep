@@ -152,7 +152,7 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultsecret:V2022.07.31.6322' = {
+module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultsecret:latest' = {
   name: '${varDeploymentPrefix}-keyVaultSecret'
   scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 

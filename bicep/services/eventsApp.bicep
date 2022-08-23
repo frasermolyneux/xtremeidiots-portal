@@ -28,7 +28,7 @@ var varDeploymentPrefix = 'eventsApp' //Prevent deployment naming conflicts
 var varWorkloadName = 'fn-events-portal-${parEnvironment}'
 
 // Module Resources
-module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:V2022.07.31.6322' = {
+module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:latest' = {
   name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
@@ -67,7 +67,7 @@ module functionApp 'eventsApp/functionApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
@@ -76,7 +76,7 @@ module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules
   }
 }
 
-module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = if (parEnvironment == 'prd') {
+module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = if (parEnvironment == 'prd') {
   name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
@@ -110,7 +110,7 @@ module apiManagementApi 'eventsApp/apiManagementApi.bicep' = {
   }
 }
 
-module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
+module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:latest' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

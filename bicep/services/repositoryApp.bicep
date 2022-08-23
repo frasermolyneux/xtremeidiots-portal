@@ -19,7 +19,7 @@ var varDeploymentPrefix = 'repositoryApp' //Prevent deployment naming conflicts
 var varRepositoryFuncAppName = 'fn-repository-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
+module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -36,7 +36,7 @@ module geolocationApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.
   }
 }
 
-module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
+module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -53,7 +53,7 @@ module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.i
   }
 }
 
-module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
+module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-serversApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -70,7 +70,7 @@ module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/b
   }
 }
 
-module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:V2022.07.31.6322' = {
+module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:latest' = {
   name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
@@ -102,7 +102,7 @@ module functionApp 'repositoryApp/functionApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {

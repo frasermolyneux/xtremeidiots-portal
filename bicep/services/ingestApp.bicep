@@ -20,7 +20,7 @@ var varDeploymentPrefix = 'ingestApp' //Prevent deployment naming conflicts
 var varIngestFuncAppName = 'fn-ingest-portal-${parEnvironment}-${parLocation}'
 
 // Module Resources
-module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:V2022.07.31.6322' = {
+module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
 
@@ -37,7 +37,7 @@ module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.i
   }
 }
 
-module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:V2022.07.31.6322' = {
+module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/funcappstorageaccount:latest' = {
   name: '${varDeploymentPrefix}-funcAppStorageAccount'
 
   params: {
@@ -70,7 +70,7 @@ module functionApp 'ingestApp/functionApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {

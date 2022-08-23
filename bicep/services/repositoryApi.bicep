@@ -70,7 +70,7 @@ module webApp 'repositoryApi/webApp.bicep' = {
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = {
+module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
   name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
 
   params: {
@@ -79,7 +79,7 @@ module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules
   }
 }
 
-module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:V2022.07.31.6322' = if (parEnvironment == 'prd') {
+module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = if (parEnvironment == 'prd') {
   name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
 
   params: {
@@ -88,7 +88,7 @@ module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/mod
   }
 }
 
-module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatabase:V2022.07.31.6322' = {
+module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatabase:latest' = {
   name: '${varDeploymentPrefix}-sqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
 
@@ -118,7 +118,7 @@ module apiManagementApi 'repositoryApi/apiManagementApi.bicep' = {
   }
 }
 
-module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:V2022.07.31.6322' = {
+module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:latest' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
   scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
 

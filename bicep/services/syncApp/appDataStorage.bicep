@@ -39,7 +39,7 @@ resource repositoryApiMapImageContainer 'Microsoft.Storage/storageAccounts/blobS
   }
 }
 
-module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultsecret:V2022.07.31.6322' = {
+module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultsecret:latest' = {
   name: '${parDeploymentPrefix}-${storageAccount.name}-keyVaultSecret'
 
   params: {

@@ -55,7 +55,6 @@ module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/module
     parLocation: parLocation
     parEnvironment: parEnvironment
     parWorkloadName: 'syncfn'
-    parKeyVaultName: parKeyVaultName
     parTags: parTags
   }
 }

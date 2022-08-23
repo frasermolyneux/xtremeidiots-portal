@@ -77,7 +77,6 @@ module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/module
     parLocation: parLocation
     parEnvironment: parEnvironment
     parWorkloadName: 'repofn'
-    parKeyVaultName: parKeyVaultName
     parTags: parTags
   }
 }

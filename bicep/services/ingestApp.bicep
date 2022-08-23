@@ -44,7 +44,6 @@ module funcAppStorageAccount 'br:acrmxplatformprduksouth.azurecr.io/bicep/module
     parLocation: parLocation
     parEnvironment: parEnvironment
     parWorkloadName: 'ingestfn'
-    parKeyVaultName: parKeyVaultName
     parTags: parTags
   }
 }

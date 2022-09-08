@@ -8,14 +8,14 @@
 	<Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FluentFTP" Version="39.3.0" />
+    <PackageReference Include="FluentFTP" Version="40.0.0" />
     <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.ServiceBus" Version="5.7.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.1.3" />
-    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.6653" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.20220823.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\libraries\repository-api-client\repository-api-client.csproj" />

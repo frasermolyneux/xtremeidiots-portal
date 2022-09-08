@@ -76,16 +76,16 @@ public class ConfigGeneratorService : IHostedService
 
             if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
             {
-                FtpClient? ftpClient = null;
+                AsyncFtpClient? ftpClient = null;
                 try
                 {
-                    ftpClient = new FtpClient(gameServerDto.FtpHostname, gameServerDto.FtpPort.Value, gameServerDto.FtpUsername, gameServerDto.FtpPassword);
-                    ftpClient.ValidateAnyCertificate = true;
-                    ftpClient.AutoConnect();
+                    ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value);
+                    ftpClient.ValidateCertificate += (control, e) => { };
 
-                    ftpClient.SetWorkingDirectory(gameServerDto.LiveMod);
+                    await ftpClient.AutoConnect();
+                    await ftpClient.SetWorkingDirectory(gameServerDto.LiveMod);
 
-                    var files = ftpClient.GetListing();
+                    var files = await ftpClient.GetListing();
 
                     var active = files.Where(f => f.Name.Contains(".log") && !f.Name.Contains("console")).OrderByDescending(f => f.Modified).FirstOrDefault();
                     if (active != null)

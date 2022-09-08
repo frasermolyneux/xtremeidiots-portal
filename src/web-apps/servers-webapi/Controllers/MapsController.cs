@@ -50,16 +50,18 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             var operation = telemetryClient.StartOperation<DependencyTelemetry>("GetFileList");
             operation.Telemetry.Type = $"FTP";
             operation.Telemetry.Target = $"{gameServerApiResponse.Result.FtpHostname}:{gameServerApiResponse.Result.FtpPort}";
+
+            AsyncFtpClient? ftpClient = null;
+
             try
             {
-                FtpClient? ftpClient = null;
-                ftpClient = new FtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpPort.Value, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword);
+                ftpClient = new AsyncFtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword, gameServerApiResponse.Result.FtpPort.Value);
+                ftpClient.ValidateCertificate += (control, e) => { };
 
-                ftpClient.ValidateAnyCertificate = true;
-                ftpClient.AutoConnect();
-                ftpClient.SetWorkingDirectory("usermaps");
+                await ftpClient.AutoConnect();
+                await ftpClient.SetWorkingDirectory("usermaps");
 
-                var files = ftpClient.GetListing();
+                var files = await ftpClient.GetListing();
 
                 var result = new ServerMapsCollectionDto
                 {
@@ -81,6 +83,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             finally
             {
                 telemetryClient.StopOperation(operation);
+                ftpClient?.Dispose();
             }
         }
 
@@ -105,19 +108,20 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             if (mapApiResponse.IsNotFound || mapApiResponse.Result == null)
                 return new ApiResponseDto<ServerMapsCollectionDto>(HttpStatusCode.NotFound, "Map could not be found in the database");
 
+            AsyncFtpClient? ftpClient = null;
+
             try
             {
-                FtpClient? ftpClient = null;
-                ftpClient = new FtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpPort.Value, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword);
+                ftpClient = new AsyncFtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword, gameServerApiResponse.Result.FtpPort.Value);
+                ftpClient.ValidateCertificate += (control, e) => { };
 
-                ftpClient.ValidateAnyCertificate = true;
-                ftpClient.AutoConnect();
+                await ftpClient.AutoConnect();
 
                 var mapDirectoryPath = $"usermaps/{mapName}";
 
-                if (!await ftpClient.DirectoryExistsAsync(mapDirectoryPath))
+                if (!await ftpClient.DirectoryExists(mapDirectoryPath))
                 {
-                    await ftpClient.CreateDirectoryAsync(mapDirectoryPath);
+                    await ftpClient.CreateDirectory(mapDirectoryPath);
                 }
 
                 foreach (var file in mapApiResponse.Result.MapFiles)
@@ -128,7 +132,7 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
                         using (var stream = System.IO.File.Create(filePath))
                             await (await httpClient.GetStreamAsync(file.Url)).CopyToAsync(stream);
 
-                        await ftpClient.UploadFileAsync(filePath, $"{mapDirectoryPath}/{file.FileName}");
+                        await ftpClient.UploadFile(filePath, $"{mapDirectoryPath}/{file.FileName}");
                     }
                 }
 
@@ -138,6 +142,10 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             {
                 telemetryClient.TrackException(ex);
                 throw;
+            }
+            finally
+            {
+                ftpClient?.Dispose();
             }
         }
     }

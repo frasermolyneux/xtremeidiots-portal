@@ -21,16 +21,17 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            FtpClient? client = null;
+            AsyncFtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, port, username, password);
-                client.ValidateAnyCertificate = true;
-                await client.ConnectAsync();
+                client = new AsyncFtpClient(hostname, username, password, port);
+                client.ValidateCertificate += (control, e) => { };
 
-                if (await client.FileExistsAsync(filePath))
-                    return await client.GetFileSizeAsync(filePath);
+                await client.AutoConnect();
+
+                if (await client.FileExists(filePath))
+                    return await client.GetFileSize(filePath);
                 else
                     return null;
             }
@@ -55,16 +56,17 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            FtpClient? client = null;
+            AsyncFtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, port, username, password);
-                client.ValidateAnyCertificate = true;
-                await client.ConnectAsync();
+                client = new AsyncFtpClient(hostname, username, password, port);
+                client.ValidateCertificate += (control, e) => { };
 
-                if (await client.FileExistsAsync(filePath))
-                    return await client.GetModifiedTimeAsync(filePath);
+                await client.AutoConnect();
+
+                if (await client.FileExists(filePath))
+                    return await client.GetModifiedTime(filePath);
                 else
                     return null;
             }
@@ -89,17 +91,18 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            FtpClient? client = null;
+            AsyncFtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, port, username, password);
-                client.ValidateAnyCertificate = true;
-                await client.ConnectAsync();
+                client = new AsyncFtpClient(hostname, username, password, port);
+                client.ValidateCertificate += (control, e) => { };
+
+                await client.AutoConnect();
 
                 using (var stream = new MemoryStream())
                 {
-                    await client.DownloadStreamAsync(stream, filePath);
+                    await client.DownloadStream(stream, filePath);
 
                     using (var streamReader = new StreamReader(stream))
                     {
@@ -129,15 +132,17 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            FtpClient? client = null;
+            AsyncFtpClient? client = null;
 
             try
             {
-                client = new FtpClient(hostname, port, username, password);
-                client.ValidateAnyCertificate = true;
-                await client.ConnectAsync();
+                client = new AsyncFtpClient(hostname, username, password, port);
+                client.ValidateCertificate += (control, e) => { };
+
+                await client.AutoConnect();
+
                 data.Seek(0, SeekOrigin.Begin);
-                await client.UploadStreamAsync(data, filePath);
+                await client.UploadStream(data, filePath);
             }
             catch (Exception ex)
             {

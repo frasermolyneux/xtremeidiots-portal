@@ -32,6 +32,7 @@ jobs:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment sub validate `
+                  --name 'portalPlatform${{ parameters.environmentName }}' `
                   --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
                   --location 'uksouth' `
                   --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
@@ -39,6 +40,7 @@ jobs:
                 if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
                   Write-Host "Performing az deployment group validation as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
                   az deployment group validate `
+                    --name 'portalServices${{ parameters.environmentName }}' `
                     --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
                     --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
                     --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `
@@ -55,6 +57,7 @@ jobs:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment sub what-if `
+                  --name 'portalPlatform${{ parameters.environmentName }}' `
                   --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
                   --location 'uksouth' `
                   --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
@@ -62,6 +65,7 @@ jobs:
                 if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
                   Write-Host "Performing az deployment group what-if as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
                   az deployment group what-if `
+                    --name 'portalServices${{ parameters.environmentName }}' `
                     --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
                     --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
                     --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `

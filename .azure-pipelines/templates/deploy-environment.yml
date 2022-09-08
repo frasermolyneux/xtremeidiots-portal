@@ -58,6 +58,7 @@ stages:
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   az deployment sub create `
+                    --name 'portalPlatform${{ parameters.environmentName }}' `
                     --template-file bicep/platform.bicep `
                     --location uksouth `
                     --parameters @params/platform.${{ parameters.environmentTag }}.json
@@ -127,11 +128,12 @@ stages:
                   $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
 
                   az deployment group create --resource-group "rg-portal-${{ parameters.environmentTag }}-uksouth" `
-                      --template-file bicep/services.bicep `
-                      --parameters @params/services.${{ parameters.environmentTag }}.json `
-                      parEventsApiAppId=$eventsApiAppId `
-                      parRepositoryApiAppId=$repositoryApiAppId `
-                      parServersApiAppId=$serversApiAppId 
+                    --name 'portalServices${{ parameters.environmentName }}' `
+                    --template-file bicep/services.bicep `
+                    --parameters @params/services.${{ parameters.environmentTag }}.json `
+                    parEventsApiAppId=$eventsApiAppId `
+                    parRepositoryApiAppId=$repositoryApiAppId `
+                    parServersApiAppId=$serversApiAppId 
 
   - job: Deploy${{ parameters.environmentName }}ServicesPermissions
     dependsOn: ['Deploy${{ parameters.environmentName }}ServicesBicep']

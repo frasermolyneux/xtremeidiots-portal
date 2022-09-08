@@ -146,3 +146,29 @@ stages:
       webAppsEnvironment: 'platform-webapps-prd-uksouth'
       webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
       blueGreenDeploy: true
+
+  - stage: PostDeploymentPrd
+    jobs:
+
+    - deployment: PostDeploymentPrd
+      environment: platform-webapps-prd-uksouth
+
+      workspace:
+        clean: all
+
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: AzureCLI@2
+              displayName: DestroyPrdStagingSlots
+              inputs:
+                azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  az functionapp deployment slot delete --name fn-events-portal-prd-uksouth --resource-group rg-platform-webapps-prd-uksouth --slot staging
+
+                  az webapp deployment slot delete --name webapi-repository-portal-prd-uksouth --resource-group rg-platform-webapps-prd-uksouth --slot staging
+                  az webapp deployment slot delete --name webapi-servers-portal-prd-uksouth --resource-group rg-platform-webapps-prd-uksouth --slot staging
+                  az webapp deployment slot delete --name webapp-admin-portal-prd-uksouth --resource-group rg-platform-webapps-prd-uksouth --slot staging

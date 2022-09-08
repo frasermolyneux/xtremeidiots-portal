@@ -17,7 +17,6 @@ parameters:
   type: boolean
   default: false
 
-
 stages:
 - stage: Deploy${{ parameters.environmentName }}
   jobs:
@@ -286,29 +285,3 @@ stages:
       webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
       subscription: ${{ parameters.webAppsAzureSubscription }}
       blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
-
-- stage: Destroy${{ parameters.environmentName }}ResourcesForCostAndPerformance
-  jobs:
-
-  - deployment: Destroy${{ parameters.environmentName }}ResourcesForCostAndPerformance
-    environment: ${{ parameters.webAppsEnvironment }}
-
-    workspace:
-      clean: all
-
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - task: AzureCLI@2
-              displayName: Destroy${{ parameters.environmentName }}StagingSlots
-              inputs:
-                azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-                scriptType: 'pscore'
-                scriptLocation: 'inlineScript'
-                inlineScript: |
-                  az functionapp deployment slot delete --name "fn-events-portal-${{ parameters.environmentTag }}-uksouth" --resource-group ${{ parameters.webAppsResourceGroup }} --slot staging
-
-                  az webapp deployment slot delete --name "webapi-repository-portal-${{ parameters.environmentTag }}-uksouth" --resource-group ${{ parameters.webAppsResourceGroup }} --slot staging
-                  az webapp deployment slot delete --name "webapi-servers-portal-${{ parameters.environmentTag }}-uksouth" --resource-group ${{ parameters.webAppsResourceGroup }} --slot staging
-                  az webapp deployment slot delete --name "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth" --resource-group ${{ parameters.webAppsResourceGroup }} --slot staging

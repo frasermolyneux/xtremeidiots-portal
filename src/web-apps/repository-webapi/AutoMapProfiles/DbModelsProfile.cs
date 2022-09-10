@@ -130,7 +130,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                     src => src.MapFrom(src => JsonConvert.DeserializeObject<List<MapFileDto>>(src.MapFiles))
                 );
 
-            CreateMap<CreateMapDto, MapDto>()
+            CreateMap<CreateMapDto, Map>()
                 .ForMember(
                     dest => dest.GameType,
                     src => src.MapFrom(src => src.GameType.ToGameTypeInt())
@@ -141,7 +141,7 @@ namespace XtremeIdiots.Portal.RepositoryWebApi.AutoMapProfiles
                 )
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<EditMapDto, MapDto>()
+            CreateMap<EditMapDto, Map>()
                 .ForMember(
                     dest => dest.MapFiles,
                     src => src.MapFrom(src => JsonConvert.SerializeObject(src.MapFiles))

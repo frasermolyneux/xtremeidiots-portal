@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.SyncFunc.Redirect;
@@ -48,18 +49,35 @@ namespace XtremeIdiots.Portal.SyncFunc
 
             foreach (var game in gamesToSync)
             {
+                // Retrieve all of the maps from the redirect server
                 var mapRedirectEntries = MapRedirectRepository.GetMapEntriesForGame(game.Value);
 
-                log.LogInformation($"Total maps retrieved from redirect for '{game}' is '{mapRedirectEntries.Count}'");
+                // Retrieve all of the maps from the repository in batches
+                var skipEntries = 0;
+                var takeEntries = 500;
 
+                var repositoryMaps = new List<MapDto>();
+
+                ApiResponseDto<MapsCollectionDto>? mapsCollectionBatch = null;
+                while (mapsCollectionBatch == null || mapsCollectionBatch.Result?.Entries.Count > 0)
+                {
+                    mapsCollectionBatch = await RepositoryApiClient.Maps.GetMaps(game.Key, null, null, null, skipEntries, takeEntries, null);
+                    repositoryMaps.AddRange(repositoryMaps);
+
+                    skipEntries += takeEntries;
+                }
+
+                log.LogInformation($"Total maps retrieved from redirect for '{game}' is '{mapRedirectEntries.Count}' and repository is '{repositoryMaps.Count}'");
+
+                // Compare the map entries in the redirect to those in the repository and generate a list of additions and changes.
                 var mapDtosToCreate = new List<CreateMapDto>();
                 var mapDtosToUpdate = new List<EditMapDto>();
 
                 foreach (var mapRedirectEntry in mapRedirectEntries)
                 {
-                    var mapApiResponse = await RepositoryApiClient.Maps.GetMap(game.Key, mapRedirectEntry.MapName);
+                    var repositoryMap = repositoryMaps.SingleOrDefault(m => m.GameType == game.Key && m.MapName == mapRedirectEntry.MapName);
 
-                    if (mapApiResponse.IsNotFound)
+                    if (repositoryMap == null)
                     {
                         var mapDtoToCreate = new CreateMapDto(game.Key, mapRedirectEntry.MapName)
                         {
@@ -73,9 +91,9 @@ namespace XtremeIdiots.Portal.SyncFunc
                     {
                         var mapFiles = mapRedirectEntry.MapFiles.Where(mf => mf.EndsWith(".iwd") || mf.EndsWith(".ff")).ToList();
 
-                        if (mapFiles.Count != mapApiResponse.Result.MapFiles.Count)
+                        if (mapFiles.Count != repositoryMap.MapFiles.Count)
                         {
-                            mapDtosToUpdate.Add(new EditMapDto(mapApiResponse.Result.MapId)
+                            mapDtosToUpdate.Add(new EditMapDto(repositoryMap.MapId)
                             {
                                 MapFiles = mapFiles.Select(mf =>
                                     new MapFileDto(mf, $"https://redirect.xtremeidiots.net/redirect/{game.Value}/usermaps/{mapRedirectEntry.MapName}/{mf}")).ToList()

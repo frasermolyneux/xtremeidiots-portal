@@ -22,13 +22,16 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
     {
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly TelemetryClient telemetryClient;
+        private readonly IConfiguration configuration;
 
         public MapsController(
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient)
+            TelemetryClient telemetryClient,
+            IConfiguration configuration)
         {
             this.repositoryApiClient = repositoryApiClient;
             this.telemetryClient = telemetryClient;
+            this.configuration = configuration;
         }
 
         [HttpGet]
@@ -56,7 +59,13 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             try
             {
                 ftpClient = new AsyncFtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword, gameServerApiResponse.Result.FtpPort.Value);
-                ftpClient.ValidateCertificate += (control, e) => { };
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
                 await ftpClient.AutoConnect();
                 await ftpClient.SetWorkingDirectory("usermaps");
@@ -113,7 +122,13 @@ namespace XtremeIdiots.Portal.ServersWebApi.Controllers
             try
             {
                 ftpClient = new AsyncFtpClient(gameServerApiResponse.Result.FtpHostname, gameServerApiResponse.Result.FtpUsername, gameServerApiResponse.Result.FtpPassword, gameServerApiResponse.Result.FtpPort.Value);
-                ftpClient.ValidateCertificate += (control, e) => { };
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
                 await ftpClient.AutoConnect();
 

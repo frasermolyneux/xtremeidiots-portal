@@ -25,7 +25,7 @@ builder.ConfigureAppConfiguration((hostContext, builder) =>
     services.AddRepositoryApiClient(options =>
     {
         options.BaseUrl = hostContext.Configuration["repository_api_base_url"] ?? hostContext.Configuration["apim_base_url"];
-        options.ApiKey = hostContext.Configuration["apim_subscription_key"];
+        options.ApiKey = hostContext.Configuration["portal_repository_apim_subscription_key"];
         options.ApiPathPrefix = hostContext.Configuration["repository_api_path_prefix"] ?? "repository";
     });
 
@@ -80,7 +80,13 @@ public class ConfigGeneratorService : IHostedService
                 try
                 {
                     ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value);
-                    ftpClient.ValidateCertificate += (control, e) => { };
+                    ftpClient.ValidateCertificate += (control, e) =>
+                    {
+                        if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                        { // Account for self-signed FTP certificate for self-hosted servers
+                            e.Accept = true;
+                        }
+                    };
 
                     await ftpClient.AutoConnect();
                     await ftpClient.SetWorkingDirectory(gameServerDto.LiveMod);

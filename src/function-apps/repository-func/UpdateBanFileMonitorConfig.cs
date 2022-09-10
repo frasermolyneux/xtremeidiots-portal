@@ -1,6 +1,7 @@
 using FluentFTP;
 
 using Microsoft.Azure.WebJobs;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
@@ -13,15 +14,17 @@ namespace XtremeIdiots.Portal.RepositoryFunc
     {
         private readonly ILogger<UpdateBanFileMonitorConfig> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly IConfiguration configuration;
 
         public UpdateBanFileMonitorConfig(
             ILogger<UpdateBanFileMonitorConfig> logger,
-            IRepositoryApiClient repositoryApiClient)
+            IRepositoryApiClient repositoryApiClient,
+            IConfiguration configuration)
         {
             this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
+            this.configuration = configuration;
         }
-
 
         [FunctionName("UpdateBanFileMonitorConfig")]
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
@@ -59,7 +62,13 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         try
                         {
                             ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: logger);
-                            ftpClient.ValidateCertificate += (control, e) => { };
+                            ftpClient.ValidateCertificate += (control, e) =>
+                            {
+                                if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                                { // Account for self-signed FTP certificate for self-hosted servers
+                                    e.Accept = true;
+                                }
+                            };
 
                             await ftpClient.AutoConnect();
 
@@ -87,7 +96,13 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             try
                             {
                                 ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: logger);
-                                ftpClient.ValidateCertificate += (control, e) => { };
+                                ftpClient.ValidateCertificate += (control, e) =>
+                                {
+                                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                                    { // Account for self-signed FTP certificate for self-hosted servers
+                                        e.Accept = true;
+                                    }
+                                };
 
                                 await ftpClient.AutoConnect();
 

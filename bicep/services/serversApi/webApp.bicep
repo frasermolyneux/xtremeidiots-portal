@@ -154,6 +154,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'repository_api_application_audience'
           value: 'api://portal-repository-api-${parEnvironment}'
         }
+        {
+          name: 'xtremeidiots_ftp_certificate_thumbprint'
+          value: '65173167144EA988088DA20915ABB83DB27645FA'
+        }
       ]
     }
   }
@@ -262,6 +266,10 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvir
         {
           name: 'repository_api_application_audience'
           value: 'api://portal-repository-api-${parEnvironment}'
+        }
+        {
+          name: 'xtremeidiots_ftp_certificate_thumbprint'
+          value: '65173167144EA988088DA20915ABB83DB27645FA'
         }
       ]
     }

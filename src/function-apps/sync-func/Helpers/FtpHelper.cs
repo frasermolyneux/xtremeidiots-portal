@@ -2,16 +2,21 @@
 
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Extensions.Configuration;
 
 namespace XtremeIdiots.Portal.SyncFunc.Helpers
 {
     public class FtpHelper : IFtpHelper
     {
         private readonly TelemetryClient telemetryClient;
+        private readonly IConfiguration configuration;
 
-        public FtpHelper(TelemetryClient telemetryClient)
+        public FtpHelper(
+            TelemetryClient telemetryClient,
+            IConfiguration configuration)
         {
             this.telemetryClient = telemetryClient;
+            this.configuration = configuration;
         }
 
         public async Task<long?> GetFileSize(string hostname, int port, string filePath, string username, string password)
@@ -21,17 +26,23 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            AsyncFtpClient? client = null;
+            AsyncFtpClient? ftpClient = null;
 
             try
             {
-                client = new AsyncFtpClient(hostname, username, password, port);
-                client.ValidateCertificate += (control, e) => { };
+                ftpClient = new AsyncFtpClient(hostname, username, password, port);
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
-                await client.AutoConnect();
+                await ftpClient.AutoConnect();
 
-                if (await client.FileExists(filePath))
-                    return await client.GetFileSize(filePath);
+                if (await ftpClient.FileExists(filePath))
+                    return await ftpClient.GetFileSize(filePath);
                 else
                     return null;
             }
@@ -45,7 +56,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             finally
             {
                 telemetryClient.StopOperation(operation);
-                client?.Dispose();
+                ftpClient?.Dispose();
             }
         }
 
@@ -56,17 +67,23 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            AsyncFtpClient? client = null;
+            AsyncFtpClient? ftpClient = null;
 
             try
             {
-                client = new AsyncFtpClient(hostname, username, password, port);
-                client.ValidateCertificate += (control, e) => { };
+                ftpClient = new AsyncFtpClient(hostname, username, password, port);
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
-                await client.AutoConnect();
+                await ftpClient.AutoConnect();
 
-                if (await client.FileExists(filePath))
-                    return await client.GetModifiedTime(filePath);
+                if (await ftpClient.FileExists(filePath))
+                    return await ftpClient.GetModifiedTime(filePath);
                 else
                     return null;
             }
@@ -80,7 +97,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             finally
             {
                 telemetryClient.StopOperation(operation);
-                client?.Dispose();
+                ftpClient?.Dispose();
             }
         }
 
@@ -91,18 +108,24 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            AsyncFtpClient? client = null;
+            AsyncFtpClient? ftpClient = null;
 
             try
             {
-                client = new AsyncFtpClient(hostname, username, password, port);
-                client.ValidateCertificate += (control, e) => { };
+                ftpClient = new AsyncFtpClient(hostname, username, password, port);
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
-                await client.AutoConnect();
+                await ftpClient.AutoConnect();
 
                 using (var stream = new MemoryStream())
                 {
-                    await client.DownloadStream(stream, filePath);
+                    await ftpClient.DownloadStream(stream, filePath);
 
                     using (var streamReader = new StreamReader(stream))
                     {
@@ -121,7 +144,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             finally
             {
                 telemetryClient.StopOperation(operation);
-                client?.Dispose();
+                ftpClient?.Dispose();
             }
         }
 
@@ -132,17 +155,23 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             operation.Telemetry.Target = $"{hostname}:{port}";
             operation.Telemetry.Data = filePath;
 
-            AsyncFtpClient? client = null;
+            AsyncFtpClient? ftpClient = null;
 
             try
             {
-                client = new AsyncFtpClient(hostname, username, password, port);
-                client.ValidateCertificate += (control, e) => { };
+                ftpClient = new AsyncFtpClient(hostname, username, password, port);
+                ftpClient.ValidateCertificate += (control, e) =>
+                {
+                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                    { // Account for self-signed FTP certificate for self-hosted servers
+                        e.Accept = true;
+                    }
+                };
 
-                await client.AutoConnect();
+                await ftpClient.AutoConnect();
 
                 data.Seek(0, SeekOrigin.Begin);
-                await client.UploadStream(data, filePath);
+                await ftpClient.UploadStream(data, filePath);
             }
             catch (Exception ex)
             {
@@ -154,7 +183,7 @@ namespace XtremeIdiots.Portal.SyncFunc.Helpers
             finally
             {
                 telemetryClient.StopOperation(operation);
-                client?.Dispose();
+                ftpClient?.Dispose();
             }
         }
     }

@@ -137,6 +137,10 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'geolocation_api_application_audience'
           value: 'api://geolocation-lookup-api-prd'
         }
+        {
+          name: 'xtremeidiots_ftp_certificate_thumbprint'
+          value: '65173167144EA988088DA20915ABB83DB27645FA'
+        }
       ]
     }
   }

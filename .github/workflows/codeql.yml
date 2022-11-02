@@ -63,7 +63,7 @@ jobs:
     #  uses: github/codeql-action/autobuild@v2
 
     - name: Build
-      run: dotnet build '**/*.csproj' --configuration Release
+      run: dotnet build 'src/XI.Portal.sln' --configuration Release
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun

@@ -63,7 +63,7 @@ jobs:
     #  uses: github/codeql-action/autobuild@v2
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore '**/*.csproj'
 
     - name: Build
       run: dotnet build '**/*.csproj' --configuration Release --no-restore

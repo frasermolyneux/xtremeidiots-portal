@@ -63,7 +63,16 @@ jobs:
     #  uses: github/codeql-action/autobuild@v2
 
     - name: Build
-      run: dotnet build 'src/XI.Portal.sln' --configuration Release
+      run: dotnet build 'src/data-lib/data-lib.csproj' --configuration Release
+
+    - name: Build
+      run: dotnet build 'src/repository-api-abstractions/repository-api-abstractions.csproj' --configuration Release
+
+    - name: Build
+      run: dotnet build 'src/function-apps/repository-func/repository-func.csproj' --configuration Release
+
+    - name: Build
+      run: dotnet build 'src/web-apps/repository-webapi/repository-webapi.csproj' --configuration Release
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun

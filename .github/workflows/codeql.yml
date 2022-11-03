@@ -55,27 +55,19 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '6.x'
-
-    - name: Build
-      run: dotnet build --configuration Release
+        dotnet-version: '6.0'
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
     #- name: Autobuild
     #  uses: github/codeql-action/autobuild@v2
 
-    ##- name: Build
-    ##  run: dotnet build 'src/data-lib/data-lib.csproj' --configuration Release
-##
-    ##- name: Build
-    ##  run: dotnet build 'src/repository-api-abstractions/repository-api-abstractions.csproj' --configuration Release
-##
-    ##- name: Build
-    ##  run: dotnet build 'src/function-apps/repository-func/repository-func.csproj' --configuration Release
-##
-    ##- name: Build
-    ##  run: dotnet build 'src/web-apps/repository-webapi/repository-webapi.csproj' --configuration Release
+    - name: Build
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path '**/*.csproj' -Recurse | ForEach-Object {
+          dotnet build $_.FullName --configuration Release
+        }
 
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 See https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsrun

@@ -7,11 +7,14 @@ param parEventsApiAppId string
 param parRepositoryApiAppId string
 param parServersApiAppId string
 
-param parConnectivitySubscriptionId string
+param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
-param parDnsResourceGroupName string
 param parFrontDoorName string
+
+param parDnsSubscriptionId string
+param parDnsResourceGroupName string
 param parParentDnsName string
+
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
 param parApiManagementName string
@@ -38,8 +41,9 @@ module repositoryApi 'services/repositoryApi.bicep' = {
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
     parRepositoryApiAppId: parRepositoryApiAppId
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsSubscriptionId: parDnsSubscriptionId
     parDnsResourceGroupName: parDnsResourceGroupName
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
@@ -67,8 +71,9 @@ module serversApi 'services/serversApi.bicep' = {
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
     parServersApiAppId: parServersApiAppId
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsSubscriptionId: parDnsSubscriptionId
     parDnsResourceGroupName: parDnsResourceGroupName
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
@@ -94,8 +99,9 @@ module adminWebApp 'services/adminWebApp.bicep' = {
     parEnvironment: parEnvironment
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+    parDnsSubscriptionId: parDnsSubscriptionId
     parDnsResourceGroupName: parDnsResourceGroupName
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
@@ -122,8 +128,10 @@ module eventsApp 'services/eventsApp.bicep' = {
 
     parEventsApiAppId: parEventsApiAppId
 
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
+
+    parDnsSubscriptionId: parDnsSubscriptionId
     parDnsResourceGroupName: parDnsResourceGroupName
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName

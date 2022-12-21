@@ -8,10 +8,12 @@ param parAppInsightsName string
 
 param parServersApiAppId string
 
-param parConnectivitySubscriptionId string
+param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
-param parDnsResourceGroupName string
 param parFrontDoorName string
+
+param parDnsSubscriptionId string
+param parDnsResourceGroupName string
 param parParentDnsName string
 
 param parStrategicServicesSubscriptionId string
@@ -62,7 +64,7 @@ module webApp 'serversApi/webApp.bicep' = {
     parApiManagementName: parApiManagementName
     parAppServicePlanName: parAppServicePlanName
 
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
     parFrontDoorName: parFrontDoorName
 
@@ -108,11 +110,12 @@ module apiManagementApi 'serversApi/apiManagementApi.bicep' = {
 
 module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:latest' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
-  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+  scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
     parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoorName
+    parDnsSubscriptionId: parDnsSubscriptionId
     parParentDnsName: parParentDnsName
     parDnsResourceGroupName: parDnsResourceGroupName
     parWorkloadName: varWorkloadName

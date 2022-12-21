@@ -9,10 +9,12 @@ param parServiceBusName string
 
 param parEventsApiAppId string
 
-param parConnectivitySubscriptionId string
+param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
-param parDnsResourceGroupName string
 param parFrontDoorName string
+
+param parDnsSubscriptionId string
+param parDnsResourceGroupName string
 param parParentDnsName string
 
 param parStrategicServicesSubscriptionId string
@@ -55,7 +57,7 @@ module functionApp 'eventsApp/functionApp.bicep' = {
 
     parAppServicePlanName: parAppServicePlanName
 
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
     parFrontDoorName: parFrontDoorName
 
@@ -111,12 +113,13 @@ module apiManagementApi 'eventsApp/apiManagementApi.bicep' = {
 
 module frontDoorEndpoint 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/frontdoorendpoint:latest' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
-  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+  scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
     parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoorName
     parParentDnsName: parParentDnsName
+    parDnsSubscriptionId: parDnsSubscriptionId
     parDnsResourceGroupName: parDnsResourceGroupName
     parWorkloadName: varWorkloadName
     parOriginHostName: functionApp.outputs.outFunctionAppDefaultHostName

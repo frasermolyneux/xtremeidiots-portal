@@ -6,10 +6,12 @@ param parEnvironment string
 param parKeyVaultName string
 param parAppInsightsName string
 
-param parConnectivitySubscriptionId string
+param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
-param parDnsResourceGroupName string
 param parFrontDoorName string
+
+param parDnsSubscriptionId string
+param parDnsResourceGroupName string
 param parParentDnsName string
 
 param parStrategicServicesSubscriptionId string
@@ -96,7 +98,7 @@ module webApp 'adminWebApp/webApp.bicep' = {
     parSqlServerResourceGroupName: parSqlServerResourceGroupName
     parSqlServerName: parSqlServerName
 
-    parConnectivitySubscriptionId: parConnectivitySubscriptionId
+    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
     parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
     parFrontDoorName: parFrontDoorName
 
@@ -142,7 +144,7 @@ module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatab
 
 module frontDoorEndpoint 'adminWebApp/frontDoorEndpoint.bicep' = {
   name: '${varDeploymentPrefix}-frontDoorEndpoint'
-  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+  scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
 
   params: {
     parDeploymentPrefix: varDeploymentPrefix

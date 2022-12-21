@@ -13,7 +13,7 @@ param parApiManagementResourceGroupName string
 param parApiManagementName string
 param parAppServicePlanName string
 
-param parConnectivitySubscriptionId string
+param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
 param parFrontDoorName string
 
@@ -33,7 +33,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
 // Existing Out-Of-Scope Resources
 resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
   name: parFrontDoorName
-  scope: resourceGroup(parConnectivitySubscriptionId, parFrontDoorResourceGroupName)
+  scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
 }
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {

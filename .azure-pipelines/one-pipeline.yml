@@ -130,7 +130,7 @@ stages:
   - template: templates/bicep-environment-validation.yml
     parameters:
       dependsOn: [BicepLinter]
-      azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+      azureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd'
       environment: 'xtremeidiots-portal-prd'
       environmentName: 'Prd'
       environmentTag: 'prd'
@@ -138,11 +138,11 @@ stages:
 - ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
   - template: templates/deploy-environment.yml
     parameters:
-      azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd'
+      azureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd'
       environment: 'xtremeidiots-portal-prd'
       environmentName: 'Prd'
       environmentTag: 'prd'
-      webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
+      webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd-webapps'
       webAppsEnvironment: 'platform-webapps-prd-uksouth'
       webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
       blueGreenDeploy: true
@@ -163,7 +163,7 @@ stages:
             - task: AzureCLI@2
               displayName: DestroyPrdStagingSlots
               inputs:
-                azureSubscription: 'spn-ado-XtremeIdiots-Public-xtremeidiots-portal-prd-webapps'
+                azureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd-webapps'
                 scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |

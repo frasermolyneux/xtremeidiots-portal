@@ -1,3 +1,4 @@
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,20 @@ namespace XtremeIdiots.Portal.AdminWebApp
         {
             services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
             services.AddLogging();
-            services.AddApplicationInsightsTelemetry();
+
+            services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+            {
+                var builder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+
+                // Using fixed rate sampling
+                double fixedSamplingPercentage = 50;
+                builder.UseSampling(fixedSamplingPercentage);
+            });
+
+            services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+            {
+                EnableAdaptiveSampling = false,
+            });
 
             services.AddGeoLocationApiClient(options =>
             {

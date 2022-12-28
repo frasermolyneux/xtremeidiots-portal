@@ -92,6 +92,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (string.IsNullOrWhiteSpace(id)) return RedirectToAction(nameof(Index));
 
             var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                this.AddAlertWarning($"Could not find user with id {id}");
+                return RedirectToAction(nameof(Index));
+            }
+
             await _userManager.UpdateSecurityStampAsync(user);
 
             this.AddAlertSuccess($"User {user.UserName} has been force logged out (this may take up to 15 minutes)");

@@ -32,4 +32,12 @@
    <packageUrl regex="true">^pkg:nuget/lookup\-api\-client@.*$</packageUrl>
    <cpe>cpe:/a:lookup:lookup</cpe>
 </suppress>
+<suppress>
+   <notes><![CDATA[
+   file name: FluentFTP.Logging:1.0.0
+   N/A for project implementation
+   ]]></notes>
+   <packageUrl regex="true">^pkg:nuget/FluentFTP\.Logging@.*$</packageUrl>
+   <cpe>cpe:/a:ftp:ftp</cpe>
+</suppress>
 </suppressions>

@@ -1,4 +1,5 @@
 using FluentFTP;
+using FluentFTP.Logging;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Configuration;
@@ -61,7 +62,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         AsyncFtpClient? ftpClient = null;
                         try
                         {
-                            ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: logger);
+                            ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                             ftpClient.ValidateCertificate += (control, e) =>
                             {
                                 if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
@@ -95,7 +96,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             AsyncFtpClient? ftpClient = null;
                             try
                             {
-                                ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: logger);
+                                ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                                 ftpClient.ValidateCertificate += (control, e) =>
                                 {
                                     if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))

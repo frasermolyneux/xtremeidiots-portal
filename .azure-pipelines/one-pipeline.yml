@@ -60,13 +60,6 @@ stages:
           archiveType: 'zip'
           archiveFile: '$(Build.ArtifactStagingDirectory)/ingest-func.zip'
       - task: ArchiveFiles@2
-        displayName: "Package repository-func project"
-        inputs:
-          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/repository-func/bin/Release/net6.0/'
-          includeRootFolder: false
-          archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/repository-func.zip'
-      - task: ArchiveFiles@2
         displayName: "Package sync-func project"
         inputs:
           rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/sync-func/bin/Release/net6.0/'
@@ -83,9 +76,6 @@ stages:
       - publish: '$(Build.artifactStagingDirectory)/ingest-func.zip'
         displayName: 'Publish ingest-func artifact'
         artifact: ingest-func
-      - publish: '$(Build.artifactStagingDirectory)/repository-func.zip'
-        displayName: 'Publish repository-func artifact'
-        artifact: repository-func
       - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
         displayName: 'Publish sync-func artifact'
         artifact: sync-func

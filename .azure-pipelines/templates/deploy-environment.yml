@@ -205,85 +205,85 @@ stages:
           arguments: '${{ parameters.environmentTag }}'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
 
-  - template: jobs/deploy-sql-database.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
-      jobName: Deploy${{ parameters.environmentName }}SqlDatabase
-      serverName: "sql-platform-${{ parameters.environmentTag }}-uksouth.database.windows.net"
-      databaseName: 'portaldb-${{ parameters.environmentTag }}'
-      subscription: ${{ parameters.azureSubscription }}
-      sqlCmdArgs: '/Variables:env=${{ parameters.environmentTag }}'
+#  - template: jobs/deploy-sql-database.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
+#      jobName: Deploy${{ parameters.environmentName }}SqlDatabase
+#      serverName: "sql-platform-${{ parameters.environmentTag }}-uksouth.database.windows.net"
+#      databaseName: 'portaldb-${{ parameters.environmentTag }}'
+#      subscription: ${{ parameters.azureSubscription }}
+#      sqlCmdArgs: '/Variables:env=${{ parameters.environmentTag }}'
 
-  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}SqlDatabase']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: repository-webapi
-      jobName: Deploy${{ parameters.environmentName }}RepositoryWebApi
-      webAppName: "webapi-repository-portal-${{ parameters.environmentTag }}-uksouth"
-      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
-      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}SqlDatabase']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: repository-webapi
+#      jobName: Deploy${{ parameters.environmentName }}RepositoryWebApi
+#      webAppName: "webapi-repository-portal-${{ parameters.environmentTag }}-uksouth"
+#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
+#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
 
-  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: repository-func
-      jobName: Deploy${{ parameters.environmentName }}RepositoryFunctionApp
-      functionAppName: "fn-repository-portal-${{ parameters.environmentTag }}-uksouth"
-      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
+#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: repository-func
+#      jobName: Deploy${{ parameters.environmentName }}RepositoryFunctionApp
+#      functionAppName: "fn-repository-portal-${{ parameters.environmentTag }}-uksouth"
+#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
 
-  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: ingest-func
-      jobName: Deploy${{ parameters.environmentName }}IngestFunctionApp
-      functionAppName: "fn-ingest-portal-${{ parameters.environmentTag }}-uksouth"
-      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
+#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: ingest-func
+#      jobName: Deploy${{ parameters.environmentName }}IngestFunctionApp
+#      functionAppName: "fn-ingest-portal-${{ parameters.environmentTag }}-uksouth"
+#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
 
-  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: events-func
-      jobName: Deploy${{ parameters.environmentName }}EventsFunctionApp
-      functionAppName: "fn-events-portal-${{ parameters.environmentTag }}-uksouth"
-      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
-      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: events-func
+#      jobName: Deploy${{ parameters.environmentName }}EventsFunctionApp
+#      functionAppName: "fn-events-portal-${{ parameters.environmentTag }}-uksouth"
+#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
+#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
 
-  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: sync-func
-      jobName: Deploy${{ parameters.environmentName }}SyncFunctionApp
-      functionAppName: "fn-sync-portal-${{ parameters.environmentTag }}-uksouth"
-      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
+#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: sync-func
+#      jobName: Deploy${{ parameters.environmentName }}SyncFunctionApp
+#      functionAppName: "fn-sync-portal-${{ parameters.environmentTag }}-uksouth"
+#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
 
-  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: servers-webapi
-      jobName: Deploy${{ parameters.environmentName }}ServersWebApi
-      webAppName: "webapi-servers-portal-${{ parameters.environmentTag }}-uksouth"
-      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
-      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: servers-webapi
+#      jobName: Deploy${{ parameters.environmentName }}ServersWebApi
+#      webAppName: "webapi-servers-portal-${{ parameters.environmentTag }}-uksouth"
+#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
+#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
 
-  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: admin-webapp
-      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
-      webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
-      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
-      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
+#    parameters:
+#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+#      environment: ${{ parameters.webAppsEnvironment }}
+#      projectName: admin-webapp
+#      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
+#      webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
+#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
+#      subscription: ${{ parameters.webAppsAzureSubscription }}
+#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}

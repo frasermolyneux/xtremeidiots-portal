@@ -13,4 +13,4 @@ $repositoryApiSpnId = (az ad sp list --filter "appId eq '$repositoryApiId'" --qu
 $repositoryApiSpn = (az rest -m GET -u https://graph.microsoft.com/v1.0/servicePrincipals/$resourceId) | ConvertFrom-Json
 $appRoleId = ($repositoryApiSpn.appRoles | Where-Object { $_.displayName -eq "ServiceAccount" }).id
 
-. "./.azure-pipelines/scripts/functions/GrantPrincipalAppRole.ps1" -principalId $identity.principalId -resourceId $repositoryApiSpnId -appRoleId $appRoleId
+. "./.azure-pipelines/scripts/functions/GrantPrincipalAppRole.ps1" -principalId "$($identity.principalId)" -resourceId $repositoryApiSpnId -appRoleId $appRoleId

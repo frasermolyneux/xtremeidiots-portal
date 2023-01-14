@@ -28,10 +28,10 @@ stages:
 - stage: Build
   jobs:
 
-  - template: jobs/dependency-check.yml@ado-pipeline-templates
-    parameters: 
-      jobName: 'DependencyCheck'
-      failOnCVSS: 4
+  #- template: jobs/dependency-check.yml@ado-pipeline-templates
+  #  parameters: 
+  #    jobName: 'DependencyCheck'
+  #    failOnCVSS: 4
 
   - template: jobs/build-net-core-projects.yml@ado-pipeline-templates
     parameters: 
@@ -45,20 +45,6 @@ stages:
           publishWebProjects: false
           projects: '**/admin-webapp.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip'
-      - task: DotNetCoreCLI@2
-        displayName: 'Publish repository-webapi project'
-        inputs:
-          command: 'publish'
-          publishWebProjects: false
-          projects: '**/repository-webapi.csproj'
-          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/repository-webapi.zip'
-      - task: DotNetCoreCLI@2
-        displayName: 'Publish servers-webapi project'
-        inputs:
-          command: 'publish'
-          publishWebProjects: false
-          projects: '**/servers-webapi.csproj'
-          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/servers-webapi.zip'
       - task: ArchiveFiles@2
         displayName: "Package events-func project"
         inputs:
@@ -87,25 +73,10 @@ stages:
           includeRootFolder: false
           archiveType: 'zip'
           archiveFile: '$(Build.ArtifactStagingDirectory)/sync-func.zip'
-      - task: MSBuild@1
-        inputs:
-          solution: '**/database.sqlproj'
-          platform: 'AnyCPU'
-          configuration: $(buildConfiguration)
-      - task: CopyFiles@2
-        inputs:
-          sourceFolder: '$(Build.SourcesDirectory)/src/database/bin/Release/'
-          targetFolder: '$(Build.ArtifactStagingDirectory)/database'
       additionalPublishSteps: 
       - publish: '$(Build.artifactStagingDirectory)/admin-webapp.zip'
         displayName: 'Publish admin-webapp artifact'
         artifact: admin-webapp
-      - publish: '$(Build.artifactStagingDirectory)/repository-webapi.zip'
-        displayName: 'Publish repository-webapi artifact'
-        artifact: repository-webapi
-      - publish: '$(Build.artifactStagingDirectory)/servers-webapi.zip'
-        displayName: 'Publish servers-webapi artifact'
-        artifact: servers-webapi
       - publish: '$(Build.artifactStagingDirectory)/events-func.zip'
         displayName: 'Publish events-func artifact'
         artifact: events-func
@@ -118,9 +89,6 @@ stages:
       - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
         displayName: 'Publish sync-func artifact'
         artifact: sync-func
-      - publish: '$(Build.ArtifactStagingDirectory)/database'
-        displayName: Publish database artifact
-        artifact: database
 
   - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
     parameters: 

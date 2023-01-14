@@ -44,9 +44,7 @@ jobs:
                     --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
                     --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
                     --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `
-                      parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
-                      parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
-                      parServersApiAppId=00000000-0000-0000-0000-000000000000
+                      parEventsApiAppId=00000000-0000-0000-0000-000000000000 
                 }
 
           - task: AzureCLI@2
@@ -69,7 +67,5 @@ jobs:
                     --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
                     --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
                     --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json `
-                      parEventsApiAppId=00000000-0000-0000-0000-000000000000 `
-                      parRepositoryApiAppId=00000000-0000-0000-0000-000000000000 `
-                      parServersApiAppId=00000000-0000-0000-0000-000000000000
+                      parEventsApiAppId=00000000-0000-0000-0000-000000000000
                 }

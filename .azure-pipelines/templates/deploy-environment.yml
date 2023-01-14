@@ -21,24 +21,7 @@ stages:
 - stage: Deploy${{ parameters.environmentName }}
   jobs:
 
-  - job: Deploy${{ parameters.environmentName }}AADResources
-
-    workspace:
-      clean: all
-
-    steps:
-      - task: AzureCLI@2
-        displayName: SetDeployPrincipalPermissions
-        inputs:
-          azureSubscription: ${{ parameters.azureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '"${{ parameters.environmentTag }}"'
-          addSpnToEnvironment: true
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateDatabaseAADGroups.ps1'
-
   - deployment: Deploy${{ parameters.environmentName }}PlatformBicep
-    dependsOn: ['Deploy${{ parameters.environmentName }}AADResources']
     environment: ${{ parameters.environment }}
 
     workspace:
@@ -120,20 +103,13 @@ stages:
                 scriptLocation: 'inlineScript'
                 inlineScript: |
                   $eventsApiAppName = "portal-events-api-${{ parameters.environmentTag }}"
-                  $repositoryApiName = "portal-repository-api-${{ parameters.environmentTag }}"
-                  $serversApiName = "portal-servers-api-${{ parameters.environmentTag }}"
-
-                  $repositoryApiAppId = (az ad app list --filter "displayName eq '$repositoryApiName'" --query '[].appId') | ConvertFrom-Json
                   $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
-                  $serversApiAppId = (az ad app list --filter "displayName eq '$serversApiName'" --query '[].appId') | ConvertFrom-Json
 
                   az deployment group create --resource-group "rg-portal-${{ parameters.environmentTag }}-uksouth" `
                     --name 'portalServices${{ parameters.environmentName }}' `
                     --template-file bicep/services.bicep `
                     --parameters @params/services.${{ parameters.environmentTag }}.json `
-                    parEventsApiAppId=$eventsApiAppId `
-                    parRepositoryApiAppId=$repositoryApiAppId `
-                    parServersApiAppId=$serversApiAppId 
+                    parEventsApiAppId=$eventsApiAppId
 
   - job: Deploy${{ parameters.environmentName }}ServicesPermissions
     dependsOn: ['Deploy${{ parameters.environmentName }}ServicesBicep']
@@ -205,26 +181,6 @@ stages:
           arguments: '${{ parameters.environmentTag }}'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
 
-#  - template: jobs/deploy-sql-database.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
-#      jobName: Deploy${{ parameters.environmentName }}SqlDatabase
-#      serverName: "sql-platform-${{ parameters.environmentTag }}-uksouth.database.windows.net"
-#      databaseName: 'portaldb-${{ parameters.environmentTag }}'
-#      subscription: ${{ parameters.azureSubscription }}
-#      sqlCmdArgs: '/Variables:env=${{ parameters.environmentTag }}'
-
-#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}SqlDatabase']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: repository-webapi
-#      jobName: Deploy${{ parameters.environmentName }}RepositoryWebApi
-#      webAppName: "webapi-repository-portal-${{ parameters.environmentTag }}-uksouth"
-#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
-
 #  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
 #    parameters:
 #      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
@@ -265,17 +221,6 @@ stages:
 #      functionAppName: "fn-sync-portal-${{ parameters.environmentTag }}-uksouth"
 #      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
 #      subscription: ${{ parameters.webAppsAzureSubscription }}
-
-#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: servers-webapi
-#      jobName: Deploy${{ parameters.environmentName }}ServersWebApi
-#      webAppName: "webapi-servers-portal-${{ parameters.environmentTag }}-uksouth"
-#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
 
 #  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
 #    parameters:

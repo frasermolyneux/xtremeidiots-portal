@@ -4,8 +4,6 @@ param parLocation string
 param parEnvironment string
 
 param parEventsApiAppId string
-param parRepositoryApiAppId string
-param parServersApiAppId string
 
 param parFrontDoorSubscriptionId string
 param parFrontDoorResourceGroupName string
@@ -32,67 +30,8 @@ var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
 var varDeploymentPrefix = 'portalServices' //Prevent deployment naming conflicts
 
-module repositoryApi 'services/repositoryApi.bicep' = {
-  name: '${varDeploymentPrefix}-repositoryApi'
-
-  params: {
-    parLocation: parLocation
-    parEnvironment: parEnvironment
-    parKeyVaultName: varKeyVaultName
-    parAppInsightsName: varAppInsightsName
-    parRepositoryApiAppId: parRepositoryApiAppId
-    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
-    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
-    parDnsSubscriptionId: parDnsSubscriptionId
-    parDnsResourceGroupName: parDnsResourceGroupName
-    parFrontDoorName: parFrontDoorName
-    parParentDnsName: parParentDnsName
-    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-    parApiManagementName: parApiManagementName
-    parWebAppsResourceGroupName: parWebAppsResourceGroupName
-    parAppServicePlanName: parAppServicePlanName
-    parSqlServerResourceGroupName: parSqlServerResourceGroupName
-    parSqlServerName: parSqlServerName
-    parTags: parTags
-  }
-}
-
-module serversApi 'services/serversApi.bicep' = {
-  name: '${varDeploymentPrefix}-serversApi'
-
-  dependsOn: [
-    repositoryApi
-  ]
-
-  params: {
-    parLocation: parLocation
-    parEnvironment: parEnvironment
-    parKeyVaultName: varKeyVaultName
-    parAppInsightsName: varAppInsightsName
-    parServersApiAppId: parServersApiAppId
-    parFrontDoorSubscriptionId: parFrontDoorSubscriptionId
-    parFrontDoorResourceGroupName: parFrontDoorResourceGroupName
-    parDnsSubscriptionId: parDnsSubscriptionId
-    parDnsResourceGroupName: parDnsResourceGroupName
-    parFrontDoorName: parFrontDoorName
-    parParentDnsName: parParentDnsName
-    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-    parApiManagementName: parApiManagementName
-    parWebAppsResourceGroupName: parWebAppsResourceGroupName
-    parAppServicePlanName: parAppServicePlanName
-    parTags: parTags
-  }
-}
-
 module adminWebApp 'services/adminWebApp.bicep' = {
   name: '${varDeploymentPrefix}-adminWebApp'
-
-  dependsOn: [
-    repositoryApi
-    serversApi
-  ]
 
   params: {
     parLocation: parLocation
@@ -155,23 +94,6 @@ module ingestApp 'services/ingestApp.bicep' = {
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
     parServiceBusName: varServiceBusName
-    parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
-    parApiManagementResourceGroupName: parApiManagementResourceGroupName
-    parApiManagementName: parApiManagementName
-    parWebAppsResourceGroupName: parWebAppsResourceGroupName
-    parAppServicePlanName: parAppServicePlanName
-    parTags: parTags
-  }
-}
-
-module repositoryApp 'services/repositoryApp.bicep' = {
-  name: '${varDeploymentPrefix}-repositoryApp'
-
-  params: {
-    parLocation: parLocation
-    parEnvironment: parEnvironment
-    parKeyVaultName: varKeyVaultName
-    parAppInsightsName: varAppInsightsName
     parStrategicServicesSubscriptionId: parStrategicServicesSubscriptionId
     parApiManagementResourceGroupName: parApiManagementResourceGroupName
     parApiManagementName: parApiManagementName

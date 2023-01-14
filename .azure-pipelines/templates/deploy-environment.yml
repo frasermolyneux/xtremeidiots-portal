@@ -137,33 +137,6 @@ stages:
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetIngestApiFuncAppPermissions.ps1'
 
       - task: AzureCLI@2
-        displayName: SetRepositoryApiAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetRepositoryApiAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetRepositoryAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetRepositoryAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetServersWebApiPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetServersWebApiPermissions.ps1'
-
-      - task: AzureCLI@2
         displayName: SetAdminWebAppPermissions
         inputs:
           azureSubscription: ${{ parameters.webAppsAzureSubscription }}
@@ -180,16 +153,6 @@ stages:
           scriptLocation: 'scriptPath'
           arguments: '${{ parameters.environmentTag }}'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
-
-#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: repository-func
-#      jobName: Deploy${{ parameters.environmentName }}RepositoryFunctionApp
-#      functionAppName: "fn-repository-portal-${{ parameters.environmentTag }}-uksouth"
-#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
 
 #  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
 #    parameters:

@@ -59,7 +59,7 @@ module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.i
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: parKeyVaultName
     parSubscriptionScopeIdentifier: 'portal-repository'
-    parSubscriptionScope: '/apis/repository-api'
+    parSubscriptionScope: '/apis/repository-api-v2'
     parTags: parTags
   }
 }
@@ -76,7 +76,7 @@ module serversApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.io/b
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: parKeyVaultName
     parSubscriptionScopeIdentifier: 'portal-servers'
-    parSubscriptionScope: '/apis/servers-api'
+    parSubscriptionScope: '/apis/servers-integration'
     parTags: parTags
   }
 }

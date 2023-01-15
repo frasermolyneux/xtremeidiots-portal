@@ -31,7 +31,7 @@ module repositoryApiManagementSubscription 'br:acrmxplatformprduksouth.azurecr.i
     parWorkloadName: varSyncFuncAppName
     parKeyVaultName: parKeyVaultName
     parSubscriptionScopeIdentifier: 'portal-repository'
-    parSubscriptionScope: '/apis/repository-api'
+    parSubscriptionScope: '/apis/repository-api-v2'
     parTags: parTags
   }
 }

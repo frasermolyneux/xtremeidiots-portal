@@ -145,11 +145,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'repository_api_application_audience'
-          value: 'api://portal-repository-api-${parEnvironment}'
+          value: 'api://portal-repository-${parEnvironment}'
         }
         {
           name: 'servers_api_application_audience'
-          value: 'api://portal-servers-api-${parEnvironment}'
+          value: 'api://portal-servers-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'
@@ -174,6 +174,14 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'xtremeidiots_auth_client_secret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+        }
+        {
+          name: 'repository_api_path_prefix'
+          value: 'repository-v2'
+        }
+        {
+          name: 'servers_api_path_prefix'
+          value: 'servers-integration'
         }
       ]
     }
@@ -266,11 +274,11 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvir
         }
         {
           name: 'repository_api_application_audience'
-          value: 'api://portal-repository-api-${parEnvironment}'
+          value: 'api://portal-repository-${parEnvironment}'
         }
         {
           name: 'servers_api_application_audience'
-          value: 'api://portal-servers-api-${parEnvironment}'
+          value: 'api://portal-servers-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'
@@ -295,6 +303,14 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvir
         {
           name: 'xtremeidiots_auth_client_secret'
           value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+        }
+        {
+          name: 'repository_api_path_prefix'
+          value: 'repository-v2'
+        }
+        {
+          name: 'servers_api_path_prefix'
+          value: 'servers-integration'
         }
       ]
     }

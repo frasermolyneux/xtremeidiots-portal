@@ -10,14 +10,6 @@ param (
     -applicationName "portal-events-api-$environment" `
     -appRoles "events-api-approles.json"
 
-. "./.azure-pipelines/scripts/functions/CreateAppRegistration.ps1" `
-    -applicationName "portal-repository-api-$environment" `
-    -appRoles "repository-api-approles.json"
-
-. "./.azure-pipelines/scripts/functions/CreateAppRegistration.ps1" `
-    -applicationName "portal-servers-api-$environment" `
-    -appRoles "servers-api-approles.json"
-
 # TODO: Sort this next bit of code out
 $eventsApiAppId = (az ad app list --filter "displayName eq 'portal-events-api-$environment'" --query '[].appId') | ConvertFrom-Json
 $b3BotsClientId = (az ad app list --filter "displayName eq 'portal-b3bots-client-$environment'" --query '[].appId') | ConvertFrom-Json

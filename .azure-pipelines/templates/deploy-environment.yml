@@ -187,7 +187,7 @@ stages:
 
   - template: jobs/deploy-web-app.yml@ado-pipeline-templates
     parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
       environment: ${{ parameters.webAppsEnvironment }}
       projectName: admin-webapp
       jobName: Deploy${{ parameters.environmentName }}AdminWebApp

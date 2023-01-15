@@ -118,15 +118,6 @@ module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules
   }
 }
 
-module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = if (parEnvironment == 'prd') {
-  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
-
-  params: {
-    parKeyVaultName: parKeyVaultName
-    parPrincipalId: webApp.outputs.outWebAppStagingIdentityPrincipalId
-  }
-}
-
 module sqlDatabase 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/sqldatabase:latest' = {
   name: '${varDeploymentPrefix}-sqlDatabase'
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)

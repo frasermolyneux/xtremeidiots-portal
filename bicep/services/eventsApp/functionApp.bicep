@@ -152,103 +152,6 @@ resource functionApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-resource functionAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvironment == 'prd') {
-  name: 'staging'
-  location: parLocation
-  kind: 'functionapp'
-  parent: functionApp
-
-  tags: parTags
-
-  identity: {
-    type: 'SystemAssigned'
-  }
-
-  properties: {
-    serverFarmId: appServicePlan.id
-
-    httpsOnly: true
-
-    siteConfig: {
-      ftpsState: 'Disabled'
-
-      alwaysOn: true
-      linuxFxVersion: 'DOTNETCORE|6.0'
-      netFrameworkVersion: 'v6.0'
-      minTlsVersion: '1.2'
-
-      ipSecurityRestrictions: [
-        {
-          ipAddress: 'AzureFrontDoor.Backend'
-          action: 'Allow'
-          tag: 'ServiceTag'
-          priority: 1000
-          name: 'RestrictToFrontDoor'
-          headers: {
-            'x-azure-fdid': [
-              frontDoor.properties.frontDoorId
-            ]
-          }
-        }
-        {
-          ipAddress: 'Any'
-          action: 'Deny'
-          priority: 2147483647
-          name: 'Deny all'
-          description: 'Deny all access'
-        }
-      ]
-
-      appSettings: [
-        {
-          name: 'READ_ONLY_MODE'
-          value: (parEnvironment == 'prd') ? 'true' : 'false'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet'
-        }
-        {
-          name: 'WEBSITE_RUN_FROM_PACKAGE'
-          value: '1'
-        }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
-        }
-        {
-          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
-        }
-        {
-          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~3'
-        }
-        {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
-        }
-        {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
-        }
-        {
-          name: 'MICROSOFT_PROVIDER_AUTHENTICATION_SECRET'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=portal-events-api-${parEnvironment}-clientsecret)'
-        }
-        {
-          name: 'service_bus_connection_string'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${serviceBus.name}-connectionstring)'
-        }
-      ]
-    }
-  }
-}
-
 resource functionAppAuthSettings 'Microsoft.Web/sites/config@2021-03-01' = {
   name: 'authsettingsV2'
   kind: 'string'
@@ -300,5 +203,3 @@ module keyVaultSecret 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyva
 output outFunctionAppDefaultHostName string = functionApp.properties.defaultHostName
 output outFunctionAppIdentityPrincipalId string = functionApp.identity.principalId
 output outFunctionAppName string = functionApp.name
-
-output outFunctionAppStagingIdentityPrincipalId string = (parEnvironment == 'prd') ? functionAppStagingSlot.identity.principalId : ''

@@ -77,15 +77,6 @@ module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules
   }
 }
 
-module slotKeyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = if (parEnvironment == 'prd') {
-  name: '${varDeploymentPrefix}-slotKeyVaultAccessPolicy'
-
-  params: {
-    parKeyVaultName: parKeyVaultName
-    parPrincipalId: functionApp.outputs.outFunctionAppStagingIdentityPrincipalId
-  }
-}
-
 module serviceBusQueues 'eventsApp/serviceBusQueues.bicep' = {
   name: '${varDeploymentPrefix}-serviceBusQueues'
 

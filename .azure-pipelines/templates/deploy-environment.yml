@@ -185,13 +185,13 @@ stages:
 #      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
 #      subscription: ${{ parameters.webAppsAzureSubscription }}
 
-#  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: admin-webapp
-#      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
-#      webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
-#      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
+    parameters:
+      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
+      environment: ${{ parameters.webAppsEnvironment }}
+      projectName: admin-webapp
+      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
+      webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
+      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
+      subscription: ${{ parameters.webAppsAzureSubscription }}
+      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}

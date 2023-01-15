@@ -10,7 +10,7 @@ Write-Host "Function App 'fn-ingest-portal-$environment-uksouth' in resource gro
 # Grant permissions to Repository API
 $repositoryApiId = (az ad app list --filter "displayName eq 'portal-repository-$environment'" --query '[].appId') | ConvertFrom-Json
 $repositoryApiSpnId = (az ad sp list --filter "appId eq '$repositoryApiId'" --query '[0].id') | ConvertFrom-Json
-$repositoryApiSpn = (az rest -m GET -u https://graph.microsoft.com/v1.0/servicePrincipals/$resourceId) | ConvertFrom-Json
+$repositoryApiSpn = (az rest -m GET -u https://graph.microsoft.com/v1.0/servicePrincipals/$repositoryApiSpnId) | ConvertFrom-Json
 $appRoleId = ($repositoryApiSpn.appRoles | Where-Object { $_.displayName -eq "ServiceAccount" }).id
 
 . "./.azure-pipelines/scripts/functions/GrantPrincipalAppRole.ps1" -principalId "$($identity.principalId)" -resourceId $repositoryApiSpnId -appRoleId $appRoleId

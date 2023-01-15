@@ -149,7 +149,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'servers_api_application_audience'
-          value: 'api://portal-servers-${parEnvironment}'
+          value: 'api://portal-servers-integration-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'
@@ -278,7 +278,7 @@ resource webAppStagingSlot 'Microsoft.Web/sites/slots@2020-06-01' = if (parEnvir
         }
         {
           name: 'servers_api_application_audience'
-          value: 'api://portal-servers-${parEnvironment}'
+          value: 'api://portal-servers-integration-${parEnvironment}'
         }
         {
           name: 'geolocation_api_application_audience'

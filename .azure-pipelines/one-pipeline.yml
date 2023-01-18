@@ -46,20 +46,6 @@ stages:
           projects: '**/admin-webapp.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip'
       - task: ArchiveFiles@2
-        displayName: "Package events-func project"
-        inputs:
-          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/events-func/bin/Release/net6.0/'
-          includeRootFolder: false
-          archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/events-func.zip'
-      - task: ArchiveFiles@2
-        displayName: "Package ingest-func project"
-        inputs:
-          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/ingest-func/bin/Release/net6.0/'
-          includeRootFolder: false
-          archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/ingest-func.zip'
-      - task: ArchiveFiles@2
         displayName: "Package sync-func project"
         inputs:
           rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/sync-func/bin/Release/net6.0/'
@@ -70,12 +56,6 @@ stages:
       - publish: '$(Build.artifactStagingDirectory)/admin-webapp.zip'
         displayName: 'Publish admin-webapp artifact'
         artifact: admin-webapp
-      - publish: '$(Build.artifactStagingDirectory)/events-func.zip'
-        displayName: 'Publish events-func artifact'
-        artifact: events-func
-      - publish: '$(Build.artifactStagingDirectory)/ingest-func.zip'
-        displayName: 'Publish ingest-func artifact'
-        artifact: ingest-func
       - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
         displayName: 'Publish sync-func artifact'
         artifact: sync-func

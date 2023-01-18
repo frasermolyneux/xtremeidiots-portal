@@ -64,24 +64,6 @@ stages:
           addSpnToEnvironment: true
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetDeployPrincipalPermissions.ps1'
 
-      - task: AzureCLI@2
-        displayName: CreateAppRegistrations
-        inputs:
-          azureSubscription: ${{ parameters.azureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '"${{ parameters.environmentTag }}" "uksouth"'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrations.ps1'
-
-      - task: AzureCLI@2
-        displayName: CreateAppRegistrationsCredentials
-        inputs:
-          azureSubscription: ${{ parameters.azureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '"${{ parameters.environmentTag }}" "uksouth"'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/CreateAppRegistrationsCredentials.ps1'
-
   - deployment: Deploy${{ parameters.environmentName }}ServicesBicep
     dependsOn: ['Deploy${{ parameters.environmentName }}PlatformPermissions']
     environment: ${{ parameters.environment }}
@@ -102,14 +84,10 @@ stages:
                 scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  $eventsApiAppName = "portal-events-api-${{ parameters.environmentTag }}"
-                  $eventsApiAppId = (az ad app list --filter "displayName eq '$eventsApiAppName'" --query '[].appId') | ConvertFrom-Json
-
                   az deployment group create --resource-group "rg-portal-${{ parameters.environmentTag }}-uksouth" `
                     --name 'portalServices${{ parameters.environmentName }}' `
                     --template-file bicep/services.bicep `
-                    --parameters @params/services.${{ parameters.environmentTag }}.json `
-                    parEventsApiAppId=$eventsApiAppId
+                    --parameters @params/services.${{ parameters.environmentTag }}.json
 
   - job: Deploy${{ parameters.environmentName }}ServicesPermissions
     dependsOn: ['Deploy${{ parameters.environmentName }}ServicesBicep']
@@ -118,24 +96,6 @@ stages:
       clean: all
 
     steps:
-      - task: AzureCLI@2
-        displayName: SetB3BotsClientAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.azureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetB3BotsClientAppPermissions.ps1'
-
-      - task: AzureCLI@2
-        displayName: SetIngestApiFuncAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetIngestApiFuncAppPermissions.ps1'
-
       - task: AzureCLI@2
         displayName: SetAdminWebAppPermissions
         inputs:
@@ -153,27 +113,6 @@ stages:
           scriptLocation: 'scriptPath'
           arguments: '${{ parameters.environmentTag }}'
           scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
-
-#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: ingest-func
-#      jobName: Deploy${{ parameters.environmentName }}IngestFunctionApp
-#      functionAppName: "fn-ingest-portal-${{ parameters.environmentTag }}-uksouth"
-#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-
-#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: events-func
-#      jobName: Deploy${{ parameters.environmentName }}EventsFunctionApp
-#      functionAppName: "fn-events-portal-${{ parameters.environmentTag }}-uksouth"
-#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-#      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
 
 #  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
 #    parameters:

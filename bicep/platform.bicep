@@ -16,7 +16,6 @@ param parTags object
 var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}'
 var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
 var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
-var varServiceBusName = 'sb-portal-${parEnvironment}-${parLocation}'
 
 var varDeploymentPrefix = 'portalPlatform' //Prevent deployment naming conflicts
 
@@ -82,17 +81,5 @@ module apiManagementLogger 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/
     parWorkloadResourceGroupName: defaultResourceGroup.name
     parAppInsightsName: appInsights.outputs.outAppInsightsName
     parKeyVaultName: keyVault.outputs.outKeyVaultName
-  }
-}
-
-module serviceBus 'platform/serviceBus.bicep' = {
-  name: '${varDeploymentPrefix}-serviceBus'
-  scope: resourceGroup(defaultResourceGroup.name)
-
-  params: {
-    parServiceBusName: varServiceBusName
-    parKeyVaultName: keyVault.outputs.outKeyVaultName
-    parLocation: parLocation
-    parTags: parTags
   }
 }

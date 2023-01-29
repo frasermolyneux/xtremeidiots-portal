@@ -125,12 +125,12 @@ module frontDoorEndpoint 'modules/frontDoorEndpoint.bicep' = {
   params: {
     parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoor.FrontDoorName
-    parParentDnsName: parFrontDoor.ParentDnsName
+    parParentDnsName: parDns.ParentDnsName
     parDnsResourceGroupName: parDns.ResourceGroupName
     parWorkloadName: varWorkloadName
     parOriginHostName: webApp.outputs.outWebAppDefaultHostName
     parDnsZoneHostnamePrefix: varWorkloadName
-    parCustomHostname: '${varWorkloadName}.${parDns.parParentDnsName}'
+    parCustomHostname: '${varWorkloadName}.${parDns.ParentDnsName}'
     parTags: parTags
   }
 }

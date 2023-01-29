@@ -9,6 +9,10 @@ param parInstance string
 param parKeyVaultName string
 param parAppInsightsName string
 
+param parRepositoryApi object
+param parServerIntegrationApi object
+param parGeoLocationApi object
+
 param parStrategicServicesSubscriptionId string
 param parApiManagementResourceGroupName string
 param parApiManagementName string
@@ -136,11 +140,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-repository-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-repository-subscription-apikey)'
         }
         {
           name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-portal-servers-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-servers-integration-subscription-apikey)'
         }
         {
           name: 'geolocation_apim_subscription_key'
@@ -148,15 +152,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'repository_api_application_audience'
-          value: 'api://portal-repository-${parEnvironment}'
+          value: parRepositoryApi.ApplicationAudience
         }
         {
           name: 'servers_api_application_audience'
-          value: 'api://portal-servers-integration-${parEnvironment}'
+          value: parServerIntegrationApi.ApplicationAudience
         }
         {
           name: 'geolocation_api_application_audience'
-          value: 'api://geolocation-lookup-api-prd'
+          value: parGeoLocationApi.ApplicationAudience
         }
         {
           name: 'sql_connection_string'
@@ -180,11 +184,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'repository_api_path_prefix'
-          value: 'repository-v2'
+          value: parRepositoryApi.ApimPathPrefix
         }
         {
           name: 'servers_api_path_prefix'
-          value: 'servers-integration'
+          value: parServerIntegrationApi.ApimPathPrefix
         }
       ]
     }

@@ -92,6 +92,10 @@ module webApp 'modules/webApp.bicep' = {
     parLocation: parLocation
     parInstance: parInstance
 
+    parRepositoryApi: parRepositoryApi
+    parServerIntegrationApi: parServerIntegrationApi
+    parGeoLocationApi: parGeoLocationApi
+
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
 

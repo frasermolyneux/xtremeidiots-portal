@@ -5,23 +5,19 @@ parameters:
   type: string
 - name: environmentName
   type: string
-- name: environmentTag
-  type: string
 - name: webAppsAzureSubscription
   type: string
 - name: webAppsEnvironment
-  type: string
-- name: webAppsResourceGroup
   type: string
 - name: blueGreenDeploy
   type: boolean
   default: false
 
 stages:
-- stage: Deploy${{ parameters.environmentName }}
+- stage: deploy_${{ parameters.environmentName }}
   jobs:
 
-  - deployment: Deploy${{ parameters.environmentName }}PlatformBicep
+  - deployment: deploy_${{ parameters.environmentName }}_platform
     environment: ${{ parameters.environment }}
 
     workspace:
@@ -34,38 +30,22 @@ stages:
             - checkout: self
 
             - task: AzureCLI@2
-              displayName: Deploy${{ parameters.environmentName }}PlatformBicep
+              displayName: deploy_${{ parameters.environmentName }}_platform_bicep
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
+                  $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+
                   az deployment sub create `
-                    --name 'portalPlatform${{ parameters.environmentName }}' `
+                    --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
                     --template-file bicep/platform.bicep `
-                    --location uksouth `
-                    --parameters @params/platform.${{ parameters.environmentTag }}.json
+                    --location $config.parameters.parLocation.value `
+                    --parameters @params/platform.$($config.parameters.parEnvironment.value).json
 
-
-  - job: Deploy${{ parameters.environmentName }}PlatformPermissions
-    dependsOn: ['Deploy${{ parameters.environmentName }}PlatformBicep']
-
-    workspace:
-      clean: all
-
-    steps:
-      - task: AzureCLI@2
-        displayName: SetDeployPrincipalPermissions
-        inputs:
-          azureSubscription: ${{ parameters.azureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '"${{ parameters.environmentTag }}" "uksouth"'
-          addSpnToEnvironment: true
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetDeployPrincipalPermissions.ps1'
-
-  - deployment: Deploy${{ parameters.environmentName }}ServicesBicep
-    dependsOn: ['Deploy${{ parameters.environmentName }}PlatformPermissions']
+  - deployment: deploy_${{ parameters.environmentName }}_services
+    dependsOn: ['deploy_${{ parameters.environmentName }}_platform']
     environment: ${{ parameters.environment }}
 
     workspace:
@@ -78,59 +58,89 @@ stages:
             - checkout: self
 
             - task: AzureCLI@2
-              displayName: Deploy${{ parameters.environmentName }}ServicesBicep
+              displayName: deploy_${{ parameters.environmentName }}_services_bicep
               inputs:
                 azureSubscription: ${{ parameters.azureSubscription }}
                 scriptType: 'pscore'
                 scriptLocation: 'inlineScript'
                 inlineScript: |
-                  az deployment group create --resource-group "rg-portal-${{ parameters.environmentTag }}-uksouth" `
-                    --name 'portalServices${{ parameters.environmentName }}' `
-                    --template-file bicep/services.bicep `
-                    --parameters @params/services.${{ parameters.environmentTag }}.json
+                  $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-  - job: Deploy${{ parameters.environmentName }}ServicesPermissions
-    dependsOn: ['Deploy${{ parameters.environmentName }}ServicesBicep']
+                  az deployment group create `
+                    --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                    --template-file bicep/services.bicep `
+                    --parameters @params/services.$($config.parameters.parEnvironment.value).json
+
+            - task: AzureCLI@2
+              name: deploy_outputs
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+
+                  $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") | ConvertFrom-Json
+
+                  echo "##vso[task.setvariable variable=webAppIdentityPrincipalId;isOutput=true]$($deploymentOutput.properties.outputs.outWebAppIdentityPrincipalId.value)"
+                  echo "##vso[task.setvariable variable=webAppName;isOutput=true]$($deploymentOutput.properties.outputs.outWebAppName.value)"
+
+                  echo "##vso[task.setvariable variable=webAppsResourceGroupName;isOutput=true]$($config.parameters.parStrategicServices.value.WebAppsResourceGroupName)"
+
+            - task: AzureCLI@2
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                scriptType: 'pscore'
+                scriptLocation: 'inlineScript'
+                inlineScript: |
+                  $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+
+                  $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") | ConvertFrom-Json
+                  
+                  $principalId = $deploymentOutput.properties.outputs.outWebAppIdentityPrincipalId.value
+
+                  . scripts/AssignPrincipalAppRole.ps1 `
+                    -principalId $principalId `
+                    -applicationName $config.parameters.parRepositoryApi.value.ApplicationName `
+                    -appRole "ServiceAccount"
+
+                  . scripts/AssignPrincipalAppRole.ps1 `
+                    -principalId $principalId `
+                    -applicationName $config.parameters.parServersIntegrationApi.value.ApplicationName `
+                    -appRole "ServiceAccount"
+
+                  . scripts/AssignPrincipalAppRole.ps1 `
+                    -principalId $principalId `
+                    -applicationName $config.parameters.parGeoLocationApi.value.ApplicationName `
+                    -appRole "LookupApiUser"
+
+  - deployment: deploy_app_services
+    dependsOn: ['deploy_${{ parameters.environmentName }}_services']
+    environment: ${{ parameters.webAppsEnvironment }}
+
+    variables: 
+      webAppName: $[ dependencies.deploy_${{ parameters.environmentName }}_services.outputs['deploy_outputs.webAppName'] ]
+      webAppsResourceGroupName: $[ dependencies.deploy_${{ parameters.environmentName }}_services.outputs['deploy_outputs.webAppsResourceGroupName'] ]
 
     workspace:
       clean: all
 
-    steps:
-      - task: AzureCLI@2
-        displayName: SetAdminWebAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetAdminWebAppPermissions.ps1'
+    strategy:
+      runOnce:
+        deploy:
+          steps: 
+            - checkout: self
+            
+            - download: current
+              artifact: admin-webapp
 
-      - task: AzureCLI@2
-        displayName: SetSyncAppPermissions
-        inputs:
-          azureSubscription: ${{ parameters.webAppsAzureSubscription }}
-          scriptType: 'pscore'
-          scriptLocation: 'scriptPath'
-          arguments: '${{ parameters.environmentTag }}'
-          scriptPath: '$(Build.sourcesDirectory)/.azure-pipelines/scripts/SetSyncAppPermissions.ps1'
-
-#  - template: jobs/deploy-function-app.yml@ado-pipeline-templates
-#    parameters:
-#      dependsOn: ['Deploy${{ parameters.environmentName }}RepositoryWebApi']
-#      environment: ${{ parameters.webAppsEnvironment }}
-#      projectName: sync-func
-#      jobName: Deploy${{ parameters.environmentName }}SyncFunctionApp
-#      functionAppName: "fn-sync-portal-${{ parameters.environmentTag }}-uksouth"
-#      functionAppResourceGroup: ${{ parameters.webAppsResourceGroup }}
-#      subscription: ${{ parameters.webAppsAzureSubscription }}
-
-  - template: jobs/deploy-web-app.yml@ado-pipeline-templates
-    parameters:
-      dependsOn: ['Deploy${{ parameters.environmentName }}ServicesPermissions']
-      environment: ${{ parameters.webAppsEnvironment }}
-      projectName: admin-webapp
-      jobName: Deploy${{ parameters.environmentName }}AdminWebApp
-      webAppName: "webapp-admin-portal-${{ parameters.environmentTag }}-uksouth"
-      webAppNameResourceGroup: ${{ parameters.webAppsResourceGroup }}
-      subscription: ${{ parameters.webAppsAzureSubscription }}
-      blueGreenDeploy: ${{ parameters.blueGreenDeploy }}
+            - task: AzureRmWebAppDeployment@4
+              retryCountOnTaskFailure: 3
+              inputs:
+                azureSubscription:  ${{ parameters.webAppsAzureSubscription }}
+                webAppName: $(webAppName)
+                resourceGroupName: $(webAppsResourceGroupName)
+                packageForLinux: '$(Pipeline.Workspace)/admin-webapp/admin-webapp.zip'

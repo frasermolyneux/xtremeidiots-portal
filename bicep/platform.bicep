@@ -3,27 +3,20 @@ targetScope = 'subscription'
 // Parameters
 param parLocation string
 param parEnvironment string
+param parInstance string
 
-param parLoggingSubscriptionId string
-param parLoggingResourceGroupName string
-param parLoggingWorkspaceName string
-param parStrategicServicesSubscriptionId string
-param parApiManagementResourceGroupName string
-param parApiManagementName string
+param parLogging object
+param parStrategicServices object
+
 param parTags object
 
 // Variables
-var varResourceGroupName = 'rg-portal-${parEnvironment}-${parLocation}'
-var varKeyVaultName = 'kv-portal-${parEnvironment}-${parLocation}'
-var varAppInsightsName = 'ai-portal-${parEnvironment}-${parLocation}'
+var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
+var varDeploymentPrefix = 'platform-${varEnvironmentUniqueId}' //Prevent deployment naming conflicts
 
-var varDeploymentPrefix = 'portalPlatform' //Prevent deployment naming conflicts
-
-// Existing Out-Of-Scope Resources
-resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
-  name: parApiManagementName
-  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
-}
+var varResourceGroupName = 'rg-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
+var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
+var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 
 // Module Resources
 resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -34,7 +27,7 @@ resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
   properties: {}
 }
 
-module keyVault 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvault:latest' = {
+module keyVault 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvault:latest' = {
   name: '${varDeploymentPrefix}-keyVault'
   scope: resourceGroup(defaultResourceGroup.name)
 
@@ -42,21 +35,12 @@ module keyVault 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvault:la
     parKeyVaultName: varKeyVaultName
     parLocation: parLocation
     parTags: parTags
+
+    parEnabledForRbacAuthorization: true
   }
 }
 
-module keyVaultAccessPolicy 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/keyvaultaccesspolicy:latest' = {
-  name: '${varDeploymentPrefix}-keyVaultAccessPolicy'
-  scope: resourceGroup(defaultResourceGroup.name)
-
-  params: {
-    parKeyVaultName: keyVault.outputs.outKeyVaultName
-    parPrincipalId: apiManagement.identity.principalId
-    parSecretsPermissions: [ 'get' ]
-  }
-}
-
-module appInsights 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/appinsights:latest' = {
+module appInsights 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/appinsights:latest' = {
   name: '${varDeploymentPrefix}-appInsights'
   scope: resourceGroup(defaultResourceGroup.name)
 
@@ -64,19 +48,19 @@ module appInsights 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/appinsig
     parAppInsightsName: varAppInsightsName
     parKeyVaultName: keyVault.outputs.outKeyVaultName
     parLocation: parLocation
-    parLoggingSubscriptionId: parLoggingSubscriptionId
-    parLoggingResourceGroupName: parLoggingResourceGroupName
-    parLoggingWorkspaceName: parLoggingWorkspaceName
+    parLoggingSubscriptionId: parLogging.SubscriptionId
+    parLoggingResourceGroupName: parLogging.WorkspaceResourceGroupName
+    parLoggingWorkspaceName: parLogging.WorkspaceName
     parTags: parTags
   }
 }
 
-module apiManagementLogger 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/apimanagementlogger:latest' = {
+module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementlogger:latest' = {
   name: '${varDeploymentPrefix}-apiManagementLogger'
-  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parApiManagementName: parApiManagementName
+    parApiManagementName: parStrategicServices.ApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: defaultResourceGroup.name
     parAppInsightsName: appInsights.outputs.outAppInsightsName

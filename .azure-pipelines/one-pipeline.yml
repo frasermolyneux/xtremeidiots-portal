@@ -45,20 +45,10 @@ stages:
           publishWebProjects: false
           projects: '**/admin-webapp.csproj'
           arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip'
-      - task: ArchiveFiles@2
-        displayName: "Package sync-func project"
-        inputs:
-          rootFolderOrFile: '$(Build.SourcesDirectory)/src/function-apps/sync-func/bin/Release/net6.0/'
-          includeRootFolder: false
-          archiveType: 'zip'
-          archiveFile: '$(Build.ArtifactStagingDirectory)/sync-func.zip'
       additionalPublishSteps: 
       - publish: '$(Build.artifactStagingDirectory)/admin-webapp.zip'
         displayName: 'Publish admin-webapp artifact'
         artifact: admin-webapp
-      - publish: '$(Build.artifactStagingDirectory)/sync-func.zip'
-        displayName: 'Publish sync-func artifact'
-        artifact: sync-func
 
   - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
     parameters: 
@@ -68,19 +58,15 @@ stages:
   - template: templates/bicep-environment-validation.yml
     parameters:
       dependsOn: [BicepLinter]
-      azureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd'
-      environment: 'xtremeidiots-portal-prd'
-      environmentName: 'Prd'
-      environmentTag: 'prd'
+      azureSubscription: spn-xtremeidiots-portal-production
+      azureSubscription: xtremeidiots-portal-Production
+      environmentName: 'prd'
 
 - ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
   - template: templates/deploy-environment.yml
     parameters:
-      azureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd'
-      environment: 'xtremeidiots-portal-prd'
-      environmentName: 'Prd'
-      environmentTag: 'prd'
-      webAppsAzureSubscription: 'spn-ado-XtremeIdiots-Public-portal-prd-webapps'
-      webAppsEnvironment: 'platform-webapps-prd-uksouth'
-      webAppsResourceGroup: 'rg-platform-webapps-prd-uksouth'
-      blueGreenDeploy: false
+      azureSubscription: spn-xtremeidiots-portal-production
+      azureSubscription: xtremeidiots-portal-Production
+      environmentName: 'prd'
+      webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
+      webAppsEnvironment: xtremeidiots-portal-ProductionWebApps

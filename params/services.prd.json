@@ -2,50 +2,67 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "parLocation": {
-            "value": "uksouth"
-        },
         "parEnvironment": {
             "value": "prd"
         },
-        "parFrontDoorSubscriptionId": {
-            "value": "db34f572-8b71-40d6-8f99-f29a27612144"
+        "parLocation": {
+            "value": "uksouth"
         },
-        "parFrontDoorResourceGroupName": {
-            "value": "rg-platform-frontdoor-prd-uksouth"
+        "parInstance": {
+            "value": "01"
         },
-        "parFrontDoorName": {
-            "value": "fd-mx-platform-prd"
+        "parFrontDoor": {
+            "value": {
+                "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",
+                "FrontDoorResourceGroupName": "rg-platform-frontdoor-prd-uksouth-01",
+                "FrontDoorName": "fd-platform-prd-et7nxqc67pqjy"
+            }
         },
-        "parDnsSubscriptionId": {
-            "value": "db34f572-8b71-40d6-8f99-f29a27612144"
+        "parDns": {
+            "value": {
+                "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",
+                "DnsResourceGroupName": "rg-platform-dns-prd-uksouth-01",
+                "PublicWebAppDnsPrefix": "portal",
+                "ParentDnsName": "xtremeidiots.dev"
+            }
         },
-        "parDnsResourceGroupName": {
-            "value": "rg-platform-dns-prd-uksouth"
+        "parStrategicServices": {
+            "value": {
+                "SubscriptionId": "903b6685-c12a-4703-ac54-7ec1ff15ca43",
+                "ApiManagementResourceGroupName": "rg-platform-apim-prd-uksouth-01",
+                "ApiManagementName": "apim-platform-prd-uksouth-ty7og2i6qpv3s",
+                "WebAppsResourceGroupName": "rg-platform-plans-prd-uksouth-01",
+                "AppServicePlanName": "plan-platform-prd-uksouth-01",
+                "SqlServerResourceGroupName": "rg-platform-sql-prd-uksouth-01",
+                "SqlServerName": "sql-platform-prd-uksouth-01-ty7og2i6qpv3s"
+            }
         },
-        "parParentDnsName": {
-            "value": "xtremeidiots.dev"
+        "parRepositoryApi": {
+            "value": {
+                "ApplicationName": "portal-repository-prd-01",
+                "ApplicationAudience": "api://portal-repository-prd-01",
+                "ApimApiName": "repository-api",
+                "ApimApiRevision": "1",
+                "ApimPathPrefix": "repository"
+            }
         },
-        "parStrategicServicesSubscriptionId": {
-            "value": "903b6685-c12a-4703-ac54-7ec1ff15ca43"
+        "parServerIntegrationApi": {
+            "value": {
+                "ApplicationName": "portal-servers-integration-prd-01",
+                "ApplicationAudience": "api://portal-servers-integration-prd-01",
+                "ApimApiName": "servers-integration-api",
+                "ApimApiRevision": "1",
+                "ApimPathPrefix": "servers-integration"
+            }
         },
-        "parApiManagementResourceGroupName": {
-            "value": "rg-platform-apim-prd-uksouth"
-        },
-        "parApiManagementName": {
-            "value": "apim-mx-platform-prd-uksouth"
-        },
-        "parWebAppsResourceGroupName": {
-            "value": "rg-platform-webapps-prd-uksouth"
-        },
-        "parAppServicePlanName": {
-            "value": "plan-platform-prd-uksouth"
-        },
-        "parSqlServerResourceGroupName": {
-            "value": "rg-platform-sql-prd-uksouth"
-        },
-        "parSqlServerName": {
-            "value": "sql-platform-prd-uksouth"
+        "parGeoLocationApi": {
+            "value": {
+                "ApplicationName": "geolocation-api-prd-01",
+                "ApplicationAudience": "api://geolocation-prd-dev-01",
+                "ApimApiName": "geolocation-api",
+                "ApimApiRevision": "1",
+                "ApimPathPrefix": "geolocation"
+            }
         },
         "parTags": {
             "value": {

@@ -136,8 +136,8 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' 
   }
 }
 
-module dnsCNAME 'br:acrmxplatformprduksouth.azurecr.io/bicep/modules/dnscname:latest' = {
-  name: '${parDeploymentPrefix}-${parWorkloadName}-dnsCNAME'
+module dnsCNAME 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/dnscname:latest' = {
+  name: '${parDeploymentPrefix}-dnsCNAME'
   scope: resourceGroup(parDnsResourceGroupName)
 
   params: {

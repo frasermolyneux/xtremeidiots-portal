@@ -8,10 +8,9 @@ parameters:
   type: string
 - name: environmentName
   type: string
-- name: environmentTag
-  type: string
+
 jobs:
-- deployment: ValidateBicepAgainst${{ parameters.environmentName }}Environment
+- deployment: validate_bicep_against_${{ parameters.environmentName }}_environment
   dependsOn: ${{ parameters.dependsOn }}
   environment: ${{ parameters.environment }}
 
@@ -31,19 +30,20 @@ jobs:
               scriptType: 'pscore'
               scriptLocation: 'inlineScript'
               inlineScript: |
-                az deployment sub validate `
-                  --name 'portalPlatform${{ parameters.environmentName }}' `
-                  --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
-                  --location 'uksouth' `
-                  --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
+                $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
-                  Write-Host "Performing az deployment group validation as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
+                az deployment sub validate `
+                  --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                  --template-file bicep/platform.bicep `
+                  --location $config.parameters.parLocation.value `
+                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json
+
+                if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
                   az deployment group validate `
-                    --name 'portalServices${{ parameters.environmentName }}' `
-                    --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
-                    --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
-                    --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json
+                    --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                    --template-file bicep/services.bicep `
+                    --parameters @params/services.$($config.parameters.parEnvironment.value).json
                 }
 
           - task: AzureCLI@2
@@ -54,16 +54,15 @@ jobs:
               scriptLocation: 'inlineScript'
               inlineScript: |
                 az deployment sub what-if `
-                  --name 'portalPlatform${{ parameters.environmentName }}' `
-                  --template-file $(Build.sourcesDirectory)/bicep/platform.bicep `
-                  --location 'uksouth' `
-                  --parameters @$(Build.sourcesDirectory)/params/platform.${{ parameters.environmentTag }}.json
+                  --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                  --template-file bicep/platform.bicep `
+                  --location $config.parameters.parLocation.value `
+                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json
 
-                if ((az group exists --name 'rg-portal-${{ parameters.environmentTag }}-uksouth') -eq $true) { 
-                  Write-Host "Performing az deployment group what-if as 'rg-portal-${{ parameters.environmentTag }}-uksouth' exists"
+                if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
                   az deployment group what-if `
-                    --name 'portalServices${{ parameters.environmentName }}' `
-                    --resource-group 'rg-portal-${{ parameters.environmentTag }}-uksouth' `
-                    --template-file $(Build.sourcesDirectory)/bicep/services.bicep `
-                    --parameters @$(Build.sourcesDirectory)/params/services.${{ parameters.environmentTag }}.json
+                    --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                    --template-file bicep/services.bicep `
+                    --parameters @params/services.$($config.parameters.parEnvironment.value).json
                 }

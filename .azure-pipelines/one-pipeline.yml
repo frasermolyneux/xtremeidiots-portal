@@ -25,7 +25,7 @@ variables:
   buildConfiguration: 'Release'
 
 stages: 
-- stage: Build
+- stage: build
   jobs:
 
   #- template: jobs/dependency-check.yml@ado-pipeline-templates
@@ -52,21 +52,20 @@ stages:
 
   - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
     parameters: 
-      jobName: 'BicepLinter'
-      azureSubscription: 'spn-ado-XtremeIdiots-Public-devtest'
+      jobName: 'bicep_linter'
+      azureSubscription: spn-xtremeidiots-portal-Production
 
   - template: templates/bicep-environment-validation.yml
     parameters:
-      dependsOn: [BicepLinter]
-      azureSubscription: spn-xtremeidiots-portal-production
-      azureSubscription: xtremeidiots-portal-Production
+      dependsOn: [bicep_linter]
+      azureSubscription: spn-xtremeidiots-portal-Production
+      environment: xtremeidiots-portal-Production
       environmentName: 'prd'
 
 - ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
   - template: templates/deploy-environment.yml
     parameters:
-      azureSubscription: spn-xtremeidiots-portal-production
-      azureSubscription: xtremeidiots-portal-Production
+      azureSubscription: spn-xtremeidiots-portal-Production
       environmentName: 'prd'
       webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
       webAppsEnvironment: xtremeidiots-portal-ProductionWebApps

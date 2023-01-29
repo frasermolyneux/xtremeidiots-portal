@@ -50,7 +50,8 @@ stages:
                     --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
                     --template-file bicep/platform.bicep `
                     --location $config.parameters.parLocation.value `
-                    --parameters @params/platform.$($config.parameters.parEnvironment.value).json
+                    --parameters @params/platform.$($config.parameters.parEnvironment.value).json `
+                      parKeyVaultCreateMode=$keyVaultCreateMode
 
   - deployment: deploy_${{ parameters.environmentName }}_services
     dependsOn: ['deploy_${{ parameters.environmentName }}_platform']

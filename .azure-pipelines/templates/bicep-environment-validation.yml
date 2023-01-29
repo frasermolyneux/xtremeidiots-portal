@@ -36,7 +36,8 @@ jobs:
                   --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
                   --template-file bicep/platform.bicep `
                   --location $config.parameters.parLocation.value `
-                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json
+                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json `
+                      parKeyVaultCreateMode='recover'
 
                 if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
                   az deployment group validate `

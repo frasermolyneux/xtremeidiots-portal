@@ -20,7 +20,7 @@ var varDeploymentPrefix = 'services-${varEnvironmentUniqueId}' //Prevent deploym
 
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
 var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
-var varWorkloadName = 'portal-web-${parEnvironment}-${parInstance}'
+var varWorkloadName = 'app-portal-web-${parEnvironment}-${parInstance}-${varEnvironmentUniqueId}'
 var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${varEnvironmentUniqueId}'
 
 // Module Resources
@@ -80,8 +80,11 @@ module webApp 'modules/webApp.bicep' = {
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.WebAppsResourceGroupName)
 
   params: {
-    parLocation: parLocation
     parEnvironment: parEnvironment
+    parEnvironmentUniqueId: varEnvironmentUniqueId
+    parLocation: parLocation
+    parInstance: parInstance
+
     parKeyVaultName: varKeyVaultName
     parAppInsightsName: varAppInsightsName
 

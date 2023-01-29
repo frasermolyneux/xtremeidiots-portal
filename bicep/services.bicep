@@ -154,3 +154,7 @@ module frontDoorEndpoint 'modules/frontDoorEndpoint.bicep' = {
     parTags: parTags
   }
 }
+
+// Outputs
+output outWebAppIdentityPrincipalId string = webApp.outputs.outWebAppIdentityPrincipalId
+output outWebAppName string = webApp.outputs.outWebAppName

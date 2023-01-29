@@ -21,6 +21,12 @@ var varResourceGroupName = 'rg-portal-web-${parEnvironment}-${parLocation}-${par
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
 var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 
+// Existing Out-Of-Scope Resources
+resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
+  name: parStrategicServices.ApiManagementName
+  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
+}
+
 // Module Resources
 resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: varResourceGroupName
@@ -43,6 +49,23 @@ module keyVault 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvault:latest' =
     parEnabledForRbacAuthorization: true
 
     parTags: parTags
+  }
+}
+
+@description('https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#key-vault-secrets-user')
+resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: subscription()
+  name: '4633458b-17de-408a-b874-0445c86b69e6'
+}
+
+module keyVaultSecretUserRoleAssignmentApim 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvaultroleassignment:latest' = {
+  name: '${varDeploymentPrefix}-kvSecretUserRoleAssignmentApim'
+  scope: resourceGroup(defaultResourceGroup.name)
+
+  params: {
+    parKeyVaultName: keyVault.outputs.outKeyVaultName
+    parRoleDefinitionId: keyVaultSecretUserRoleDefinition.id
+    parPrincipalId: apiManagement.identity.principalId
   }
 }
 

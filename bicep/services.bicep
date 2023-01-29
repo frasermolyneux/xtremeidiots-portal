@@ -35,7 +35,7 @@ module geolocationApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bice
     parWorkloadResourceGroupName: resourceGroup().name
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: varKeyVaultName
-    parSubscriptionScopeIdentifier: parGeoLocationApi.ApimApiName
+    parSubscriptionScopeIdentifier: 'geolocation'
     parSubscriptionScope: '/apis/${parGeoLocationApi.ApimApiName}'
     parTags: parTags
   }
@@ -52,7 +52,7 @@ module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep
     parWorkloadResourceGroupName: resourceGroup().name
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: varKeyVaultName
-    parSubscriptionScopeIdentifier: parRepositoryApi.ApimApiName
+    parSubscriptionScopeIdentifier: 'repository'
     parSubscriptionScope: '/apis/${parRepositoryApi.ApimApiName}'
     parTags: parTags
   }
@@ -69,7 +69,7 @@ module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/mo
     parWorkloadResourceGroupName: resourceGroup().name
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: varKeyVaultName
-    parSubscriptionScopeIdentifier: parServerIntegrationApi.ApimApiName
+    parSubscriptionScopeIdentifier: 'servers-integration'
     parSubscriptionScope: '/apis/${parServerIntegrationApi.ApimApiName}'
     parTags: parTags
   }

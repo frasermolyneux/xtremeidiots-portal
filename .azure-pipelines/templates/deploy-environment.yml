@@ -38,6 +38,14 @@ stages:
                 inlineScript: |
                   $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
+                  $deletedKeyVaults = az keyvault list-deleted --query '[].properties.vaultId' | ConvertFrom-Json
+                  $isDeleted = $deletedKeyVaults | where {$_ -match "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)"}
+
+                  $keyVaultCreateMode = "default"
+                  if ($isDeleted -ne $null) {
+                    $keyVaultCreateMode = "recover"
+                  }
+
                   az deployment sub create `
                     --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
                     --template-file bicep/platform.bicep `

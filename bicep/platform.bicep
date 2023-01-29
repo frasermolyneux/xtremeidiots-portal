@@ -10,6 +10,9 @@ param parStrategicServices object
 
 param parTags object
 
+// Dynamic params from pipeline invocation
+param parKeyVaultCreateMode string = 'recover'
+
 // Variables
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
 var varDeploymentPrefix = 'platform-${varEnvironmentUniqueId}' //Prevent deployment naming conflicts
@@ -34,9 +37,12 @@ module keyVault 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvault:latest' =
   params: {
     parKeyVaultName: varKeyVaultName
     parLocation: parLocation
-    parTags: parTags
+
+    parKeyVaultCreateMode: parKeyVaultCreateMode
 
     parEnabledForRbacAuthorization: true
+
+    parTags: parTags
   }
 }
 

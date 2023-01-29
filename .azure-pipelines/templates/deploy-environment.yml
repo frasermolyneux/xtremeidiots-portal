@@ -126,23 +126,6 @@ stages:
                     -applicationName $config.parameters.parGeoLocationApi.value.ApplicationName `
                     -appRole "LookupApiUser"
 
-  - deployment: deploy_app_services
-    dependsOn: ['deploy_${{ parameters.environmentName }}_services']
-    environment: ${{ parameters.webAppsEnvironment }}
-
-    variables: 
-      webAppName: $[ dependencies.deploy_${{ parameters.environmentName }}_services.outputs['deploy_outputs.webAppName'] ]
-      webAppsResourceGroupName: $[ dependencies.deploy_${{ parameters.environmentName }}_services.outputs['deploy_outputs.webAppsResourceGroupName'] ]
-
-    workspace:
-      clean: all
-
-    strategy:
-      runOnce:
-        deploy:
-          steps: 
-            - checkout: self
-            
             - download: current
               artifact: admin-webapp
 

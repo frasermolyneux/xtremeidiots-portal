@@ -133,6 +133,6 @@ stages:
               retryCountOnTaskFailure: 3
               inputs:
                 azureSubscription:  ${{ parameters.webAppsAzureSubscription }}
-                webAppName: $(webAppName)
-                resourceGroupName: $(webAppsResourceGroupName)
+                webAppName: $(deploy_outputs.webAppName)
+                resourceGroupName: $(deploy_outputs.webAppsResourceGroupName)
                 packageForLinux: '$(Pipeline.Workspace)/admin-webapp/admin-webapp.zip'

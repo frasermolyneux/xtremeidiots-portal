@@ -10,7 +10,7 @@ param parKeyVaultName string
 param parAppInsightsName string
 
 param parRepositoryApi object
-param parServerIntegrationApi object
+param parServersIntegrationApi object
 param parGeoLocationApi object
 
 param parStrategicServicesSubscriptionId string
@@ -156,7 +156,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'servers_api_application_audience'
-          value: parServerIntegrationApi.ApplicationAudience
+          value: parServersIntegrationApi.ApplicationAudience
         }
         {
           name: 'geolocation_api_application_audience'
@@ -188,7 +188,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'servers_api_path_prefix'
-          value: parServerIntegrationApi.ApimPathPrefix
+          value: parServersIntegrationApi.ApimPathPrefix
         }
       ]
     }

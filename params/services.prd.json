@@ -46,7 +46,7 @@
                 "ApimPathPrefix": "repository"
             }
         },
-        "parServerIntegrationApi": {
+        "parServersIntegrationApi": {
             "value": {
                 "ApplicationName": "portal-servers-integration-prd-01",
                 "ApplicationAudience": "api://portal-servers-integration-prd-01",

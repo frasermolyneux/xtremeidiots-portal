@@ -9,7 +9,7 @@ param parDns object
 param parStrategicServices object
 
 param parRepositoryApi object
-param parServerIntegrationApi object
+param parServersIntegrationApi object
 param parGeoLocationApi object
 
 param parTags object
@@ -77,7 +77,7 @@ module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/mo
     parWorkloadName: varAdminWebAppName
     parKeyVaultName: varKeyVaultName
     parSubscriptionScopeIdentifier: 'servers-integration'
-    parSubscriptionScope: '/apis/${parServerIntegrationApi.ApimApiName}'
+    parSubscriptionScope: '/apis/${parServersIntegrationApi.ApimApiName}'
     parTags: parTags
   }
 }
@@ -93,7 +93,7 @@ module webApp 'modules/webApp.bicep' = {
     parInstance: parInstance
 
     parRepositoryApi: parRepositoryApi
-    parServerIntegrationApi: parServerIntegrationApi
+    parServersIntegrationApi: parServersIntegrationApi
     parGeoLocationApi: parGeoLocationApi
 
     parKeyVaultName: varKeyVaultName

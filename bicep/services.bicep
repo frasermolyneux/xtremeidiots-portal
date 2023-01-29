@@ -23,6 +23,13 @@ var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parIn
 var varWorkloadName = 'app-portal-web-${parEnvironment}-${parInstance}-${varEnvironmentUniqueId}'
 var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${varEnvironmentUniqueId}'
 
+// Existing Out-Of-Scope Resources
+@description('https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#key-vault-secrets-user')
+resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: subscription()
+  name: '4633458b-17de-408a-b874-0445c86b69e6'
+}
+
 // Module Resources
 module geolocationApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
@@ -103,6 +110,16 @@ module webApp 'modules/webApp.bicep' = {
     parWorkloadResourceGroupName: resourceGroup().name
 
     parTags: parTags
+  }
+}
+
+module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvaultroleassignment:latest' = {
+  name: '${varDeploymentPrefix}-webAppKeyVaultRoleAssignment'
+
+  params: {
+    parKeyVaultName: varKeyVaultName
+    parRoleDefinitionId: keyVaultSecretUserRoleDefinition.id
+    parPrincipalId: webApp.outputs.outWebAppIdentityPrincipalId
   }
 }
 

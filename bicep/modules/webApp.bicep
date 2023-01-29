@@ -164,7 +164,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'sql_connection_string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portalidentitydb-${parEnvironment};'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portal-web-${parEnvironmentUniqueId};'
         }
         {
           name: 'xtremeidiots_forums_base_url'

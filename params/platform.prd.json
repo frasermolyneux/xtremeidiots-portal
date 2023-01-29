@@ -28,6 +28,7 @@
         "parTags": {
             "value": {
                 "Environment": "prd",
+                "Workload": "portal",
                 "DeployedBy": "AzDo-Bicep",
                 "Git": "https://github.com/frasermolyneux/xtremeidiots-portal"
             }

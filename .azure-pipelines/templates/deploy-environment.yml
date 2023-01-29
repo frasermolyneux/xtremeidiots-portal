@@ -111,17 +111,17 @@ stages:
                   
                   $principalId = $deploymentOutput.properties.outputs.outWebAppIdentityPrincipalId.value
 
-                  . scripts/AddPrincipalToAADGroup.ps1 `
+                  . scripts/GrantPrincipalAppRole.ps1 `
                     -principalId $principalId `
                     -applicationName $config.parameters.parRepositoryApi.value.ApplicationName `
                     -appRole "ServiceAccount"
 
-                  . scripts/AddPrincipalToAADGroup.ps1 `
+                  . scripts/GrantPrincipalAppRole.ps1 `
                     -principalId $principalId `
                     -applicationName $config.parameters.parServersIntegrationApi.value.ApplicationName `
                     -appRole "ServiceAccount"
 
-                  . scripts/AddPrincipalToAADGroup.ps1 `
+                  . scripts/GrantPrincipalAppRole.ps1 `
                     -principalId $principalId `
                     -applicationName $config.parameters.parGeoLocationApi.value.ApplicationName `
                     -appRole "LookupApiUser"

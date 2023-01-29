@@ -128,7 +128,7 @@ stages:
 
                   . scripts/AddPrincipalToAADGroup.ps1 `
                     -principalId $principalId `
-                    -groupName sg-sql-platform-admins-$($config.parameters.parEnvironment.value)-01 `
+                    -groupName "sg-sql-platform-admins-$($config.parameters.parEnvironment.value)-01" `
 
             - download: current
               artifact: admin-webapp

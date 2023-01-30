@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>XtremeIdiots.Portal.ForumsIntegration</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\repository-api-abstractions\repository-api-abstractions.csproj" />
-    <ProjectReference Include="..\invision-api-client\invision-api-client.csproj" />
+    <PackageReference Include="XtremeIdiots.InvisionCommunity" Version="1.0.31" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApi.Abstractions" Version="1.0.20231.30441" />
   </ItemGroup>
 
 </Project>

@@ -2,8 +2,8 @@
 
 using System.Globalization;
 
+using XtremeIdiots.InvisionCommunity;
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
-using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.ForumsIntegration

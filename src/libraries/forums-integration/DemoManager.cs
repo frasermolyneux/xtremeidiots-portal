@@ -1,5 +1,5 @@
-﻿using XtremeIdiots.Portal.ForumsIntegration.Models;
-using XtremeIdiots.Portal.InvisionApiClient;
+﻿using XtremeIdiots.InvisionCommunity;
+using XtremeIdiots.Portal.ForumsIntegration.Models;
 
 namespace XtremeIdiots.Portal.ForumsIntegration
 {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.InvisionApiClient;
+using XtremeIdiots.InvisionCommunity;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers

@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 using MX.GeoLocation.GeoLocationApi.Client;
 
+using XtremeIdiots.InvisionCommunity;
 using XtremeIdiots.Portal.AdminWebApp.Areas.Identity.Data;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
-using XtremeIdiots.Portal.InvisionApiClient;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 
@@ -71,7 +71,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
             {
                 options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["servers_base_url"];
                 options.ApiKey = Configuration["portal_servers_apim_subscription_key"];
-                options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers";
+                options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers-integration";
             });
 
             services.AddXtremeIdiotsAuth();

@@ -60,19 +60,19 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.AddScoped<IDemoManager, DemoManager>();
 
-            services.AddRepositoryApiClient(options =>
-            {
-                options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["repository_base_url"];
-                options.ApiKey = Configuration["portal_repository_apim_subscription_key"];
-                options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
-            });
+            services.AddRepositoryApiClient(options => new RepositoryApiClientOptions(
+                Configuration["apim_base_url"] ?? Configuration["repository_base_url"] ?? throw new ArgumentNullException("apim_base_url"),
+                Configuration["portal_repository_apim_subscription_key"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key"),
+                Configuration["repository_api_application_audience"] ?? throw new ArgumentNullException("repository_api_application_audience"),
+                Configuration["repository_api_path_prefix"] ?? "repository")
+            );
 
-            services.AddServersApiClient(options =>
-            {
-                options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["servers_base_url"];
-                options.ApiKey = Configuration["portal_servers_apim_subscription_key"];
-                options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers-integration";
-            });
+            services.AddServersApiClient(options => new ServersApiClientOptions(
+                Configuration["apim_base_url"] ?? Configuration["servers_base_url"] ?? throw new ArgumentNullException("apim_base_url"),
+                Configuration["portal_servers_apim_subscription_key"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key"),
+                Configuration["servers_api_application_audience"] ?? throw new ArgumentNullException("servers_api_application_audience"),
+                Configuration["servers_api_path_prefix"] ?? "servers")
+            );
 
             services.AddXtremeIdiotsAuth();
             services.AddAuthorization(options => { options.AddXtremeIdiotsPolicies(); });

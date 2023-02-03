@@ -190,6 +190,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'servers_api_path_prefix'
           value: parServersIntegrationApi.ApimPathPrefix
         }
+        {
+          name: 'geolocation_api_path_prefix'
+          value: parGeoLocationApi.ApimPathPrefix
+        }
       ]
     }
   }

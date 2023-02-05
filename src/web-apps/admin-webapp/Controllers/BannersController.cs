@@ -33,7 +33,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             return Json(htmlBanners);
         }
 
-        [Route("banners/gametracker/{ipAddress}:{queryPort}/{imageName}")]
+        [Route("gametracker/{ipAddress}:{queryPort}/{imageName}")]
         public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName)
         {
             var repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.GetGameTrackerBanner(ipAddress, queryPort, imageName);

@@ -35,7 +35,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
                 var builder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
 
                 // Using fixed rate sampling
-                double fixedSamplingPercentage = 50;
+                double fixedSamplingPercentage = 100;
                 builder.UseSampling(fixedSamplingPercentage);
             });
 

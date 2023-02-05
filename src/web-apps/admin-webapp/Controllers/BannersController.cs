@@ -33,7 +33,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             return Json(htmlBanners);
         }
 
-        [EnableCors("CorsPolicy")]
         [Route("banners/gametracker/{ipAddress}:{queryPort}/{imageName}")]
         public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName)
         {

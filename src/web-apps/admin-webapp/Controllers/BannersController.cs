@@ -32,5 +32,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             return Json(htmlBanners);
         }
+
+        [EnableCors("CorsPolicy")]
+        [Route("banners/gametracker/{ipAddress}:{queryPort}/{imageName}")]
+        public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName)
+        {
+            var repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.GetGameTrackerBanner(ipAddress, queryPort, imageName);
+
+            if (!repositoryApiResponse.IsSuccess || repositoryApiResponse.Result == null)
+                return Redirect($"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}");
+
+            return Redirect(repositoryApiResponse.Result.BannerUrl);
+        }
     }
 }

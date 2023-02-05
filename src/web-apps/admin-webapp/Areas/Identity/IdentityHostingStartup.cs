@@ -90,6 +90,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Areas.Identity
                     });
 
                 services.AddDataProtection()
+                    .SetApplicationName("portal")
                     .PersistKeysToDbContext<IdentityDataContext>();
             });
         }

@@ -3,10 +3,8 @@ name: Feature Development
 on:
   workflow_dispatch:
   push:
-    branches-ignore: 
-      - main
-      - 'integration/*'
-      - 'dependabot/*'
+    branches:
+      - 'feature/*'
 
 permissions:
   id-token: write # This is required for requesting the JWT

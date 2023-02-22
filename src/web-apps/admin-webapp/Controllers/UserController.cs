@@ -156,9 +156,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claim.ClaimValue));
 
-            var canDeleteUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.DeleteUserClaim);
+            // Allow for legacy claims to be deleted
+            var canDeleteUserClaim = false;
+            if (gameServerApiResponse.IsNotFound)
+            {
+                canDeleteUserClaim = true;
+            }
+            else
+            {
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.DeleteUserClaim);
+                canDeleteUserClaim = authorizationResult.Succeeded;
+            }
 
-            if (!canDeleteUserClaim.Succeeded)
+            if (!canDeleteUserClaim)
                 return Unauthorized();
 
             await repositoryApiClient.UserProfiles.DeleteUserProfileClaim(id, claimId);

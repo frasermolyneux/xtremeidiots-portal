@@ -129,7 +129,7 @@
                                     </td>
                                     <td>
                                         @{
-                                            if (server != null)
+                                            if (!claim.SystemGenerated)
                                             {
                                                 <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim" method="post">
                                                     <input id="id" name="id" type="hidden" value="@Model.UserProfileId"/>

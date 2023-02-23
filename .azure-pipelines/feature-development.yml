@@ -3,14 +3,11 @@ trigger:
     include:
     - '*'
     exclude:
-    - 'docs/*'
+    - 'main'
+    - 'integration/*'
+    - 'dependabot/*'
 
-pr:
-  branches:
-    include:
-    - '*'
-    exclude:
-    - 'docs/*'
+pr: none
 
 pool: 'Dedicated'
 
@@ -25,7 +22,7 @@ variables:
   buildConfiguration: 'Release'
 
 stages: 
-- stage: build
+- stage: build_and_validate
   jobs:
 
   #- template: jobs/dependency-check.yml@ado-pipeline-templates
@@ -62,11 +59,10 @@ stages:
       environment: xtremeidiots-portal-Production
       environmentName: 'prd'
 
-- ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
-  - template: templates/deploy-environment.yml
-    parameters:
-      azureSubscription: spn-xtremeidiots-portal-production
-      environment: xtremeidiots-portal-Production
-      environmentName: 'prd'
-      webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
-      webAppsEnvironment: xtremeidiots-portal-ProductionWebApps
+- template: templates/deploy-environment.yml
+  parameters:
+    azureSubscription: spn-xtremeidiots-portal-production
+    environment: xtremeidiots-portal-Production
+    environmentName: 'prd'
+    webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
+    webAppsEnvironment: xtremeidiots-portal-ProductionWebApps

@@ -1,0 +1,37 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "parEnvironment": {
+            "value": "dev"
+        },
+        "parLocation": {
+            "value": "uksouth"
+        },
+        "parInstance": {
+            "value": "01"
+        },
+        "parLogging": {
+            "value": {
+                "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
+                "WorkspaceResourceGroupName": "rg-platform-logging-prd-uksouth-01",
+                "WorkspaceName": "log-platform-prd-uksouth-01"
+            }
+        },
+        "parStrategicServices": {
+            "value": {
+                "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
+                "ApiManagementResourceGroupName": "rg-platform-apim-dev-uksouth-01",
+                "ApiManagementName": "apim-platform-dev-uksouth-amjx44uuirhb6"
+            }
+        },
+        "parTags": {
+            "value": {
+                "Environment": "dev",
+                "Workload": "portal",
+                "DeployedBy": "AzDo-Bicep",
+                "Git": "https://github.com/frasermolyneux/xtremeidiots-portal"
+            }
+        }
+    }
+}

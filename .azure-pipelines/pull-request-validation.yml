@@ -1,0 +1,64 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+    - 'main'
+
+pool: 'Dedicated'
+
+resources:
+  repositories:
+    - repository: ado-pipeline-templates
+      type: github
+      name: frasermolyneux/ado-pipeline-templates
+      endpoint: github.com_frasermolyneux
+
+variables:
+  buildConfiguration: 'Release'
+
+stages: 
+- stage: build_and_validate
+  jobs:
+
+  #- template: jobs/dependency-check.yml@ado-pipeline-templates
+  #  parameters: 
+  #    jobName: 'DependencyCheck'
+  #    failOnCVSS: 4
+
+  - template: jobs/build-net-core-projects.yml@ado-pipeline-templates
+    parameters: 
+      jobName: 'BuildNetCoreProjects'
+      buildConfiguration: $(buildConfiguration)
+      additionalBuildSteps:
+      - task: DotNetCoreCLI@2
+        displayName: 'Publish admin-webapp project'
+        inputs:
+          command: 'publish'
+          publishWebProjects: false
+          projects: '**/admin-webapp.csproj'
+          arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip'
+      additionalPublishSteps: 
+      - publish: '$(Build.artifactStagingDirectory)/admin-webapp.zip'
+        displayName: 'Publish admin-webapp artifact'
+        artifact: admin-webapp
+
+  - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
+    parameters: 
+      jobName: 'bicep_linter'
+      azureSubscription: spn-xtremeidiots-portal-Production
+
+  - template: templates/bicep-environment-validation.yml
+    parameters:
+      dependsOn: [bicep_linter]
+      azureSubscription: spn-xtremeidiots-portal-Production
+      environment: xtremeidiots-portal-Production
+      environmentName: 'prd'
+
+- template: templates/deploy-environment.yml
+  parameters:
+    azureSubscription: spn-xtremeidiots-portal-production
+    environment: xtremeidiots-portal-Production
+    environmentName: 'prd'
+    webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
+    webAppsEnvironment: xtremeidiots-portal-ProductionWebApps

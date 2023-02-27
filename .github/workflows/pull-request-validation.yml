@@ -23,7 +23,7 @@ jobs:
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v2
         
-  dotnet-func-ci:
+  dotnet-ci:
     runs-on: ubuntu-latest
 
     steps:

@@ -37,7 +37,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\libraries\forums-integration\forums-integration.csproj" />
+    <ProjectReference Include="..\forums-integration\forums-integration.csproj" />
   </ItemGroup>
 
 

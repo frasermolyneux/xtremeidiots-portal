@@ -1,0 +1,32 @@
+#
+# PSRule configuration
+#
+
+# Please see the documentation for all configuration options:
+# https://microsoft.github.io/PSRule/
+# https://azure.github.io/PSRule.Rules.Azure/setup/configuring-options/
+# https://github.com/microsoft/PSRule.Rules.CAF
+
+input:
+  pathIgnore:
+    - ".azure-pipelines/"
+    - ".github/"
+    - ".vs/"
+    - ".vscode/"
+    - "docs/"
+    - "scripts/"
+    - "src/"
+
+include:
+  module:
+    - "PSRule.Rules.Azure"
+    - "PSRule.Rules.CAF"
+
+output:
+  culture:
+    - en-US
+
+rule:
+  exclude:
+    # Ignore the following rules for all resources
+    - Azure.Template.UseDescriptions

@@ -20,6 +20,7 @@ param parStrategicServices object
 param parTags object
 
 // Dynamic params from pipeline invocation
+@description('The key vault create mode (e.g. recover, default).')
 param parKeyVaultCreateMode string = 'recover'
 
 // Variables

@@ -55,12 +55,6 @@ param parFrontDoorResourceGroupName string
 @description('The front door name.')
 param parFrontDoorName string
 
-@description('The workload subscription id.')
-param parWorkloadSubscriptionId string
-
-@description('The workload resource group name.')
-param parWorkloadResourceGroupName string
-
 @description('The tags to apply to the resources.')
 param parTags object
 
@@ -76,16 +70,6 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
 resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
   name: parFrontDoorName
   scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
-}
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: parAppInsightsName
-  scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
-}
-
-resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
-  name: parKeyVaultName
-  scope: resourceGroup(parWorkloadSubscriptionId, parWorkloadResourceGroupName)
 }
 
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
@@ -151,11 +135,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-instrumentationkey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parAppInsightsName}-instrumentationkey)'
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${appInsights.name}-connectionstring)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parAppInsightsName}-connectionstring)'
         }
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
@@ -175,15 +159,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-repository-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-repository-subscription-apikey)'
         }
         {
           name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-servers-integration-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-servers-integration-subscription-apikey)'
         }
         {
           name: 'geolocation_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${apiManagement.name}-${varWebAppName}-geolocation-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-geolocation-subscription-apikey)'
         }
         {
           name: 'repository_api_application_audience'
@@ -207,15 +191,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'xtremeidiots_forums_api_key'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-forums-api-key)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-forums-api-key)'
         }
         {
           name: 'xtremeidiots_auth_client_id'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-id)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-auth-client-id)'
         }
         {
           name: 'xtremeidiots_auth_client_secret'
-          value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=xtremeidiots-auth-client-secret)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-auth-client-secret)'
         }
         {
           name: 'repository_api_path_prefix'

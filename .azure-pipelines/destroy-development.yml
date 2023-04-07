@@ -1,7 +1,7 @@
 trigger: none
 pr: none
 
-pool: 'Dedicated'
+pool: "Dedicated"
 
 resources:
   repositories:
@@ -10,24 +10,23 @@ resources:
       name: frasermolyneux/ado-pipeline-templates
       endpoint: github.com_frasermolyneux
 
-stages: 
-- stage: clean_up_dev_resources
-  jobs:
+stages:
+  - stage: clean_up_dev_resources
+    jobs:
+      - deployment: clean_up_dev_resources
+        environment: xtremeidiots-portal-Development
+        workspace:
+          clean: all
 
-  - deployment: clean_up_dev_resources
-    environment: xtremeidiots-portal-Development
-    workspace:
-      clean: all
-
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureCLI@2
-            displayName: DestroyDevResources
-            inputs:
-              azureSubscription: spn-xtremeidiots-portal-development
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                Write-Host "TODO"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: DestroyDevResources
+                  inputs:
+                    azureSubscription: spn-xtremeidiots-portal-development
+                    scriptType: "pscore"
+                    scriptLocation: "inlineScript"
+                    inlineScript: |
+                      Write-Host "TODO"

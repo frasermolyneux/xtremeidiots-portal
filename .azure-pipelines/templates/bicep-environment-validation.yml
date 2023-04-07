@@ -1,69 +1,69 @@
 parameters:
-- name: dependsOn
-  type: object
-  default: []
-- name: azureSubscription
-  type: string
-- name: environment
-  type: string
-- name: environmentName
-  type: string
+  - name: dependsOn
+    type: object
+    default: []
+  - name: azureSubscription
+    type: string
+  - name: environment
+    type: string
+  - name: environmentName
+    type: string
 
 jobs:
-- deployment: validate_bicep_against_${{ parameters.environmentName }}_environment
-  dependsOn: ${{ parameters.dependsOn }}
-  environment: ${{ parameters.environment }}
+  - deployment: validate_bicep_against_${{ parameters.environmentName }}_environment
+    dependsOn: ${{ parameters.dependsOn }}
+    environment: ${{ parameters.environment }}
 
-  workspace:
-    clean: all
+    workspace:
+      clean: all
 
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-          - checkout: self
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
 
-          - task: AzureCLI@2
-            name: RunPreflightValidation
-            inputs:
-              azureSubscription: ${{ parameters.azureSubscription }}
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+            - task: AzureCLI@2
+              name: RunPreflightValidation
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                scriptType: "pscore"
+                scriptLocation: "inlineScript"
+                inlineScript: |
+                  $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                az deployment sub validate `
-                  --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                  --template-file bicep/platform.bicep `
-                  --location $config.parameters.parLocation.value `
-                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json `
-                      parKeyVaultCreateMode='recover'
+                  az deployment sub validate `
+                    --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --template-file bicep/platform.bicep `
+                    --location $config.parameters.parLocation.value `
+                    --parameters @params/platform.$($config.parameters.parEnvironment.value).json `
+                        parKeyVaultCreateMode='recover'
 
-                if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
-                  az deployment group validate `
-                    --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
-                    --template-file bicep/services.bicep `
-                    --parameters @params/services.$($config.parameters.parEnvironment.value).json
-                }
+                  if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
+                    az deployment group validate `
+                      --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                      --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                      --template-file bicep/services.bicep `
+                      --parameters @params/services.$($config.parameters.parEnvironment.value).json
+                  }
 
-          - task: AzureCLI@2
-            name: RunWhatIfDeploy
-            inputs:
-              azureSubscription: ${{ parameters.azureSubscription }}
-              scriptType: 'pscore'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az deployment sub what-if `
-                  --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                  --template-file bicep/platform.bicep `
-                  --location $config.parameters.parLocation.value `
-                  --parameters @params/platform.$($config.parameters.parEnvironment.value).json
+            - task: AzureCLI@2
+              name: RunWhatIfDeploy
+              inputs:
+                azureSubscription: ${{ parameters.azureSubscription }}
+                scriptType: "pscore"
+                scriptLocation: "inlineScript"
+                inlineScript: |
+                  az deployment sub what-if `
+                    --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                    --template-file bicep/platform.bicep `
+                    --location $config.parameters.parLocation.value `
+                    --parameters @params/platform.$($config.parameters.parEnvironment.value).json
 
-                if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
-                  az deployment group what-if `
-                    --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                    --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
-                    --template-file bicep/services.bicep `
-                    --parameters @params/services.$($config.parameters.parEnvironment.value).json
-                }
+                  if ((az group exists --name "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") -eq $true) { 
+                    az deployment group what-if `
+                      --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                      --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                      --template-file bicep/services.bicep `
+                      --parameters @params/services.$($config.parameters.parEnvironment.value).json
+                  }

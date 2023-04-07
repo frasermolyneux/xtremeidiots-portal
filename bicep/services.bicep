@@ -124,9 +124,6 @@ module webApp 'modules/webApp.bicep' = {
     parFrontDoorResourceGroupName: parFrontDoor.FrontDoorResourceGroupName
     parFrontDoorName: parFrontDoor.FrontDoorName
 
-    parWorkloadSubscriptionId: subscription().subscriptionId
-    parWorkloadResourceGroupName: resourceGroup().name
-
     parTags: parTags
   }
 }

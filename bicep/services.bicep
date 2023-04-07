@@ -1,23 +1,37 @@
 targetScope = 'resourceGroup'
 
+@description('The location of the resource group.')
 param parLocation string
+
+@description('The environment name (e.g. dev, tst, prd).')
 param parEnvironment string
+
+@description('The instance of the environment.')
 param parInstance string
 
+@description('The front door configuration.')
 param parFrontDoor object
+
+@description('The DNS configuration.')
 param parDns object
+
+@description('The strategic services configuration.')
 param parStrategicServices object
 
+@description('The repository API configuration.')
 param parRepositoryApi object
+
+@description('The servers integration API configuration.')
 param parServersIntegrationApi object
+
+@description('The geo location API configuration.')
 param parGeoLocationApi object
 
+@description('The tags to apply to the resources.')
 param parTags object
 
 // Variables
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
-var varDeploymentPrefix = 'services-${varEnvironmentUniqueId}' //Prevent deployment naming conflicts
-
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
 var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 var varWorkloadName = 'app-portal-web-${parEnvironment}-${parInstance}-${varEnvironmentUniqueId}'
@@ -32,11 +46,11 @@ resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitio
 
 // Module Resources
 module geolocationApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${varDeploymentPrefix}-geolocationApiManagementSubscription'
+  name: '${deployment().name}-geolocapimsubscription'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parDeploymentPrefix: varDeploymentPrefix
+    parDeploymentPrefix: deployment().name
     parApiManagementName: parStrategicServices.ApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -49,11 +63,11 @@ module geolocationApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bice
 }
 
 module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${varDeploymentPrefix}-repositoryApiManagementSubscription'
+  name: '${deployment().name}-repoapimsubscription'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parDeploymentPrefix: varDeploymentPrefix
+    parDeploymentPrefix: deployment().name
     parApiManagementName: parStrategicServices.ApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -66,11 +80,11 @@ module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep
 }
 
 module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${varDeploymentPrefix}-serversApiManagementSubscription'
+  name: '${deployment().name}-serversapimsubscription'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parDeploymentPrefix: varDeploymentPrefix
+    parDeploymentPrefix: deployment().name
     parApiManagementName: parStrategicServices.ApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: resourceGroup().name
@@ -83,7 +97,7 @@ module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/mo
 }
 
 module webApp 'modules/webApp.bicep' = {
-  name: '${varDeploymentPrefix}-webApp'
+  name: '${deployment().name}-webapp'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.WebAppsResourceGroupName)
 
   params: {
@@ -118,7 +132,7 @@ module webApp 'modules/webApp.bicep' = {
 }
 
 module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvaultroleassignment:latest' = {
-  name: '${varDeploymentPrefix}-webAppKeyVaultRoleAssignment'
+  name: '${deployment().name}-webappkvrole'
 
   params: {
     parKeyVaultName: varKeyVaultName
@@ -128,7 +142,7 @@ module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/module
 }
 
 module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
-  name: '${varDeploymentPrefix}-sqlDatabase'
+  name: '${deployment().name}-sqldb'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.SqlServerResourceGroupName)
 
   params: {
@@ -143,11 +157,10 @@ module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:lat
 }
 
 module frontDoorEndpoint 'modules/frontDoorEndpoint.bicep' = {
-  name: '${varDeploymentPrefix}-frontDoorEndpoint'
+  name: '${deployment().name}-fdendpoint'
   scope: resourceGroup(parFrontDoor.SubscriptionId, parFrontDoor.FrontDoorResourceGroupName)
 
   params: {
-    parDeploymentPrefix: varDeploymentPrefix
     parFrontDoorName: parFrontDoor.FrontDoorName
     parParentDnsName: parDns.ParentDnsName
     parDnsResourceGroupName: parDns.DnsResourceGroupName

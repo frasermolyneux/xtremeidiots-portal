@@ -1,32 +1,67 @@
 targetScope = 'resourceGroup'
 
 // Parameters
+@description('The environment name (e.g. dev, tst, prd).')
 param parEnvironment string
+
+@description('The environment unique id (e.g. 1234).')
 param parEnvironmentUniqueId string
+
+@description('The location of the resource group.')
 param parLocation string
+
+@description('The instance name (e.g. 01, 02, 03).')
 param parInstance string
 
+@description('The name of the key vault.')
 param parKeyVaultName string
+
+@description('The name of the application insights.')
 param parAppInsightsName string
 
+@description('The repository api object.')
 param parRepositoryApi object
+
+@description('The servers integration api object.')
 param parServersIntegrationApi object
+
+@description('The geo location api object.')
 param parGeoLocationApi object
 
+@description('The strategic services subscription id.')
 param parStrategicServicesSubscriptionId string
+
+@description('The api management resource group name.')
 param parApiManagementResourceGroupName string
+
+@description('The api management name.')
 param parApiManagementName string
+
+@description('The app service plan name.')
 param parAppServicePlanName string
+
+@description('The sql server resource group name.')
 param parSqlServerResourceGroupName string
+
+@description('The sql server name.')
 param parSqlServerName string
 
+@description('The front door subscription id.')
 param parFrontDoorSubscriptionId string
+
+@description('The front door resource group name.')
 param parFrontDoorResourceGroupName string
+
+@description('The front door name.')
 param parFrontDoorName string
 
+@description('The workload subscription id.')
 param parWorkloadSubscriptionId string
+
+@description('The workload resource group name.')
 param parWorkloadResourceGroupName string
 
+@description('The tags to apply to the resources.')
 param parTags object
 
 // Variables

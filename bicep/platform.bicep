@@ -1,13 +1,22 @@
 targetScope = 'subscription'
 
 // Parameters
+@description('The location of the resource group.')
 param parLocation string
+
+@description('The environment name (e.g. dev, tst, prd).')
 param parEnvironment string
+
+@description('The instance of the environment.')
 param parInstance string
 
+@description('The logging configuration.')
 param parLogging object
+
+@description('The strategic services configuration.')
 param parStrategicServices object
 
+@description('The tags to apply to the resources.')
 param parTags object
 
 // Dynamic params from pipeline invocation
@@ -15,8 +24,6 @@ param parKeyVaultCreateMode string = 'recover'
 
 // Variables
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
-var varDeploymentPrefix = 'platform-${varEnvironmentUniqueId}' //Prevent deployment naming conflicts
-
 var varResourceGroupName = 'rg-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
 var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
@@ -37,7 +44,7 @@ resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = 
 }
 
 module keyVault 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvault:latest' = {
-  name: '${varDeploymentPrefix}-keyVault'
+  name: '${deployment().name}-keyvault'
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
@@ -59,7 +66,7 @@ resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitio
 }
 
 module keyVaultSecretUserRoleAssignmentApim 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvaultroleassignment:latest' = {
-  name: '${varDeploymentPrefix}-kvSecretUserRoleAssignmentApim'
+  name: '${deployment().name}-apimkvrole'
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
@@ -70,7 +77,7 @@ module keyVaultSecretUserRoleAssignmentApim 'br:acrty7og2i6qpv3s.azurecr.io/bice
 }
 
 module appInsights 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/appinsights:latest' = {
-  name: '${varDeploymentPrefix}-appInsights'
+  name: '${deployment().name}-appinsights'
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
@@ -85,7 +92,7 @@ module appInsights 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/appinsights:lat
 }
 
 module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementlogger:latest' = {
-  name: '${varDeploymentPrefix}-apiManagementLogger'
+  name: '${deployment().name}-apimlogger'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {

@@ -1,15 +1,28 @@
 targetScope = 'resourceGroup'
 
 // Parameters
-param parDeploymentPrefix string
+@description('The name of the Front Door instance.')
 param parFrontDoorName string
+
+@description('The name of the parent DNS zone.')
 param parParentDnsName string
+
+@description('The name of the resource group containing the DNS zone.')
 param parDnsResourceGroupName string
+
+@description('The name of the workload.')
 param parWorkloadName string
+
+@description('The hostname of the origin server.')
 param parOriginHostName string
+
+@description('The hostname prefix of the DNS zone.')
 param parDnsZoneHostnamePrefix string
+
+@description('The hostname of the custom domain.')
 param parCustomHostname string
 
+@description('The tags to apply to all resources in this deployment.')
 param parTags object
 
 // Existing In-Scope Resources
@@ -137,7 +150,7 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' 
 }
 
 module dnsCNAME 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/dnscname:latest' = {
-  name: '${parDeploymentPrefix}-dnsCNAME'
+  name: '${deployment().name}-dnscname'
   scope: resourceGroup(parDnsResourceGroupName)
 
   params: {

@@ -58,7 +58,7 @@
         "parGeoLocationApi": {
             "value": {
                 "ApplicationName": "geolocation-api-prd-01",
-                "ApplicationAudience": "api://geolocation-prd-dev-01",
+                "ApplicationAudience": "api://geolocation-api-prd-01",
                 "ApimApiName": "geolocation-api",
                 "ApimApiRevision": "1",
                 "ApimPathPrefix": "geolocation"

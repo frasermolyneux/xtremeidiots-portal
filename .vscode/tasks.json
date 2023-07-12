@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
+                "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
+                "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +32,9 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/src/web-apps/admin-webapp/admin-webapp.csproj",
+                "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
+                "--project",
+                "${workspaceFolder}/src/admin-webapp",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

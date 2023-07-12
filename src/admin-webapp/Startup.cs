@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
                 options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["geolocation_base_url"] ?? throw new ArgumentNullException("apim_base_url");
                 options.ApiKey = Configuration["geolocation_apim_subscription_key"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key");
                 options.ApiAudience = Configuration["geolocation_api_application_audience"] ?? throw new ArgumentNullException("geolocation_api_application_audience");
-                options.ApiPathPrefix = Configuration["geolocation_api_path_prefix"] ?? "repository";
+                options.ApiPathPrefix = Configuration["geolocation_api_path_prefix"] ?? "geolocation";
             });
 
             services.AddXtremeIdiotsAuth();

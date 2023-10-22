@@ -66,6 +66,10 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
   name: parAppServicePlanName
 }
 
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: parAppInsightsName
+}
+
 // Existing Out-Of-Scope Resources
 resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
   name: parFrontDoorName
@@ -135,11 +139,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parAppInsightsName}-instrumentationkey)'
+          value: appInsights.properties.InstrumentationKey
         }
         {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parAppInsightsName}-connectionstring)'
+          value: appInsights.properties.ConnectionString
         }
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'

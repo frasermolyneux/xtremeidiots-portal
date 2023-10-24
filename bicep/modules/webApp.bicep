@@ -16,9 +16,6 @@ param parInstance string
 @description('The name of the key vault.')
 param parKeyVaultName string
 
-@description('The name of the application insights.')
-param parAppInsightsName string
-
 @description('The repository api object.')
 param parRepositoryApi object
 
@@ -55,6 +52,9 @@ param parFrontDoorResourceGroupName string
 @description('The front door name.')
 param parFrontDoorName string
 
+@description('The app insights reference')
+param parAppInsightsRef object
+
 @description('The tags to apply to the resources.')
 param parTags object
 
@@ -64,10 +64,6 @@ var varWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstan
 // Existing In-Scope Resources
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
   name: parAppServicePlanName
-}
-
-resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: parAppInsightsName
 }
 
 // Existing Out-Of-Scope Resources
@@ -84,6 +80,11 @@ resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' exis
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
   name: parSqlServerName
   scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
+}
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: parAppInsightsRef.Name
+  scope: resourceGroup(parAppInsightsRef.SubscriptionId, parAppInsightsRef.ResourceGroupName)
 }
 
 // Module Resources

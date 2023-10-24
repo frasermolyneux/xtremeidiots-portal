@@ -111,7 +111,6 @@ module webApp 'modules/webApp.bicep' = {
     parGeoLocationApi: parGeoLocationApi
 
     parKeyVaultName: varKeyVaultName
-    parAppInsightsName: varAppInsightsName
 
     parStrategicServicesSubscriptionId: parStrategicServices.SubscriptionId
     parApiManagementResourceGroupName: parStrategicServices.ApiManagementResourceGroupName
@@ -123,6 +122,12 @@ module webApp 'modules/webApp.bicep' = {
     parFrontDoorSubscriptionId: parFrontDoor.SubscriptionId
     parFrontDoorResourceGroupName: parFrontDoor.FrontDoorResourceGroupName
     parFrontDoorName: parFrontDoor.FrontDoorName
+
+    parAppInsightsRef: {
+      Name: varAppInsightsName
+      SubscriptionId: subscription().id
+      ResourceGroupName: resourceGroup().name
+    }
 
     parTags: parTags
   }

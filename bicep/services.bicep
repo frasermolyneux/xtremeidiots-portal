@@ -125,7 +125,7 @@ module webApp 'modules/webApp.bicep' = {
 
     parAppInsightsRef: {
       Name: varAppInsightsName
-      SubscriptionId: subscription().id
+      SubscriptionId: subscription().subscriptionId
       ResourceGroupName: resourceGroup().name
     }
 

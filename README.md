@@ -1,6 +1,6 @@
 # XtremeIdiots Portal
 
-[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status/xtremeidiots-portal.OnePipeline?repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=177&repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)
+[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status%2Fxtremeidiots-portal.ReleaseToProduction?repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=188&repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)
 
 ## Documentation
 

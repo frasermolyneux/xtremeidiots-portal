@@ -3,7 +3,6 @@ name: Code Quality
 on: push
 
 permissions:
-  id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
   actions: read # Required by CodeQL
   security-events: write # Required by CodeQL

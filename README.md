@@ -1,6 +1,10 @@
-# XtremeIdiots Portal
+# XtremeIdiots Portal - Website
 
-[![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status%2Fxtremeidiots-portal.ReleaseToProduction?repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=188&repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)
+| Stage | Status |
+| --- | --- |
+| Code Quality | [![Code Quality](https://github.com/frasermolyneux/xtremeidiots-portal/actions/workflows/codequality.yml/badge.svg)](https://github.com/frasermolyneux/xtremeidiots-portal/actions/workflows/codequality.yml) |
+| Build | [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status%2Fxtremeidiots-portal.ReleaseToProduction?repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main&stageName=build_and_validate)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=188&repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main) |
+| Release to Production | [![Build Status](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_apis/build/status%2Fxtremeidiots-portal.ReleaseToProduction?repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main&stageName=deploy_prd)](https://dev.azure.com/frasermolyneux/XtremeIdiots-Public/_build/latest?definitionId=188&repoName=frasermolyneux%2Fxtremeidiots-portal&branchName=main)|
 
 ## Documentation
 

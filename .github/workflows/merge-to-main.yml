@@ -20,5 +20,5 @@ jobs:
     - uses: frasermolyneux/actions/dotnet-web-ci@main
       with:
         dotnet-project: "admin-webapp"
-        dotnet-version: 7.0.x
+        dotnet-version: 8.0.x
         src-folder: "src"

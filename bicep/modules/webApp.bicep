@@ -107,8 +107,8 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       ftpsState: 'Disabled'
 
       alwaysOn: true
-      linuxFxVersion: 'DOTNETCORE|7.0'
-      netFrameworkVersion: 'v7.0'
+      linuxFxVersion: 'DOTNETCORE|8.0'
+      netFrameworkVersion: 'v8.0'
       minTlsVersion: '1.2'
 
       ipSecurityRestrictions: [

@@ -16,6 +16,7 @@ resources:
 
 variables:
   buildConfiguration: "Release"
+  dotnetSdkVersion: "8.x"
 
 stages:
   - stage: build_and_validate
@@ -29,6 +30,7 @@ stages:
         parameters:
           jobName: "BuildNetCoreProjects"
           buildConfiguration: $(buildConfiguration)
+          dotnetSdkVersion: $(dotnetSdkVersion)
           additionalBuildSteps:
             - task: DotNetCoreCLI@2
               displayName: "Publish admin-webapp project"

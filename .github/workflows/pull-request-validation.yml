@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: "Dependency Review"
-      uses: actions/dependency-review-action@v2
+      uses: actions/dependency-review-action@v3
 
   dotnet-ci:
     runs-on: ubuntu-latest

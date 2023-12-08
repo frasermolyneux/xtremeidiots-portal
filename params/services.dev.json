@@ -11,11 +11,11 @@
         "parInstance": {
             "value": "01"
         },
-        "parFrontDoor": {
+        "parFrontDoorRef": {
             "value": {
                 "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
-                "FrontDoorResourceGroupName": "rg-platform-frontdoor-dev-uksouth-01",
-                "FrontDoorName": "fd-platform-dev-pa2u36baumsfc"
+                "ResourceGroupName": "rg-platform-frontdoor-dev-uksouth-01",
+                "Name": "fd-platform-dev-pa2u36baumsfc"
             }
         },
         "parDns": {
@@ -31,8 +31,6 @@
                 "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
                 "ApiManagementResourceGroupName": "rg-platform-apim-dev-uksouth-01",
                 "ApiManagementName": "apim-platform-dev-uksouth-amjx44uuirhb6",
-                "WebAppsResourceGroupName": "rg-platform-plans-dev-uksouth-01",
-                "AppServicePlanName": "plan-platform-dev-uksouth-01",
                 "SqlServerResourceGroupName": "rg-platform-sql-dev-uksouth-01",
                 "SqlServerName": "sql-platform-dev-uksouth-01-amjx44uuirhb6"
             }

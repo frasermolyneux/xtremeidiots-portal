@@ -1,6 +1,9 @@
 targetScope = 'resourceGroup'
 
 // Parameters
+@description('The name of the web app.')
+param parWebAppName string
+
 @description('The environment name (e.g. dev, tst, prd).')
 param parEnvironment string
 
@@ -10,11 +13,26 @@ param parEnvironmentUniqueId string
 @description('The location of the resource group.')
 param parLocation string
 
-@description('The instance name (e.g. 01, 02, 03).')
-param parInstance string
+// -- References
+@description('The key vault reference')
+param parKeyVaultRef object
 
-@description('The name of the key vault.')
-param parKeyVaultName string
+@description('The app insights reference')
+param parAppInsightsRef object
+
+@description('The app service plan reference')
+param parAppServicePlanRef object
+
+@description('The api management reference')
+param parApiManagementRef object
+
+@description('The sql server reference')
+param parSqlServerRef object
+
+@description('The front door reference')
+param parFrontDoorRef object
+
+// -- Apis
 
 @description('The repository api object.')
 param parRepositoryApi object
@@ -25,61 +43,29 @@ param parServersIntegrationApi object
 @description('The geo location api object.')
 param parGeoLocationApi object
 
-@description('The strategic services subscription id.')
-param parStrategicServicesSubscriptionId string
-
-@description('The api management resource group name.')
-param parApiManagementResourceGroupName string
-
-@description('The api management name.')
-param parApiManagementName string
-
-@description('The app service plan name.')
-param parAppServicePlanName string
-
-@description('The sql server resource group name.')
-param parSqlServerResourceGroupName string
-
-@description('The sql server name.')
-param parSqlServerName string
-
-@description('The front door subscription id.')
-param parFrontDoorSubscriptionId string
-
-@description('The front door resource group name.')
-param parFrontDoorResourceGroupName string
-
-@description('The front door name.')
-param parFrontDoorName string
-
-@description('The app insights reference')
-param parAppInsightsRef object
-
+// -- Common
 @description('The tags to apply to the resources.')
 param parTags object
 
-// Variables
-var varWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${parEnvironmentUniqueId}'
-
-// Existing In-Scope Resources
-resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
-  name: parAppServicePlanName
-}
-
 // Existing Out-Of-Scope Resources
 resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
-  name: parFrontDoorName
-  scope: resourceGroup(parFrontDoorSubscriptionId, parFrontDoorResourceGroupName)
+  name: parFrontDoorRef.Name
+  scope: resourceGroup(parFrontDoorRef.SubscriptionId, parFrontDoorRef.ResourceGroupName)
 }
 
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
-  name: parApiManagementName
-  scope: resourceGroup(parStrategicServicesSubscriptionId, parApiManagementResourceGroupName)
+  name: parApiManagementRef.Name
+  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
-  name: parSqlServerName
-  scope: resourceGroup(parStrategicServicesSubscriptionId, parSqlServerResourceGroupName)
+  name: parSqlServerRef.Name
+  scope: resourceGroup(parSqlServerRef.SubscriptionId, parSqlServerRef.ResourceGroupName)
+}
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
+  name: parAppServicePlanRef.Name
+  scope: resourceGroup(parAppServicePlanRef.SubscriptionId, parAppServicePlanRef.ResourceGroupName)
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
@@ -89,7 +75,7 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 
 // Module Resources
 resource webApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: varWebAppName
+  name: parWebAppName
   location: parLocation
   kind: 'app'
   tags: parTags
@@ -164,15 +150,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-repository-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-repository-subscription-apikey)'
         }
         {
           name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-servers-integration-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-servers-integration-subscription-apikey)'
         }
         {
           name: 'geolocation_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=${parApiManagementName}-${varWebAppName}-geolocation-subscription-apikey)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-geolocation-subscription-apikey)'
         }
         {
           name: 'repository_api_application_audience'
@@ -196,15 +182,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'xtremeidiots_forums_api_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-forums-api-key)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-forums-api-key)'
         }
         {
           name: 'xtremeidiots_auth_client_id'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-auth-client-id)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-auth-client-id)'
         }
         {
           name: 'xtremeidiots_auth_client_secret'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultName};SecretName=xtremeidiots-auth-client-secret)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-auth-client-secret)'
         }
         {
           name: 'repository_api_path_prefix'

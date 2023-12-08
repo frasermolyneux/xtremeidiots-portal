@@ -86,9 +86,6 @@ module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimana
 
   params: {
     parApiManagementName: parStrategicServices.ApiManagementName
-    parWorkloadSubscriptionId: subscription().subscriptionId
-    parWorkloadResourceGroupName: defaultResourceGroup.name
-    parAppInsightsName: varAppInsightsRef.Name
-    parKeyVaultName: keyVault.outputs.outKeyVaultName
+    parAppInsightsRef: varAppInsightsRef
   }
 }

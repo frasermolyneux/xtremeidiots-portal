@@ -5,7 +5,7 @@ pr:
     include:
       - "main"
 
-pool: "Dedicated"
+pool: "windows-latest"
 
 resources:
   repositories:

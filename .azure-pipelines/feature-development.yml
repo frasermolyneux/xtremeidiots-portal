@@ -9,7 +9,7 @@ trigger:
 
 pr: none
 
-pool: "Dedicated"
+pool: "windows-latest"
 
 resources:
   repositories:

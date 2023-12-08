@@ -11,13 +11,6 @@
         "parInstance": {
             "value": "01"
         },
-        "parLogging": {
-            "value": {
-                "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
-                "WorkspaceResourceGroupName": "rg-platform-logging-prd-uksouth-01",
-                "WorkspaceName": "log-platform-prd-uksouth-01"
-            }
-        },
         "parStrategicServices": {
             "value": {
                 "SubscriptionId": "903b6685-c12a-4703-ac54-7ec1ff15ca43",

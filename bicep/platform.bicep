@@ -10,9 +10,6 @@ param parEnvironment string
 @description('The instance of the environment.')
 param parInstance string
 
-@description('The logging configuration.')
-param parLogging object
-
 @description('The strategic services configuration.')
 param parStrategicServices object
 

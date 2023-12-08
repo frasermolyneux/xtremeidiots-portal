@@ -66,5 +66,3 @@ stages:
       azureSubscription: spn-xtremeidiots-portal-production
       environment: xtremeidiots-portal-Production
       environmentName: "prd"
-      webAppsAzureSubscription: spn-xtremeidiots-portal-productionwebapps
-      webAppsEnvironment: xtremeidiots-portal-ProductionWebApps

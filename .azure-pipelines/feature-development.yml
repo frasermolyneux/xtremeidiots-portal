@@ -9,7 +9,8 @@ trigger:
 
 pr: none
 
-pool: "windows-latest"
+  pool:
+    vmImage: 'windows-latest'
 
 resources:
   repositories:

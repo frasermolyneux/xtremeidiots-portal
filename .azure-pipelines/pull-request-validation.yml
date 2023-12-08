@@ -5,8 +5,8 @@ pr:
     include:
       - "main"
 
-  pool:
-    vmImage: 'windows-latest'
+pool:
+  vmImage: 'windows-latest'
 
 resources:
   repositories:

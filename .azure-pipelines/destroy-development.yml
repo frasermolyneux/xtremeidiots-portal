@@ -1,8 +1,8 @@
 trigger: none
 pr: none
 
-  pool:
-    vmImage: 'windows-latest'
+pool:
+  vmImage: 'windows-latest'
 
 resources:
   repositories:

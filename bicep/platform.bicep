@@ -27,7 +27,13 @@ param parKeyVaultCreateMode string = 'recover'
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
 var varResourceGroupName = 'rg-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
-var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
+
+// External Resource References
+var varAppInsightsRef = {
+  Name: 'ai-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  SubscriptionId: subscription().subscriptionId
+  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+}
 
 // Existing Out-Of-Scope Resources
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
@@ -77,21 +83,6 @@ module keyVaultSecretUserRoleAssignmentApim 'br:acrty7og2i6qpv3s.azurecr.io/bice
   }
 }
 
-module appInsights 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/appinsights:latest' = {
-  name: '${deployment().name}-appinsights'
-  scope: resourceGroup(defaultResourceGroup.name)
-
-  params: {
-    parAppInsightsName: varAppInsightsName
-    parKeyVaultName: keyVault.outputs.outKeyVaultName
-    parLocation: parLocation
-    parLoggingSubscriptionId: parLogging.SubscriptionId
-    parLoggingResourceGroupName: parLogging.WorkspaceResourceGroupName
-    parLoggingWorkspaceName: parLogging.WorkspaceName
-    parTags: parTags
-  }
-}
-
 module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementlogger:latest' = {
   name: '${deployment().name}-apimlogger'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
@@ -100,7 +91,7 @@ module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimana
     parApiManagementName: parStrategicServices.ApiManagementName
     parWorkloadSubscriptionId: subscription().subscriptionId
     parWorkloadResourceGroupName: defaultResourceGroup.name
-    parAppInsightsName: appInsights.outputs.outAppInsightsName
+    parAppInsightsName: varAppInsightsRef.Name
     parKeyVaultName: keyVault.outputs.outKeyVaultName
   }
 }

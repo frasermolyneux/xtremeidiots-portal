@@ -33,9 +33,15 @@ param parTags object
 // Variables
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
 var varKeyVaultName = 'kv-${varEnvironmentUniqueId}-${parLocation}'
-var varAppInsightsName = 'ai-portal-web-${parEnvironment}-${parLocation}-${parInstance}'
 var varWorkloadName = 'app-portal-web-${parEnvironment}-${parInstance}-${varEnvironmentUniqueId}'
 var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${varEnvironmentUniqueId}'
+
+// External Resource References
+var varAppInsightsRef = {
+  Name: 'ai-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  SubscriptionId: subscription().subscriptionId
+  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+}
 
 // Existing Out-Of-Scope Resources
 @description('https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#key-vault-secrets-user')
@@ -123,11 +129,7 @@ module webApp 'modules/webApp.bicep' = {
     parFrontDoorResourceGroupName: parFrontDoor.FrontDoorResourceGroupName
     parFrontDoorName: parFrontDoor.FrontDoorName
 
-    parAppInsightsRef: {
-      Name: varAppInsightsName
-      SubscriptionId: subscription().subscriptionId
-      ResourceGroupName: resourceGroup().name
-    }
+    parAppInsightsRef: varAppInsightsRef
 
     parTags: parTags
   }

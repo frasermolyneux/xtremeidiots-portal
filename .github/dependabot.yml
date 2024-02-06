@@ -4,11 +4,19 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
+    assignees: ["frasermolyneux"]
     directory: "/src"
     schedule:
       interval: "daily"
 
   - package-ecosystem: "github-actions"
+    assignees: ["frasermolyneux"]
     directory: "/"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "devcontainers"
+    assignees: ["frasermolyneux"]
+    directory: "/"
+    schedule:
+      interval: weekly

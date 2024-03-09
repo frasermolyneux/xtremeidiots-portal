@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
@@ -30,7 +30,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
     <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20231207.2" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.145.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.116.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.117.1" />
   </ItemGroup>
 
 

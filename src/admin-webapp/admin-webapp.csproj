@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.3" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.3">
       <PrivateAssets>all</PrivateAssets>
@@ -30,7 +30,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20231207.2" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.149.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.120.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.121.1" />
   </ItemGroup>
 
 

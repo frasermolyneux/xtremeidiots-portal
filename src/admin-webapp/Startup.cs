@@ -73,7 +73,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddGeoLocationApiClient(options =>
             {
                 options.BaseUrl = Configuration["apim_base_url"] ?? Configuration["geolocation_base_url"] ?? throw new ArgumentNullException("apim_base_url");
-                options.ApiKey = Configuration["geolocation_apim_subscription_key"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key");
+                options.PrimaryApiKey = Configuration["geolocation_apim_subscription_key_primary"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key_primary");
+                options.SecondaryApiKey = Configuration["geolocation_apim_subscription_key_secondary"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key_secondary");
                 options.ApiAudience = Configuration["geolocation_api_application_audience"] ?? throw new ArgumentNullException("geolocation_api_application_audience");
                 options.ApiPathPrefix = Configuration["geolocation_api_path_prefix"] ?? "geolocation";
             });

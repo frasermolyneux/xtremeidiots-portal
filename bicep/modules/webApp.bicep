@@ -157,8 +157,16 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-servers-integration-subscription-api-key)'
         }
         {
-          name: 'geolocation_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-geolocation-subscription-api-key)'
+          name: 'geolocation_base_url'
+          value: parGeoLocationApi.BaseUrl
+        }
+        {
+          name: 'geolocation_apim_subscription_key_primary'
+          value: '@Microsoft.KeyVault(SecretUri=${parGeoLocationApi.KeyVaultPrimaryRef})'
+        }
+        {
+          name: 'geolocation_apim_subscription_key_secondary'
+          value: '@Microsoft.KeyVault(SecretUri=${parGeoLocationApi.KeyVaultSecondaryRef})'
         }
         {
           name: 'repository_api_application_audience'

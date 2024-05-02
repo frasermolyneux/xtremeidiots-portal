@@ -57,11 +57,11 @@
         },
         "parGeoLocationApi": {
             "value": {
-                "ApplicationName": "geolocation-api-prd-01",
+                "BaseUrl": "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net",
                 "ApplicationAudience": "api://geolocation-api-prd-01",
-                "ApimApiName": "geolocation-api",
-                "ApimApiRevision": "1",
-                "ApimPathPrefix": "geolocation"
+                "ApimPathPrefix": "geolocation",
+                "KeyVaultPrimaryRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-key-primary/",
+                "KeyVaultSecondaryRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-key-secondary/"
             }
         },
         "parTags": {

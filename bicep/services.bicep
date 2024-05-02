@@ -74,23 +74,6 @@ resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitio
 }
 
 // Module Resources
-module geolocationApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${deployment().name}-geolocapimsubscription'
-  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
-
-  params: {
-    parDeploymentPrefix: deployment().name
-    parApiManagementName: parStrategicServices.ApiManagementName
-    parWorkloadSubscriptionId: subscription().subscriptionId
-    parWorkloadResourceGroupName: resourceGroup().name
-    parWorkloadName: varAdminWebAppName
-    parKeyVaultName: varKeyVaultRef.Name
-    parSubscriptionScopeIdentifier: 'geolocation'
-    parSubscriptionScope: '/apis/${parGeoLocationApi.ApimApiName}'
-    parTags: parTags
-  }
-}
-
 module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: '${deployment().name}-repoapimsubscription'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)

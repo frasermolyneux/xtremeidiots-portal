@@ -55,11 +55,11 @@
         },
         "parGeoLocationApi": {
             "value": {
-                "ApplicationName": "geolocation-api-dev-01",
+                "BaseUrl": "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net",
                 "ApplicationAudience": "api://geolocation-api-dev-01",
-                "ApimApiName": "geolocation-api",
-                "ApimApiRevision": "1",
-                "ApimPathPrefix": "geolocation"
+                "ApimPathPrefix": "geolocation",
+                "KeyVaultPrimaryRef": "TODO",
+                "KeyVaultSecondaryRef": "TODO"
             }
         },
         "parTags": {

@@ -103,11 +103,6 @@ stages:
                         -applicationName $config.parameters.parServersIntegrationApi.value.ApplicationName `
                         -appRole "ServiceAccount"
 
-                      . scripts/GrantPrincipalAppRole.ps1 `
-                        -principalId $principalId `
-                        -applicationName $config.parameters.parGeoLocationApi.value.ApplicationName `
-                        -appRole "LookupApiUser"
-
                       . scripts/AddPrincipalToAADGroup.ps1 `
                         -principalId $principalId `
                         -groupName "sg-sql-platform-admins-$($config.parameters.parEnvironment.value)-01"

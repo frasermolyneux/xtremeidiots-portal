@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="XtremeIdiots.InvisionCommunity" Version="1.1.47.1" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApi.Abstractions" Version="1.1.171.1" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApi.Abstractions" Version="1.1.172.1" />
   </ItemGroup>
 
 </Project>

@@ -57,7 +57,7 @@
         },
         "parGeoLocationApi": {
             "value": {
-                "BaseUrl": "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net",
+                "BaseUrl": "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net",
                 "ApplicationAudience": "api://geolocation-api-prd-01",
                 "ApimPathPrefix": "geolocation",
                 "KeyVaultPrimaryRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-key-primary/",

@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,13 +21,16 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
     {
         private readonly IGeoLocationApiClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
+        private readonly TelemetryClient telemetryClient;
 
         public PlayersController(
             IGeoLocationApiClient geoLocationClient,
-            IRepositoryApiClient repositoryApiClient)
+            IRepositoryApiClient repositoryApiClient,
+            TelemetryClient telemetryClient)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             this.repositoryApiClient = repositoryApiClient;
+            this.telemetryClient = telemetryClient;
         }
 
         [HttpGet]
@@ -128,10 +132,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
                     if (geoLocation.IsSuccess && geoLocation.Result != null)
                         playerDetailsViewModel.GeoLocation = geoLocation.Result;
+                    else
+                    {
+                        geoLocation.Errors.ForEach(ex => telemetryClient.TrackException(new ApplicationException(ex)));
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // ignored
+                    telemetryClient.TrackException(ex);
                 }
 
             return View(playerDetailsViewModel);

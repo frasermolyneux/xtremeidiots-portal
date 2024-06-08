@@ -43,6 +43,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
             {
                 EnableAdaptiveSampling = false,
             });
+            services.AddServiceProfiler();
 
             services.AddInvisionApiClient(options =>
             {

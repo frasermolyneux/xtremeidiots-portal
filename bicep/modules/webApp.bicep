@@ -212,6 +212,14 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'geolocation_api_path_prefix'
           value: parGeoLocationApi.ApimPathPrefix
         }
+        {
+          name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'
+          value: '1.0.0'
+        }
+        {
+          name: 'DiagnosticServices_EXTENSION_VERSION'
+          value: '~3'
+        }
       ]
     }
   }

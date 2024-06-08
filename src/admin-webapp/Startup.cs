@@ -103,6 +103,8 @@ namespace XtremeIdiots.Portal.AdminWebApp
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
             });
+
+            services.AddHealthChecks();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -135,6 +137,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseHealthChecks(new PathString("/api/health"));
 
             using (var scope = app.ApplicationServices.CreateScope())
             {

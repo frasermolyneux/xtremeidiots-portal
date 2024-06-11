@@ -97,6 +97,8 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       netFrameworkVersion: 'v8.0'
       minTlsVersion: '1.2'
 
+      healthCheckPath: '/api/health'
+
       ipSecurityRestrictions: [
         {
           ipAddress: 'AzureFrontDoor.Backend'

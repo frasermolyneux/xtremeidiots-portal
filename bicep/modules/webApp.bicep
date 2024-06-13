@@ -227,6 +227,18 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
+module webTest 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/webtest:latest' = {
+  name: '${deployment().name}-webtest'
+
+  params: {
+    parWebAppName: webApp.name
+    parLocation: parLocation
+    parTestUrl: 'https://${webApp.properties.defaultHostName}/api/health'
+    parAppInsightsRef: parAppInsightsRef
+    parTags: parTags
+  }
+}
+
 // Outputs
 output outWebAppDefaultHostName string = webApp.properties.defaultHostName
 output outWebAppIdentityPrincipalId string = webApp.identity.principalId

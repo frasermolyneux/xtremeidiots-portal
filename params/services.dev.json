@@ -22,8 +22,8 @@
             "value": {
                 "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",
                 "DnsResourceGroupName": "rg-platform-dns-prd-uksouth-01",
-                "PublicWebAppDnsPrefix": "dev",
-                "ParentDnsName": "geo-location.net"
+                "PublicWebAppDnsPrefix": "portal-dev",
+                "ParentDnsName": "xtremeidiots.dev"
             }
         },
         "parStrategicServices": {

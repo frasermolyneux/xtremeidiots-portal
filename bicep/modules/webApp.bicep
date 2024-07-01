@@ -13,7 +13,6 @@ param parEnvironmentUniqueId string
 @description('The location of the resource group.')
 param parLocation string
 
-// -- References
 @description('The key vault reference')
 param parKeyVaultRef object
 
@@ -32,8 +31,6 @@ param parSqlServerRef object
 @description('The front door reference')
 param parFrontDoorRef object
 
-// -- Apis
-
 @description('The repository api object.')
 param parRepositoryApi object
 
@@ -43,7 +40,9 @@ param parServersIntegrationApi object
 @description('The geo location api object.')
 param parGeoLocationApi object
 
-// -- Common
+@description('The dns configuration object')
+param parDns object
+
 @description('The tags to apply to the resources.')
 param parTags object
 
@@ -98,28 +97,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       minTlsVersion: '1.2'
 
       healthCheckPath: '/api/health'
-
-      ipSecurityRestrictions: [
-        {
-          ipAddress: 'AzureFrontDoor.Backend'
-          action: 'Allow'
-          tag: 'ServiceTag'
-          priority: 1000
-          name: 'RestrictToFrontDoor'
-          headers: {
-            'x-azure-fdid': [
-              frontDoor.properties.frontDoorId
-            ]
-          }
-        }
-        {
-          ipAddress: 'Any'
-          action: 'Deny'
-          priority: 2147483647
-          name: 'Deny all'
-          description: 'Deny all access'
-        }
-      ]
 
       appSettings: [
         {
@@ -238,6 +215,31 @@ module webTest 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/webtest:latest' = {
     parAppInsightsRef: parAppInsightsRef
     parTags: parTags
   }
+}
+
+module webAppDns 'dnsWebApp.bicep' = {
+  name: '${deployment().name}-dns'
+  scope: resourceGroup(parDns.SubscriptionId, parDns.ResourceGroupName)
+
+  params: {
+    parDns: parDns
+    parWebAppHostname: webApp.properties.defaultHostName
+    parDomainAuthCode: webApp.properties.customDomainVerificationId
+    parTags: parTags
+  }
+}
+
+resource customDomain 'Microsoft.Web/sites/hostNameBindings@2023-01-01' = {
+  name: '${parDns.Subdomain}.${parDns.Domain}'
+  parent: webApp
+
+  properties: {
+    siteName: webApp.name
+  }
+
+  dependsOn: [
+    webAppDns
+  ]
 }
 
 // Outputs

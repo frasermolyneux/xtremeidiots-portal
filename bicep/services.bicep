@@ -128,6 +128,7 @@ module webApp 'modules/webApp.bicep' = {
     parServersIntegrationApi: parServersIntegrationApi
     parGeoLocationApi: parGeoLocationApi
 
+    parDns: parDns
     parTags: parTags
   }
 }

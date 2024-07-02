@@ -165,7 +165,7 @@ module frontDoorEndpoint 'modules/frontDoorEndpoint.bicep' = {
   params: {
     parFrontDoorName: parFrontDoorRef.Name
     parParentDnsName: parDns.Domain
-    parDnsResourceGroupName: parDns.DnsResourceGroupName
+    parDnsResourceGroupName: parDns.ResourceGroupName
     parWorkloadName: varWorkloadName
     parOriginHostName: webApp.outputs.outWebAppDefaultHostName
     parDnsZoneHostnamePrefix: varWorkloadName

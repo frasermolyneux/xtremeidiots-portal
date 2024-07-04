@@ -85,7 +85,7 @@ module apiManagementLogger 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimana
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parApiManagementName: parStrategicServices.ApiManagementName
-    parAppInsightsRef: varAppInsightsRef
+    apiManagementName: parStrategicServices.ApiManagementName
+    appInsightsRef: varAppInsightsRef
   }
 }

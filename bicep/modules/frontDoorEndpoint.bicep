@@ -149,15 +149,15 @@ resource frontDoorRoute 'Microsoft.Cdn/profiles/afdendpoints/routes@2021-06-01' 
   }
 }
 
-module dnsCNAME 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/dnscname:latest' = {
-  name: '${deployment().name}-dnscname'
+module dnsCNAME 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/frontdoorcname:latest' = {
+  name: '${deployment().name}-frontdoorcname'
   scope: resourceGroup(parDnsResourceGroupName)
 
   params: {
-    parDns: parDnsZoneHostnamePrefix
-    parParentDnsName: parParentDnsName
-    parCname: frontDoorEndpoint.properties.hostName
-    parCnameValidationToken: frontDoorCustomDomain.properties.validationProperties.validationToken
-    parTags: parTags
+    domain: parParentDnsName
+    subdomain: parDnsZoneHostnamePrefix
+    cname: frontDoorEndpoint.properties.hostName
+    cnameValidationToken: frontDoorCustomDomain.properties.validationProperties.validationToken
+    tags: parTags
   }
 }

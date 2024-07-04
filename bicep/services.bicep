@@ -79,15 +79,15 @@ module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parDeploymentPrefix: deployment().name
-    parApiManagementName: parStrategicServices.ApiManagementName
-    parWorkloadSubscriptionId: subscription().subscriptionId
-    parWorkloadResourceGroupName: resourceGroup().name
-    parWorkloadName: varAdminWebAppName
-    parKeyVaultName: varKeyVaultRef.Name
-    parSubscriptionScopeIdentifier: 'repository'
-    parSubscriptionScope: '/apis/${parRepositoryApi.ApimApiName}'
-    parTags: parTags
+    apiManagementName: parStrategicServices.ApiManagementName
+    subscriptionName: varAdminWebAppName
+    apiScope: parRepositoryApi.ApimApiName
+    keyVaultRef: {
+      Name: varKeyVaultRef.Name
+      SubscriptionId: subscription().subscriptionId
+      ResourceGroupName: resourceGroup().name
+    }
+    tags: parTags
   }
 }
 
@@ -96,15 +96,15 @@ module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/mo
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
 
   params: {
-    parDeploymentPrefix: deployment().name
-    parApiManagementName: parStrategicServices.ApiManagementName
-    parWorkloadSubscriptionId: subscription().subscriptionId
-    parWorkloadResourceGroupName: resourceGroup().name
-    parWorkloadName: varAdminWebAppName
-    parKeyVaultName: varKeyVaultRef.Name
-    parSubscriptionScopeIdentifier: 'servers-integration'
-    parSubscriptionScope: '/apis/${parServersIntegrationApi.ApimApiName}'
-    parTags: parTags
+    apiManagementName: parStrategicServices.ApiManagementName
+    subscriptionName: varAdminWebAppName
+    apiScope: parServersIntegrationApi.ApimApiName
+    keyVaultRef: {
+      Name: varKeyVaultRef.Name
+      SubscriptionId: subscription().subscriptionId
+      ResourceGroupName: resourceGroup().name
+    }
+    tags: parTags
   }
 }
 

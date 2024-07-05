@@ -74,40 +74,6 @@ resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitio
 }
 
 // Module Resources
-module repositoryApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${deployment().name}-repoapimsubscription'
-  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
-
-  params: {
-    apiManagementName: parStrategicServices.ApiManagementName
-    subscriptionName: varAdminWebAppName
-    apiScope: parRepositoryApi.ApimApiName
-    keyVaultRef: {
-      Name: varKeyVaultRef.Name
-      SubscriptionId: subscription().subscriptionId
-      ResourceGroupName: resourceGroup().name
-    }
-    tags: parTags
-  }
-}
-
-module serversApiManagementSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
-  name: '${deployment().name}-serversapimsubscription'
-  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.ApiManagementResourceGroupName)
-
-  params: {
-    apiManagementName: parStrategicServices.ApiManagementName
-    subscriptionName: varAdminWebAppName
-    apiScope: parServersIntegrationApi.ApimApiName
-    keyVaultRef: {
-      Name: varKeyVaultRef.Name
-      SubscriptionId: subscription().subscriptionId
-      ResourceGroupName: resourceGroup().name
-    }
-    tags: parTags
-  }
-}
-
 module webApp 'modules/webApp.bicep' = {
   name: '${deployment().name}-webapp'
 

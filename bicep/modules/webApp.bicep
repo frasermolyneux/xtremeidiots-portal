@@ -73,6 +73,32 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
 }
 
 // Module Resources
+module repositoryApimSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
+  name: 'repositoryApimSubscription'
+  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
+
+  params: {
+    apiManagementName: apiManagement.name
+    workloadName: parWebAppName
+    apiScope: parRepositoryApi.ApimApiName
+    keyVaultRef: parKeyVaultRef
+    tags: parTags
+  }
+}
+
+module serversApimSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
+  name: 'serversApimSubscription'
+  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
+
+  params: {
+    apiManagementName: apiManagement.name
+    workloadName: parWebAppName
+    apiScope: parServersIntegrationApi.ApimApiName
+    keyVaultRef: parKeyVaultRef
+    tags: parTags
+  }
+}
+
 resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   name: parWebAppName
   location: parLocation
@@ -129,11 +155,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
+          value: '@Microsoft.KeyVault(SecretUri=${repositoryApimSubscription.outputs.primaryKeySecretRef.secretUri})'
         }
         {
           name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
+          value: '@Microsoft.KeyVault(SecretUri=${serversApimSubscription.outputs.primaryKeySecretRef.secretUri})'
         }
         {
           name: 'geolocation_base_url'

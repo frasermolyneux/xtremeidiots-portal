@@ -9,9 +9,6 @@ param parEnvironment string
 @description('The instance of the environment.')
 param parInstance string
 
-@description('The front door configuration.')
-param parFrontDoorRef object
-
 @description('The DNS configuration.')
 param parDns object
 
@@ -32,7 +29,6 @@ param parTags object
 
 // Variables
 var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
-var varWorkloadName = 'app-portal-web-${parEnvironment}-${parInstance}-${varEnvironmentUniqueId}'
 var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${varEnvironmentUniqueId}'
 
 // External Resource References
@@ -88,7 +84,6 @@ module webApp 'modules/webApp.bicep' = {
     parAppServicePlanRef: varAppServicePlanRef
     parApiManagementRef: varApiManagementRef
     parSqlServerRef: varSqlServerRef
-    parFrontDoorRef: parFrontDoorRef
 
     parRepositoryApi: parRepositoryApi
     parServersIntegrationApi: parServersIntegrationApi
@@ -120,22 +115,6 @@ module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:lat
     parSkuCapacity: 5
     parSkuName: 'Basic'
     parSkuTier: 'Basic'
-    parTags: parTags
-  }
-}
-
-module frontDoorEndpoint 'modules/frontDoorEndpoint.bicep' = {
-  name: '${deployment().name}-fdendpoint'
-  scope: resourceGroup(parFrontDoorRef.SubscriptionId, parFrontDoorRef.ResourceGroupName)
-
-  params: {
-    parFrontDoorName: parFrontDoorRef.Name
-    parParentDnsName: parDns.Domain
-    parDnsResourceGroupName: parDns.ResourceGroupName
-    parWorkloadName: varWorkloadName
-    parOriginHostName: webApp.outputs.outWebAppDefaultHostName
-    parDnsZoneHostnamePrefix: varWorkloadName
-    parCustomHostname: '${varWorkloadName}.${parDns.Domain}'
     parTags: parTags
   }
 }

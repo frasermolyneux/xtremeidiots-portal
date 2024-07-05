@@ -11,13 +11,6 @@
         "parInstance": {
             "value": "01"
         },
-        "parFrontDoorRef": {
-            "value": {
-                "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
-                "ResourceGroupName": "rg-platform-frontdoor-dev-uksouth-01",
-                "Name": "fd-platform-dev-pa2u36baumsfc"
-            }
-        },
         "parDns": {
             "value": {
                 "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",

@@ -28,9 +28,6 @@ param parApiManagementRef object
 @description('The sql server reference')
 param parSqlServerRef object
 
-@description('The front door reference')
-param parFrontDoorRef object
-
 @description('The repository api object.')
 param parRepositoryApi object
 
@@ -47,11 +44,6 @@ param parDns object
 param parTags object
 
 // Existing Out-Of-Scope Resources
-resource frontDoor 'Microsoft.Cdn/profiles@2021-06-01' existing = {
-  name: parFrontDoorRef.Name
-  scope: resourceGroup(parFrontDoorRef.SubscriptionId, parFrontDoorRef.ResourceGroupName)
-}
-
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
   name: parApiManagementRef.Name
   scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)

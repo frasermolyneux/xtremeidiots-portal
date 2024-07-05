@@ -129,11 +129,11 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
         }
         {
           name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parApiManagementRef.Name}-${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
+          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=${parWebAppName}-${parServersIntegrationApi.ApimApiName}-api-key-primary)'
         }
         {
           name: 'geolocation_base_url'

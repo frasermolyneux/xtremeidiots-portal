@@ -68,12 +68,6 @@ var varSqlServerRef = {
   Name: parSqlServerName
 }
 
-var legacy_varSqlServerRef = {
-  SubscriptionId: parStrategicServices.SubscriptionId
-  ResourceGroupName: parStrategicServices.SqlServerResourceGroupName
-  Name: parStrategicServices.SqlServerName
-}
-
 // Existing Out-Of-Scope Resources
 @description('https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#key-vault-secrets-user')
 resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
@@ -113,21 +107,6 @@ module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/module
     parKeyVaultName: varKeyVaultRef.Name
     parRoleDefinitionId: keyVaultSecretUserRoleDefinition.id
     parPrincipalId: webApp.outputs.outWebAppIdentityPrincipalId
-  }
-}
-
-module legacy_sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
-  name: '${deployment().name}-sqldb'
-  scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.SqlServerResourceGroupName)
-
-  params: {
-    parSqlServerName: parStrategicServices.SqlServerName
-    parLocation: parLocation
-    parDatabaseName: 'portal-web-${varEnvironmentUniqueId}'
-    parSkuCapacity: 5
-    parSkuName: 'Basic'
-    parSkuTier: 'Basic'
-    parTags: parTags
   }
 }
 

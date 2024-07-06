@@ -115,13 +115,13 @@ module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:lat
   scope: resourceGroup(varSqlServerRef.SubscriptionId, varSqlServerRef.ResourceGroupName)
 
   params: {
-    parSqlServerName: varSqlServerRef.Name
-    parLocation: parLocation
-    parDatabaseName: 'portal-web-${varEnvironmentUniqueId}'
-    parSkuCapacity: 5
-    parSkuName: 'Basic'
-    parSkuTier: 'Basic'
-    parTags: parTags
+    sqlServerName: varSqlServerRef.Name
+    databaseName: 'portal-web-${varEnvironmentUniqueId}'
+    skuCapacity: 5
+    skuName: 'Basic'
+    skuTier: 'Basic'
+    location: parLocation
+    tags: parTags
   }
 }
 

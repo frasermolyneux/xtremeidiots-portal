@@ -18,9 +18,6 @@ param sqlServerName string
 @description('The DNS configuration.')
 param dns object
 
-@description('The strategic services configuration.')
-param strategicServices object
-
 @description('The repository API configuration.')
 param repositoryApi object
 

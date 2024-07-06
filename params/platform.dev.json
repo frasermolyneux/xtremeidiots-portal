@@ -11,13 +11,6 @@
         "parInstance": {
             "value": "01"
         },
-        "parStrategicServices": {
-            "value": {
-                "SubscriptionId": "d68448b0-9947-46d7-8771-baa331a3063a",
-                "ApiManagementResourceGroupName": "rg-platform-apim-dev-uksouth-01",
-                "ApiManagementName": "apim-platform-dev-uksouth-amjx44uuirhb6"
-            }
-        },
         "parTags": {
             "value": {
                 "Environment": "dev",

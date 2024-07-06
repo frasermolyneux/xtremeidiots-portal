@@ -95,7 +95,7 @@ module webApp 'modules/webApp.bicep' = {
     parAppInsightsRef: varAppInsightsRef
     parAppServicePlanRef: varAppServicePlanRef
     parApiManagementRef: varApiManagementRef
-    parSqlServerRef: legacy_varSqlServerRef
+    parSqlServerRef: varSqlServerRef
 
     parRepositoryApi: parRepositoryApi
     parServersIntegrationApi: parServersIntegrationApi

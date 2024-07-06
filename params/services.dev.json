@@ -11,6 +11,9 @@
         "parInstance": {
             "value": "01"
         },
+        "parApiManagementName": {
+            "value": "apim-portal-core-dev-uksouth-01-3138575b4c87"
+        },
         "parDns": {
             "value": {
                 "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",

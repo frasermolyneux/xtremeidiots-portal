@@ -9,6 +9,9 @@ param parEnvironment string
 @description('The instance of the environment.')
 param parInstance string
 
+@description('The name of the API Management')
+param parApiManagementName string
+
 @description('The DNS configuration.')
 param parDns object
 
@@ -33,33 +36,33 @@ var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parI
 
 // External Resource References
 var varAppInsightsRef = {
-  Name: 'ai-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
   SubscriptionId: subscription().subscriptionId
   ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  Name: 'ai-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
 }
 
 var varKeyVaultRef = {
-  Name: 'kv-${varEnvironmentUniqueId}-${parLocation}'
   SubscriptionId: subscription().subscriptionId
   ResourceGroupName: resourceGroup().name
+  Name: 'kv-${varEnvironmentUniqueId}-${parLocation}'
 }
 
 var varAppServicePlanRef = {
-  Name: 'asp-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
   SubscriptionId: subscription().subscriptionId
   ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  Name: 'asp-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
 }
 
 var varApiManagementRef = {
-  Name: parStrategicServices.ApiManagementName
-  SubscriptionId: parStrategicServices.SubscriptionId
-  ResourceGroupName: parStrategicServices.ApiManagementResourceGroupName
+  SubscriptionId: subscription().subscriptionId
+  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  Name: parApiManagementName
 }
 
 var varSqlServerRef = {
-  Name: parStrategicServices.SqlServerName
   SubscriptionId: parStrategicServices.SubscriptionId
   ResourceGroupName: parStrategicServices.SqlServerResourceGroupName
+  Name: parStrategicServices.SqlServerName
 }
 
 // Existing Out-Of-Scope Resources

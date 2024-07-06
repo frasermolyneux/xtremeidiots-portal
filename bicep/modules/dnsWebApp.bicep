@@ -2,47 +2,47 @@ targetScope = 'resourceGroup'
 
 // Parameters
 @description('The dns configuration object')
-param parDns object
+param dns object
 
 @description('The web app hostname')
-param parWebAppHostname string
+param webAppHostname string
 
 @description('The domain verification code')
-param parDomainAuthCode string
+param domainAuthCode string
 
 @description('The tags to apply to the resources.')
-param parTags object = resourceGroup().tags
+param tags object = resourceGroup().tags
 
 // Existing Resources
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' existing = {
-  name: parDns.Domain
+  name: dns.Domain
 }
 
 // Module Resources
 resource dnsCName 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
-  name: '${parDns.Subdomain}'
+  name: '${dns.Subdomain}'
   parent: dnsZone
 
   properties: {
     TTL: 3600
     CNAMERecord: {
-      cname: parWebAppHostname
+      cname: webAppHostname
     }
-    metadata: parTags
+    metadata: tags
   }
 }
 
 resource txtAuth 'Microsoft.Network/dnszones/TXT@2018-05-01' = {
-  name: 'asuid.${parDns.Subdomain}'
+  name: 'asuid.${dns.Subdomain}'
   parent: dnsZone
 
   properties: {
     TTL: 3600
     TXTRecords: [
       {
-        value: [parDomainAuthCode]
+        value: [domainAuthCode]
       }
     ]
-    metadata: parTags
+    metadata: tags
   }
 }

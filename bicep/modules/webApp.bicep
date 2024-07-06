@@ -2,100 +2,100 @@ targetScope = 'resourceGroup'
 
 // Parameters
 @description('The name of the web app.')
-param parWebAppName string
+param webAppName string
 
-@description('The environment name (e.g. dev, tst, prd).')
-param parEnvironment string
+@description('The environment for the resources')
+param environment string
 
 @description('The environment unique id (e.g. 1234).')
-param parEnvironmentUniqueId string
+param environmentUniqueId string
 
-@description('The location of the resource group.')
-param parLocation string
+@description('The location to deploy the resources')
+param location string
 
-@description('The key vault reference')
-param parKeyVaultRef object
+@description('A reference to the key vault resource')
+param keyVaultRef object
 
-@description('The app insights reference')
-param parAppInsightsRef object
+@description('A reference to the app insights resource')
+param appInsightsRef object
 
-@description('The app service plan reference')
-param parAppServicePlanRef object
+@description('A reference to the app service plan resource')
+param appServicePlanRef object
 
-@description('The api management reference')
-param parApiManagementRef object
+@description('A reference to the api management resource')
+param apiManagementRef object
 
-@description('The sql server reference')
-param parSqlServerRef object
+@description('A reference to the sql server resource')
+param sqlServerRef object
 
 @description('The repository api object.')
-param parRepositoryApi object
+param repositoryApi object
 
 @description('The servers integration api object.')
-param parServersIntegrationApi object
+param serversIntegrationApi object
 
 @description('The geo location api object.')
-param parGeoLocationApi object
+param geoLocationApi object
 
 @description('The dns configuration object')
-param parDns object
+param dns object
 
 @description('The tags to apply to the resources.')
-param parTags object
+param tags object
 
 // Existing Out-Of-Scope Resources
 resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' existing = {
-  name: parApiManagementRef.Name
-  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
+  name: apiManagementRef.Name
+  scope: resourceGroup(apiManagementRef.SubscriptionId, apiManagementRef.ResourceGroupName)
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
-  name: parSqlServerRef.Name
-  scope: resourceGroup(parSqlServerRef.SubscriptionId, parSqlServerRef.ResourceGroupName)
+  name: sqlServerRef.Name
+  scope: resourceGroup(sqlServerRef.SubscriptionId, sqlServerRef.ResourceGroupName)
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
-  name: parAppServicePlanRef.Name
-  scope: resourceGroup(parAppServicePlanRef.SubscriptionId, parAppServicePlanRef.ResourceGroupName)
+  name: appServicePlanRef.Name
+  scope: resourceGroup(appServicePlanRef.SubscriptionId, appServicePlanRef.ResourceGroupName)
 }
 
 resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
-  name: parAppInsightsRef.Name
-  scope: resourceGroup(parAppInsightsRef.SubscriptionId, parAppInsightsRef.ResourceGroupName)
+  name: appInsightsRef.Name
+  scope: resourceGroup(appInsightsRef.SubscriptionId, appInsightsRef.ResourceGroupName)
 }
 
 // Module Resources
 module repositoryApimSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: 'repositoryApimSubscription'
-  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
+  scope: resourceGroup(apiManagementRef.SubscriptionId, apiManagementRef.ResourceGroupName)
 
   params: {
     apiManagementName: apiManagement.name
-    workloadName: parWebAppName
-    apiScope: parRepositoryApi.ApimApiName
-    keyVaultRef: parKeyVaultRef
-    tags: parTags
+    workloadName: webAppName
+    apiScope: repositoryApi.ApimApiName
+    keyVaultRef: keyVaultRef
+    tags: tags
   }
 }
 
 module serversApimSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/apimanagementsubscription:latest' = {
   name: 'serversApimSubscription'
-  scope: resourceGroup(parApiManagementRef.SubscriptionId, parApiManagementRef.ResourceGroupName)
+  scope: resourceGroup(apiManagementRef.SubscriptionId, apiManagementRef.ResourceGroupName)
 
   params: {
     apiManagementName: apiManagement.name
-    workloadName: parWebAppName
-    apiScope: parServersIntegrationApi.ApimApiName
-    keyVaultRef: parKeyVaultRef
-    tags: parTags
+    workloadName: webAppName
+    apiScope: serversIntegrationApi.ApimApiName
+    keyVaultRef: keyVaultRef
+    tags: tags
   }
 }
 
 resource webApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: parWebAppName
-  location: parLocation
+  name: webAppName
+  location: location
   kind: 'app'
-  tags: parTags
+  tags: tags
 
   identity: {
     type: 'SystemAssigned'
@@ -119,7 +119,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       appSettings: [
         {
           name: 'READ_ONLY_MODE'
-          value: (parEnvironment == 'prd') ? 'true' : 'false'
+          value: (environment == 'prd') ? 'true' : 'false'
         }
         {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
@@ -155,31 +155,31 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'geolocation_base_url'
-          value: parGeoLocationApi.BaseUrl
+          value: geoLocationApi.BaseUrl
         }
         {
           name: 'geolocation_apim_subscription_key_primary'
-          value: '@Microsoft.KeyVault(SecretUri=${parGeoLocationApi.KeyVaultPrimaryRef})'
+          value: '@Microsoft.KeyVault(SecretUri=${geoLocationApi.KeyVaultPrimaryRef})'
         }
         {
           name: 'geolocation_apim_subscription_key_secondary'
-          value: '@Microsoft.KeyVault(SecretUri=${parGeoLocationApi.KeyVaultSecondaryRef})'
+          value: '@Microsoft.KeyVault(SecretUri=${geoLocationApi.KeyVaultSecondaryRef})'
         }
         {
           name: 'repository_api_application_audience'
-          value: parRepositoryApi.ApplicationAudience
+          value: repositoryApi.ApplicationAudience
         }
         {
           name: 'servers_api_application_audience'
-          value: parServersIntegrationApi.ApplicationAudience
+          value: serversIntegrationApi.ApplicationAudience
         }
         {
           name: 'geolocation_api_application_audience'
-          value: parGeoLocationApi.ApplicationAudience
+          value: geoLocationApi.ApplicationAudience
         }
         {
           name: 'sql_connection_string'
-          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portal-web-${parEnvironmentUniqueId};'
+          value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portal-web-${environmentUniqueId};'
         }
         {
           name: 'xtremeidiots_forums_base_url'
@@ -187,27 +187,27 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'xtremeidiots_forums_api_key'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-forums-api-key)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=xtremeidiots-forums-api-key)'
         }
         {
           name: 'xtremeidiots_auth_client_id'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-auth-client-id)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=xtremeidiots-auth-client-id)'
         }
         {
           name: 'xtremeidiots_auth_client_secret'
-          value: '@Microsoft.KeyVault(VaultName=${parKeyVaultRef.Name};SecretName=xtremeidiots-auth-client-secret)'
+          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=xtremeidiots-auth-client-secret)'
         }
         {
           name: 'repository_api_path_prefix'
-          value: parRepositoryApi.ApimPathPrefix
+          value: repositoryApi.ApimPathPrefix
         }
         {
           name: 'servers_api_path_prefix'
-          value: parServersIntegrationApi.ApimPathPrefix
+          value: serversIntegrationApi.ApimPathPrefix
         }
         {
           name: 'geolocation_api_path_prefix'
-          value: parGeoLocationApi.ApimPathPrefix
+          value: geoLocationApi.ApimPathPrefix
         }
         {
           name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'
@@ -224,31 +224,31 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
 module webTest 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/webtest:latest' = {
   name: '${deployment().name}-webtest'
-  scope: resourceGroup(parAppInsightsRef.SubscriptionId, parAppInsightsRef.ResourceGroupName)
+  scope: resourceGroup(appInsightsRef.SubscriptionId, appInsightsRef.ResourceGroupName)
 
   params: {
     workloadName: webApp.name
     testUrl: 'https://${webApp.properties.defaultHostName}/api/health'
-    appInsightsRef: parAppInsightsRef
-    location: parLocation
-    tags: parTags
+    appInsightsRef: appInsightsRef
+    location: location
+    tags: tags
   }
 }
 
 module webAppDns 'dnsWebApp.bicep' = {
   name: '${deployment().name}-dns'
-  scope: resourceGroup(parDns.SubscriptionId, parDns.ResourceGroupName)
+  scope: resourceGroup(dns.SubscriptionId, dns.ResourceGroupName)
 
   params: {
-    parDns: parDns
-    parWebAppHostname: webApp.properties.defaultHostName
-    parDomainAuthCode: webApp.properties.customDomainVerificationId
-    parTags: parTags
+    dns: dns
+    webAppHostname: webApp.properties.defaultHostName
+    domainAuthCode: webApp.properties.customDomainVerificationId
+    tags: tags
   }
 }
 
 resource customDomain 'Microsoft.Web/sites/hostNameBindings@2023-01-01' = {
-  name: '${parDns.Subdomain}.${parDns.Domain}'
+  name: '${dns.Subdomain}.${dns.Domain}'
   parent: webApp
 
   properties: {
@@ -262,5 +262,5 @@ resource customDomain 'Microsoft.Web/sites/hostNameBindings@2023-01-01' = {
 
 // Outputs
 output outWebAppDefaultHostName string = webApp.properties.defaultHostName
-output outWebAppIdentityPrincipalId string = webApp.identity.principalId
-output outWebAppName string = webApp.name
+output webAppIdentityPrincipalId string = webApp.identity.principalId
+output webAppName string = webApp.name

@@ -34,7 +34,7 @@ stages:
                       $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
                       $deletedKeyVaults = az keyvault list-deleted --query '[].properties.vaultId' | ConvertFrom-Json
-                      $isDeleted = $deletedKeyVaults | where {$_ -match "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)"}
+                      $isDeleted = $deletedKeyVaults | where {$_ -match "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)"}
 
                       $keyVaultCreateMode = "default"
                       if ($isDeleted -ne $null) {
@@ -42,11 +42,11 @@ stages:
                       }
 
                       az deployment sub create `
-                        --name "portal-web-platform-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
+                        --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                         --template-file bicep/platform.bicep `
-                        --location $config.parameters.parLocation.value `
-                        --parameters @params/platform.$($config.parameters.parEnvironment.value).json `
-                          parKeyVaultCreateMode=$keyVaultCreateMode
+                        --location $config.parameters.location.value `
+                        --parameters @params/platform.$($config.parameters.environment.value).json `
+                          keyVaultCreateMode=$keyVaultCreateMode
 
                 - task: AzureCLI@2
                   displayName: deploy_${{ parameters.environmentName }}_services_bicep
@@ -58,10 +58,10 @@ stages:
                       $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
                       az deployment group create `
-                        --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                        --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)" `
+                        --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                        --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)" `
                         --template-file bicep/services.bicep `
-                        --parameters @params/services.$($config.parameters.parEnvironment.value).json
+                        --parameters @params/services.$($config.parameters.environment.value).json
 
                 - task: AzureCLI@2
                   name: deploy_outputs
@@ -72,13 +72,13 @@ stages:
                     inlineScript: |
                       $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                        --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") | ConvertFrom-Json
+                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                        --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
-                      echo "##vso[task.setvariable variable=webAppIdentityPrincipalId;isOutput=true]$($deploymentOutput.properties.outputs.outWebAppIdentityPrincipalId.value)"
-                      echo "##vso[task.setvariable variable=webAppName;isOutput=true]$($deploymentOutput.properties.outputs.outWebAppName.value)"
+                      echo "##vso[task.setvariable variable=webAppIdentityPrincipalId;isOutput=true]$($deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value)"
+                      echo "##vso[task.setvariable variable=webAppName;isOutput=true]$($deploymentOutput.properties.outputs.webAppName.value)"
 
-                      echo "##vso[task.setvariable variable=webAppsResourceGroupName;isOutput=true]rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)"
+                      echo "##vso[task.setvariable variable=webAppsResourceGroupName;isOutput=true]rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)"
 
                 - task: AzureCLI@2
                   inputs:
@@ -88,24 +88,24 @@ stages:
                     inlineScript: |
                       $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.parEnvironment.value)-$($config.parameters.parInstance.value)" `
-                        --resource-group "rg-portal-web-$($config.parameters.parEnvironment.value)-$($config.parameters.parLocation.value)-$($config.parameters.parInstance.value)") | ConvertFrom-Json
+                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                        --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
-                      $principalId = $deploymentOutput.properties.outputs.outWebAppIdentityPrincipalId.value
+                      $principalId = $deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value
 
                       . scripts/GrantPrincipalAppRole.ps1 `
                         -principalId $principalId `
-                        -applicationName $config.parameters.parRepositoryApi.value.ApplicationName `
+                        -applicationName $config.parameters.repositoryApi.value.ApplicationName `
                         -appRole "ServiceAccount"
 
                       . scripts/GrantPrincipalAppRole.ps1 `
                         -principalId $principalId `
-                        -applicationName $config.parameters.parServersIntegrationApi.value.ApplicationName `
+                        -applicationName $config.parameters.serversIntegrationApi.value.ApplicationName `
                         -appRole "ServiceAccount"
 
                       . scripts/AddPrincipalToAADGroup.ps1 `
                         -principalId $principalId `
-                        -groupName "sg-sql-platform-admins-$($config.parameters.parEnvironment.value)-01"
+                        -groupName "sg-sql-platform-admins-$($config.parameters.environment.value)-01"
 
                 - download: current
                   artifact: admin-webapp

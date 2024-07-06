@@ -1,71 +1,71 @@
 targetScope = 'resourceGroup'
 
-@description('The location of the resource group.')
-param parLocation string
+@description('The location to deploy the resources')
+param location string
 
-@description('The environment name (e.g. dev, tst, prd).')
-param parEnvironment string
+@description('The environment for the resources')
+param environment string
 
 @description('The instance of the environment.')
-param parInstance string
+param instance string
 
-@description('The name of the API Management')
-param parApiManagementName string
+@description('The api management resource name')
+param apiManagementName string
 
 @description('The name of the SQL Server')
-param parSqlServerName string
+param sqlServerName string
 
 @description('The DNS configuration.')
-param parDns object
+param dns object
 
 @description('The strategic services configuration.')
-param parStrategicServices object
+param strategicServices object
 
 @description('The repository API configuration.')
-param parRepositoryApi object
+param repositoryApi object
 
 @description('The servers integration API configuration.')
-param parServersIntegrationApi object
+param serversIntegrationApi object
 
 @description('The geo location API configuration.')
-param parGeoLocationApi object
+param geoLocationApi object
 
 @description('The tags to apply to the resources.')
-param parTags object
+param tags object
 
 // Variables
-var varEnvironmentUniqueId = uniqueString('portal-web', parEnvironment, parInstance)
-var varAdminWebAppName = 'app-portal-web-${parEnvironment}-${parLocation}-${parInstance}-${varEnvironmentUniqueId}'
+var environmentUniqueId = uniqueString('portal-web', environment, instance)
+var adminWebAppName = 'app-portal-web-${environment}-${location}-${instance}-${environmentUniqueId}'
 
 // External Resource References
-var varAppInsightsRef = {
+var appInsightsRef = {
   SubscriptionId: subscription().subscriptionId
-  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
-  Name: 'ai-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  ResourceGroupName: 'rg-portal-core-${environment}-${location}-${instance}'
+  Name: 'ai-portal-core-${environment}-${location}-${instance}'
 }
 
-var varKeyVaultRef = {
+var keyVaultRef = {
   SubscriptionId: subscription().subscriptionId
   ResourceGroupName: resourceGroup().name
-  Name: 'kv-${varEnvironmentUniqueId}-${parLocation}'
+  Name: 'kv-${environmentUniqueId}-${location}'
 }
 
-var varAppServicePlanRef = {
+var appServicePlanRef = {
   SubscriptionId: subscription().subscriptionId
-  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
-  Name: 'asp-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  ResourceGroupName: 'rg-portal-core-${environment}-${location}-${instance}'
+  Name: 'asp-portal-core-${environment}-${location}-${instance}'
 }
 
-var varApiManagementRef = {
+var apiManagementRef = {
   SubscriptionId: subscription().subscriptionId
-  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
-  Name: parApiManagementName
+  ResourceGroupName: 'rg-portal-core-${environment}-${location}-${instance}'
+  Name: apiManagementName
 }
 
-var varSqlServerRef = {
+var sqlServerRef = {
   SubscriptionId: subscription().subscriptionId
-  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
-  Name: parSqlServerName
+  ResourceGroupName: 'rg-portal-core-${environment}-${location}-${instance}'
+  Name: sqlServerName
 }
 
 // Existing Out-Of-Scope Resources
@@ -80,23 +80,23 @@ module webApp 'modules/webApp.bicep' = {
   name: '${deployment().name}-webapp'
 
   params: {
-    parWebAppName: varAdminWebAppName
-    parEnvironment: parEnvironment
-    parEnvironmentUniqueId: varEnvironmentUniqueId
-    parLocation: parLocation
+    webAppName: adminWebAppName
+    environment: environment
+    environmentUniqueId: environmentUniqueId
+    location: location
 
-    parKeyVaultRef: varKeyVaultRef
-    parAppInsightsRef: varAppInsightsRef
-    parAppServicePlanRef: varAppServicePlanRef
-    parApiManagementRef: varApiManagementRef
-    parSqlServerRef: varSqlServerRef
+    keyVaultRef: keyVaultRef
+    appInsightsRef: appInsightsRef
+    appServicePlanRef: appServicePlanRef
+    apiManagementRef: apiManagementRef
+    sqlServerRef: sqlServerRef
 
-    parRepositoryApi: parRepositoryApi
-    parServersIntegrationApi: parServersIntegrationApi
-    parGeoLocationApi: parGeoLocationApi
+    repositoryApi: repositoryApi
+    serversIntegrationApi: serversIntegrationApi
+    geoLocationApi: geoLocationApi
 
-    parDns: parDns
-    parTags: parTags
+    dns: dns
+    tags: tags
   }
 }
 
@@ -104,27 +104,27 @@ module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/module
   name: '${deployment().name}-webappkvrole'
 
   params: {
-    keyVaultName: varKeyVaultRef.Name
-    principalId: webApp.outputs.outWebAppIdentityPrincipalId
+    keyVaultName: keyVaultRef.Name
+    principalId: webApp.outputs.webAppIdentityPrincipalId
     roleDefinitionId: keyVaultSecretUserRoleDefinition.id
   }
 }
 
 module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
   name: '${deployment().name}-sqldb'
-  scope: resourceGroup(varSqlServerRef.SubscriptionId, varSqlServerRef.ResourceGroupName)
+  scope: resourceGroup(sqlServerRef.SubscriptionId, sqlServerRef.ResourceGroupName)
 
   params: {
-    sqlServerName: varSqlServerRef.Name
-    databaseName: 'portal-web-${varEnvironmentUniqueId}'
+    sqlServerName: sqlServerRef.Name
+    databaseName: 'portal-web-${environmentUniqueId}'
     skuCapacity: 5
     skuName: 'Basic'
     skuTier: 'Basic'
-    location: parLocation
-    tags: parTags
+    location: location
+    tags: tags
   }
 }
 
 // Outputs
-output outWebAppIdentityPrincipalId string = webApp.outputs.outWebAppIdentityPrincipalId
-output outWebAppName string = webApp.outputs.outWebAppName
+output webAppIdentityPrincipalId string = webApp.outputs.webAppIdentityPrincipalId
+output webAppName string = webApp.outputs.webAppName

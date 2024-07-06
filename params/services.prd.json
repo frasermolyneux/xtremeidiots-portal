@@ -2,22 +2,22 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "parEnvironment": {
+        "environment": {
             "value": "prd"
         },
-        "parLocation": {
+        "location": {
             "value": "uksouth"
         },
-        "parInstance": {
+        "instance": {
             "value": "01"
         },
-        "parApiManagementName": {
+        "apiManagementName": {
             "value": "apim-portal-core-prd-uksouth-01-f4d9512b0e37"
         },
-        "parSqlServerName": {
+        "sqlServerName": {
             "value": "sql-portal-core-prd-uksouth-01-f4d9512b0e37"
         },
-        "parDns": {
+        "dns": {
             "value": {
                 "SubscriptionId": "db34f572-8b71-40d6-8f99-f29a27612144",
                 "ResourceGroupName": "rg-platform-dns-prd-uksouth-01",
@@ -25,7 +25,7 @@
                 "Subdomain": "portal"
             }
         },
-        "parStrategicServices": {
+        "strategicServices": {
             "value": {
                 "SubscriptionId": "903b6685-c12a-4703-ac54-7ec1ff15ca43",
                 "ApiManagementResourceGroupName": "rg-platform-apim-prd-uksouth-01",
@@ -36,7 +36,7 @@
                 "SqlServerName": "sql-platform-prd-uksouth-01-ty7og2i6qpv3s"
             }
         },
-        "parRepositoryApi": {
+        "repositoryApi": {
             "value": {
                 "ApplicationName": "portal-repository-prd-01",
                 "ApplicationAudience": "api://portal-repository-prd-01",
@@ -45,7 +45,7 @@
                 "ApimPathPrefix": "repository"
             }
         },
-        "parServersIntegrationApi": {
+        "serversIntegrationApi": {
             "value": {
                 "ApplicationName": "portal-servers-integration-prd-01",
                 "ApplicationAudience": "api://portal-servers-integration-prd-01",
@@ -54,7 +54,7 @@
                 "ApimPathPrefix": "servers-integration"
             }
         },
-        "parGeoLocationApi": {
+        "geoLocationApi": {
             "value": {
                 "BaseUrl": "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net",
                 "ApplicationAudience": "api://geolocation-api-prd-01",
@@ -63,7 +63,7 @@
                 "KeyVaultSecondaryRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-key-secondary/"
             }
         },
-        "parTags": {
+        "tags": {
             "value": {
                 "Environment": "prd",
                 "Workload": "portal",

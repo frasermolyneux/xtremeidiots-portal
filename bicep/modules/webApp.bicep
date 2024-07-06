@@ -227,11 +227,11 @@ module webTest 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/webtest:latest' = {
   scope: resourceGroup(parAppInsightsRef.SubscriptionId, parAppInsightsRef.ResourceGroupName)
 
   params: {
-    parWebAppName: webApp.name
-    parLocation: parLocation
-    parTestUrl: 'https://${webApp.properties.defaultHostName}/api/health'
-    parAppInsightsRef: parAppInsightsRef
-    parTags: parTags
+    workloadName: webApp.name
+    testUrl: 'https://${webApp.properties.defaultHostName}/api/health'
+    appInsightsRef: parAppInsightsRef
+    location: parLocation
+    tags: parTags
   }
 }
 

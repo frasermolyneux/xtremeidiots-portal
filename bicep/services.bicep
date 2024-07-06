@@ -12,6 +12,9 @@ param parInstance string
 @description('The name of the API Management')
 param parApiManagementName string
 
+@description('The name of the SQL Server')
+param parSqlServerName string
+
 @description('The DNS configuration.')
 param parDns object
 
@@ -60,6 +63,12 @@ var varApiManagementRef = {
 }
 
 var varSqlServerRef = {
+  SubscriptionId: subscription().subscriptionId
+  ResourceGroupName: 'rg-portal-core-${parEnvironment}-${parLocation}-${parInstance}'
+  Name: parSqlServerName
+}
+
+var legacy_varSqlServerRef = {
   SubscriptionId: parStrategicServices.SubscriptionId
   ResourceGroupName: parStrategicServices.SqlServerResourceGroupName
   Name: parStrategicServices.SqlServerName
@@ -86,7 +95,7 @@ module webApp 'modules/webApp.bicep' = {
     parAppInsightsRef: varAppInsightsRef
     parAppServicePlanRef: varAppServicePlanRef
     parApiManagementRef: varApiManagementRef
-    parSqlServerRef: varSqlServerRef
+    parSqlServerRef: legacy_varSqlServerRef
 
     parRepositoryApi: parRepositoryApi
     parServersIntegrationApi: parServersIntegrationApi
@@ -107,12 +116,27 @@ module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/module
   }
 }
 
-module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
+module legacy_sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
   name: '${deployment().name}-sqldb'
   scope: resourceGroup(parStrategicServices.SubscriptionId, parStrategicServices.SqlServerResourceGroupName)
 
   params: {
     parSqlServerName: parStrategicServices.SqlServerName
+    parLocation: parLocation
+    parDatabaseName: 'portal-web-${varEnvironmentUniqueId}'
+    parSkuCapacity: 5
+    parSkuName: 'Basic'
+    parSkuTier: 'Basic'
+    parTags: parTags
+  }
+}
+
+module sqlDatabase 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/sqldatabase:latest' = {
+  name: '${deployment().name}-sqldb'
+  scope: resourceGroup(varSqlServerRef.SubscriptionId, varSqlServerRef.ResourceGroupName)
+
+  params: {
+    parSqlServerName: varSqlServerRef.Name
     parLocation: parLocation
     parDatabaseName: 'portal-web-${varEnvironmentUniqueId}'
     parSkuCapacity: 5

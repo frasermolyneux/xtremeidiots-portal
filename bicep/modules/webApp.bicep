@@ -11,7 +11,7 @@ param environment string
 param environmentUniqueId string
 
 @description('The location to deploy the resources')
-param location string
+param location string = resourceGroup().location
 
 @description('A reference to the key vault resource')
 param keyVaultRef object

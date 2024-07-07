@@ -30,13 +30,13 @@ jobs:
                 scriptType: "pscore"
                 scriptLocation: "inlineScript"
                 inlineScript: |
-                  $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+                  $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
                   az deployment sub validate `
-                    --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                    --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                     --template-file bicep/main.bicep `
                     --location $config.parameters.location.value `
-                    --parameters @params/platform.$($config.parameters.environment.value).json `
+                    --parameters @params/$($config.parameters.environment.value).json `
                         keyVaultCreateMode='recover'
 
             - task: AzureCLI@2
@@ -47,7 +47,7 @@ jobs:
                 scriptLocation: "inlineScript"
                 inlineScript: |
                   az deployment sub what-if `
-                    --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                    --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                     --template-file bicep/main.bicep `
                     --location $config.parameters.location.value `
-                    --parameters @params/platform.$($config.parameters.environment.value).json
+                    --parameters @params/$($config.parameters.environment.value).json

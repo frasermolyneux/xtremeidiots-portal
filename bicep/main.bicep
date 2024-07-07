@@ -123,7 +123,7 @@ module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/module
   scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
-    keyVaultName: keyVault.name
+    keyVaultName: keyVault.outputs.keyVaultRef.name
     principalId: webApp.outputs.webAppIdentityPrincipalId
     roleDefinitionId: keyVaultSecretUserRoleDefinition.id
   }

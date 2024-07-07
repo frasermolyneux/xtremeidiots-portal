@@ -261,6 +261,6 @@ resource customDomain 'Microsoft.Web/sites/hostNameBindings@2023-01-01' = {
 }
 
 // Outputs
-output outWebAppDefaultHostName string = webApp.properties.defaultHostName
+output webAppDefaultHostName string = webApp.properties.defaultHostName
 output webAppIdentityPrincipalId string = webApp.identity.principalId
 output webAppName string = webApp.name

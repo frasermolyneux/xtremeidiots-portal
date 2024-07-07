@@ -1,7 +1,8 @@
-targetScope = 'resourceGroup'
+targetScope = 'subscription'
 
+// Parameters
 @description('The location to deploy the resources')
-param location string = resourceGroup().location
+param location string
 
 @description('The environment for the resources')
 param environment string
@@ -30,21 +31,21 @@ param geoLocationApi object
 @description('The tags to apply to the resources.')
 param tags object
 
+// Dynamic params from pipeline invocation
+@description('The key vault create mode (e.g. recover, default).')
+param keyVaultCreateMode string = 'recover'
+
 // Variables
 var environmentUniqueId = uniqueString('portal-web', environment, instance)
+var resourceGroupName = 'rg-portal-web-${environment}-${location}-${instance}'
 var adminWebAppName = 'app-portal-web-${environment}-${location}-${instance}-${environmentUniqueId}'
+var keyVaultName = 'kv-${environmentUniqueId}-${location}'
 
-// External Resource References
+// Resource References
 var appInsightsRef = {
   SubscriptionId: subscription().subscriptionId
   ResourceGroupName: 'rg-portal-core-${environment}-${location}-${instance}'
   Name: 'ai-portal-core-${environment}-${location}-${instance}'
-}
-
-var keyVaultRef = {
-  SubscriptionId: subscription().subscriptionId
-  ResourceGroupName: resourceGroup().name
-  Name: 'kv-${environmentUniqueId}-${location}'
 }
 
 var appServicePlanRef = {
@@ -65,7 +66,6 @@ var sqlServerRef = {
   Name: sqlServerName
 }
 
-// Existing Out-Of-Scope Resources
 @description('https://learn.microsoft.com/en-gb/azure/role-based-access-control/built-in-roles#key-vault-secrets-user')
 resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: subscription()
@@ -73,8 +73,29 @@ resource keyVaultSecretUserRoleDefinition 'Microsoft.Authorization/roleDefinitio
 }
 
 // Module Resources
+resource defaultResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: resourceGroupName
+  location: location
+  tags: tags
+
+  properties: {}
+}
+
+module keyVault 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvault:latest' = {
+  name: '${deployment().name}-keyvault'
+  scope: resourceGroup(defaultResourceGroup.name)
+
+  params: {
+    keyVaultName: keyVaultName
+    keyVaultCreateMode: keyVaultCreateMode
+    location: location
+    tags: tags
+  }
+}
+
 module webApp 'modules/webApp.bicep' = {
   name: '${deployment().name}-webapp'
+  scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
     webAppName: adminWebAppName
@@ -82,7 +103,7 @@ module webApp 'modules/webApp.bicep' = {
     environmentUniqueId: environmentUniqueId
     location: location
 
-    keyVaultRef: keyVaultRef
+    keyVaultRef: keyVault.outputs.keyVaultRef
     appInsightsRef: appInsightsRef
     appServicePlanRef: appServicePlanRef
     apiManagementRef: apiManagementRef
@@ -99,9 +120,10 @@ module webApp 'modules/webApp.bicep' = {
 
 module webAppKeyVaultRoleAssignment 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/keyvaultroleassignment:latest' = {
   name: '${deployment().name}-webappkvrole'
+  scope: resourceGroup(defaultResourceGroup.name)
 
   params: {
-    keyVaultName: keyVaultRef.Name
+    keyVaultName: keyVault.name
     principalId: webApp.outputs.webAppIdentityPrincipalId
     roleDefinitionId: keyVaultSecretUserRoleDefinition.id
   }

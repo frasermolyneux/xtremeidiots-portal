@@ -34,18 +34,10 @@ jobs:
 
                   az deployment sub validate `
                     --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                    --template-file bicep/platform.bicep `
+                    --template-file bicep/main.bicep `
                     --location $config.parameters.location.value `
                     --parameters @params/platform.$($config.parameters.environment.value).json `
                         keyVaultCreateMode='recover'
-
-                  if ((az group exists --name "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") -eq $true) { 
-                    az deployment group validate `
-                      --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                      --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)" `
-                      --template-file bicep/services.bicep `
-                      --parameters @params/services.$($config.parameters.environment.value).json
-                  }
 
             - task: AzureCLI@2
               name: RunWhatIfDeploy
@@ -56,14 +48,6 @@ jobs:
                 inlineScript: |
                   az deployment sub what-if `
                     --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                    --template-file bicep/platform.bicep `
+                    --template-file bicep/main.bicep `
                     --location $config.parameters.location.value `
                     --parameters @params/platform.$($config.parameters.environment.value).json
-
-                  if ((az group exists --name "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") -eq $true) { 
-                    az deployment group what-if `
-                      --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                      --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)" `
-                      --template-file bicep/services.bicep `
-                      --parameters @params/services.$($config.parameters.environment.value).json
-                  }

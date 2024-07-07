@@ -25,13 +25,13 @@ stages:
                 - checkout: self
 
                 - task: AzureCLI@2
-                  displayName: deploy_${{ parameters.environmentName }}_platform_bicep
+                  displayName: deploy_${{ parameters.environmentName }}_bicep
                   inputs:
                     azureSubscription: ${{ parameters.azureSubscription }}
                     scriptType: "pscore"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      $config = (Get-Content params/platform.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+                      $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
                       $deletedKeyVaults = az keyvault list-deleted --query '[].properties.vaultId' | ConvertFrom-Json
                       $isDeleted = $deletedKeyVaults | where {$_ -match "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)"}
@@ -42,26 +42,11 @@ stages:
                       }
 
                       az deployment sub create `
-                        --name "portal-web-platform-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                        --template-file bicep/platform.bicep `
+                        --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                        --template-file bicep/main.bicep `
                         --location $config.parameters.location.value `
-                        --parameters @params/platform.$($config.parameters.environment.value).json `
+                        --parameters @params/$($config.parameters.environment.value).json `
                           keyVaultCreateMode=$keyVaultCreateMode
-
-                - task: AzureCLI@2
-                  displayName: deploy_${{ parameters.environmentName }}_services_bicep
-                  inputs:
-                    azureSubscription: ${{ parameters.azureSubscription }}
-                    scriptType: "pscore"
-                    scriptLocation: "inlineScript"
-                    inlineScript: |
-                      $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
-
-                      az deployment group create `
-                        --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                        --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)" `
-                        --template-file bicep/services.bicep `
-                        --parameters @params/services.$($config.parameters.environment.value).json
 
                 - task: AzureCLI@2
                   name: deploy_outputs
@@ -70,9 +55,9 @@ stages:
                     scriptType: "pscore"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+                      $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                         --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
                       echo "##vso[task.setvariable variable=webAppIdentityPrincipalId;isOutput=true]$($deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value)"
@@ -86,9 +71,9 @@ stages:
                     scriptType: "pscore"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      $config = (Get-Content params/services.${{ parameters.environmentName }}.json | ConvertFrom-Json)
+                      $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment group show --name "portal-web-services-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
+                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                         --resource-group "rg-portal-web-$($config.parameters.environment.value)-$($config.parameters.location.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
                       $principalId = $deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value

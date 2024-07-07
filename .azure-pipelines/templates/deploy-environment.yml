@@ -57,8 +57,7 @@ stages:
                     inlineScript: |
                       $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                        --location "$($config.parameters.location.value)") | ConvertFrom-Json
+                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
                       echo "##vso[task.setvariable variable=webAppIdentityPrincipalId;isOutput=true]$($deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value)"
                       echo "##vso[task.setvariable variable=webAppName;isOutput=true]$($deploymentOutput.properties.outputs.webAppName.value)"
@@ -73,8 +72,7 @@ stages:
                     inlineScript: |
                       $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
 
-                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
-                        --location "$($config.parameters.location.value)") | ConvertFrom-Json
+                      $deploymentOutput = (az deployment sub show --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)") | ConvertFrom-Json
 
                       $principalId = $deploymentOutput.properties.outputs.webAppIdentityPrincipalId.value
 

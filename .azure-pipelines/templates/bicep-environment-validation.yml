@@ -46,6 +46,8 @@ jobs:
                 scriptType: "pscore"
                 scriptLocation: "inlineScript"
                 inlineScript: |
+                  $config = (Get-Content params/${{ parameters.environmentName }}.json | ConvertFrom-Json)
+
                   az deployment sub what-if `
                     --name "portal-web-$($config.parameters.environment.value)-$($config.parameters.instance.value)" `
                     --template-file bicep/main.bicep `

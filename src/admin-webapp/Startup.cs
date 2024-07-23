@@ -57,7 +57,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddRepositoryApiClient(options =>
             {
                 options.BaseUrl = Configuration["repository_base_url"] ?? Configuration["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
-                options.ApiKey = Configuration["portal_repository_apim_subscription_key"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key");
+                options.PrimaryApiKey = Configuration["portal_repository_apim_subscription_key"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key");
                 options.ApiAudience = Configuration["repository_api_application_audience"] ?? throw new ArgumentNullException("repository_api_application_audience");
                 options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
             });
@@ -65,7 +65,7 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddServersApiClient(options =>
             {
                 options.BaseUrl = Configuration["servers_base_url"] ?? Configuration["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
-                options.ApiKey = Configuration["portal_servers_apim_subscription_key"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key");
+                options.PrimaryApiKey = Configuration["portal_servers_apim_subscription_key"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key");
                 options.ApiAudience = Configuration["servers_api_application_audience"] ?? throw new ArgumentNullException("servers_api_application_audience");
                 options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers";
             });

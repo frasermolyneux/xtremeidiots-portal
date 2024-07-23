@@ -30,19 +30,18 @@ namespace XtremeIdiots.Portal.AdminWebApp
             services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
             services.AddLogging();
 
+            //https://learn.microsoft.com/en-us/azure/azure-monitor/app/sampling-classic-api#configure-sampling-settings
             services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
             {
-                var builder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-
-                // Using fixed rate sampling
-                double fixedSamplingPercentage = 50;
-                builder.UseSampling(fixedSamplingPercentage);
+                var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+                telemetryProcessorChainBuilder.UseAdaptiveSampling(excludedTypes: "Exception");
+                telemetryProcessorChainBuilder.Build();
             });
-
             services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
             {
                 EnableAdaptiveSampling = false,
             });
+
             services.AddServiceProfiler();
 
             services.AddInvisionApiClient(options =>

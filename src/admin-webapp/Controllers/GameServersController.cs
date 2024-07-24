@@ -92,6 +92,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             createGameServerDto.HtmlBanner = model.HtmlBanner;
             createGameServerDto.PortalServerListEnabled = model.PortalServerListEnabled;
             createGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
+            createGameServerDto.BotEnabled = model.BotEnabled;
 
             await repositoryApiClient.GameServers.CreateGameServer(createGameServerDto);
 
@@ -197,6 +198,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             editGameServerDto.HtmlBanner = model.HtmlBanner;
             editGameServerDto.PortalServerListEnabled = model.PortalServerListEnabled;
             editGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
+            editGameServerDto.BotEnabled = model.BotEnabled;
 
             await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
 

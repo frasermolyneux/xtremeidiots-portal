@@ -28,17 +28,17 @@
                             </div>
                             <div class="form-group">
                                 <label asp-for="Title" class="control-label"></label>
-                                <input asp-for="Title" class="form-control"/>
+                                <input asp-for="Title" class="form-control" />
                                 <span asp-validation-for="Title" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="Hostname" class="control-label"></label>
-                                <input asp-for="Hostname" class="form-control"/>
+                                <input asp-for="Hostname" class="form-control" />
                                 <span asp-validation-for="Hostname" class="text-danger"></span>
                             </div>
                             <div class="form-group">
                                 <label asp-for="QueryPort" class="control-label"></label>
-                                <input asp-for="QueryPort" class="form-control"/>
+                                <input asp-for="QueryPort" class="form-control" />
                                 <span asp-validation-for="QueryPort" class="text-danger"></span>
                             </div>
                         </div>
@@ -49,8 +49,10 @@
         </row>
 
         @{
-            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType, AuthPolicies.EditGameServerFtp)).Succeeded;
-            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType, AuthPolicies.EditGameServerRcon)).Succeeded;
+            var canEditFtpCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType,
+            AuthPolicies.EditGameServerFtp)).Succeeded;
+            var canEditRconCredentials = (await AuthorizationService.AuthorizeAsync(User, Model.GameType,
+            AuthPolicies.EditGameServerRcon)).Succeeded;
         }
 
         @if (canEditFtpCredentials || canEditRconCredentials)
@@ -68,22 +70,22 @@
                                 {
                                     <div class="form-group">
                                         <label asp-for="FtpHostname" class="control-label"></label>
-                                        <input asp-for="FtpHostname" class="form-control"/>
+                                        <input asp-for="FtpHostname" class="form-control" />
                                         <span asp-validation-for="FtpHostname" class="text-danger"></span>
                                     </div>
                                     <div class="form-group">
                                         <label asp-for="FtpPort" class="control-label"></label>
-                                        <input asp-for="FtpPort" class="form-control"/>
+                                        <input asp-for="FtpPort" class="form-control" />
                                         <span asp-validation-for="FtpPort" class="text-danger"></span>
                                     </div>
                                     <div class="form-group">
                                         <label asp-for="FtpUsername" class="control-label"></label>
-                                        <input asp-for="FtpUsername" class="form-control"/>
+                                        <input asp-for="FtpUsername" class="form-control" />
                                         <span asp-validation-for="FtpUsername" class="text-danger"></span>
                                     </div>
                                     <div class="form-group">
                                         <label asp-for="FtpPassword" class="control-label"></label>
-                                        <input asp-for="FtpPassword" class="form-control"/>
+                                        <input asp-for="FtpPassword" class="form-control" />
                                         <span asp-validation-for="FtpPassword" class="text-danger"></span>
                                     </div>
                                 }
@@ -91,7 +93,7 @@
                                 {
                                     <div class="form-group">
                                         <label asp-for="RconPassword" class="control-label"></label>
-                                        <input asp-for="RconPassword" class="form-control"/>
+                                        <input asp-for="RconPassword" class="form-control" />
                                         <span asp-validation-for="RconPassword" class="text-danger"></span>
                                     </div>
                                 }
@@ -114,17 +116,19 @@
                         <div class="ibox-content">
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="LiveTrackingEnabled"/> @Html.DisplayNameFor(model => model.LiveTrackingEnabled)
+                                    <input class="form-check-input" asp-for="LiveTrackingEnabled" />
+                                    @Html.DisplayNameFor(model => model.LiveTrackingEnabled)
                                 </label>
                             </div>
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="BannerServerListEnabled"/> @Html.DisplayNameFor(model => model.BannerServerListEnabled)
+                                    <input class="form-check-input" asp-for="BannerServerListEnabled" />
+                                    @Html.DisplayNameFor(model => model.BannerServerListEnabled)
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label asp-for="ServerListPosition" class="control-label"></label>
-                                <input asp-for="ServerListPosition" class="form-control"/>
+                                <input asp-for="ServerListPosition" class="form-control" />
                                 <span asp-validation-for="ServerListPosition" class="text-danger"></span>
                             </div>
                             <div class="form-group">
@@ -132,15 +136,23 @@
                                 <textarea asp-for="HtmlBanner" class="form-control" style="height: 200px"></textarea>
                                 <span asp-validation-for="HtmlBanner" class="text-danger"></span>
                             </div>
-                            <hr/>
+                            <hr />
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="PortalServerListEnabled"/> @Html.DisplayNameFor(model => model.PortalServerListEnabled)
+                                    <input class="form-check-input" asp-for="PortalServerListEnabled" />
+                                    @Html.DisplayNameFor(model => model.PortalServerListEnabled)
                                 </label>
                             </div>
                             <div class="form-group form-check">
                                 <label class="form-check-label">
-                                    <input class="form-check-input" asp-for="ChatLogEnabled"/> @Html.DisplayNameFor(model => model.ChatLogEnabled)
+                                    <input class="form-check-input" asp-for="ChatLogEnabled" />
+                                    @Html.DisplayNameFor(model => model.ChatLogEnabled)
+                                </label>
+                            </div>
+                            <div class="form-group form-check">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" asp-for="BotEnabled" />
+                                    @Html.DisplayNameFor(model => model.BotEnabled)
                                 </label>
                             </div>
                         </div>
@@ -168,7 +180,8 @@
                         </div>
                         <div class="ibox-footer">
                             <div class="btn-group btn-group-sm" role="group">
-                                <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                                <a type="button" class="btn btn-primary" asp-action="Index"><i
+                                        class="fa fa-arrow-left"></i> Back to List</a>
                             </div>
                         </div>
                     </div>
@@ -184,5 +197,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

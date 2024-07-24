@@ -31,5 +31,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
         [DisplayName("Portal Server List")] public bool PortalServerListEnabled { get; set; }
 
         [DisplayName("Chat Log")] public bool ChatLogEnabled { get; set; }
+
+        [DisplayName("Bot")] public bool BotEnabled { get; set; }
     }
 }

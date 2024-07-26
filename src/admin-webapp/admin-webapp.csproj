@@ -29,7 +29,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
-    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240724.4" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240725.2" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.236.1" />
     <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.194.1" />
   </ItemGroup>

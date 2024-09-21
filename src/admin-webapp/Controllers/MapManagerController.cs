@@ -76,7 +76,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     maps = mapsCollectionApiResponse.Result.Entries;
             }
 
-            var ftpMaps = await serversApiClient.Maps.GetServerMaps(id);
+            var ftpMaps = await serversApiClient.Maps.GetLoadedServerMapsFromHost(id);
 
             var viewModel = new ManageMapsViewModel(gameServerApiResponse.Result)
             {
@@ -101,7 +101,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            await serversApiClient.Maps.PushServerMap(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
+            await serversApiClient.Maps.PushServerMapToHost(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
 
             return RedirectToAction("Manage", new { id = gameServerApiResponse.Result.GameServerId });
         }

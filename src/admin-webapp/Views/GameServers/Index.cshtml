@@ -85,7 +85,7 @@
                                         <td>
                                             <div class="btn-group btn-group-sm" role="group">
                                                 @if ((await AuthorizationService.AuthorizeAsync(User, item.GameType,
-                                               AuthPolicies.EditGameServer)).Succeeded && item.GameType ==
+                                               AuthPolicies.ManageMaps)).Succeeded && item.GameType ==
                                                GameType.CallOfDuty4)
                                                 {
                                                     <a type="button" class="btn btn-secondary" asp-controller="MapManager"

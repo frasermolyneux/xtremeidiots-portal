@@ -2,17 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
-using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
-    [Authorize(Policy = AuthPolicies.AccessGameServers)]
+    [Authorize(Policy = AuthPolicies.ManageMaps)]
     public class MapManagerController : Controller
     {
         private readonly IAuthorizationService authorizationService;
@@ -75,6 +72,24 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             await serversApiClient.Maps.PushServerMapToHost(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
 
             return RedirectToAction("Manage", new { id = gameServerApiResponse.Result.GameServerId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteMapFromHost(DeleteMapFromHostModel model)
+        {
+            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.GameServerId);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
+                return NotFound();
+
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+
+            if (!canManageGameServerMaps.Succeeded)
+                return Unauthorized();
+
+            await serversApiClient.Maps.DeleteServerMapFromHost(model.GameServerId, model.MapName);
+
+            return RedirectToAction("Manage", new { id = model.GameServerId });
         }
     }
 }

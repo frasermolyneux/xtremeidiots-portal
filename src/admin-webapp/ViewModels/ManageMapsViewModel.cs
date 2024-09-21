@@ -1,4 +1,5 @@
 ﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.ServersApi.Abstractions.Models.Rcon;
@@ -16,5 +17,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
         public List<MapDto> Maps { get; set; } = new List<MapDto>();
         public List<ServerMapDto> ServerMaps { get; set; } = new List<ServerMapDto>();
         public List<RconMapDto> RconMaps { get; set; } = new List<RconMapDto>();
+        public List<MapPackDto> MapPacks { get; set; } = new List<MapPackDto>();
     }
 }

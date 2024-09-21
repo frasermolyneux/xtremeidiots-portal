@@ -44,6 +44,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             var rconMaps = await serversApiClient.Rcon.GetServerMaps(id);
             var ftpMaps = await serversApiClient.Maps.GetLoadedServerMapsFromHost(id);
+            var mapPacks = await repositoryApiClient.MapPacks.GetMapPacks(null, [id], null, 0, 50, MapPacksOrder.Title);
 
             var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, rconMaps.Result?.Entries.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
 
@@ -51,7 +52,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             {
                 Maps = mapsCollectionApiResponse.Result.Entries,
                 ServerMaps = ftpMaps.Result.Entries,
-                RconMaps = rconMaps.Result.Entries
+                RconMaps = rconMaps.Result.Entries,
+                MapPacks = mapPacks.Result.Entries
             };
 
             return View(viewModel);

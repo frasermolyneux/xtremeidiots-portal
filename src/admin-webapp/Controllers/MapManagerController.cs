@@ -42,47 +42,16 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.GetGameServerStatusStats(gameServerApiResponse.Result.GameServerId, DateTime.UtcNow.AddDays(-2));
-
-            var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
-            var maps = new List<MapDto>();
-
-            if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result != null)
-            {
-                GameServerStatDto? current = null;
-                foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Entries.OrderBy(gss => gss.Timestamp))
-                {
-                    if (current == null)
-                    {
-                        current = gameServerStatusStatDto;
-                        continue;
-                    }
-
-                    if (current.MapName != gameServerStatusStatDto.MapName)
-                    {
-                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
-                        current = gameServerStatusStatDto;
-                        continue;
-                    }
-
-                    if (current == gameServerStatsResponseDto.Result.Entries.Last())
-                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
-                }
-
-                var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-                var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
-
-                if (mapsCollectionApiResponse.Result != null)
-                    maps = mapsCollectionApiResponse.Result.Entries;
-            }
-
+            var rconMaps = await serversApiClient.Rcon.GetServerMaps(id);
             var ftpMaps = await serversApiClient.Maps.GetLoadedServerMapsFromHost(id);
+
+            var mapsCollectionApiResponse = await repositoryApiClient.Maps.GetMaps(gameServerApiResponse.Result.GameType, rconMaps.Result?.Entries.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var viewModel = new ManageMapsViewModel(gameServerApiResponse.Result)
             {
-                Maps = maps,
-                MapTimelineDataPoints = mapTimelineDataPoints,
-                ServerMaps = ftpMaps.Result.Entries.ToList()
+                Maps = mapsCollectionApiResponse.Result.Entries,
+                ServerMaps = ftpMaps.Result.Entries,
+                RconMaps = rconMaps.Result.Entries
             };
 
             return View(viewModel);

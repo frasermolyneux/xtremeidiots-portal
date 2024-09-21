@@ -30,8 +30,8 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
     <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240920.1" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.256.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.213.1" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.258.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.214.1" />
   </ItemGroup>
 
 

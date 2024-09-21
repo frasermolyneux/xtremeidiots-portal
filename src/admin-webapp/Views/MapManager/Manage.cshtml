@@ -112,9 +112,9 @@
                                         @Html.DisplayFor(modelItem => item.MapPackMaps.Count)
                                     </td>
                                     <td>
-                                        <a href="@Url.Action("Manage", "MapPack", new { id = item.MapPackId })"
+                                        <a href="@Url.Action("Manage", "MapPacks", new { id = item.MapPackId })"
                                             class="btn btn-xs btn-primary">Manage</a>
-                                        <a href="@Url.Action("Delete", "MapPack", new { id = item.MapPackId })"
+                                        <a href="@Url.Action("Delete", "MapPacks", new { id = item.MapPackId })"
                                             class="btn btn-xs btn-danger">Delete</a>
                                     </td>
                                 </tr>
@@ -124,6 +124,11 @@
                     </table>
 
                 </div>
+
+                <div class="ibox-footer">
+                    <a href="@Url.Action("Create", "MapPacks", new { gameServerId = @Model.GameServer.GameServerId })" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+                </div>
+
             </div>
 
         </div>

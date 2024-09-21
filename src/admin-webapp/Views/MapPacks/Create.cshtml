@@ -1,0 +1,81 @@
+@using XtremeIdiots.Portal.AdminWebApp.ViewModels
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks
+
+@model CreateMapPackViewModel
+
+@{
+    var gameServer = ViewData["GameServer"] as GameServerDto;
+
+    ViewData["Title"] = "Create Map Pack - " + gameServer.Title;
+}
+
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <form asp-action="Create">
+
+        <input id="gameServerId" name="gameServerId" type="hidden" value="@Model.GameServerId" />
+
+        <row class="row">
+            <div class="col-12">
+
+                <div class="container-fluid">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            Map Pack
+                        </div>
+                        <div class="ibox-content">
+                            <div class="form-group">
+                                <label asp-for="@Model.Title" class="control-label"></label>
+                                <input asp-for="@Model.Title" class="form-control"></select>
+                                <span asp-validation-for="@Model.Title" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Description" class="control-label"></label>
+                                <input asp-for="@Model.Description" class="form-control"></select>
+                                <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.GameMode" class="control-label"></label>
+                                <input asp-for="@Model.GameMode" class="form-control"></select>
+                                <span asp-validation-for="@Model.GameMode" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.SyncToGameServer" class="control-label"></label>
+                                <input asp-for="@Model.SyncToGameServer" class="form-control"></select>
+                                <span asp-validation-for="@Model.SyncToGameServer" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </row>
+
+        <row class="row">
+            <div class="col-12">
+
+                <div class="container-fluid">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            @ViewData["Title"]
+                        </div>
+                        <div class="ibox-content">
+
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-plus"> Create</i></button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </row>
+
+    </form>
+
+</div>

@@ -31,7 +31,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
     <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20241029.4" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.269.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.218.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.219.1" />
   </ItemGroup>
 
 

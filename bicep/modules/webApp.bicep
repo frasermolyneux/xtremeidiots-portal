@@ -110,8 +110,8 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       ftpsState: 'Disabled'
 
       alwaysOn: true
-      linuxFxVersion: 'DOTNETCORE|8.0'
-      netFrameworkVersion: 'v8.0'
+      linuxFxVersion: 'DOTNETCORE|9.0'
+      netFrameworkVersion: 'v9.0'
       minTlsVersion: '1.2'
 
       healthCheckPath: '/api/health'

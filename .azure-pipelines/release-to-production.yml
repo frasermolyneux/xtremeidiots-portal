@@ -17,7 +17,7 @@ resources:
 
 variables:
   buildConfiguration: "Release"
-  dotnetSdkVersion: "8.x"
+  dotnetSdkVersion: "9.x"
 
 stages:
   - stage: build_and_validate

@@ -118,14 +118,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
 
       appSettings: [
         {
-          name: 'READ_ONLY_MODE'
-          value: (environment == 'prd') ? 'true' : 'false'
-        }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: appInsights.properties.InstrumentationKey
-        }
-        {
           name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
           value: appInsights.properties.ConnectionString
         }

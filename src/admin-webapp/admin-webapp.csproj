@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.ApplicationInsights.Profiler.AspNetCore" Version="2.7.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
@@ -27,7 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
     <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20250210.1" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.291.1" />

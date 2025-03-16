@@ -29,9 +29,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
-    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20250314.1" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.304.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.248.1" />
+    <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20250316.1" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.305.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.249.1" />
   </ItemGroup>
 
 

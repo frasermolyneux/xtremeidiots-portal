@@ -50,10 +50,11 @@ resource apiManagement 'Microsoft.ApiManagement/service@2021-12-01-preview' exis
 }
 
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
-  // checkov:skip=CKV_AZURE_23: Auditing is managed outside of this template
-  // checkov:skip=CKV_AZURE_24: Auditing is managed outside of this template
   name: sqlServerRef.Name
   scope: resourceGroup(sqlServerRef.SubscriptionId, sqlServerRef.ResourceGroupName)
+
+  // checkov:skip=CKV_AZURE_23: Auditing is managed outside of this template
+  // checkov:skip=CKV_AZURE_24: Auditing is managed outside of this template
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {

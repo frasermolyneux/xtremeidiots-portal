@@ -53,8 +53,8 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01-preview' existing = {
   name: sqlServerRef.Name
   scope: resourceGroup(sqlServerRef.SubscriptionId, sqlServerRef.ResourceGroupName)
 
-  //checkov:skip=CKV_AZURE_23: Auditing is managed outside of this template
-  //checkov:skip=CKV_AZURE_24: Auditing is managed outside of this template
+  //checkov:skip=CKV_AZURE_23: Ensure that 'Auditing' is set to 'On' for SQL servers :: Auditing is managed outside of this template
+  //checkov:skip=CKV_AZURE_24: Ensure that 'Auditing' Retention is 'greater than 90 days' for SQL servers :: Auditing is managed outside of this template
 }
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-10-01' existing = {
@@ -116,6 +116,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       linuxFxVersion: 'DOTNETCORE|9.0'
       netFrameworkVersion: 'v9.0'
       minTlsVersion: '1.2'
+      http20Enabled: true
 
       healthCheckPath: '/api/health'
 
@@ -215,6 +216,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       ]
     }
   }
+
+  //checkov:skip=CKV_AZURE_17: Ensure the web app has 'Client Certificates (Incoming client certificates)' set :: Client certs are not being used
+  //checkov:skip=CKV_AZURE_222: Ensure that Azure Web App public network access is disabled :: Web app is public facing
+  //checkov:skip=CKV_AZURE_212: Ensure App Service has a minimum number of instances for failover :: Minimum cost solution
 }
 
 //module webTest 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/webtest:latest' = if (environment == 'prd') {

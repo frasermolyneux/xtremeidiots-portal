@@ -2,11 +2,60 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "clean",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "build",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
+                "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "dependsOn": "clean",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/src",
+                "--filter",
+                "FullyQualifiedName!~IntegrationTests",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "clean release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "--configuration",
+                "Release",
                 "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
@@ -19,10 +68,13 @@
             "type": "process",
             "args": [
                 "publish",
+                "--configuration",
+                "Release",
                 "${workspaceFolder}/src/admin-webapp/admin-webapp.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
+            "dependsOn": "clean release",
             "problemMatcher": "$msCompile"
         },
         {

@@ -107,6 +107,10 @@
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Ban">Add Ban</a>
                                         </li>
                                     }
+                                    
+                                    <li>
+                                        <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId">Add Protected Name</a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -131,6 +135,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#protectedNames">Protected Names</a>
                     </li>
                     @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
                     {
@@ -211,6 +218,59 @@
                                 }
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames">
+                        @if (Model.Player.ProtectedNames != null && Model.Player.ProtectedNames.Any())
+                        {
+                            <table class="table table-borderless" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Created</th>
+                                        <th>Created By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var protectedName in Model.Player.ProtectedNames)
+                                    {
+                                        <tr>
+                                            <td>@protectedName.Name</td>
+                                            <td>@Html.ToUserTime(User, protectedName.CreatedOn)</td>
+                                            <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
+                                            <td>
+                                                <a asp-controller="Players" asp-action="ProtectedNameReport" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm">
+                                                    <i class="fa fa-file-text"></i> Usage Report
+                                                </a>
+                                                <a asp-controller="Players" asp-action="DeleteProtectedName" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
+                                                   onclick="return confirm('Are you sure you want to delete this protected name?');">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            
+                            <p>
+                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Add Another Protected Name
+                                </a>
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                This player has no protected names.
+                            </div>
+                            
+                            <p>
+                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Add Protected Name
+                                </a>
+                            </p>
+                        }
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))

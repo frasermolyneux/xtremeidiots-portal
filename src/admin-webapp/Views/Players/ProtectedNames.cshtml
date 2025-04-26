@@ -1,0 +1,59 @@
+@model XtremeIdiots.Portal.AdminWebApp.ViewModels.ProtectedNamesViewModel
+
+@{
+    ViewData["Title"] = "Protected Names";
+}
+
+<div class="page-header">
+    <h2>Protected Names</h2>
+</div>
+
+<p>
+    Protected names are usernames that are exclusively owned by specific players. If another player attempts to use a
+    protected name, the system will automatically ban them.
+</p>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">All Protected Names</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Owner</th>
+                    <th>Created</th>
+                    <th>Created By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var protectedName in Model.ProtectedNames)
+                {
+                    <tr>
+                        <td>@protectedName.Name</td>
+                        <td>
+                            <a asp-controller="Players" asp-action="Details" asp-route-id="@protectedName.PlayerId">
+                                View Player Profile
+                            </a>
+                        </td>
+                        <td>@protectedName.CreatedOn.ToString("yyyy-MM-dd")</td>
+                        <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
+                        <td>
+                            <a asp-controller="Players" asp-action="ProtectedNameReport"
+                                asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm">
+                                <i class="fa fa-file-text"></i> Usage Report
+                            </a>
+                            <a asp-controller="Players" asp-action="DeleteProtectedName"
+                                asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this protected name?');">
+                                <i class="fa fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

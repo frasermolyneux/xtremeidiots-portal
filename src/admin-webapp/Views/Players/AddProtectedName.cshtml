@@ -1,0 +1,59 @@
+@model XtremeIdiots.Portal.AdminWebApp.ViewModels.CreateProtectedNameViewModel
+
+@{
+    ViewData["Title"] = "Add Protected Name";
+}
+
+<div class="page-header">
+    <h2>Add Protected Name</h2>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Player Information</h3>
+            </div>
+            <div class="panel-body">
+                <dl class="dl-horizontal">
+                    <dt>Username:</dt>
+                    <dd>@Model.Player?.Username</dd>
+                    <dt>Game:</dt>
+                    <dd>@Model.Player?.GameType</dd>
+                    <dt>GUID:</dt>
+                    <dd>@Model.Player?.Guid</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Add Protected Name</h3>
+            </div>
+            <div class="panel-body">
+                <form asp-action="AddProtectedName" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="PlayerId" />
+                    
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <small class="text-muted">Enter the name you want to protect. This must be unique.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Add Protected Name</button>
+                        <a asp-action="Details" asp-route-id="@Model.PlayerId" class="btn btn-default">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

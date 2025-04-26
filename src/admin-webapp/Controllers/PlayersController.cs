@@ -1,5 +1,4 @@
-﻿
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +11,7 @@ using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -115,7 +115,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -208,5 +208,116 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             return Json(playerAnalyticsResponse.Result.Entries);
         }
+
+        #region Protected Names
+
+        [HttpGet]
+        public async Task<IActionResult> ProtectedNames()
+        {
+            var protectedNamesResponse = await repositoryApiClient.Players.GetProtectedNames(0, 1000);
+
+            if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var model = new ProtectedNamesViewModel
+            {
+                ProtectedNames = protectedNamesResponse.Result.Entries
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddProtectedName(Guid id)
+        {
+            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+
+            if (!playerResponse.IsSuccess || playerResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            var model = new CreateProtectedNameViewModel(id)
+            {
+                Player = playerResponse.Result
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProtectedName(CreateProtectedNameViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                if (playerResponse.IsSuccess && playerResponse.Result != null)
+                {
+                    model.Player = playerResponse.Result;
+                }
+                return View(model);
+            }
+
+            var createProtectedNameDto = new CreateProtectedNameDto(
+                model.PlayerId,
+                model.Name,
+                User.UserProfileId());
+
+            var response = await repositoryApiClient.Players.CreateProtectedName(createProtectedNameDto);
+
+            if (!response.IsSuccess)
+            {
+                if (response.IsConflict)
+                {
+                    ModelState.AddModelError("Name", "This name is already protected by another player");
+
+                    var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                    if (playerResponse.IsSuccess && playerResponse.Result != null)
+                    {
+                        model.Player = playerResponse.Result;
+                    }
+
+                    return View(model);
+                }
+
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+            }
+
+            return RedirectToAction(nameof(Details), new { id = model.PlayerId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteProtectedName(Guid id)
+        {
+            var protectedNameResponse = await repositoryApiClient.Players.GetProtectedName(id);
+
+            if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            var deleteProtectedNameDto = new DeleteProtectedNameDto(id);
+            var response = await repositoryApiClient.Players.DeleteProtectedName(deleteProtectedNameDto);
+
+            if (!response.IsSuccess)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            return RedirectToAction(nameof(Details), new { id = protectedNameResponse.Result.PlayerId });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ProtectedNameReport(Guid id)
+        {
+            var reportResponse = await repositoryApiClient.Players.GetProtectedNameUsageReport(id);
+
+            if (!reportResponse.IsSuccess || reportResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            var model = new ProtectedNameReportViewModel
+            {
+                Report = reportResponse.Result
+            };
+
+            return View(model);
+        }
+
+        #endregion
     }
 }

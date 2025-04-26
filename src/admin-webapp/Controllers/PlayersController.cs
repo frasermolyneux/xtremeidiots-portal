@@ -260,7 +260,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var createProtectedNameDto = new CreateProtectedNameDto(
                 model.PlayerId,
                 model.Name,
-                User.UserProfileId());
+                User.XtremeIdiotsId());
 
             var response = await repositoryApiClient.Players.CreateProtectedName(createProtectedNameDto);
 

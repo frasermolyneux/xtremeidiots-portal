@@ -36,7 +36,7 @@ function gameTypeIcon(gameType) {
 function gameTypeIconEnum(gameType) {
     var gameTypeString = "Unknown";
 
-    switch(gameType) {
+    switch (gameType) {
         case 1:
             gameTypeString = "CallOfDuty2";
             break;
@@ -87,10 +87,10 @@ function manageClaimsLink(userId) {
         "</div>";
 }
 
-function logOutUserLink(userId, antiForgeryToken) {
+function logOutUserLink(id, antiForgeryToken) {
     return '<form class="form-inline" method="post" action="/User/LogUserOut" method="post">' +
         '<input id="id" name="id" type="hidden" value="' +
-        userId +
+        id +
         '\"/>' +
         '<button class="btn btn-primary" type="submit">Logout User</button>' +
         antiForgeryToken +

@@ -95,7 +95,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             if (user == null)
             {
-                this.AddAlertWarning($"Could not find user with id {id}");
+                this.AddAlertWarning($"Could not find user with XtremeIdiots ID '{id}', or there is no user logged in with that XtremeIdiots ID");
                 return RedirectToAction(nameof(Index));
             }
 

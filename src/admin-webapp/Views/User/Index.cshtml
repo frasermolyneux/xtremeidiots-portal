@@ -5,7 +5,8 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> To understand how the permissions work and what the additional permissions mean please see the <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
+        <i class="fa fa-info-circle"></i> To understand how the permissions work and what the additional permissions
+        mean please see the <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
     </div>
 
     <row class="row">
@@ -19,13 +20,14 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <td>Id</td>
-                                <td>Username</td>
-                                <td>Email</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+                                <tr>
+                                    <td>XtremeIdiots Forum Id</td>
+                                    <td>User Profile Id</td>
+                                    <td>Username</td>
+                                    <td>Email</td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -43,7 +45,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -55,11 +57,16 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
                 columns: [
+                    {
+                        data: 'xtremeIdiotsForumId',
+                        name: 'xtremeIdiotsForumId',
+                        sortable: true
+                    },
                     {
                         data: 'userProfileId',
                         name: 'userProfileId',
@@ -77,13 +84,13 @@
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
-                            return logOutUserLink(row['userProfileId'], '@Html.AntiForgeryToken()');
+                        render: function (data, type, row) {
+                            return logOutUserLink(row['xtremeIdiotsForumId'], '@Html.AntiForgeryToken()');
                         }
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return manageClaimsLink(row['userProfileId']);
                         }
                     }

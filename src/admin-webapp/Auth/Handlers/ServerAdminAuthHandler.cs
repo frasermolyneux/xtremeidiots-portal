@@ -33,6 +33,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
                 if (requirement is ManageMaps)
                     HandleManageMaps(context, requirement);
+
+                if (requirement is LockChatMessages)
+                    HandleLockChatMessages(context, requirement);
             }
 
             return Task.CompletedTask;
@@ -149,6 +152,27 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.Handlers
 
             if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
                 context.Succeed(requirement);
+        }
+
+        private void HandleLockChatMessages(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        {
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                context.Succeed(requirement);
+
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
+                context.Succeed(requirement);
+
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
+                context.Succeed(requirement);
+
+            // Only allow moderators to lock chat messages if it's for a specific game
+            if (context.Resource is GameType)
+            {
+                var gameType = (GameType)context.Resource;
+
+                if (context.User.HasClaim(UserProfileClaimType.Moderator, gameType.ToString()))
+                    context.Succeed(requirement);
+            }
         }
     }
 }

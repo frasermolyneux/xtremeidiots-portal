@@ -26,21 +26,30 @@
                 <div class="ibox">
                     <div class="ibox-title">
                         @ViewData["Title"]
+                        <div class="ibox-tools">
+                            <button id="showLockedMessagesBtn" class="btn btn-xs btn-outline-primary">
+                                <i class="fa fa-lock"></i> Show Locked Messages
+                            </button>
+                            <button id="showAllMessagesBtn" class="btn btn-xs btn-outline-secondary">
+                                <i class="fa fa-list"></i> Show All Messages
+                            </button>
+                        </div>
                     </div>
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <td>Timestamp</td>
-                                <td>Username</td>
-                                <td>Type</td>
-                                <td>Message</td>
-                                @if (showServer)
-                                {
-                                    <td>Server</td>
-                                }
-                                <td>Link</td>
-                            </tr>
+                                <tr>
+                                    <td>Timestamp</td>
+                                    <td>Username</td>
+                                    <td>Type</td>
+                                    <td>Message</td>
+                                    @if (showServer)
+                                    {
+                                        <td>Server</td>
+                                    }
+                                    <td>Status</td>
+                                    <td>Link</td>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -57,9 +66,10 @@
 @section Scripts {
 
     <script type="text/javascript">
+        var dataTable;
 
-        $(document).ready(function() {
-            $('#dataTable').DataTable({
+        $(document).ready(function () {
+            dataTable = $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
@@ -70,7 +80,7 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -84,7 +94,7 @@
                         data: 'username',
                         name: 'username',
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return renderPlayerName(row['player']['gameType'], row['username'], row['playerId']);
                         }
                     },
@@ -103,23 +113,44 @@
                         <text>
                             {
                                 data: 'serverName',
-                                name: 'serverName',
-                                sortable: false,
-                                render: function(data, type, row) {
-                                    return row['gameServer']['liveTitle'];
-                                }   
-                            },
+                            name: 'serverName',
+                            sortable: false,
+                            render: function(data, type, row) {
+                                            return row['gameServer']['liveTitle'];
+                                        }   
+                                    },
                         </text>
-                    }
+                        }
+                    {
+                        data: 'locked',
+                        name: 'locked',
+                        sortable: false,
+                        render: function (data, type, row) {
+                            if (row['locked']) {
+                                return '<span class="label label-warning"><i class="fa fa-lock"></i></span>';
+                            } else {
+                                return '';
+                            }
+                        }
+                    },
                     {
                         data: 'chatMessageId',
                         name: 'chatMessageId',
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return chatLogUrl(row['chatMessageId']);
                         }
                     }
                 ]
+            });
+
+            // Button handlers for filtering
+            $('#showLockedMessagesBtn').click(function () {
+                dataTable.search('locked:').draw();
+            });
+
+            $('#showAllMessagesBtn').click(function () {
+                dataTable.search('').draw();
             });
         });
 

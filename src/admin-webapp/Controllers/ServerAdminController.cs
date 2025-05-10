@@ -236,9 +236,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
         [HttpPost]
         [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
-        public async Task<IActionResult> GetChatLogAjax()
+        public async Task<IActionResult> GetChatLogAjax(bool? lockedOnly = null)
         {
-            return await GetChatLogPrivate(null, null, null);
+            return await GetChatLogPrivate(null, null, null, lockedOnly);
         }
 
         [HttpGet]
@@ -254,14 +254,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetGameChatLogAjax(GameType id)
+        public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null)
         {
             var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
 
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(id, null, null);
+            return await GetChatLogPrivate(id, null, null, lockedOnly);
         }
 
         [HttpGet]
@@ -282,7 +282,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetServerChatLogAjax(Guid id)
+        public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null)
         {
             var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
 
@@ -294,11 +294,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(null, id, null);
+            return await GetChatLogPrivate(null, id, null, lockedOnly);
         }
 
         [HttpPost]
-        public async Task<IActionResult> GetPlayerChatLog(Guid id)
+        public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null)
         {
             var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
 
@@ -310,10 +310,10 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.PlayerId);
+            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.PlayerId, lockedOnly);
         }
 
-        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId)
+        private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null)
         {
             var reader = new StreamReader(Request.Body);
             var requestBody = await reader.ReadToEndAsync();
@@ -337,7 +337,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 }
             }
 
-            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order);
+            // Check for locked filter parameter
+            if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                lockedOnly = true;
+                model.Search.Value = model.Search.Value.Substring(7).Trim(); // Remove "locked:" prefix
+            }
+
+            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order, lockedOnly);
 
             if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -360,6 +367,29 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return NotFound();
 
             return View(chatMessageApiResponse.Result);
+        }
+
+        [HttpPost]
+        [Authorize(Policy = AuthPolicies.LockChatMessages)]
+        public async Task<IActionResult> ToggleChatMessageLock(Guid id)
+        {
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.GetChatMessage(id);
+
+            if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result == null || chatMessageApiResponse.Result.GameServer == null)
+                return NotFound();
+
+            var canLockChatMessage = await _authorizationService.AuthorizeAsync(User, chatMessageApiResponse.Result.GameServer.GameType, AuthPolicies.LockChatMessages);
+
+            if (!canLockChatMessage.Succeeded)
+                return Unauthorized();
+
+            var toggleResponse = await repositoryApiClient.ChatMessages.ToggleLockedStatus(id);
+
+            if (!toggleResponse.IsSuccess)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            // Redirect back to the chat message permalink
+            return RedirectToAction(nameof(ChatLogPermaLink), new { id });
         }
     }
 }

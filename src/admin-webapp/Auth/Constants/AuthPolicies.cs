@@ -62,6 +62,7 @@
         public const string ViewLiveRcon = nameof(ViewLiveRcon);
         public const string ViewServerChatLog = nameof(ViewServerChatLog);
         public const string ManageMaps = nameof(ManageMaps);
+        public const string LockChatMessages = nameof(LockChatMessages);
 
         // Servers
         public const string AccessServers = nameof(AccessServers);

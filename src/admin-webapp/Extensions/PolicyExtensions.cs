@@ -66,6 +66,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             options.AddPolicy(AuthPolicies.ViewLiveRcon, policy => { policy.Requirements.Add(new ViewLiveRcon()); });
             options.AddPolicy(AuthPolicies.ViewServerChatLog, policy => { policy.Requirements.Add(new ViewServerChatLog()); });
             options.AddPolicy(AuthPolicies.ManageMaps, policy => { policy.Requirements.Add(new ManageMaps()); });
+            options.AddPolicy(AuthPolicies.LockChatMessages, policy => { policy.Requirements.Add(new LockChatMessages()); });
 
             // Servers
             options.AddPolicy(AuthPolicies.AccessServers, policy => { policy.Requirements.Add(new AccessServers()); });

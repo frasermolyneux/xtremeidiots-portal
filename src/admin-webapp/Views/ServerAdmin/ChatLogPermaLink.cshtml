@@ -1,4 +1,7 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
+﻿@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.ChatMessages
 @model ChatMessageDto
 
 @{
@@ -13,6 +16,10 @@
             <div class="ibox">
                 <div class="ibox-title">
                     <h5>Chat Log Entry - @Model.ChatMessageId</h5>
+                    @if (Model.Locked)
+                    {
+                        <span class="label label-warning"><i class="fa fa-lock"></i> Locked</span>
+                    }
                 </div>
 
                 <div class="ibox-content">
@@ -43,11 +50,45 @@
                             </span>
                             Timestamp
                         </li>
+                        <li class="list-group-item">
+                            <span class="pull-right">
+                                @if (Model.Locked)
+                                {
+                                    <i class="fa fa-lock"></i> <text>Yes</text>
+                                }
+                                else
+                                {
+                                    <i class="fa fa-unlock"></i> <text>No</text>
+                                }
+                            </span>
+                            Locked
+                        </li>
                     </ul>
                 </div>
+
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.GameServer.GameType,
+                                AuthPolicies.LockChatMessages)).Succeeded)
+                {
+                    <div class="ibox-footer">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <form asp-controller="ServerAdmin" asp-action="ToggleChatMessageLock"
+                                asp-route-id="@Model.ChatMessageId" method="post">
+                                <button type="submit" class="btn @(Model.Locked ? "btn-success" : "btn-warning")">
+                                    @if (Model.Locked)
+                                    {
+                                        <i class="fa fa-unlock"></i> <text>Unlock Message</text>
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-lock"></i> <text>Lock Message</text>
+                                    }
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
-
-
 </div>
+method="post">

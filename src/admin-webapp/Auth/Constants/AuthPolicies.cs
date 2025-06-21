@@ -49,6 +49,12 @@
         // Maps
         public const string AccessMigration = nameof(AccessMigration);
 
+        // Player Tags
+        public const string AccessPlayerTags = nameof(AccessPlayerTags);
+        public const string CreatePlayerTag = nameof(CreatePlayerTag);
+        public const string DeletePlayerTag = nameof(DeletePlayerTag);
+        public const string EditPlayerTag = nameof(EditPlayerTag);
+
         // Players
         public const string AccessPlayers = nameof(AccessPlayers);
         public const string DeletePlayer = nameof(DeletePlayer);

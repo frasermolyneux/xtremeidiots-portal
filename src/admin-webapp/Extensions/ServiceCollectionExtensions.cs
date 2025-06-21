@@ -20,6 +20,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             services.AddSingleton<IAuthorizationHandler, HomeAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, MapsAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, PlayersAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, PlayerTagsAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, ServerAdminAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, ServersAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, StatusAuthHandler>();

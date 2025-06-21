@@ -1,0 +1,46 @@
+@model XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags.PlayerTagDto
+
+@{
+    ViewData["Title"] = "Remove Player Tag";
+    var player = ViewBag.Player as XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players.PlayerDto;
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Remove Tag from Player: @player?.Username</h5>
+                </div>
+                <div class="ibox-content">
+                    <h3>Are you sure you want to remove this tag from the player?</h3>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="dl-horizontal">
+                                <dt>Tag:</dt>
+                                <dd>@Model.Tag?.Name @Html.Raw(Model.Tag?.TagHtml)</dd>
+
+                                <dt>Assigned By:</dt>
+                                <dd>@Model.UserProfile?.DisplayName</dd>
+
+                                <dt>Assigned On:</dt>
+                                <dd>@Model.Assigned.ToString("yyyy-MM-dd HH:mm")</dd>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <form asp-action="RemovePlayerTag" method="post">
+                        <input type="hidden" name="id" value="@Model.PlayerId" />
+                        <input type="hidden" name="playerTagId" value="@Model.PlayerTagId" />
+                        <div class="form-group">
+                            <a asp-action="Details" asp-controller="Players" asp-route-id="@Model.PlayerId"
+                                class="btn btn-white">Back to Player</a>
+                            <button type="submit" class="btn btn-danger">Remove Tag</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

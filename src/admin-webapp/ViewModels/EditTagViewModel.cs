@@ -1,0 +1,22 @@
+using System.ComponentModel.DataAnnotations;
+
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
+
+namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
+{
+    public class EditTagViewModel
+    {
+        [Required]
+        public Guid TagId { get; set; }
+
+        [Required]
+        [Display(Name = "Name")]
+        public string Name { get; set; } = string.Empty;
+
+        [Display(Name = "Description")]
+        public string? Description { get; set; }
+
+        [Display(Name = "HTML Markup")]
+        public string? TagHtml { get; set; }
+    }
+}

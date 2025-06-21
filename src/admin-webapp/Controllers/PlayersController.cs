@@ -12,6 +12,7 @@ using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
 using XtremeIdiots.Portal.RepositoryApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -316,6 +317,138 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             };
 
             return View(model);
+        }
+
+        #endregion
+
+        #region Player Tags
+
+        [HttpGet]
+        [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
+        public async Task<IActionResult> AddPlayerTag(Guid id)
+        {
+            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+
+            if (playerResponse.IsNotFound || playerResponse.Result == null)
+                return NotFound();
+
+            var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+
+            if (!tagsResponse.IsSuccess || tagsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var model = new AddPlayerTagViewModel
+            {
+                PlayerId = id,
+                Player = playerResponse.Result,
+                AvailableTags = tagsResponse.Result.Entries
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
+        public async Task<IActionResult> AddPlayerTag(AddPlayerTagViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                if (playerResponse.IsSuccess && playerResponse.Result != null)
+                {
+                    model.Player = playerResponse.Result;
+                }
+
+                var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+                if (tagsResponse.IsSuccess && tagsResponse.Result != null)
+                {
+                    model.AvailableTags = tagsResponse.Result.Entries;
+                }
+
+                return View(model);
+            }
+
+            var tagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
+            if (!tagResponse.IsSuccess || tagResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            var playerTagDto = new PlayerTagDto
+            {
+                PlayerId = model.PlayerId,
+                TagId = model.TagId,
+                UserProfileId = new Guid(User.XtremeIdiotsId()),
+                Assigned = DateTime.UtcNow
+            };
+
+            var response = await repositoryApiClient.Players.AddPlayerTag(model.PlayerId, playerTagDto);
+
+            if (!response.IsSuccess)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var eventTelemetry = new Microsoft.ApplicationInsights.DataContracts.EventTelemetry("PlayerTagAdded").Enrich(User);
+            eventTelemetry.Properties.Add("PlayerId", model.PlayerId.ToString());
+            eventTelemetry.Properties.Add("TagId", model.TagId.ToString());
+            eventTelemetry.Properties.Add("TagName", tagResponse.Result.Name);
+            telemetryClient.TrackEvent(eventTelemetry);
+
+            this.AddAlertSuccess($"The tag '{tagResponse.Result.Name}' has been successfully added to the player");
+
+            return RedirectToAction(nameof(Details), new { id = model.PlayerId });
+        }
+
+        [HttpGet]
+        [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
+        public async Task<IActionResult> RemovePlayerTag(Guid id, Guid playerTagId)
+        {
+            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            if (playerResponse.IsNotFound || playerResponse.Result == null)
+                return NotFound();
+
+            var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(id);
+            if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var playerTag = playerTagsResponse.Result.Entries.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+            if (playerTag == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            ViewBag.Player = playerResponse.Result;
+            return View(playerTag);
+        }
+
+        [HttpPost]
+        [ActionName("RemovePlayerTag")]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
+        public async Task<IActionResult> RemovePlayerTagConfirmed(Guid id, Guid playerTagId)
+        {
+            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            if (playerResponse.IsNotFound || playerResponse.Result == null)
+                return NotFound();
+
+            var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(id);
+            if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var playerTag = playerTagsResponse.Result.Entries.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+            if (playerTag == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            var response = await repositoryApiClient.Players.RemovePlayerTag(id, playerTagId);
+
+            if (!response.IsSuccess)
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+
+            var eventTelemetry = new Microsoft.ApplicationInsights.DataContracts.EventTelemetry("PlayerTagRemoved").Enrich(User);
+            eventTelemetry.Properties.Add("PlayerId", id.ToString());
+            eventTelemetry.Properties.Add("PlayerTagId", playerTagId.ToString());
+            eventTelemetry.Properties.Add("TagName", playerTag.Tag?.Name ?? "Unknown");
+            telemetryClient.TrackEvent(eventTelemetry);
+
+            this.AddAlertSuccess($"The tag '{playerTag.Tag?.Name ?? "Unknown"}' has been successfully removed from the player");
+
+            return RedirectToAction(nameof(Details), new { id = id });
         }
 
         #endregion

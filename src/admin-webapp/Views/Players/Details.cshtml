@@ -107,10 +107,16 @@
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Ban">Add Ban</a>
                                         </li>
                                     }
-                                    
-                                    <li>
+                                      <li>
                                         <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId">Add Protected Name</a>
                                     </li>
+                                    
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
+                                    {
+                                        <li>
+                                            <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@Model.Player.PlayerId">Add Tag</a>
+                                        </li>
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -138,6 +144,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#protectedNames">Protected Names</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#playerTags">Tags</a>
                     </li>
                     @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
                     {
@@ -271,6 +280,23 @@
                                 </a>
                             </p>
                         }
+                    </div>                    
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
+                        @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })                    </div>
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                This player has no tags.
+                            </div>
+                            
+                            <p>
+                                <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Add Tag
+                                </a>
+                            </p>
+                        }
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))
@@ -325,6 +351,10 @@
                             </tr>
                             </thead>
                         </table>
+                    </div>
+
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
+                        @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })
                     </div>
 
                 </div>

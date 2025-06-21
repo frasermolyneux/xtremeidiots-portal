@@ -1,0 +1,52 @@
+@model XtremeIdiots.Portal.AdminWebApp.ViewModels.TagsViewModel
+
+@{
+    ViewData["Title"] = "Manage Player Tags";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Player Tags</h5>
+                    <div class="ibox-tools">
+                        <a asp-action="Create" class="btn btn-primary btn-xs">Create New Tag</a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Tag Preview</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tag in Model.Tags)
+                                {
+                                    <tr>
+                                        <td>@tag.Name</td>
+                                        <td>@tag.Description</td>
+                                        <td>@Html.Raw(tag.TagHtml)</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a asp-action="Edit" asp-route-id="@tag.TagId"
+                                                    class="btn btn-white btn-xs">Edit</a>
+                                                <a asp-action="Delete" asp-route-id="@tag.TagId"
+                                                    class="btn btn-danger btn-xs">Delete</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

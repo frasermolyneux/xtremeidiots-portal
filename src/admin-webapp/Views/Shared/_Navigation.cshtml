@@ -251,6 +251,12 @@
                 </a>
             </li>
 
+            <li policy="@AuthPolicies.AccessPlayerTags" class="@Html.IsSelected("Tags", "Index")">
+                <a asp-controller="Tags" asp-action="Index">
+                    <i class="fa fa-tags"></i> <span class="nav-label">Player Tags</span>
+                </a>
+            </li>
+
         </ul>
     </div>
 </nav>

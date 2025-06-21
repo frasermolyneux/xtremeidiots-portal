@@ -7,7 +7,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 {
     public class PlayerDetailsViewModel
     {
-        public PlayerDto Player { get; set; }
-        public GeoLocationDto GeoLocation { get; set; }
+        public PlayerDto? Player { get; set; }
+        public GeoLocationDto? GeoLocation { get; set; }
     }
 }

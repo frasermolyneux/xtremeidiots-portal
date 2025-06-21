@@ -58,6 +58,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             options.AddPolicy(AuthPolicies.DeletePlayer, policy => { policy.Requirements.Add(new DeletePlayer()); });
             options.AddPolicy(AuthPolicies.ViewPlayers, policy => { policy.Requirements.Add(new ViewPlayers()); });
 
+            // Player Tags
+            options.AddPolicy(AuthPolicies.AccessPlayerTags, policy => { policy.Requirements.Add(new AccessPlayerTags()); });
+            options.AddPolicy(AuthPolicies.CreatePlayerTag, policy => { policy.Requirements.Add(new CreatePlayerTag()); });
+            options.AddPolicy(AuthPolicies.EditPlayerTag, policy => { policy.Requirements.Add(new EditPlayerTag()); });
+            options.AddPolicy(AuthPolicies.DeletePlayerTag, policy => { policy.Requirements.Add(new DeletePlayerTag()); });
+
             // Server Admin
             options.AddPolicy(AuthPolicies.AccessLiveRcon, policy => { policy.Requirements.Add(new AccessLiveRcon()); });
             options.AddPolicy(AuthPolicies.AccessServerAdmin, policy => { policy.Requirements.Add(new AccessServerAdmin()); });

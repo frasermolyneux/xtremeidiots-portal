@@ -11,7 +11,7 @@
 // ReSharper disable CoercedEqualsUsing
 
 
-$(document).ready(function() {
+$(document).ready(function () {
 
     // Fast fix bor position issue with Popper.js
     // Will be fixed in Bootstrap 4.1 - https://github.com/twbs/bootstrap/pull/24092
@@ -25,12 +25,21 @@ $(document).ready(function() {
         $("body").removeClass("body-small");
     }
 
-    // MetisMenu
-    var sideMenu = $("#side-menu").metisMenu();
+    // MetisMenu - configured to not add active class to parent menu items automatically
+    var sideMenu = $("#side-menu").metisMenu({
+        preventDefault: false,
+        toggle: true,
+        activeClass: 'active',
+        collapseClass: 'collapse',
+        collapseInClass: 'show',
+        collapseOpenClass: 'show',
+        preventOpenOnAjax: false,
+        doubleTapToGo: false
+    });
 
     // Collapse ibox function
     $(".collapse-link").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             var ibox = $(this).closest("div.ibox");
             var button = $(this).find("i");
@@ -38,16 +47,16 @@ $(document).ready(function() {
             content.slideToggle(200);
             button.toggleClass("fa-chevron-up").toggleClass("fa-chevron-down");
             ibox.toggleClass("").toggleClass("border-bottom");
-            setTimeout(function() {
-                    ibox.resize();
-                    ibox.find("[id^=map-]").resize();
-                },
+            setTimeout(function () {
+                ibox.resize();
+                ibox.find("[id^=map-]").resize();
+            },
                 50);
         });
 
     // Close ibox function
     $(".close-link").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             var content = $(this).closest("div.ibox");
             content.remove();
@@ -55,22 +64,22 @@ $(document).ready(function() {
 
     // Fullscreen ibox function
     $(".fullscreen-link").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             var ibox = $(this).closest("div.ibox");
             var button = $(this).find("i");
             $("body").toggleClass("fullscreen-ibox-mode");
             button.toggleClass("fa-expand").toggleClass("fa-compress");
             ibox.toggleClass("fullscreen");
-            setTimeout(function() {
-                    $(window).trigger("resize");
-                },
+            setTimeout(function () {
+                $(window).trigger("resize");
+            },
                 100);
         });
 
     // Close menu in canvas mode
     $(".close-canvas-menu").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             $("body").toggleClass("mini-navbar");
             SmoothlyMenu();
@@ -84,7 +93,7 @@ $(document).ready(function() {
 
     // Open close right sidebar
     $(".right-sidebar-toggle").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             $("#right-sidebar").toggleClass("sidebar-open");
         });
@@ -98,7 +107,7 @@ $(document).ready(function() {
 
     // Open close small chat
     $(".open-small-chat").on("click",
-        function(e) {
+        function (e) {
             e.preventDefault();
             $(this).children().toggleClass("fa-comments").toggleClass("fa-times");
             $(".small-chat-box").toggleClass("active");
@@ -112,7 +121,7 @@ $(document).ready(function() {
 
     // Small todo handler
     $(".check-link").on("click",
-        function() {
+        function () {
             var button = $(this).find("i");
             var label = $(this).next("span");
             button.toggleClass("fa-check-square").toggleClass("fa-square-o");
@@ -123,7 +132,7 @@ $(document).ready(function() {
 
     // Minimalize menu
     $(".navbar-minimalize").on("click",
-        function(event) {
+        function (event) {
             event.preventDefault();
             $("body").toggleClass("mini-navbar");
             SmoothlyMenu();
@@ -138,7 +147,7 @@ $(document).ready(function() {
 
 
     // Move right sidebar top after scroll
-    $(window).scroll(function() {
+    $(window).scroll(function () {
         if ($(window).scrollTop() > 0 && !$("body").hasClass("fixed-nav")) {
             $("#right-sidebar").addClass("sidebar-top");
         } else {
@@ -157,7 +166,7 @@ $(document).ready(function() {
 
 // Minimalize menu when screen is less than 768px
 $(window).bind("resize",
-    function() {
+    function () {
         if (window.innerWidth < 769) {
             $("body").addClass("body-small");
         } else {
@@ -167,7 +176,7 @@ $(window).bind("resize",
 
 // Fixed Sidebar
 $(window).bind("load",
-    function() {
+    function () {
         if ($("body").hasClass("fixed-sidebar")) {
             $(".sidebar-collapse").slimScroll({
                 height: "100%",
@@ -184,7 +193,7 @@ function localStorageSupport() {
 
 // Local Storage functions
 // Set proper body class and plugins based on user configuration
-$(document).ready(function() {
+$(document).ready(function () {
     if (localStorageSupport()) {
 
         var collapse = localStorage.getItem("collapse_menu");
@@ -235,14 +244,14 @@ $(document).ready(function() {
 function animationHover(element, animation) {
     element = $(element);
     element.hover(
-        function() {
+        function () {
             element.addClass("animated " + animation);
         },
-        function() {
+        function () {
             //wait for animation to finish before removing classes
-            window.setTimeout(function() {
-                    element.removeClass("animated " + animation);
-                },
+            window.setTimeout(function () {
+                element.removeClass("animated " + animation);
+            },
                 2000);
         });
 }
@@ -253,14 +262,14 @@ function SmoothlyMenu() {
         $("#side-menu").hide();
         // For smoothly turn on menu
         setTimeout(
-            function() {
+            function () {
                 $("#side-menu").fadeIn(400);
             },
             200);
     } else if ($("body").hasClass("fixed-sidebar")) {
         $("#side-menu").hide();
         setTimeout(
-            function() {
+            function () {
                 $("#side-menu").fadeIn(400);
             },
             100);
@@ -276,12 +285,12 @@ function WinMove() {
     var handle = ".ibox-title";
     var connect = "[class*=col]";
     $(element).sortable(
-            {
-                handle: handle,
-                connectWith: connect,
-                tolerance: "pointer",
-                forcePlaceholderSize: true,
-                opacity: 0.8
-            })
+        {
+            handle: handle,
+            connectWith: connect,
+            tolerance: "pointer",
+            forcePlaceholderSize: true,
+            opacity: 0.8
+        })
         .disableSelection();
 }

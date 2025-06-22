@@ -1,14 +1,38 @@
 ﻿<div class="row border-bottom">
     <nav class="navbar navbar-static-top white-bg" role="navigation" style="margin-bottom: 0">
         <div class="navbar-header">
-            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#">
+            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary" href="#" aria-label="Toggle navigation">
                 <i class="fa fa-bars"></i>
             </a>
         </div>
+        <div class="d-none d-md-block">
+            <span class="m-r-sm text-muted welcome-message">
+                <i class="fa fa-home fa-fw"></i> Welcome to the XI Portal
+            </span>
+        </div>
         <ul class="nav navbar-top-links navbar-right">
-            @*<li style="padding:20px">
-                <span class="m-r-sm text-muted welcome-message">Welcome to the XI Portal</span>
-            </li>*@
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" aria-label="Help and information">
+                    <i class="fa fa-question-circle fa-fw"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-messages">
+                    <li>
+                        <a href="https://www.xtremeidiots.com/" target="_blank">
+                            <div>
+                                <i class="fa fa-external-link fa-fw"></i> XtremeIdiots Website
+                            </div>
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a href="https://www.xtremeidiots.com/forums/" target="_blank">
+                            <div>
+                                <i class="fa fa-comments fa-fw"></i> Forums
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </nav>
 </div>

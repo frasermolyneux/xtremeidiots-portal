@@ -1,46 +1,103 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand {
-    text-align: center;
-    white-space: normal;
-    word-break: break-all;
-}
-
-/* Provide sufficient contrast against white background */
-
-a { color: #0366d6; }
-
-.btn-primary {
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-    color: #fff;
-}
-
-.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-    background-color: #1b6ec2;
-    border-color: #1861ac;
-    color: #fff;
-}
-
-/* Sticky footer styles
+﻿/* XtremeIdiots Portal - Custom Styles
 -------------------------------------------------- */
 
-html { font-size: 14px; }
-
-@media (min-width: 768px) {
-    html { font-size: 16px; }
+/* General Improvements */
+:root {
+    --xi-primary: #1ab394;
+    --xi-primary-dark: #18a689;
+    --xi-secondary: #293846;
+    --xi-secondary-dark: #1f2d3d;
+    --xi-accent: #f8ac59;
+    --xi-text: #676a6c;
+    --xi-link: #1ab394;
 }
 
-.border-top { border-top: 1px solid #e5e5e5; }
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-.border-bottom { border-bottom: 1px solid #e5e5e5; }
+/* Enhanced linking */
+a {
+    color: var(--xi-link);
+    transition: color 0.2s ease-in-out;
+}
 
-.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+a:hover {
+    color: var(--xi-primary-dark);
+    text-decoration: none;
+}
 
-button.accept-policy {
-    font-size: 1rem;
-    line-height: inherit;
+/* Navigation improvements */
+.metismenu .active>a {
+    color: #ffffff;
+    background-color: var(--xi-primary);
+}
+
+.nav-second-level li a {
+    padding-left: 35px;
+}
+
+.metismenu li.active>a {
+    font-weight: 600;
+}
+
+/* Ensure only truly active menu items are highlighted */
+.metismenu li a:focus {
+    background-color: transparent;
+}
+
+/* Arrow rotation for menu toggle */
+.metismenu .arrow {
+    float: right;
+    transition: transform 0.3s ease;
+}
+
+.metismenu .active>a>.fa.arrow {
+    transform: rotate(90deg);
+}
+
+/* Button improvements */
+.btn {
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--xi-primary);
+    border-color: var(--xi-primary);
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--xi-primary-dark) !important;
+    border-color: var(--xi-primary-dark) !important;
+    color: #fff;
+}
+
+/* Icon enhancements */
+.fa {
+    margin-right: 4px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .navbar-top-links .dropdown-menu li {
+        padding: 10px;
+    }
+
+    .navbar-static-top {
+        padding-right: 15px;
+    }
+
+    #page-wrapper {
+        position: inherit;
+        margin: 0;
+    }
 }
 
 /* Sticky footer styles
@@ -58,7 +115,8 @@ body {
 
 .footer {
     bottom: 0;
-    line-height: 60px; /* Vertically center the text there */
+    line-height: 60px;
+    /* Vertically center the text there */
     position: absolute;
     white-space: nowrap;
     width: 100%;

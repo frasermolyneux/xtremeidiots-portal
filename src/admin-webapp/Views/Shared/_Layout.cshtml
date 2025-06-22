@@ -1,21 +1,24 @@
 ﻿@using XtremeIdiots.Portal.AdminWebApp.Extensions
 <!DOCTYPE html>
 <html>
+
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-F10FZ2SV5E"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', 'G-F10FZ2SV5E');
     </script>
 
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <title>@ViewData["Title"] - XI Portal</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="XtremeIdiots Portal - Game servers management and administration">
+    <meta name="theme-color" content="#1ab394">
 
     @if (IsSectionDefined("Styles"))
     {
@@ -28,6 +31,8 @@
         <link rel="stylesheet" href="~/css/animate.css" />
         <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.css" />
         <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/responsive-overrides.css" asp-append-version="true" />
     </environment>
     <environment names="Staging,Production">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -35,62 +40,69 @@
         <link rel="stylesheet" href="~/css/animate.css" />
         <link rel="stylesheet" href="~/lib/datatables/css/jquery.dataTables.min.css" />
         <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/responsive-overrides.css" asp-append-version="true" />
     </environment>
 
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
+
 <body>
 
-<!-- Wrapper-->
-<div id="wrapper" class="@Html.PageClass()">
+    <!-- Wrapper-->
+    <div id="wrapper" class="@Html.PageClass()">
 
-    <!-- Navigation -->
-    <partial name="_Navigation"/>
+        <!-- Navigation -->
+        <partial name="_Navigation" />
 
-    <!-- Page wrapper -->
-    <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
+        <!-- Page wrapper -->
+        <div id="page-wrapper" class="gray-bg @ViewBag.SpecialClass">
 
-        <!-- Top Navbar -->
-        <partial name="_TopNavbar"/>
+            <!-- Top Navbar -->
+            <partial name="_TopNavbar" />
 
-        <div class="animated fadeInRight" style="padding-top: 10px">
-            <alerts></alerts>
+            <div class="animated fadeInRight" style="padding-top: 10px">
+                <alerts></alerts>
+            </div>
+
+            <!-- Main view  -->
+            @RenderBody()
+
+            <!-- Footer -->
+            <partial name="_Footer" />
+
         </div>
-
-        <!-- Main view  -->
-        @RenderBody()
-
-        <!-- Footer -->
-        <partial name="_Footer"/>
+        <!-- End page wrapper-->
 
     </div>
-    <!-- End page wrapper-->
+    <!-- End wrapper-->
 
-</div>
-<!-- End wrapper-->
+    <environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/Popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+        <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
+        <script src="~/lib/pace/pace.js"></script>
+        <script src="~/lib/datatables/js/jquery.dataTables.js"></script>
+        <script src="~/js/inspinia.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/Popper/popper.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+        <script src="~/lib/pace/pace.min.js"></script>
+        <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
+        <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+        <script src="~/js/inspinia.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
+    </environment>
 
-<environment names="Development">
-    <script src="~/lib/jquery/dist/jquery.js"></script>
-    <script src="~/lib/Popper/popper.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
-    <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
-    <script src="~/lib/pace/pace.js"></script>
-    <script src="~/lib/datatables/js/jquery.dataTables.js"></script>
-    <script src="~/js/inspinia.js" asp-append-version="true"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-</environment>
-<environment names="Staging,Production">
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/Popper/popper.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
-    <script src="~/lib/pace/pace.min.js"></script>
-    <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
-    <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-</environment>
-
-@RenderSection("scripts", false)
+    @RenderSection("scripts", false)
 </body>
+
 </html>

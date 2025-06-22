@@ -1,0 +1,189 @@
+/* Responsive overrides for the XtremeIdiots Portal
+-------------------------------------------------- */
+
+/* General improvements */
+body {
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Enhanced card styling */
+.ibox {
+    margin-bottom: 25px;
+    background-color: #ffffff;
+    border: 1px solid #e7eaec;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ibox-title {
+    border-radius: 4px 4px 0 0;
+}
+
+.ibox-content {
+    border-radius: 0 0 4px 4px;
+}
+
+/* Button improvements */
+.btn {
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #1ab394;
+    border-color: #1ab394;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #18a689;
+    border-color: #18a689;
+}
+
+/* Navigation improvements */
+.nav>li>a {
+    padding: 12px 20px;
+    cursor: pointer;
+}
+
+.navbar-default.navbar-static-side {
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Improved navigation menu functionality */
+.metismenu .arrow {
+    float: right;
+    margin-top: 2px;
+    transition: transform 0.3s ease;
+}
+
+.metismenu .active>a>.fa.arrow {
+    transform: rotate(90deg);
+}
+
+.metismenu .nav-second-level {
+    padding-left: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.metismenu .nav-second-level.collapse:not(.show) {
+    display: none;
+}
+
+.metismenu .nav-second-level.collapse.show {
+    display: block;
+}
+
+.metismenu .nav-second-level li a {
+    padding-left: 40px;
+}
+
+/* Tables improvements */
+.table-responsive {
+    border: none;
+}
+
+.dataTable.table-bordered {
+    border-radius: 3px;
+}
+
+/* Enhanced content areas */
+.wrapper-content {
+    padding: 20px 25px 40px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .navbar-top-links {
+        margin-right: 10px;
+    }
+
+    #page-wrapper {
+        margin: 0;
+        min-height: calc(100vh - 61px);
+    }
+
+    body.mini-navbar #page-wrapper {
+        margin: 0;
+    }
+
+    .ibox-title {
+        padding: 10px 15px;
+    }
+
+    .ibox-content {
+        padding: 15px;
+    }
+
+    .footer {
+        padding: 10px 15px;
+    }
+
+    .links a {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .links .mx-2 {
+        display: none;
+    }
+}
+
+/* Better focus states for accessibility */
+a:focus,
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid #1ab394;
+    outline-offset: 2px;
+}
+
+/* Table row hover effect */
+.table-hover tbody tr:hover {
+    background-color: #f8fafb;
+}
+
+/* Form control improvements */
+.form-control:focus {
+    border-color: #1ab394;
+    box-shadow: none;
+}
+
+/* Font Awesome icons improvements */
+.fa-fw {
+    text-align: center;
+    width: 1.25em;
+}
+
+/* Better notifications */
+.label {
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 3px;
+}
+
+/* Better pagination */
+.pagination>.active>a {
+    background-color: #1ab394;
+    border-color: #1ab394;
+}
+
+/* Navbar branding */
+.navbar-minimalize {
+    border-radius: 4px;
+}
+
+/* Footer styling */
+.footer {
+    border-top: 1px solid #e7eaec;
+    padding: 15px 20px;
+    background: #ffffff;
+}
+
+.footer a {
+    color: #1ab394;
+}
+
+.footer a:hover {
+    color: #18a689;
+}

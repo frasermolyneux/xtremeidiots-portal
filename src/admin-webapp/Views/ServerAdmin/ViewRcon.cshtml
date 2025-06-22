@@ -210,8 +210,8 @@
                         render: function (data, type, row) {
                             // For RCON players, we'll need to make an API call to get ProxyCheck data
                             // This will be implemented in the GetRconPlayers method in the ServerAdminController
-                            return proxyCheckIpLink(row['ipAddress'], row['proxyCheckRiskScore'] || 0,
-                                row['isProxy'] === true, row['isVpn'] === true, row['proxyType'] || '');
+                            return formatIPAddress(row['ipAddress'], row['proxyCheckRiskScore'] || 0,
+                                row['isProxy'] === true, row['isVpn'] === true, row['proxyType'] || '', row['countryCode'] || '');
                         }
                     },
                     {

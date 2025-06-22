@@ -16,7 +16,7 @@
                 </div>
                 <div class="ibox-content">
                     <div class="text-center m-b-md">
-                        <h2>@Model.IpAddress</h2>
+                        <h2>@Model.IpAddress.FormatIPAddress(Model.GeoLocation, Model.ProxyCheck?.RiskScore, Model.ProxyCheck?.IsProxy, Model.ProxyCheck?.IsVpn, Model.ProxyCheck?.Type, false)</h2>
                     </div>
                     <div class="stats-container">
                         <div class="stat-item">
@@ -98,11 +98,11 @@
                                             <td>@Model.GeoLocation.RegisteredCountry</td>
                                         </tr>
                                     }
-                                    @if (!string.IsNullOrEmpty(Model.GeoLocation.TimeZone))
+                                    @if (!string.IsNullOrEmpty(Model.GeoLocation.Timezone))
                                     {
                                         <tr>
                                             <th>Time Zone</th>
-                                            <td>@Model.GeoLocation.TimeZone</td>
+                                            <td>@Model.GeoLocation.Timezone</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -262,7 +262,7 @@
                                             {
                                                 foreach (var tag in player.Tags)
                                                 {
-                                                    <span class="badge bg-@tag.Tag?.ColorCode">@tag.Tag?.Name</span>
+                                                    @Html.Raw(tag.Tag?.TagHtml)
                                                 }
                                             }
                                         </td>
@@ -441,20 +441,24 @@
     @if (Model.GeoLocation != null && Model.GeoLocation.Latitude != 0 && Model.GeoLocation.Longitude != 0)
     {
         <script type="text/javascript">
-            $(document).ready(function () {
-                // Initialize the map
-                var map = L.map('map').setView([@Model.GeoLocation.Latitude, @Model.GeoLocation.Longitude], 10);
+            function initMap() {
+                var myLatLng = {
+                    lat: @Model.GeoLocation.Latitude,
+                    lng: @Model.GeoLocation.Longitude
+                };
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(map);
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 4,
+                    center: myLatLng
+                });
 
-                // Add a marker for the IP location
-                L.marker([@Model.GeoLocation.Latitude, @Model.GeoLocation.Longitude])
-                    .addTo(map)
-                    .bindPopup('@Model.IpAddress<br>@Model.GeoLocation.CityName, @Model.GeoLocation.CountryName')
-                    .openPopup();
-            });
+                new google.maps.Marker({
+                    position: myLatLng,
+                    map: map,
+                    title: 'IP Location'
+                });
+            }
         </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
     }
 }

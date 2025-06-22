@@ -48,10 +48,12 @@
                                           data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                           data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                           data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                          data-type="@Model.Player.ProxyType()">
-                                        <a href="@Url.Action("Details", "IPAddresses", new { ipAddress = Model.Player.IpAddress })">
-                                            @Model.GeoLocation?.FlagImage() @Model.Player.IpAddress
-                                        </a>
+                                          data-type="@Model.Player.ProxyType()">                                        @Model.Player.IpAddress.FormatIPAddress(
+                                            Model.GeoLocation,
+                                            Model.Player.ProxyCheckRiskScore(),
+                                            Model.Player.IsProxy(),
+                                            Model.Player.IsVpn(),
+                                            Model.Player.ProxyType())
                                     </span>
                                     IP Address
                                 </li><li class="list-group-item">
@@ -225,10 +227,12 @@
                                       data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                       data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                       data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                      data-type="@Model.Player.ProxyType()">
-                                        <a href="@Url.Action("Details", "IPAddresses", new { ipAddress = ipAddressDto.Address })">
-                                            @ipAddressDto.Address
-                                        </a>
+                                      data-type="@Model.Player.ProxyType()">                                        @ipAddressDto.Address.FormatIPAddress(
+                                            null, 
+                                            Model.Player.ProxyCheckRiskScore(),
+                                            Model.Player.IsProxy(),
+                                            Model.Player.IsVpn(),
+                                            Model.Player.ProxyType())
                                     </td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>

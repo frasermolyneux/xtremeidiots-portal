@@ -79,34 +79,76 @@ function geoLocationIpLink(ipAddress) {
     return "<a href='https://www.geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
 }
 
-function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn, type = '') {
-    let riskClass = 'text-bg-success';
+/**
+ * Formats an IP address with consistent display including:
+ * {country flag} {IP Address} {Risk Pill} {Type Pill} {VPN/Proxy Pills}
+ * 
+ * @param {string} ipAddress - The IP address to format
+ * @param {number} riskScore - The risk score (0-100) from ProxyCheck
+ * @param {boolean} isProxy - Whether the IP is a proxy
+ * @param {boolean} isVpn - Whether the IP is a VPN
+ * @param {string} type - The type of proxy/VPN
+ * @param {string} countryCode - Optional country code for the flag
+ * @param {boolean} linkToDetails - Whether to link the IP to the details page (default: true)
+ * @returns {string} HTML formatted IP address
+ */
+function formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type = '', countryCode = '', linkToDetails = true) {
+    if (!ipAddress) return '';
 
-    if (riskScore >= 80) {
-        riskClass = 'text-bg-danger';
-    } else if (riskScore >= 50) {
-        riskClass = 'text-bg-warning';
-    } else if (riskScore >= 25) {
-        riskClass = 'text-bg-info';
+    let result = '';
+
+    // 1. Country Flag
+    if (countryCode && countryCode !== '') {
+        result += "<img src='/images/flags/" + countryCode.toLowerCase() + ".png' /> ";
+    } else {
+        result += "<img src='/images/flags/unknown.png' /> ";
     }
 
-    // Link to our IP details page
-    let result = "<a href='/IPAddresses/Details?ipAddress=" + ipAddress + "'>" + ipAddress + "</a> ";
-    result += "<span class='badge rounded-pill " + riskClass + "'>Risk: " + riskScore + "</span> ";
+    // 2. IP Address (with or without link)
+    if (linkToDetails) {
+        result += "<a href='/IPAddresses/Details?ipAddress=" + ipAddress + "'>" + ipAddress + "</a> ";
+    } else {
+        result += ipAddress + " ";
+    }
 
+    // 3. Risk Score Pill
+    if (riskScore !== null && riskScore !== undefined) {
+        let riskClass = 'text-bg-success';
+        if (riskScore >= 80) {
+            riskClass = 'text-bg-danger';
+        } else if (riskScore >= 50) {
+            riskClass = 'text-bg-warning';
+        } else if (riskScore >= 25) {
+            riskClass = 'text-bg-info';
+        }
+
+        result += "<span class='badge rounded-pill " + riskClass + "'>Risk: " + riskScore + "</span> ";
+    }
+
+    // 4. Type Pill
     if (type && type !== '') {
         result += "<span class='badge rounded-pill text-bg-primary'>" + type + "</span> ";
     }
 
+    // 5. Proxy Pill
     if (isProxy) {
         result += "<span class='badge rounded-pill text-bg-danger'>Proxy</span> ";
     }
 
+    // 6. VPN Pill
     if (isVpn) {
         result += "<span class='badge rounded-pill text-bg-warning'>VPN</span>";
     }
 
     return result;
+}
+
+/**
+ * Legacy function maintained for backward compatibility.
+ * Delegates to formatIPAddress. Use formatIPAddress directly for new code.
+ */
+function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn, type = '') {
+    return formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type);
 }
 
 function manageClaimsLink(userId) {

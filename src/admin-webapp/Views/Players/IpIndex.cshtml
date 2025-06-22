@@ -76,7 +76,7 @@
                             var isProxy = row['isProxy'] === true;
                             var isVpn = row['isVpn'] === true;
                             var proxyType = row['proxyType'] || '';
-                            return proxyCheckIpLink(row['ipAddress'], riskScore, isProxy, isVpn, proxyType);
+                            return formatIPAddress(row['ipAddress'], riskScore, isProxy, isVpn, proxyType);
                         }
                     },
                     {

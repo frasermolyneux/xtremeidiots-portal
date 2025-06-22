@@ -294,24 +294,8 @@
                                 </a>
                             </p>
                         }
-                    </div>                    
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
-                        @if(Model.Player.Tags != null && Model.Player.Tags.Any())
-                        {
-                            @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })
-                        }
-                        else
-                        {
-                            <div class="alert alert-info">
-                                This player has no tags.
-                            </div>
-                            
-                            <p>
-                                <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
-                                    <i class="fa fa-plus"></i> Add Tag
-                                </a>
-                            </p>
-                        }
+                    </div>                      <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
+                        @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.Player.IpAddress))

@@ -19,9 +19,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
             try
             {
                 // Use the Players API endpoint for player tags
-                var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(playerId);
-
-                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
+                var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(playerId); if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 {
                     // Log the error if available
                     if (playerTagsResponse.Errors != null && playerTagsResponse.Errors.Any())
@@ -33,9 +31,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
                     {
                         Console.WriteLine($"Failed to retrieve player tags for playerId {playerId}. Status: {playerTagsResponse.StatusCode}");
                     }
+                    ViewBag.PlayerId = playerId;
                     return View(new List<PlayerTagDto>());
                 }
 
+                ViewBag.PlayerId = playerId;
                 return View(playerTagsResponse.Result.Entries);
             }
             catch (Exception ex)
@@ -44,6 +44,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
                 Console.WriteLine($"Exception retrieving player tags for playerId {playerId}: {ex.Message}");
 
                 // Fallback to empty list in case of any error
+                ViewBag.PlayerId = playerId;
                 return View(new List<PlayerTagDto>());
             }
         }

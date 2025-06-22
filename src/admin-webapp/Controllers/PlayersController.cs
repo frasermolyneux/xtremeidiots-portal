@@ -139,7 +139,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames);
+            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames | PlayerEntityOptions.Tags);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -425,7 +425,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 {
                     model.AvailableTags = tagsResponse.Result.Entries;
                 }
-
                 return View(model);
             }
 
@@ -433,11 +432,17 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
+            var userProfileIdString = User.UserProfileId();
+            if (string.IsNullOrWhiteSpace(userProfileIdString) || !Guid.TryParse(userProfileIdString, out var userProfileId))
+            {
+                return RedirectToAction("Display", "Errors", new { id = 400 });
+            }
+
             var playerTagDto = new PlayerTagDto
             {
                 PlayerId = model.PlayerId,
                 TagId = model.TagId,
-                UserProfileId = new Guid(User.XtremeIdiotsId()),
+                UserProfileId = userProfileId,
                 Assigned = DateTime.UtcNow
             };
 

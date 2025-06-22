@@ -43,12 +43,14 @@
                             </li>
 
                             @if (Model.GeoLocation != null)
-                            {                                <li class="list-group-item">                                    <span class="pull-right ip-address-container" 
+                            {                                  <li class="list-group-item">                                    
+                                    <span class="pull-right ip-address-container" 
                                           data-ip="@Model.Player.IpAddress" 
                                           data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                           data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                           data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                          data-type="@Model.Player.ProxyType()">                                        @Model.Player.IpAddress.FormatIPAddress(
+                                          data-type="@Model.Player.ProxyType()"
+                                          data-country-code="@(Model.GeoLocation?.CountryCode ?? "")">                                        @Model.Player.IpAddress.FormatIPAddress(
                                             Model.GeoLocation,
                                             Model.Player.ProxyCheckRiskScore(),
                                             Model.Player.IsProxy(),
@@ -56,7 +58,8 @@
                                             Model.Player.ProxyType())
                                     </span>
                                     IP Address
-                                </li><li class="list-group-item">
+                                </li>
+                                <li class="list-group-item">
                                     <span class="pull-right"> @Model.GeoLocation?.LocationSummary()</span>
                                     Country/City
                                 </li>
@@ -221,19 +224,15 @@
                             </thead>
                             <tbody>
                                 @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
-                                {
-                                <tr>                                    
-                                    <td class="ip-address-container" 
+                                {                                <tr>                                        <td class="ip-address-container" 
                                       data-ip="@ipAddressDto.Address" 
                                       data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                       data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                       data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                      data-type="@Model.Player.ProxyType()">                                        @ipAddressDto.Address.FormatIPAddress(
-                                            null, 
-                                            Model.Player.ProxyCheckRiskScore(),
-                                            Model.Player.IsProxy(),
-                                            Model.Player.IsVpn(),
-                                            Model.Player.ProxyType())
+                                      data-type="@Model.Player.ProxyType()"
+                                      data-country-code="@(ipAddressDto.Address == Model.Player.IpAddress && Model.GeoLocation != null ? Model.GeoLocation.CountryCode : "unknown")">
+                                        <!-- This initial rendering will be replaced by JavaScript -->
+                                        <img src="/images/flags/@(ipAddressDto.Address == Model.Player.IpAddress && Model.GeoLocation != null && !string.IsNullOrEmpty(Model.GeoLocation.CountryCode) ? Model.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddressDto.Address
                                     </td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>
@@ -480,9 +479,7 @@
 
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
-
-    <script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>    <script>
         $(document).ready(function () {
             // Format all IP addresses with ProxyCheck information
             $('.ip-address-container').each(function() {
@@ -492,9 +489,11 @@
                 var isProxy = container.data('is-proxy') === 'true';
                 var isVpn = container.data('is-vpn') === 'true';
                 var type = container.data('type') || '';
+                var countryCode = container.data('country-code') || '';
                 
-                // Generate the HTML for the IP address with ProxyCheck info
-                container.html(proxyCheckIpLink(ip, risk, isProxy, isVpn, type));
+                // If we don't have a country code but have an IP address,
+                // just display with the unknown flag for now
+                container.html(formatIPAddress(ip, risk, isProxy, isVpn, type, countryCode));
             });
         });
     </script>

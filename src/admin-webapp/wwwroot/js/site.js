@@ -143,14 +143,6 @@ function formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type = '', countr
     return result;
 }
 
-/**
- * Legacy function maintained for backward compatibility.
- * Delegates to formatIPAddress. Use formatIPAddress directly for new code.
- */
-function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn, type = '') {
-    return formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type);
-}
-
 function manageClaimsLink(userId) {
     return '<div class="btn-group btn-group-sm" role="group">' +
         '<a type="button" class="btn btn-primary"  href="/User/ManageProfile/' +

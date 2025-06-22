@@ -93,4 +93,4 @@ ProxyCheck results are cached in memory for 1 hour to reduce API calls and impro
 
 ### JavaScript Helpers
 
-The `proxyCheckIpLink` function in site.js formats IP addresses with risk scores and status pills.
+The `formatIPAddress` function in site.js formats IP addresses with risk scores and status pills.

@@ -1,5 +1,6 @@
 @using XtremeIdiots.Portal.AdminWebApp.Extensions
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
+@using System.Linq
 @model XtremeIdiots.Portal.AdminWebApp.ViewModels.IPAddressDetailsViewModel
 
 @{
@@ -26,13 +27,17 @@
                         </div>
                         @if (Model.GeoLocation != null)
                         {
-                            <div class="stat-item">
-                                <span class="fa-stack fa-2x">
+                            <div class="stat-item">                <span class="fa-stack fa-2x">
                                     <i class="fa fa-circle fa-stack-2x text-navy"></i>
-                                    @Html.Raw(Model.GeoLocation.FlagImage().Value.Replace("<img", "<img class=\"fa-stack-1x\" style=\"height:32px;width:auto;top:20%;\""))
+                                    @{                                        @if (Model.GeoLocation != null)
+                                        {
+                                            string flagHtml = Model.GeoLocation.FlagImage().ToString().Replace("<img", "<img class=\"fa-stack-1x\" style=\"height:32px;width:auto;top:20%;\"");
+                                            @Html.Raw(flagHtml)
+                                        }
+                                    }
                                 </span>
-                                <h3>@Model.GeoLocation.CountryName</h3>
-                                <p>@(string.IsNullOrEmpty(Model.GeoLocation.CityName) ? "Unknown City" : Model.GeoLocation.CityName)</p>
+                                <h3>@Model.GeoLocation?.CountryName</h3>
+                                <p>@(string.IsNullOrEmpty(Model.GeoLocation?.CityName) ? "Unknown City" : Model.GeoLocation?.CityName)</p>
                             </div>
                         }
                         @if (Model.ProxyCheck != null && !Model.ProxyCheck.IsError)
@@ -233,14 +238,16 @@
                 <div class="ibox-content">
                     @if (Model.Players != null && Model.Players.Any())
                     {
-                        <table class="table table-striped table-hover">
-                            <thead>
+                        <table class="table table-striped table-hover">                            <thead>
                                 <tr>
                                     <th>Game</th>
                                     <th>Username</th>
                                     <th>GUID</th>
                                     <th>First Seen</th>
                                     <th>Last Seen</th>
+                                    <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
+                                        Confidence
+                                    </th>
                                     <th>Tags</th>
                                 </tr>
                             </thead>
@@ -257,6 +264,12 @@
                                         <td>@Html.GuidLink(player.Guid, player.GameType.ToString())</td>
                                         <td>@Html.ToUserTime(User, player.FirstSeen)</td>
                                         <td>@Html.ToUserTime(User, player.LastSeen)</td>
+                                        <td>
+                                            @{
+                                                var ipAddress = player.PlayerIpAddresses.FirstOrDefault(p => p.Address == Model.IpAddress);
+                                                @Html.ToConfidenceLabel(ipAddress?.ConfidenceScore ?? 0, ipAddress?.LastUsed ?? DateTime.UtcNow)
+                                            }
+                                        </td>
                                         <td>
                                             @if (player.Tags != null && player.Tags.Any())
                                             {

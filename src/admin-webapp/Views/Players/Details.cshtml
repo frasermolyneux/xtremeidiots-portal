@@ -222,7 +222,8 @@
                             <tbody>
                                 @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
                                 {
-                                <tr>                                    <td class="ip-address-container" 
+                                <tr>                                    
+                                    <td class="ip-address-container" 
                                       data-ip="@ipAddressDto.Address" 
                                       data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                       data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 

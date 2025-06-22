@@ -79,7 +79,7 @@ function geoLocationIpLink(ipAddress) {
     return "<a href='https://www.geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
 }
 
-function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn) {
+function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn, type = '') {
     let riskClass = 'text-bg-success';
 
     if (riskScore >= 80) {
@@ -91,7 +91,11 @@ function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn) {
     }
 
     let result = "<a href='https://proxycheck.io/v2/" + ipAddress + "' target='_blank'>" + ipAddress + "</a> ";
-    result += "<span class='badge rounded-pill " + riskClass + "'>" + riskScore + "</span> ";
+    result += "<span class='badge rounded-pill " + riskClass + "'>Risk: " + riskScore + "</span> ";
+
+    if (type && type !== '') {
+        result += "<span class='badge rounded-pill text-bg-primary'>" + type + "</span> ";
+    }
 
     if (isProxy) {
         result += "<span class='badge rounded-pill text-bg-danger'>Proxy</span> ";

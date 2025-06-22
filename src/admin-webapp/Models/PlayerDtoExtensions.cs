@@ -9,11 +9,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Models
     /// Extension properties for PlayerDto to include ProxyCheck data.
     /// </summary>
     public static class PlayerDtoExtensions
-    {
-        // Use static dictionaries to store ProxyCheck data by player ID
+    {        // Use static dictionaries to store ProxyCheck data by player ID
         private static readonly ConcurrentDictionary<Guid, int> RiskScores = new ConcurrentDictionary<Guid, int>();
         private static readonly ConcurrentDictionary<Guid, bool> IsProxyFlags = new ConcurrentDictionary<Guid, bool>();
         private static readonly ConcurrentDictionary<Guid, bool> IsVpnFlags = new ConcurrentDictionary<Guid, bool>();
+        private static readonly ConcurrentDictionary<Guid, string> ProxyTypes = new ConcurrentDictionary<Guid, string>();
 
         /// <summary>
         /// Gets the ProxyCheck risk score.
@@ -79,6 +79,28 @@ namespace XtremeIdiots.Portal.AdminWebApp.Models
                 return;
 
             IsVpnFlags.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
+        }
+
+        /// <summary>
+        /// Gets the proxy type.
+        /// </summary>
+        public static string ProxyType(this PlayerDto playerDto)
+        {
+            if (playerDto == null)
+                return string.Empty;
+
+            return ProxyTypes.TryGetValue(playerDto.PlayerId, out var type) ? type : string.Empty;
+        }
+
+        /// <summary>
+        /// Sets the proxy type.
+        /// </summary>
+        public static void SetProxyType(this PlayerDto playerDto, string value)
+        {
+            if (playerDto == null)
+                return;
+
+            ProxyTypes.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
         }
     }
 }

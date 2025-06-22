@@ -39,11 +39,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Extensions
             {
                 var proxyCheckResult = await proxyCheckService.GetIpRiskDataAsync(playerDto.IpAddress, cancellationToken);
                 if (!proxyCheckResult.IsError)
-                {
-                    // Use the extension methods to store ProxyCheck data
+                {                    // Use the extension methods to store ProxyCheck data
                     PlayerDtoExtensions.SetProxyCheckRiskScore(playerDto, proxyCheckResult.RiskScore);
                     PlayerDtoExtensions.SetIsProxy(playerDto, proxyCheckResult.IsProxy);
                     PlayerDtoExtensions.SetIsVpn(playerDto, proxyCheckResult.IsVpn);
+                    PlayerDtoExtensions.SetProxyType(playerDto, proxyCheckResult.Type);
                 }
             }
             catch (Exception ex)

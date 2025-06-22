@@ -115,6 +115,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Services
                             IsError = false,
                             IsProxy = ipElement.TryGetProperty("proxy", out var proxyElement) && proxyElement.GetString() == "yes",
                             IsVpn = ipElement.TryGetProperty("type", out var typeElement) && typeElement.GetString()?.ToLower() == "vpn",
+                            Type = ipElement.TryGetProperty("type", out var typeValue) ? typeValue.GetString() ?? string.Empty : string.Empty,
                             RiskScore = ipElement.TryGetProperty("risk", out var riskElement) ? riskElement.GetInt32() : 0,
                             Country = ipElement.TryGetProperty("country", out var countryElement) ? countryElement.GetString() ?? string.Empty : string.Empty,
                             Region = ipElement.TryGetProperty("region", out var regionElement) ? regionElement.GetString() ?? string.Empty : string.Empty,
@@ -138,11 +139,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Services
                 return new ProxyCheckResult { IsError = true, ErrorMessage = $"Exception: {ex.Message}" };
             }
         }
-    }
-
-    /// <summary>
-    /// Result from the ProxyCheck.io API.
-    /// </summary>
+    }    /// <summary>
+         /// Result from the ProxyCheck.io API.
+         /// </summary>
     public class ProxyCheckResult
     {
         /// <summary>
@@ -169,6 +168,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Services
         /// True if the IP is a VPN.
         /// </summary>
         public bool IsVpn { get; set; }
+
+        /// <summary>
+        /// The type of proxy (e.g., VPN, TOR, etc.).
+        /// </summary>
+        public string Type { get; set; } = string.Empty;
 
         /// <summary>
         /// Risk score from 0-100 where higher values indicate higher risk.

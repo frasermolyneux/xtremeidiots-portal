@@ -75,7 +75,8 @@
                             var riskScore = row['proxyCheckRiskScore'] || 0;
                             var isProxy = row['isProxy'] === true;
                             var isVpn = row['isVpn'] === true;
-                            return proxyCheckIpLink(row['ipAddress'], riskScore, isProxy, isVpn);
+                            var proxyType = row['proxyType'] || '';
+                            return proxyCheckIpLink(row['ipAddress'], riskScore, isProxy, isVpn, proxyType);
                         }
                     },
                     {

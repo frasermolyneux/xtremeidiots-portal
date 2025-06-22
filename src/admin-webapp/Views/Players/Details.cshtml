@@ -2,13 +2,14 @@
 @using Microsoft.AspNetCore.Authorization
 @using XtremeIdiots.Portal.AdminWebApp.Auth.Constants
 @using XtremeIdiots.Portal.AdminWebApp.Extensions
+@using XtremeIdiots.Portal.AdminWebApp.Models
 @using XtremeIdiots.Portal.AdminWebApp.ViewModels
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
 @using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models
 @model PlayerDetailsViewModel
 
 @{
-    ViewData["Title"] = Model.Player.Username + " Player Details";
+    ViewData["Title"] = Model?.Player?.Username + " Player Details";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -43,17 +44,19 @@
 
                             @if (Model.GeoLocation != null)
                             {
-                                <li class="list-group-item">
-                                    <span class="pull-right">
+                                <li class="list-group-item">                                    <span class="pull-right ip-address-container" 
+                                          data-ip="@Model.Player.IpAddress" 
+                                          data-risk="@Model.Player.ProxyCheckRiskScore()" 
+                                          data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
+                                          data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
+                                          data-type="@Model.Player.ProxyType()">
                                         <a target="_blank" href="https://www.geo-location.net/Home/LookupAddress/(Model.Player.IpAddress)">
-                                            @Model.GeoLocation.FlagImage() @Model.Player.IpAddress
+                                            @Model.GeoLocation?.FlagImage() @Model.Player.IpAddress
                                         </a>
                                     </span>
                                     IP Address
-                                </li>
-
-                                <li class="list-group-item">
-                                    <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
+                                </li>                                <li class="list-group-item">
+                                    <span class="pull-right"> @Model.GeoLocation?.LocationSummary()</span>
                                     Country/City
                                 </li>
                             }
@@ -219,7 +222,14 @@
                                 @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
                                 {
                                 <tr>
-                                    <td>@ipAddressDto.Address</td>
+                                    <td class="ip-address-container" 
+                                      data-ip="@ipAddressDto.Address" 
+                                      data-risk="@Model.Player.ProxyCheckRiskScore()" 
+                                      data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
+                                      data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
+                                      data-type="@Model.Player.ProxyType()">
+                                        @ipAddressDto.Address
+                                    </td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>
                                     <td>@Html.ToConfidenceLabel(ipAddressDto.ConfidenceScore, ipAddressDto.LastUsed)</td>
@@ -466,4 +476,21 @@
     </script>
 
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Format all IP addresses with ProxyCheck information
+            $('.ip-address-container').each(function() {
+                var container = $(this);
+                var ip = container.data('ip');
+                var risk = container.data('risk') || 0;
+                var isProxy = container.data('is-proxy') === 'true';
+                var isVpn = container.data('is-vpn') === 'true';
+                var type = container.data('type') || '';
+                
+                // Generate the HTML for the IP address with ProxyCheck info
+                container.html(proxyCheckIpLink(ip, risk, isProxy, isVpn, type));
+            });
+        });
+    </script>
 }

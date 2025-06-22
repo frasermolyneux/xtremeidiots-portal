@@ -6,11 +6,13 @@ The admin-webapp has been enhanced with ProxyCheck.io integration to provide ris
 
 ## Features
 
-- Color-coded risk score based on ProxyCheck.io risk assessment (0-100)
+- Color-coded risk score with "Risk: " prefix based on ProxyCheck.io risk assessment (0-100)
 - Visual indicators for VPN detection
 - Visual indicators for proxy detection
+- Visual indicator showing the proxy/VPN type (e.g., VPN, TOR, etc.)
 - Memory caching to reduce API calls
 - Integration with Azure Key Vault for secure API key storage
+- Display on all IP addresses throughout the admin-webapp
 
 ## Configuration
 
@@ -62,15 +64,17 @@ The ProxyCheck integration will automatically enhance IP address displays throug
 
 1. IP Search view (`/Players/IpIndex`)
 2. RCON view (`/ServerAdmin/ViewRcon`)
+3. Player Details view (`/Players/Details/{id}`) - All IP addresses now display ProxyCheck information
 
 Each IP address display includes:
 
 - The IP address itself, linking to the ProxyCheck.io API
-- A color-coded pill indicating the risk score
+- A color-coded pill indicating the risk score with "Risk: " prefix
   - Green (0-24): Low risk
   - Blue (25-49): Medium-low risk
   - Yellow (50-79): Medium-high risk
   - Red (80-100): High risk
+- A blue pill showing the type of proxy/VPN (e.g., VPN, TOR, etc.)
 - A red "Proxy" pill if the IP is detected as a proxy
 - A yellow "VPN" pill if the IP is detected as a VPN
 

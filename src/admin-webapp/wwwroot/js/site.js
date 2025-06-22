@@ -90,7 +90,8 @@ function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn, type = '') {
         riskClass = 'text-bg-info';
     }
 
-    let result = "<a href='https://proxycheck.io/v2/" + ipAddress + "' target='_blank'>" + ipAddress + "</a> ";
+    // Link to our IP details page
+    let result = "<a href='/IPAddresses/Details?ipAddress=" + ipAddress + "'>" + ipAddress + "</a> ";
     result += "<span class='badge rounded-pill " + riskClass + "'>Risk: " + riskScore + "</span> ";
 
     if (type && type !== '') {

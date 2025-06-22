@@ -43,19 +43,18 @@
                             </li>
 
                             @if (Model.GeoLocation != null)
-                            {
-                                <li class="list-group-item">                                    <span class="pull-right ip-address-container" 
+                            {                                <li class="list-group-item">                                    <span class="pull-right ip-address-container" 
                                           data-ip="@Model.Player.IpAddress" 
                                           data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                           data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                           data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
                                           data-type="@Model.Player.ProxyType()">
-                                        <a target="_blank" href="https://www.geo-location.net/Home/LookupAddress/(Model.Player.IpAddress)">
+                                        <a href="@Url.Action("Details", "IPAddresses", new { ipAddress = Model.Player.IpAddress })">
                                             @Model.GeoLocation?.FlagImage() @Model.Player.IpAddress
                                         </a>
                                     </span>
                                     IP Address
-                                </li>                                <li class="list-group-item">
+                                </li><li class="list-group-item">
                                     <span class="pull-right"> @Model.GeoLocation?.LocationSummary()</span>
                                     Country/City
                                 </li>
@@ -221,14 +220,15 @@
                             <tbody>
                                 @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
                                 {
-                                <tr>
-                                    <td class="ip-address-container" 
+                                <tr>                                    <td class="ip-address-container" 
                                       data-ip="@ipAddressDto.Address" 
                                       data-risk="@Model.Player.ProxyCheckRiskScore()" 
                                       data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
                                       data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
                                       data-type="@Model.Player.ProxyType()">
-                                        @ipAddressDto.Address
+                                        <a href="@Url.Action("Details", "IPAddresses", new { ipAddress = ipAddressDto.Address })">
+                                            @ipAddressDto.Address
+                                        </a>
                                     </td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
                                     <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>

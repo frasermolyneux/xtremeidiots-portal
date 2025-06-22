@@ -398,15 +398,15 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @if (Model?.Player != null)
-    {
     <script type="text/javascript">
 
         $(document).ready(function() {
 
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip()
-            })            $('#chatLogTable').DataTable({
+            })            
+            
+            $('#chatLogTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
@@ -469,7 +469,8 @@
         function initMap() {
             @if (Model?.GeoLocation != null)
             {
-                <text>var myLatLng = {
+                <text>
+                    var myLatLng = {
                         lat: @Model.GeoLocation.Latitude,
                         lng: @Model.GeoLocation.Longitude
                     };
@@ -611,5 +612,4 @@
             gap: 0.5rem !important;
         }
     </style>
-    }
 }

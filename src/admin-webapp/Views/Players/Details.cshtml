@@ -282,8 +282,9 @@
                         }
                     </div>                    
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
-                        @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })                    </div>
-                            </p>
+                        @if(Model.Player.Tags != null && Model.Player.Tags.Any())
+                        {
+                            @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })
                         }
                         else
                         {

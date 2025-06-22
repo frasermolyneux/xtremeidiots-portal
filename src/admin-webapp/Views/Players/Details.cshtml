@@ -9,13 +9,14 @@
 @model PlayerDetailsViewModel
 
 @{
-    ViewData["Title"] = Model?.Player?.Username + " Player Details";
+    ViewData["Title"] = (Model?.Player?.Username ?? "Unknown Player") + " Player Details";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
 @if (Model?.Player != null)
 {
+    var player = Model.Player;
 <!-- Player Banner -->
 <div class="row">
     <div class="col-sm-12">
@@ -24,81 +25,74 @@
                 <div class="row">
                     <div class="col-sm-6">                        
                         <div class="d-flex align-items-center">                            
-                            <div class="mr-3">
-                                @if (Model?.Player != null)
-                                {
-                                    @Html.GameTypeIcon(Model.Player.GameType)
-                                }
+                            <div class="mr-3">                                
+                                @Html.GameTypeIcon(player.GameType)
                             </div>
                             <div>
-                                <h2 class="mb-1">@(Model?.Player?.Username ?? "Unknown Player")</h2>
+                                <h2 class="mb-1">@(player.Username ?? "Unknown Player")</h2>                                
                                 <div class="text-muted">
-                                    <span class="mr-3">
+                                    <span class="mr-2">
                                         <i class="fa fa-id-card"></i> Player ID: 
-                                        <span id="playerId">@(Model?.Player?.PlayerId.ToString() ?? "")</span>
+                                        <span id="playerId">@player.PlayerId.ToString()</span>
                                         <i class="fa fa-copy ml-1 cursor-pointer" onclick="copyToClipboard('playerId')" title="Copy Player ID"></i>
                                     </span>
-                                    <span>
-                                        <i class="fa fa-fingerprint"></i> GUID: 
-                                        <span id="playerGuid">@(Model?.Player?.Guid.ToString() ?? "")</span>
+                                    <span class="mr-2">
+                                        <i class="fa fa-key"></i> GUID: 
+                                        <span id="playerGuid">@player.Guid.ToString()</span>
                                         <i class="fa fa-copy ml-1 cursor-pointer" onclick="copyToClipboard('playerGuid')" title="Copy GUID"></i>
                                     </span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6">                        
-                        <div class="text-right">
-                            <div class="btn-group" role="group">
-                                @if (Model?.Player != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
-                                {
-                                    <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Observation" class="btn btn-outline-primary btn-sm">
-                                        <i class="fa fa-eye"></i> Observation
-                                    </a>
-                                }
+                                  <!-- Player Actions -->
+                                <div class="mt-2">
+                                    <div class="btn-group" role="group">
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="Observation" class="btn btn-outline-primary btn-sm">
+                                                <i class="fa fa-eye"></i> Observation
+                                            </a>
+                                        }
 
-                                @if (Model.Player != null && (await AuthorizationService.AuthorizeAsync(User,new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Warning), AuthPolicies.CreateAdminAction)).Succeeded)
-                                {
-                                    <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Warning" class="btn btn-outline-warning btn-sm">
-                                        <i class="fa fa-exclamation-triangle"></i> Warning
-                                    </a>
-                                }
+                                        @if ((await AuthorizationService.AuthorizeAsync(User,new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.Warning), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="Warning" class="btn btn-outline-warning btn-sm">
+                                                <i class="fa fa-exclamation-triangle"></i> Warning
+                                            </a>
+                                        }
 
-                                @if (Model.Player != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Kick), AuthPolicies.CreateAdminAction)).Succeeded)
-                                {
-                                    <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Kick" class="btn btn-outline-info btn-sm">
-                                        <i class="fa fa-sign-out"></i> Kick
-                                    </a>
-                                }
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.Kick), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="Kick" class="btn btn-outline-info btn-sm">
+                                                <i class="fa fa-sign-out"></i> Kick
+                                            </a>
+                                        }
 
-                                @if (Model.Player != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.TempBan), AuthPolicies.CreateAdminAction)).Succeeded)
-                                {
-                                    <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="TempBan" class="btn btn-outline-secondary btn-sm">
-                                        <i class="fa fa-clock-o"></i> Temp Ban
-                                    </a>
-                                }
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.TempBan), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="TempBan" class="btn btn-outline-secondary btn-sm">
+                                                <i class="fa fa-clock-o"></i> Temp Ban
+                                            </a>
+                                        }
 
-                                @if (Model.Player != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Ban), AuthPolicies.CreateAdminAction)).Succeeded)
-                                {
-                                    <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@Model.Player.PlayerId" asp-route-adminActionType="Ban" class="btn btn-outline-danger btn-sm">
-                                        <i class="fa fa-ban"></i> Ban
-                                    </a>
-                                }
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.Ban), AuthPolicies.CreateAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="Ban" class="btn btn-outline-danger btn-sm">
+                                                <i class="fa fa-ban"></i> Ban
+                                            </a>
+                                        }
 
-                                @if (Model.Player != null)
-                                {
-                                    <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId" class="btn btn-outline-success btn-sm">
-                                        <i class="fa fa-shield"></i> Protected Name
-                                    </a>
-                                }
-                                
-                                @if (Model.Player != null && (await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
-                                {
-                                    <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@Model.Player.PlayerId" class="btn btn-outline-dark btn-sm">
-                                        <i class="fa fa-tag"></i> Tag
-                                    </a>
-                                }
-                            </div>
+                                        <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-outline-success btn-sm">
+                                            <i class="fa fa-shield"></i> Protected Name
+                                        </a>
+                                        
+                                        @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
+                                        {
+                                            <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@player.PlayerId" class="btn btn-outline-dark btn-sm">
+                                                <i class="fa fa-tag"></i> Tag
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>                        
                         </div>
                     </div>
                 </div>
@@ -114,53 +108,50 @@
             <div class="ibox-content">
 
                 <div id="player" class="tab-pane active">                    
-                    <div>
+                    <div>                        
                         <ul class="list-group clear-list">
                             <li class="list-group-item fist-item">
-                                <span class="pull-right"> @Model.Player?.PlayerId</span>
+                                <span class="pull-right"> @player.PlayerId</span>
                                 Player ID
                             </li>
                             <li class="list-group-item">
-                                <span class="pull-right"> @Model.Player?.Username</span>
+                                <span class="pull-right"> @player.Username</span>
                                 Alias
                             </li>                            
-                            @if (Model.GeoLocation != null && Model.Player != null)
+                            @if (Model.GeoLocation != null)
                             {                                  
                                 <li class="list-group-item">                                    
                                     <span class="pull-right ip-address-container" 
-                                          data-ip="@Model.Player.IpAddress" 
-                                          data-risk="@Model.Player.ProxyCheckRiskScore()" 
-                                          data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
-                                          data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                          data-type="@Model.Player.ProxyType()"
-                                          data-country-code="@(Model.GeoLocation?.CountryCode ?? "")">                                        @Model.Player.IpAddress.FormatIPAddress(
+                                          data-ip="@player.IpAddress" 
+                                          data-risk="@player.ProxyCheckRiskScore()" 
+                                          data-is-proxy="@player.IsProxy().ToString().ToLower()" 
+                                          data-is-vpn="@player.IsVpn().ToString().ToLower()"
+                                          data-type="@player.ProxyType()"
+                                          data-country-code="@(Model.GeoLocation.CountryCode ?? "")">                                        @player.IpAddress.FormatIPAddress(
                                             Model.GeoLocation,
-                                            Model.Player.ProxyCheckRiskScore(),
-                                            Model.Player.IsProxy(),
-                                            Model.Player.IsVpn(),
-                                            Model.Player.ProxyType())
+                                            player.ProxyCheckRiskScore(),
+                                            player.IsProxy(),
+                                            player.IsVpn(),
+                                            player.ProxyType())
                                     </span>
                                     IP Address
                                 </li>
                                 <li class="list-group-item">
-                                    <span class="pull-right"> @Model.GeoLocation?.LocationSummary()</span>
+                                    <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
                                     Country/City
                                 </li>
-                            }
-
-                            @if (Model.Player != null)
-                            {
-                                <li class="list-group-item">
-                                    <span class="pull-right"> @Html.GuidLink(Model.Player.Guid, Model.Player.GameType.ToString())</span>
-                                    GUID
-                                </li>
-                                <li class="list-group-item">
-                                    <span class="pull-right">
-                                        <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, Model.Player.LastSeen)
-                                    </span>
-                                    Last Seen
-                                </li>
-                            }</ul>
+                            }                            
+                            <li class="list-group-item">
+                                <span class="pull-right"> @Html.GuidLink(player.Guid, player.GameType.ToString())</span>
+                                GUID
+                            </li>
+                            <li class="list-group-item">
+                                <span class="pull-right">
+                                    <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, player.LastSeen)
+                                </span>
+                                Last Seen
+                            </li>
+                        </ul>
 
                     </div>
                 </div>
@@ -185,10 +176,11 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#protectedNames">Protected Names</a>
-                    </li>                    <li class="nav-item">
+                    </li>                    
+                    <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#playerTags">Tags</a>
-                    </li>
-                    @if (!string.IsNullOrWhiteSpace(Model.Player?.IpAddress))
+                    </li>                    
+                    @if (!string.IsNullOrWhiteSpace(player.IpAddress))
                     {
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
@@ -222,10 +214,11 @@
                                         Confidence
                                     </th>
                                 </tr>
-                            </thead>                            <tbody>
-                                @if (Model.Player?.PlayerAliases != null)
+                            </thead>                            
+                            <tbody>
+                                @if (player.PlayerAliases != null)
                                 {
-                                    @foreach(var aliasDto in Model.Player.PlayerAliases)
+                                    @foreach(var aliasDto in player.PlayerAliases)
                                     {
                                     <tr>
                                         <td>@aliasDto.Name</td>
@@ -237,7 +230,8 @@
                                 }
                             </tbody>
                         </table>
-                    </div>                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                    </div>                    
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
                         <table class="table table-borderless" style="width: 100%;">
                             <thead>
                                 <tr>
@@ -254,32 +248,34 @@
                                         Confidence
                                     </th>
                                 </tr>
-                            </thead>
+                            </thead>                            
                             <tbody>
-                                @foreach(var ipAddress in Model.EnrichedIpAddresses)
-                                {                                
-                                <tr>                                        
-                                    <td class="ip-address-container" 
-                                      data-ip="@ipAddress.Address" 
-                                      data-risk="@ipAddress.RiskScore" 
-                                      data-is-proxy="@ipAddress.IsProxy.ToString().ToLower()" 
-                                      data-is-vpn="@ipAddress.IsVpn.ToString().ToLower()"
-                                      data-type="@(ipAddress.ProxyCheck?.Type ?? "")"
-                                      data-country-code="@(ipAddress.GeoLocation?.CountryCode ?? "unknown")">
-                                        <!-- This initial rendering will be replaced by JavaScript -->
-                                        <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
-                                    </td>
-                                    <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
-                                    <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
-                                    <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
-                                </tr> 
+                                @if (Model.EnrichedIpAddresses != null)
+                                {
+                                    @foreach(var ipAddress in Model.EnrichedIpAddresses)
+                                    {                                
+                                    <tr>                                        
+                                        <td class="ip-address-container" 
+                                          data-ip="@ipAddress.Address" 
+                                          data-risk="@ipAddress.RiskScore" 
+                                          data-is-proxy="@ipAddress.IsProxy.ToString().ToLower()" 
+                                          data-is-vpn="@ipAddress.IsVpn.ToString().ToLower()"
+                                          data-type="@(ipAddress.ProxyCheck?.Type ?? "")"
+                                          data-country-code="@(ipAddress.GeoLocation?.CountryCode ?? "unknown")">
+                                            <!-- This initial rendering will be replaced by JavaScript -->
+                                            <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
+                                        </td>
+                                        <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
+                                        <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
+                                        <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
+                                    </tr> 
+                                    }
                                 }
                             </tbody>
                         </table>
-                    </div>
-                    
+                    </div>                    
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames">
-                        @if (Model.Player?.ProtectedNames != null && Model.Player.ProtectedNames.Any())
+                        @if (player.ProtectedNames != null && player.ProtectedNames.Any())
                         {
                             <table class="table table-borderless" style="width: 100%;">
                                 <thead>
@@ -291,7 +287,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var protectedName in Model.Player.ProtectedNames)
+                                    @foreach (var protectedName in player.ProtectedNames)
                                     {
                                         <tr>
                                             <td>@protectedName.Name</td>
@@ -311,12 +307,9 @@
                                 </tbody>
                             </table>
                               <p>
-                                @if (Model.Player != null)
-                                {
-                                    <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Add Another Protected Name
-                                    </a>
-                                }
+                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Add Another Protected Name
+                                </a>
                             </p>
                         }
                         else
@@ -325,18 +318,13 @@
                                 This player has no protected names.
                             </div>
                               <p>
-                                @if (Model.Player != null)
-                                {
-                                    <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@Model.Player.PlayerId" class="btn btn-primary">
-                                        <i class="fa fa-plus"></i> Add Protected Name
-                                    </a>
-                                }
+                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-primary">
+                                    <i class="fa fa-plus"></i> Add Protected Name
+                                </a>
                             </p>                        }
-                    </div>                      <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
-                        @if (Model.Player != null)
-                        {
-                            @await Component.InvokeAsync("PlayerTags", new { playerId = Model.Player.PlayerId })
-                        }
+                    </div>                      
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
+                        @await Component.InvokeAsync("PlayerTags", new { playerId = player.PlayerId })
                     </div>
 
                     @if (!string.IsNullOrWhiteSpace(Model.Player?.IpAddress))
@@ -352,14 +340,17 @@
                                             Connected By IP
                                         </th>
                                     </tr>
-                                </thead>
+                                </thead>                                
                                 <tbody>
-                                    @foreach(var relatedPlayerDto in Model.Player.RelatedPlayers)
+                                    @if (player.RelatedPlayers != null)
                                     {
-                                    <tr>
-                                        <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
-                                        <td>@relatedPlayerDto.IpAddress</td>
-                                    </tr> 
+                                        @foreach(var relatedPlayerDto in player.RelatedPlayers)
+                                        {
+                                        <tr>
+                                            <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
+                                            <td>@relatedPlayerDto.IpAddress</td>
+                                        </tr> 
+                                        }
                                     }
                                 </tbody>
                             </table>
@@ -391,17 +382,15 @@
                             </tr>
                             </thead>
                         </table>
-                    </div>                </div>
+                    </div>                
+                </div>
             </div>
         </div>
     </div>
 
 </div>
 
-@if (Model.Player != null)
-{
-    @await Component.InvokeAsync("AdminActions", new {adminActions = Model.Player.AdminActions, linkToPlayer = false, playerDto = Model.Player})
-}
+@await Component.InvokeAsync("AdminActions", new {adminActions = player.AdminActions, linkToPlayer = false, playerDto = player})
 }
 
 </div>
@@ -409,21 +398,22 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
+    @if (Model?.Player != null)
+    {
     <script type="text/javascript">
 
         $(document).ready(function() {
 
             $(function () {
                 $('[data-toggle="tooltip"]').tooltip()
-            })
-
-            $('#chatLogTable').DataTable({
+            })            $('#chatLogTable').DataTable({
                 processing: true,
                 serverSide: true,
                 searchDelay: 1000,
                 stateSave: true,
-                order: [[1, "desc"]],                ajax: {
-                    url: '/ServerAdmin/GetPlayerChatLog/@Model.Player.PlayerId',
+                order: [[1, "desc"]],                
+                ajax: {
+                    url: '/ServerAdmin/GetPlayerChatLog/@(Model?.Player?.PlayerId.ToString() ?? Guid.Empty.ToString())',
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
@@ -474,10 +464,10 @@
                 ]
             });
 
-        });
-
+        });        
+        
         function initMap() {
-            @if (Model.GeoLocation != null)
+            @if (Model?.GeoLocation != null)
             {
                 <text>var myLatLng = {
                         lat: @Model.GeoLocation.Latitude,
@@ -597,9 +587,29 @@
         .btn-group .btn {
             margin-right: 0.25rem;
         }
-        
-        .btn-group .btn:last-child {
+          .btn-group .btn:last-child {
             margin-right: 0;
         }
+        
+        .btn-group-vertical .btn {
+            margin-bottom: 0.25rem;
+        }
+        
+        .btn-group-vertical .btn:last-child {
+            margin-bottom: 0;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+        
+        .d-grid {
+            display: grid !important;
+        }
+        
+        .gap-2 {
+            gap: 0.5rem !important;
+        }
     </style>
+    }
 }

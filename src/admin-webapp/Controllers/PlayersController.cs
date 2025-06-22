@@ -1,6 +1,7 @@
 ﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 using MX.GeoLocation.GeoLocationApi.Client;
 
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
+using XtremeIdiots.Portal.AdminWebApp.Services;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
@@ -23,15 +25,21 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         private readonly IGeoLocationApiClient _geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly TelemetryClient telemetryClient;
+        private readonly IProxyCheckService _proxyCheckService;
+        private readonly ILogger<PlayersController> _logger;
 
         public PlayersController(
             IGeoLocationApiClient geoLocationClient,
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient)
+            TelemetryClient telemetryClient,
+            IProxyCheckService proxyCheckService,
+            ILogger<PlayersController> logger)
         {
             _geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
-            this.repositoryApiClient = repositoryApiClient;
-            this.telemetryClient = telemetryClient;
+            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+            _proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet]
@@ -98,18 +106,34 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                         break;
                 }
             }
-
             var playerCollectionApiResponse = await repositoryApiClient.Players.GetPlayers(gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
             if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result == null)
-                return RedirectToAction("Display", "Errors", new { id = 500 });
+                return RedirectToAction("Display", "Errors", new { id = 500 });            // Enrich player data with ProxyCheck information
+            var enrichedPlayers = await playerCollectionApiResponse.Result.Entries.EnrichWithProxyCheckDataAsync(_proxyCheckService, _logger);
+
+            // Convert the player DTOs to dynamic objects that include ProxyCheck data
+            var playerData = enrichedPlayers.Select(player => new
+            {
+                player.PlayerId,
+                player.GameType,
+                player.Username,
+                player.Guid,
+                player.IpAddress,
+                player.FirstSeen,
+                player.LastSeen,
+                // Add ProxyCheck data
+                ProxyCheckRiskScore = player.ProxyCheckRiskScore(),
+                IsProxy = player.IsProxy(),
+                IsVpn = player.IsVpn()
+            }).ToList();
 
             return Json(new
             {
                 model.Draw,
                 recordsTotal = playerCollectionApiResponse.Result.TotalRecords,
                 recordsFiltered = playerCollectionApiResponse.Result.FilteredRecords,
-                data = playerCollectionApiResponse.Result.Entries
+                data = playerData
             });
         }
 

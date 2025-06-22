@@ -79,6 +79,31 @@ function geoLocationIpLink(ipAddress) {
     return "<a href='https://www.geo-location.net/Home/LookupAddress/" + ipAddress + "'>" + ipAddress + "</a>";
 }
 
+function proxyCheckIpLink(ipAddress, riskScore, isProxy, isVpn) {
+    let riskClass = 'text-bg-success';
+
+    if (riskScore >= 80) {
+        riskClass = 'text-bg-danger';
+    } else if (riskScore >= 50) {
+        riskClass = 'text-bg-warning';
+    } else if (riskScore >= 25) {
+        riskClass = 'text-bg-info';
+    }
+
+    let result = "<a href='https://proxycheck.io/v2/" + ipAddress + "' target='_blank'>" + ipAddress + "</a> ";
+    result += "<span class='badge rounded-pill " + riskClass + "'>" + riskScore + "</span> ";
+
+    if (isProxy) {
+        result += "<span class='badge rounded-pill text-bg-danger'>Proxy</span> ";
+    }
+
+    if (isVpn) {
+        result += "<span class='badge rounded-pill text-bg-warning'>VPN</span>";
+    }
+
+    return result;
+}
+
 function manageClaimsLink(userId) {
     return '<div class="btn-group btn-group-sm" role="group">' +
         '<a type="button" class="btn btn-primary"  href="/User/ManageProfile/' +

@@ -94,7 +94,9 @@ namespace XtremeIdiots.Portal.AdminWebApp
 
             services.Configure<CookieTempDataProviderOptions>(options => { options.Cookie.IsEssential = true; });
 
+            services.AddHttpClient();
             services.AddMemoryCache();
+            services.AddScoped<Services.IProxyCheckService, Services.ProxyCheckService>();
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {

@@ -24,24 +24,24 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <th>
-                                    #
-                                </th>
-                                <th>
-                                    Username
-                                </th>
-                                <th>
-                                    Guid
-                                </th>
-                                <th>
-                                    Ip Address
-                                </th>
-                                <th>
-                                    Rate
-                                </th>
-                                <th></th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        #
+                                    </th>
+                                    <th>
+                                        Username
+                                    </th>
+                                    <th>
+                                        Guid
+                                    </th>
+                                    <th>
+                                        Ip Address
+                                    </th>
+                                    <th>
+                                        Rate
+                                    </th>
+                                    <th></th>
+                                </tr>
                             </thead>
                             <tbody>
                             </tbody>
@@ -96,10 +96,10 @@
 
 @section Styles {
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/toastr/toastr.css"/>
+        <link rel="stylesheet" href="~/lib/toastr/toastr.css" />
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/lib/toastr/toastr.min.css"/>
+        <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
     </environment>
 }
 
@@ -118,57 +118,57 @@
 
         $(document).ready(function () {
 
-            $("#restartServer").click(function(e) {
+            $("#restartServer").click(function (e) {
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
                     url: "/ServerAdmin/RestartServer/@Model.GameServerId",
-                    success: function(result) {
+                    success: function (result) {
                         alert("Success: " + result.message);
                     },
-                    error: function(result) {
+                    error: function (result) {
                         alert("Error: " + result.message);
                     }
                 });
             });
 
-            $("#restartMap").click(function(e) {
+            $("#restartMap").click(function (e) {
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
                     url: "/ServerAdmin/RestartMap/@Model.GameServerId",
-                    success: function(result) {
+                    success: function (result) {
                         alert("Success: " + result.message);
                     },
-                    error: function(result) {
+                    error: function (result) {
                         alert("Error: " + result.message);
                     }
                 });
             });
 
-            $("#fastRestartMap").click(function(e) {
+            $("#fastRestartMap").click(function (e) {
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
                     url: "/ServerAdmin/FastRestartMap/@Model.GameServerId",
-                    success: function(result) {
+                    success: function (result) {
                         alert("Success: " + result.message);
                     },
-                    error: function(result) {
+                    error: function (result) {
                         alert("Error: " + result.message);
                     }
                 });
             });
 
-            $("#nextMap").click(function(e) {
+            $("#nextMap").click(function (e) {
                 e.preventDefault();
                 $.ajax({
                     type: "POST",
                     url: "/ServerAdmin/NextMap/@Model.GameServerId",
-                    success: function(result) {
+                    success: function (result) {
                         alert("Success: " + result.message);
                     },
-                    error: function(result) {
+                    error: function (result) {
                         alert("Error: " + result.message);
                     }
                 });
@@ -194,7 +194,7 @@
                         data: 'name',
                         name: 'name',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return escapeHtml(row['name']);
                         }
                     },
@@ -206,7 +206,13 @@
                     {
                         data: 'ipAddress',
                         name: 'ipAddress',
-                        sortable: false
+                        sortable: false,
+                        render: function (data, type, row) {
+                            // For RCON players, we'll need to make an API call to get ProxyCheck data
+                            // This will be implemented in the GetRconPlayers method in the ServerAdminController
+                            return proxyCheckIpLink(row['ipAddress'], row['proxyCheckRiskScore'] || 0,
+                                row['isProxy'] === true, row['isVpn'] === true);
+                        }
                     },
                     {
                         data: 'rate',
@@ -215,18 +221,18 @@
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return "";
-                            @*return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';*@
-                        }
+                                @*return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';*@
+                            }
                     }
                 ]
             });
         });
 
-        setInterval(function() {
-                $('#dataTable').DataTable().ajax.reload();
-            },
+        setInterval(function () {
+            $('#dataTable').DataTable().ajax.reload();
+        },
             10000);
 
     </script>

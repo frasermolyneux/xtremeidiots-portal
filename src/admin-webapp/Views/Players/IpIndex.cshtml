@@ -12,13 +12,13 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Guid</td>
-                                <td>Ip Address</td>
-                                <td>First Seen</td>
-                                <td>Last Seen</td>
-                            </tr>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Guid</td>
+                                    <td>Ip Address</td>
+                                    <td>First Seen</td>
+                                    <td>Last Seen</td>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -36,7 +36,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -48,7 +48,7 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -57,7 +57,7 @@
                         data: 'username',
                         name: 'username',
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return renderPlayerName(row['gameType'], row['username'], row['playerId']);
                         }
                     },
@@ -69,7 +69,14 @@
                     {
                         data: 'ipAddress',
                         name: 'ipAddress',
-                        sortable: false
+                        sortable: false,
+                        render: function (data, type, row) {
+                            // We'll use custom properties passed from the ProxyCheck extensions
+                            var riskScore = row['proxyCheckRiskScore'] || 0;
+                            var isProxy = row['isProxy'] === true;
+                            var isVpn = row['isVpn'] === true;
+                            return proxyCheckIpLink(row['ipAddress'], riskScore, isProxy, isVpn);
+                        }
                     },
                     {
                         data: 'firstSeen',

@@ -213,6 +213,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'DiagnosticServices_EXTENSION_VERSION'
           value: '~3'
         }
+        {
+          name: 'ProxyCheck:ApiKey'
+          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=ProxyCheck--ApiKey)'
+        }
       ]
     }
   }

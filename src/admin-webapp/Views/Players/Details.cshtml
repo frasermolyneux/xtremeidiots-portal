@@ -22,7 +22,9 @@
         <div class="ibox">
             <div class="ibox-content">
                 <div class="row">
-                    <div class="col-sm-6">                        <div class="d-flex align-items-center">                            <div class="mr-3">
+                    <div class="col-sm-6">                        
+                        <div class="d-flex align-items-center">                            
+                            <div class="mr-3">
                                 @if (Model?.Player != null)
                                 {
                                     @Html.GameTypeIcon(Model.Player.GameType)
@@ -45,7 +47,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">                        <div class="text-right">
+                    <div class="col-sm-6">                        
+                        <div class="text-right">
                             <div class="btn-group" role="group">
                                 @if (Model?.Player != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(Model.Player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
                                 {
@@ -110,7 +113,8 @@
         <div class="ibox">
             <div class="ibox-content">
 
-                <div id="player" class="tab-pane active">                    <div>
+                <div id="player" class="tab-pane active">                    
+                    <div>
                         <ul class="list-group clear-list">
                             <li class="list-group-item fist-item">
                                 <span class="pull-right"> @Model.Player?.PlayerId</span>
@@ -119,8 +123,10 @@
                             <li class="list-group-item">
                                 <span class="pull-right"> @Model.Player?.Username</span>
                                 Alias
-                            </li>                            @if (Model.GeoLocation != null && Model.Player != null)
-                            {                                  <li class="list-group-item">                                    
+                            </li>                            
+                            @if (Model.GeoLocation != null && Model.Player != null)
+                            {                                  
+                                <li class="list-group-item">                                    
                                     <span class="pull-right ip-address-container" 
                                           data-ip="@Model.Player.IpAddress" 
                                           data-risk="@Model.Player.ProxyCheckRiskScore()" 

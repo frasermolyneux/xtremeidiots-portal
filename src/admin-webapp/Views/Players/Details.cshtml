@@ -19,32 +19,39 @@
     var player = Model.Player;
 <!-- Player Banner -->
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-12">
         <div class="ibox">
             <div class="ibox-content">
                 <div class="row">
-                    <div class="col-sm-6">                        
-                        <div class="d-flex align-items-center">                            
-                            <div class="mr-3">                                
+                    <div class="col-12">                        
+                        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center">                            
+                            <div class="mr-0 mr-md-3 mb-2 mb-md-0 text-center text-md-left">                                
                                 @Html.GameTypeIcon(player.GameType)
                             </div>
-                            <div>
-                                <h2 class="mb-1">@(player.Username ?? "Unknown Player")</h2>                                
-                                <div class="text-muted">
-                                    <span class="mr-2">
-                                        <i class="fa fa-id-card"></i> Player ID: 
-                                        <span id="playerId">@player.PlayerId.ToString()</span>
-                                        <i class="fa fa-copy ml-1 cursor-pointer" onclick="copyToClipboard('playerId')" title="Copy Player ID"></i>
-                                    </span>
-                                    <span class="mr-2">
-                                        <i class="fa fa-key"></i> GUID: 
-                                        <span id="playerGuid">@player.Guid.ToString()</span>
-                                        <i class="fa fa-copy ml-1 cursor-pointer" onclick="copyToClipboard('playerGuid')" title="Copy GUID"></i>
-                                    </span>
+                            <div class="flex-grow-1">
+                                <h2 class="mb-2 text-center text-md-left">@(player.Username ?? "Unknown Player")</h2>                                
+                                <div class="text-muted mb-3">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-6 mb-2 mb-lg-0">
+                                            <span class="d-flex align-items-center justify-content-center justify-content-md-start">
+                                                <i class="fa fa-id-card mr-1"></i> Player ID: 
+                                                <span id="playerId" class="mx-1 font-weight-bold">@player.PlayerId.ToString()</span>
+                                                <i class="fa fa-copy cursor-pointer" onclick="copyToClipboard('playerId')" title="Copy Player ID"></i>
+                                            </span>
+                                        </div>
+                                        <div class="col-12 col-lg-6">
+                                            <span class="d-flex align-items-center justify-content-center justify-content-md-start">
+                                                <i class="fa fa-key mr-1"></i> GUID: 
+                                                <span id="playerGuid" class="mx-1 font-weight-bold text-truncate">@player.Guid.ToString()</span>
+                                                <i class="fa fa-copy cursor-pointer" onclick="copyToClipboard('playerGuid')" title="Copy GUID"></i>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                                   <!-- Player Actions -->
                                 <div class="mt-2">
-                                    <div class="btn-group" role="group">
+                                    <div class="btn-toolbar justify-content-center justify-content-md-start" role="toolbar">
+                                        <div class="btn-group flex-wrap" role="group">
                                         @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType>(player.GameType, AdminActionType.Observation), AuthPolicies.CreateAdminAction)).Succeeded)
                                         {
                                             <a asp-controller="AdminAction" asp-action="Create" asp-route-id="@player.PlayerId" asp-route-adminActionType="Observation" class="btn btn-outline-primary btn-sm">
@@ -83,13 +90,13 @@
                                         <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-outline-success btn-sm">
                                             <i class="fa fa-shield"></i> Protected Name
                                         </a>
-                                        
-                                        @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
+                                          @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
                                         {
                                             <a asp-controller="Players" asp-action="AddPlayerTag" asp-route-id="@player.PlayerId" class="btn btn-outline-dark btn-sm">
                                                 <i class="fa fa-tag"></i> Tag
                                             </a>
                                         }
+                                        </div>
                                     </div>
                                 </div>
                             </div>                        
@@ -103,7 +110,7 @@
 
 <div class="row">
 
-    <div class="col-sm-4">
+    <div class="col-12 col-lg-4 mb-4 mb-lg-0">
         <div class="ibox">
             <div class="ibox-content">
 
@@ -111,17 +118,17 @@
                     <div>                        
                         <ul class="list-group clear-list">
                             <li class="list-group-item fist-item">
-                                <span class="pull-right"> @player.PlayerId</span>
+                                <span class="float-right text-right"> @player.PlayerId</span>
                                 Player ID
                             </li>
                             <li class="list-group-item">
-                                <span class="pull-right"> @player.Username</span>
+                                <span class="float-right text-right"> @player.Username</span>
                                 Alias
                             </li>                            
                             @if (Model.GeoLocation != null)
                             {                                  
                                 <li class="list-group-item">                                    
-                                    <span class="pull-right ip-address-container" 
+                                    <span class="float-right text-right ip-address-container" 
                                           data-ip="@player.IpAddress" 
                                           data-risk="@player.ProxyCheckRiskScore()" 
                                           data-is-proxy="@player.IsProxy().ToString().ToLower()" 
@@ -137,16 +144,16 @@
                                     IP Address
                                 </li>
                                 <li class="list-group-item">
-                                    <span class="pull-right"> @Model.GeoLocation.LocationSummary()</span>
+                                    <span class="float-right text-right"> @Model.GeoLocation.LocationSummary()</span>
                                     Country/City
                                 </li>
                             }                            
                             <li class="list-group-item">
-                                <span class="pull-right"> @Html.GuidLink(player.Guid, player.GameType.ToString())</span>
+                                <span class="float-right text-right"> @Html.GuidLink(player.Guid, player.GameType.ToString())</span>
                                 GUID
                             </li>
                             <li class="list-group-item">
-                                <span class="pull-right">
+                                <span class="float-right text-right">
                                     <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, player.LastSeen)
                                 </span>
                                 Last Seen
@@ -160,11 +167,11 @@
         </div>
     </div>
 
-    <div class="col-sm-8">
+    <div class="col-12 col-lg-8">
         <div class="ibox ">
             <div class="ibox-content">
 
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-tabs nav-tabs-responsive">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#location">Location</a>
                     </li>
@@ -189,123 +196,125 @@
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#chatLog">ChatLog</a>
                     </li>
-                </ul>
-
-                <div class="tab-content">
+                </ul>                <div class="tab-content">
                     <div class="ibox-content tab-pane container active" style="height: 100%" id="location">
-                        <div id="map" style="height: 450px; width: 100%;"></div>
+                        <div id="map" class="responsive-map"></div>
                         <a target="_blank" href="https://www.geo-location.net/">Powered by geo-location.net</a>
-                    </div>
-
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
-                        <table class="table table-borderless" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Name
-                                    </th>
-                                    <th>
-                                        Added
-                                    </th>
-                                    <th>
-                                        Last Used
-                                    </th>
-                                    <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the Alias has been linked to the GUID">
-                                        Confidence
-                                    </th>
-                                </tr>
-                            </thead>                            
-                            <tbody>
-                                @if (player.PlayerAliases != null)
-                                {
-                                    @foreach(var aliasDto in player.PlayerAliases)
-                                    {
-                                    <tr>
-                                        <td>@aliasDto.Name</td>
-                                        <td>@Html.ToUserTime(User, aliasDto.Added)</td>
-                                        <td>@Html.ToUserTime(User, aliasDto.LastUsed)</td>
-                                        <td>@Html.ToConfidenceLabel(aliasDto.ConfidenceScore, aliasDto.LastUsed)</td>
-                                    </tr> 
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>                    
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
-                        <table class="table table-borderless" style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Address
-                                    </th>
-                                    <th>
-                                        Added
-                                    </th>
-                                    <th>
-                                        Last Used
-                                    </th>
-                                    <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
-                                        Confidence
-                                    </th>
-                                </tr>
-                            </thead>                            
-                            <tbody>
-                                @if (Model.EnrichedIpAddresses != null)
-                                {
-                                    @foreach(var ipAddress in Model.EnrichedIpAddresses)
-                                    {                                
-                                    <tr>                                        
-                                        <td class="ip-address-container" 
-                                          data-ip="@ipAddress.Address" 
-                                          data-risk="@ipAddress.RiskScore" 
-                                          data-is-proxy="@ipAddress.IsProxy.ToString().ToLower()" 
-                                          data-is-vpn="@ipAddress.IsVpn.ToString().ToLower()"
-                                          data-type="@(ipAddress.ProxyCheck?.Type ?? "")"
-                                          data-country-code="@(ipAddress.GeoLocation?.CountryCode ?? "unknown")">
-                                            <!-- This initial rendering will be replaced by JavaScript -->
-                                            <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
-                                        </td>
-                                        <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
-                                        <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
-                                        <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
-                                    </tr> 
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>                    
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames">
-                        @if (player.ProtectedNames != null && player.ProtectedNames.Any())
-                        {
+                    </div>                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="aliases">
+                        <div class="table-responsive">
                             <table class="table table-borderless" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Created</th>
-                                        <th>Created By</th>
-                                        <th>Actions</th>
+                                        <th>
+                                            Name
+                                        </th>
+                                        <th>
+                                            Added
+                                        </th>
+                                        <th>
+                                            Last Used
+                                        </th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the Alias has been linked to the GUID">
+                                            Confidence
+                                        </th>
                                     </tr>
-                                </thead>
+                                </thead>                            
                                 <tbody>
-                                    @foreach (var protectedName in player.ProtectedNames)
+                                    @if (player.PlayerAliases != null)
                                     {
+                                        @foreach(var aliasDto in player.PlayerAliases)
+                                        {
                                         <tr>
-                                            <td>@protectedName.Name</td>
-                                            <td>@Html.ToUserTime(User, protectedName.CreatedOn)</td>
-                                            <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
-                                            <td>
-                                                <a asp-controller="Players" asp-action="ProtectedNameReport" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm">
-                                                    <i class="fa fa-file-text"></i> Usage Report
-                                                </a>
-                                                <a asp-controller="Players" asp-action="DeleteProtectedName" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
-                                                   onclick="return confirm('Are you sure you want to delete this protected name?');">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </a>
-                                            </td>
-                                        </tr>
+                                            <td>@aliasDto.Name</td>
+                                            <td>@Html.ToUserTime(User, aliasDto.Added)</td>
+                                            <td>@Html.ToUserTime(User, aliasDto.LastUsed)</td>
+                                            <td>@Html.ToConfidenceLabel(aliasDto.ConfidenceScore, aliasDto.LastUsed)</td>
+                                        </tr> 
+                                        }
                                     }
                                 </tbody>
                             </table>
+                        </div>
+                    </div>                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                        <div class="table-responsive">
+                            <table class="table table-borderless" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            Address
+                                        </th>
+                                        <th>
+                                            Added
+                                        </th>
+                                        <th>
+                                            Last Used
+                                        </th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
+                                            Confidence
+                                        </th>
+                                    </tr>
+                                </thead>                            
+                                <tbody>
+                                    @if (Model.EnrichedIpAddresses != null)
+                                    {
+                                        @foreach(var ipAddress in Model.EnrichedIpAddresses)
+                                        {                                
+                                        <tr>                                        
+                                            <td class="ip-address-container" 
+                                              data-ip="@ipAddress.Address" 
+                                              data-risk="@ipAddress.RiskScore" 
+                                              data-is-proxy="@ipAddress.IsProxy.ToString().ToLower()" 
+                                              data-is-vpn="@ipAddress.IsVpn.ToString().ToLower()"
+                                              data-type="@(ipAddress.ProxyCheck?.Type ?? "")"
+                                              data-country-code="@(ipAddress.GeoLocation?.CountryCode ?? "unknown")">
+                                                <!-- This initial rendering will be replaced by JavaScript -->
+                                                <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
+                                            </td>
+                                            <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
+                                            <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
+                                            <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
+                                        </tr> 
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames">
+                        @if (player.ProtectedNames != null && player.ProtectedNames.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-borderless" style="width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Created</th>
+                                            <th>Created By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var protectedName in player.ProtectedNames)
+                                        {
+                                            <tr>
+                                                <td>@protectedName.Name</td>
+                                                <td>@Html.ToUserTime(User, protectedName.CreatedOn)</td>
+                                                <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm d-flex flex-column flex-sm-row" role="group">
+                                                        <a asp-controller="Players" asp-action="ProtectedNameReport" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm mb-1 mb-sm-0">
+                                                            <i class="fa fa-file-text"></i> <span class="d-none d-sm-inline">Usage Report</span>
+                                                        </a>
+                                                        <a asp-controller="Players" asp-action="DeleteProtectedName" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
+                                                           onclick="return confirm('Are you sure you want to delete this protected name?');">
+                                                            <i class="fa fa-trash"></i> <span class="d-none d-sm-inline">Delete</span>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                               <p>
                                 <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-primary">
                                     <i class="fa fa-plus"></i> Add Another Protected Name
@@ -322,38 +331,38 @@
                                     <i class="fa fa-plus"></i> Add Protected Name
                                 </a>
                             </p>                        }
-                    </div>                      
+                    </div>
                     <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
                         @await Component.InvokeAsync("PlayerTags", new { playerId = player.PlayerId })
-                    </div>
-
-                    @if (!string.IsNullOrWhiteSpace(Model.Player?.IpAddress))
+                    </div>                    @if (!string.IsNullOrWhiteSpace(Model.Player?.IpAddress))
                     {
                         <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
-                            <table class="table table-borderless" style="width: 100%;">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            Player Name
-                                        </th>
-                                        <th>
-                                            Connected By IP
-                                        </th>
-                                    </tr>
-                                </thead>                                
-                                <tbody>
-                                    @if (player.RelatedPlayers != null)
-                                    {
-                                        @foreach(var relatedPlayerDto in player.RelatedPlayers)
-                                        {
+                            <div class="table-responsive">
+                                <table class="table table-borderless" style="width: 100%;">
+                                    <thead>
                                         <tr>
-                                            <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
-                                            <td>@relatedPlayerDto.IpAddress</td>
-                                        </tr> 
+                                            <th>
+                                                Player Name
+                                            </th>
+                                            <th>
+                                                Connected By IP
+                                            </th>
+                                        </tr>
+                                    </thead>                                
+                                    <tbody>
+                                        @if (player.RelatedPlayers != null)
+                                        {
+                                            @foreach(var relatedPlayerDto in player.RelatedPlayers)
+                                            {
+                                            <tr>
+                                                <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
+                                                <td>@relatedPlayerDto.IpAddress</td>
+                                            </tr> 
+                                            }
                                         }
-                                    }
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     }
 
@@ -555,8 +564,7 @@
             });
         });
     </script>
-    
-    <style>
+      <style>
         .cursor-pointer {
             cursor: pointer;
         }
@@ -569,6 +577,34 @@
             align-items: center !important;
         }
         
+        .align-items-start {
+            align-items: flex-start !important;
+        }
+        
+        .justify-content-center {
+            justify-content: center !important;
+        }
+        
+        .flex-grow-1 {
+            flex-grow: 1 !important;
+        }
+        
+        .flex-column {
+            flex-direction: column !important;
+        }
+        
+        .flex-wrap {
+            flex-wrap: wrap !important;
+        }
+        
+        .mr-0 {
+            margin-right: 0 !important;
+        }
+        
+        .mr-1 {
+            margin-right: 0.25rem !important;
+        }
+        
         .mr-3 {
             margin-right: 1rem !important;
         }
@@ -577,18 +613,73 @@
             margin-left: 0.25rem !important;
         }
         
+        .mx-1 {
+            margin-left: 0.25rem !important;
+            margin-right: 0.25rem !important;
+        }
+        
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
+        
         .mb-1 {
             margin-bottom: 0.25rem !important;
+        }
+        
+        .mb-2 {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+        
+        .mt-3 {
+            margin-top: 1rem !important;
+        }
+        
+        .text-center {
+            text-align: center !important;
         }
         
         .text-right {
             text-align: right !important;
         }
         
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .font-weight-bold {
+            font-weight: bold !important;
+        }
+        
+        .float-right {
+            float: right !important;
+        }
+        
+        .btn-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        
         .btn-group .btn {
             margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
         }
-          .btn-group .btn:last-child {
+        
+        .btn-group .btn:last-child {
             margin-right: 0;
         }
         
@@ -600,16 +691,152 @@
             margin-bottom: 0;
         }
         
-        .mt-3 {
-            margin-top: 1rem !important;
-        }
-        
         .d-grid {
             display: grid !important;
         }
         
         .gap-2 {
             gap: 0.5rem !important;
+        }
+        
+        /* Responsive map */
+        .responsive-map {
+            height: 300px;
+            width: 100%;
+        }
+        
+        /* Responsive navigation tabs */
+        .nav-tabs-responsive {
+            flex-wrap: wrap;
+        }
+        
+        .nav-tabs-responsive .nav-item {
+            margin-bottom: 0.25rem;
+        }
+        
+        .nav-tabs-responsive .nav-link {
+            white-space: nowrap;
+            padding: 0.5rem 0.75rem;
+        }
+          /* Medium devices and up */
+        @@media (min-width: 768px) {
+            .flex-md-row {
+                flex-direction: row !important;
+            }
+            
+            .align-items-md-center {
+                align-items: center !important;
+            }
+            
+            .mr-md-3 {
+                margin-right: 1rem !important;
+            }
+            
+            .mb-md-0 {
+                margin-bottom: 0 !important;
+            }
+            
+            .text-md-left {
+                text-align: left !important;
+            }
+            
+            .justify-content-md-start {
+                justify-content: flex-start !important;
+            }
+            
+            .responsive-map {
+                height: 450px;
+            }
+            
+            .btn-toolbar {
+                justify-content: flex-start;
+            }
+        }
+        
+        /* Large devices and up */
+        @@media (min-width: 992px) {
+            .col-lg-4 {
+                flex: 0 0 33.333333%;
+                max-width: 33.333333%;
+            }
+            
+            .col-lg-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+            
+            .col-lg-8 {
+                flex: 0 0 66.666667%;
+                max-width: 66.666667%;
+            }
+            
+            .mb-lg-0 {
+                margin-bottom: 0 !important;
+            }
+        }
+        
+        /* Small devices - hide text in action buttons */
+        @@media (max-width: 576px) {
+            .btn-group .btn {
+                padding: 0.375rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .nav-tabs-responsive .nav-link {
+                padding: 0.375rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .d-none {
+                display: none !important;
+            }
+            
+            .d-sm-inline {
+                display: none !important;
+            }
+            
+            /* Stack buttons vertically on very small screens */
+            .btn-group-sm .btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 0.25rem;
+            }
+        }
+        
+        /* Medium devices and up - show text in buttons */
+        @@media (min-width: 576px) {
+            .d-sm-inline {
+                display: inline !important;
+            }
+            
+            .flex-sm-row {
+                flex-direction: row !important;
+            }
+            
+            .mb-sm-0 {
+                margin-bottom: 0 !important;
+            }
+        }
+        
+        /* Ensure tables are responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Make sure DataTables work well on mobile */
+        @@media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_length,
+            .dataTables_wrapper .dataTables_filter {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+            
+            .dataTables_wrapper .dataTables_info,
+            .dataTables_wrapper .dataTables_paginate {
+                text-align: center;
+                margin-top: 1rem;
+            }
         }
     </style>
 }

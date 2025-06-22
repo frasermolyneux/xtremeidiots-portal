@@ -202,9 +202,7 @@
                                 }
                             </tbody>
                         </table>
-                    </div>
-
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                    </div>                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
                         <table class="table table-borderless" style="width: 100%;">
                             <thead>
                                 <tr>
@@ -223,20 +221,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach(var ipAddressDto in Model.Player.PlayerIpAddresses)
-                                {                                <tr>                                        <td class="ip-address-container" 
-                                      data-ip="@ipAddressDto.Address" 
-                                      data-risk="@Model.Player.ProxyCheckRiskScore()" 
-                                      data-is-proxy="@Model.Player.IsProxy().ToString().ToLower()" 
-                                      data-is-vpn="@Model.Player.IsVpn().ToString().ToLower()"
-                                      data-type="@Model.Player.ProxyType()"
-                                      data-country-code="@(ipAddressDto.Address == Model.Player.IpAddress && Model.GeoLocation != null ? Model.GeoLocation.CountryCode : "unknown")">
+                                @foreach(var ipAddress in Model.EnrichedIpAddresses)
+                                {                                
+                                <tr>                                        
+                                    <td class="ip-address-container" 
+                                      data-ip="@ipAddress.Address" 
+                                      data-risk="@ipAddress.RiskScore" 
+                                      data-is-proxy="@ipAddress.IsProxy.ToString().ToLower()" 
+                                      data-is-vpn="@ipAddress.IsVpn.ToString().ToLower()"
+                                      data-type="@(ipAddress.ProxyCheck?.Type ?? "")"
+                                      data-country-code="@(ipAddress.GeoLocation?.CountryCode ?? "unknown")">
                                         <!-- This initial rendering will be replaced by JavaScript -->
-                                        <img src="/images/flags/@(ipAddressDto.Address == Model.Player.IpAddress && Model.GeoLocation != null && !string.IsNullOrEmpty(Model.GeoLocation.CountryCode) ? Model.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddressDto.Address
+                                        <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
                                     </td>
-                                    <td>@Html.ToUserTime(User, ipAddressDto.Added)</td>
-                                    <td>@Html.ToUserTime(User, ipAddressDto.LastUsed)</td>
-                                    <td>@Html.ToConfidenceLabel(ipAddressDto.ConfidenceScore, ipAddressDto.LastUsed)</td>
+                                    <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
+                                    <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
+                                    <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
                                 </tr> 
                                 }
                             </tbody>

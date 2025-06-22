@@ -136,7 +136,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 data = playerData
             });
         }
-
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
@@ -150,6 +149,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Player = playerApiResponse.Result
             };
 
+            // Enrich the current player IP with geolocation data (legacy behavior)
             if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.IpAddress))
                 try
                 {
@@ -166,6 +166,42 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 {
                     telemetryClient.TrackException(ex);
                 }
+
+            // Enrich all IP addresses with geolocation and proxy check data
+            if (playerApiResponse.Result.PlayerIpAddresses != null && playerApiResponse.Result.PlayerIpAddresses.Any())
+            {
+                foreach (var ipAddress in playerApiResponse.Result.PlayerIpAddresses)
+                {
+                    var enrichedIp = new PlayerIpAddressViewModel
+                    {
+                        IpAddressDto = ipAddress,
+                        IsCurrentIp = ipAddress.Address == playerApiResponse.Result.IpAddress
+                    };
+
+                    try
+                    {
+                        // Get geolocation data
+                        var geoLocation = await _geoLocationClient.GeoLookup.GetGeoLocation(ipAddress.Address);
+                        if (geoLocation.IsSuccess && geoLocation.Result != null)
+                        {
+                            enrichedIp.GeoLocation = geoLocation.Result;
+                        }
+
+                        // Get proxy check data
+                        var proxyCheck = await _proxyCheckService.GetIpRiskDataAsync(ipAddress.Address);
+                        if (!proxyCheck.IsError)
+                        {
+                            enrichedIp.ProxyCheck = proxyCheck;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        telemetryClient.TrackException(ex);
+                    }
+
+                    playerDetailsViewModel.EnrichedIpAddresses.Add(enrichedIp);
+                }
+            }
 
             return View(playerDetailsViewModel);
         }

@@ -22,6 +22,7 @@
                                     <th>Name</th>
                                     <th>Description</th>
                                     <th>Tag Preview</th>
+                                    <th>User Defined</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -32,6 +33,16 @@
                                         <td>@tag.Name</td>
                                         <td>@tag.Description</td>
                                         <td>@Html.Raw(tag.TagHtml)</td>
+                                        <td>
+                                            @if (tag.UserDefined)
+                                            {
+                                                <span class="badge badge-success">Yes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-warning">No</span>
+                                            }
+                                        </td>
                                         <td>
                                             <div class="btn-group">
                                                 <a asp-action="Edit" asp-route-id="@tag.TagId"

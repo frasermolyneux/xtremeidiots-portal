@@ -15,5 +15,8 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewModels
 
         [Display(Name = "HTML Markup")]
         public string? TagHtml { get; set; }
+
+        [Display(Name = "User Defined")]
+        public bool UserDefined { get; set; } = true;
     }
 }

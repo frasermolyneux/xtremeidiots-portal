@@ -15,7 +15,8 @@
                     <div class="mr-2">
                         @Html.Raw(playerTag.Tag?.TagHtml)
                     </div>
-                    @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.DeletePlayerTag)).Succeeded)
+                    @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.DeletePlayerTag)).Succeeded &&
+                                playerTag.Tag?.UserDefined == true)
                     {
                         <a asp-controller="Players" asp-action="RemovePlayerTag" asp-route-id="@playerTag.PlayerId"
                             asp-route-playerTagId="@playerTag.PlayerTagId" class="btn btn-xs btn-danger ml-2">
@@ -42,4 +43,3 @@
     }
 </div>
 
-           

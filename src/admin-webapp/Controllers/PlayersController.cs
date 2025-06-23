@@ -395,14 +395,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
 
             if (!tagsResponse.IsSuccess || tagsResponse.Result == null)
-                return RedirectToAction("Display", "Errors", new { id = 500 });
-
-            var model = new AddPlayerTagViewModel
-            {
-                PlayerId = id,
-                Player = playerResponse.Result,
-                AvailableTags = tagsResponse.Result.Entries
-            };
+                return RedirectToAction("Display", "Errors", new { id = 500 }); var model = new AddPlayerTagViewModel
+                {
+                    PlayerId = id,
+                    Player = playerResponse.Result,
+                    AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList()
+                };
 
             return View(model);
         }
@@ -419,18 +417,36 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 {
                     model.Player = playerResponse.Result;
                 }
+                var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+                if (tagsResponse.IsSuccess && tagsResponse.Result != null)
+                {
+                    model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
+                }
+                return View(model);
+            }
+            var tagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
+            if (!tagResponse.IsSuccess || tagResponse.Result == null)
+                return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            // Check if this tag is UserDefined - only those can be added by users
+            if (!tagResponse.Result.UserDefined)
+            {
+                this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
+
+                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                if (playerResponse.IsSuccess && playerResponse.Result != null)
+                {
+                    model.Player = playerResponse.Result;
+                }
 
                 var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result != null)
                 {
-                    model.AvailableTags = tagsResponse.Result.Entries;
+                    model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
                 }
+
                 return View(model);
             }
-
-            var tagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
-            if (!tagResponse.IsSuccess || tagResponse.Result == null)
-                return RedirectToAction("Display", "Errors", new { id = 404 });
 
             var userProfileIdString = User.UserProfileId();
             if (string.IsNullOrWhiteSpace(userProfileIdString) || !Guid.TryParse(userProfileIdString, out var userProfileId))
@@ -461,7 +477,6 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             return RedirectToAction(nameof(Details), new { id = model.PlayerId });
         }
-
         [HttpGet]
         [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
         public async Task<IActionResult> RemovePlayerTag(Guid id, Guid playerTagId)
@@ -478,10 +493,16 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (playerTag == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
+            // Check if the tag is UserDefined - only those can be removed
+            if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
+            {
+                this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
+
             ViewBag.Player = playerResponse.Result;
             return View(playerTag);
         }
-
         [HttpPost]
         [ActionName("RemovePlayerTag")]
         [ValidateAntiForgeryToken]
@@ -499,6 +520,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var playerTag = playerTagsResponse.Result.Entries.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
             if (playerTag == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
+
+            // Check if the tag is UserDefined - only those can be removed
+            if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
+            {
+                this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
+                return RedirectToAction(nameof(Details), new { id = id });
+            }
 
             var response = await repositoryApiClient.Players.RemovePlayerTag(id, playerTagId);
 

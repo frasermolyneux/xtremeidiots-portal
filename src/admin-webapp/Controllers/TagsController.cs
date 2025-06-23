@@ -55,16 +55,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         public async Task<IActionResult> Create(CreateTagViewModel model)
         {
             if (!ModelState.IsValid)
-                return View(model);
-
-            // Through admin-webapp, tags can only be created as UserDefined=true
-            // This ensures system tags cannot be created through the UI
+                return View(model);            // Allow setting UserDefined property when creating tags
             var createTagDto = new TagDto
             {
                 Name = model.Name,
                 Description = model.Description,
                 TagHtml = model.TagHtml,
-                UserDefined = true // Always true for user-created tags
+                UserDefined = model.UserDefined // Use the value from the form
             };
 
             var response = await repositoryApiClient.Tags.CreateTag(createTagDto);
@@ -88,15 +85,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var tagResponse = await repositoryApiClient.Tags.GetTag(id);
 
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
-                return RedirectToAction("Display", "Errors", new { id = 404 });
-
-            var model = new EditTagViewModel
-            {
-                TagId = tagResponse.Result.TagId,
-                Name = tagResponse.Result.Name,
-                Description = tagResponse.Result.Description,
-                TagHtml = tagResponse.Result.TagHtml
-            };
+                return RedirectToAction("Display", "Errors", new { id = 404 }); var model = new EditTagViewModel
+                {
+                    TagId = tagResponse.Result.TagId,
+                    Name = tagResponse.Result.Name,
+                    Description = tagResponse.Result.Description,
+                    TagHtml = tagResponse.Result.TagHtml,
+                    UserDefined = tagResponse.Result.UserDefined
+                };
 
             return View(model);
         }
@@ -111,16 +107,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var originalTagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
 
             if (!originalTagResponse.IsSuccess || originalTagResponse.Result == null)
-                return RedirectToAction("Display", "Errors", new { id = 404 });
-
-            // Ensure we're not changing the UserDefined status
+                return RedirectToAction("Display", "Errors", new { id = 404 });            // Allow changing the UserDefined status
             var tagDto = new TagDto
             {
                 TagId = model.TagId,
                 Name = model.Name,
                 Description = model.Description,
                 TagHtml = model.TagHtml,
-                UserDefined = originalTagResponse.Result.UserDefined // Preserve the original UserDefined value
+                UserDefined = model.UserDefined // Use the value from the form
             };
 
             var response = await repositoryApiClient.Tags.UpdateTag(tagDto);

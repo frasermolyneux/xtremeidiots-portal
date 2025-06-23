@@ -31,7 +31,7 @@
                             <div class="flex-grow-1">
                                 <h2 class="mb-2 text-center text-md-left">@(player.Username ?? "Unknown Player")</h2>                                
                                 <div class="text-muted mb-3">
-                                    <div class="row">
+                                    <div class="row">                                        
                                         <div class="col-12 col-lg-6 mb-2 mb-lg-0">
                                             <span class="d-flex align-items-center justify-content-center justify-content-md-start">
                                                 <i class="fa fa-id-card mr-1"></i> Player ID: 
@@ -43,6 +43,18 @@
                                                 <span id="playerGuid" class="mx-1 font-weight-bold text-truncate"> @Html.GuidLink(player.Guid, player.GameType.ToString())</span>
                                                 <i class="fa fa-copy cursor-pointer" onclick="copyToClipboard('playerGuid')" title="Copy GUID"></i>
                                             </span>
+                                            @if (player.Tags != null && player.Tags.Any())
+                                            {
+                                                <span class="d-flex align-items-center justify-content-center justify-content-md-start">
+                                                    <i class="fa fa-tag mr-1"></i> Tags: 
+                                                    <span class="mx-1">
+                                                        @foreach (var playerTag in player.Tags)
+                                                        {
+                                                            @Html.Raw(playerTag.Tag?.TagHtml)
+                                                        }
+                                                    </span>
+                                                </span>
+                                            }
                                         </div>
 
                                         <div class="col-12 col-lg-6 mb-2 mb-lg-0">

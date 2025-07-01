@@ -1,21 +1,268 @@
 ﻿@{
-    ViewData["Title"] = "Portal Change Log";
+    ViewData["Title"] = "Portal Development Dashboard";
 }
+
+<style>
+    .stream-item {
+        padding: 20px 0;
+        border-bottom: 1px solid #e7eaec;
+    }
+
+    .stream-item:last-child {
+        border-bottom: none;
+    }
+
+    .stream-content {
+        padding-left: 15px;
+    }
+
+    .stream-divider {
+        margin: 15px 0;
+        opacity: 0.3;
+    }
+
+    .activity-icon {
+        width: 40px;
+        text-align: center;
+    }
+
+    .activity-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .activity-meta {
+        white-space: nowrap;
+        text-align: right;
+        min-width: 120px;
+    }
+
+    .panel {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        height: 100%;
+    }
+
+    .panel-heading {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 8px 8px 0 0;
+        padding: 20px;
+    }
+
+    .panel-body {
+        padding: 20px;
+    }
+
+    .panel-body .row {
+        margin: 0;
+    }
+
+    .panel-body [class*="col-"] {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .repo-stat {
+        text-align: center;
+        padding: 10px 5px;
+    }
+
+    .repo-stat small {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .panel-title {
+        margin-bottom: 8px;
+    }
+
+    .panel-title i.fa-github {
+        font-size: 1.2em;
+    }
+
+    .ibox {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .ibox-content h2 {
+        font-size: 2.5em;
+        font-weight: 300;
+    }
+
+    .label {
+        border-radius: 12px;
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid;
+    }
+
+    .btn-outline:hover {
+        background: #337ab7;
+        color: white;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem;
+    }
+
+    .text-decoration-none {
+        text-decoration: none;
+    }
+
+    .fa-spin {
+        animation: fa-spin 1s infinite linear;
+    }
+
+    .panel-title a:hover {
+        text-decoration: none;
+    }
+
+    .stats-card {
+        transition: transform 0.2s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .stream-item {
+        animation: fadeInUp 0.3s ease;
+    }
+</style>
 
 <div class="wrapper wrapper-content animated fadeInRight">
 
-    <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> This page displays the change log for the XI.Portal website - the GitHub repository can be found <a target="_blank" href="https://github.com/frasermolyneux/XI.PortalV2">here</a>
+    <div class="alert alert-info" role="alert">
+        <i class="fa fa-info-circle"></i> This dashboard displays real-time development activity across all XtremeIdiots
+        Portal microservices and repositories.
     </div>
 
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Commits This Month</h5>
+                    <h2 class="no-margins" id="commitsThisMonth">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h2>
+                    <small class="text-muted">Across all repositories</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Active Repositories</h5>
+                    <h2 class="no-margins text-primary" id="activeRepos">8</h2>
+                    <small class="text-muted">Microservices tracked</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Open PRs</h5>
+                    <h2 class="no-margins text-info" id="openPRs">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h2>
+                    <small class="text-muted">Pull requests</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Build Status</h5>
+                    <h2 class="no-margins" id="buildStatus">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h2>
+                    <small class="text-muted">Overall health</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Issues</h5>
+                    <h2 class="no-margins text-warning" id="totalIssues">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h2>
+                    <small class="text-muted">Open issues</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-sm-6">
+            <div class="ibox stats-card">
+                <div class="ibox-content">
+                    <h5>Last Activity</h5>
+                    <h2 class="no-margins text-success" id="lastActivity">
+                        <i class="fa fa-spinner fa-spin"></i>
+                    </h2>
+                    <small class="text-muted">Most recent commit</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Repository Status Overview -->
     <div class="row">
         <div class="col-lg-12">
-            <div class="ibox ">
+            <div class="ibox">
                 <div class="ibox-title">
-                    <h5>Latest Change Log</h5>
+                    <h5><i class="fa fa-github"></i> Repository Status Overview</h5>
                 </div>
+                <div class="ibox-content">
+                    <div id="repositoryStatus">
+                        <div class="text-center">
+                            <i class="fa fa-spinner fa-spin fa-2x"></i>
+                            <p class="text-muted">Loading repository information...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <div id="activityStream" class="ibox-content"></div>
+    <!-- Recent Activity Feed -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5><i class="fa fa-code-branch"></i> Recent Development Activity</h5>
+                    <div class="ibox-tools">
+                        <a class="btn btn-primary btn-xs" id="refreshActivity">
+                            <i class="fa fa-refresh"></i> Refresh
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div id="activityStream">
+                        <div class="text-center">
+                            <i class="fa fa-spinner fa-spin fa-2x"></i>
+                            <p class="text-muted">Loading recent commits...</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -29,23 +276,340 @@
     <script type="text/javascript">
         $(document).ready(function () {
 
-            function addEntryToActivityStream(date, author, message, commitUrl) {
-                $("#activityStream").append("<div class=\"stream-small\">" +
-                    "<span class=\"label label-primary\"> Commit</span>" +
-                    "<span class=\"text-muted\"> " + date + " </span> / " + author + " - " +
-                    escapeHtml(message) +
-                    "<a target=_blank href=\"" + commitUrl + "\"> <i class=\"fa fa-external-link\"></i></a>" +
-                    "</div>");
+            // Repository configuration
+            const repositories = [
+                { name: 'portal-core', fullName: 'frasermolyneux/portal-core', description: 'Core shared libraries and models' },
+                { name: 'portal-event-ingest', fullName: 'frasermolyneux/portal-event-ingest', description: 'Event ingestion service' },
+                { name: 'portal-repository', fullName: 'frasermolyneux/portal-repository', description: 'Data repository layer' },
+                { name: 'portal-repository-func', fullName: 'frasermolyneux/portal-repository-func', description: 'Repository Azure Functions' },
+                { name: 'portal-servers-integration', fullName: 'frasermolyneux/portal-servers-integration', description: 'Game server integration' },
+                { name: 'portal-sync', fullName: 'frasermolyneux/portal-sync', description: 'Data synchronization service' },
+                { name: 'xtremeidiots-portal', fullName: 'frasermolyneux/xtremeidiots-portal', description: 'Main web portal application' },
+                { name: 'portal-bots', fullName: 'frasermolyneux/portal-bots', description: 'Discord and chat bots' }
+            ];
+
+            let allCommits = [];
+            let repositoryData = {};
+            let buildStatuses = {};
+            let pullRequestData = {};
+
+            // Utility functions
+            function escapeHtml(text) {
+                return $('<div>').text(text).html();
             }
 
-            $.getJSON( "https://api.github.com/repos/frasermolyneux/XI.PortalV2/commits", function( data ) {
-                $.each(data, function (key, val) {
-                    addEntryToActivityStream(val.commit.author.date, val.commit.author.name, val.commit.message, val.html_url);
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffMs = now - date;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                if (diffMins < 1) return 'just now';
+                if (diffMins < 60) return `${diffMins}m ago`;
+                if (diffHours < 24) return `${diffHours}h ago`;
+                if (diffDays < 7) return `${diffDays}d ago`;
+                return date.toLocaleDateString();
+            }
+
+            function getCommitIcon(message) {
+                const msg = message.toLowerCase();
+                if (msg.includes('fix') || msg.includes('bug')) return 'fa-bug text-danger';
+                if (msg.includes('feat') || msg.includes('add')) return 'fa-plus text-success';
+                if (msg.includes('update') || msg.includes('modify')) return 'fa-edit text-warning';
+                if (msg.includes('remove') || msg.includes('delete')) return 'fa-minus text-danger';
+                if (msg.includes('merge')) return 'fa-code-branch text-info';
+                if (msg.includes('doc')) return 'fa-file-text text-muted';
+                return 'fa-code text-primary';
+            }
+
+            function getBuildStatusBadge(status, workflowName, url) {
+                const tooltip = workflowName ? `title="Workflow: ${workflowName}"` : '';
+                const link = url ? `onclick="window.open('${url}', '_blank')" style="cursor: pointer;"` : '';
+
+                switch (status) {
+                    case 'success':
+                        return `<span class="label label-primary" ${tooltip} ${link}><i class="fa fa-check"></i> Passing</span>`;
+                    case 'failure':
+                        return `<span class="label label-danger" ${tooltip} ${link}><i class="fa fa-times"></i> Failed</span>`;
+                    case 'pending':
+                    case 'in_progress':
+                        return `<span class="label label-warning" ${tooltip} ${link}><i class="fa fa-clock-o"></i> Running</span>`;
+                    default:
+                        return '<span class="label label-default"><i class="fa fa-question"></i> Unknown</span>';
+                }
+            }
+
+            // Load repository information
+            function loadRepositoryInfo(repo) {
+                return $.getJSON(`https://api.github.com/repos/${repo.fullName}`)
+                    .then(function (data) {
+                        repositoryData[repo.name] = {
+                            ...repo,
+                            stars: data.stargazers_count,
+                            forks: data.forks_count,
+                            language: data.language,
+                            size: data.size,
+                            lastPush: data.pushed_at,
+                            openIssues: data.open_issues_count,
+                            defaultBranch: data.default_branch,
+                            url: data.html_url
+                        };
+                    })
+                    .catch(function () {
+                        console.warn(`Failed to load info for ${repo.fullName}`);
+                    });
+            }
+
+            // Load commits for a repository
+            function loadCommits(repo) {
+                const since = new Date();
+                since.setMonth(since.getMonth() - 3); // Get last 3 months for better data
+                const sinceString = since.toISOString();
+
+                return $.getJSON(`https://api.github.com/repos/${repo.fullName}/commits?per_page=30&since=${sinceString}`)
+                    .then(function (data) {
+                        data.forEach(commit => {
+                            allCommits.push({
+                                ...commit,
+                                repository: repo.name,
+                                repositoryFullName: repo.fullName
+                            });
+                        });
+                    })
+                    .catch(function () {
+                        console.warn(`Failed to load commits for ${repo.fullName}`);
+                    });
+            }
+
+            // Load pull requests for a repository
+            function loadPullRequests(repo) {
+                return $.getJSON(`https://api.github.com/repos/${repo.fullName}/pulls?state=open&per_page=10`)
+                    .then(function (data) {
+                        pullRequestData[repo.name] = data.length;
+                    })
+                    .catch(function () {
+                        pullRequestData[repo.name] = 0;
+                        console.warn(`Failed to load PRs for ${repo.fullName}`);
+                    });
+            }
+
+            // Load workflow status (simplified - would need more complex logic for actual workflow status)
+            function loadBuildStatus(repo) {
+                // This is a simplified version - in reality you'd check workflow runs
+                return $.getJSON(`https://api.github.com/repos/${repo.fullName}/actions/runs?per_page=1`)
+                    .then(function (data) {
+                        if (data.workflow_runs && data.workflow_runs.length > 0) {
+                            const run = data.workflow_runs[0];
+                            buildStatuses[repo.name] = {
+                                status: run.conclusion || run.status,
+                                url: run.html_url,
+                                name: run.name
+                            };
+                        }
+                    })
+                    .catch(function () {
+                        buildStatuses[repo.name] = { status: 'unknown' };
+                    });
+            }
+
+            // Update statistics
+            function updateStatistics() {
+                const thisMonth = new Date();
+                thisMonth.setDate(1);
+                thisMonth.setHours(0, 0, 0, 0);
+
+                const commitsThisMonth = allCommits.filter(commit => {
+                    const commitDate = new Date(commit.commit.author.date);
+                    return commitDate >= thisMonth;
+                }).length;
+
+                const totalOpenPRs = Object.values(pullRequestData).reduce((sum, count) => sum + count, 0);
+                const totalOpenIssues = Object.values(repositoryData).reduce((sum, repo) => sum + (repo.openIssues || 0), 0);
+
+                const buildsPassing = Object.values(buildStatuses).filter(b => b.status === 'success').length;
+                const totalBuilds = Object.keys(buildStatuses).length;
+
+                const mostRecentCommit = allCommits.length > 0 ?
+                    allCommits.reduce((latest, commit) =>
+                        new Date(commit.commit.author.date) > new Date(latest.commit.author.date) ? commit : latest
+                    ) : null;
+
+                $('#commitsThisMonth').html(`<span class="text-primary">${commitsThisMonth}</span>`);
+                $('#openPRs').html(`<span class="text-info">${totalOpenPRs}</span>`);
+                $('#totalIssues').html(`<span class="text-warning">${totalOpenIssues}</span>`);
+
+                if (totalBuilds > 0) {
+                    const percentage = Math.round((buildsPassing / totalBuilds) * 100);
+                    const color = percentage >= 80 ? 'success' : percentage >= 60 ? 'warning' : 'danger';
+                    $('#buildStatus').html(`<span class="text-${color}">${percentage}%</span>`);
+                } else {
+                    $('#buildStatus').html('<span class="text-muted">-</span>');
+                }
+
+                if (mostRecentCommit) {
+                    $('#lastActivity').html(`<span class="text-success">${formatDate(mostRecentCommit.commit.author.date)}</span>`);
+                } else {
+                    $('#lastActivity').html('<span class="text-muted">-</span>');
+                }
+            }
+
+            // Render repository status
+            function renderRepositoryStatus() {
+                let html = '<div class="row">';
+
+                repositories.forEach(repo => {
+                    const data = repositoryData[repo.name];
+                    const build = buildStatuses[repo.name];
+
+                    if (data) {
+                        html += `
+                                        <div class="col-lg-6 col-md-12 mb-3">
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">
+                                                    <div class="row">
+                                                        <div class="col-xs-8">
+                                                            <h4 class="panel-title">
+                                                                <a href="${data.url}" target="_blank" class="text-decoration-none">
+                                                                    <i class="fa fa-github fa-lg"></i> ${repo.name}
+                                                                    <i class="fa fa-external-link fa-sm"></i>
+                                                                </a>
+                                                            </h4>
+                                                            <small class="text-muted">${data.description}</small>
+                                                        </div>
+                                                        <div class="col-xs-4 text-right">
+                                                            ${build ? getBuildStatusBadge(build.status, build.name, build.url) : ''}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row">
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Language</small>
+                                                            <div><span class="label label-info">${data.language || 'Mixed'}</span></div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Stars</small>
+                                                            <div><i class="fa fa-star text-warning"></i> ${data.stars}</div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Open PRs</small>
+                                                            <div><i class="fa fa-code-fork text-info"></i> ${pullRequestData[repo.name] || 0}</div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Issues</small>
+                                                            <div><i class="fa fa-exclamation-circle text-warning"></i> ${data.openIssues}</div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Forks</small>
+                                                            <div><i class="fa fa-code-fork text-muted"></i> ${data.forks}</div>
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                            <small class="text-muted">Last Push</small>
+                                                            <div><span class="text-primary">${formatDate(data.lastPush)}</span></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `;
+                    }
                 });
+
+                html += '</div>';
+                $('#repositoryStatus').html(html);
+            }
+
+            // Render activity stream
+            function renderActivityStream() {
+                allCommits.sort((a, b) => new Date(b.commit.author.date) - new Date(a.commit.author.date));
+
+                let html = '';
+                allCommits.slice(0, 30).forEach(commit => {
+                    const iconClass = getCommitIcon(commit.commit.message);
+                    const shortSha = commit.sha.substring(0, 7);
+                    const commitMessage = commit.commit.message.split('\n')[0]; // First line only
+
+                    html += `
+                                    <div class="stream-item">
+                                        <div style="display: flex; align-items: flex-start; gap: 15px;">
+                                            <div class="activity-icon">
+                                                <i class="fa ${iconClass} fa-lg"></i>
+                                            </div>
+                                            <div class="activity-details" style="flex: 1; min-width: 0;">
+                                                <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                                                    <div style="flex: 1; min-width: 0;">
+                                                        <div>
+                                                            <strong>${escapeHtml(commit.commit.author.name)}</strong> 
+                                                            committed to 
+                                                            <span class="label label-default">${commit.repository}</span>
+                                                        </div>
+                                                        <div class="text-muted" style="margin-top: 5px; word-wrap: break-word;">
+                                                            ${escapeHtml(commitMessage)}
+                                                        </div>
+                                                    </div>
+                                                    <div class="activity-meta">
+                                                        <div class="text-muted" style="font-size: 12px;">${formatDate(commit.commit.author.date)}</div>
+                                                        <div style="margin-top: 5px;">
+                                                            <a href="${commit.html_url}" target="_blank" class="btn btn-xs btn-outline btn-primary">
+                                                                <i class="fa fa-code"></i> ${shortSha}
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                });
+
+                $('#activityStream').html(html);
+            }
+
+            // Main loading function
+            function loadDashboard() {
+                allCommits = [];
+                repositoryData = {};
+                buildStatuses = {};
+                pullRequestData = {};
+
+                const repoInfoPromises = repositories.map(loadRepositoryInfo);
+                const commitPromises = repositories.map(loadCommits);
+                const buildPromises = repositories.map(loadBuildStatus);
+                const prPromises = repositories.map(loadPullRequests);
+
+                Promise.all([...repoInfoPromises, ...commitPromises, ...buildPromises, ...prPromises])
+                    .then(function () {
+                        updateStatistics();
+                        renderRepositoryStatus();
+                        renderActivityStream();
+                    })
+                    .catch(function (error) {
+                        console.error('Error loading dashboard data:', error);
+                        $('#activityStream').html('<div class="alert alert-danger">Error loading data. Please check your internet connection and try again.</div>');
+                    });
+            }
+
+            // Event handlers
+            $('#refreshActivity').click(function () {
+                $(this).find('i').addClass('fa-spin');
+                loadDashboard();
+                setTimeout(() => {
+                    $(this).find('i').removeClass('fa-spin');
+                }, 2000);
             });
+
+            // Initial load
+            loadDashboard();
+
+            // Auto-refresh every 5 minutes
+            setInterval(loadDashboard, 300000);
 
         });
 
     </script>
 
 }
+
+   

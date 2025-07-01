@@ -10,7 +10,7 @@ using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+            var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
 
             if (!tagsResponse.IsSuccess || tagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -64,7 +64,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 UserDefined = model.UserDefined // Use the value from the form
             };
 
-            var response = await repositoryApiClient.Tags.CreateTag(createTagDto);
+            var response = await repositoryApiClient.Tags.V1.CreateTag(createTagDto);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -82,7 +82,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.EditPlayerTag)]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var tagResponse = await repositoryApiClient.Tags.GetTag(id);
+            var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id);
 
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 }); var model = new EditTagViewModel
@@ -104,7 +104,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);            // First get the original tag to check if it's user defined
-            var originalTagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
+            var originalTagResponse = await repositoryApiClient.Tags.V1.GetTag(model.TagId);
 
             if (!originalTagResponse.IsSuccess || originalTagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });            // Allow changing the UserDefined status
@@ -117,7 +117,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 UserDefined = model.UserDefined // Use the value from the form
             };
 
-            var response = await repositoryApiClient.Tags.UpdateTag(tagDto);
+            var response = await repositoryApiClient.Tags.V1.UpdateTag(tagDto);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -136,7 +136,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var tagResponse = await repositoryApiClient.Tags.GetTag(id);
+            var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id);
 
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -150,7 +150,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var tagResponse = await repositoryApiClient.Tags.GetTag(id);
+            var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id);
 
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -167,7 +167,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             }
             // For UserDefined tags, the authorization is already handled by the policy
 
-            var response = await repositoryApiClient.Tags.DeleteTag(id);
+            var response = await repositoryApiClient.Tags.V1.DeleteTag(id);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

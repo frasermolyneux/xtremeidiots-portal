@@ -5,7 +5,7 @@ using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -25,12 +25,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
 
             var models = new List<EditBanFileMonitorViewModel>();
             foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
             {
-                var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(banFileMonitor.GameServerId);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(banFileMonitor.GameServerId);
 
                 models.Add(new EditBanFileMonitorViewModel
                 {

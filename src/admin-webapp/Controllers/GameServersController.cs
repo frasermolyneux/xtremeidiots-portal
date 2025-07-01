@@ -7,7 +7,7 @@ using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameServer };
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -94,7 +94,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             createGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
             createGameServerDto.BotEnabled = model.BotEnabled;
 
-            await repositoryApiClient.GameServers.CreateGameServer(createGameServerDto);
+            await repositoryApiClient.GameServers.V1.CreateGameServer(createGameServerDto);
 
             _logger.LogInformation("User {User} has created a new game server for {GameType}", User.Username(), model.GameType);
             this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
@@ -105,7 +105,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -126,7 +126,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -155,7 +155,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(GameServerViewModel model)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(model.GameServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(model.GameServerId);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -200,7 +200,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             editGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
             editGameServerDto.BotEnabled = model.BotEnabled;
 
-            await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
+            await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto);
 
             _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
             this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been updated for {gameServerApiResponse.Result.GameType}");
@@ -211,7 +211,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -229,7 +229,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -239,7 +239,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();
 
-            await repositoryApiClient.GameServers.DeleteGameServer(id);
+            await repositoryApiClient.GameServers.V1.DeleteGameServer(id);
 
             _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
             this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been deleted for {gameServerApiResponse.Result.GameType}");

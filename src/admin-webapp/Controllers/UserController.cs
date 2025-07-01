@@ -10,7 +10,7 @@ using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -53,9 +53,9 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin };
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
-            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfile(id);
+            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id);
 
             ViewData["GameServers"] = gameServersApiResponse.Result.Entries;
             ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Entries, "GameServerId", "Title");
@@ -74,7 +74,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (model == null)
                 return BadRequest();
 
-            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfiles(model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc);
+            var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc);
 
             return Json(new
             {
@@ -111,14 +111,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUserClaim(Guid id, string claimType, string claimValue)
         {
-            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfile(id);
+            var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id);
 
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
 
             var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.XtremeIdiotsForumId);
 
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claimValue));
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claimValue));
 
             var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.CreateUserClaim);
 
@@ -129,7 +129,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             {
                 var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileResponseDto.Result.UserProfileId, claimType, claimValue, false);
 
-                await repositoryApiClient.UserProfiles.CreateUserProfileClaim(userProfileResponseDto.Result.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
+                await repositoryApiClient.UserProfiles.V1.CreateUserProfileClaim(userProfileResponseDto.Result.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
 
                 this.AddAlertSuccess($"The {claimType} claim has been added to {user.UserName}");
                 _logger.LogInformation("User {User} has added a {ClaimType} with {ClaimValue} to {TargetUser}", User.Username(), claimType, claimValue, user.UserName);
@@ -144,7 +144,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveUserClaim(Guid id, Guid claimId)
         {
-            var userProfileResponseDto = await repositoryApiClient.UserProfiles.GetUserProfile(id);
+            var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id);
 
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (claim == null)
                 return NotFound();
 
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(Guid.Parse(claim.ClaimValue));
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claim.ClaimValue));
 
             // Allow for legacy claims to be deleted
             var canDeleteUserClaim = false;
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canDeleteUserClaim)
                 return Unauthorized();
 
-            await repositoryApiClient.UserProfiles.DeleteUserProfileClaim(id, claimId);
+            await repositoryApiClient.UserProfiles.V1.DeleteUserProfileClaim(id, claimId);
 
             var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.XtremeIdiotsForumId);
             if (user != null)

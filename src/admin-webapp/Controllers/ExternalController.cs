@@ -2,22 +2,22 @@
 using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
     public class ExternalController : Controller
     {
-        public IRepositoryApiClient RepositoryApiClient { get; }
+        public IRepositoryApiClient repositoryApiClient { get; }
 
         public ExternalController(IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryApiClient = repositoryApiClient;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
         public async Task<IActionResult> LatestAdminActions()
         {
-            var adminActionDtos = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
+            var adminActionDtos = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
 
             return View(adminActionDtos);
         }
@@ -25,7 +25,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions()
         {
-            var adminActionsApiResponse = await RepositoryApiClient.AdminActions.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc);
 
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

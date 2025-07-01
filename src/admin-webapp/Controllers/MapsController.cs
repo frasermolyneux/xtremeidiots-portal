@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -62,7 +62,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                     break;
             }
 
-            var mapsApiResponse = await repositoryApiClient.Maps.GetMaps(id, null, null, model.Search?.Value, model.Start, model.Length, order);
+            var mapsApiResponse = await repositoryApiClient.Maps.V1.GetMaps(id, null, null, model.Search?.Value, model.Start, model.Length, order);
 
             if (!mapsApiResponse.IsSuccess || mapsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -82,7 +82,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
                 return BadRequest();
 
-            var mapApiResponse = await repositoryApiClient.Maps.GetMap(gameType, mapName);
+            var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(gameType, mapName);
 
             if (!mapApiResponse.IsSuccess || mapApiResponse.Result == null || string.IsNullOrWhiteSpace(mapApiResponse.Result.MapImageUri))
                 return Redirect("/images/noimage.jpg");

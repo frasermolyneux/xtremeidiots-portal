@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
 {
@@ -9,14 +9,14 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
     {
         public GameServerListViewComponent(IRepositoryApiClient repositoryApiClient)
         {
-            RepositoryApiClient = repositoryApiClient;
+            this.repositoryApiClient = repositoryApiClient;
         }
 
-        public IRepositoryApiClient RepositoryApiClient { get; }
+        public IRepositoryApiClient repositoryApiClient { get; }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var gameServersApiResponse = await RepositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             var filtered = gameServersApiResponse.Result.Entries.Where(s => !string.IsNullOrWhiteSpace(s.HtmlBanner)).ToList();
 

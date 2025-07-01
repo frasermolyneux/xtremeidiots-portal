@@ -11,7 +11,7 @@ using XtremeIdiots.Portal.AdminWebApp.Areas.Identity.Data;
 using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.ForumsIntegration.Extensions;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp

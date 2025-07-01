@@ -8,7 +8,7 @@ using XtremeIdiots.Portal.AdminWebApp.Extensions;
 using XtremeIdiots.Portal.AdminWebApp.Models;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -37,7 +37,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -53,7 +53,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewRcon(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -69,7 +69,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRconPlayers(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -90,7 +90,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> RestartServer(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -119,7 +119,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> RestartMap(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -148,7 +148,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> FastRestartMap(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -177,7 +177,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> NextMap(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -206,7 +206,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> KickPlayer(Guid id, string num)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -267,7 +267,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerChatLog(Guid id)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -284,7 +284,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(id);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -300,7 +300,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -344,7 +344,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 model.Search.Value = model.Search.Value.Substring(7).Trim(); // Remove "locked:" prefix
             }
 
-            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order, lockedOnly);
+            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order, lockedOnly);
 
             if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -361,7 +361,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ChatLogPermaLink(Guid id)
         {
-            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.GetChatMessage(id);
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id);
 
             if (chatMessageApiResponse.IsNotFound)
                 return NotFound();
@@ -373,7 +373,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.LockChatMessages)]
         public async Task<IActionResult> ToggleChatMessageLock(Guid id)
         {
-            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.GetChatMessage(id);
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id);
 
             if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result == null || chatMessageApiResponse.Result.GameServer == null)
                 return NotFound();
@@ -383,7 +383,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canLockChatMessage.Succeeded)
                 return Unauthorized();
 
-            var toggleResponse = await repositoryApiClient.ChatMessages.ToggleLockedStatus(id);
+            var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id);
 
             if (!toggleResponse.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

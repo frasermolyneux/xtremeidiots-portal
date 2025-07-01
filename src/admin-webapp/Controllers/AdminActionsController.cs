@@ -9,7 +9,7 @@ using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.ForumsIntegration;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateAdminActionViewModel model)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+            var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -85,7 +85,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 
             createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(model.Type, playerApiResponse.Result.GameType, playerApiResponse.Result.PlayerId, playerApiResponse.Result.Username, DateTime.UtcNow, model.Text, createAdminActionDto.AdminId);
 
-            await repositoryApiClient.AdminActions.CreateAdminAction(createAdminActionDto);
+            await repositoryApiClient.AdminActions.V1.CreateAdminAction(createAdminActionDto);
 
             var eventTelemetry = new EventTelemetry("CreateAdminAction").Enrich(User).Enrich(playerApiResponse.Result).Enrich(createAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -98,7 +98,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -126,7 +126,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditAdminActionViewModel model)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(model.AdminActionId);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(model.AdminActionId);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -162,7 +162,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 }
             }
 
-            await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
+            await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
             {
@@ -181,7 +181,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Lift(Guid id)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -199,7 +199,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -214,7 +214,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Expires = DateTime.UtcNow
             };
 
-            await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
+            await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
                 await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId);
@@ -230,7 +230,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Claim(Guid id)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -248,7 +248,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -263,7 +263,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 AdminId = User.XtremeIdiotsId()
             };
 
-            await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
+            await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto);
 
             if (adminActionApiResponse.Result.ForumTopicId.HasValue && adminActionApiResponse.Result.ForumTopicId != 0)
                 await adminActionTopics.UpdateTopicForAdminAction(adminActionApiResponse.Result.ForumTopicId.Value, adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, adminActionApiResponse.Result.Created, adminActionApiResponse.Result.Text, User.XtremeIdiotsId());
@@ -279,7 +279,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> CreateDiscussionTopic(Guid id)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -294,7 +294,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(adminActionApiResponse.Result.Type, adminActionApiResponse.Result.Player.GameType, adminActionApiResponse.Result.Player.PlayerId, adminActionApiResponse.Result.Player.Username, DateTime.UtcNow, adminActionApiResponse.Result.Text, adminActionApiResponse.Result.UserProfile?.XtremeIdiotsForumId)
             };
 
-            await repositoryApiClient.AdminActions.UpdateAdminAction(editAdminActionDto);
+            await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto);
 
             var eventTelemetry = new EventTelemetry("CreateDiscussionTopic").Enrich(User).Enrich(adminActionApiResponse.Result.Player).Enrich(editAdminActionDto);
             telemetryClient.TrackEvent(eventTelemetry);
@@ -307,7 +307,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -325,7 +325,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, Guid playerId)
         {
-            var adminActionApiResponse = await repositoryApiClient.AdminActions.GetAdminAction(id);
+            var adminActionApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminAction(id);
 
             if (adminActionApiResponse.IsNotFound || adminActionApiResponse.Result == null || adminActionApiResponse.Result.Player == null)
                 return NotFound();
@@ -335,7 +335,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (!canDeleteAdminAction.Succeeded)
                 return Unauthorized();
 
-            await repositoryApiClient.AdminActions.DeleteAdminAction(id);
+            await repositoryApiClient.AdminActions.V1.DeleteAdminAction(id);
 
             var eventTelemetry = new EventTelemetry("DeleteAdminAction").Enrich(User).Enrich(adminActionApiResponse.Result.Player).Enrich(adminActionApiResponse.Result);
             telemetryClient.TrackEvent(eventTelemetry);

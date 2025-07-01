@@ -9,7 +9,7 @@ using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.Services;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -63,7 +63,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 viewModel.ProxyCheck = proxyCheckResult;
 
                 // Get players who have used this IP address
-                var playersResponse = await _repositoryApiClient.Players.GetPlayersWithIpAddress(ipAddress, 0, 100, PlayersOrder.LastSeenDesc, PlayerEntityOptions.None);
+                var playersResponse = await _repositoryApiClient.Players.V1.GetPlayersWithIpAddress(ipAddress, 0, 100, PlayersOrder.LastSeenDesc, PlayerEntityOptions.None);
                 if (playersResponse.IsSuccess && playersResponse.Result != null)
                 {
                     viewModel.Players = playersResponse.Result.Entries;

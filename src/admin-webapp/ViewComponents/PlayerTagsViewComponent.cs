@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
 {
@@ -19,7 +19,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.ViewComponents
             try
             {
                 // Use the Players API endpoint for player tags
-                var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(playerId); if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
+                var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(playerId); if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 {
                     // Log the error if available
                     if (playerTagsResponse.Errors != null && playerTagsResponse.Errors.Any())

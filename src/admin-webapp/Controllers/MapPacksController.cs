@@ -5,7 +5,7 @@ using XtremeIdiots.Portal.AdminWebApp.Auth.Constants;
 using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid gameServerId)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(gameServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(gameServerId);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -48,7 +48,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateMapPackViewModel createMapPackViewModel)
         {
-            var gameServerApiResponse = await repositoryApiClient.GameServers.GetGameServer(createMapPackViewModel.GameServerId);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(createMapPackViewModel.GameServerId);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
@@ -70,7 +70,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 SyncToGameServer = createMapPackViewModel.SyncToGameServer
             };
 
-            var createMapPackApiResponse = await repositoryApiClient.MapPacks.CreateMapPack(createMapPackDto);
+            var createMapPackApiResponse = await repositoryApiClient.MapPacks.V1.CreateMapPack(createMapPackDto);
 
             if (!createMapPackApiResponse.IsSuccess)
             {

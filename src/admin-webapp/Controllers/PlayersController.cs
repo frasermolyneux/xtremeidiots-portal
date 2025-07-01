@@ -15,7 +15,7 @@ using XtremeIdiots.Portal.AdminWebApp.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -106,7 +106,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                         break;
                 }
             }
-            var playerCollectionApiResponse = await repositoryApiClient.Players.GetPlayers(gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
+            var playerCollectionApiResponse = await repositoryApiClient.Players.V1.GetPlayers(gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
             if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });            // Enrich player data with ProxyCheck information
@@ -139,7 +139,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
-            var playerApiResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames | PlayerEntityOptions.Tags);
+            var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions | PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames | PlayerEntityOptions.Tags);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
@@ -209,7 +209,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> MyActions()
         {
-            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 50, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 50, AdminActionOrder.CreatedDesc);
 
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -220,7 +220,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Unclaimed()
         {
-            var adminActionsApiResponse = await repositoryApiClient.AdminActions.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 50, AdminActionOrder.CreatedDesc);
+            var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 50, AdminActionOrder.CreatedDesc);
 
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -240,7 +240,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff)
         {
-            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetCumulativeDailyPlayers(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetCumulativeDailyPlayers(cutoff);
 
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -251,7 +251,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff)
         {
-            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetNewDailyPlayersPerGame(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetNewDailyPlayersPerGame(cutoff);
 
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -262,7 +262,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff)
         {
-            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.GetPlayersDropOffPerGameJson(cutoff);
+            var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetPlayersDropOffPerGameJson(cutoff);
 
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -275,7 +275,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ProtectedNames()
         {
-            var protectedNamesResponse = await repositoryApiClient.Players.GetProtectedNames(0, 1000);
+            var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
 
             if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -291,7 +291,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> AddProtectedName(Guid id)
         {
-            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
             if (!playerResponse.IsSuccess || playerResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -310,7 +310,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
                     model.Player = playerResponse.Result;
@@ -323,7 +323,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 model.Name,
                 User.XtremeIdiotsId());
 
-            var response = await repositoryApiClient.Players.CreateProtectedName(createProtectedNameDto);
+            var response = await repositoryApiClient.Players.V1.CreateProtectedName(createProtectedNameDto);
 
             if (!response.IsSuccess)
             {
@@ -331,7 +331,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 {
                     ModelState.AddModelError("Name", "This name is already protected by another player");
 
-                    var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                    var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                     if (playerResponse.IsSuccess && playerResponse.Result != null)
                     {
                         model.Player = playerResponse.Result;
@@ -349,13 +349,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DeleteProtectedName(Guid id)
         {
-            var protectedNameResponse = await repositoryApiClient.Players.GetProtectedName(id);
+            var protectedNameResponse = await repositoryApiClient.Players.V1.GetProtectedName(id);
 
             if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
             var deleteProtectedNameDto = new DeleteProtectedNameDto(id);
-            var response = await repositoryApiClient.Players.DeleteProtectedName(deleteProtectedNameDto);
+            var response = await repositoryApiClient.Players.V1.DeleteProtectedName(deleteProtectedNameDto);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -366,7 +366,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ProtectedNameReport(Guid id)
         {
-            var reportResponse = await repositoryApiClient.Players.GetProtectedNameUsageReport(id);
+            var reportResponse = await repositoryApiClient.Players.V1.GetProtectedNameUsageReport(id);
 
             if (!reportResponse.IsSuccess || reportResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -387,12 +387,12 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
         public async Task<IActionResult> AddPlayerTag(Guid id)
         {
-            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerResponse.IsNotFound || playerResponse.Result == null)
                 return NotFound();
 
-            var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+            var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
 
             if (!tagsResponse.IsSuccess || tagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 }); var model = new AddPlayerTagViewModel
@@ -412,19 +412,19 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         {
             if (!ModelState.IsValid)
             {
-                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
                     model.Player = playerResponse.Result;
                 }
-                var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+                var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result != null)
                 {
                     model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
                 }
                 return View(model);
             }
-            var tagResponse = await repositoryApiClient.Tags.GetTag(model.TagId);
+            var tagResponse = await repositoryApiClient.Tags.V1.GetTag(model.TagId);
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
@@ -433,13 +433,13 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             {
                 this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
 
-                var playerResponse = await repositoryApiClient.Players.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
                     model.Player = playerResponse.Result;
                 }
 
-                var tagsResponse = await repositoryApiClient.Tags.GetTags(0, 100);
+                var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result != null)
                 {
                     model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
@@ -462,7 +462,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 Assigned = DateTime.UtcNow
             };
 
-            var response = await repositoryApiClient.Players.AddPlayerTag(model.PlayerId, playerTagDto);
+            var response = await repositoryApiClient.Players.V1.AddPlayerTag(model.PlayerId, playerTagDto);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -481,11 +481,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
         public async Task<IActionResult> RemovePlayerTag(Guid id, Guid playerTagId)
         {
-            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
             if (playerResponse.IsNotFound || playerResponse.Result == null)
                 return NotFound();
 
-            var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(id);
+            var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
@@ -509,11 +509,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
         [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
         public async Task<IActionResult> RemovePlayerTagConfirmed(Guid id, Guid playerTagId)
         {
-            var playerResponse = await repositoryApiClient.Players.GetPlayer(id, PlayerEntityOptions.None);
+            var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
             if (playerResponse.IsNotFound || playerResponse.Result == null)
                 return NotFound();
 
-            var playerTagsResponse = await repositoryApiClient.Players.GetPlayerTags(id);
+            var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
@@ -528,7 +528,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
                 return RedirectToAction(nameof(Details), new { id = id });
             }
 
-            var response = await repositoryApiClient.Players.RemovePlayerTag(id, playerTagId);
+            var response = await repositoryApiClient.Players.V1.RemovePlayerTag(id, playerTagId);
 
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });

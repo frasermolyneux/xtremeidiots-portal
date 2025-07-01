@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 using XtremeIdiots.InvisionCommunity;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
 {
@@ -78,11 +78,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
 
             await _userManager.RemoveClaimsAsync(user, userClaims);
 
-            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
 
             if (userProfileDtoApiResponse.IsNotFound)
             {
-                _ = await repositoryApiClient.UserProfiles.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
+                _ = await repositoryApiClient.UserProfiles.V1.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
                 {
                     Title = member.Title,
                     FormattedName = member.FormattedName,
@@ -92,7 +92,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
                     TimeZone = member.TimeZone
                 });
 
-                userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
             }
 
             var claims = userProfileDtoApiResponse.Result.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
@@ -116,11 +116,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
                 var addLoginResult = await _userManager.AddLoginAsync(user, info);
                 if (addLoginResult.Succeeded)
                 {
-                    var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                    var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
 
                     if (userProfileDtoApiResponse.IsNotFound)
                     {
-                        _ = await repositoryApiClient.UserProfiles.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
+                        _ = await repositoryApiClient.UserProfiles.V1.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
                         {
                             Title = member.Title,
                             FormattedName = member.FormattedName,
@@ -130,7 +130,7 @@ namespace XtremeIdiots.Portal.AdminWebApp.Auth.XtremeIdiots
                             TimeZone = member.TimeZone
                         });
 
-                        userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                        userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
                     }
 
                     var claims = userProfileDtoApiResponse.Result.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();

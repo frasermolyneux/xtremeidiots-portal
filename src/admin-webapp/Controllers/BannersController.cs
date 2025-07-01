@@ -7,7 +7,7 @@ using MxIO.ApiClient.Abstractions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameTracker;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.AdminWebApp.Controllers
 {
@@ -35,11 +35,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (memoryCache.TryGetValue(gameServersListCacheKey, out ApiResponseDto<GameServersCollectionDto>? gameServersApiResponse))
             {
                 if (gameServersApiResponse == null)
-                    gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+                    gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
             }
             else
             {
-                gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+                gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
                 memoryCache.Set(gameServersListCacheKey, gameServersApiResponse, DateTime.UtcNow.AddMinutes(5));
             }
 
@@ -59,11 +59,11 @@ namespace XtremeIdiots.Portal.AdminWebApp.Controllers
             if (memoryCache.TryGetValue(cacheKey, out ApiResponseDto<GameTrackerBannerDto>? repositoryApiResponse))
             {
                 if (repositoryApiResponse == null)
-                    repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.GetGameTrackerBanner(ipAddress, queryPort, imageName);
+                    repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(ipAddress, queryPort, imageName);
             }
             else
             {
-                repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.GetGameTrackerBanner(ipAddress, queryPort, imageName);
+                repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(ipAddress, queryPort, imageName);
                 memoryCache.Set(cacheKey, repositoryApiResponse, DateTime.UtcNow.AddMinutes(30));
             }
 

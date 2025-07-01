@@ -154,6 +154,9 @@
     <div class="alert alert-info" role="alert">
         <i class="fa fa-info-circle"></i> This dashboard displays real-time development activity across all XtremeIdiots
         Portal microservices and repositories.
+        <div class="pull-right">
+            <small id="cacheStatus" class="text-muted"></small>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
@@ -253,6 +256,9 @@
                         <a class="btn btn-primary btn-xs" id="refreshActivity">
                             <i class="fa fa-refresh"></i> Refresh
                         </a>
+                        <a class="btn btn-warning btn-xs" id="clearCache">
+                            <i class="fa fa-trash"></i> Clear Cache
+                        </a>
                     </div>
                 </div>
                 <div class="ibox-content">
@@ -292,6 +298,80 @@
             let repositoryData = {};
             let buildStatuses = {};
             let pullRequestData = {};
+
+            // Cache configuration
+            const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
+            const CACHE_KEYS = {
+                REPO_INFO: 'github_repo_info',
+                COMMITS: 'github_commits',
+                BUILD_STATUS: 'github_build_status',
+                PULL_REQUESTS: 'github_pull_requests',
+                LAST_UPDATED: 'github_last_updated'
+            };
+
+            function updateCacheStatus() {
+                const lastUpdated = localStorage.getItem(CACHE_KEYS.LAST_UPDATED);
+                if (lastUpdated) {
+                    const cacheAge = Date.now() - parseInt(lastUpdated);
+                    const minutesAgo = Math.floor(cacheAge / 60000);
+                    const isValid = cacheAge < CACHE_DURATION;
+
+                    if (isValid) {
+                        $('#cacheStatus').html(`<i class="fa fa-check-circle text-success"></i> Cache: ${minutesAgo}m old (valid)`);
+                    } else {
+                        $('#cacheStatus').html(`<i class="fa fa-exclamation-triangle text-warning"></i> Cache: ${minutesAgo}m old (expired)`);
+                    }
+                } else {
+                    $('#cacheStatus').html('<i class="fa fa-info-circle text-info"></i> Cache: No data cached');
+                }
+            }
+
+            // Cache utility functions
+            function getCacheKey(type, repoName) {
+                return `${type}_${repoName}`;
+            }
+
+            function isCacheValid() {
+                const lastUpdated = localStorage.getItem(CACHE_KEYS.LAST_UPDATED);
+                if (!lastUpdated) return false;
+
+                const cacheAge = Date.now() - parseInt(lastUpdated);
+                return cacheAge < CACHE_DURATION;
+            }
+
+            function getCachedData(key) {
+                try {
+                    const data = localStorage.getItem(key);
+                    return data ? JSON.parse(data) : null;
+                } catch (error) {
+                    console.warn('Error parsing cached data:', error);
+                    return null;
+                }
+            }
+
+            function setCachedData(key, data) {
+                try {
+                    localStorage.setItem(key, JSON.stringify(data));
+                } catch (error) {
+                    console.warn('Error caching data:', error);
+                }
+            }
+
+            function updateCacheTimestamp() {
+                localStorage.setItem(CACHE_KEYS.LAST_UPDATED, Date.now().toString());
+            }
+
+            function clearCache() {
+                Object.values(CACHE_KEYS).forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                repositories.forEach(repo => {
+                    localStorage.removeItem(getCacheKey(CACHE_KEYS.REPO_INFO, repo.name));
+                    localStorage.removeItem(getCacheKey(CACHE_KEYS.COMMITS, repo.name));
+                    localStorage.removeItem(getCacheKey(CACHE_KEYS.BUILD_STATUS, repo.name));
+                    localStorage.removeItem(getCacheKey(CACHE_KEYS.PULL_REQUESTS, repo.name));
+                });
+            }
 
             // Utility functions
             function escapeHtml(text) {
@@ -343,9 +423,20 @@
 
             // Load repository information
             function loadRepositoryInfo(repo) {
+                const cacheKey = getCacheKey(CACHE_KEYS.REPO_INFO, repo.name);
+
+                // Try to get from cache first
+                if (isCacheValid()) {
+                    const cachedData = getCachedData(cacheKey);
+                    if (cachedData) {
+                        repositoryData[repo.name] = cachedData;
+                        return Promise.resolve();
+                    }
+                }
+
                 return $.getJSON(`https://api.github.com/repos/${repo.fullName}`)
                     .then(function (data) {
-                        repositoryData[repo.name] = {
+                        const repoData = {
                             ...repo,
                             stars: data.stargazers_count,
                             forks: data.forks_count,
@@ -356,61 +447,135 @@
                             defaultBranch: data.default_branch,
                             url: data.html_url
                         };
+
+                        repositoryData[repo.name] = repoData;
+                        setCachedData(cacheKey, repoData);
                     })
                     .catch(function () {
                         console.warn(`Failed to load info for ${repo.fullName}`);
+                        // Try to use stale cache data if API fails
+                        const staleData = getCachedData(cacheKey);
+                        if (staleData) {
+                            repositoryData[repo.name] = staleData;
+                        }
                     });
             }
 
             // Load commits for a repository
             function loadCommits(repo) {
+                const cacheKey = getCacheKey(CACHE_KEYS.COMMITS, repo.name);
+
+                // Try to get from cache first
+                if (isCacheValid()) {
+                    const cachedCommits = getCachedData(cacheKey);
+                    if (cachedCommits && cachedCommits.length > 0) {
+                        cachedCommits.forEach(commit => {
+                            allCommits.push(commit);
+                        });
+                        return Promise.resolve();
+                    }
+                }
+
                 const since = new Date();
                 since.setMonth(since.getMonth() - 3); // Get last 3 months for better data
                 const sinceString = since.toISOString();
 
                 return $.getJSON(`https://api.github.com/repos/${repo.fullName}/commits?per_page=30&since=${sinceString}`)
                     .then(function (data) {
-                        data.forEach(commit => {
-                            allCommits.push({
-                                ...commit,
-                                repository: repo.name,
-                                repositoryFullName: repo.fullName
-                            });
+                        const commits = data.map(commit => ({
+                            ...commit,
+                            repository: repo.name,
+                            repositoryFullName: repo.fullName
+                        }));
+
+                        commits.forEach(commit => {
+                            allCommits.push(commit);
                         });
+
+                        setCachedData(cacheKey, commits);
                     })
                     .catch(function () {
                         console.warn(`Failed to load commits for ${repo.fullName}`);
+                        // Try to use stale cache data if API fails
+                        const staleCommits = getCachedData(cacheKey);
+                        if (staleCommits && staleCommits.length > 0) {
+                            staleCommits.forEach(commit => {
+                                allCommits.push(commit);
+                            });
+                        }
                     });
             }
 
             // Load pull requests for a repository
             function loadPullRequests(repo) {
+                const cacheKey = getCacheKey(CACHE_KEYS.PULL_REQUESTS, repo.name);
+
+                // Try to get from cache first
+                if (isCacheValid()) {
+                    const cachedCount = getCachedData(cacheKey);
+                    if (cachedCount !== null) {
+                        pullRequestData[repo.name] = cachedCount;
+                        return Promise.resolve();
+                    }
+                }
+
                 return $.getJSON(`https://api.github.com/repos/${repo.fullName}/pulls?state=open&per_page=10`)
                     .then(function (data) {
-                        pullRequestData[repo.name] = data.length;
+                        const count = data.length;
+                        pullRequestData[repo.name] = count;
+                        setCachedData(cacheKey, count);
                     })
                     .catch(function () {
-                        pullRequestData[repo.name] = 0;
                         console.warn(`Failed to load PRs for ${repo.fullName}`);
+                        // Try to use stale cache data if API fails
+                        const staleCount = getCachedData(cacheKey);
+                        if (staleCount !== null) {
+                            pullRequestData[repo.name] = staleCount;
+                        } else {
+                            pullRequestData[repo.name] = 0;
+                        }
                     });
             }
 
             // Load workflow status (simplified - would need more complex logic for actual workflow status)
             function loadBuildStatus(repo) {
+                const cacheKey = getCacheKey(CACHE_KEYS.BUILD_STATUS, repo.name);
+
+                // Try to get from cache first
+                if (isCacheValid()) {
+                    const cachedStatus = getCachedData(cacheKey);
+                    if (cachedStatus) {
+                        buildStatuses[repo.name] = cachedStatus;
+                        return Promise.resolve();
+                    }
+                }
+
                 // This is a simplified version - in reality you'd check workflow runs
                 return $.getJSON(`https://api.github.com/repos/${repo.fullName}/actions/runs?per_page=1`)
                     .then(function (data) {
+                        let status = { status: 'unknown' };
+
                         if (data.workflow_runs && data.workflow_runs.length > 0) {
                             const run = data.workflow_runs[0];
-                            buildStatuses[repo.name] = {
+                            status = {
                                 status: run.conclusion || run.status,
                                 url: run.html_url,
                                 name: run.name
                             };
                         }
+
+                        buildStatuses[repo.name] = status;
+                        setCachedData(cacheKey, status);
                     })
                     .catch(function () {
-                        buildStatuses[repo.name] = { status: 'unknown' };
+                        console.warn(`Failed to load build status for ${repo.fullName}`);
+                        // Try to use stale cache data if API fails
+                        const staleStatus = getCachedData(cacheKey);
+                        if (staleStatus) {
+                            buildStatuses[repo.name] = staleStatus;
+                        } else {
+                            buildStatuses[repo.name] = { status: 'unknown' };
+                        }
                     });
             }
 
@@ -465,55 +630,55 @@
 
                     if (data) {
                         html += `
-                                        <div class="col-lg-6 col-md-12 mb-3">
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading">
-                                                    <div class="row">
-                                                        <div class="col-xs-8">
-                                                            <h4 class="panel-title">
-                                                                <a href="${data.url}" target="_blank" class="text-decoration-none">
-                                                                    <i class="fa fa-github fa-lg"></i> ${repo.name}
-                                                                    <i class="fa fa-external-link fa-sm"></i>
-                                                                </a>
-                                                            </h4>
-                                                            <small class="text-muted">${data.description}</small>
-                                                        </div>
-                                                        <div class="col-xs-4 text-right">
-                                                            ${build ? getBuildStatusBadge(build.status, build.name, build.url) : ''}
+                                            <div class="col-lg-6 col-md-12 mb-3">
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading">
+                                                        <div class="row">
+                                                            <div class="col-xs-8">
+                                                                <h4 class="panel-title">
+                                                                    <a href="${data.url}" target="_blank" class="text-decoration-none">
+                                                                        <i class="fa fa-github fa-lg"></i> ${repo.name}
+                                                                        <i class="fa fa-external-link fa-sm"></i>
+                                                                    </a>
+                                                                </h4>
+                                                                <small class="text-muted">${data.description}</small>
+                                                            </div>
+                                                            <div class="col-xs-4 text-right">
+                                                                ${build ? getBuildStatusBadge(build.status, build.name, build.url) : ''}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="panel-body">
-                                                    <div class="row">
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Language</small>
-                                                            <div><span class="label label-info">${data.language || 'Mixed'}</span></div>
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Stars</small>
-                                                            <div><i class="fa fa-star text-warning"></i> ${data.stars}</div>
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Open PRs</small>
-                                                            <div><i class="fa fa-code-fork text-info"></i> ${pullRequestData[repo.name] || 0}</div>
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Issues</small>
-                                                            <div><i class="fa fa-exclamation-circle text-warning"></i> ${data.openIssues}</div>
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Forks</small>
-                                                            <div><i class="fa fa-code-fork text-muted"></i> ${data.forks}</div>
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
-                                                            <small class="text-muted">Last Push</small>
-                                                            <div><span class="text-primary">${formatDate(data.lastPush)}</span></div>
+                                                    <div class="panel-body">
+                                                        <div class="row">
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Language</small>
+                                                                <div><span class="label label-info">${data.language || 'Mixed'}</span></div>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Stars</small>
+                                                                <div><i class="fa fa-star text-warning"></i> ${data.stars}</div>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Open PRs</small>
+                                                                <div><i class="fa fa-code-fork text-info"></i> ${pullRequestData[repo.name] || 0}</div>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Issues</small>
+                                                                <div><i class="fa fa-exclamation-circle text-warning"></i> ${data.openIssues}</div>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Forks</small>
+                                                                <div><i class="fa fa-code-fork text-muted"></i> ${data.forks}</div>
+                                                            </div>
+                                                            <div class="col-md-2 col-sm-4 col-xs-6 repo-stat">
+                                                                <small class="text-muted">Last Push</small>
+                                                                <div><span class="text-primary">${formatDate(data.lastPush)}</span></div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    `;
+                                        `;
                     }
                 });
 
@@ -532,47 +697,52 @@
                     const commitMessage = commit.commit.message.split('\n')[0]; // First line only
 
                     html += `
-                                    <div class="stream-item">
-                                        <div style="display: flex; align-items: flex-start; gap: 15px;">
-                                            <div class="activity-icon">
-                                                <i class="fa ${iconClass} fa-lg"></i>
-                                            </div>
-                                            <div class="activity-details" style="flex: 1; min-width: 0;">
-                                                <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
-                                                    <div style="flex: 1; min-width: 0;">
-                                                        <div>
-                                                            <strong>${escapeHtml(commit.commit.author.name)}</strong> 
-                                                            committed to 
-                                                            <span class="label label-default">${commit.repository}</span>
+                                        <div class="stream-item">
+                                            <div style="display: flex; align-items: flex-start; gap: 15px;">
+                                                <div class="activity-icon">
+                                                    <i class="fa ${iconClass} fa-lg"></i>
+                                                </div>
+                                                <div class="activity-details" style="flex: 1; min-width: 0;">
+                                                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 15px;">
+                                                        <div style="flex: 1; min-width: 0;">
+                                                            <div>
+                                                                <strong>${escapeHtml(commit.commit.author.name)}</strong> 
+                                                                committed to 
+                                                                <span class="label label-default">${commit.repository}</span>
+                                                            </div>
+                                                            <div class="text-muted" style="margin-top: 5px; word-wrap: break-word;">
+                                                                ${escapeHtml(commitMessage)}
+                                                            </div>
                                                         </div>
-                                                        <div class="text-muted" style="margin-top: 5px; word-wrap: break-word;">
-                                                            ${escapeHtml(commitMessage)}
-                                                        </div>
-                                                    </div>
-                                                    <div class="activity-meta">
-                                                        <div class="text-muted" style="font-size: 12px;">${formatDate(commit.commit.author.date)}</div>
-                                                        <div style="margin-top: 5px;">
-                                                            <a href="${commit.html_url}" target="_blank" class="btn btn-xs btn-outline btn-primary">
-                                                                <i class="fa fa-code"></i> ${shortSha}
-                                                            </a>
+                                                        <div class="activity-meta">
+                                                            <div class="text-muted" style="font-size: 12px;">${formatDate(commit.commit.author.date)}</div>
+                                                            <div style="margin-top: 5px;">
+                                                                <a href="${commit.html_url}" target="_blank" class="btn btn-xs btn-outline btn-primary">
+                                                                    <i class="fa fa-code"></i> ${shortSha}
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                `;
+                                    `;
                 });
 
                 $('#activityStream').html(html);
             }
 
             // Main loading function
-            function loadDashboard() {
+            function loadDashboard(forceRefresh = false) {
                 allCommits = [];
                 repositoryData = {};
                 buildStatuses = {};
                 pullRequestData = {};
+
+                // Clear cache if force refresh is requested
+                if (forceRefresh) {
+                    clearCache();
+                }
 
                 const repoInfoPromises = repositories.map(loadRepositoryInfo);
                 const commitPromises = repositories.map(loadCommits);
@@ -584,6 +754,13 @@
                         updateStatistics();
                         renderRepositoryStatus();
                         renderActivityStream();
+
+                        // Update cache timestamp only after successful load
+                        if (!forceRefresh || Object.keys(repositoryData).length > 0) {
+                            updateCacheTimestamp();
+                        }
+
+                        updateCacheStatus();
                     })
                     .catch(function (error) {
                         console.error('Error loading dashboard data:', error);
@@ -594,7 +771,17 @@
             // Event handlers
             $('#refreshActivity').click(function () {
                 $(this).find('i').addClass('fa-spin');
-                loadDashboard();
+                loadDashboard(true); // Force refresh
+                setTimeout(() => {
+                    $(this).find('i').removeClass('fa-spin');
+                }, 2000);
+            });
+
+            $('#clearCache').click(function () {
+                clearCache();
+                updateCacheStatus();
+                $(this).find('i').addClass('fa-spin');
+                loadDashboard(true);
                 setTimeout(() => {
                     $(this).find('i').removeClass('fa-spin');
                 }, 2000);
@@ -602,14 +789,16 @@
 
             // Initial load
             loadDashboard();
+            updateCacheStatus();
 
-            // Auto-refresh every 5 minutes
-            setInterval(loadDashboard, 300000);
+            // Auto-refresh every 5 minutes (but will use cache if still valid)
+            setInterval(() => loadDashboard(), 300000);
+
+            // Update cache status every minute
+            setInterval(updateCacheStatus, 60000);
 
         });
 
     </script>
 
 }
-
-   

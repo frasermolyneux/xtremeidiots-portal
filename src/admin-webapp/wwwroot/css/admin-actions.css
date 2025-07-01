@@ -1,0 +1,169 @@
+/* Admin Actions Component Styling */
+.admin-action-card {
+    transition: all 0.3s ease;
+    background: #ffffff;
+    margin-bottom: 2rem;
+}
+
+.admin-action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Ensure admin actions content has proper spacing from footer */
+.admin-actions-container {
+    padding-bottom: 4rem;
+    min-height: 50vh;
+    /* Ensure minimum height to push footer down */
+}
+
+/* Add extra bottom margin to wrapper when admin actions are present */
+.wrapper.wrapper-content:has(.admin-actions-container) {
+    margin-bottom: 120px !important;
+    padding-bottom: 30px !important;
+}
+
+/* Fallback for browsers that don't support :has() selector */
+.wrapper.wrapper-content .admin-actions-container {
+    margin-bottom: 120px;
+    padding-bottom: 30px;
+}
+
+/* Ensure proper spacing between admin action cards */
+.admin-actions-container .admin-action-card:last-child {
+    margin-bottom: 3rem;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+}
+
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+}
+
+.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+}
+
+.text-white-75 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.admin-action-text {
+    line-height: 1.6;
+    color: #495057;
+}
+
+.admin-action-text p {
+    margin-bottom: 0.75rem;
+}
+
+.admin-action-text p:last-child {
+    margin-bottom: 0;
+}
+
+/* Icon styling improvements - FontAwesome 4 compatibility */
+.fa {
+    font-family: FontAwesome;
+    display: inline-block;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure FontAwesome icons display properly */
+.fa:before {
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+
+/* Specific icon colors for admin actions */
+.icon-primary {
+    color: #007bff !important;
+}
+
+.icon-warning {
+    color: #ffc107 !important;
+}
+
+.icon-danger {
+    color: #dc3545 !important;
+}
+
+.icon-secondary {
+    color: #6c757d !important;
+}
+
+.icon-info {
+    color: #17a2b8 !important;
+}
+
+/* Icon size fixes for admin actions */
+.admin-action-card .fa {
+    font-size: 1.2em;
+    width: 1.2em;
+    text-align: center;
+}
+
+.admin-action-card .rounded-circle .fa {
+    font-size: 1.1em;
+}
+
+/* Button hover effects */
+.btn-outline-primary:hover,
+.btn-outline-warning:hover,
+.btn-outline-danger:hover,
+.btn-outline-info:hover,
+.btn-outline-success:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge improvements */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Card border improvements */
+.border-4 {
+    border-width: 4px !important;
+}
+
+.border-start {
+    border-left: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .admin-action-card .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+
+    .admin-action-card .badge {
+        align-self: flex-start;
+    }
+
+    .d-flex.flex-wrap.gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    .btn-sm {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+}

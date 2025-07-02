@@ -2,7 +2,7 @@
 
 ## Overview
 
-The admin-webapp has been enhanced with ProxyCheck.io integration to provide risk assessments for IP addresses displayed throughout the application. This feature displays a color-coded risk score, and status pills indicating VPN and proxy detection.
+The XtremeIdiots.Portal.Web has been enhanced with ProxyCheck.io integration to provide risk assessments for IP addresses displayed throughout the application. This feature displays a color-coded risk score, and status pills indicating VPN and proxy detection.
 
 ## Features
 
@@ -12,7 +12,7 @@ The admin-webapp has been enhanced with ProxyCheck.io integration to provide ris
 - Visual indicator showing the proxy/VPN type (e.g., VPN, TOR, etc.)
 - Memory caching to reduce API calls
 - Integration with Azure Key Vault for secure API key storage
-- Display on all IP addresses throughout the admin-webapp
+- Display on all IP addresses throughout the XtremeIdiots.Portal.Web
 
 ## Configuration
 
@@ -60,7 +60,7 @@ For local development, add the ProxyCheck API key to your `appsettings.Developme
 
 ## Usage
 
-The ProxyCheck integration will automatically enhance IP address displays throughout the admin-webapp. The following views have been updated to display ProxyCheck data:
+The ProxyCheck integration will automatically enhance IP address displays throughout the XtremeIdiots.Portal.Web. The following views have been updated to display ProxyCheck data:
 
 1. IP Search view (`/Players/IpIndex`)
 2. RCON view (`/ServerAdmin/ViewRcon`)

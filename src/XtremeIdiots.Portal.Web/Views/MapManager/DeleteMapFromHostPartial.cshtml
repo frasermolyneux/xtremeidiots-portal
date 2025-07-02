@@ -1,0 +1,13 @@
+﻿@using XtremeIdiots.Portal.Web.ViewModels
+@model DeleteMapFromHostModel
+
+<form asp-action="DeleteMapFromHost">
+    <input type="hidden" id="gameServerId" asp-for="@Model.GameServerId" />
+    <input type="hidden" id="mapName" asp-for="@Model.MapName" />
+
+    <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-danger" type="submit">
+            <i class="fa fa-trash"></i>
+        </button>
+    </div>
+</form>

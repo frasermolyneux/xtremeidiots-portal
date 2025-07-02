@@ -1,0 +1,299 @@
+﻿@using XtremeIdiots.Portal.Web.Extensions
+@using XtremeIdiots.Portal.Web.ViewModels
+@model ManageMapsViewModel
+
+@{
+    ViewData["Title"] = "Map Manager";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-2">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    <table class="table table-responsive w-100 d-block d-md-table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Hostname</strong>
+                                </td>
+                                <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
+                            </tr>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMod))
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>Mod</strong>
+                                    </td>
+                                    <td>@Model.GameServer.LiveMod</td>
+                                </tr>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMap))
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>Map</strong>
+                                    </td>
+                                    <td>@Model.GameServer.LiveMap</td>
+                                </tr>
+                            }
+
+                            @if (Model.GameServer.LiveCurrentPlayers != 0 && Model.GameServer.LiveMaxPlayers != 0)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>Player Count</strong>
+                                    </td>
+                                    <td>@Model.GameServer.LiveCurrentPlayers / @Model.GameServer.LiveMaxPlayers</td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <td>
+                                    <strong>Connect</strong>
+                                </td>
+                                <td>
+                                    @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
+                                    @Html.SteamIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
+                                             Model.GameServer.QueryPort)
+                                    @Html.HlswIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
+                                             Model.GameServer.QueryPort)
+                                </td>
+                            </tr>
+
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <partial name="PushMapToRemotePartial"
+                model="@(new PushMapToRemoteViewModel(Model.GameServer.GameServerId))"></partial>
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Map Packs</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    @Html.Label("Title")
+                                </th>
+                                <th>
+                                    @Html.Label("Game Mode")
+                                </th>
+                                <th>@Html.Label("Count")</th>
+                                <th></th>
+                            </tr>
+
+                            @foreach (var item in Model.MapPacks)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Title)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.GameMode)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.MapPackMaps.Count)
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("Manage", "MapPacks", new { id = item.MapPackId })"
+                                            class="btn btn-xs btn-primary">Manage</a>
+                                        <a href="@Url.Action("Delete", "MapPacks", new { id = item.MapPackId })"
+                                            class="btn btn-xs btn-danger">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="ibox-footer">
+                    <a href="@Url.Action("Create", "MapPacks", new { gameServerId = @Model.GameServer.GameServerId })" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-sm-6">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Current Map Rotation - sv_mapRotation</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    <table class="table">
+                        <tr>
+                            <th>
+                                @Html.Label("Name")
+                            </th>
+                            <th>
+                                @Html.Label("Game Type")
+                            </th>
+                            <th>
+                                @Html.Label("Files")
+                            </th>
+                            <th>
+                                @Html.Label("Remote Status")
+                            </th>
+                            <th>
+                                @Html.Label("Popularity")
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+
+                        @foreach (var item in Model.RconMaps.OrderBy(x => x.MapName))
+{
+    var map = Model.Maps.FirstOrDefault(x => x.MapName == item.MapName);
+
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MapName)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.GameType)
+                            </td>
+                            <td>
+                                @{
+    if (map != null)
+    {
+        foreach (var mapFile in map.MapFiles)
+        {
+                                    <li>
+                                        <a href="@mapFile.Url">@mapFile.FileName</a>
+                                    </li>
+        }
+    }
+    else
+    {
+                                    <strong>No files found on redirect</strong>
+    }
+                                }
+                            </td>
+                            <td>
+                                @{
+    var remoteMatch = Model.ServerMaps.FirstOrDefault(x => x.Name == item.MapName);
+    if (remoteMatch != null)
+    {
+                                    <span class="label label-success">On Host</span>
+    }
+    else
+    {
+                                    <span class="label label-danger">Not On Host</span>
+    }
+                                }
+                            </td>
+                            <td>
+                                @if (map != null)
+    {
+                                @Html.MapPopularity(item.MapName, map.LikePercentage, map.DislikePercentage,
+                                     map.TotalLikes, map.TotalDislikes, map.TotalVotes)
+    }
+    else
+    {
+                                <strong>No popularity data found</strong>
+    }
+                            </td>
+                            <td>
+                                @if (map != null)
+    {
+                                @Html.MapImage(map.MapImageUri)
+    }
+                            </td>
+                        </tr>
+}
+
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-sm-4">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Remote Server Maps</h5>
+                </div>
+
+                <div class="ibox-content">
+
+                    <table class="table">
+                        <tr>
+                            <th>
+                                @Html.Label("Name")
+                            </th>
+                            <th>
+                                @Html.Label("Path")
+                            </th>
+                            <th>
+                                @Html.Label("Rotation Status")
+                            </th>
+                            <th>
+                                @Html.Label("Modified")
+                            </th>
+                            <th></th
+                        </tr>
+
+                        @foreach (var item in Model.ServerMaps)
+{
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Name)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.FullName)
+                            </td>
+                            <td>
+                                @{
+    if (Model.RconMaps.Any(x => x.MapName == item.Name))
+    {
+                                    <span class="label label-success">In Rotation</span>
+    }
+    else
+    {
+                                    <span class="label label-danger">Not In Rotation</span>
+    }
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Modified)
+                            </td>
+                            <td>
+                                <partial name="DeleteMapFromHostPartial" model="@(new DeleteMapFromHostModel(Model.GameServer.GameServerId, item.Name))"></partial>
+                            </td>
+                        </tr>
+}
+
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,60 @@
+﻿@using XtremeIdiots.Portal.Integrations.Forums.Models
+@model DemoManagerClientDto
+
+@{
+    ViewData["Title"] = "Demo Client";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Demo Manager Client Auth Key</h5>
+                </div>
+
+                <div class="ibox-content">
+                    <h2>Your demo manager auth key is:</h2>
+                    <p>
+                        <input class="form-control" type="text" value="@ViewData["ClientAuthKey"]"
+                            disabled="disabled" />
+                    </p>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fa fa-info-circle"></i> The demo manager auth key is used in the desktop application
+                        to allow you to use the demo manager. It should not be shared with anyone!
+                    </div>
+
+                    <form asp-action="RegenerateAuthKey">
+                        <input type="submit" value="Regenerate" class="btn btn-primary" />
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>Download Client</h5>
+                </div>
+
+                <div class="ibox-content">
+                    <h2>Download the latest version (@Model.Version) from the XtremeIdiots website <a href="@Model.Url"
+                            target="_blank">here</a></h2>
+
+                    <p>
+                        @Html.Raw(Model.Description)
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

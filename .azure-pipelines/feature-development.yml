@@ -38,16 +38,16 @@ stages:
           dotnetSdkVersion: $(dotnetSdkVersion)
           additionalBuildSteps:
             - task: DotNetCoreCLI@2
-              displayName: "Publish admin-webapp project"
+              displayName: "Publish XtremeIdiots.Portal.Web project"
               inputs:
                 command: "publish"
                 publishWebProjects: false
-                projects: "**/admin-webapp.csproj"
-                arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/admin-webapp.zip"
+                projects: "**/XtremeIdiots.Portal.Web.csproj"
+                arguments: "--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/XtremeIdiots.Portal.Web.zip"
           additionalPublishSteps:
-            - publish: "$(Build.artifactStagingDirectory)/admin-webapp.zip"
-              displayName: "Publish admin-webapp artifact"
-              artifact: admin-webapp
+            - publish: "$(Build.artifactStagingDirectory)/XtremeIdiots.Portal.Web.zip"
+              displayName: "Publish XtremeIdiots.Portal.Web artifact"
+              artifact: XtremeIdiots.Portal.Web
 
       - template: jobs/bicep-lint-code.yml@ado-pipeline-templates
         parameters:

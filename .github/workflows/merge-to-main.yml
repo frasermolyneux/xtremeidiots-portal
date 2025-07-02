@@ -19,6 +19,6 @@ jobs:
 
     - uses: frasermolyneux/actions/dotnet-web-ci@main
       with:
-        dotnet-project: "admin-webapp"
+        dotnet-project: "XtremeIdiots.Portal.Web"
         dotnet-version: 9.0.x
         src-folder: "src"

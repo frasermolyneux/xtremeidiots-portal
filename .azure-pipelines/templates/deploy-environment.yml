@@ -91,7 +91,7 @@ stages:
                         -groupName "sg-sql-platform-admins-$($config.parameters.environment.value)-01"
 
                 - download: current
-                  artifact: admin-webapp
+                  artifact: XtremeIdiots.Portal.Web
 
                 - task: AzureRmWebAppDeployment@4
                   retryCountOnTaskFailure: 3
@@ -99,4 +99,4 @@ stages:
                     azureSubscription: ${{ parameters.azureSubscription }}
                     webAppName: $(deploy_outputs.webAppName)
                     resourceGroupName: $(deploy_outputs.webAppsResourceGroupName)
-                    packageForLinux: "$(Pipeline.Workspace)/admin-webapp/admin-webapp.zip"
+                    packageForLinux: "$(Pipeline.Workspace)/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.zip"

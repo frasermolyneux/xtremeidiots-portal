@@ -1,0 +1,89 @@
+﻿@using XtremeIdiots.Portal.Web.Extensions
+@{
+    ViewData["Title"] = "Manage Profile";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container text-center">
+                <img src="@(User.PhotoUrl())" alt="Avatar" style="border-radius: 50%; max-height: 180px; max-width: 180px">
+                <h1 class="display-4">@User.Username()</h1>
+            </div>
+
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">
+                        Profile Info
+                    </div>
+                    <div class="ibox-content">
+                        <table class="table table-responsive w-100 d-block d-md-table">
+                            <tbody>
+                            <tr>
+                                <td>Email</td>
+                                <td>@User.Email()</td>
+                            </tr>
+                            <tr>
+                                <td>XtremeIdiots Profile</td>
+                                <td>
+                                    <a href="https://www.xtremeidiots.com/profile/@(User.XtremeIdiotsId())-@(User.Username())/" target="_blank">XtremeIdiots Profile</a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <p>
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#claimsDebug" aria-expanded="false" aria-controls="claimsDebug">
+                        Claims Debug Info
+                    </button>
+                </p>
+                <div class="collapse" id="claimsDebug">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            Claims Debug Info
+                        </div>
+                        <div class="ibox-content">
+                            <table class="table table-responsive w-100 d-block d-md-table">
+                                <thead>
+                                <tr>
+                                    <td>Type</td>
+                                    <td>Value</td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var claim in User.Claims)
+                                {
+                                    <tr>
+                                        <td>@claim.Type</td>
+                                        <td>@claim.Value</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </row>
+
+</div>

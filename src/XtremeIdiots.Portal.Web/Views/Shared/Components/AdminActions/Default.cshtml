@@ -1,0 +1,280 @@
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.AspNetCore.Authorization
+@using XtremeIdiots.Portal.Web.Auth.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players
+@model List<AdminActionDto>
+
+<div class="admin-actions-container">
+    @foreach (var item in Model)
+    {
+        var cardStyle = item.Type switch
+        {
+            AdminActionType.Observation => "primary",
+            AdminActionType.Warning => "warning",
+            AdminActionType.Kick => "warning",
+            AdminActionType.TempBan => item.Expires < DateTime.UtcNow ? "secondary" : "danger",
+            AdminActionType.Ban => item.Expires != null ? "secondary" : "danger",
+            _ => "info"
+        };
+
+        var iconClass = item.Type switch
+        {
+            AdminActionType.Observation => "fa fa-eye",
+            AdminActionType.Warning => "fa fa-exclamation-triangle",
+            AdminActionType.Kick => "fa fa-user-times",
+            AdminActionType.TempBan => "fa fa-clock-o",
+            AdminActionType.Ban => "fa fa-ban",
+            _ => "fa fa-info-circle"
+        };
+
+        var statusBadge = item.Type switch
+        {
+            AdminActionType.TempBan when item.Expires < DateTime.UtcNow => "Expired",
+            AdminActionType.Ban when item.Expires != null => "Lifted",
+            AdminActionType.TempBan when item.Expires > DateTime.UtcNow => "Active",
+            AdminActionType.Ban when item.Expires == null => "Active",
+            _ => ""
+        };
+
+        var badgeClass = item.Type switch
+        {
+            AdminActionType.TempBan when item.Expires < DateTime.UtcNow => "bg-secondary text-white",
+            AdminActionType.Ban when item.Expires != null => "bg-secondary text-white",
+            AdminActionType.TempBan when item.Expires > DateTime.UtcNow => "bg-danger text-white",
+            AdminActionType.Ban when item.Expires == null => "bg-danger text-white",
+            _ => "bg-info text-white"
+        };
+
+        var linkToPlayer = ViewData["LinkToPlayer"] as bool? ?? false;
+        var playerViewData = ViewData["Player"] as PlayerDto;
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-start border-@cardStyle border-4 shadow-lg admin-action-card"
+                    style="border-start-width: 6px !important;">
+                    <div
+                        class="card-header bg-gradient-@cardStyle text-white d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="@iconClass text-white" style="font-size: 1.5rem;"></i>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-0 fw-bold">
+                                    @if (linkToPlayer && item.Player != null)
+                                    {
+                                        <text>@item.Type for
+                                            <a asp-controller="Players" asp-action="Details" asp-route-id="@item.PlayerId"
+                                                class="btn btn-sm btn-outline-light ms-2 fw-bold">
+                                                <i class="fa fa-user me-1"></i>@item.Player.Username
+                                            </a>
+                                        </text>
+                                    }
+                                    else
+                                    {
+                                        <text>@item.Type Action</text>
+                                    }
+                                </h5>
+                                <small class="text-white-75">
+                                    <i class="fa fa-calendar me-1"></i>
+                                    @item.Created.ToString("MMM dd, yyyy HH:mm") UTC
+                                </small>
+                            </div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(statusBadge))
+                        {
+                            <span class="badge @badgeClass rounded-pill px-3 py-2 fs-6">
+                                <i class="fa fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                @statusBadge
+                            </span>
+                        }
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="bg-light rounded-circle p-2 me-3">
+                                        <i class="fa fa-user icon-@cardStyle"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted text-uppercase fw-bold">Created By</small>
+                                        <div class="fw-bold">
+                                            @if (item.UserProfile == null)
+                                            {
+                                                <span class="text-muted">System/Unknown</span>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(item.UserProfile.DisplayName))
+                                            {
+                                                @item.UserProfile.DisplayName
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(item.UserProfile.XtremeIdiotsForumId))
+                                            {
+                                                <span>User ID @item.UserProfile.XtremeIdiotsForumId</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Unknown User</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (item.Type == AdminActionType.TempBan || item.Type == AdminActionType.Ban)
+                            {
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-light rounded-circle p-2 me-3">
+                                            <i class="fa fa-clock-o icon-@cardStyle"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-bold">
+                                                @if (item.Type == AdminActionType.TempBan && item.Expires > DateTime.UtcNow)
+                                                {
+                                                    <text>Expires</text>
+                                                }
+                                                else if (item.Type == AdminActionType.TempBan)
+                                                {
+                                                    <text>Expired</text>
+                                                }
+                                                else if (item.Type == AdminActionType.Ban && item.Expires != null)
+                                                {
+                                                    <text>Ban Lifted</text>
+                                                }
+                                                else
+                                                {
+                                                    <text>Permanent Ban</text>
+                                                }
+                                            </small>
+                                            <div class="fw-bold">
+                                                @if (item.Expires != null)
+                                                {
+                                                    <text>Expires: </text>
+                                                    @item.Expires.Value.ToString("MMM dd, yyyy HH:mm")
+                                                    <small class="text-muted">UTC</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Expires: Never</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (item.ForumTopicId != 0)
+                            {
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="bg-light rounded-circle p-2 me-3">
+                                            <i class="fa fa-comments icon-@cardStyle"></i>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted text-uppercase fw-bold">Discussion Topic</small>
+                                            <div>
+                                                <a href="https://www.xtremeidiots.com/forums/topic/@item.ForumTopicId-topic/"
+                                                    target="_blank" class="btn btn-sm btn-outline-@cardStyle">
+                                                    <i class="fa fa-external-link me-1"></i>
+                                                    View Forum Topic
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Admin Action Content -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="bg-light border-start border-@cardStyle border-4 rounded p-4"
+                                    style="border-start-width: 4px !important;">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="me-3">
+                                            <i class="@iconClass icon-@cardStyle" style="font-size: 1.25rem;"></i>
+                                        </div>
+                                        <h6 class="mb-0 text-@cardStyle fw-bold">@item.Type Details</h6>
+                                    </div>
+                                    <div class="admin-action-text fs-6 lh-base">
+                                        @Html.Raw(item.Text)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="d-flex flex-wrap gap-2">
+                                    @{
+                                        var gameType = item.Player?.GameType ?? playerViewData?.GameType;
+                                        var userForumId = item.UserProfile?.XtremeIdiotsForumId;
+                                    }
+
+                                    @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, new
+                                                                    Tuple<GameType, AdminActionType, string?>(gameType.Value, item.Type, userForumId),
+                                                                    AuthPolicies.EditAdminAction)).Succeeded)
+                                    {
+                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId"
+                                            class="btn btn-outline-@cardStyle btn-sm">
+                                            <i class="fa fa-edit me-1"></i> Edit @item.Type
+                                        </a>
+                                    }
+
+                                    @if ((item.Type == AdminActionType.Ban && item.Expires == null) || (item.Type ==
+                                                                    AdminActionType.TempBan && item.Expires > DateTime.UtcNow))
+                                    {
+                                        @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, new
+                                                                        Tuple<GameType, string?>(gameType.Value, userForumId),
+                                                                        AuthPolicies.LiftAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId"
+                                                class="btn btn-outline-warning btn-sm">
+                                                <i class="fa fa-unlock me-1"></i> Lift Ban
+                                            </a>
+                                        }
+                                    }
+
+                                    @if (item.Type == AdminActionType.Ban && item.UserProfile == null)
+                                    {
+                                        @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User,
+                                                                        gameType.Value, AuthPolicies.ClaimAdminAction)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId"
+                                                class="btn btn-outline-info btn-sm">
+                                                <i class="fa fa-user me-1"></i> Claim Ban
+                                            </a>
+                                        }
+                                    }
+
+                                    @if (item.ForumTopicId == 0)
+                                    {
+                                        @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User,
+                                                                        gameType.Value, AuthPolicies.CreateAdminActionTopic)).Succeeded)
+                                        {
+                                            <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic"
+                                                asp-route-id="@item.AdminActionId" class="btn btn-outline-success btn-sm">
+                                                <i class="fa fa-plus me-1"></i> Create Discussion Topic
+                                            </a>
+                                        }
+                                    }
+
+                                    @if ((await AuthorizationService.AuthorizeAsync(User,
+                                                                    AuthPolicies.DeleteAdminAction)).Succeeded)
+                                    {
+                                        <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId"
+                                            class="btn btn-outline-danger btn-sm">
+                                            <i class="fa fa-trash me-1"></i> Delete @item.Type
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

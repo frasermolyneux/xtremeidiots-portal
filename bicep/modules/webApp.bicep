@@ -88,7 +88,7 @@ module serversApimSubscription 'br:acrty7og2i6qpv3s.azurecr.io/bicep/modules/api
   params: {
     apiManagementName: apiManagement.name
     workloadName: webAppName
-    apiScope: serversIntegrationApi.ApimApiName
+    scope: '/products/${serversIntegrationApi.ApimProductId}'
     keyVaultRef: keyVaultRef
     tags: tags
   }

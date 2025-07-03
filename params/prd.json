@@ -37,8 +37,7 @@
             "value": {
                 "ApplicationName": "portal-servers-integration-prd-01",
                 "ApplicationAudience": "api://portal-servers-integration-prd-01",
-                "ApimApiName": "servers-integration-api",
-                "ApimApiRevision": "1",
+                "ApimProductId": "servers-integration-api",
                 "ApimPathPrefix": "servers-integration"
             }
         },

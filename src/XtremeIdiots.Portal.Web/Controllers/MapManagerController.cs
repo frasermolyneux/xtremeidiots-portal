@@ -5,7 +5,7 @@ using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.ServersApiClient;
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -39,8 +39,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            var rconMaps = await serversApiClient.Rcon.GetServerMaps(id);
-            var ftpMaps = await serversApiClient.Maps.GetLoadedServerMapsFromHost(id);
+            var rconMaps = await serversApiClient.Rcon.V1.GetServerMaps(id);
+            var ftpMaps = await serversApiClient.Maps.V1.GetLoadedServerMapsFromHost(id);
             var mapPacks = await repositoryApiClient.MapPacks.V1.GetMapPacks(null, [id], null, 0, 50, MapPacksOrder.Title);
 
             var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.GameType, rconMaps.Result?.Entries.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
@@ -69,7 +69,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            await serversApiClient.Maps.PushServerMapToHost(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
+            await serversApiClient.Maps.V1.PushServerMapToHost(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
 
             return RedirectToAction("Manage", new { id = gameServerApiResponse.Result.GameServerId });
         }
@@ -87,7 +87,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            await serversApiClient.Maps.DeleteServerMapFromHost(model.GameServerId, model.MapName);
+            await serversApiClient.Maps.V1.DeleteServerMapFromHost(model.GameServerId, model.MapName);
 
             return RedirectToAction("Manage", new { id = model.GameServerId });
         }

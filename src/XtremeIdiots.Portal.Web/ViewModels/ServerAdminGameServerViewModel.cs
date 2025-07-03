@@ -1,5 +1,5 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
+﻿using XtremeIdiots.Portal.Integrations.Servers.Abstractions.Models.V1;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {

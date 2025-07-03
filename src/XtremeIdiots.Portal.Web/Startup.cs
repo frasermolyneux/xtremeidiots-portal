@@ -12,7 +12,7 @@ using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Integrations.Forums;
 using XtremeIdiots.Portal.Integrations.Forums.Extensions;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.ServersApiClient;
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web
 {

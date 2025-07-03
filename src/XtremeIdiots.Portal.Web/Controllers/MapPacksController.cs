@@ -6,7 +6,7 @@ using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.ServersApiClient;
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {

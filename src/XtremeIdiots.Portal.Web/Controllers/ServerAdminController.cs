@@ -9,7 +9,7 @@ using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.ServersApiClient;
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -79,7 +79,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconQueryApiReponse = await serversApiClient.Rcon.GetServerStatus(id);
+            var rconQueryApiReponse = await serversApiClient.Rcon.V1.GetServerStatus(id);
 
             return Json(new
             {

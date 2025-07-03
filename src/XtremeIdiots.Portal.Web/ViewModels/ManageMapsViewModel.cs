@@ -1,8 +1,8 @@
-﻿using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
+﻿using XtremeIdiots.Portal.Integrations.Servers.Abstractions.Models.V1.Maps;
+using XtremeIdiots.Portal.Integrations.Servers.Abstractions.Models.V1.Rcon;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
-using XtremeIdiots.Portal.ServersApi.Abstractions.Models.Maps;
-using XtremeIdiots.Portal.ServersApi.Abstractions.Models.Rcon;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {

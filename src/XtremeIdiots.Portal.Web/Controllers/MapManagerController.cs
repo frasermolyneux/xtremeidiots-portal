@@ -39,17 +39,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            var rconMaps = await serversApiClient.Rcon.V1.GetServerMaps(id);
-            var ftpMaps = await serversApiClient.Maps.V1.GetLoadedServerMapsFromHost(id);
+            var getServerMapsResult = await serversApiClient.Rcon.V1.GetServerMaps(id);
+            var getLoadedServerMapsFromHostResult = await serversApiClient.Maps.V1.GetLoadedServerMapsFromHost(id);
             var mapPacks = await repositoryApiClient.MapPacks.V1.GetMapPacks(null, [id], null, 0, 50, MapPacksOrder.Title);
 
-            var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.GameType, rconMaps.Result?.Entries.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
+            var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.GameType, getServerMapsResult.Result?.Data.Items.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
 
             var viewModel = new ManageMapsViewModel(gameServerApiResponse.Result)
             {
                 Maps = mapsCollectionApiResponse.Result.Entries,
-                ServerMaps = ftpMaps.Result.Entries,
-                RconMaps = rconMaps.Result.Entries,
+                ServerMaps = getLoadedServerMapsFromHostResult.Result.Data.Items.ToList(),
+                RconMaps = getServerMapsResult.Result.Data.Items.ToList(),
                 MapPacks = mapPacks.Result.Entries
             };
 

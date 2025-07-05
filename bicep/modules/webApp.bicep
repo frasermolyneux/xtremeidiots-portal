@@ -138,16 +138,24 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '1'
         }
         {
+          name: 'ServersIntegrationApi:BaseUrl'
+          value: '${apiManagement.properties.gatewayUrl}servers-integration'
+        }
+        {
+          name: 'ServersIntegrationApi:ApiKey'
+          value: '@Microsoft.KeyVault(SecretUri=${serversApimSubscription.outputs.primaryKeySecretRef.secretUri})'
+        }
+        {
+          name: 'ServersIntegrationApi:ApplicationAudience'
+          value: serversIntegrationApi.ApplicationAudience
+        }
+        {
           name: 'apim_base_url'
           value: apiManagement.properties.gatewayUrl
         }
         {
           name: 'portal_repository_apim_subscription_key'
           value: '@Microsoft.KeyVault(SecretUri=${repositoryApimSubscription.outputs.primaryKeySecretRef.secretUri})'
-        }
-        {
-          name: 'portal_servers_apim_subscription_key'
-          value: '@Microsoft.KeyVault(SecretUri=${serversApimSubscription.outputs.primaryKeySecretRef.secretUri})'
         }
         {
           name: 'geolocation_base_url'
@@ -164,10 +172,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'repository_api_application_audience'
           value: repositoryApi.ApplicationAudience
-        }
-        {
-          name: 'servers_api_application_audience'
-          value: serversIntegrationApi.ApplicationAudience
         }
         {
           name: 'geolocation_api_application_audience'
@@ -196,10 +200,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'repository_api_path_prefix'
           value: repositoryApi.ApimPathPrefix
-        }
-        {
-          name: 'servers_api_path_prefix'
-          value: serversIntegrationApi.ApimPathPrefix
         }
         {
           name: 'geolocation_api_path_prefix'

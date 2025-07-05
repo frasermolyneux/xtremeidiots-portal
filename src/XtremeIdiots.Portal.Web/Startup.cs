@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using MX.Api.Client.Extensions;
 using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.InvisionCommunity;
@@ -62,13 +63,10 @@ namespace XtremeIdiots.Portal.Web
                 options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
             });
 
-            services.AddServersApiClient(options =>
-            {
-                options.BaseUrl = Configuration["servers_base_url"] ?? Configuration["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
-                options.PrimaryApiKey = Configuration["portal_servers_apim_subscription_key"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key");
-                options.ApiAudience = Configuration["servers_api_application_audience"] ?? throw new ArgumentNullException("servers_api_application_audience");
-                options.ApiPathPrefix = Configuration["servers_api_path_prefix"] ?? "servers";
-            });
+            services.AddServersApiClient()
+                .WithBaseUrl(Configuration["ServersIntegrationApi:BaseUrl"] ?? throw new ArgumentNullException("ServersIntegrationApi:BaseUrl"))
+                .WithApiKeyAuthentication(Configuration["ServersIntegrationApi:ApiKey"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApiKey"))
+                .WithAzureCredentials(Configuration["ServersIntegrationApi:ApplicationAudience"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApplicationAudience"));
 
             services.AddGeoLocationApiClient(options =>
             {

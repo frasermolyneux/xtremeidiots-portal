@@ -79,11 +79,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            var rconQueryApiReponse = await serversApiClient.Rcon.V1.GetServerStatus(id);
+            var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(id);
 
             return Json(new
             {
-                data = (rconQueryApiReponse.IsSuccess && rconQueryApiReponse.Result != null) ? rconQueryApiReponse.Result.Players : null
+                data = (getServerStatusResult.IsSuccess && getServerStatusResult.Result?.Data != null) ? getServerStatusResult.Result.Data.Players : null
             });
         }
 

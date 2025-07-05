@@ -138,15 +138,15 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '1'
         }
         {
-          name: 'ServersIntegrationApi:BaseUrl'
-          value: '${apiManagement.properties.gatewayUrl}servers-integration'
+          name: 'ServersIntegrationApi__BaseUrl'
+          value: '${apiManagement.properties.gatewayUrl}/servers-integration'
         }
         {
-          name: 'ServersIntegrationApi:ApiKey'
+          name: 'ServersIntegrationApi__ApiKey'
           value: '@Microsoft.KeyVault(SecretUri=${serversApimSubscription.outputs.primaryKeySecretRef.secretUri})'
         }
         {
-          name: 'ServersIntegrationApi:ApplicationAudience'
+          name: 'ServersIntegrationApi__ApplicationAudience'
           value: serversIntegrationApi.ApplicationAudience
         }
         {
@@ -214,7 +214,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '~3'
         }
         {
-          name: 'ProxyCheck:ApiKey'
+          name: 'ProxyCheck__ApiKey'
           value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=ProxyCheck--ApiKey)'
         }
       ]

@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Html;
-using System;
 using System.Text;
-using MX.GeoLocation.LookupApi.Abstractions.Models;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.Web.Models;
+using MX.GeoLocation.Abstractions.Models.V1;
 
 namespace XtremeIdiots.Portal.Web.Extensions
 {

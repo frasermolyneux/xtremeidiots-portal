@@ -150,6 +150,22 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: serversIntegrationApi.ApplicationAudience
         }
         {
+          name: 'GeoLocationApi__BaseUrl'
+          value: geoLocationApi.BaseUrl
+        }
+        {
+          name: 'GeoLocationApi__ApiKey'
+          value: '@Microsoft.KeyVault(SecretUri=${geoLocationApi.ApiKeyKeyVaultRef})'
+        }
+        {
+          name: 'GeoLocationApi__ApplicationAudience'
+          value: geoLocationApi.ApplicationAudience
+        }
+        {
+          name: 'ProxyCheck__ApiKey'
+          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=ProxyCheck--ApiKey)'
+        }
+        {
           name: 'apim_base_url'
           value: apiManagement.properties.gatewayUrl
         }
@@ -158,24 +174,8 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '@Microsoft.KeyVault(SecretUri=${repositoryApimSubscription.outputs.primaryKeySecretRef.secretUri})'
         }
         {
-          name: 'geolocation_base_url'
-          value: geoLocationApi.BaseUrl
-        }
-        {
-          name: 'geolocation_apim_subscription_key_primary'
-          value: '@Microsoft.KeyVault(SecretUri=${geoLocationApi.KeyVaultPrimaryRef})'
-        }
-        {
-          name: 'geolocation_apim_subscription_key_secondary'
-          value: '@Microsoft.KeyVault(SecretUri=${geoLocationApi.KeyVaultSecondaryRef})'
-        }
-        {
           name: 'repository_api_application_audience'
           value: repositoryApi.ApplicationAudience
-        }
-        {
-          name: 'geolocation_api_application_audience'
-          value: geoLocationApi.ApplicationAudience
         }
         {
           name: 'sql_connection_string'
@@ -202,20 +202,12 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: repositoryApi.ApimPathPrefix
         }
         {
-          name: 'geolocation_api_path_prefix'
-          value: geoLocationApi.ApimPathPrefix
-        }
-        {
           name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'
           value: '1.0.0'
         }
         {
           name: 'DiagnosticServices_EXTENSION_VERSION'
           value: '~3'
-        }
-        {
-          name: 'ProxyCheck__ApiKey'
-          value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=ProxyCheck--ApiKey)'
         }
       ]
     }

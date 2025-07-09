@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-using MX.GeoLocation.GeoLocationApi.Client;
-
 using Newtonsoft.Json;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
@@ -16,6 +14,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -153,14 +152,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.IpAddress))
                 try
                 {
-                    var geoLocation = await _geoLocationClient.GeoLookup.GetGeoLocation(playerApiResponse.Result.IpAddress);
+                    var getGeoLocationResult = await _geoLocationClient.GeoLookup.V1.GetGeoLocation(playerApiResponse.Result.IpAddress);
 
-                    if (geoLocation.IsSuccess && geoLocation.Result != null)
-                        playerDetailsViewModel.GeoLocation = geoLocation.Result;
-                    else
-                    {
-                        geoLocation.Errors.ForEach(ex => telemetryClient.TrackException(new ApplicationException(ex)));
-                    }
+                    if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
+                        playerDetailsViewModel.GeoLocation = getGeoLocationResult.Result.Data;
                 }
                 catch (Exception ex)
                 {
@@ -181,10 +176,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     try
                     {
                         // Get geolocation data
-                        var geoLocation = await _geoLocationClient.GeoLookup.GetGeoLocation(ipAddress.Address);
-                        if (geoLocation.IsSuccess && geoLocation.Result != null)
+                        var getGeoLocationResult = await _geoLocationClient.GeoLookup.V1.GetGeoLocation(ipAddress.Address);
+                        if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result != null)
                         {
-                            enrichedIp.GeoLocation = geoLocation.Result;
+                            enrichedIp.GeoLocation = getGeoLocationResult.Result.Data;
                         }
 
                         // Get proxy check data

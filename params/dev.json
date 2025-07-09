@@ -42,11 +42,9 @@
         },
         "geoLocationApi": {
             "value": {
-                "BaseUrl": "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net",
+                "BaseUrl": "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net/geolocation",
                 "ApplicationAudience": "api://geolocation-api-dev-01",
-                "ApimPathPrefix": "geolocation",
-                "KeyVaultPrimaryRef": "TODO",
-                "KeyVaultSecondaryRef": "TODO"
+                "ApiKeyKeyVaultRef": "TODO"
             }
         },
         "tags": {

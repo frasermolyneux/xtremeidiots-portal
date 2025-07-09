@@ -1,6 +1,5 @@
 ﻿
-using System.Collections.Generic;
-using MX.GeoLocation.LookupApi.Abstractions.Models;
+using MX.GeoLocation.Abstractions.Models.V1;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 

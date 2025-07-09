@@ -1,15 +1,13 @@
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-
-using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -50,13 +48,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
             try
             {
                 // Get GeoLocation information
-                var geoLocation = await _geoLocationClient.GeoLookup.GetGeoLocation(ipAddress);
-                if (geoLocation.IsSuccess && geoLocation.Result != null)
-                    viewModel.GeoLocation = geoLocation.Result;
-                else
-                {
-                    geoLocation.Errors.ForEach(ex => _telemetryClient.TrackException(new ApplicationException(ex)));
-                }
+                var getGeoLocationResult = await _geoLocationClient.GeoLookup.V1.GetGeoLocation(ipAddress);
+                if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
+                    viewModel.GeoLocation = getGeoLocationResult.Result.Data;
 
                 // Get ProxyCheck information
                 var proxyCheckResult = await _proxyCheckService.GetIpRiskDataAsync(ipAddress);

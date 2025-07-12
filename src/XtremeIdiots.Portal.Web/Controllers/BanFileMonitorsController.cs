@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -43,7 +43,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!banFileMonitorsApiResponse.IsSuccess || banFileMonitorsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return View(banFileMonitorsApiResponse.Result.Entries);
+            return View(banFileMonitorsApiResponse.Result.Data.Items);
         }
 
         [HttpGet]
@@ -68,18 +68,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canCreateBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.GameServerId), AuthPolicies.CreateBanFileMonitor);
+            var canCreateBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerApiResponse.Result.Data.GameType, gameServerApiResponse.Result.Data.GameServerId), AuthPolicies.CreateBanFileMonitor);
 
             if (!canCreateBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            var createBanFileMonitorDto = new CreateBanFileMonitorDto(model.GameServerId, model.FilePath, gameServerApiResponse.Result.GameType);
+            var createBanFileMonitorDto = new CreateBanFileMonitorDto(model.GameServerId, model.FilePath, gameServerApiResponse.Result.Data.GameType);
             await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto);
 
-            var eventTelemetry = new EventTelemetry("CreateBanFileMonitor").Enrich(User).Enrich(gameServerApiResponse.Result).Enrich(createBanFileMonitorDto);
+            var eventTelemetry = new EventTelemetry("CreateBanFileMonitor").Enrich(User).Enrich(gameServerApiResponse.Result.Data).Enrich(createBanFileMonitorDto);
             telemetryClient.TrackEvent(eventTelemetry);
 
-            this.AddAlertSuccess($"The ban file monitor has been created for {gameServerApiResponse.Result.Title}");
+            this.AddAlertSuccess($"The ban file monitor has been created for {gameServerApiResponse.Result.Data.Title}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -89,15 +89,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id);
 
-            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.GameServer == null)
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
-            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.GameServer.GameType, banFileMonitorApiResponse.Result.GameServer.GameServerId), AuthPolicies.ViewBanFileMonitor);
+            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.Data.GameServer.GameType, banFileMonitorApiResponse.Result.Data.GameServer.GameServerId), AuthPolicies.ViewBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            return View(banFileMonitorApiResponse.Result);
+            return View(banFileMonitorApiResponse.Result.Data);
         }
 
         [HttpGet]
@@ -105,24 +105,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id);
 
-            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.GameServer == null)
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
-            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.GameServer.GameType, banFileMonitorApiResponse.Result.GameServer.GameServerId), AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.Data.GameServer.GameType, banFileMonitorApiResponse.Result.Data.GameServer.GameServerId), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            await AddGameServersViewData(banFileMonitorApiResponse.Result.GameServerId);
+            await AddGameServersViewData(banFileMonitorApiResponse.Result.Data.GameServerId);
 
             var viewModel = new EditBanFileMonitorViewModel
             {
-                BanFileMonitorId = banFileMonitorApiResponse.Result.BanFileMonitorId,
-                FilePath = banFileMonitorApiResponse.Result.FilePath,
-                RemoteFileSize = banFileMonitorApiResponse.Result.RemoteFileSize,
-                LastSync = banFileMonitorApiResponse.Result.LastSync,
-                GameServerId = banFileMonitorApiResponse.Result.GameServerId,
-                GameServer = banFileMonitorApiResponse.Result.GameServer
+                BanFileMonitorId = banFileMonitorApiResponse.Result.Data.BanFileMonitorId,
+                FilePath = banFileMonitorApiResponse.Result.Data.FilePath,
+                RemoteFileSize = banFileMonitorApiResponse.Result.Data.RemoteFileSize,
+                LastSync = banFileMonitorApiResponse.Result.Data.LastSync,
+                GameServerId = banFileMonitorApiResponse.Result.Data.GameServerId,
+                GameServer = banFileMonitorApiResponse.Result.Data.GameServer
             };
 
             return View(viewModel);
@@ -134,28 +134,28 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(model.BanFileMonitorId);
 
-            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.GameServer == null)
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
             if (!ModelState.IsValid)
             {
                 await AddGameServersViewData(model.GameServerId);
-                model.GameServer = banFileMonitorApiResponse.Result.GameServer;
+                model.GameServer = banFileMonitorApiResponse.Result.Data.GameServer;
                 return View(model);
             }
 
-            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.GameServer.GameType, banFileMonitorApiResponse.Result.GameServer.GameServerId), AuthPolicies.EditBanFileMonitor);
+            var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.Data.GameServer.GameType, banFileMonitorApiResponse.Result.Data.GameServer.GameServerId), AuthPolicies.EditBanFileMonitor);
 
             if (!canEditBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorApiResponse.Result.BanFileMonitorId, model.FilePath);
+            var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorApiResponse.Result.Data.BanFileMonitorId, model.FilePath);
             await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto);
 
-            var eventTelemetry = new EventTelemetry("EditBanFileMonitor").Enrich(User).Enrich(banFileMonitorApiResponse.Result.GameServer).Enrich(editBanFileMonitorDto);
+            var eventTelemetry = new EventTelemetry("EditBanFileMonitor").Enrich(User).Enrich(banFileMonitorApiResponse.Result.Data.GameServer).Enrich(editBanFileMonitorDto);
             telemetryClient.TrackEvent(eventTelemetry);
 
-            this.AddAlertSuccess($"The ban file monitor has been updated for {banFileMonitorApiResponse.Result.GameServer.Title}");
+            this.AddAlertSuccess($"The ban file monitor has been updated for {banFileMonitorApiResponse.Result.Data.GameServer.Title}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -165,17 +165,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id);
 
-            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.GameServer == null)
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
-            var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.GameServer.GameType, banFileMonitorApiResponse.Result.GameServer.GameServerId), AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.Data.GameServer.GameType, banFileMonitorApiResponse.Result.Data.GameServer.GameServerId), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
 
-            await AddGameServersViewData(banFileMonitorApiResponse.Result.GameServerId);
+            await AddGameServersViewData(banFileMonitorApiResponse.Result.Data.GameServerId);
 
-            return View(banFileMonitorApiResponse.Result);
+            return View(banFileMonitorApiResponse.Result.Data);
         }
 
         [HttpPost]
@@ -185,20 +185,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id);
 
-            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.GameServer == null)
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result == null || banFileMonitorApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
-            var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.GameServer.GameType, banFileMonitorApiResponse.Result.GameServer.GameServerId), AuthPolicies.DeleteBanFileMonitor);
+            var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(banFileMonitorApiResponse.Result.Data.GameServer.GameType, banFileMonitorApiResponse.Result.Data.GameServer.GameServerId), AuthPolicies.DeleteBanFileMonitor);
 
             if (!canDeleteBanFileMonitor.Succeeded)
                 return Unauthorized();
 
             await repositoryApiClient.BanFileMonitors.V1.DeleteBanFileMonitor(id);
 
-            var eventTelemetry = new EventTelemetry("DeleteBanFileMonitor").Enrich(User).Enrich(banFileMonitorApiResponse.Result.GameServer).Enrich(banFileMonitorApiResponse.Result);
+            var eventTelemetry = new EventTelemetry("DeleteBanFileMonitor").Enrich(User).Enrich(banFileMonitorApiResponse.Result.Data.GameServer).Enrich(banFileMonitorApiResponse.Result.Data);
             telemetryClient.TrackEvent(eventTelemetry);
 
-            this.AddAlertSuccess($"The ban file monitor has been deleted for {banFileMonitorApiResponse.Result.GameServer.Title}");
+            this.AddAlertSuccess($"The ban file monitor has been deleted for {banFileMonitorApiResponse.Result.Data.GameServer.Title}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -211,7 +211,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
 
             if (gameServersApiResponse.Result != null)
-                ViewData["GameServers"] = new SelectList(gameServersApiResponse.Result.Entries, nameof(GameServerDto.GameServerId), nameof(GameServerDto.Title), selected);
+                ViewData["GameServers"] = new SelectList(gameServersApiResponse.Result.Data.Items, nameof(GameServerDto.GameServerId), nameof(GameServerDto.Title), selected);
         }
     }
 }

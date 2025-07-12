@@ -8,9 +8,9 @@ using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -37,7 +37,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var model = new TagsViewModel
             {
-                Tags = tagsResponse.Result.Entries
+                Tags = tagsResponse.Result.Data.Items.ToList(),
             };
 
             return View(model);
@@ -87,11 +87,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 }); var model = new EditTagViewModel
                 {
-                    TagId = tagResponse.Result.TagId,
-                    Name = tagResponse.Result.Name,
-                    Description = tagResponse.Result.Description,
-                    TagHtml = tagResponse.Result.TagHtml,
-                    UserDefined = tagResponse.Result.UserDefined
+                    TagId = tagResponse.Result.Data.TagId,
+                    Name = tagResponse.Result.Data.Name,
+                    Description = tagResponse.Result.Data.Description,
+                    TagHtml = tagResponse.Result.Data.TagHtml,
+                    UserDefined = tagResponse.Result.Data.UserDefined
                 };
 
             return View(model);
@@ -141,7 +141,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!tagResponse.IsSuccess || tagResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
-            return View(tagResponse.Result);
+            return View(tagResponse.Result.Data);
         }
 
         [HttpPost]
@@ -156,12 +156,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
             // Check if the user has permission to delete this tag based on UserDefined property
-            if (!tagResponse.Result.UserDefined)
+            if (!tagResponse.Result.Data.UserDefined)
             {
                 // Only senior admins can delete non-UserDefined tags
                 if (!User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 {
-                    this.AddAlertDanger($"You do not have permission to delete the system tag '{tagResponse.Result.Name}'");
+                    this.AddAlertDanger($"You do not have permission to delete the system tag '{tagResponse.Result.Data.Name}'");
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -173,11 +173,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
             var eventTelemetry = new Microsoft.ApplicationInsights.DataContracts.EventTelemetry("TagDeleted").Enrich(User);
-            eventTelemetry.Properties.Add("TagName", tagResponse.Result.Name);
+            eventTelemetry.Properties.Add("TagName", tagResponse.Result.Data.Name);
             eventTelemetry.Properties.Add("TagId", id.ToString());
             telemetryClient.TrackEvent(eventTelemetry);
 
-            this.AddAlertSuccess($"The tag '{tagResponse.Result.Name}' has been successfully deleted");
+            this.AddAlertSuccess($"The tag '{tagResponse.Result.Data.Name}' has been successfully deleted");
 
             return RedirectToAction(nameof(Index));
         }

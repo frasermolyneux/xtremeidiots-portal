@@ -10,10 +10,10 @@ using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });            // Enrich player data with ProxyCheck information
-            var enrichedPlayers = await playerCollectionApiResponse.Result.Entries.EnrichWithProxyCheckDataAsync(_proxyCheckService, _logger);
+            var enrichedPlayers = await playerCollectionApiResponse.Result.Data.Items.EnrichWithProxyCheckDataAsync(_proxyCheckService, _logger);
 
             // Convert the player DTOs to dynamic objects that include ProxyCheck data
             var playerData = enrichedPlayers.Select(player => new
@@ -130,8 +130,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal = playerCollectionApiResponse.Result.TotalRecords,
-                recordsFiltered = playerCollectionApiResponse.Result.FilteredRecords,
+                recordsTotal = playerCollectionApiResponse.Result.Data.TotalCount,
+                recordsFiltered = playerCollectionApiResponse.Result.Data.FilteredCount,
                 data = playerData
             });
         }
@@ -145,14 +145,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
-                Player = playerApiResponse.Result
+                Player = playerApiResponse.Result.Data
             };
 
             // Enrich the current player IP with geolocation data (legacy behavior)
-            if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.IpAddress))
+            if (!string.IsNullOrWhiteSpace(playerApiResponse.Result.Data.IpAddress))
                 try
                 {
-                    var getGeoLocationResult = await _geoLocationClient.GeoLookup.V1.GetGeoLocation(playerApiResponse.Result.IpAddress);
+                    var getGeoLocationResult = await _geoLocationClient.GeoLookup.V1.GetGeoLocation(playerApiResponse.Result.Data.IpAddress);
 
                     if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
                         playerDetailsViewModel.GeoLocation = getGeoLocationResult.Result.Data;
@@ -163,14 +163,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
             // Enrich all IP addresses with geolocation and proxy check data
-            if (playerApiResponse.Result.PlayerIpAddresses != null && playerApiResponse.Result.PlayerIpAddresses.Any())
+            if (playerApiResponse.Result.Data.PlayerIpAddresses != null && playerApiResponse.Result.Data.PlayerIpAddresses.Any())
             {
-                foreach (var ipAddress in playerApiResponse.Result.PlayerIpAddresses)
+                foreach (var ipAddress in playerApiResponse.Result.Data.PlayerIpAddresses)
                 {
                     var enrichedIp = new PlayerIpAddressViewModel
                     {
                         IpAddressDto = ipAddress,
-                        IsCurrentIp = ipAddress.Address == playerApiResponse.Result.IpAddress
+                        IsCurrentIp = ipAddress.Address == playerApiResponse.Result.Data.IpAddress
                     };
 
                     try
@@ -209,7 +209,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return View(adminActionsApiResponse.Result.Entries);
+            return View(adminActionsApiResponse.Result.Data.Items);
         }
 
         [HttpGet]
@@ -220,7 +220,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return View(adminActionsApiResponse.Result.Entries);
+            return View(adminActionsApiResponse.Result.Data.Items);
         }
 
         [HttpGet]
@@ -240,7 +240,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return Json(playerAnalyticsResponse.Result.Entries);
+            return Json(playerAnalyticsResponse.Result.Data);
         }
 
         [HttpGet]
@@ -251,7 +251,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return Json(playerAnalyticsResponse.Result.Entries);
+            return Json(playerAnalyticsResponse.Result.Data);
         }
 
         [HttpGet]
@@ -262,7 +262,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return Json(playerAnalyticsResponse.Result.Entries);
+            return Json(playerAnalyticsResponse.Result.Data);
         }
 
         #region Protected Names
@@ -277,7 +277,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var model = new ProtectedNamesViewModel
             {
-                ProtectedNames = protectedNamesResponse.Result.Entries
+                ProtectedNames = protectedNamesResponse.Result.Data.Items.ToList()
             };
 
             return View(model);
@@ -293,7 +293,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var model = new CreateProtectedNameViewModel(id)
             {
-                Player = playerResponse.Result
+                Player = playerResponse.Result.Data
             };
 
             return View(model);
@@ -308,7 +308,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
-                    model.Player = playerResponse.Result;
+                    model.Player = playerResponse.Result.Data;
                 }
                 return View(model);
             }
@@ -329,7 +329,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                     if (playerResponse.IsSuccess && playerResponse.Result != null)
                     {
-                        model.Player = playerResponse.Result;
+                        model.Player = playerResponse.Result.Data;
                     }
 
                     return View(model);
@@ -355,7 +355,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!response.IsSuccess)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return RedirectToAction(nameof(Details), new { id = protectedNameResponse.Result.PlayerId });
+            return RedirectToAction(nameof(Details), new { id = protectedNameResponse.Result.Data.PlayerId });
         }
 
         [HttpGet]
@@ -368,7 +368,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var model = new ProtectedNameReportViewModel
             {
-                Report = reportResponse.Result
+                Report = reportResponse.Result.Data
             };
 
             return View(model);
@@ -393,8 +393,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 500 }); var model = new AddPlayerTagViewModel
                 {
                     PlayerId = id,
-                    Player = playerResponse.Result,
-                    AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList()
+                    Player = playerResponse.Result.Data,
+                    AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList()
                 };
 
             return View(model);
@@ -410,12 +410,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
-                    model.Player = playerResponse.Result;
+                    model.Player = playerResponse.Result.Data;
                 }
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result != null)
                 {
-                    model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
+                    model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
                 }
                 return View(model);
             }
@@ -424,20 +424,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
             // Check if this tag is UserDefined - only those can be added by users
-            if (!tagResponse.Result.UserDefined)
+            if (!tagResponse.Result.Data.UserDefined)
             {
                 this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
 
                 var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 if (playerResponse.IsSuccess && playerResponse.Result != null)
                 {
-                    model.Player = playerResponse.Result;
+                    model.Player = playerResponse.Result.Data;
                 }
 
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result != null)
                 {
-                    model.AvailableTags = tagsResponse.Result.Entries.Where(t => t.UserDefined).ToList();
+                    model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
                 }
 
                 return View(model);
@@ -465,10 +465,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var eventTelemetry = new Microsoft.ApplicationInsights.DataContracts.EventTelemetry("PlayerTagAdded").Enrich(User);
             eventTelemetry.Properties.Add("PlayerId", model.PlayerId.ToString());
             eventTelemetry.Properties.Add("TagId", model.TagId.ToString());
-            eventTelemetry.Properties.Add("TagName", tagResponse.Result.Name);
+            eventTelemetry.Properties.Add("TagName", tagResponse.Result.Data.Name);
             telemetryClient.TrackEvent(eventTelemetry);
 
-            this.AddAlertSuccess($"The tag '{tagResponse.Result.Name}' has been successfully added to the player");
+            this.AddAlertSuccess($"The tag '{tagResponse.Result.Data.Name}' has been successfully added to the player");
 
             return RedirectToAction(nameof(Details), new { id = model.PlayerId });
         }
@@ -484,7 +484,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var playerTag = playerTagsResponse.Result.Entries.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+            var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
             if (playerTag == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 
@@ -495,7 +495,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction(nameof(Details), new { id = id });
             }
 
-            ViewBag.Player = playerResponse.Result;
+            ViewBag.Player = playerResponse.Result.Data;
             return View(playerTag);
         }
         [HttpPost]
@@ -512,7 +512,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var playerTag = playerTagsResponse.Result.Entries.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+            var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
             if (playerTag == null)
                 return RedirectToAction("Display", "Errors", new { id = 404 });
 

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
 namespace XtremeIdiots.Portal.Web.Extensions
 {

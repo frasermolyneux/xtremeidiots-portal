@@ -1,4 +1,4 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Demos
 @model DemoDto
 
 @{
@@ -58,7 +58,8 @@
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
 
-                                <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                                <a type="button" class="btn btn-primary" asp-action="Index"><i
+                                        class="fa fa-arrow-left"></i> Back to List</a>
                             </div>
                         </form>
                     </div>
@@ -73,5 +74,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

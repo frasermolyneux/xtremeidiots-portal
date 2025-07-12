@@ -1,4 +1,4 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers
 @model List<GameServerDto>
 
 @{
@@ -9,15 +9,15 @@
 
 <table style="margin: auto">
     <tbody>
-    @foreach (var item in Model)
-    {
-        <tr>
-            <td style="padding: 2px;">
-                <div style="text-align: center;">
-                    @Html.Raw(item.HtmlBanner)
-                </div>
-            </td>
-        </tr>
-    }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="padding: 2px;">
+                    <div style="text-align: center;">
+                        @Html.Raw(item.HtmlBanner)
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

@@ -138,6 +138,18 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '1'
         }
         {
+          name: 'RepositoryApi__BaseUrl'
+          value: '${apiManagement.properties.gatewayUrl}/repository'
+        }
+        {
+          name: 'RepositoryApi__ApiKey'
+          value: '@Microsoft.KeyVault(SecretUri=${repositoryApimSubscription.outputs.primaryKeySecretRef.secretUri})'
+        }
+        {
+          name: 'RepositoryApi__ApplicationAudience'
+          value: repositoryApi.ApplicationAudience
+        }
+        {
           name: 'ServersIntegrationApi__BaseUrl'
           value: '${apiManagement.properties.gatewayUrl}/servers-integration'
         }
@@ -166,18 +178,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=ProxyCheck--ApiKey)'
         }
         {
-          name: 'apim_base_url'
-          value: apiManagement.properties.gatewayUrl
-        }
-        {
-          name: 'portal_repository_apim_subscription_key'
-          value: '@Microsoft.KeyVault(SecretUri=${repositoryApimSubscription.outputs.primaryKeySecretRef.secretUri})'
-        }
-        {
-          name: 'repository_api_application_audience'
-          value: repositoryApi.ApplicationAudience
-        }
-        {
           name: 'sql_connection_string'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName};Authentication=Active Directory Default; Database=portal-web-${environmentUniqueId};'
         }
@@ -196,10 +196,6 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         {
           name: 'xtremeidiots_auth_client_secret'
           value: '@Microsoft.KeyVault(VaultName=${keyVaultRef.Name};SecretName=xtremeidiots-auth-client-secret)'
-        }
-        {
-          name: 'repository_api_path_prefix'
-          value: repositoryApi.ApimPathPrefix
         }
         {
           name: 'APPINSIGHTS_PROFILERFEATURE_VERSION'

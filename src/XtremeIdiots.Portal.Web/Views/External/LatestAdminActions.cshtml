@@ -1,6 +1,6 @@
 ﻿@using XtremeIdiots.Portal.Web.Extensions
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
 @model List<AdminActionDto>
 
 @{
@@ -22,24 +22,28 @@
                         @{
                             var text = "";
 
-                            if (item.Expires <= DateTime.UtcNow && (item.Type == AdminActionType.Ban || item.Type == AdminActionType.TempBan))
+                            if (item.Expires <= DateTime.UtcNow && (item.Type == AdminActionType.Ban || item.Type ==
+                            AdminActionType.TempBan))
                             {
-                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} lifted a {item.Type} on" : $"Unknown lifted a {item.Type} on";
+                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} lifted a {item.Type} on" :
+                                $"Unknown lifted a {item.Type} on";
                             }
                             else
                             {
-                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} added a {item.Type} to" : $"Unknown added a {item.Type} to";
+                                text = item.UserProfile != null ? $"{item.UserProfile.DisplayName} added a {item.Type} to" :
+                                $"Unknown added a {item.Type} to";
                             }
                         }
 
                         @Html.Raw(text)
 
-                        <a target="_blank" href="https://portal.xtremeidiots.com/Players/Details/@item.PlayerId">@item.Player?.Username</a>
+                        <a target="_blank"
+                            href="https://portal.xtremeidiots.com/Players/Details/@item.PlayerId">@item.Player?.Username</a>
                     </p>
                 </div>
 
                 <div style="clear: both;"></div>
-                <hr/>
+                <hr />
             </li>
         }
 

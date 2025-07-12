@@ -1,12 +1,12 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@using XtremeIdiots.Portal.Repository.Abstractions.Extensions.V1
 @{
     ViewData["Title"] = "Global Players Index";
     var dataUrl = "/Players/GetPlayersAjax";
 
     if (ViewData["GameType"] != null)
     {
-        ViewData["Title"] = ((GameType) ViewData["GameType"]).DisplayName() + " Players Index";
+        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Players Index";
         dataUrl = "/Players/GetPlayersAjax/" + ViewData["GameType"];
     }
 }
@@ -24,12 +24,12 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Guid</td>
-                                <td>First Seen</td>
-                                <td>Last Seen</td>
-                            </tr>
+                                <tr>
+                                    <td>Name</td>
+                                    <td>Guid</td>
+                                    <td>First Seen</td>
+                                    <td>Last Seen</td>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -47,7 +47,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             $('#dataTable').DataTable({
                 processing: true,
@@ -60,7 +60,7 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -69,7 +69,7 @@
                         data: 'username',
                         name: 'username',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return renderPlayerName(row['gameType'], row['username'], row['playerId']);
                         }
                     },

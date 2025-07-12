@@ -8,10 +8,10 @@ using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Integrations.Forums;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Demos;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Demos;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -47,7 +47,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(User.XtremeIdiotsId());
 
             if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result != null)
-                ViewData["ClientAuthKey"] = userProfileApiResponse.Result.DemoAuthKey;
+                ViewData["ClientAuthKey"] = userProfileApiResponse.Result.Data.DemoAuthKey;
 
             var demoManagerClientDto = await _demosForumsClient.GetDemoManagerClient();
             return View(demoManagerClientDto);
@@ -62,7 +62,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return NotFound();
 
-            var editUserProfileDto = new EditUserProfileDto(userProfileApiResponse.Result.UserProfileId)
+            var editUserProfileDto = new EditUserProfileDto(userProfileApiResponse.Result.Data.UserProfileId)
             {
                 DemoAuthKey = Guid.NewGuid().ToString()
             };
@@ -147,7 +147,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
             var portalDemoEntries = new List<PortalDemoDto>();
-            foreach (var demoDto in demosApiResponse.Result.Entries)
+            foreach (var demoDto in demosApiResponse.Result.Data.Items)
             {
                 var canDeletePortalDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoDto.GameType, demoDto.UserProfileId), AuthPolicies.DeleteDemo);
 
@@ -162,8 +162,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal = demosApiResponse.Result.TotalRecords,
-                recordsFiltered = demosApiResponse.Result.FilteredRecords,
+                recordsTotal = demosApiResponse.Result.Data.TotalCount,
+                recordsFiltered = demosApiResponse.Result.Data.FilteredCount,
                 data = portalDemoEntries
             });
         }
@@ -176,7 +176,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            return Redirect(demoApiResult.Result.FileUri);
+            return Redirect(demoApiResult.Result.Data.FileUri);
         }
 
         [HttpGet]
@@ -187,7 +187,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.GameType, demoApiResult.Result.UserProfileId), AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
@@ -207,18 +207,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (demoApiResult.IsNotFound || demoApiResult.Result == null)
                 return NotFound();
 
-            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.GameType, demoApiResult.Result.UserProfileId), AuthPolicies.DeleteDemo);
+            var canDeleteDemo = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId), AuthPolicies.DeleteDemo);
 
             if (!canDeleteDemo.Succeeded)
                 return Unauthorized();
 
             await repositoryApiClient.Demos.V1.DeleteDemo(id);
 
-            _logger.LogInformation("User {User} has deleted {DemoId} under {GameType}", User.Username(), demoApiResult.Result.DemoId, demoApiResult.Result.GameType);
-            this.AddAlertSuccess($"The demo {demoApiResult.Result.Title} has been successfully deleted from {demoApiResult.Result.GameType}");
+            _logger.LogInformation("User {User} has deleted {DemoId} under {GameType}", User.Username(), demoApiResult.Result.Data.DemoId, demoApiResult.Result.Data.GameType);
+            this.AddAlertSuccess($"The demo {demoApiResult.Result.Data.Title} has been successfully deleted from {demoApiResult.Result.Data.GameType}");
 
             if (filterGame)
-                return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.GameType });
+                return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Data.GameType });
             return RedirectToAction(nameof(Index));
         }
 
@@ -241,7 +241,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var userId = userProfileApiResponse.Result.XtremeIdiotsForumId;
+            var userId = userProfileApiResponse.Result.Data.XtremeIdiotsForumId;
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return Content($"AuthError: An internal auth error occured processing your request for userId: {userId}");
 
@@ -261,7 +261,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!demosApiResponse.IsSuccess || demosApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var demos = demosApiResponse.Result.Entries.Select(demo => new
+            var demos = demosApiResponse.Result.Data.Items.Select(demo => new
             {
                 demo.DemoId,
                 Version = demo.GameType.ToString(),
@@ -298,7 +298,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result == null)
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
 
-            var userId = userProfileApiResponse.Result.XtremeIdiotsForumId;
+            var userId = userProfileApiResponse.Result.Data.XtremeIdiotsForumId;
 
             var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
             Enum.TryParse(gameTypeHeader, out GameType gameType);
@@ -315,12 +315,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             using (var stream = System.IO.File.Create(filePath))
                 await file.CopyToAsync(stream);
 
-            var demoDto = new CreateDemoDto(gameType, userProfileApiResponse.Result.UserProfileId);
+            var demoDto = new CreateDemoDto(gameType, userProfileApiResponse.Result.Data.UserProfileId);
 
             var createDemoApiResponse = await repositoryApiClient.Demos.V1.CreateDemo(demoDto);
             if (createDemoApiResponse.IsSuccess && createDemoApiResponse.Result != null)
             {
-                await repositoryApiClient.Demos.V1.SetDemoFile(createDemoApiResponse.Result.DemoId, file.FileName, filePath);
+                await repositoryApiClient.Demos.V1.SetDemoFile(createDemoApiResponse.Result.Data.DemoId, file.FileName, filePath);
             }
 
             _logger.LogInformation("User {userId} has uploaded a new demo {FileName}", userId, file.FileName);
@@ -352,7 +352,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (demoApiResponse.IsNotFound || demoApiResponse.Result == null)
                 return NotFound();
             else
-                return Redirect(demoApiResponse.Result.FileUri);
+                return Redirect(demoApiResponse.Result.Data.FileUri);
         }
 
         public class PortalDemoDto

@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -60,8 +60,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var playersResponse = await _repositoryApiClient.Players.V1.GetPlayersWithIpAddress(ipAddress, 0, 100, PlayersOrder.LastSeenDesc, PlayerEntityOptions.None);
                 if (playersResponse.IsSuccess && playersResponse.Result != null)
                 {
-                    viewModel.Players = playersResponse.Result.Entries;
-                    viewModel.TotalPlayersCount = playersResponse.Result.TotalRecords;
+                    viewModel.Players = playersResponse.Result.Data.Items;
+                    viewModel.TotalPlayersCount = playersResponse.Result.Data.TotalCount;
                 }
                 else
                 {

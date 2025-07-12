@@ -1,4 +1,4 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
 @model List<AdminActionDto>
 
 @{
@@ -21,6 +21,6 @@
     }
 
 
-    @await Component.InvokeAsync("AdminActions", new {adminActions = Model, linkToPlayer = true})
+    @await Component.InvokeAsync("AdminActions", new { adminActions = Model, linkToPlayer = true })
 
 </div>

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ManageMaps);
 
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
@@ -43,14 +43,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var getLoadedServerMapsFromHostResult = await serversApiClient.Maps.V1.GetLoadedServerMapsFromHost(id);
             var mapPacks = await repositoryApiClient.MapPacks.V1.GetMapPacks(null, [id], null, 0, 50, MapPacksOrder.Title);
 
-            var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.GameType, getServerMapsResult.Result?.Data.Items.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
+            var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.Data.GameType, getServerMapsResult.Result?.Data.Items.Select(m => m.MapName).ToArray(), null, null, 0, 50, MapsOrder.MapNameAsc);
 
-            var viewModel = new ManageMapsViewModel(gameServerApiResponse.Result)
+            var viewModel = new ManageMapsViewModel(gameServerApiResponse.Result.Data)
             {
-                Maps = mapsCollectionApiResponse.Result.Entries,
+                Maps = mapsCollectionApiResponse.Result.Data.Items.ToList(),
                 ServerMaps = getLoadedServerMapsFromHostResult.Result.Data.Items.ToList(),
                 RconMaps = getServerMapsResult.Result.Data.Items.ToList(),
-                MapPacks = mapPacks.Result.Entries
+                MapPacks = mapPacks.Result.Data.Items.ToList()
             };
 
             return View(viewModel);
@@ -64,14 +64,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ManageMaps);
 
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            await serversApiClient.Maps.V1.PushServerMapToHost(gameServerApiResponse.Result.GameServerId, viewModel.MapName);
+            await serversApiClient.Maps.V1.PushServerMapToHost(gameServerApiResponse.Result.Data.GameServerId, viewModel.MapName);
 
-            return RedirectToAction("Manage", new { id = gameServerApiResponse.Result.GameServerId });
+            return RedirectToAction("Manage", new { id = gameServerApiResponse.Result.Data.GameServerId });
         }
 
         [HttpPost]
@@ -82,7 +82,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ManageMaps);
 
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();

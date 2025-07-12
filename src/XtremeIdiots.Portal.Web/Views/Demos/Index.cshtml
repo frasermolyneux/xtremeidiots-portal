@@ -1,12 +1,12 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Extensions
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@using XtremeIdiots.Portal.Repository.Abstractions.Extensions.V1
 @{
     ViewData["Title"] = "Demos Index";
     var dataUrl = "/Demos/GetDemoListAjax";
 
     if (ViewData["GameType"] != null)
     {
-        ViewData["Title"] = ((GameType) ViewData["GameType"]).DisplayName() + " Demos Index";
+        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Demos Index";
         dataUrl = "/Demos/GetDemoListAjax/" + ViewData["GameType"];
     }
 }
@@ -14,7 +14,8 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> Demos are only visible to the uploader and the admin team for that game. Demos can be managed (e.g. deleted) by the uploader or a head admin of the relevant game.
+        <i class="fa fa-info-circle"></i> Demos are only visible to the uploader and the admin team for that game. Demos
+        can be managed (e.g. deleted) by the uploader or a head admin of the relevant game.
     </div>
 
     <row class="row">
@@ -28,18 +29,18 @@
                     <div class="ibox-content">
                         <table id="dataTable">
                             <thead>
-                            <tr>
-                                <td>Game</td>
-                                <td>Name</td>
-                                <td>Date</td>
-                                <td>Map</td>
-                                <td>Mod</td>
-                                <td>GameType</td>
-                                <td>Server</td>
-                                <td>Size</td>
-                                <td>Uploaded By</td>
-                                <td></td>
-                            </tr>
+                                <tr>
+                                    <td>Game</td>
+                                    <td>Name</td>
+                                    <td>Date</td>
+                                    <td>Map</td>
+                                    <td>Mod</td>
+                                    <td>GameType</td>
+                                    <td>Server</td>
+                                    <td>Size</td>
+                                    <td>Uploaded By</td>
+                                    <td></td>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -57,7 +58,7 @@
 
     <script type="text/javascript">
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#dataTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -69,7 +70,7 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
-                    "data": function(d) {
+                    "data": function (d) {
                         return JSON.stringify(d);
                     }
                 },
@@ -77,14 +78,14 @@
                     {
                         name: 'game',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return gameTypeIcon(row['game']);
                         }
                     },
                     {
                         name: 'name',
                         sortable: true,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             return downloadDemoLink(row['name'], row['demoId']);
                         }
                     },
@@ -125,22 +126,22 @@
                     },
                     {
                         sortable: false,
-                        render: function(data, type, row) {
+                        render: function (data, type, row) {
                             if (row['showDeleteLink'] === true) {
                                 @if (ViewData["GameType"] != null)
-                                {
-                                    <text>
-                                        return deleteDemoLink(row['demoId'], "@ViewData["GameType"]");
-                                    </text>
+                                    {
+                                        <text>
+                                            return deleteDemoLink(row['demoId'], "@ViewData["GameType"]");
+                                        </text>
                                 }
-                                else
-                                {
-                                    <text>
-// ReSharper disable once JsUnreachableCode
-                                        return deleteDemoLink(row['demoId']);
-                                    </text>
+                                    else
+                                    {
+                                        <text>
+                // ReSharper disable once JsUnreachableCode
+                                            return deleteDemoLink(row['demoId']);
+                                        </text>
                                 }
-                            }
+                                    }
                             return "";
                         }
                     }

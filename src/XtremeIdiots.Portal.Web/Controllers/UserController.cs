@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -57,10 +57,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id);
 
-            ViewData["GameServers"] = gameServersApiResponse.Result.Entries;
-            ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Entries, "GameServerId", "Title");
+            ViewData["GameServers"] = gameServersApiResponse.Result.Data.Items;
+            ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Data.Items, "GameServerId", "Title");
 
-            return View(userProfileDtoApiResponse.Result);
+            return View(userProfileDtoApiResponse.Result.Data);
         }
 
         [HttpPost]
@@ -79,9 +79,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal = userProfileResponseDto.Result.TotalRecords,
-                recordsFiltered = userProfileResponseDto.Result.FilteredRecords,
-                data = userProfileResponseDto.Result.Entries
+                recordsTotal = userProfileResponseDto.Result.Data.TotalCount,
+                recordsFiltered = userProfileResponseDto.Result.Data.FilteredCount,
+                data = userProfileResponseDto.Result.Data.Items
             });
         }
 
@@ -116,20 +116,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
 
-            var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.XtremeIdiotsForumId);
+            var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.Data.XtremeIdiotsForumId);
 
             var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claimValue));
 
-            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.CreateUserClaim);
+            var canCreateUserClaim = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.CreateUserClaim);
 
             if (!canCreateUserClaim.Succeeded)
                 return Unauthorized();
 
-            if (!userProfileResponseDto.Result.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
+            if (!userProfileResponseDto.Result.Data.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
             {
-                var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileResponseDto.Result.UserProfileId, claimType, claimValue, false);
+                var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileResponseDto.Result.Data.UserProfileId, claimType, claimValue, false);
 
-                await repositoryApiClient.UserProfiles.V1.CreateUserProfileClaim(userProfileResponseDto.Result.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
+                await repositoryApiClient.UserProfiles.V1.CreateUserProfileClaim(userProfileResponseDto.Result.Data.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto });
 
                 this.AddAlertSuccess($"The {claimType} claim has been added to {user.UserName}");
                 _logger.LogInformation("User {User} has added a {ClaimType} with {ClaimValue} to {TargetUser}", User.Username(), claimType, claimValue, user.UserName);
@@ -149,7 +149,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (userProfileResponseDto.IsNotFound)
                 return NotFound();
 
-            var claim = userProfileResponseDto.Result.UserProfileClaims.SingleOrDefault(c => c.UserProfileClaimId == claimId);
+            var claim = userProfileResponseDto.Result.Data.UserProfileClaims.SingleOrDefault(c => c.UserProfileClaimId == claimId);
 
             if (claim == null)
                 return NotFound();
@@ -164,7 +164,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             }
             else
             {
-                var authorizationResult = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.DeleteUserClaim);
+                var authorizationResult = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.DeleteUserClaim);
                 canDeleteUserClaim = authorizationResult.Succeeded;
             }
 
@@ -173,12 +173,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             await repositoryApiClient.UserProfiles.V1.DeleteUserProfileClaim(id, claimId);
 
-            var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.XtremeIdiotsForumId);
+            var user = await _userManager.FindByIdAsync(userProfileResponseDto.Result.Data.XtremeIdiotsForumId);
             if (user != null)
                 await _userManager.UpdateSecurityStampAsync(user);
 
-            this.AddAlertSuccess($"User {userProfileResponseDto.Result.DisplayName}'s claim has been removed (this may take up to 15 minutes)");
-            _logger.LogInformation("User {User} has removed a claim from {TargetUser}", User.Username(), userProfileResponseDto.Result.DisplayName);
+            this.AddAlertSuccess($"User {userProfileResponseDto.Result.Data.DisplayName}'s claim has been removed (this may take up to 15 minutes)");
+            _logger.LogInformation("User {User} has removed a claim from {TargetUser}", User.Username(), userProfileResponseDto.Result.Data.DisplayName);
 
             return RedirectToAction(nameof(ManageProfile), new { id });
         }

@@ -29,8 +29,7 @@
             "value": {
                 "ApplicationName": "portal-repository-dev-01",
                 "ApplicationAudience": "api://portal-repository-dev-01",
-                "ApimProductId": "repository-api",
-                "ApimPathPrefix": "repository"
+                "ApimProductId": "repository-api"
             }
         },
         "serversIntegrationApi": {

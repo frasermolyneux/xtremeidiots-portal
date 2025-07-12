@@ -2,10 +2,10 @@
 
 using System.Security.Claims;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 
 namespace XtremeIdiots.Portal.Web.Extensions
 {

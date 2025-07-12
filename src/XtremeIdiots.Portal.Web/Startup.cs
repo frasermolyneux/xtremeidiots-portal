@@ -9,7 +9,7 @@ using XtremeIdiots.Portal.Web.Areas.Identity.Data;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Integrations.Forums;
 using XtremeIdiots.Portal.Integrations.Forums.Extensions;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 using MX.GeoLocation.Api.Client.V1;
 
@@ -55,10 +55,9 @@ namespace XtremeIdiots.Portal.Web
 
             services.AddRepositoryApiClient(options =>
             {
-                options.BaseUrl = Configuration["repository_base_url"] ?? Configuration["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
-                options.PrimaryApiKey = Configuration["portal_repository_apim_subscription_key"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key");
-                options.ApiAudience = Configuration["repository_api_application_audience"] ?? throw new ArgumentNullException("repository_api_application_audience");
-                options.ApiPathPrefix = Configuration["repository_api_path_prefix"] ?? "repository";
+                options.WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new ArgumentNullException("RepositoryApi:BaseUrl"))
+                    .WithApiKeyAuthentication(Configuration["RepositoryApi:ApiKey"] ?? throw new ArgumentNullException("RepositoryApi:ApiKey"))
+                    .WithEntraIdAuthentication(Configuration["RepositoryApi:ApplicationAudience"] ?? throw new ArgumentNullException("RepositoryApi:ApplicationAudience"));
             });
 
             services.AddServersApiClient(options =>

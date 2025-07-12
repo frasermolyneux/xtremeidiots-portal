@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.MapPacks;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.MapPacks;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -35,12 +35,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ManageMaps);
 
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
-            ViewData["GameServer"] = gameServerApiResponse.Result;
+            ViewData["GameServer"] = gameServerApiResponse.Result.Data;
 
             return View(new CreateMapPackViewModel() { GameServerId = gameServerId });
         }
@@ -53,14 +53,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ManageMaps);
+            var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ManageMaps);
 
             if (!canManageGameServerMaps.Succeeded)
                 return Unauthorized();
 
             if (!ModelState.IsValid)
             {
-                ViewData["GameServer"] = gameServerApiResponse.Result;
+                ViewData["GameServer"] = gameServerApiResponse.Result.Data;
                 return View(createMapPackViewModel);
             }
 
@@ -74,8 +74,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             if (!createMapPackApiResponse.IsSuccess)
             {
-                createMapPackApiResponse.Errors.ForEach(error => ModelState.AddModelError(string.Empty, error));
-                ViewData["GameServer"] = gameServerApiResponse.Result;
+                createMapPackApiResponse.Result.Errors.ToList().ForEach(error => ModelState.AddModelError(error.Target, error.Message));
+                ViewData["GameServer"] = gameServerApiResponse.Result.Data;
                 return View(createMapPackViewModel);
             }
 

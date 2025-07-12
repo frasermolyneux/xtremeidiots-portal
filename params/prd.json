@@ -29,8 +29,7 @@
             "value": {
                 "ApplicationName": "portal-repository-prd-01",
                 "ApplicationAudience": "api://portal-repository-prd-01",
-                "ApimProductId": "repository-api",
-                "ApimPathPrefix": "repository"
+                "ApimProductId": "repository-api"
             }
         },
         "serversIntegrationApi": {
@@ -44,7 +43,7 @@
             "value": {
                 "BaseUrl": "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net/geolocation",
                 "ApplicationAudience": "api://geolocation-api-prd-01",
-                "ApiKeyKeyVaultRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-key-primary/"
+                "ApiKeyKeyVaultRef": "https://kv-mwplktoteltk4-uksouth.vault.azure.net/secrets/portal-web-prd-geolocation-api-api-key-primary/edc85e1eb993440db72e0ba9da634d70"
             }
         },
         "tags": {

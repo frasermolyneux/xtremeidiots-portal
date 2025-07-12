@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using MX.GeoLocation.Abstractions.Models.V1;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 
 namespace XtremeIdiots.Portal.Web.Extensions
 {

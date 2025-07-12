@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            return View(gameServersApiResponse.Result.Entries);
+            return View(gameServersApiResponse.Result.Data.Items);
         }
 
         [HttpGet]
@@ -110,7 +110,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewGameServer);
+            var canViewGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewGameServer);
 
             if (!canViewGameServer.Succeeded)
                 return Unauthorized();
@@ -118,9 +118,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            gameServerApiResponse.Result.ClearNoPermissionBanFileMonitors(gameTypes, banFileMonitorIds);
+            gameServerApiResponse.Result.Data.ClearNoPermissionBanFileMonitors(gameTypes, banFileMonitorIds);
 
-            return View(gameServerApiResponse.Result);
+            return View(gameServerApiResponse.Result.Data);
         }
 
         [HttpGet]
@@ -131,24 +131,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            AddGameTypeViewData(gameServerApiResponse.Result.GameType);
+            AddGameTypeViewData(gameServerApiResponse.Result.Data.GameType);
 
-            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServer);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServer);
 
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServerFtp);
 
             if (!canEditGameServerFtp.Succeeded)
-                gameServerApiResponse.Result.ClearFtpCredentials();
+                gameServerApiResponse.Result.Data.ClearFtpCredentials();
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServerRcon);
 
             if (!canEditGameServerRcon.Succeeded)
-                gameServerApiResponse.Result.ClearRconCredentials();
+                gameServerApiResponse.Result.Data.ClearRconCredentials();
 
-            return View(gameServerApiResponse.Result.ToViewModel());
+            return View(gameServerApiResponse.Result.Data.ToViewModel());
         }
 
         [HttpPost]
@@ -166,18 +166,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return View(model);
             }
 
-            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServer);
+            var canEditGameServer = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServer);
 
             if (!canEditGameServer.Succeeded)
                 return Unauthorized();
 
-            var editGameServerDto = new EditGameServerDto(gameServerApiResponse.Result.GameServerId);
+            var editGameServerDto = new EditGameServerDto(gameServerApiResponse.Result.Data.GameServerId);
 
             editGameServerDto.Title = model.Title;
             editGameServerDto.Hostname = model.Hostname;
             editGameServerDto.QueryPort = model.QueryPort;
 
-            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerFtp);
+            var canEditGameServerFtp = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServerFtp);
 
             if (canEditGameServerFtp.Succeeded)
             {
@@ -187,7 +187,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 editGameServerDto.FtpPassword = model.FtpPassword;
             }
 
-            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.EditGameServerRcon);
+            var canEditGameServerRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.EditGameServerRcon);
 
             if (canEditGameServerRcon.Succeeded)
                 editGameServerDto.RconPassword = model.RconPassword;
@@ -202,8 +202,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto);
 
-            _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
-            this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been updated for {gameServerApiResponse.Result.GameType}");
+            _logger.LogInformation("User {User} has updated {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.Data.GameServerId, gameServerApiResponse.Result.Data.GameType);
+            this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Data.Title} has been updated for {gameServerApiResponse.Result.Data.GameType}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -221,7 +221,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!canDeleteGameServer.Succeeded)
                 return Unauthorized();
 
-            return View(gameServerApiResponse.Result.ToViewModel());
+            return View(gameServerApiResponse.Result.Data.ToViewModel());
         }
 
         [HttpPost]
@@ -241,8 +241,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             await repositoryApiClient.GameServers.V1.DeleteGameServer(id);
 
-            _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.GameServerId, gameServerApiResponse.Result.GameType);
-            this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Title} has been deleted for {gameServerApiResponse.Result.GameType}");
+            _logger.LogInformation("User {User} has deleted {GameServerId} under {GameType}", User.Username(), gameServerApiResponse.Result.Data.GameServerId, gameServerApiResponse.Result.Data.GameType);
+            this.AddAlertSuccess($"The game server {gameServerApiResponse.Result.Data.Title} has been deleted for {gameServerApiResponse.Result.Data.GameType}");
 
             return RedirectToAction(nameof(Index));
         }

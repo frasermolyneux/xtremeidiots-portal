@@ -9,7 +9,10 @@
 
   <ItemGroup>
     <PackageReference Include="XtremeIdiots.InvisionCommunity" Version="1.1.110.1" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient.V1" Version="1.1.409.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\portal-repository\src\XtremeIdiots.Portal.Repository.Api.Client.V1\XtremeIdiots.Portal.Repository.Api.Client.V1.csproj" />
   </ItemGroup>
 
 </Project>

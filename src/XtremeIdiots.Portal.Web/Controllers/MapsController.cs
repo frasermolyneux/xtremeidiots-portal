@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Models;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -70,9 +70,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal = mapsApiResponse.Result.TotalRecords,
-                recordsFiltered = mapsApiResponse.Result.FilteredRecords,
-                data = mapsApiResponse.Result.Entries
+                recordsTotal = mapsApiResponse.Result.Data.TotalCount,
+                recordsFiltered = mapsApiResponse.Result.Data.FilteredCount,
+                data = mapsApiResponse.Result.Data.Items
             });
         }
 
@@ -84,10 +84,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(gameType, mapName);
 
-            if (!mapApiResponse.IsSuccess || mapApiResponse.Result == null || string.IsNullOrWhiteSpace(mapApiResponse.Result.MapImageUri))
+            if (!mapApiResponse.IsSuccess || mapApiResponse.Result == null || string.IsNullOrWhiteSpace(mapApiResponse.Result.Data.MapImageUri))
                 return Redirect("/images/noimage.jpg");
 
-            return Redirect(mapApiResponse.Result.MapImageUri);
+            return Redirect(mapApiResponse.Result.Data.MapImageUri);
         }
     }
 }

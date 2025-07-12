@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Maps;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var result = gameServersApiResponse.Result.Entries.Select(gs => new ServersGameServerViewModel(gs)).ToList();
+            var result = gameServersApiResponse.Result.Data.Items.Select(gs => new ServersGameServerViewModel(gs)).ToList();
 
             return View(result);
         }
@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         public async Task<IActionResult> Map()
         {
             var response = await repositoryApiClient.RecentPlayers.V1.GetRecentPlayers(null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated, 0, 200, null);
-            return View(response.Result?.Entries);
+            return View(response.Result?.Data.Items);
         }
 
         [HttpGet]
@@ -51,13 +51,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return NotFound();
 
             MapDto? mapDto = null;
-            if (!string.IsNullOrWhiteSpace(gameServerApiResponse.Result.LiveMap))
+            if (!string.IsNullOrWhiteSpace(gameServerApiResponse.Result.Data.LiveMap))
             {
-                var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(gameServerApiResponse.Result.GameType, gameServerApiResponse.Result.LiveMap);
-                mapDto = mapApiResponse.Result ?? null;
+                var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(gameServerApiResponse.Result.Data.GameType, gameServerApiResponse.Result.Data.LiveMap);
+                mapDto = mapApiResponse.Result.Data ?? null;
             }
 
-            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1.GetGameServerStatusStats(gameServerApiResponse.Result.GameServerId, DateTime.UtcNow.AddDays(-2));
+            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1.GetGameServerStatusStats(gameServerApiResponse.Result.Data.GameServerId, DateTime.UtcNow.AddDays(-2));
 
             var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
             var gameServerStatDtos = new List<GameServerStatDto>();
@@ -65,10 +65,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
             if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result != null)
             {
-                gameServerStatDtos = gameServerStatsResponseDto.Result.Entries;
+                gameServerStatDtos = gameServerStatsResponseDto.Result.Data.Items.ToList();
 
                 GameServerStatDto? current = null;
-                foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Entries.OrderBy(gss => gss.Timestamp))
+                foreach (var gameServerStatusStatDto in gameServerStatsResponseDto.Result.Data.Items.OrderBy(gss => gss.Timestamp))
                 {
                     if (current == null)
                     {
@@ -83,18 +83,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
                         continue;
                     }
 
-                    if (current == gameServerStatsResponseDto.Result.Entries.Last())
+                    if (current == gameServerStatsResponseDto.Result.Data.Items.Last())
                         mapTimelineDataPoints.Add(new MapTimelineDataPoint(current.MapName, current.Timestamp, DateTime.UtcNow));
                 }
 
-                var mapNames = gameServerStatsResponseDto.Result.Entries.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
-                var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
+                var mapNames = gameServerStatsResponseDto.Result.Data.Items.GroupBy(m => m.MapName).Select(m => m.Key).ToArray();
+                var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(gameServerApiResponse.Result.Data.GameType, mapNames, null, null, 0, 50, MapsOrder.MapNameAsc);
 
                 if (mapsCollectionApiResponse.Result != null)
-                    maps = mapsCollectionApiResponse.Result.Entries;
+                    maps = mapsCollectionApiResponse.Result.Data.Items.ToList();
             }
 
-            return View(new ServersGameServerViewModel(gameServerApiResponse.Result)
+            return View(new ServersGameServerViewModel(gameServerApiResponse.Result.Data)
             {
                 Map = mapDto,
                 Maps = maps,

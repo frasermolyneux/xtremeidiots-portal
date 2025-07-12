@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 
 using XtremeIdiots.InvisionCommunity;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.UserProfiles;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
 {
@@ -95,7 +95,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                 userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
             }
 
-            var claims = userProfileDtoApiResponse.Result.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+            var claims = userProfileDtoApiResponse.Result.Data.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
             await _userManager.AddClaimsAsync(user, claims);
             await _signInManager.SignInAsync(user, true);
             await _signInManager.RefreshSignInAsync(user);
@@ -133,7 +133,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                         userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
                     }
 
-                    var claims = userProfileDtoApiResponse.Result.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+                    var claims = userProfileDtoApiResponse.Result.Data.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
                     await _userManager.AddClaimsAsync(user, claims);
                     await _signInManager.SignInAsync(user, true);
                     await _signInManager.RefreshSignInAsync(user);

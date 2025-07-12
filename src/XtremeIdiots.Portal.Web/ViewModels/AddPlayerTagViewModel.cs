@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {

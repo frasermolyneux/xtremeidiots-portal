@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
 namespace XtremeIdiots.Portal.Web.Constants
 {

@@ -3,7 +3,7 @@
 @using XtremeIdiots.Portal.Web.Extensions
 @using Microsoft.AspNetCore.Authorization
 @using XtremeIdiots.Portal.Web.ViewModels
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
 @model List<EditBanFileMonitorViewModel>
 
 @{
@@ -95,7 +95,7 @@
                                     <strong>File Path: </strong>
                                     @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
                                     item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
-                            
+
                             <br />
                                                         }
                                 else
@@ -103,7 +103,7 @@
                                     <strong>File Path: </strong>
                                     @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
                                     item.FilePath)
-                            
+
                             <br />
                                                         }
 

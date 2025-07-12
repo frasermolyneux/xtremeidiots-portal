@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-
-using MxIO.ApiClient.Abstractions;
-
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameTracker;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using MX.Api.Abstractions;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameTracker;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -32,7 +30,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers()
         {
-            if (memoryCache.TryGetValue(gameServersListCacheKey, out ApiResponseDto<GameServersCollectionDto>? gameServersApiResponse))
+            if (memoryCache.TryGetValue(gameServersListCacheKey, out ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse))
             {
                 if (gameServersApiResponse == null)
                     gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(null, null, GameServerFilter.BannerServerListEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
@@ -46,7 +44,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var htmlBanners = gameServersApiResponse.Result.Entries.Select(gs => gs.HtmlBanner).ToList();
+            var htmlBanners = gameServersApiResponse.Result.Data.Items.Select(gs => gs.HtmlBanner).ToList();
 
             return Json(htmlBanners);
         }
@@ -56,7 +54,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var cacheKey = $"{ipAddress}_{queryPort}_{imageName}";
 
-            if (memoryCache.TryGetValue(cacheKey, out ApiResponseDto<GameTrackerBannerDto>? repositoryApiResponse))
+            if (memoryCache.TryGetValue(cacheKey, out ApiResult<GameTrackerBannerDto>? repositoryApiResponse))
             {
                 if (repositoryApiResponse == null)
                     repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(ipAddress, queryPort, imageName);
@@ -70,7 +68,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!repositoryApiResponse.IsSuccess || repositoryApiResponse.Result == null)
                 return Redirect($"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}");
 
-            return Redirect(repositoryApiResponse.Result.BannerUrl);
+            return Redirect(repositoryApiResponse.Result.Data.BannerUrl);
         }
     }
 }

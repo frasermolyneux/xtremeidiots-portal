@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 
 using XtremeIdiots.Portal.Web.Auth.Requirements;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers
 {

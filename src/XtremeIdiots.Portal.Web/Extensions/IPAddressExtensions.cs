@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Html;
 using System.Text;
 using XtremeIdiots.Portal.Web.Services;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using XtremeIdiots.Portal.Web.Models;
 using MX.GeoLocation.Abstractions.Models.V1;
 

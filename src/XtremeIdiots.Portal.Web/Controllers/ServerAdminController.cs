@@ -7,8 +7,8 @@ using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -42,7 +42,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            var results = gameServersApiResponse.Result.Entries.Select(gs => new ServerAdminGameServerViewModel
+            var results = gameServersApiResponse.Result.Data.Items.Select(gs => new ServerAdminGameServerViewModel
             {
                 GameServer = gs
             }).ToList();
@@ -58,12 +58,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
 
-            return View(gameServerApiResponse.Result);
+            return View(gameServerApiResponse.Result.Data);
         }
 
         [HttpGet]
@@ -74,7 +74,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -95,7 +95,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -124,7 +124,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -153,7 +153,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -182,7 +182,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -211,7 +211,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewLiveRcon);
+            var canViewLiveRcon = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewLiveRcon);
 
             if (!canViewLiveRcon.Succeeded)
                 return Unauthorized();
@@ -272,7 +272,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewServerChatLog);
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewServerChatLog);
 
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
@@ -289,7 +289,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.GameType, AuthPolicies.ViewServerChatLog);
+            var canViewServerChatLog = await _authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.ViewServerChatLog);
 
             if (!canViewServerChatLog.Succeeded)
                 return Unauthorized();
@@ -305,12 +305,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (playerApiResponse.IsNotFound || playerApiResponse.Result == null)
                 return NotFound();
 
-            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerApiResponse.Result.GameType, AuthPolicies.ViewGameChatLog);
+            var canViewGameChatLog = await _authorizationService.AuthorizeAsync(User, playerApiResponse.Result.Data.GameType, AuthPolicies.ViewGameChatLog);
 
             if (!canViewGameChatLog.Succeeded)
                 return Unauthorized();
 
-            return await GetChatLogPrivate(playerApiResponse.Result.GameType, null, playerApiResponse.Result.PlayerId, lockedOnly);
+            return await GetChatLogPrivate(playerApiResponse.Result.Data.GameType, null, playerApiResponse.Result.Data.PlayerId, lockedOnly);
         }
 
         private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null)
@@ -352,9 +352,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return Json(new
             {
                 model.Draw,
-                recordsTotal = chatMessagesApiResponse.Result.TotalRecords,
-                recordsFiltered = chatMessagesApiResponse.Result.FilteredRecords,
-                data = chatMessagesApiResponse.Result.Entries
+                recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
+                recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
+                data = chatMessagesApiResponse.Result.Data.Items
             });
         }
 
@@ -366,7 +366,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (chatMessageApiResponse.IsNotFound)
                 return NotFound();
 
-            return View(chatMessageApiResponse.Result);
+            return View(chatMessageApiResponse.Result.Data);
         }
 
         [HttpPost]
@@ -375,10 +375,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id);
 
-            if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result == null || chatMessageApiResponse.Result.GameServer == null)
+            if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result == null || chatMessageApiResponse.Result.Data.GameServer == null)
                 return NotFound();
 
-            var canLockChatMessage = await _authorizationService.AuthorizeAsync(User, chatMessageApiResponse.Result.GameServer.GameType, AuthPolicies.LockChatMessages);
+            var canLockChatMessage = await _authorizationService.AuthorizeAsync(User, chatMessageApiResponse.Result.Data.GameServer.GameType, AuthPolicies.LockChatMessages);
 
             if (!canLockChatMessage.Succeeded)
                 return Unauthorized();

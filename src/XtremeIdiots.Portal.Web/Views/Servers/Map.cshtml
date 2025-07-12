@@ -1,4 +1,4 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.RecentPlayers
 @model List<RecentPlayerDto>
 
 @{
@@ -38,13 +38,13 @@
                 });
 
             var locations = [
-                @foreach (var player in Model)
+                            @foreach (var player in Model)
                 {
                     <text>
                         ['Player', @player.Lat, @player.Long, '@player.GameType.ToString()'],
                     </text>
-                }
-            ];
+                            }
+                        ];
 
             var count;
             for (count = 0; count < locations.length; count++) {
@@ -60,5 +60,6 @@
         }
     </script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBTtnBCPGgfMxfohkzdaSsJEzC_y40bcpY&signed_in=false&callback=initMap"></script>
 }

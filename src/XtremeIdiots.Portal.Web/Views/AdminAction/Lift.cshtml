@@ -1,5 +1,5 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants
-@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
 @model AdminActionDto
 
 @{
@@ -9,7 +9,8 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> After you lift the below @Model.Type it may take up to an hour before the @Model.Type is removed from all of the servers.
+        <i class="fa fa-info-circle"></i> After you lift the below @Model.Type it may take up to an hour before the
+        @Model.Type is removed from all of the servers.
         It is best to inform the player that the ban may take up to 24 hours to be removed.
     </div>
 
@@ -57,10 +58,11 @@
                     </div>
                     <div class="ibox-footer">
                         <form asp-action="Lift">
-                            <input type="hidden" asp-for="AdminActionId"/>
-                            <input type="hidden" asp-for="PlayerId"/>
-                            <input type="submit" value="Lift @Model.Type" class="btn btn-danger"/> |
-                            <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to Player</a>
+                            <input type="hidden" asp-for="AdminActionId" />
+                            <input type="hidden" asp-for="PlayerId" />
+                            <input type="submit" value="Lift @Model.Type" class="btn btn-danger" /> |
+                            <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId">Back to
+                                Player</a>
                         </form>
                     </div>
                 </div>
@@ -74,5 +76,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

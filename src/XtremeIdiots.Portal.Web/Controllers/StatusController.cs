@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.ViewModels;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -28,7 +28,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition);
 
             var models = new List<EditBanFileMonitorViewModel>();
-            foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Entries)
+            foreach (var banFileMonitor in banFileMonitorsApiResponse.Result.Data.Items)
             {
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(banFileMonitor.GameServerId);
 
@@ -39,7 +39,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     RemoteFileSize = banFileMonitor.RemoteFileSize,
                     LastSync = banFileMonitor.LastSync,
                     GameServerId = banFileMonitor.GameServerId,
-                    GameServer = gameServerApiResponse.Result
+                    GameServer = gameServerApiResponse.Result.Data
                 });
             }
 

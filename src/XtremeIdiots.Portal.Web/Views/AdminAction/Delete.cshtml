@@ -1,4 +1,4 @@
-﻿@using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
 @model AdminActionDto
 
 @{
@@ -8,7 +8,8 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> Admin actions should only be deleted for data correction or to remove test data.
+        <i class="fa fa-info-circle"></i> Admin actions should only be deleted for data correction or to remove test
+        data.
     </div>
 
     <row class="row">
@@ -52,7 +53,8 @@
                                     <i class="fa fa-trash"></i> Delete
                                 </button>
 
-                                <a type="button" class="btn btn-primary" asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId"><i class="fa fa-arrow-left"></i> Back to Player</a>
+                                <a type="button" class="btn btn-primary" asp-controller="Players" asp-action="Details"
+                                    asp-route-id="@Model.PlayerId"><i class="fa fa-arrow-left"></i> Back to Player</a>
                             </div>
                         </form>
                     </div>
@@ -67,5 +69,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

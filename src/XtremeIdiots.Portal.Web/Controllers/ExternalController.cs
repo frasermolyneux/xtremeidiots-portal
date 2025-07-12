@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
             var results = new List<dynamic>();
-            foreach (var adminActionDto in adminActionsApiResponse.Result.Entries)
+            foreach (var adminActionDto in adminActionsApiResponse.Result.Data.Items)
             {
                 string actionText;
                 if (adminActionDto.Expires <= DateTime.UtcNow && (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))

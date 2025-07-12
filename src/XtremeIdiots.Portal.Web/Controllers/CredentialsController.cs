@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -32,7 +32,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
                 return RedirectToAction("Display", "Errors", new { id = 500 });
 
-            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
+            foreach (var gameServerDto in gameServersApiResponse.Result.Data.Items)
             {
                 var canViewFtpCredential = await _authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.GameServerId), AuthPolicies.ViewFtpCredential);
 
@@ -45,7 +45,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     gameServerDto.ClearRconCredentials();
             }
 
-            return View(gameServersApiResponse.Result.Entries);
+            return View(gameServersApiResponse.Result.Data.Items);
         }
     }
 }

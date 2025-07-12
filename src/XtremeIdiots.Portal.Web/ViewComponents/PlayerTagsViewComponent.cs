@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
-using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Tags;
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ViewComponents
 {
@@ -22,10 +22,10 @@ namespace XtremeIdiots.Portal.Web.ViewComponents
                 var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(playerId); if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result == null)
                 {
                     // Log the error if available
-                    if (playerTagsResponse.Errors != null && playerTagsResponse.Errors.Any())
+                    if (playerTagsResponse.Result.Errors != null && playerTagsResponse.Result.Errors.Any())
                     {
                         // Log the error
-                        Console.WriteLine($"Error retrieving player tags for playerId {playerId}: {string.Join(", ", playerTagsResponse.Errors)}");
+                        Console.WriteLine($"Error retrieving player tags for playerId {playerId}: {string.Join(", ", playerTagsResponse.Result.Errors.Select(e => e.Message))}");
                     }
                     else
                     {
@@ -36,7 +36,7 @@ namespace XtremeIdiots.Portal.Web.ViewComponents
                 }
 
                 ViewBag.PlayerId = playerId;
-                return View(playerTagsResponse.Result.Entries);
+                return View(playerTagsResponse.Result.Data.Items);
             }
             catch (Exception ex)
             {

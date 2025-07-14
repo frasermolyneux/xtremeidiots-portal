@@ -1,14 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using System.Linq;
-using System.Threading.Tasks;
-using XtremeIdiots.Portal.Web.Auth.Requirements;
-using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers
 {
+    /// <summary>
+    /// Handles authorization for map-related operations including access, management, and map pack operations.
+    /// Supports senior admin, head admin, and game admin permission levels for game-specific map operations.
+    /// </summary>
     public class MapsAuthHandler : IAuthorizationHandler
     {
+        /// <summary>
+        /// Handles authorization requirements for map operations.
+        /// </summary>
+        /// <param name="context">The authorization context containing user claims and resource information.</param>
+        /// <returns>A completed task.</returns>
         public Task HandleAsync(AuthorizationHandlerContext context)
         {
             var pendingRequirements = context.PendingRequirements.ToList();
@@ -47,140 +53,96 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             return Task.CompletedTask;
         }
 
+        #region Authorization Handlers
+
+        /// <summary>
+        /// Handles authorization for accessing maps.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The access maps requirement.</param>
         private static void HandleAccessMaps(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for accessing the map manager controller.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The access map manager controller requirement.</param>
         private static void HandleAccessMapManagerController(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for managing maps.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The manage maps requirement.</param>
         private static void HandleManageMaps(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for creating map packs.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The create map pack requirement.</param>
         private static void HandleCreateMapPack(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for editing map packs.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The edit map pack requirement.</param>
         private static void HandleEditMapPack(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for deleting map packs.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The delete map pack requirement.</param>
         private static void HandleDeleteMapPack(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for pushing maps to remote servers.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The push map to remote requirement.</param>
         private static void HandlePushMapToRemote(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
+        /// <summary>
+        /// Handles authorization for deleting maps from host servers.
+        /// Allows senior admins, head admins, or game admins for the game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The delete map from host requirement.</param>
         private static void HandleDeleteMapFromHost(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            var requiredClaims = new string[] { UserProfileClaimType.SeniorAdmin };
-
-            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
+
+        #endregion
     }
 }

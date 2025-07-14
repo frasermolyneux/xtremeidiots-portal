@@ -1,5 +1,15 @@
 ﻿namespace XtremeIdiots.Portal.Web.Auth.Constants
 {
+    /// <summary>
+    /// Contains all authorization policy constants used throughout the XtremeIdiots Portal application.
+    /// These constants are used with the [Authorize(Policy = AuthPolicies.PolicyName)] attribute
+    /// to enforce granular permissions on controller actions and methods.
+    /// </summary>
+    /// <remarks>
+    /// Policy names are generated using nameof() to ensure compile-time safety and proper refactoring support.
+    /// Each policy corresponds to a specific authorization requirement defined in the application's
+    /// authorization handlers and policy configuration.
+    /// </remarks>
     public static class AuthPolicies
     {
         // Admin Actions

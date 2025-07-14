@@ -1,171 +1,162 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-
-using XtremeIdiots.Portal.Web.Auth.Requirements;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers
 {
+    /// <summary>
+    /// Handles authorization for player-related operations including access, deletion, protected names, and player tags.
+    /// Supports different permission levels: senior admin only, admin levels (excluding moderators), and all admin levels (including moderators).
+    /// </summary>
     public class PlayersAuthHandler : IAuthorizationHandler
     {
+        /// <summary>
+        /// Handles authorization requirements for player operations.
+        /// </summary>
+        /// <param name="context">The authorization context containing user claims and resource information.</param>
+        /// <returns>A completed task.</returns>
         public Task HandleAsync(AuthorizationHandlerContext context)
         {
             var pendingRequirements = context.PendingRequirements.ToList();
 
             foreach (var requirement in pendingRequirements)
             {
-                if (requirement is AccessPlayers)
-                    HandleAccessPlayers(context, requirement);
-
-                if (requirement is DeletePlayer)
-                    HandleDeletePlayer(context, requirement);
-
-                if (requirement is ViewPlayers)
-                    HandleViewPlayers(context, requirement);
-
-                if (requirement is CreateProtectedName)
-                    HandleCreateProtectedName(context, requirement);
-
-                if (requirement is DeleteProtectedName)
-                    HandleDeleteProtectedName(context, requirement);
-
-                if (requirement is ViewProtectedName)
-                    HandleViewProtectedName(context, requirement);
-
-                if (requirement is CreatePlayerTag)
-                    HandleCreatePlayerTag(context, requirement);
-
-                if (requirement is DeletePlayerTag)
-                    HandleDeletePlayerTag(context, requirement);
-
-                if (requirement is ViewPlayerTag)
-                    HandleViewPlayerTag(context, requirement);
+                switch (requirement)
+                {
+                    case AccessPlayers:
+                        HandleAccessPlayers(context, requirement);
+                        break;
+                    case DeletePlayer:
+                        HandleDeletePlayer(context, requirement);
+                        break;
+                    case ViewPlayers:
+                        HandleViewPlayers(context, requirement);
+                        break;
+                    case CreateProtectedName:
+                        HandleCreateProtectedName(context, requirement);
+                        break;
+                    case DeleteProtectedName:
+                        HandleDeleteProtectedName(context, requirement);
+                        break;
+                    case ViewProtectedName:
+                        HandleViewProtectedName(context, requirement);
+                        break;
+                    case CreatePlayerTag:
+                        HandleCreatePlayerTag(context, requirement);
+                        break;
+                    case DeletePlayerTag:
+                        HandleDeletePlayerTag(context, requirement);
+                        break;
+                    case ViewPlayerTag:
+                        HandleViewPlayerTag(context, requirement);
+                        break;
+                }
             }
 
             return Task.CompletedTask;
         }
 
-        private void HandleViewPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        #region Authorization Handlers
+
+        /// <summary>
+        /// Handles authorization for accessing players.
+        /// Allows all admin levels including moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The access players requirement.</param>
+        private static void HandleAccessPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.Resource is GameType gameType)
-            {
-                var gameTypeString = gameType.ToString();
-                if (context.User.HasClaim(UserProfileClaimType.HeadAdmin, gameTypeString))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameTypeString))
-                    context.Succeed(requirement);
-
-                if (context.User.HasClaim(UserProfileClaimType.Moderator, gameTypeString))
-                    context.Succeed(requirement);
-            }
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
         }
 
-        private void HandleDeletePlayer(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for deleting players.
+        /// Only allows senior admins.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The delete player requirement.</param>
+        private static void HandleDeletePlayer(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
         }
 
-        private void HandleAccessPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for viewing players.
+        /// Allows all admin levels including moderators for the specific game type.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The view players requirement.</param>
+        private static void HandleViewPlayers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckSeniorOrMultipleGameAccessWithResource(context, requirement);
         }
 
-        private void HandleCreateProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for creating protected names.
+        /// Allows all admin levels including moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The create protected name requirement.</param>
+        private static void HandleCreateProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
         }
 
-        private void HandleDeleteProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for deleting protected names.
+        /// Allows all admin levels including moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The delete protected name requirement.</param>
+        private static void HandleDeleteProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
         }
 
-        private void HandleViewProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for viewing protected names.
+        /// Allows all admin levels including moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The view protected name requirement.</param>
+        private static void HandleViewProtectedName(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
         }
 
-        private void HandleCreatePlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for creating player tags.
+        /// Allows admin levels excluding moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The create player tag requirement.</param>
+        private static void HandleCreatePlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AdminLevelsExcludingModerators);
         }
 
-        private void HandleDeletePlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for deleting player tags.
+        /// Allows admin levels excluding moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The delete player tag requirement.</param>
+        private static void HandleDeletePlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AdminLevelsExcludingModerators);
         }
 
-        private void HandleViewPlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        /// <summary>
+        /// Handles authorization for viewing player tags.
+        /// Allows all admin levels including moderators.
+        /// </summary>
+        /// <param name="context">The authorization context.</param>
+        /// <param name="requirement">The view player tag requirement.</param>
+        private static void HandleViewPlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.HeadAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
-                context.Succeed(requirement);
-
-            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.Moderator))
-                context.Succeed(requirement);
+            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
         }
+
+        #endregion
     }
 }

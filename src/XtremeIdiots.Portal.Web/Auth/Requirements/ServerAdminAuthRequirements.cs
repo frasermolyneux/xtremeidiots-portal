@@ -26,9 +26,7 @@ namespace XtremeIdiots.Portal.Web.Auth.Requirements
     {
     }
 
-    public class ManageMaps : IAuthorizationRequirement
-    {
-    }
+
 
     public class LockChatMessages : IAuthorizationRequirement
     {

@@ -18,6 +18,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
             services.AddSingleton<IAuthorizationHandler, DemosAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, GameServersAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, HomeAuthHandler>();
+            services.AddSingleton<IAuthorizationHandler, ProfileAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, MapsAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, PlayersAuthHandler>();
             services.AddSingleton<IAuthorizationHandler, PlayerTagsAuthHandler>();

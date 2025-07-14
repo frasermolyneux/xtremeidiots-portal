@@ -34,6 +34,15 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
                 if (requirement is ManageMaps)
                     HandleManageMaps(context, requirement);
 
+                if (requirement is AccessMapManagerController)
+                    HandleAccessMapManagerController(context, requirement);
+
+                if (requirement is PushMapToRemote)
+                    HandlePushMapToRemote(context, requirement);
+
+                if (requirement is DeleteMapFromHost)
+                    HandleDeleteMapFromHost(context, requirement);
+
                 if (requirement is LockChatMessages)
                     HandleLockChatMessages(context, requirement);
             }
@@ -173,6 +182,39 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
                 if (context.User.HasClaim(UserProfileClaimType.Moderator, gameType.ToString()))
                     context.Succeed(requirement);
             }
+        }
+
+        private static void HandleAccessMapManagerController(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        {
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                context.Succeed(requirement);
+
+            var requiredClaims = new string[] { UserProfileClaimType.HeadAdmin };
+
+            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
+                context.Succeed(requirement);
+        }
+
+        private static void HandlePushMapToRemote(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        {
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                context.Succeed(requirement);
+
+            var requiredClaims = new string[] { UserProfileClaimType.HeadAdmin };
+
+            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
+                context.Succeed(requirement);
+        }
+
+        private static void HandleDeleteMapFromHost(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+        {
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                context.Succeed(requirement);
+
+            var requiredClaims = new string[] { UserProfileClaimType.HeadAdmin };
+
+            if (context.User.Claims.Any(claim => requiredClaims.Contains(claim.Type)))
+                context.Succeed(requirement);
         }
     }
 }

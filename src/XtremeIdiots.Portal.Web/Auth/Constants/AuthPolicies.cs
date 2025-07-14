@@ -20,7 +20,7 @@
         public const string DeleteBanFileMonitor = nameof(DeleteBanFileMonitor);
 
         // Change Log
-        public static string AccessChangeLog = nameof(AccessChangeLog);
+        public const string AccessChangeLog = nameof(AccessChangeLog);
 
         // Credentials
         public const string AccessCredentials = nameof(AccessCredentials);
@@ -43,10 +43,20 @@
         // Home
         public const string AccessHome = nameof(AccessHome);
 
-        // Maps
-        public const string AccessMaps = nameof(AccessMaps);
+        // Profile
+        public const string AccessProfile = nameof(AccessProfile);
 
         // Maps
+        public const string AccessMaps = nameof(AccessMaps);
+        public const string AccessMapManagerController = nameof(AccessMapManagerController);
+        public const string ManageMaps = nameof(ManageMaps);
+        public const string CreateMapPack = nameof(CreateMapPack);
+        public const string EditMapPack = nameof(EditMapPack);
+        public const string DeleteMapPack = nameof(DeleteMapPack);
+        public const string PushMapToRemote = nameof(PushMapToRemote);
+        public const string DeleteMapFromHost = nameof(DeleteMapFromHost);
+
+        // Migration
         public const string AccessMigration = nameof(AccessMigration);
 
         // Player Tags
@@ -59,6 +69,9 @@
         public const string AccessPlayers = nameof(AccessPlayers);
         public const string DeletePlayer = nameof(DeletePlayer);
         public const string ViewPlayers = nameof(ViewPlayers);
+        public const string CreateProtectedName = nameof(CreateProtectedName);
+        public const string DeleteProtectedName = nameof(DeleteProtectedName);
+        public const string ViewProtectedName = nameof(ViewProtectedName);
 
         // Server Admin
         public const string AccessLiveRcon = nameof(AccessLiveRcon);
@@ -67,7 +80,6 @@
         public const string ViewGlobalChatLog = nameof(ViewGlobalChatLog);
         public const string ViewLiveRcon = nameof(ViewLiveRcon);
         public const string ViewServerChatLog = nameof(ViewServerChatLog);
-        public const string ManageMaps = nameof(ManageMaps);
         public const string LockChatMessages = nameof(LockChatMessages);
 
         // Servers

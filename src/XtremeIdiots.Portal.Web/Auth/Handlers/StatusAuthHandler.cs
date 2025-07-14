@@ -28,6 +28,9 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
 
             if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.GameAdmin))
                 context.Succeed(requirement);
+
+            if (context.User.HasClaim(claim => claim.Type == UserProfileClaimType.BanFileMonitor))
+                context.Succeed(requirement);
         }
     }
 }

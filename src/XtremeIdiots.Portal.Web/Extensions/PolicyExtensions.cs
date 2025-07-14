@@ -50,13 +50,26 @@ namespace XtremeIdiots.Portal.Web.Extensions
             // Home
             options.AddPolicy(AuthPolicies.AccessHome, policy => { policy.Requirements.Add(new AccessHome()); });
 
+            // Profile
+            options.AddPolicy(AuthPolicies.AccessProfile, policy => { policy.Requirements.Add(new AccessProfile()); });
+
             // Maps
             options.AddPolicy(AuthPolicies.AccessMaps, policy => { policy.Requirements.Add(new AccessMaps()); });
+            options.AddPolicy(AuthPolicies.AccessMapManagerController, policy => { policy.Requirements.Add(new AccessMapManagerController()); });
+            options.AddPolicy(AuthPolicies.ManageMaps, policy => { policy.Requirements.Add(new ManageMaps()); });
+            options.AddPolicy(AuthPolicies.CreateMapPack, policy => { policy.Requirements.Add(new CreateMapPack()); });
+            options.AddPolicy(AuthPolicies.EditMapPack, policy => { policy.Requirements.Add(new EditMapPack()); });
+            options.AddPolicy(AuthPolicies.DeleteMapPack, policy => { policy.Requirements.Add(new DeleteMapPack()); });
+            options.AddPolicy(AuthPolicies.PushMapToRemote, policy => { policy.Requirements.Add(new PushMapToRemote()); });
+            options.AddPolicy(AuthPolicies.DeleteMapFromHost, policy => { policy.Requirements.Add(new DeleteMapFromHost()); });
 
             // Players
             options.AddPolicy(AuthPolicies.AccessPlayers, policy => { policy.Requirements.Add(new AccessPlayers()); });
             options.AddPolicy(AuthPolicies.DeletePlayer, policy => { policy.Requirements.Add(new DeletePlayer()); });
             options.AddPolicy(AuthPolicies.ViewPlayers, policy => { policy.Requirements.Add(new ViewPlayers()); });
+            options.AddPolicy(AuthPolicies.CreateProtectedName, policy => { policy.Requirements.Add(new CreateProtectedName()); });
+            options.AddPolicy(AuthPolicies.DeleteProtectedName, policy => { policy.Requirements.Add(new DeleteProtectedName()); });
+            options.AddPolicy(AuthPolicies.ViewProtectedName, policy => { policy.Requirements.Add(new ViewProtectedName()); });
 
             // Player Tags
             options.AddPolicy(AuthPolicies.AccessPlayerTags, policy => { policy.Requirements.Add(new AccessPlayerTags()); });

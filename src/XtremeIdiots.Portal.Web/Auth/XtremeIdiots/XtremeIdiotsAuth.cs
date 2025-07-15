@@ -1,21 +1,30 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-using System.Security.Claims;
-
 using XtremeIdiots.InvisionCommunity;
+using XtremeIdiots.InvisionCommunity.Models;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
 {
+    /// <summary>
+    /// Provides authentication services for XtremeIdiots external login integration.
+    /// Handles user registration, login, and profile synchronization with the forums system.
+    /// </summary>
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {
-        private readonly IInvisionApiClient _forumsClient;
+        private const string XtremeIdiotsProvider = "XtremeIdiots";
+        private const string UnknownUsername = "Unknown";
+        private const string UnknownEmail = "unknown@example.com";
+
+        private readonly IInvisionApiClient forumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly ILogger<XtremeIdiotsAuth> _logger;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<XtremeIdiotsAuth> logger;
+        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<IdentityUser> userManager;
 
         public XtremeIdiotsAuth(
             ILogger<XtremeIdiotsAuth> logger,
@@ -24,123 +33,320 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             IInvisionApiClient forumsClient,
             IRepositoryApiClient repositoryApiClient)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            this.forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         }
 
         public AuthenticationProperties ConfigureExternalAuthenticationProperties(string? redirectUrl)
         {
-            return _signInManager.ConfigureExternalAuthenticationProperties("XtremeIdiots", redirectUrl);
+            return signInManager.ConfigureExternalAuthenticationProperties(XtremeIdiotsProvider, redirectUrl);
         }
 
-        public async Task<ExternalLoginInfo> GetExternalLoginInfoAsync()
+        public async Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(CancellationToken cancellationToken = default)
         {
-            return await _signInManager.GetExternalLoginInfoAsync();
+            return await signInManager.GetExternalLoginInfoAsync().ConfigureAwait(false);
         }
 
-        public async Task<XtremeIdiotsAuthResult> ProcessExternalLogin(ExternalLoginInfo info)
+        public async Task<XtremeIdiotsAuthResult> ProcessExternalLogin(ExternalLoginInfo info, CancellationToken cancellationToken = default)
         {
-            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true);
-            var username = info.Principal.FindFirstValue(ClaimTypes.Name);
+            ValidateExternalLoginInfo(info);
 
-            _logger.LogDebug("User {Username} had a {SignInResult} sign in result", username, result.ToString());
-
-            switch (result.ToString())
+            try
             {
-                case "Succeeded":
-                    await UpdateExistingUser(info);
-                    return XtremeIdiotsAuthResult.Success;
-                case "Locked":
-                    return XtremeIdiotsAuthResult.Locked;
-                case "Failed":
-                    await RegisterNewUser(info);
-                    return XtremeIdiotsAuthResult.Success;
-                default:
-                    return XtremeIdiotsAuthResult.Failed;
-            }
-        }
+                var result = await AttemptExternalLoginSignIn(info, cancellationToken).ConfigureAwait(false);
 
-        public async Task SignOutAsync()
-        {
-            await _signInManager.SignOutAsync();
-        }
-
-        private async Task UpdateExistingUser(ExternalLoginInfo info)
-        {
-            var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var member = await _forumsClient.Core.GetMember(id);
-
-            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-            var userClaims = await _userManager.GetClaimsAsync(user);
-
-            await _userManager.RemoveClaimsAsync(user, userClaims);
-
-            var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
-
-            if (userProfileDtoApiResponse.IsNotFound)
-            {
-                _ = await repositoryApiClient.UserProfiles.V1.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
+                if (result != XtremeIdiotsAuthResult.Failed)
                 {
-                    Title = member.Title,
-                    FormattedName = member.FormattedName,
-                    PrimaryGroup = member.PrimaryGroup.Name,
-                    PhotoUrl = member.PhotoUrl,
-                    ProfileUrl = member.ProfileUrl.ToString(),
-                    TimeZone = member.TimeZone
-                });
+                    return result;
+                }
 
-                userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                // If sign in failed, try to register new user
+                await RegisterNewUser(info, cancellationToken).ConfigureAwait(false);
+                return XtremeIdiotsAuthResult.Success;
             }
-
-            var claims = userProfileDtoApiResponse.Result.Data.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
-            await _userManager.AddClaimsAsync(user, claims);
-            await _signInManager.SignInAsync(user, true);
-            await _signInManager.RefreshSignInAsync(user);
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error processing external login for provider {LoginProvider}", info.LoginProvider);
+                return XtremeIdiotsAuthResult.Failed;
+            }
         }
 
-        private async Task RegisterNewUser(ExternalLoginInfo info)
+        public async Task SignOutAsync(CancellationToken cancellationToken = default)
         {
+            await signInManager.SignOutAsync().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Updates an existing user's profile and claims based on the latest forum data.
+        /// </summary>
+        /// <param name="info">The external login information containing user details.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous update operation.</returns>
+        private async Task UpdateExistingUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
+        {
+            if (info?.Principal == null)
+            {
+                throw new ArgumentException("External login info or principal is null", nameof(info));
+            }
+
+            var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("No NameIdentifier claim found in external login info", nameof(info));
+            }
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var member = await forumsClient.Core.GetMember(id).ConfigureAwait(false);
+                if (member == null)
+                {
+                    throw new InvalidOperationException($"Member not found with ID: {id}");
+                }
+
+                var user = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey).ConfigureAwait(false);
+                if (user == null)
+                {
+                    throw new InvalidOperationException($"User not found for login provider: {info.LoginProvider}, key: {info.ProviderKey}");
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var userClaims = await userManager.GetClaimsAsync(user).ConfigureAwait(false);
+                await userManager.RemoveClaimsAsync(user, userClaims).ConfigureAwait(false);
+
+                var userProfile = await EnsureUserProfileExists(member.Id.ToString(), member, cancellationToken).ConfigureAwait(false);
+
+                if (userProfile?.UserProfileClaims != null)
+                {
+                    var claims = userProfile.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+                    await userManager.AddClaimsAsync(user, claims).ConfigureAwait(false);
+                }
+
+                await signInManager.SignInAsync(user, true).ConfigureAwait(false);
+                await signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
+
+                logger.LogInformation("Successfully updated user profile for user {UserId}", user.Id);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error updating existing user with ID: {UserId}", id);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Registers a new user in the system and synchronizes their profile with forum data.
+        /// </summary>
+        /// <param name="info">The external login information containing user details.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous registration operation.</returns>
+        private async Task RegisterNewUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
+        {
+            if (info?.Principal == null)
+            {
+                throw new ArgumentException("External login info or principal is null", nameof(info));
+            }
+
             var id = info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
 
-            var member = await _forumsClient.Core.GetMember(id);
-
-            var user = new IdentityUser { Id = id, UserName = username, Email = email };
-            var createUserResult = await _userManager.CreateAsync(user);
-            if (createUserResult.Succeeded)
+            if (string.IsNullOrWhiteSpace(id))
             {
-                var addLoginResult = await _userManager.AddLoginAsync(user, info);
-                if (addLoginResult.Succeeded)
+                throw new ArgumentException("No NameIdentifier claim found in external login info", nameof(info));
+            }
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                throw new ArgumentException($"No username claim found in external login info for ID: {id}", nameof(info));
+            }
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var member = await forumsClient.Core.GetMember(id).ConfigureAwait(false);
+                if (member == null)
                 {
-                    var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                    throw new InvalidOperationException($"Member not found with ID: {id}");
+                }
 
-                    if (userProfileDtoApiResponse.IsNotFound)
+                var user = new IdentityUser { Id = id, UserName = username, Email = email };
+                var createUserResult = await userManager.CreateAsync(user).ConfigureAwait(false);
+
+                if (!createUserResult.Succeeded)
+                {
+                    logger.LogWarning("Failed to create user {Username}. Errors: {Errors}",
+                        username, string.Join(", ", createUserResult.Errors.Select(e => e.Description)));
+                    return;
+                }
+
+                var addLoginResult = await userManager.AddLoginAsync(user, info).ConfigureAwait(false);
+                if (!addLoginResult.Succeeded)
+                {
+                    logger.LogWarning("Failed to add external login for user {Username}. Errors: {Errors}",
+                        username, string.Join(", ", addLoginResult.Errors.Select(e => e.Description)));
+                    return;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var userProfile = await EnsureUserProfileExists(member.Id.ToString(), member, cancellationToken).ConfigureAwait(false);
+
+                if (userProfile?.UserProfileClaims != null)
+                {
+                    var claims = userProfile.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
+                    await userManager.AddClaimsAsync(user, claims).ConfigureAwait(false);
+                }
+
+                await signInManager.SignInAsync(user, true).ConfigureAwait(false);
+                await signInManager.RefreshSignInAsync(user).ConfigureAwait(false);
+
+                logger.LogInformation("Successfully created new user {Username} with email: {Email}", username, email);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error registering new user with username: {Username}", username);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Ensures a user profile exists in the repository, creating one if necessary.
+        /// </summary>
+        /// <param name="memberId">The member ID from the forums system.</param>
+        /// <param name="member">The member data from the forums API.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task{UserProfileDto}"/> representing the user profile.</returns>
+        private async Task<UserProfileDto?> EnsureUserProfileExists(string memberId, Member member, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(memberId))
+            {
+                throw new ArgumentException("Member ID cannot be null or empty.", nameof(memberId));
+            }
+
+            if (member == null)
+            {
+                throw new ArgumentNullException(nameof(member));
+            }
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1
+                    .GetUserProfileByXtremeIdiotsId(memberId, cancellationToken).ConfigureAwait(false);
+
+                if (userProfileDtoApiResponse.IsNotFound)
+                {
+                    logger.LogInformation("Creating new user profile for member {MemberId}", memberId);
+
+                    var createResult = await repositoryApiClient.UserProfiles.V1.CreateUserProfile(new CreateUserProfileDto(
+                        memberId,
+                        member.Name ?? UnknownUsername,
+                        member.Email ?? UnknownEmail)
                     {
-                        _ = await repositoryApiClient.UserProfiles.V1.CreateUserProfile(new CreateUserProfileDto(member.Id.ToString(), member.Name, member.Email)
-                        {
-                            Title = member.Title,
-                            FormattedName = member.FormattedName,
-                            PrimaryGroup = member.PrimaryGroup.Name,
-                            PhotoUrl = member.PhotoUrl,
-                            ProfileUrl = member.ProfileUrl.ToString(),
-                            TimeZone = member.TimeZone
-                        });
+                        Title = member.Title,
+                        FormattedName = member.FormattedName,
+                        PrimaryGroup = member.PrimaryGroup?.Name,
+                        PhotoUrl = member.PhotoUrl,
+                        ProfileUrl = member.ProfileUrl?.ToString(),
+                        TimeZone = member.TimeZone
+                    }, cancellationToken).ConfigureAwait(false);
 
-                        userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(member.Id.ToString());
+                    if (!createResult.IsSuccess)
+                    {
+                        logger.LogWarning("Failed to create user profile for member {MemberId}", memberId);
+                        return null;
                     }
 
-                    var claims = userProfileDtoApiResponse.Result.Data.UserProfileClaims.Select(upc => new Claim(upc.ClaimType, upc.ClaimValue)).ToList();
-                    await _userManager.AddClaimsAsync(user, claims);
-                    await _signInManager.SignInAsync(user, true);
-                    await _signInManager.RefreshSignInAsync(user);
-
-                    _logger.LogDebug("User {Username} created a new account with {Email} email", username, email);
+                    // Retrieve the newly created profile
+                    userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1
+                        .GetUserProfileByXtremeIdiotsId(memberId, cancellationToken).ConfigureAwait(false);
                 }
+
+                if (userProfileDtoApiResponse.IsSuccess)
+                {
+                    logger.LogDebug("Successfully retrieved user profile for member {MemberId}", memberId);
+                    return userProfileDtoApiResponse.Result?.Data;
+                }
+
+                logger.LogWarning("Failed to retrieve user profile for member {MemberId}", memberId);
+                return null;
             }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error ensuring user profile exists for member {MemberId}", memberId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Validates the external login information for required properties.
+        /// </summary>
+        /// <param name="info">The external login information to validate.</param>
+        /// <exception cref="ArgumentNullException">Thrown when info is null.</exception>
+        /// <exception cref="ArgumentException">Thrown when required properties are missing.</exception>
+        private static void ValidateExternalLoginInfo(ExternalLoginInfo info)
+        {
+            if (info == null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
+            if (info.Principal == null)
+            {
+                throw new ArgumentException("External login info must contain a valid principal", nameof(info));
+            }
+
+            if (string.IsNullOrWhiteSpace(info.LoginProvider))
+            {
+                throw new ArgumentException("External login info must contain a valid login provider", nameof(info));
+            }
+
+            if (string.IsNullOrWhiteSpace(info.ProviderKey))
+            {
+                throw new ArgumentException("External login info must contain a valid provider key", nameof(info));
+            }
+        }
+
+        /// <summary>
+        /// Attempts to sign in using external login credentials.
+        /// </summary>
+        /// <param name="info">The external login information.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A <see cref="Task{XtremeIdiotsAuthResult}"/> representing the sign-in result.</returns>
+        private async Task<XtremeIdiotsAuthResult> AttemptExternalLoginSignIn(ExternalLoginInfo info, CancellationToken cancellationToken)
+        {
+            var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true).ConfigureAwait(false);
+            var username = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            logger.LogDebug("User {Username} had a {SignInResult} sign in result", username, result.ToString());
+
+            if (result.Succeeded)
+            {
+                await UpdateExistingUser(info, cancellationToken).ConfigureAwait(false);
+                return XtremeIdiotsAuthResult.Success;
+            }
+
+            if (result.IsLockedOut)
+            {
+                logger.LogWarning("User {Username} account is locked", username);
+                return XtremeIdiotsAuthResult.Locked;
+            }
+
+            if (result.IsNotAllowed || result.RequiresTwoFactor)
+            {
+                logger.LogWarning("User {Username} sign in not allowed or requires 2FA", username);
+                return XtremeIdiotsAuthResult.Failed;
+            }
+
+            return XtremeIdiotsAuthResult.Failed;
         }
     }
 }

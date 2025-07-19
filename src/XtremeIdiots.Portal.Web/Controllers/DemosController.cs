@@ -149,16 +149,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <returns>Demos index view</returns>
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var userId = User.XtremeIdiotsId();
-            Logger.LogInformation("User {UserId} accessing demos index page", userId);
+            return await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                await Task.CompletedTask; // Placeholder for consistency with async pattern
 
-            var indexTelemetry = new EventTelemetry("DemosIndexViewed")
-                .Enrich(User);
-            TelemetryClient.TrackEvent(indexTelemetry);
+                TrackSuccessTelemetry("DemosIndexViewed", "Index", new Dictionary<string, string>
+                {
+                    { "Controller", "Demos" },
+                    { "Resource", "Index" }
+                });
 
-            return View();
+                return View();
+            }, "Index");
         }
 
         /// <summary>
@@ -167,19 +171,23 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="id">The game type to filter by</param>
         /// <returns>Filtered demos index view</returns>
         [HttpGet]
-        public IActionResult GameIndex(GameType? id)
+        public async Task<IActionResult> GameIndex(GameType? id)
         {
-            var userId = User.XtremeIdiotsId();
-            Logger.LogInformation("User {UserId} accessing game-specific demos index for game type {GameType}", userId, id);
+            return await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                await Task.CompletedTask; // Placeholder for consistency with async pattern
 
-            ViewData["GameType"] = id;
+                ViewData["GameType"] = id;
 
-            var gameIndexTelemetry = new EventTelemetry("GameDemosIndexViewed")
-                .Enrich(User);
-            gameIndexTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "null");
-            TelemetryClient.TrackEvent(gameIndexTelemetry);
+                TrackSuccessTelemetry("GameDemosIndexViewed", "GameIndex", new Dictionary<string, string>
+                {
+                    { "Controller", "Demos" },
+                    { "Resource", "GameIndex" },
+                    { "GameType", id?.ToString() ?? "null" }
+                });
 
-            return View(nameof(Index));
+                return View(nameof(Index));
+            }, "GameIndex");
         }
 
         /// <summary>
@@ -189,24 +197,19 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="id">Optional game type filter to restrict results to a specific game</param>
         /// <param name="cancellationToken">Cancellation token for the operation</param>
         /// <returns>JSON response with demo data formatted for DataTables consumption</returns>
-        /// <exception cref="BadRequestException">Thrown when the request model is invalid</exception>
-        /// <exception cref="UnauthorizedAccessException">Thrown when user lacks appropriate permissions</exception>
         [HttpPost]
         public async Task<IActionResult> GetDemoListAjax(GameType? id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogInformation("User {UserId} requesting demo list via AJAX for game type {GameType}", userId, id);
-
                 var reader = new StreamReader(Request.Body);
-                var requestBody = await reader.ReadToEndAsync();
+                var requestBody = await reader.ReadToEndAsync(cancellationToken);
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
                 if (model == null)
                 {
-                    Logger.LogWarning("User {UserId} provided invalid request model for demo list AJAX", userId);
+                    Logger.LogWarning("Invalid request model for demo list AJAX from user {UserId}", User.XtremeIdiotsId());
                     return BadRequest();
                 }
 
@@ -219,44 +222,23 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 {
                     filterGameTypes = new[] { (GameType)id };
                     // If the user has the required claims do not filter by user id
-                    filterUserId = gameTypes.Contains((GameType)id) ? null : userId;
+                    filterUserId = gameTypes.Contains((GameType)id) ? null : User.XtremeIdiotsId();
                 }
                 else
                 {
                     filterGameTypes = gameTypes.ToArray();
 
                     // If the user has any required claims for games do not filter by user id
-                    if (!gameTypes.Any()) filterUserId = userId;
+                    if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
                 }
 
-                var order = DemoOrder.CreatedDesc;
-                if (model.Order != null)
-                {
-                    var orderColumn = model.Columns[model.Order.First().Column].Name;
-                    var searchOrder = model.Order.First().Dir;
+                var order = GetDemoOrderFromDataTable(model);
 
-                    switch (orderColumn)
-                    {
-                        case "game":
-                            order = searchOrder == "asc" ? DemoOrder.GameTypeAsc : DemoOrder.GameTypeDesc;
-                            break;
-                        case "name":
-                            order = searchOrder == "asc" ? DemoOrder.TitleAsc : DemoOrder.TitleDesc;
-                            break;
-                        case "date":
-                            order = searchOrder == "asc" ? DemoOrder.CreatedAsc : DemoOrder.CreatedDesc;
-                            break;
-                        case "uploadedBy":
-                            order = searchOrder == "asc" ? DemoOrder.UploadedByAsc : DemoOrder.UploadedByDesc;
-                            break;
-                    }
-                }
-
-                var demosApiResponse = await this.repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order);
+                var demosApiResponse = await repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order, cancellationToken);
 
                 if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data == null)
                 {
-                    Logger.LogError("Failed to retrieve demos list for user {UserId}", userId);
+                    Logger.LogError("Failed to retrieve demos list for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
@@ -265,7 +247,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 {
                     foreach (var demoDto in demosApiResponse.Result.Data.Items)
                     {
-                        var canDeletePortalDemo = await this.authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoDto.GameType, demoDto.UserProfileId), AuthPolicies.DeleteDemo);
+                        var canDeletePortalDemo = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(demoDto.GameType, demoDto.UserProfileId), AuthPolicies.DeleteDemo);
 
                         var portalDemoDto = new PortalDemoDto(demoDto);
 
@@ -276,12 +258,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                 }
 
-                var demoListTelemetry = new EventTelemetry("DemoListLoaded")
-                    .Enrich(User);
-                demoListTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "All");
-                demoListTelemetry.Properties.TryAdd("ResultCount", portalDemoEntries.Count.ToString());
-                demoListTelemetry.Properties.TryAdd("TotalCount", demosApiResponse.Result.Data.TotalCount.ToString());
-                TelemetryClient.TrackEvent(demoListTelemetry);
+                TrackSuccessTelemetry("DemoListLoaded", "GetDemoListAjax", new Dictionary<string, string>
+                {
+                    { "GameType", id?.ToString() ?? "All" },
+                    { "ResultCount", portalDemoEntries.Count.ToString() },
+                    { "TotalCount", demosApiResponse.Result.Data.TotalCount.ToString() }
+                });
 
                 return Json(new
                 {
@@ -290,23 +272,34 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     recordsFiltered = demosApiResponse.Result.Data.FilteredCount,
                     data = portalDemoEntries
                 });
-            }
-            catch (Exception ex)
+            }, "GetDemoListAjax");
+        }
+
+        /// <summary>
+        /// Helper method to determine the correct DemoOrder from DataTable model
+        /// </summary>
+        /// <param name="model">The DataTable AJAX model containing order information</param>
+        /// <returns>The appropriate DemoOrder enum value</returns>
+        private static DemoOrder GetDemoOrderFromDataTable(DataTableAjaxPostModel model)
+        {
+            var order = DemoOrder.CreatedDesc;
+
+            if (model.Order != null && model.Order.Any())
             {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogError(ex, "Error loading demo list for user {UserId} with game type {GameType}", userId, id);
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var searchOrder = model.Order.First().Dir;
 
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
+                order = orderColumn switch
                 {
-                    SeverityLevel = SeverityLevel.Error
+                    "game" => searchOrder == "asc" ? DemoOrder.GameTypeAsc : DemoOrder.GameTypeDesc,
+                    "name" => searchOrder == "asc" ? DemoOrder.TitleAsc : DemoOrder.TitleDesc,
+                    "date" => searchOrder == "asc" ? DemoOrder.CreatedAsc : DemoOrder.CreatedDesc,
+                    "uploadedBy" => searchOrder == "asc" ? DemoOrder.UploadedByAsc : DemoOrder.UploadedByDesc,
+                    _ => DemoOrder.CreatedDesc
                 };
-                exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
-                exceptionTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "All");
-                exceptionTelemetry.Properties.TryAdd("ActionType", "GetDemoListAjax");
-                TelemetryClient.TrackException(exceptionTelemetry);
-
-                return RedirectToAction("Display", "Errors", new { id = 500 });
             }
+
+            return order;
         }
 
         /// <summary>
@@ -318,54 +311,28 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Download(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogInformation("User {UserId} attempting to download demo {DemoId}", userId, id);
-
-                var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
+                var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, userId);
+                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, User.XtremeIdiotsId());
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Demos");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Download");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"DemoId:{id},Reason:NotFound");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+                    TrackUnauthorizedAccessAttempt("Download", "Demo", $"DemoId:{id},Reason:NotFound", new { DemoId = id });
 
                     return NotFound();
                 }
 
-                Logger.LogInformation("User {UserId} successfully downloading demo {DemoId} ({DemoTitle})",
-                    userId, id, demoApiResult.Result.Data.Title);
-
-                var downloadTelemetry = new EventTelemetry("DemoDownloaded")
-                    .Enrich(User)
-                    .Enrich(demoApiResult.Result.Data);
-                TelemetryClient.TrackEvent(downloadTelemetry);
+                TrackSuccessTelemetry("DemoDownloaded", "Download", new Dictionary<string, string>
+                {
+                    { "DemoId", id.ToString() },
+                    { "DemoTitle", demoApiResult.Result.Data.Title },
+                    { "GameType", demoApiResult.Result.Data.GameType.ToString() }
+                });
 
                 return Redirect(demoApiResult.Result.Data.FileUri);
-            }
-            catch (Exception ex)
-            {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogError(ex, "Error downloading demo {DemoId} for user {UserId}", id, userId);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Enrich(User);
-                exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
-                exceptionTelemetry.Properties.TryAdd("ActionType", "Download");
-                TelemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Download");
         }
 
         /// <summary>
@@ -378,63 +345,30 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id, bool filterGame = false, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogInformation("User {UserId} attempting to access delete page for demo {DemoId}", userId, id);
-
-                var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
+                var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted to delete", id, userId);
                     return NotFound();
                 }
 
                 var authorizationResource = new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId);
-                var canDeleteDemo = await this.authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.DeleteDemo);
-
-                if (!canDeleteDemo.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(demoApiResult.Result.Data);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Demos");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{demoApiResult.Result.Data.GameType},Reason:Unauthorized");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                var authorizationResult = await CheckAuthorizationAsync(authorizationService, authorizationResource, AuthPolicies.DeleteDemo, "Delete", "Demo", $"GameType:{demoApiResult.Result.Data.GameType}");
+                if (authorizationResult != null) return authorizationResult;
 
                 ViewData["FilterGame"] = filterGame;
 
-                var deleteTelemetry = new EventTelemetry("DemoDeletePageViewed")
-                    .Enrich(User)
-                    .Enrich(demoApiResult.Result.Data);
-                TelemetryClient.TrackEvent(deleteTelemetry);
+                TrackSuccessTelemetry("DemoDeletePageViewed", "Delete", new Dictionary<string, string>
+                {
+                    { "DemoId", id.ToString() },
+                    { "GameType", demoApiResult.Result.Data.GameType.ToString() },
+                    { "FilterGame", filterGame.ToString() }
+                });
 
                 return View(demoApiResult.Result);
-            }
-            catch (Exception ex)
-            {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogError(ex, "Error accessing delete page for demo {DemoId} by user {UserId}", id, userId);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
-                exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
-                exceptionTelemetry.Properties.TryAdd("ActionType", "DeleteGet");
-                TelemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Delete");
         }
 
         /// <summary>
@@ -449,71 +383,34 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, bool filterGame = false, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogInformation("User {UserId} attempting to delete demo {DemoId}", userId, id);
-
-                var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
+                var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted deletion", id, userId);
                     return NotFound();
                 }
 
                 var authorizationResource = new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId);
-                var canDeleteDemo = await this.authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.DeleteDemo);
+                var authorizationResult = await CheckAuthorizationAsync(authorizationService, authorizationResource, AuthPolicies.DeleteDemo, "DeleteConfirmed", "Demo", $"GameType:{demoApiResult.Result.Data.GameType}");
+                if (authorizationResult != null) return authorizationResult;
 
-                if (!canDeleteDemo.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(demoApiResult.Result.Data);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Demos");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "DeleteConfirmed");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{demoApiResult.Result.Data.GameType},Reason:Unauthorized");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                await this.repositoryApiClient.Demos.V1.DeleteDemo(id);
-
-                Logger.LogInformation("User {UserId} successfully deleted demo {DemoId} ({DemoTitle}) under {GameType}",
-                    userId, id, demoApiResult.Result.Data.Title, demoApiResult.Result.Data.GameType);
+                await repositoryApiClient.Demos.V1.DeleteDemo(id, cancellationToken);
 
                 this.AddAlertSuccess($"The demo {demoApiResult.Result.Data.Title} has been successfully deleted from {demoApiResult.Result.Data.GameType}");
 
-                var deletedTelemetry = new EventTelemetry("DemoDeleted")
-                    .Enrich(User)
-                    .Enrich(demoApiResult.Result.Data);
-                TelemetryClient.TrackEvent(deletedTelemetry);
+                TrackSuccessTelemetry("DemoDeleted", "DeleteConfirmed", new Dictionary<string, string>
+                {
+                    { "DemoId", id.ToString() },
+                    { "DemoTitle", demoApiResult.Result.Data.Title },
+                    { "GameType", demoApiResult.Result.Data.GameType.ToString() }
+                });
 
                 if (filterGame)
                     return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Data.GameType });
                 return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                var userId = User.XtremeIdiotsId();
-                Logger.LogError(ex, "Error deleting demo {DemoId} for user {UserId}", id, userId);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
-                exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
-                exceptionTelemetry.Properties.TryAdd("ActionType", "DeleteConfirmed");
-                TelemetryClient.TrackException(exceptionTelemetry);
-
-                this.AddAlertDanger("An error occurred while deleting the demo. Please try again.");
-                return RedirectToAction(nameof(Index));
-            }
+            }, "DeleteConfirmed");
         }
 
         /// <summary>

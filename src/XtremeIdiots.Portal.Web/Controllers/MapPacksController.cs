@@ -62,7 +62,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 ViewData["GameServer"] = gameServerData;
 
-                return View(new CreateMapPackViewModel { GameServerId = gameServerId });
+                return View(new CreateMapPackViewModel
+                {
+                    GameServerId = gameServerId,
+                    Title = string.Empty,
+                    Description = string.Empty,
+                    GameMode = string.Empty
+                });
             }, "LoadCreateMapPackForm");
         }
 

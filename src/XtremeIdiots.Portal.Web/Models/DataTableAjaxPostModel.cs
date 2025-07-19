@@ -1,15 +1,28 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace XtremeIdiots.Portal.Web.Models
 {
+    /// <summary>
+    /// Represents the complete DataTable AJAX POST request model
+    /// </summary>
     public class DataTableAjaxPostModel
     {
-        [JsonProperty("draw")] public int Draw { get; set; }
-        [JsonProperty("start")] public int Start { get; set; }
-        [JsonProperty("length")] public int Length { get; set; }
-        [JsonProperty("columns")] public List<DataTableColumn> Columns { get; set; }
-        [JsonProperty("search")] public DataTableSearch Search { get; set; }
-        [JsonProperty("order")] public List<DataTableOrder> Order { get; set; }
+        [JsonProperty("draw")]
+        public int Draw { get; set; }
+
+        [JsonProperty("start")]
+        public int Start { get; set; }
+
+        [JsonProperty("length")]
+        public int Length { get; set; }
+
+        [JsonProperty("columns")]
+        public required List<DataTableColumn> Columns { get; set; }
+
+        [JsonProperty("search")]
+        public required DataTableSearch Search { get; set; }
+
+        [JsonProperty("order")]
+        public required List<DataTableOrder> Order { get; set; }
     }
 }

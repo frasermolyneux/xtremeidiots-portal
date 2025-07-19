@@ -3,17 +3,25 @@ using System.ComponentModel.DataAnnotations;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {
+    /// <summary>
+    /// ViewModel for creating a new map pack
+    /// </summary>
     public class CreateMapPackViewModel
     {
         public Guid GameServerId { get; set; }
 
+        [Required]
+        [DisplayName("Title")]
+        public required string Title { get; set; }
 
-        [Required][DisplayName("Title")] public string Title { get; set; }
+        [Required]
+        [DisplayName("Description")]
+        public required string Description { get; set; }
 
-        [Required][DisplayName("Description")] public string Description { get; set; }
+        [DisplayName("Game Mode")]
+        public required string GameMode { get; set; }
 
-        [DisplayName("Game Mode")] public string GameMode { get; set; }
-
-        [DisplayName("SyncToGameServer")] public bool SyncToGameServer { get; set; }
+        [DisplayName("SyncToGameServer")]
+        public bool SyncToGameServer { get; set; }
     }
 }

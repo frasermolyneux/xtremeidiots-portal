@@ -81,7 +81,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 await AddGameServersViewData(cancellationToken: cancellationToken);
-                return View(new CreateBanFileMonitorViewModel());
+                return View(new CreateBanFileMonitorViewModel { FilePath = string.Empty });
             }, "LoadCreateBanFileMonitorForm");
         }
 

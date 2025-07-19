@@ -6,7 +6,7 @@
 @model EditAdminActionViewModel
 
 @{
-    ViewData["Title"] = "Editing " + Model.Type + " for " + Model.PlayerDto.Username;
+    ViewData["Title"] = "Editing " + Model.Type + " for " + Model.PlayerDto?.Username;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -45,7 +45,7 @@
                             </div>
                         }
 
-                        @if ((await AuthorizationService.AuthorizeAsync(User, Model.PlayerDto.GameType,
+                        @if (Model.PlayerDto is not null && (await AuthorizationService.AuthorizeAsync(User, Model.PlayerDto.GameType,
                                                 AuthPolicies.ChangeAdminActionAdmin)).Succeeded)
                         {
                             <div class="form-group">

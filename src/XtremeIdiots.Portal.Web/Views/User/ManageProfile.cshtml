@@ -7,7 +7,7 @@
 @{
     ViewData["Title"] = "Manage User Profile - " + Model.DisplayName;
 
-    var gameServers = (List<GameServerDto>)ViewData["GameServers"];
+    var gameServers = (List<GameServerDto>?)ViewData["GameServers"] ?? new List<GameServerDto>();
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -113,7 +113,7 @@
                                     <tr>
                                         @{
                                             Guid.TryParse(claim.ClaimValue, out var gameServerId);
-                                            var server = gameServers.FirstOrDefault(s => s.GameServerId == gameServerId);
+                                            var server = gameServers?.FirstOrDefault(s => s.GameServerId == gameServerId);
                                         }
 
                                         <td>@claim.ClaimType</td>

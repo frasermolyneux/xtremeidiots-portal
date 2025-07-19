@@ -76,42 +76,67 @@
 
     @foreach (var item in Model)
     {
-        <row class="row">
+        <div class="row">
             <div class="col-12">
 
                 <div class="container-fluid">
                     <div class="ibox">
                         <div class="ibox-title">
                             <span>
-                                @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, null)
+                                @if (item.GameServer is not null)
+                                {
+                                    @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                }
+                                else
+                                {
+                                    <text>Unknown Server</text>
+                                }
                             </span>
                         </div>
                         <div class="ibox-content">
-                            <p>
-                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType,
-                                                            Guid>(item.GameServer.GameType, item.GameServer.GameServerId),
-                                                            AuthPolicies.ViewFtpCredential)).Succeeded)
-                                {
-                                    <strong>File Path: </strong>
-                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
-                                    item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                            @if (item.GameServer is not null)
+                            {
+                                <p>
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType,
+                                                                Guid>(item.GameServer.GameType, item.GameServer.GameServerId),
+                                                                AuthPolicies.ViewFtpCredential)).Succeeded)
+                                    {
+                                        <strong>File Path: </strong>
+                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
+                                        item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
 
-                            <br />
-                                                        }
-                                else
-                                {
-                                    <strong>File Path: </strong>
-                                    @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
-                                    item.FilePath)
+                                <br />
+                                                            }
+                                    else
+                                    {
+                                        <strong>File Path: </strong>
+                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
+                                        item.FilePath)
 
-                            <br />
-                                                        }
+                                <br />
+                                                            }
 
-                                <strong>Last Recorded Sync: </strong>@item.LastSync<br />
-                                <strong>Last Recorded Size: </strong>@item.RemoteFileSize<br />
+                                    <strong>Last Recorded Sync: </strong>@item.LastSync<br />
+                                    <strong>Last Recorded Size: </strong>@item.RemoteFileSize<br />
 
-                                @if (item.LastSync < DateTime.UtcNow.AddMinutes(-15))
-                                {
+                                    @if (item.LastSync < DateTime.UtcNow.AddMinutes(-15))
+                                    {
+                                        <strong class="text-danger">Last sync was more than 15 minutes ago.</strong>
+                                    }
+                                </p>
+                            }
+                            else
+                            {
+                                <p>
+                                    <strong>File Path: </strong>@item.FilePath<br />
+                                    <strong>Last Recorded Sync: </strong>@item.LastSync<br />
+                                    <strong>Last Recorded Size: </strong>@item.RemoteFileSize<br />
+                                    <strong class="text-warning">Server information not available.</strong>
+                                </p>
+                            }
+                            
+                            @if (item.LastSync < DateTime.UtcNow.AddMinutes(-15))
+                            {
                                 <div class="alert alert-danger">Ban file monitor has not run in the past 30 minutes</div>
                             }
                             else
@@ -120,7 +145,7 @@
                             }
 
                             <div class="btn-group btn-group-sm" role="group">
-                                @if ((await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType,
+                                @if (item.GameServer is not null && (await AuthorizationService.AuthorizeAsync(User, item.GameServer.GameType,
                                                             AuthPolicies.EditGameServer)).Succeeded)
                                 {
                                     <a type="button" class="btn btn-primary" asp-controller="GameServers" asp-action="Edit"
@@ -129,7 +154,7 @@
                                     </a>
                                 }
 
-                                @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType,
+                                @if (item.GameServer is not null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType,
                                                             Guid>(item.GameServer.GameType, item.GameServer.GameServerId),
                                                             AuthPolicies.EditBanFileMonitor)).Succeeded)
                                 {
@@ -139,13 +164,12 @@
                                     </a>
                                 }
                             </div>
-                            </p>
                         </div>
                     </div>
                 </div>
 
             </div>
-        </row>
+        </div>
     }
 
 </div>

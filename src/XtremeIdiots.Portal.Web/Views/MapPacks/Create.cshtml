@@ -7,7 +7,7 @@
 @{
     var gameServer = ViewData["GameServer"] as GameServerDto;
 
-    ViewData["Title"] = "Create Map Pack - " + gameServer.Title;
+    ViewData["Title"] = "Create Map Pack - " + (gameServer?.Title ?? "Unknown Server");
 }
 
 

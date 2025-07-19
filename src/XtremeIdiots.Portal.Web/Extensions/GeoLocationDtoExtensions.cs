@@ -12,7 +12,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
                 : new HtmlString("<img src=\"/images/flags/unknown.png\" />");
         }
 
-        public static HtmlString FlagImage(this string countryCode)
+        public static HtmlString FlagImage(this string? countryCode)
         {
             return !string.IsNullOrWhiteSpace(countryCode)
                 ? new HtmlString($"<img src=\"/images/flags/{countryCode.ToLower()}.png\" />")

@@ -17,7 +17,7 @@
             <li>
                 <div>
                     <p style="text-align: left">
-                        @Html.GameTypeIconExternal(item.Player.GameType)
+                        @Html.GameTypeIconExternal(item.Player?.GameType ?? GameType.Unknown)
 
                         @{
                             var text = "";

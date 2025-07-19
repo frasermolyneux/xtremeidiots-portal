@@ -157,12 +157,12 @@
                                                                                     Guid>(Model.GameType, Model.GameServerId),
                                                                                     AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
-                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort.Value, item.FilePath,
+                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort ?? 0, item.FilePath,
                                                 Model.FtpUsername, Model.FtpPassword)
                                                                                 }
                                             else
                                             {
-                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort.Value, item.FilePath)
+                                                @Html.MonitorFtpPath(Model.FtpHostname, Model.FtpPort ?? 0, item.FilePath)
                                             }
                                         </td>
                                         <td>

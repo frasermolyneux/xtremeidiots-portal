@@ -55,24 +55,25 @@
                                                                                     Guid>(item.GameServer.GameType, item.GameServer.GameServerId),
                                                                                     AuthPolicies.ViewFtpCredential)).Succeeded)
                                             {
-                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
                                                 item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
                                                                                 }
                                             else
                                             {
-                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort.Value,
+                                                @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
                                                 item.FilePath)
                                                                                 }
                                         </td>
                                         <td>
-                                            @if (item.FilePath.ToLower().Contains(item.GameServer.LiveMod.ToLower()))
+                                            @if (!string.IsNullOrWhiteSpace(item.FilePath) && !string.IsNullOrWhiteSpace(item.GameServer.LiveMod) 
+                                                && item.FilePath.ToLower().Contains(item.GameServer.LiveMod.ToLower()))
                                             {
                                                 <span class="badge badge-success">@item.GameServer.LiveMod is included in
                                                     path</span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-danger">@item.GameServer.LiveMod is not included in
+                                                <span class="badge badge-danger">@(item.GameServer.LiveMod ?? "Unknown mod") is not included in
                                                     path</span>
                                             }
                                         </td>

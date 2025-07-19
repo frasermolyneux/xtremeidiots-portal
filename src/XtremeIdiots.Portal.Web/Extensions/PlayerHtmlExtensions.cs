@@ -5,16 +5,22 @@ namespace XtremeIdiots.Portal.Web.Extensions
 {
     public static class PlayerHtmlExtensions
     {
-        public static string PlayerName(this IHtmlHelper html, string playerName)
+        public static string PlayerName(this IHtmlHelper html, string? playerName)
         {
+            if (string.IsNullOrWhiteSpace(playerName))
+                return string.Empty;
+
             var toRemove = new List<string> { "^1", "^2", "^3", "^4", "^5", "^6", "^7", "^8", "^9" };
             foreach (var val in toRemove) playerName = playerName.Replace(val, "");
 
             return playerName;
         }
 
-        public static HtmlString GuidLink(this IHtmlHelper html, string guid, string gameType)
+        public static HtmlString GuidLink(this IHtmlHelper html, string? guid, string? gameType)
         {
+            if (string.IsNullOrWhiteSpace(guid) || string.IsNullOrWhiteSpace(gameType))
+                return new HtmlString(guid ?? string.Empty);
+
             switch (gameType)
             {
                 case "CallOfDuty4":

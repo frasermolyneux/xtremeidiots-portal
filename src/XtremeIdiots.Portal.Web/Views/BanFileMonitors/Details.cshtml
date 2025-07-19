@@ -22,13 +22,13 @@
                                 Game Server
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.ServerName(Model.GameServer.LiveTitle, Model.GameServer.Title)
+                                @Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.FilePath)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort.Value,
+                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort ?? 0,
                                 Model.FilePath)
                             </dd>
                             <dt class="col-sm-2">

@@ -35,10 +35,10 @@
                                 @Html.DisplayFor(model => model.FileName)
                             </dd>
                             <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.UserProfile.DisplayName)
+                                @Html.DisplayNameFor(model => model.UserProfile!.DisplayName)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.UserProfile.DisplayName)
+                                @Html.DisplayFor(model => model.UserProfile!.DisplayName)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.Created)
@@ -51,7 +51,7 @@
                     <div class="ibox-footer">
                         <form asp-action="Delete">
                             <input type="hidden" asp-for="DemoId" />
-                            <input name="filterGame" type="hidden" value="@ViewData["FilterGame"].ToString()" />
+                            <input name="filterGame" type="hidden" value="@(ViewData["FilterGame"]?.ToString() ?? string.Empty)" />
 
                             <div class="btn-group btn-group-sm" role="group">
                                 <button class="btn btn-danger" type="submit">

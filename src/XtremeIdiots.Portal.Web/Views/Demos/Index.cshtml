@@ -4,9 +4,9 @@
     ViewData["Title"] = "Demos Index";
     var dataUrl = "/Demos/GetDemoListAjax";
 
-    if (ViewData["GameType"] != null)
+    if (ViewData["GameType"] is GameType gameType)
     {
-        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Demos Index";
+        ViewData["Title"] = gameType.DisplayName() + " Demos Index";
         dataUrl = "/Demos/GetDemoListAjax/" + ViewData["GameType"];
     }
 }

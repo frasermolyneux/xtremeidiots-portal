@@ -4,9 +4,9 @@
     ViewData["Title"] = "Global Players Index";
     var dataUrl = "/Players/GetPlayersAjax";
 
-    if (ViewData["GameType"] != null)
+    if (ViewData["GameType"] is GameType gameType)
     {
-        ViewData["Title"] = ((GameType)ViewData["GameType"]).DisplayName() + " Players Index";
+        ViewData["Title"] = gameType.DisplayName() + " Players Index";
         dataUrl = "/Players/GetPlayersAjax/" + ViewData["GameType"];
     }
 }

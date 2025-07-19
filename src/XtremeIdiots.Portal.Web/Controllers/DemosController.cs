@@ -327,7 +327,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
-                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
+                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data is null)
                 {
                     Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, User.XtremeIdiotsId());
 
@@ -361,7 +361,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
-                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
+                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data is null)
                 {
                     return NotFound();
                 }

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,15 +12,11 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// Controller for displaying the change log of application updates and modifications
 /// </summary>
 [Authorize(Policy = AuthPolicies.AccessChangeLog)]
-public class ChangeLogController : BaseController
+public class ChangeLogController(
+    TelemetryClient telemetryClient,
+    ILogger<ChangeLogController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    public ChangeLogController(
-        TelemetryClient telemetryClient,
-        ILogger<ChangeLogController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-    }
 
     /// <summary>
     /// Displays the change log index page showing application updates and modifications
@@ -43,6 +36,6 @@ public class ChangeLogController : BaseController
             });
 
             return Task.FromResult<IActionResult>(View());
-        }, "Display change log index page");
+        }, nameof(Index));
     }
 }

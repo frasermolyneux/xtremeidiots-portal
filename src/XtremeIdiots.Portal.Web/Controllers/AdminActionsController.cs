@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,33 +14,26 @@ using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
+
 /// <summary>
 /// Controller for managing admin actions (bans, kicks, warnings, etc.) against players
 /// </summary>
 [Authorize(Policy = AuthPolicies.AccessAdminActionsController)]
-public class AdminActionsController : BaseController
+public class AdminActionsController(
+    IAuthorizationService authorizationService,
+    IAdminActionTopics adminActionTopics,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<AdminActionsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
     private const string DefaultForumBaseUrl = "https://www.xtremeidiots.com/forums/topic/";
     private const string DefaultFallbackAdminId = "21145";
     private const int DefaultTempBanDurationDays = 7;
 
-    private readonly IAuthorizationService authorizationService;
-    private readonly IAdminActionTopics adminActionTopics;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    public AdminActionsController(
-        IAuthorizationService authorizationService,
-        IAdminActionTopics adminActionTopics,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<AdminActionsController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.adminActionTopics = adminActionTopics ?? throw new ArgumentNullException(nameof(adminActionTopics));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IAdminActionTopics adminActionTopics = adminActionTopics ?? throw new ArgumentNullException(nameof(adminActionTopics));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the creation form for a new admin action against a specific player
@@ -753,7 +742,7 @@ public class AdminActionsController : BaseController
         {
             var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, User.XtremeIdiotsId(), null, 0, 50, AdminActionOrder.CreatedDesc);
 
-            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items == null)
+            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
             {
                 Logger.LogWarning("Failed to retrieve admin actions for user {UserId}", User.XtremeIdiotsId());
                 return RedirectToAction("Display", "Errors", new { id = 500 });

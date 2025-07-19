@@ -24,28 +24,19 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// Controller for managing core player operations including search, details, and IP addresses
 /// </summary>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class PlayersController : BaseController
+public class PlayersController(
+    IAuthorizationService authorizationService,
+    IGeoLocationApiClient geoLocationClient,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    IProxyCheckService proxyCheckService,
+    ILogger<PlayersController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IGeoLocationApiClient geoLocationClient;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IProxyCheckService proxyCheckService;
-
-    public PlayersController(
-        IAuthorizationService authorizationService,
-        IGeoLocationApiClient geoLocationClient,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        IProxyCheckService proxyCheckService,
-        ILogger<PlayersController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IGeoLocationApiClient geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IProxyCheckService proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
 
     /// <summary>
     /// Displays the main players index page with search capabilities
@@ -57,7 +48,7 @@ public class PlayersController : BaseController
         return await ExecuteWithErrorHandlingAsync(() =>
         {
             return Task.FromResult(View() as IActionResult);
-        }, "Index");
+        }, nameof(Index));
     }
 
     /// <summary>

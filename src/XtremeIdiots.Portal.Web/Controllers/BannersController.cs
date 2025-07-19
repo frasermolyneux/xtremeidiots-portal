@@ -109,7 +109,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse;
 
-                if (memoryCache.TryGetValue(GameServersListCacheKey, out gameServersApiResponse) && gameServersApiResponse != null)
+                if (memoryCache.TryGetValue(GameServersListCacheKey, out gameServersApiResponse) && gameServersApiResponse is not null)
                 {
                     Logger.LogDebug("Retrieved game servers data from cache for user {UserId}", User.XtremeIdiotsId());
                 }
@@ -121,14 +121,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
                         null, null, GameServerFilter.BannerServerListEnabled, 0, 50,
                         GameServerOrder.BannerServerListPosition, cancellationToken);
 
-                    if (gameServersApiResponse != null)
+                    if (gameServersApiResponse is not null)
                     {
                         memoryCache.Set(GameServersListCacheKey, gameServersApiResponse, DateTime.UtcNow.AddMinutes(5));
                         Logger.LogDebug("Cached game servers data for user {UserId}", User.XtremeIdiotsId());
                     }
                 }
 
-                if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items == null)
+                if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve game servers data or data is null for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -198,7 +198,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(
                         ipAddress, queryPort, imageName, cancellationToken);
 
-                    if (repositoryApiResponse != null)
+                    if (repositoryApiResponse is not null)
                     {
                         memoryCache.Set(cacheKey, repositoryApiResponse, DateTime.UtcNow.AddMinutes(30));
                         Logger.LogDebug("Cached GameTracker banner data for {IpAddress}:{QueryPort}/{ImageName}",
@@ -206,7 +206,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                 }
 
-                if (repositoryApiResponse?.IsSuccess != true || repositoryApiResponse.Result?.Data?.BannerUrl == null)
+                if (repositoryApiResponse?.IsSuccess != true || repositoryApiResponse.Result?.Data?.BannerUrl is null)
                 {
                     var fallbackUrl = $"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}";
 

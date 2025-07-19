@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
                     gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
 
-                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
+                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve game servers for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -104,7 +104,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
-                if (modelValidationResult != null) return modelValidationResult;
+                if (modelValidationResult is not null) return modelValidationResult;
 
 #pragma warning disable CS8604 // Possible null reference argument. // ModelState check is just above.
                 var createGameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
@@ -118,7 +118,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     "GameServer",
                     $"GameType:{createGameServerDto.GameType}");
 
-                if (authResult != null) return authResult;
+                if (authResult is not null) return authResult;
 
                 // Set basic properties
                 createGameServerDto.Title = model.Title;
@@ -195,7 +195,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
@@ -211,7 +211,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     $"GameType:{gameServerData.GameType},GameServerId:{id}",
                     gameServerData);
 
-                if (authResult != null) return authResult;
+                if (authResult is not null) return authResult;
 
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
                 var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
@@ -243,7 +243,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();

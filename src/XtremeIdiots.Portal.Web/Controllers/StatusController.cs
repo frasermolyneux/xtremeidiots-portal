@@ -45,14 +45,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                // Get user's claimed games and ban file monitor access
+                // Filter monitors based on user's claimed games to ensure security isolation between game types
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
                 var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
                 Logger.LogInformation("User {UserId} has access to {GameTypeCount} game types and {MonitorCount} ban file monitors",
                     User.XtremeIdiotsId(), gameTypes.Count(), banFileMonitorIds.Count());
 
-                // Retrieve ban file monitors
                 var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(
                     gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition, cancellationToken);
 

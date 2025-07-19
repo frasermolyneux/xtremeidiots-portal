@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Diagnostics;

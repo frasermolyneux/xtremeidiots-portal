@@ -119,7 +119,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var gameServerData = gameServerApiResponse.Result.Data;
 
-                // Get current map information if available
+                // Fetch map details to display additional context about the current game state
                 MapDto? mapDto = null;
                 if (!string.IsNullOrWhiteSpace(gameServerData.LiveMap))
                 {
@@ -136,7 +136,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                 }
 
-                // Get server statistics for the past 2 days
+                // Calculate recent activity trends to help understand server health and popularity
                 var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1
                     .GetGameServerStatusStats(gameServerData.GameServerId, DateTime.UtcNow.AddDays(-2), cancellationToken);
 
@@ -173,7 +173,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                                 current.MapName, current.Timestamp, DateTime.UtcNow));
                     }
 
-                    // Get map details for all maps played
+                    // Enrich map timeline with visual data to improve user experience with map images and names
                     try
                     {
                         var mapNames = gameServerStatsResponseDto.Result.Data.Items

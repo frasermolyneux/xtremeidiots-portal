@@ -75,61 +75,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// Returns JSON data containing the latest admin actions for external API consumption
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>JSON array of formatted admin action data</returns>
+        /// <returns>Redirect to the new API endpoint</returns>
         /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions</exception>
         [HttpGet]
         [EnableCors("CorsPolicy")]
-        public async Task<IActionResult> GetLatestAdminActions(CancellationToken cancellationToken = default)
+        public IActionResult GetLatestAdminActions(CancellationToken cancellationToken = default)
         {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("External API request for latest admin actions JSON data");
-
-                var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
-                    null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
-
-                if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
-                {
-                    Logger.LogWarning("Failed to retrieve admin actions for external API - API response unsuccessful or data is null");
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                var results = new List<dynamic>();
-                foreach (var adminActionDto in adminActionsApiResponse.Result.Data.Items)
-                {
-                    string actionText;
-                    if (adminActionDto.Expires <= DateTime.UtcNow &&
-                        (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
-                        actionText = $"lifted a {adminActionDto.Type} on";
-                    else
-                        actionText = $"added a {adminActionDto.Type} to";
-
-                    var adminName = adminActionDto.UserProfile?.DisplayName ?? "Unknown";
-                    var adminId = adminActionDto.UserProfile?.XtremeIdiotsForumId;
-
-                    results.Add(new
-                    {
-                        GameIconUrl = $"https://portal.xtremeidiots.com/images/game-icons/{adminActionDto.Player?.GameType.ToString()}.png",
-                        AdminName = adminName,
-                        AdminId = adminId,
-                        ActionType = adminActionDto.Type.ToString(),
-                        ActionText = actionText,
-                        PlayerName = adminActionDto.Player?.Username,
-                        PlayerLink = $"https://portal.xtremeidiots.com/Players/Details/{adminActionDto.PlayerId}"
-                    });
-                }
-
-                Logger.LogInformation("Successfully processed {Count} admin actions for external API response", results.Count);
-
-                TrackSuccessTelemetry("LatestAdminActionsApiCalled", "GetLatestAdminActions", new Dictionary<string, string>
-                {
-                    { "Controller", "External" },
-                    { "Resource", "AdminActionsAPI" },
-                    { "Count", results.Count.ToString() }
-                });
-
-                return Json(results);
-            }, "GetLatestAdminActions");
+            return RedirectPermanent("/External/GetLatestAdminActions");
         }
     }
 }

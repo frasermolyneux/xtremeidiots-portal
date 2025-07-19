@@ -50,26 +50,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <param name="cutoff">The cutoff date to filter data from</param>
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>JSON data for cumulative daily players chart</returns>
+        /// <returns>Redirect to the new API endpoint</returns>
         [HttpGet]
-        public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff, CancellationToken cancellationToken = default)
+        public IActionResult GetCumulativeDailyPlayersJson(DateTime cutoff, CancellationToken cancellationToken = default)
         {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} requesting cumulative daily players data from {Cutoff}",
-                    User.XtremeIdiotsId(), cutoff);
-
-                var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetCumulativeDailyPlayers(cutoff);
-
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
-                {
-                    Logger.LogWarning("Failed to retrieve cumulative daily players data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                Logger.LogInformation("Successfully retrieved cumulative daily players data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
-            }, "GetCumulativeDailyPlayersJson", $"cutoff: {cutoff}");
+            return RedirectPermanent($"/PlayerAnalytics/GetCumulativeDailyPlayersJson?cutoff={cutoff:yyyy-MM-ddTHH:mm:ss}");
         }
 
         /// <summary>
@@ -77,26 +62,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <param name="cutoff">The cutoff date to filter data from</param>
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>JSON data for new daily players per game chart</returns>
+        /// <returns>Redirect to the new API endpoint</returns>
         [HttpGet]
-        public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
+        public IActionResult GetNewDailyPlayersPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
         {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} requesting new daily players per game data from {Cutoff}",
-                    User.XtremeIdiotsId(), cutoff);
-
-                var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetNewDailyPlayersPerGame(cutoff);
-
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
-                {
-                    Logger.LogWarning("Failed to retrieve new daily players per game data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                Logger.LogInformation("Successfully retrieved new daily players per game data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
-            }, "GetNewDailyPlayersPerGameJson", $"cutoff: {cutoff}");
+            return RedirectPermanent($"/PlayerAnalytics/GetNewDailyPlayersPerGameJson?cutoff={cutoff:yyyy-MM-ddTHH:mm:ss}");
         }
 
         /// <summary>
@@ -104,26 +74,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <param name="cutoff">The cutoff date to filter data from</param>
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>JSON data for players drop-off per game chart</returns>
+        /// <returns>Redirect to the new API endpoint</returns>
         [HttpGet]
-        public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
+        public IActionResult GetPlayersDropOffPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
         {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} requesting players drop-off per game data from {Cutoff}",
-                    User.XtremeIdiotsId(), cutoff);
-
-                var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetPlayersDropOffPerGameJson(cutoff);
-
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
-                {
-                    Logger.LogWarning("Failed to retrieve players drop-off per game data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                Logger.LogInformation("Successfully retrieved players drop-off per game data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
-            }, "GetPlayersDropOffPerGameJson", $"cutoff: {cutoff}");
+            return RedirectPermanent($"/PlayerAnalytics/GetPlayersDropOffPerGameJson?cutoff={cutoff:yyyy-MM-ddTHH:mm:ss}");
         }
     }
 }

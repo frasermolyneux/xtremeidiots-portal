@@ -129,6 +129,10 @@ namespace XtremeIdiots.Portal.Web
 
             app.UseEndpoints(endpoints =>
             {
+                // API Controller routes - configured with explicit routing
+                endpoints.MapControllers();
+
+                // Traditional MVC routes
                 endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");

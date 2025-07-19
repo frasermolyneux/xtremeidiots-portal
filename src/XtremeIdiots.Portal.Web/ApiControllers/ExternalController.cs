@@ -56,7 +56,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve admin actions for external API - API response unsuccessful or data is null");
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve admin actions data");
                 }
 
                 var results = new List<dynamic>();
@@ -93,7 +93,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     { "Count", results.Count.ToString() }
                 });
 
-                return Json(results);
+                return Ok(results);
             }, "GetLatestAdminActions");
         }
     }

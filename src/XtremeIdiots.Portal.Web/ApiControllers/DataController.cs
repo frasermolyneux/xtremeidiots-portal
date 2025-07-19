@@ -104,7 +104,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 {
                     Logger.LogWarning("Failed to retrieve maps data for user {UserId} and game type {GameType}",
                         User.XtremeIdiotsId(), id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve maps data");
                 }
 
                 TrackSuccessTelemetry("MapsListRetrieved", "GetMapListAjax", new Dictionary<string, string>
@@ -113,7 +113,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     { "ResultCount", mapsApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
                 });
 
-                return Json(new
+                return Ok(new
                 {
                     model.Draw,
                     recordsTotal = mapsApiResponse.Result.Data.TotalCount,
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     return BadRequest();
                 }
 
-                return Json(new
+                return Ok(new
                 {
                     model.Draw,
                     recordsTotal = userProfileResponseDto.Result.Data.TotalCount,
@@ -217,7 +217,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 {
                     Logger.LogError("Failed to retrieve players for user {UserId} with filter {Filter}",
                         User.XtremeIdiotsId(), filter);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve players data");
                 }
 
                 TrackSuccessTelemetry("PlayersListLoaded", "GetPlayersAjax", new Dictionary<string, string>
@@ -227,7 +227,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     { "ResultCount", playersApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
                 });
 
-                return Json(new
+                return Ok(new
                 {
                     model.Draw,
                     recordsTotal = playersApiResponse.Result.Data.TotalCount,

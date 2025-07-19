@@ -163,7 +163,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
             if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data == null)
             {
                 Logger.LogError("Failed to retrieve chat log for user {UserId}", User.XtremeIdiotsId());
-                return RedirectToAction("Display", "Errors", new { id = 500 });
+                return StatusCode(500, "Failed to retrieve chat log data");
             }
 
             TrackSuccessTelemetry("ChatLogLoaded", "GetChatLog", new Dictionary<string, string>
@@ -175,7 +175,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 { "ResultCount", chatMessagesApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
             });
 
-            return Json(new
+            return Ok(new
             {
                 model.Draw,
                 recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,

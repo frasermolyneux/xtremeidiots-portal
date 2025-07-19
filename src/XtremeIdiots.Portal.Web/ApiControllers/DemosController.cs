@@ -105,7 +105,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data == null)
                 {
                     Logger.LogError("Failed to retrieve demos list for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve demos data");
                 }
 
                 var portalDemoEntries = new List<PortalDemoDto>();
@@ -131,7 +131,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     { "TotalCount", demosApiResponse.Result.Data.TotalCount.ToString() }
                 });
 
-                return Json(new
+                return Ok(new
                 {
                     model.Draw,
                     recordsTotal = demosApiResponse.Result.Data.TotalCount,
@@ -227,7 +227,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 clientListTelemetry.Properties.TryAdd("DemoCount", demos.Count.ToString());
                 TelemetryClient.TrackEvent(clientListTelemetry);
 
-                return Json(demos);
+                return Ok(demos);
             }
             catch (Exception ex)
             {

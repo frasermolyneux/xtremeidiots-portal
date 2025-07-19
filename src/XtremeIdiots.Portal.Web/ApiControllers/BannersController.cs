@@ -96,7 +96,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items == null)
                 {
                     Logger.LogWarning("Failed to retrieve game servers data or data is null for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve game servers banner data");
                 }
 
                 var htmlBanners = gameServersApiResponse.Result.Data.Items
@@ -112,7 +112,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     { "BannerCount", htmlBanners.Count.ToString() }
                 });
 
-                return Json(htmlBanners);
+                return Ok(htmlBanners);
             }, "Retrieve game servers banners data");
         }
 

@@ -48,11 +48,11 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
                 {
                     Logger.LogWarning("Failed to retrieve cumulative daily players data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve cumulative daily players data");
                 }
 
                 Logger.LogInformation("Successfully retrieved cumulative daily players data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
+                return Ok(playerAnalyticsResponse.Result.Data);
             }, "GetCumulativeDailyPlayersJson", $"cutoff: {cutoff}");
         }
 
@@ -75,11 +75,11 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
                 {
                     Logger.LogWarning("Failed to retrieve new daily players per game data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve new daily players per game data");
                 }
 
                 Logger.LogInformation("Successfully retrieved new daily players per game data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
+                return Ok(playerAnalyticsResponse.Result.Data);
             }, "GetNewDailyPlayersPerGameJson", $"cutoff: {cutoff}");
         }
 
@@ -102,11 +102,11 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
                 {
                     Logger.LogWarning("Failed to retrieve players drop-off per game data for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
+                    return StatusCode(500, "Failed to retrieve players drop-off per game data");
                 }
 
                 Logger.LogInformation("Successfully retrieved players drop-off per game data for user {UserId}", User.XtremeIdiotsId());
-                return Json(playerAnalyticsResponse.Result.Data);
+                return Ok(playerAnalyticsResponse.Result.Data);
             }, "GetPlayersDropOffPerGameJson", $"cutoff: {cutoff}");
         }
     }

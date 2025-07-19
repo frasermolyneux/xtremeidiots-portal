@@ -45,8 +45,8 @@ namespace XtremeIdiots.Portal.Web
 
             services.AddInvisionApiClient(options =>
             {
-                options.BaseUrl = Configuration["xtremeidiots_forums_base_url"];
-                options.ApiKey = Configuration["xtremeidiots_forums_api_key"];
+                options.BaseUrl = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException("xtremeidiots_forums_base_url");
+                options.ApiKey = Configuration["xtremeidiots_forums_api_key"] ?? throw new ArgumentNullException("xtremeidiots_forums_api_key");
             });
 
             services.AddAdminActionTopics();
@@ -79,8 +79,9 @@ namespace XtremeIdiots.Portal.Web
 
             services.AddCors(options =>
             {
+                var corsOrigin = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException("xtremeidiots_forums_base_url");
                 options.AddPolicy("CorsPolicy",
-                    builder => builder.WithOrigins(Configuration["xtremeidiots_forums_base_url"])
+                    builder => builder.WithOrigins(corsOrigin)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

@@ -49,7 +49,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
         {
             var alertsTemp = controller.TempData[AlertKey] ?? JsonConvert.SerializeObject(new HashSet<Alert>());
 
-            var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsTemp.ToString()) ?? new HashSet<Alert>();
+            var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsTemp.ToString() ?? string.Empty) ?? new HashSet<Alert>();
 
             return alerts;
         }

@@ -15,6 +15,7 @@ using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
+using XtremeIdiots.Portal.Integrations.Servers.Abstractions.Models.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -67,7 +68,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var results = gameServersApiResponse.Result.Data.Items.Select(gs => new ServerAdminGameServerViewModel
                 {
-                    GameServer = gs
+                    GameServer = gs,
+                    GameServerQueryStatus = new ServerQueryStatusResponseDto(),
+                    GameServerRconStatus = new ServerRconStatusResponseDto()
                 }).ToList();
 
                 Logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",

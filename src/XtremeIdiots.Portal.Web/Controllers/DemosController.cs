@@ -80,11 +80,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var userId = User.XtremeIdiotsId();
                 Logger.LogInformation("User {UserId} accessing demo client configuration page", userId);
 
-                var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
+                var hasAuthKey = false;
 
-                if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null)
+                if (!string.IsNullOrEmpty(userId))
                 {
-                    ViewData["ClientAuthKey"] = userProfileApiResponse.Result.Data.DemoAuthKey;
+                    var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
+
+                    if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null)
+                    {
+                        ViewData["ClientAuthKey"] = userProfileApiResponse.Result.Data.DemoAuthKey;
+                        hasAuthKey = true;
+                    }
                 }
 
                 var demoManagerClientDto = await this.demosForumsClient.GetDemoManagerClient();
@@ -94,7 +100,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     { "Controller", "Demos" },
                     { "Resource", "DemoClient" },
                     { "Context", "DemoClientAccess" },
-                    { "HasAuthKey", (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null).ToString() }
+                    { "HasAuthKey", hasAuthKey.ToString() }
                 });
 
                 return View(demoManagerClientDto);
@@ -114,6 +120,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var userId = User.XtremeIdiotsId();
                 Logger.LogInformation("User {UserId} attempting to regenerate demo auth key", userId);
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    Logger.LogWarning("User ID is null when regenerating demo auth key");
+                    return NotFound();
+                }
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 

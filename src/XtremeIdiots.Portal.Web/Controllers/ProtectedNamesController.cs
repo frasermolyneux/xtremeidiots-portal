@@ -202,7 +202,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var createProtectedNameDto = new CreateProtectedNameDto(
                     model.PlayerId,
                     model.Name,
-                    User.XtremeIdiotsId());
+                    User.XtremeIdiotsId() ?? throw new InvalidOperationException("User XtremeIdiotsId is required"));
 
                 var response = await repositoryApiClient.Players.V1.CreateProtectedName(createProtectedNameDto);
 

@@ -124,7 +124,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     Expires = model.Expires,
                 };
 
-                // Create forum topic for admin action
                 createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(
                     model.Type,
                     playerData.GameType,
@@ -248,7 +247,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto, cancellationToken);
 
-                // Update forum topic if it exists
                 var adminForumId = canChangeAdminActionAdmin.Succeeded && adminActionData.UserProfile?.XtremeIdiotsForumId != model.AdminId
                     ? editAdminActionDto.AdminId
                     : adminActionData.UserProfile?.XtremeIdiotsForumId;
@@ -444,7 +442,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto, cancellationToken);
 
-                // Update forum topic if it exists
                 if (adminActionData.ForumTopicId.HasValue && adminActionData.ForumTopicId != 0)
                 {
                     await adminActionTopics.UpdateTopicForAdminAction(

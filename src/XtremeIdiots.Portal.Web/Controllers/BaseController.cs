@@ -45,7 +45,7 @@ public abstract class BaseController(
         var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
             .Enrich(User);
 
-        if (additionalData != null)
+        if (additionalData is not null)
         {
             unauthorizedTelemetry.Properties.TryAdd("AdditionalData", additionalData.ToString() ?? "");
         }
@@ -84,7 +84,7 @@ public abstract class BaseController(
         var controllerName = GetType().Name.Replace("Controller", "");
         errorTelemetry.Properties.TryAdd("Controller", controllerName);
 
-        if (additionalProperties != null)
+        if (additionalProperties is not null)
         {
             foreach (var kvp in additionalProperties)
             {

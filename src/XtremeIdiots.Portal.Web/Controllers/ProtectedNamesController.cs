@@ -19,22 +19,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing protected player names
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public class ProtectedNamesController : BaseController
+    public class ProtectedNamesController(
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<ProtectedNamesController> logger,
+        IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
     {
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
-
-        public ProtectedNamesController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<ProtectedNamesController> logger,
-            IConfiguration configuration)
-            : base(telemetryClient, logger, configuration)
-        {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        }
+        private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
         /// <summary>
         /// Displays the list of all protected player names

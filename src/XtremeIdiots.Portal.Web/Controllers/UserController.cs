@@ -21,25 +21,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing user accounts, profiles, and claims
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessUsers)]
-    public class UserController : BaseController
+    public class UserController(
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        UserManager<IdentityUser> userManager,
+        TelemetryClient telemetryClient,
+        ILogger<UserController> logger,
+        IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
     {
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly UserManager<IdentityUser> userManager;
-
-        public UserController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<UserController> logger,
-            IConfiguration configuration,
-            UserManager<IdentityUser> userManager)
-            : base(telemetryClient, logger, configuration)
-        {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        }
+        private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+        private readonly UserManager<IdentityUser> userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
         /// <summary>
         /// Displays the main users management page
@@ -239,7 +231,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     "UserClaim",
                     $"ProfileId:{id},GameType:{gameServerData.GameType},ClaimType:{claimType}");
 
-                if (authResult != null) return authResult;
+                if (authResult is not null) return authResult;
 
                 if (!userProfileData.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
                 {
@@ -322,7 +314,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     Logger.LogInformation("Legacy claim detected for user profile {ProfileId}, allowing deletion", id);
                     canDeleteUserClaim = true;
                 }
-                else if (gameServerApiResponse.Result?.Data != null)
+                else if (gameServerApiResponse.Result?.Data is not null)
                 {
                     var authResult = await CheckAuthorizationAsync(
                         authorizationService,
@@ -332,7 +324,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                         "UserClaim",
                         $"ProfileId:{id},ClaimId:{claimId},ClaimType:{claim.ClaimType}");
 
-                    if (authResult != null) return authResult;
+                    if (authResult is not null) return authResult;
                     canDeleteUserClaim = true;
                 }
 

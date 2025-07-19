@@ -23,25 +23,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for server administration functionality including RCON access, chat logs, and server management
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
-    public class ServerAdminController : BaseController
+    public class ServerAdminController(
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        IServersApiClient serversApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<ServerAdminController> logger,
+        IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
     {
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IServersApiClient serversApiClient;
-
-        public ServerAdminController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
-            IServersApiClient serversApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<ServerAdminController> logger,
-            IConfiguration configuration)
-            : base(telemetryClient, logger, configuration)
-        {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-        }
+        private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+        private readonly IServersApiClient serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
 
         /// <summary>
         /// Displays the server administration dashboard with a list of game servers that support live tracking
@@ -624,11 +616,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
             }
 
-            // Check for locked filter parameter
+            // Support special "locked:" prefix to filter chat messages that are locked by admins
             if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
             {
                 lockedOnly = true;
-                model.Search.Value = model.Search.Value.Substring(7).Trim(); // Remove "locked:" prefix
+                model.Search.Value = model.Search.Value.Substring(7).Trim();
             }
 
             var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(

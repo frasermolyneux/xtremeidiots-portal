@@ -26,37 +26,19 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing game server banners and GameTracker integration
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessHome)]
-    public class BannersController : BaseController
+    public class BannersController(
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        IMemoryCache memoryCache,
+        TelemetryClient telemetryClient,
+        ILogger<BannersController> logger,
+        IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
     {
         private const string GameServersListCacheKey = "game-servers-api-response";
 
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly IMemoryCache memoryCache;
-
-        /// <summary>
-        /// Initializes a new instance of the BannersController
-        /// </summary>
-        /// <param name="authorizationService">Service for handling authorization checks</param>
-        /// <param name="repositoryApiClient">Client for accessing repository API endpoints</param>
-        /// <param name="memoryCache">Memory cache for storing temporary data</param>
-        /// <param name="telemetryClient">Client for tracking telemetry and events</param>
-        /// <param name="logger">Logger for structured logging</param>
-        /// <param name="configuration">Configuration service for app settings</param>
-        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
-        public BannersController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
-            IMemoryCache memoryCache,
-            TelemetryClient telemetryClient,
-            ILogger<BannersController> logger,
-            IConfiguration configuration)
-            : base(telemetryClient, logger, configuration)
-        {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-        }
+        private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+        private readonly IMemoryCache memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
         /// <summary>
         /// Displays the game servers list view for banner management

@@ -164,7 +164,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return RedirectToAction("Display", "Errors", new { id = 404 });
                 }
 
-                // Check if this tag is UserDefined - only those can be added by users
                 if (!tagResponse.Result.Data.UserDefined)
                 {
                     Logger.LogWarning("User {UserId} attempted to assign non-user-defined tag {TagId} to player {PlayerId}",
@@ -214,7 +213,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 Logger.LogInformation("Successfully added tag '{TagName}' ({TagId}) to player {PlayerId} by user {UserId}",
                     tagResponse.Result.Data.Name, model.TagId, model.PlayerId, User.XtremeIdiotsId());
 
-                // Get player data for telemetry enrichment
                 var playerDataResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
                 var playerData = playerDataResponse.IsSuccess ? playerDataResponse.Result?.Data : null;
 
@@ -285,7 +283,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return RedirectToAction("Display", "Errors", new { id = 404 });
                 }
 
-                // Check if the tag is UserDefined - only those can be removed
                 if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
                 {
                     Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",
@@ -359,7 +356,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return RedirectToAction("Display", "Errors", new { id = 404 });
                 }
 
-                // Check if the tag is UserDefined - only those can be removed
                 if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
                 {
                     Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",

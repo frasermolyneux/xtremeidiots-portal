@@ -16,21 +16,14 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Base controller providing common functionality for telemetry, authorization, and error handling
 /// </summary>
-public abstract class BaseController : Controller
+public abstract class BaseController(
+    TelemetryClient telemetryClient,
+    ILogger logger,
+    IConfiguration configuration) : Controller
 {
-    protected readonly TelemetryClient TelemetryClient;
-    protected readonly ILogger Logger;
-    protected readonly IConfiguration Configuration;
-
-    protected BaseController(
-        TelemetryClient telemetryClient,
-        ILogger logger,
-        IConfiguration configuration)
-    {
-        TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
+    protected readonly TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+    protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>
     /// Tracks unauthorized access attempt telemetry with standardized properties
@@ -47,7 +40,6 @@ public abstract class BaseController : Controller
         var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
             .Enrich(User);
 
-        // Add additional data as properties if provided
         if (additionalData != null)
         {
             unauthorizedTelemetry.Properties.TryAdd("AdditionalData", additionalData.ToString() ?? "");

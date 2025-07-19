@@ -1,21 +1,20 @@
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace XtremeIdiots.Portal.Web.Controllers
+namespace XtremeIdiots.Portal.Web.Controllers;
+
+/// <summary>
+/// Controller for legacy health check endpoint redirects
+/// </summary>
+public class HealthCheckController : Controller
 {
     /// <summary>
-    /// Controller for legacy health check endpoint redirects
+    /// Redirects legacy health check status requests to the new API endpoint
     /// </summary>
-    public class HealthCheckController : Controller
+    /// <returns>Redirect to the new API endpoint</returns>
+    [HttpGet]
+    public IActionResult Status()
     {
-        /// <summary>
-        /// Redirects legacy health check status requests to the new API endpoint
-        /// </summary>
-        /// <returns>Redirect to the new API endpoint</returns>
-        [HttpGet]
-        public IActionResult Status()
-        {
-            return RedirectPermanent("/api/healthcheck/status");
-        }
+        return RedirectPermanent("/api/healthcheck/status");
     }
 }

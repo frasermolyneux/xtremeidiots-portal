@@ -50,7 +50,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                await Task.CompletedTask; // Placeholder for any future async operations
+                await Task.CompletedTask;
                 return View();
             }, "Index");
         }
@@ -64,7 +64,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                await Task.CompletedTask; // Placeholder for any future async operations
+                await Task.CompletedTask;
                 return View();
             }, "Permissions");
         }

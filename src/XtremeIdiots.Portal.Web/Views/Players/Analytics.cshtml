@@ -6,13 +6,13 @@
     var dateFilterRange = ViewBag.DateFilterRange;
 
     DateTime filterRange;
-    if (dateFilterRange == null)
+    if (dateFilterRange is null)
     {
         filterRange = DateTime.UtcNow.AddYears(-1);
     }
     else
     {
-        filterRange = (DateTime) dateFilterRange;
+        filterRange = (DateTime)dateFilterRange;
     }
 }
 
@@ -28,7 +28,8 @@
                     <div class="input-group date">
                         <span class="input-group-addon">
                             <i class="fa fa-calendar"></i>
-                        </span><input readonly="readonly" id="filterDate" type="text" class="form-control" value="@filterRange.ToString("MM/dd/yyyy")">
+                        </span><input readonly="readonly" id="filterDate" type="text" class="form-control"
+                            value="@filterRange.ToString("MM/dd/yyyy")">
                     </div>
                     <label class="font-normal">Select the cutoff date for analytics</label>
                 </div>
@@ -74,10 +75,10 @@
 @section Styles
 {
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"/>
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css" />
     </environment>
     <environment names="Staging,Production">
-        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"/>
+        <link rel="stylesheet" href="~/lib/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css" />
     </environment>
 }
 
@@ -106,7 +107,7 @@
             var cutoff = $("#filterDate").val();
 
             $.getJSON("/Players/GetNewDailyPlayersPerGameJson?cutoff=" + cutoff,
-                function(jsonData) {
+                function (jsonData) {
 
                     console.log(jsonData);
 
@@ -118,7 +119,7 @@
                     data.addColumn('number', 'Insurgency');
 
                     $.each(jsonData,
-                        function(key, val) {
+                        function (key, val) {
 
                             var cod2 = val.gameCounts.CallOfDuty2;
                             var cod4 = val.gameCounts.CallOfDuty4;
@@ -160,7 +161,7 @@
             var cutoff = $("#filterDate").val();
 
             $.getJSON("/Players/GetPlayersDropOffPerGameJson?cutoff=" + cutoff,
-                function(jsonData) {
+                function (jsonData) {
 
                     var data = new google.visualization.DataTable();
                     data.addColumn('date', 'Date');
@@ -170,7 +171,7 @@
                     data.addColumn('number', 'Insurgency');
 
                     $.each(jsonData,
-                        function(key, val) {
+                        function (key, val) {
 
                             var cod2 = val.gameCounts.CallOfDuty2;
                             var cod4 = val.gameCounts.CallOfDuty4;
@@ -213,14 +214,14 @@
             var dt = new Date(cutoff);
 
             $.getJSON("/Players/GetCumulativeDailyPlayersJson?cutoff=" + dt.toISOString(),
-                function(jsonData) {
+                function (jsonData) {
 
                     var data = new google.visualization.DataTable();
                     data.addColumn('date', 'Created');
                     data.addColumn('number', 'Count');
 
                     $.each(jsonData,
-                        function(key, val) {
+                        function (key, val) {
                             data.addRow([
                                 moment(val.created).toDate(),
                                 val.count
@@ -248,7 +249,7 @@
                 });
         }
 
-        window.onload = function() {
+        window.onload = function () {
             $('#data_1 .input-group.date').datepicker({
                 todayBtn: "linked",
                 keyboardNavigation: false,
@@ -257,7 +258,7 @@
                 autoclose: true
             });
 
-            $('#filterDate').change(function() {
+            $('#filterDate').change(function () {
                 drawPlayersChart();
                 drawPlayersPerGameChart();
                 drawPlayerDropOffPerGameChart();

@@ -139,7 +139,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-                if (model == null)
+                if (model is null)
                 {
                     Logger.LogWarning("Invalid request body for users AJAX endpoint");
                     return BadRequest();
@@ -148,7 +148,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(
                     model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
 
-                if (userProfileResponseDto.Result?.Data == null)
+                if (userProfileResponseDto.Result?.Data is null)
                 {
                     Logger.LogWarning("Invalid API response for users AJAX endpoint");
                     return BadRequest();
@@ -180,7 +180,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-                if (model == null)
+                if (model is null)
                 {
                     Logger.LogWarning("Invalid request model for players AJAX from user {UserId}", User.XtremeIdiotsId());
                     return BadRequest();
@@ -213,7 +213,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 var playersApiResponse = await repositoryApiClient.Players.V1.GetPlayers(
                     gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
-                if (!playersApiResponse.IsSuccess || playersApiResponse.Result?.Data == null)
+                if (!playersApiResponse.IsSuccess || playersApiResponse.Result?.Data is null)
                 {
                     Logger.LogError("Failed to retrieve players for user {UserId} with filter {Filter}",
                         User.XtremeIdiotsId(), filter);

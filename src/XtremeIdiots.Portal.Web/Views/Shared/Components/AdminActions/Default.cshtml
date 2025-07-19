@@ -34,7 +34,7 @@
             AdminActionType.TempBan when item.Expires < DateTime.UtcNow => "Expired",
             AdminActionType.Ban when item.Expires != null => "Lifted",
             AdminActionType.TempBan when item.Expires > DateTime.UtcNow => "Active",
-            AdminActionType.Ban when item.Expires == null => "Active",
+            AdminActionType.Ban when item.Expires is null => "Active",
             _ => ""
         };
 
@@ -43,7 +43,7 @@
             AdminActionType.TempBan when item.Expires < DateTime.UtcNow => "bg-secondary text-white",
             AdminActionType.Ban when item.Expires != null => "bg-secondary text-white",
             AdminActionType.TempBan when item.Expires > DateTime.UtcNow => "bg-danger text-white",
-            AdminActionType.Ban when item.Expires == null => "bg-danger text-white",
+            AdminActionType.Ban when item.Expires is null => "bg-danger text-white",
             _ => "bg-info text-white"
         };
 
@@ -100,7 +100,7 @@
                                     <div>
                                         <small class="text-muted text-uppercase fw-bold">Created By</small>
                                         <div class="fw-bold">
-                                            @if (item.UserProfile == null)
+                                            @if (item.UserProfile is null)
                                             {
                                                 <span class="text-muted">System/Unknown</span>
                                             }
@@ -223,7 +223,7 @@
                                         </a>
                                     }
 
-                                    @if ((item.Type == AdminActionType.Ban && item.Expires == null) || (item.Type ==
+                                    @if ((item.Type == AdminActionType.Ban && item.Expires is null) || (item.Type ==
                                                                     AdminActionType.TempBan && item.Expires > DateTime.UtcNow))
                                     {
                                         @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, new
@@ -237,7 +237,7 @@
                                         }
                                     }
 
-                                    @if (item.Type == AdminActionType.Ban && item.UserProfile == null)
+                                    @if (item.Type == AdminActionType.Ban && item.UserProfile is null)
                                     {
                                         @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User,
                                                                         gameType.Value, AuthPolicies.ClaimAdminAction)).Succeeded)

@@ -50,7 +50,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id, cancellationToken);
 
-            if (tagResponse.IsNotFound || tagResponse.Result?.Data == null)
+            if (tagResponse.IsNotFound || tagResponse.Result?.Data is null)
             {
                 Logger.LogWarning("Tag {TagId} not found when {Action}", id, action);
                 return (NotFound(), null);
@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100, cancellationToken);
 
-                if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items == null)
+                if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve tags for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });

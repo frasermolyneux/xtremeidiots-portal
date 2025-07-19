@@ -74,7 +74,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data == null)
+                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve player {PlayerId} for player tag", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -82,7 +82,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
 
-                if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items == null)
+                if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve tags for player tag assignment");
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -158,7 +158,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
                 var tagResponse = await repositoryApiClient.Tags.V1.GetTag(model.TagId);
-                if (!tagResponse.IsSuccess || tagResponse.Result?.Data == null)
+                if (!tagResponse.IsSuccess || tagResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Tag {TagId} not found when adding to player {PlayerId}", model.TagId, model.PlayerId);
                     return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -263,21 +263,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
                 var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
-                if (playerResponse.IsNotFound || playerResponse.Result?.Data == null)
+                if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
                     return NotFound();
                 }
 
                 var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
-                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items == null)
+                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
                 var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
-                if (playerTag == null)
+                if (playerTag is null)
                 {
                     Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
                     return RedirectToAction("Display", "Errors", new { id = 404 });
@@ -336,21 +336,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
                 var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
-                if (playerResponse.IsNotFound || playerResponse.Result?.Data == null)
+                if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
                     return NotFound();
                 }
 
                 var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
-                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items == null)
+                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
                 var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
-                if (playerTag == null)
+                if (playerTag is null)
                 {
                     Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
                     return RedirectToAction("Display", "Errors", new { id = 404 });

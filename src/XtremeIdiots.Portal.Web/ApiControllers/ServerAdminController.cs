@@ -135,7 +135,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
             var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-            if (model == null)
+            if (model is null)
             {
                 Logger.LogWarning("Invalid request model for chat log AJAX from user {UserId}", User.XtremeIdiotsId());
                 return BadRequest();
@@ -160,7 +160,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 gameType, serverId, playerId, model.Search?.Value,
                 model.Start, model.Length, order, lockedOnly, cancellationToken);
 
-            if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data == null)
+            if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data is null)
             {
                 Logger.LogError("Failed to retrieve chat log for user {UserId}", User.XtremeIdiotsId());
                 return StatusCode(500, "Failed to retrieve chat log data");

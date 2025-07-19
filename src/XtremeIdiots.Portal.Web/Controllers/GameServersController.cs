@@ -390,7 +390,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
@@ -433,7 +433,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
@@ -482,7 +482,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             try
             {
-                if (selected == null)
+                if (selected is null)
                     selected = GameType.Unknown;
 
                 var gameTypes = User.GetGameTypesForGameServers();

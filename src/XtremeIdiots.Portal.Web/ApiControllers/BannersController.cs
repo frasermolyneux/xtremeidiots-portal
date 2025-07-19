@@ -93,7 +93,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                     }
                 }
 
-                if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items == null)
+                if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve game servers data or data is null for user {UserId}", User.XtremeIdiotsId());
                     return StatusCode(500, "Failed to retrieve game servers banner data");

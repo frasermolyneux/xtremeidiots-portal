@@ -29,7 +29,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return playerDto!;
 
             if (string.IsNullOrEmpty(playerDto.IpAddress))
@@ -68,7 +68,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
-            if (playerDtos == null)
+            if (playerDtos is null)
                 return Enumerable.Empty<PlayerDto>();
 
             var players = playerDtos.ToList();

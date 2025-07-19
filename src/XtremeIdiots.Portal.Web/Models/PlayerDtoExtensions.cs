@@ -20,7 +20,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static int ProxyCheckRiskScore(this PlayerDto playerDto)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return 0;
 
             return RiskScores.TryGetValue(playerDto.PlayerId, out var score) ? score : 0;
@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static void SetProxyCheckRiskScore(this PlayerDto playerDto, int value)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return;
 
             RiskScores.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
@@ -42,7 +42,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static bool IsProxy(this PlayerDto playerDto)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return false;
 
             return IsProxyFlags.TryGetValue(playerDto.PlayerId, out var isProxy) && isProxy;
@@ -53,7 +53,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static void SetIsProxy(this PlayerDto playerDto, bool value)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return;
 
             IsProxyFlags.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
@@ -64,7 +64,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static bool IsVpn(this PlayerDto playerDto)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return false;
 
             return IsVpnFlags.TryGetValue(playerDto.PlayerId, out var isVpn) && isVpn;
@@ -75,7 +75,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static void SetIsVpn(this PlayerDto playerDto, bool value)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return;
 
             IsVpnFlags.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static string ProxyType(this PlayerDto playerDto)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return string.Empty;
 
             return ProxyTypes.TryGetValue(playerDto.PlayerId, out var type) ? type : string.Empty;
@@ -97,7 +97,7 @@ namespace XtremeIdiots.Portal.Web.Models
         /// </summary>
         public static void SetProxyType(this PlayerDto playerDto, string value)
         {
-            if (playerDto == null)
+            if (playerDto is null)
                 return;
 
             ProxyTypes.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);

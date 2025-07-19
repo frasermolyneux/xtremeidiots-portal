@@ -105,7 +105,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
             GeoLocationDto? geoLocation = null,
             bool linkToDetails = true)
         {
-            if (player == null || string.IsNullOrEmpty(player.IpAddress))
+            if (player is null || string.IsNullOrEmpty(player.IpAddress))
                 return HtmlString.Empty;
 
             return FormatIPAddress(
@@ -132,7 +132,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
             GeoLocationDto? geoLocation = null,
             bool linkToDetails = true)
         {
-            if (string.IsNullOrEmpty(ipAddress) || proxyCheckResult == null || proxyCheckResult.IsError)
+            if (string.IsNullOrEmpty(ipAddress) || proxyCheckResult is null || proxyCheckResult.IsError)
                 return FormatIPAddress(ipAddress, geoLocation, null, null, null, null, linkToDetails);
 
             return FormatIPAddress(

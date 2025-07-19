@@ -93,7 +93,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
                 var info = await xtremeIdiotsAuth.GetExternalLoginInfoAsync();
-                if (info == null)
+                if (info is null)
                 {
                     Logger.LogWarning("External login info was null, redirecting to home");
                     return RedirectToAction(nameof(HomeController.Index), "Home");

@@ -24,7 +24,7 @@ namespace XtremeIdiots.Portal.Integrations.Forums
             var downloadFile = await _invisionClient.Downloads.GetDownloadFile(2753);
 
             // Ensure we have valid download file data before proceeding
-            if (downloadFile == null)
+            if (downloadFile is null)
             {
                 throw new InvalidOperationException("Unable to retrieve demo manager download file from forums");
             }

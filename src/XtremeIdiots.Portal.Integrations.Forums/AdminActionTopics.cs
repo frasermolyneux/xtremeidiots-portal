@@ -51,7 +51,7 @@ namespace XtremeIdiots.Portal.Integrations.Forums
                 var postTopicResult = await _invisionClient.Forums.PostTopic(forumId, userId, $"{username} - {type}", PostContent(type, playerId, username, created, text), type.ToString());
 
                 // Ensure we have a valid topic result before returning
-                if (postTopicResult == null)
+                if (postTopicResult is null)
                 {
                     _logger.LogWarning("Failed to create forum topic for admin action - null response");
                     return 0;

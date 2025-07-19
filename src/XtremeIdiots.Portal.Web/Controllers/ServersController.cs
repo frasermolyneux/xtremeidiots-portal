@@ -51,7 +51,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     null, null, GameServerFilter.PortalServerListEnabled, 0, 50,
                     GameServerOrder.BannerServerListPosition, cancellationToken);
 
-                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
+                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve game servers for user {UserId}. API Success: {IsSuccess}",
                         User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
@@ -83,7 +83,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated,
                     0, 200, null, cancellationToken);
 
-                if (response.Result?.Data?.Items == null)
+                if (response.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve recent players for map view for user {UserId}. API Success: {IsSuccess}",
                         User.XtremeIdiotsId(), response.IsSuccess);
@@ -110,7 +110,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Server {ServerId} not found when accessing server info for user {UserId}",
                         id, User.XtremeIdiotsId());
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                     foreach (var gameServerStatusStatDto in orderedStats)
                     {
-                        if (current == null)
+                        if (current is null)
                         {
                             current = gameServerStatusStatDto;
                             continue;

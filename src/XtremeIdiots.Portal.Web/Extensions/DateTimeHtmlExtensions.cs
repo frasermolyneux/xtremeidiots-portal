@@ -9,12 +9,12 @@ namespace XtremeIdiots.Portal.Web.Extensions
     {
         public static HtmlString ToUserTime(this IHtmlHelper html, ClaimsPrincipal user, DateTime dateTime)
         {
-            if (user == null)
+            if (user is null)
                 return new HtmlString(dateTime.ToString());
 
             var timezoneClaim = user.Claims.SingleOrDefault(c => c.Type == UserProfileClaimType.TimeZone);
 
-            if (timezoneClaim == null)
+            if (timezoneClaim is null)
                 return new HtmlString(dateTime.ToString());
 
             try

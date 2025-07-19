@@ -399,7 +399,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 var demoApiResult = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
-                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
+                if (demoApiResult.IsNotFound || demoApiResult.Result?.Data is null)
                 {
                     return NotFound();
                 }
@@ -451,7 +451,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
 
-                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
+                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
@@ -465,7 +465,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
 
                 var user = await this.userManager.FindByIdAsync(userIdFromProfile);
-                if (user == null)
+                if (user is null)
                 {
                     Logger.LogWarning("ClientDemoList - User not found for ID {UserId}", userIdFromProfile);
                     return Content($"AuthError: An internal auth error occurred processing your request for userId: {userIdFromProfile}");
@@ -482,7 +482,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var demosApiResponse = await this.repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.CreatedDesc);
 
-                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items == null)
+                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogError("ClientDemoList - Failed to retrieve demos for user {UserId}", userIdFromProfile);
                     return Content("Error: Failed to retrieve demo list from server.");
@@ -554,7 +554,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
 
-                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
+                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("ClientUploadDemo - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
@@ -574,7 +574,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return Content("Error: Invalid or missing game type. Please ensure your client is properly configured.");
                 }
 
-                if (file == null || file.Length == 0)
+                if (file is null || file.Length == 0)
                 {
                     Logger.LogWarning("ClientUploadDemo - No file provided by user {UserId}", userIdFromProfile);
                     return Content("You must provide a file to be uploaded");
@@ -659,7 +659,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
 
-                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
+                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("ClientDownload - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
@@ -674,7 +674,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var demoApiResponse = await this.repositoryApiClient.Demos.V1.GetDemo(id);
 
-                if (demoApiResponse.IsNotFound || demoApiResponse.Result?.Data == null)
+                if (demoApiResponse.IsNotFound || demoApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("ClientDownload - Demo {DemoId} not found for user {UserId}", id, userIdFromProfile);
                     return NotFound();

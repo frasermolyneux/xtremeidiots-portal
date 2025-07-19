@@ -87,7 +87,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
         /// <returns>A <see cref="Task"/> representing the asynchronous update operation.</returns>
         private async Task UpdateExistingUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
         {
-            if (info?.Principal == null)
+            if (info?.Principal is null)
             {
                 throw new ArgumentException("External login info or principal is null", nameof(info));
             }
@@ -103,13 +103,13 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var member = await forumsClient.Core.GetMember(id).ConfigureAwait(false);
-                if (member == null)
+                if (member is null)
                 {
                     throw new InvalidOperationException($"Member not found with ID: {id}");
                 }
 
                 var user = await userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey).ConfigureAwait(false);
-                if (user == null)
+                if (user is null)
                 {
                     throw new InvalidOperationException($"User not found for login provider: {info.LoginProvider}, key: {info.ProviderKey}");
                 }
@@ -147,7 +147,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
         /// <returns>A <see cref="Task"/> representing the asynchronous registration operation.</returns>
         private async Task RegisterNewUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
         {
-            if (info?.Principal == null)
+            if (info?.Principal is null)
             {
                 throw new ArgumentException("External login info or principal is null", nameof(info));
             }
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var member = await forumsClient.Core.GetMember(id).ConfigureAwait(false);
-                if (member == null)
+                if (member is null)
                 {
                     throw new InvalidOperationException($"Member not found with ID: {id}");
                 }
@@ -230,7 +230,7 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                 throw new ArgumentException("Member ID cannot be null or empty.", nameof(memberId));
             }
 
-            if (member == null)
+            if (member is null)
             {
                 throw new ArgumentNullException(nameof(member));
             }
@@ -294,12 +294,12 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
         /// <exception cref="ArgumentException">Thrown when required properties are missing.</exception>
         private static void ValidateExternalLoginInfo(ExternalLoginInfo info)
         {
-            if (info == null)
+            if (info is null)
             {
                 throw new ArgumentNullException(nameof(info));
             }
 
-            if (info.Principal == null)
+            if (info.Principal is null)
             {
                 throw new ArgumentException("External login info must contain a valid principal", nameof(info));
             }

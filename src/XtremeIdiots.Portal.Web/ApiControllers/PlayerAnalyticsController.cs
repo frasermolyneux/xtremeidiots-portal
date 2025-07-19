@@ -45,7 +45,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetCumulativeDailyPlayers(cutoff);
 
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
+                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve cumulative daily players data for user {UserId}", User.XtremeIdiotsId());
                     return StatusCode(500, "Failed to retrieve cumulative daily players data");
@@ -72,7 +72,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetNewDailyPlayersPerGame(cutoff);
 
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
+                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve new daily players per game data for user {UserId}", User.XtremeIdiotsId());
                     return StatusCode(500, "Failed to retrieve new daily players per game data");
@@ -99,7 +99,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var playerAnalyticsResponse = await repositoryApiClient.PlayerAnalytics.V1.GetPlayersDropOffPerGameJson(cutoff);
 
-                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data == null)
+                if (!playerAnalyticsResponse.IsSuccess || playerAnalyticsResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve players drop-off per game data for user {UserId}", User.XtremeIdiotsId());
                     return StatusCode(500, "Failed to retrieve players drop-off per game data");

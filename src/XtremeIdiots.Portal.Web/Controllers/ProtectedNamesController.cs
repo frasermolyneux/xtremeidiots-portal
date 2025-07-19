@@ -67,7 +67,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
 
-                if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result?.Data?.Items == null)
+                if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogWarning("Failed to retrieve protected names for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -124,7 +124,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data == null)
+                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve player {PlayerId} for protected name", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -165,7 +165,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data == null)
+                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Player data is null for {PlayerId} when creating protected name", model.PlayerId);
                     return BadRequest();
@@ -276,7 +276,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result?.Data == null)
+                if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve protected name {ProtectedNameId} for deletion", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
@@ -330,7 +330,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (!reportResponse.IsSuccess || reportResponse.Result?.Data == null)
+                if (!reportResponse.IsSuccess || reportResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Failed to retrieve protected name report {ProtectedNameId}", id);
                     return RedirectToAction("Display", "Errors", new { id = 500 });

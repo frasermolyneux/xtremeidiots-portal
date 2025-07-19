@@ -22,7 +22,7 @@ namespace XtremeIdiots.Portal.Web.Helpers
         {
             output.TagName = "div";
 
-            if (TempData[AlertKey] == null)
+            if (TempData[AlertKey] is null)
                 TempData[AlertKey] = JsonConvert.SerializeObject(new HashSet<Alert>());
 
             // TempData values are guaranteed to be non-null after the check above

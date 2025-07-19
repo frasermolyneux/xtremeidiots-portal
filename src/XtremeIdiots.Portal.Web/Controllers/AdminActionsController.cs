@@ -767,7 +767,7 @@ public class AdminActionsController(
         {
             var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedBans, 0, 50, AdminActionOrder.CreatedDesc);
 
-            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items == null)
+            if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
             {
                 Logger.LogWarning("Failed to retrieve unclaimed admin actions for user {UserId}", User.XtremeIdiotsId());
                 return RedirectToAction("Display", "Errors", new { id = 500 });

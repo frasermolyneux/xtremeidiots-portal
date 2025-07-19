@@ -73,7 +73,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-                if (model == null)
+                if (model is null)
                 {
                     Logger.LogWarning("Invalid request model for demo list AJAX from user {UserId}", User.XtremeIdiotsId());
                     return BadRequest();
@@ -102,7 +102,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var demosApiResponse = await repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order, cancellationToken);
 
-                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data == null)
+                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data is null)
                 {
                     Logger.LogError("Failed to retrieve demos list for user {UserId}", User.XtremeIdiotsId());
                     return StatusCode(500, "Failed to retrieve demos data");
@@ -167,7 +167,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
 
-                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
+                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
@@ -182,7 +182,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
                 }
 
                 var user = await this.userManager.FindByIdAsync(userIdFromProfile);
-                if (user == null)
+                if (user is null)
                 {
                     Logger.LogWarning("ClientDemoList - User not found for ID {UserId}", userIdFromProfile);
                     return Content($"AuthError: An internal auth error occurred processing your request for userId: {userIdFromProfile}");
@@ -199,7 +199,7 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
 
                 var demosApiResponse = await this.repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.CreatedDesc);
 
-                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items == null)
+                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items is null)
                 {
                     Logger.LogError("ClientDemoList - Failed to retrieve demos for user {UserId}", userIdFromProfile);
                     return Content("Error: Failed to retrieve demo list from server.");

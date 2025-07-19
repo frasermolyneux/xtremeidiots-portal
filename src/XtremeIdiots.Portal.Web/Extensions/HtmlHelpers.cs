@@ -28,7 +28,7 @@ namespace XtremeIdiots.Portal.Web.Extensions
 
             // For parent menu items (with no action specified), only highlight if it's an exact controller match
             // AND we're at either the Index action or there's no explicit submenu item selected
-            if (action == null)
+            if (action is null)
             {
                 if (controller == currentController)
                 {

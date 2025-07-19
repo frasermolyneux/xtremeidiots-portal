@@ -119,7 +119,7 @@
                                         <td>@claim.ClaimType</td>
                                         <td>
                                             @{
-                                                if (server == null)
+                                                if (server is null)
                                                 {
                                                     <text>@claim.ClaimValue</text>
                                                 }

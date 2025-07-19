@@ -95,7 +95,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServersApiResponse.Result?.Data?.Items == null || userProfileDtoApiResponse.Result?.Data == null)
+                if (gameServersApiResponse.Result?.Data?.Items is null || userProfileDtoApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Invalid API response when managing profile {ProfileId}", id);
                     return BadRequest();
@@ -123,7 +123,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-                if (model == null)
+                if (model is null)
                 {
                     Logger.LogWarning("Invalid request body for users AJAX endpoint");
                     return BadRequest();
@@ -132,7 +132,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(
                     model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
 
-                if (userProfileResponseDto.Result?.Data == null)
+                if (userProfileResponseDto.Result?.Data is null)
                 {
                     Logger.LogWarning("Invalid API response for users AJAX endpoint");
                     return BadRequest();
@@ -168,7 +168,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var user = await userManager.FindByIdAsync(id);
 
-                if (user == null)
+                if (user is null)
                 {
                     Logger.LogWarning("Could not find user with ID '{UserId}' for force logout", id);
                     this.AddAlertWarning($"Could not find user with XtremeIdiots ID '{id}', or there is no user logged in with that XtremeIdiots ID");
@@ -213,7 +213,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (userProfileResponseDto.Result?.Data == null)
+                if (userProfileResponseDto.Result?.Data is null)
                 {
                     Logger.LogWarning("User profile data is null for {ProfileId}", id);
                     return BadRequest();
@@ -223,7 +223,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claimValue), cancellationToken);
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server {GameServerId} not found when creating user claim", claimValue);
                     return NotFound();
@@ -298,7 +298,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (userProfileResponseDto.Result?.Data == null)
+                if (userProfileResponseDto.Result?.Data is null)
                 {
                     Logger.LogWarning("User profile data is null for {ProfileId}", id);
                     return BadRequest();
@@ -307,7 +307,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var userProfileData = userProfileResponseDto.Result.Data;
                 var claim = userProfileData.UserProfileClaims.SingleOrDefault(c => c.UserProfileClaimId == claimId);
 
-                if (claim == null)
+                if (claim is null)
                 {
                     Logger.LogWarning("Claim {ClaimId} not found for user profile {ProfileId}", claimId, id);
                     return NotFound();

@@ -2,6 +2,7 @@
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
@@ -19,23 +20,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing public server information and server map displays
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessServers)]
-    public class ServersController : Controller
+    public class ServersController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ServersController> logger;
 
         public ServersController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
-            ILogger<ServersController> logger)
+            ILogger<ServersController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -46,17 +45,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing servers list", User.XtremeIdiotsId());
-
                 var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
                     null, null, GameServerFilter.PortalServerListEnabled, 0, 50,
                     GameServerOrder.BannerServerListPosition, cancellationToken);
 
                 if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
                 {
-                    logger.LogWarning("Failed to retrieve game servers for user {UserId}. API Success: {IsSuccess}",
+                    Logger.LogWarning("Failed to retrieve game servers for user {UserId}. API Success: {IsSuccess}",
                         User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
@@ -65,25 +62,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     .Select(gs => new ServersGameServerViewModel(gs))
                     .ToList();
 
-                logger.LogInformation("User {UserId} successfully retrieved {ServerCount} servers",
+                Logger.LogInformation("User {UserId} successfully retrieved {ServerCount} servers",
                     User.XtremeIdiotsId(), result.Count);
 
                 return View(result);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving servers list for user {UserId}", User.XtremeIdiotsId());
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("UserId", User.XtremeIdiotsId());
-                exceptionTelemetry.Properties.TryAdd("Action", "Index");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Index");
         }
 
         /// <summary>
@@ -94,40 +77,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Map(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing servers map view", User.XtremeIdiotsId());
-
                 var response = await repositoryApiClient.RecentPlayers.V1.GetRecentPlayers(
                     null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated,
                     0, 200, null, cancellationToken);
 
                 if (response.Result?.Data?.Items == null)
                 {
-                    logger.LogWarning("Failed to retrieve recent players for map view for user {UserId}. API Success: {IsSuccess}",
+                    Logger.LogWarning("Failed to retrieve recent players for map view for user {UserId}. API Success: {IsSuccess}",
                         User.XtremeIdiotsId(), response.IsSuccess);
                     return View(new List<object>());
                 }
 
-                logger.LogInformation("User {UserId} successfully retrieved {PlayerCount} recent players for map view",
+                Logger.LogInformation("User {UserId} successfully retrieved {PlayerCount} recent players for map view",
                     User.XtremeIdiotsId(), response.Result.Data.Items.Count());
 
                 return View(response.Result.Data.Items);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving servers map view for user {UserId}", User.XtremeIdiotsId());
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("UserId", User.XtremeIdiotsId());
-                exceptionTelemetry.Properties.TryAdd("Action", "Map");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Map");
         }
 
         /// <summary>
@@ -139,16 +106,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerInfo(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing server info for server {ServerId}",
-                    User.XtremeIdiotsId(), id);
-
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Server {ServerId} not found when accessing server info for user {UserId}",
+                    Logger.LogWarning("Server {ServerId} not found when accessing server info for user {UserId}",
                         id, User.XtremeIdiotsId());
                     return NotFound();
                 }
@@ -167,7 +131,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Failed to retrieve map {MapName} for server {ServerId}",
+                        Logger.LogWarning(ex, "Failed to retrieve map {MapName} for server {ServerId}",
                             gameServerData.LiveMap, id);
                     }
                 }
@@ -226,7 +190,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                     catch (Exception ex)
                     {
-                        logger.LogWarning(ex, "Failed to retrieve map details for server {ServerId}", id);
+                        Logger.LogWarning(ex, "Failed to retrieve map details for server {ServerId}", id);
                     }
                 }
 
@@ -238,27 +202,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     MapTimelineDataPoints = mapTimelineDataPoints
                 };
 
-                logger.LogInformation("User {UserId} successfully retrieved server info for server {ServerId} with {MapCount} maps and {StatCount} statistics",
+                Logger.LogInformation("User {UserId} successfully retrieved server info for server {ServerId} with {MapCount} maps and {StatCount} statistics",
                     User.XtremeIdiotsId(), id, maps.Count, gameServerStatDtos.Count);
 
                 return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving server info for server {ServerId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("UserId", User.XtremeIdiotsId());
-                exceptionTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                exceptionTelemetry.Properties.TryAdd("Action", "ServerInfo");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "ServerInfo");
         }
     }
 }

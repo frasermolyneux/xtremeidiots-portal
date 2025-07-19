@@ -1,12 +1,21 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
+using XtremeIdiots.Portal.Web.Controllers;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers
@@ -15,12 +24,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing game server credentials display and access
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessCredentials)]
-    public class CredentialsController : Controller
+    public class CredentialsController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<CredentialsController> logger;
 
         /// <summary>
         /// Initializes a new instance of the CredentialsController
@@ -29,17 +36,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="repositoryApiClient">Client for repository API operations</param>
         /// <param name="telemetryClient">Client for tracking telemetry events</param>
         /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public CredentialsController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
-            ILogger<CredentialsController> logger)
+            ILogger<CredentialsController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -47,100 +55,106 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>The credentials index view with game servers</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to access credentials</exception>
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view credentials",
-                    User.XtremeIdiotsId());
-
+                // Authorization is handled at the controller level with [Authorize(Policy = AuthPolicies.AccessCredentials)]
+                // Get user's game permissions for filtering
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.FtpCredentials, UserProfileClaimType.RconCredentials };
                 var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-                logger.LogInformation("User {UserId} querying game servers for credentials with {GameTypeCount} game types and {GameServerIdCount} specific servers",
+                Logger.LogInformation("User {UserId} querying game servers for credentials with {GameTypeCount} game types and {GameServerIdCount} specific servers",
                     User.XtremeIdiotsId(), gameTypes?.Length ?? 0, gameServerIds?.Length ?? 0);
 
-                var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
-
-                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
+                // Retrieve game servers based on user permissions
+                var gameServersList = await GetAuthorizedGameServersAsync(gameTypes, gameServerIds, cancellationToken);
+                if (gameServersList == null)
                 {
-                    logger.LogWarning("Failed to retrieve game servers for credentials view for user {UserId} - API response status: {IsSuccess}",
-                        User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
-
-                    var apiFailureTelemetry = new EventTelemetry("CredentialsApiFailure")
-                        .Enrich(User);
-                    apiFailureTelemetry.Properties.TryAdd("ApiSuccess", gameServersApiResponse.IsSuccess.ToString());
-                    telemetryClient.TrackEvent(apiFailureTelemetry);
-
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
-                var gameServersList = gameServersApiResponse.Result.Data.Items.ToList();
+                // Apply credential-specific authorization for each server
+                await ApplyCredentialAuthorizationAsync(gameServersList, cancellationToken);
 
-                foreach (var gameServerDto in gameServersList)
+                TrackSuccessTelemetry("CredentialsViewed", "Index", new Dictionary<string, string>
                 {
-                    var canViewFtpCredential = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.GameServerId), AuthPolicies.ViewFtpCredential);
+                    { "Controller", "Credentials" },
+                    { "Resource", "GameServerCredentials" },
+                    { "Context", "CredentialsDisplay" },
+                    { "GameServerCount", gameServersList.Count.ToString() }
+                });
 
-                    if (!canViewFtpCredential.Succeeded)
-                    {
-                        logger.LogWarning("User {UserId} denied access to view FTP credentials for game server {GameServerId}",
-                            User.XtremeIdiotsId(), gameServerDto.GameServerId);
-
-                        var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                            .Enrich(User)
-                            .Enrich(gameServerDto);
-                        unauthorizedTelemetry.Properties.TryAdd("Controller", "Credentials");
-                        unauthorizedTelemetry.Properties.TryAdd("Action", "ViewFtpCredential");
-                        unauthorizedTelemetry.Properties.TryAdd("Resource", "FtpCredential");
-                        unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}");
-                        telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                        gameServerDto.ClearFtpCredentials();
-                    }
-
-                    var canViewRconCredential = await authorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.GameServerId), AuthPolicies.ViewRconCredential);
-
-                    if (!canViewRconCredential.Succeeded)
-                    {
-                        logger.LogWarning("User {UserId} denied access to view RCON credentials for game server {GameServerId}",
-                            User.XtremeIdiotsId(), gameServerDto.GameServerId);
-
-                        var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                            .Enrich(User)
-                            .Enrich(gameServerDto);
-                        unauthorizedTelemetry.Properties.TryAdd("Controller", "Credentials");
-                        unauthorizedTelemetry.Properties.TryAdd("Action", "ViewRconCredential");
-                        unauthorizedTelemetry.Properties.TryAdd("Resource", "RconCredential");
-                        unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}");
-                        telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                        gameServerDto.ClearRconCredentials();
-                    }
-                }
-
-                var eventTelemetry = new EventTelemetry("CredentialsViewed")
-                    .Enrich(User);
-                eventTelemetry.Properties.TryAdd("GameServerCount", gameServersList.Count.ToString());
-                telemetryClient.TrackEvent(eventTelemetry);
-
-                logger.LogInformation("User {UserId} successfully viewed credentials for {GameServerCount} game servers",
+                Logger.LogInformation("User {UserId} successfully viewed credentials for {GameServerCount} game servers",
                     User.XtremeIdiotsId(), gameServersList.Count);
 
                 return View(gameServersList);
-            }
-            catch (Exception ex)
+            }, "Display credentials index page with game server credentials");
+        }
+
+        /// <summary>
+        /// Retrieves game servers that the user is authorized to view credentials for
+        /// </summary>
+        /// <param name="gameTypes">Game types the user has access to</param>
+        /// <param name="gameServerIds">Specific game server IDs the user has access to</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>List of game servers or null if API call failed</returns>
+        private async Task<List<GameServerDto>?> GetAuthorizedGameServersAsync(GameType[]? gameTypes, Guid[]? gameServerIds, CancellationToken cancellationToken)
+        {
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
+
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
             {
-                logger.LogError(ex, "Error loading credentials view for user {UserId}", User.XtremeIdiotsId());
+                Logger.LogWarning("Failed to retrieve game servers for credentials view for user {UserId} - API response status: {IsSuccess}",
+                    User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
 
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                // Track API failure as a custom event rather than an error
+                TelemetryClient.TrackEvent("CredentialsApiFailure", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
+                    { "ApiSuccess", gameServersApiResponse.IsSuccess.ToString() },
+                    { "Controller", "Credentials" },
+                    { "Action", "GetAuthorizedGameServersAsync" },
+                    { "UserId", User.XtremeIdiotsId()?.ToString() ?? "Unknown" }
+                });
 
-                throw;
+                return null;
+            }
+
+            return gameServersApiResponse.Result.Data.Items.ToList();
+        }
+
+        /// <summary>
+        /// Applies credential-specific authorization to each game server, clearing credentials for unauthorized access
+        /// </summary>
+        /// <param name="gameServersList">List of game servers to check authorization for</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        private async Task ApplyCredentialAuthorizationAsync(List<GameServerDto> gameServersList, CancellationToken cancellationToken)
+        {
+            foreach (var gameServerDto in gameServersList)
+            {
+                // Check FTP credential authorization
+                var ftpResource = new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.GameServerId);
+                var canViewFtpCredential = await authorizationService.AuthorizeAsync(User, ftpResource, AuthPolicies.ViewFtpCredential);
+
+                if (!canViewFtpCredential.Succeeded)
+                {
+                    TrackUnauthorizedAccessAttempt("ViewFtpCredential", "FtpCredential",
+                        $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
+                    gameServerDto.ClearFtpCredentials();
+                }
+
+                // Check RCON credential authorization
+                var canViewRconCredential = await authorizationService.AuthorizeAsync(User, ftpResource, AuthPolicies.ViewRconCredential);
+
+                if (!canViewRconCredential.Succeeded)
+                {
+                    TrackUnauthorizedAccessAttempt("ViewRconCredential", "RconCredential",
+                        $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
+                    gameServerDto.ClearRconCredentials();
+                }
             }
         }
     }

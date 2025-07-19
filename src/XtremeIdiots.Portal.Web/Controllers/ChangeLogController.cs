@@ -1,12 +1,14 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
-using XtremeIdiots.Portal.Web.Extensions;
-using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Web.Controllers;
 
 namespace XtremeIdiots.Portal.Web.Controllers
 {
@@ -14,31 +16,22 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for displaying the change log of application updates and modifications
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessChangeLog)]
-    public class ChangeLogController : Controller
+    public class ChangeLogController : BaseController
     {
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ChangeLogController> logger;
-
         /// <summary>
         /// Initializes a new instance of the ChangeLogController
         /// </summary>
-        /// <param name="authorizationService">Service for handling authorization checks</param>
-        /// <param name="repositoryApiClient">Client for accessing repository API services</param>
         /// <param name="telemetryClient">Client for tracking telemetry events</param>
         /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public ChangeLogController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
-            ILogger<ChangeLogController> logger)
+            ILogger<ChangeLogController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            // No additional dependencies required for change log display
         }
 
         /// <summary>
@@ -46,35 +39,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <param name="cancellationToken">Cancellation token for async operations</param>
         /// <returns>The change log view displaying recent application changes</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to access change log</exception>
         [HttpGet]
-        public IActionResult Index(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(() =>
             {
-                logger.LogInformation("User {UserId} attempting to view change log",
-                    User.XtremeIdiotsId());
+                // Authorization is handled at the controller level with [Authorize(Policy = AuthPolicies.AccessChangeLog)]
+                // No additional resource-specific authorization required for change log viewing
 
-                logger.LogInformation("User {UserId} successfully accessed change log",
-                    User.XtremeIdiotsId());
-
-                return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing change log for user {UserId}",
-                    User.XtremeIdiotsId());
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("ChangeLogAccessed", "Index", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Enrich(User);
-                exceptionTelemetry.Properties.TryAdd("Controller", "ChangeLog");
-                exceptionTelemetry.Properties.TryAdd("Action", "Index");
-                telemetryClient.TrackException(exceptionTelemetry);
+                    { "Controller", "ChangeLog" },
+                    { "Resource", "ChangeLog" },
+                    { "Context", "ApplicationUpdates" }
+                });
 
-                throw;
-            }
+                return Task.FromResult<IActionResult>(View());
+            }, "Display change log index page");
         }
     }
 }

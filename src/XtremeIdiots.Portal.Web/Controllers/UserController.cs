@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 
 using Newtonsoft.Json;
 
@@ -20,12 +21,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing user accounts, profiles, and claims
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessUsers)]
-    public class UserController : Controller
+    public class UserController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<UserController> logger;
         private readonly UserManager<IdentityUser> userManager;
 
         public UserController(
@@ -33,12 +32,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
             IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
             ILogger<UserController> logger,
+            IConfiguration configuration,
             UserManager<IdentityUser> userManager)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
@@ -47,26 +46,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <returns>The users index view</returns>
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing users index page", User.XtremeIdiotsId());
+                await Task.CompletedTask; // Placeholder for any future async operations
                 return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing users index page");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Index");
         }
 
         /// <summary>
@@ -74,26 +60,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// </summary>
         /// <returns>The permissions view</returns>
         [HttpGet]
-        public IActionResult Permissions()
+        public async Task<IActionResult> Permissions()
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing permissions page", User.XtremeIdiotsId());
+                await Task.CompletedTask; // Placeholder for any future async operations
                 return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing permissions page");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Permissions");
         }
 
         /// <summary>
@@ -106,11 +79,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageProfile(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to manage profile for user {ProfileId}",
-                    User.XtremeIdiotsId(), id);
-
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin };
                 var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
@@ -121,38 +91,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (userProfileDtoApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("User profile {ProfileId} not found when managing profile", id);
+                    Logger.LogWarning("User profile {ProfileId} not found when managing profile", id);
                     return NotFound();
                 }
 
                 if (gameServersApiResponse.Result?.Data?.Items == null || userProfileDtoApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Invalid API response when managing profile {ProfileId}", id);
+                    Logger.LogWarning("Invalid API response when managing profile {ProfileId}", id);
                     return BadRequest();
                 }
 
                 ViewData["GameServers"] = gameServersApiResponse.Result.Data.Items;
                 ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Data.Items, "GameServerId", "Title");
 
-                logger.LogInformation("User {UserId} successfully accessed manage profile for user {ProfileId}",
-                    User.XtremeIdiotsId(), id);
-
                 return View(userProfileDtoApiResponse.Result.Data);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error managing profile for user {ProfileId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ProfileId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "ManageProfile");
         }
 
         /// <summary>
@@ -163,10 +116,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> GetUsersAjax(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} requesting users AJAX data", User.XtremeIdiotsId());
-
                 var reader = new StreamReader(Request.Body);
                 var requestBody = await reader.ReadToEndAsync(cancellationToken);
 
@@ -174,7 +125,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (model == null)
                 {
-                    logger.LogWarning("Invalid request body for users AJAX endpoint");
+                    Logger.LogWarning("Invalid request body for users AJAX endpoint");
                     return BadRequest();
                 }
 
@@ -183,12 +134,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (userProfileResponseDto.Result?.Data == null)
                 {
-                    logger.LogWarning("Invalid API response for users AJAX endpoint");
+                    Logger.LogWarning("Invalid API response for users AJAX endpoint");
                     return BadRequest();
                 }
-
-                logger.LogInformation("User {UserId} successfully retrieved {Count} users via AJAX",
-                    User.XtremeIdiotsId(), userProfileResponseDto.Result.Data.Items?.Count() ?? 0);
 
                 return Json(new
                 {
@@ -197,20 +145,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     recordsFiltered = userProfileResponseDto.Result.Data.FilteredCount,
                     data = userProfileResponseDto.Result.Data.Items
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving users via AJAX");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                return StatusCode(500, "An error occurred while retrieving users data");
-            }
+            }, "GetUsersAjax");
         }
 
         /// <summary>
@@ -223,14 +158,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogUserOut(string id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to force logout user {TargetUserId}",
-                    User.XtremeIdiotsId(), id);
-
                 if (string.IsNullOrWhiteSpace(id))
                 {
-                    logger.LogWarning("Empty user ID provided for force logout");
+                    Logger.LogWarning("Empty user ID provided for force logout");
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -238,7 +170,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (user == null)
                 {
-                    logger.LogWarning("Could not find user with ID '{UserId}' for force logout", id);
+                    Logger.LogWarning("Could not find user with ID '{UserId}' for force logout", id);
                     this.AddAlertWarning($"Could not find user with XtremeIdiots ID '{id}', or there is no user logged in with that XtremeIdiots ID");
                     return RedirectToAction(nameof(Index));
                 }
@@ -246,26 +178,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 await userManager.UpdateSecurityStampAsync(user);
 
                 this.AddAlertSuccess($"User {user.UserName} has been force logged out (this may take up to 15 minutes)");
-                logger.LogInformation("User {UserId} successfully force logged out user {TargetUser}",
-                    User.XtremeIdiotsId(), user.UserName);
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error forcing logout for user {TargetUserId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("UserForceLoggedOut", "LogUserOut", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("TargetUserId", id);
-                telemetryClient.TrackException(errorTelemetry);
+                    { "TargetUser", user.UserName ?? "" },
+                    { "TargetUserId", id }
+                });
 
-                this.AddAlertDanger("An error occurred while forcing the user logout. Please try again.");
                 return RedirectToAction(nameof(Index));
-            }
+            }, "LogUserOut");
         }
 
         /// <summary>
@@ -282,56 +203,43 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUserClaim(Guid id, string claimType, string claimValue, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to create claim {ClaimType}:{ClaimValue} for user profile {ProfileId}",
-                    User.XtremeIdiotsId(), claimType, claimValue, id);
-
                 var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id, cancellationToken);
 
                 if (userProfileResponseDto.IsNotFound)
                 {
-                    logger.LogWarning("User profile {ProfileId} not found when creating user claim", id);
+                    Logger.LogWarning("User profile {ProfileId} not found when creating user claim", id);
                     return NotFound();
                 }
 
                 if (userProfileResponseDto.Result?.Data == null)
                 {
-                    logger.LogWarning("User profile data is null for {ProfileId}", id);
+                    Logger.LogWarning("User profile data is null for {ProfileId}", id);
                     return BadRequest();
                 }
 
                 var userProfileData = userProfileResponseDto.Result.Data;
-                var user = !string.IsNullOrEmpty(userProfileData.XtremeIdiotsForumId)
-                    ? await userManager.FindByIdAsync(userProfileData.XtremeIdiotsForumId)
-                    : null;
 
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claimValue), cancellationToken);
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when creating user claim", claimValue);
+                    Logger.LogWarning("Game server {GameServerId} not found when creating user claim", claimValue);
                     return NotFound();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canCreateUserClaim = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.CreateUserClaim);
 
-                if (!canCreateUserClaim.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to create user claim for profile {ProfileId} and game type {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.CreateUserClaim,
+                    "CreateUserClaim",
+                    "UserClaim",
+                    $"ProfileId:{id},GameType:{gameServerData.GameType},ClaimType:{claimType}");
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "User");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "CreateUserClaim");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "UserClaim");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ProfileId:{id},GameType:{gameServerData.GameType},ClaimType:{claimType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 if (!userProfileData.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
                 {
@@ -340,45 +248,31 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     await repositoryApiClient.UserProfiles.V1.CreateUserProfileClaim(
                         userProfileData.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto }, cancellationToken);
 
-                    this.AddAlertSuccess($"The {claimType} claim has been added to {user?.UserName ?? userProfileData.DisplayName}");
-                    logger.LogInformation("User {UserId} successfully added claim {ClaimType}:{ClaimValue} to user profile {ProfileId}",
-                        User.XtremeIdiotsId(), claimType, claimValue, id);
+                    var user = !string.IsNullOrEmpty(userProfileData.XtremeIdiotsForumId)
+                        ? await userManager.FindByIdAsync(userProfileData.XtremeIdiotsForumId)
+                        : null;
 
-                    var eventTelemetry = new EventTelemetry("UserClaimCreated")
-                        .Enrich(User);
-                    eventTelemetry.Properties.TryAdd("ProfileId", id.ToString());
-                    eventTelemetry.Properties.TryAdd("ClaimType", claimType);
-                    eventTelemetry.Properties.TryAdd("ClaimValue", claimValue);
-                    eventTelemetry.Properties.TryAdd("GameType", gameServerData.GameType.ToString());
-                    telemetryClient.TrackEvent(eventTelemetry);
+                    this.AddAlertSuccess($"The {claimType} claim has been added to {user?.UserName ?? userProfileData.DisplayName}");
+
+                    TrackSuccessTelemetry("UserClaimCreated", "CreateUserClaim", new Dictionary<string, string>
+                    {
+                        { "ProfileId", id.ToString() },
+                        { "ClaimType", claimType },
+                        { "ClaimValue", claimValue },
+                        { "GameType", gameServerData.GameType.ToString() }
+                    });
                 }
                 else
                 {
+                    var user = !string.IsNullOrEmpty(userProfileData.XtremeIdiotsForumId)
+                        ? await userManager.FindByIdAsync(userProfileData.XtremeIdiotsForumId)
+                        : null;
+
                     this.AddAlertSuccess($"Nothing to do - {user?.UserName ?? userProfileData.DisplayName} already has the {claimType} claim");
-                    logger.LogInformation("User {UserId} attempted to add duplicate claim {ClaimType}:{ClaimValue} to user profile {ProfileId}",
-                        User.XtremeIdiotsId(), claimType, claimValue, id);
                 }
 
                 return RedirectToAction(nameof(ManageProfile), new { id });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating user claim for profile {ProfileId}, claim {ClaimType}:{ClaimValue}",
-                    id, claimType, claimValue);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ProfileId", id.ToString());
-                errorTelemetry.Properties.TryAdd("ClaimType", claimType);
-                errorTelemetry.Properties.TryAdd("ClaimValue", claimValue);
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while creating the user claim. Please try again.");
-                return RedirectToAction(nameof(ManageProfile), new { id });
-            }
+            }, "CreateUserClaim", id.ToString());
         }
 
         /// <summary>
@@ -394,22 +288,19 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveUserClaim(Guid id, Guid claimId, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to remove claim {ClaimId} from user profile {ProfileId}",
-                    User.XtremeIdiotsId(), claimId, id);
-
                 var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfile(id, cancellationToken);
 
                 if (userProfileResponseDto.IsNotFound)
                 {
-                    logger.LogWarning("User profile {ProfileId} not found when removing user claim", id);
+                    Logger.LogWarning("User profile {ProfileId} not found when removing user claim", id);
                     return NotFound();
                 }
 
                 if (userProfileResponseDto.Result?.Data == null)
                 {
-                    logger.LogWarning("User profile data is null for {ProfileId}", id);
+                    Logger.LogWarning("User profile data is null for {ProfileId}", id);
                     return BadRequest();
                 }
 
@@ -418,41 +309,37 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (claim == null)
                 {
-                    logger.LogWarning("Claim {ClaimId} not found for user profile {ProfileId}", claimId, id);
+                    Logger.LogWarning("Claim {ClaimId} not found for user profile {ProfileId}", claimId, id);
                     return NotFound();
                 }
 
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claim.ClaimValue), cancellationToken);
 
-                // Allow for legacy claims to be deleted
+                // Handle authorization for legacy claims differently
                 var canDeleteUserClaim = false;
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogInformation("Legacy claim detected for user profile {ProfileId}, allowing deletion", id);
+                    Logger.LogInformation("Legacy claim detected for user profile {ProfileId}, allowing deletion", id);
                     canDeleteUserClaim = true;
                 }
-                else
+                else if (gameServerApiResponse.Result?.Data != null)
                 {
-                    if (gameServerApiResponse.Result?.Data != null)
-                    {
-                        var authorizationResult = await authorizationService.AuthorizeAsync(User, gameServerApiResponse.Result.Data.GameType, AuthPolicies.DeleteUserClaim);
-                        canDeleteUserClaim = authorizationResult.Succeeded;
-                    }
+                    var authResult = await CheckAuthorizationAsync(
+                        authorizationService,
+                        gameServerApiResponse.Result.Data.GameType,
+                        AuthPolicies.DeleteUserClaim,
+                        "RemoveUserClaim",
+                        "UserClaim",
+                        $"ProfileId:{id},ClaimId:{claimId},ClaimType:{claim.ClaimType}");
+
+                    if (authResult != null) return authResult;
+                    canDeleteUserClaim = true;
                 }
 
                 if (!canDeleteUserClaim)
                 {
-                    logger.LogWarning("User {UserId} denied access to delete user claim {ClaimId} for profile {ProfileId}",
-                        User.XtremeIdiotsId(), claimId, id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "User");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "RemoveUserClaim");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "UserClaim");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ProfileId:{id},ClaimId:{claimId},ClaimType:{claim.ClaimType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("RemoveUserClaim", "UserClaim",
+                        $"ProfileId:{id},ClaimId:{claimId},ClaimType:{claim.ClaimType}");
                     return Unauthorized();
                 }
 
@@ -461,39 +348,22 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var user = !string.IsNullOrEmpty(userProfileData.XtremeIdiotsForumId)
                     ? await userManager.FindByIdAsync(userProfileData.XtremeIdiotsForumId)
                     : null;
+
                 if (user != null)
                     await userManager.UpdateSecurityStampAsync(user);
 
                 this.AddAlertSuccess($"User {userProfileData.DisplayName}'s claim has been removed (this may take up to 15 minutes)");
-                logger.LogInformation("User {UserId} successfully removed claim {ClaimId} from user profile {ProfileId}",
-                    User.XtremeIdiotsId(), claimId, id);
 
-                var eventTelemetry = new EventTelemetry("UserClaimRemoved")
-                    .Enrich(User);
-                eventTelemetry.Properties.TryAdd("ProfileId", id.ToString());
-                eventTelemetry.Properties.TryAdd("ClaimId", claimId.ToString());
-                eventTelemetry.Properties.TryAdd("ClaimType", claim.ClaimType);
-                eventTelemetry.Properties.TryAdd("ClaimValue", claim.ClaimValue);
-                telemetryClient.TrackEvent(eventTelemetry);
-
-                return RedirectToAction(nameof(ManageProfile), new { id });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error removing user claim {ClaimId} from profile {ProfileId}", claimId, id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("UserClaimRemoved", "RemoveUserClaim", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ProfileId", id.ToString());
-                errorTelemetry.Properties.TryAdd("ClaimId", claimId.ToString());
-                telemetryClient.TrackException(errorTelemetry);
+                    { "ProfileId", id.ToString() },
+                    { "ClaimId", claimId.ToString() },
+                    { "ClaimType", claim.ClaimType },
+                    { "ClaimValue", claim.ClaimValue }
+                });
 
-                this.AddAlertDanger("An error occurred while removing the user claim. Please try again.");
                 return RedirectToAction(nameof(ManageProfile), new { id });
-            }
+            }, "RemoveUserClaim", id.ToString());
         }
     }
 }

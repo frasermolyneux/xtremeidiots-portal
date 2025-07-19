@@ -1,8 +1,15 @@
-﻿using Microsoft.ApplicationInsights;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
@@ -22,42 +29,42 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Provides both web UI and client API endpoints for demo management.
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessDemos)]
-    public class DemosController : Controller
+    public class DemosController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
-        private readonly ILogger<DemosController> logger;
         private readonly SignInManager<IdentityUser> signInManager;
         private readonly IDemoManager demosForumsClient;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly UserManager<IdentityUser> userManager;
-        private readonly TelemetryClient telemetryClient;
 
         /// <summary>
         /// Initializes a new instance of the DemosController with required dependencies.
         /// </summary>
-        /// <param name="logger">Logger instance for structured logging</param>
         /// <param name="authorizationService">Service for handling authorization checks</param>
         /// <param name="userManager">Manager for identity user operations</param>
         /// <param name="signInManager">Manager for sign-in operations</param>
         /// <param name="demosForumsClient">Client for demo forum integration</param>
         /// <param name="repositoryApiClient">Client for repository API operations</param>
         /// <param name="telemetryClient">Client for application insights telemetry</param>
+        /// <param name="logger">Logger instance for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
+        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public DemosController(
-            ILogger<DemosController> logger,
             IAuthorizationService authorizationService,
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IDemoManager demosForumsClient,
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient)
+            TelemetryClient telemetryClient,
+            ILogger<DemosController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             this.demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
         /// <summary>
@@ -68,10 +75,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> DemoClient(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} accessing demo client configuration page", userId);
+                Logger.LogInformation("User {UserId} accessing demo client configuration page", userId);
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
@@ -82,28 +89,16 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var demoManagerClientDto = await this.demosForumsClient.GetDemoManagerClient();
 
-                var demoClientTelemetry = new EventTelemetry("DemoClientPageViewed")
-                    .Enrich(User);
-                demoClientTelemetry.Properties.TryAdd("HasAuthKey", (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null).ToString());
-                this.telemetryClient.TrackEvent(demoClientTelemetry);
+                TrackSuccessTelemetry("DemoClientPageViewed", "DemoClient", new Dictionary<string, string>
+                {
+                    { "Controller", "Demos" },
+                    { "Resource", "DemoClient" },
+                    { "Context", "DemoClientAccess" },
+                    { "HasAuthKey", (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null).ToString() }
+                });
 
                 return View(demoManagerClientDto);
-            }
-            catch (Exception ex)
-            {
-                var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error loading demo client configuration for user {UserId}", userId);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Enrich(User);
-                exceptionTelemetry.Properties.TryAdd("ActionType", "DemoClientAccess");
-                this.telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Display demo client configuration page with authentication key");
         }
 
         /// <summary>
@@ -115,16 +110,16 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RegenerateAuthKey(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} attempting to regenerate demo auth key", userId);
+                Logger.LogInformation("User {UserId} attempting to regenerate demo auth key", userId);
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
                 if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogWarning("User profile {UserId} not found when regenerating demo auth key", userId);
+                    Logger.LogWarning("User profile {UserId} not found when regenerating demo auth key", userId);
                     return NotFound();
                 }
 
@@ -135,32 +130,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 await this.repositoryApiClient.UserProfiles.V1.UpdateUserProfile(editUserProfileDto);
 
-                this.logger.LogInformation("User {UserId} successfully regenerated demo auth key", userId);
                 this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
 
-                var authKeyTelemetry = new EventTelemetry("DemoAuthKeyRegenerated")
-                    .Enrich(User);
-                authKeyTelemetry.Properties.TryAdd("UserProfileId", userProfileApiResponse.Result.Data.UserProfileId.ToString());
-                this.telemetryClient.TrackEvent(authKeyTelemetry);
-
-                return RedirectToAction(nameof(DemoClient));
-            }
-            catch (Exception ex)
-            {
-                var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error regenerating demo auth key for user {UserId}", userId);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("DemoAuthKeyRegenerated", "RegenerateAuthKey", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Enrich(User);
-                exceptionTelemetry.Properties.TryAdd("ActionType", "RegenerateAuthKey");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                    { "Controller", "Demos" },
+                    { "Resource", "DemoAuthKey" },
+                    { "Context", "RegenerateAuthKey" },
+                    { "UserProfileId", userProfileApiResponse.Result.Data.UserProfileId.ToString() }
+                });
 
-                this.AddAlertDanger("An error occurred while regenerating your demo auth key. Please try again.");
                 return RedirectToAction(nameof(DemoClient));
-            }
+            }, "Regenerate demo authentication key for user");
         }
 
         /// <summary>
@@ -171,11 +152,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         public IActionResult Index()
         {
             var userId = User.XtremeIdiotsId();
-            this.logger.LogInformation("User {UserId} accessing demos index page", userId);
+            Logger.LogInformation("User {UserId} accessing demos index page", userId);
 
             var indexTelemetry = new EventTelemetry("DemosIndexViewed")
                 .Enrich(User);
-            this.telemetryClient.TrackEvent(indexTelemetry);
+            TelemetryClient.TrackEvent(indexTelemetry);
 
             return View();
         }
@@ -189,14 +170,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
         public IActionResult GameIndex(GameType? id)
         {
             var userId = User.XtremeIdiotsId();
-            this.logger.LogInformation("User {UserId} accessing game-specific demos index for game type {GameType}", userId, id);
+            Logger.LogInformation("User {UserId} accessing game-specific demos index for game type {GameType}", userId, id);
 
             ViewData["GameType"] = id;
 
             var gameIndexTelemetry = new EventTelemetry("GameDemosIndexViewed")
                 .Enrich(User);
             gameIndexTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "null");
-            this.telemetryClient.TrackEvent(gameIndexTelemetry);
+            TelemetryClient.TrackEvent(gameIndexTelemetry);
 
             return View(nameof(Index));
         }
@@ -216,7 +197,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             try
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} requesting demo list via AJAX for game type {GameType}", userId, id);
+                Logger.LogInformation("User {UserId} requesting demo list via AJAX for game type {GameType}", userId, id);
 
                 var reader = new StreamReader(Request.Body);
                 var requestBody = await reader.ReadToEndAsync();
@@ -225,7 +206,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (model == null)
                 {
-                    this.logger.LogWarning("User {UserId} provided invalid request model for demo list AJAX", userId);
+                    Logger.LogWarning("User {UserId} provided invalid request model for demo list AJAX", userId);
                     return BadRequest();
                 }
 
@@ -275,7 +256,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogError("Failed to retrieve demos list for user {UserId}", userId);
+                    Logger.LogError("Failed to retrieve demos list for user {UserId}", userId);
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
@@ -300,7 +281,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 demoListTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "All");
                 demoListTelemetry.Properties.TryAdd("ResultCount", portalDemoEntries.Count.ToString());
                 demoListTelemetry.Properties.TryAdd("TotalCount", demosApiResponse.Result.Data.TotalCount.ToString());
-                this.telemetryClient.TrackEvent(demoListTelemetry);
+                TelemetryClient.TrackEvent(demoListTelemetry);
 
                 return Json(new
                 {
@@ -313,7 +294,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             catch (Exception ex)
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error loading demo list for user {UserId} with game type {GameType}", userId, id);
+                Logger.LogError(ex, "Error loading demo list for user {UserId} with game type {GameType}", userId, id);
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -322,7 +303,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
                 exceptionTelemetry.Properties.TryAdd("GameType", id?.ToString() ?? "All");
                 exceptionTelemetry.Properties.TryAdd("ActionType", "GetDemoListAjax");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 return RedirectToAction("Display", "Errors", new { id = 500 });
             }
@@ -340,13 +321,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
             try
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} attempting to download demo {DemoId}", userId, id);
+                Logger.LogInformation("User {UserId} attempting to download demo {DemoId}", userId, id);
 
                 var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    this.logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, userId);
+                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, userId);
 
                     var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
                         .Enrich(User);
@@ -354,25 +335,25 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     unauthorizedTelemetry.Properties.TryAdd("Action", "Download");
                     unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
                     unauthorizedTelemetry.Properties.TryAdd("Context", $"DemoId:{id},Reason:NotFound");
-                    this.telemetryClient.TrackEvent(unauthorizedTelemetry);
+                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
 
                     return NotFound();
                 }
 
-                this.logger.LogInformation("User {UserId} successfully downloading demo {DemoId} ({DemoTitle})",
+                Logger.LogInformation("User {UserId} successfully downloading demo {DemoId} ({DemoTitle})",
                     userId, id, demoApiResult.Result.Data.Title);
 
                 var downloadTelemetry = new EventTelemetry("DemoDownloaded")
                     .Enrich(User)
                     .Enrich(demoApiResult.Result.Data);
-                this.telemetryClient.TrackEvent(downloadTelemetry);
+                TelemetryClient.TrackEvent(downloadTelemetry);
 
                 return Redirect(demoApiResult.Result.Data.FileUri);
             }
             catch (Exception ex)
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error downloading demo {DemoId} for user {UserId}", id, userId);
+                Logger.LogError(ex, "Error downloading demo {DemoId} for user {UserId}", id, userId);
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -381,7 +362,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 exceptionTelemetry.Enrich(User);
                 exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
                 exceptionTelemetry.Properties.TryAdd("ActionType", "Download");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 throw;
             }
@@ -400,13 +381,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
             try
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} attempting to access delete page for demo {DemoId}", userId, id);
+                Logger.LogInformation("User {UserId} attempting to access delete page for demo {DemoId}", userId, id);
 
                 var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    this.logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted to delete", id, userId);
+                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted to delete", id, userId);
                     return NotFound();
                 }
 
@@ -415,7 +396,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!canDeleteDemo.Succeeded)
                 {
-                    this.logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
+                    Logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
 
                     var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
                         .Enrich(User)
@@ -424,7 +405,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
                     unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
                     unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{demoApiResult.Result.Data.GameType},Reason:Unauthorized");
-                    this.telemetryClient.TrackEvent(unauthorizedTelemetry);
+                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
 
                     return Unauthorized();
                 }
@@ -434,14 +415,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var deleteTelemetry = new EventTelemetry("DemoDeletePageViewed")
                     .Enrich(User)
                     .Enrich(demoApiResult.Result.Data);
-                this.telemetryClient.TrackEvent(deleteTelemetry);
+                TelemetryClient.TrackEvent(deleteTelemetry);
 
                 return View(demoApiResult.Result);
             }
             catch (Exception ex)
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error accessing delete page for demo {DemoId} by user {UserId}", id, userId);
+                Logger.LogError(ex, "Error accessing delete page for demo {DemoId} by user {UserId}", id, userId);
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -450,7 +431,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
                 exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
                 exceptionTelemetry.Properties.TryAdd("ActionType", "DeleteGet");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 throw;
             }
@@ -471,13 +452,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
             try
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogInformation("User {UserId} attempting to delete demo {DemoId}", userId, id);
+                Logger.LogInformation("User {UserId} attempting to delete demo {DemoId}", userId, id);
 
                 var demoApiResult = await this.repositoryApiClient.Demos.V1.GetDemo(id);
 
                 if (demoApiResult.IsNotFound || demoApiResult.Result?.Data == null)
                 {
-                    this.logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted deletion", id, userId);
+                    Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted deletion", id, userId);
                     return NotFound();
                 }
 
@@ -486,7 +467,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!canDeleteDemo.Succeeded)
                 {
-                    this.logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
+                    Logger.LogWarning("User {UserId} denied access to delete demo {DemoId}", userId, id);
 
                     var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
                         .Enrich(User)
@@ -495,14 +476,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     unauthorizedTelemetry.Properties.TryAdd("Action", "DeleteConfirmed");
                     unauthorizedTelemetry.Properties.TryAdd("Resource", "Demo");
                     unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{demoApiResult.Result.Data.GameType},Reason:Unauthorized");
-                    this.telemetryClient.TrackEvent(unauthorizedTelemetry);
+                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
 
                     return Unauthorized();
                 }
 
                 await this.repositoryApiClient.Demos.V1.DeleteDemo(id);
 
-                this.logger.LogInformation("User {UserId} successfully deleted demo {DemoId} ({DemoTitle}) under {GameType}",
+                Logger.LogInformation("User {UserId} successfully deleted demo {DemoId} ({DemoTitle}) under {GameType}",
                     userId, id, demoApiResult.Result.Data.Title, demoApiResult.Result.Data.GameType);
 
                 this.AddAlertSuccess($"The demo {demoApiResult.Result.Data.Title} has been successfully deleted from {demoApiResult.Result.Data.GameType}");
@@ -510,7 +491,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var deletedTelemetry = new EventTelemetry("DemoDeleted")
                     .Enrich(User)
                     .Enrich(demoApiResult.Result.Data);
-                this.telemetryClient.TrackEvent(deletedTelemetry);
+                TelemetryClient.TrackEvent(deletedTelemetry);
 
                 if (filterGame)
                     return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Data.GameType });
@@ -519,7 +500,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             catch (Exception ex)
             {
                 var userId = User.XtremeIdiotsId();
-                this.logger.LogError(ex, "Error deleting demo {DemoId} for user {UserId}", id, userId);
+                Logger.LogError(ex, "Error deleting demo {DemoId} for user {UserId}", id, userId);
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -528,7 +509,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", userId);
                 exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
                 exceptionTelemetry.Properties.TryAdd("ActionType", "DeleteConfirmed");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 this.AddAlertDanger("An error occurred while deleting the demo. Please try again.");
                 return RedirectToAction(nameof(Index));
@@ -547,7 +528,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
                 {
-                    this.logger.LogDebug("ClientDemoList - No auth key provided in request headers");
+                    Logger.LogDebug("ClientDemoList - No auth key provided in request headers");
                     return Content("AuthError: No auth key provided in the request. This should be set in the client.");
                 }
 
@@ -555,7 +536,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (string.IsNullOrWhiteSpace(authKey))
                 {
-                    this.logger.LogDebug("ClientDemoList - Auth key header supplied but was empty");
+                    Logger.LogDebug("ClientDemoList - Auth key header supplied but was empty");
                     return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
                 }
 
@@ -563,21 +544,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                    Logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
                 }
 
                 var userIdFromProfile = userProfileApiResponse.Result.Data.XtremeIdiotsForumId;
                 if (string.IsNullOrWhiteSpace(userIdFromProfile))
                 {
-                    this.logger.LogError("ClientDemoList - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
+                    Logger.LogError("ClientDemoList - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
                     return Content("AuthError: An internal auth error occurred processing your request - missing user ID.");
                 }
 
                 var user = await this.userManager.FindByIdAsync(userIdFromProfile);
                 if (user == null)
                 {
-                    this.logger.LogWarning("ClientDemoList - User not found for ID {UserId}", userIdFromProfile);
+                    Logger.LogWarning("ClientDemoList - User not found for ID {UserId}", userIdFromProfile);
                     return Content($"AuthError: An internal auth error occurred processing your request for userId: {userIdFromProfile}");
                 }
 
@@ -594,7 +575,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items == null)
                 {
-                    this.logger.LogError("ClientDemoList - Failed to retrieve demos for user {UserId}", userIdFromProfile);
+                    Logger.LogError("ClientDemoList - Failed to retrieve demos for user {UserId}", userIdFromProfile);
                     return Content("Error: Failed to retrieve demo list from server.");
                 }
 
@@ -613,25 +594,25 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     demo.FileName
                 }).ToList();
 
-                this.logger.LogInformation("ClientDemoList - Successfully provided {DemoCount} demos to client for user {UserId}", demos.Count, userIdFromProfile);
+                Logger.LogInformation("ClientDemoList - Successfully provided {DemoCount} demos to client for user {UserId}", demos.Count, userIdFromProfile);
 
                 var clientListTelemetry = new EventTelemetry("ClientDemoListProvided");
                 clientListTelemetry.Properties.TryAdd("LoggedInAdminId", userIdFromProfile);
                 clientListTelemetry.Properties.TryAdd("DemoCount", demos.Count.ToString());
-                this.telemetryClient.TrackEvent(clientListTelemetry);
+                TelemetryClient.TrackEvent(clientListTelemetry);
 
                 return Json(demos);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Error in ClientDemoList endpoint");
+                Logger.LogError(ex, "Error in ClientDemoList endpoint");
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
                     SeverityLevel = SeverityLevel.Error
                 };
                 exceptionTelemetry.Properties.TryAdd("ActionType", "ClientDemoList");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 return Content("Error: An internal server error occurred while processing your request.");
             }
@@ -650,7 +631,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
                 {
-                    this.logger.LogDebug("ClientUploadDemo - No auth key provided in request headers");
+                    Logger.LogDebug("ClientUploadDemo - No auth key provided in request headers");
                     return Content("AuthError: No auth key provided in the request. This should be set in the client.");
                 }
 
@@ -658,7 +639,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (string.IsNullOrWhiteSpace(authKey))
                 {
-                    this.logger.LogDebug("ClientUploadDemo - Auth key header supplied was empty");
+                    Logger.LogDebug("ClientUploadDemo - Auth key header supplied was empty");
                     return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
                 }
 
@@ -666,27 +647,27 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogWarning("ClientUploadDemo - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                    Logger.LogWarning("ClientUploadDemo - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
                 }
 
                 var userIdFromProfile = userProfileApiResponse.Result.Data.XtremeIdiotsForumId;
                 if (string.IsNullOrWhiteSpace(userIdFromProfile))
                 {
-                    this.logger.LogError("ClientUploadDemo - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
+                    Logger.LogError("ClientUploadDemo - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
                     return Content("AuthError: An internal auth error occurred processing your request - missing user ID.");
                 }
 
                 var gameTypeHeader = Request.Headers["demo-manager-game-type"].ToString();
                 if (!Enum.TryParse(gameTypeHeader, out GameType gameType))
                 {
-                    this.logger.LogWarning("ClientUploadDemo - Invalid or missing game type header: {GameTypeHeader}", gameTypeHeader);
+                    Logger.LogWarning("ClientUploadDemo - Invalid or missing game type header: {GameTypeHeader}", gameTypeHeader);
                     return Content("Error: Invalid or missing game type. Please ensure your client is properly configured.");
                 }
 
                 if (file == null || file.Length == 0)
                 {
-                    this.logger.LogWarning("ClientUploadDemo - No file provided by user {UserId}", userIdFromProfile);
+                    Logger.LogWarning("ClientUploadDemo - No file provided by user {UserId}", userIdFromProfile);
                     return Content("You must provide a file to be uploaded");
                 }
 
@@ -694,7 +675,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
                 {
-                    this.logger.LogWarning("ClientUploadDemo - Invalid file extension {FileName} by user {UserId}", file.FileName, userIdFromProfile);
+                    Logger.LogWarning("ClientUploadDemo - Invalid file extension {FileName} by user {UserId}", file.FileName, userIdFromProfile);
                     return Content("Invalid file type extension");
                 }
 
@@ -710,7 +691,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     await this.repositoryApiClient.Demos.V1.SetDemoFile(createDemoApiResponse.Result.Data.DemoId, file.FileName, filePath);
                 }
 
-                this.logger.LogInformation("User {UserId} successfully uploaded demo {FileName} for game type {GameType}",
+                Logger.LogInformation("User {UserId} successfully uploaded demo {FileName} for game type {GameType}",
                     userIdFromProfile, file.FileName, gameType);
 
                 var clientUploadTelemetry = new EventTelemetry("ClientDemoUploaded");
@@ -718,13 +699,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 clientUploadTelemetry.Properties.TryAdd("FileName", file.FileName);
                 clientUploadTelemetry.Properties.TryAdd("GameType", gameType.ToString());
                 clientUploadTelemetry.Properties.TryAdd("FileSize", file.Length.ToString());
-                this.telemetryClient.TrackEvent(clientUploadTelemetry);
+                TelemetryClient.TrackEvent(clientUploadTelemetry);
 
                 return Ok();
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Error in ClientUploadDemo endpoint");
+                Logger.LogError(ex, "Error in ClientUploadDemo endpoint");
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -736,7 +717,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     exceptionTelemetry.Properties.TryAdd("FileName", file.FileName);
                     exceptionTelemetry.Properties.TryAdd("FileSize", file.Length.ToString());
                 }
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 return Content("Error: An internal server error occurred while uploading your demo.");
             }
@@ -755,7 +736,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
                 {
-                    this.logger.LogDebug("ClientDownload - No auth key provided in request headers");
+                    Logger.LogDebug("ClientDownload - No auth key provided in request headers");
                     return Content("AuthError: No auth key provided in the request. This should be set in the client.");
                 }
 
@@ -763,7 +744,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (string.IsNullOrWhiteSpace(authKey))
                 {
-                    this.logger.LogDebug("ClientDownload - Auth key header supplied but was empty");
+                    Logger.LogDebug("ClientDownload - Auth key header supplied but was empty");
                     return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
                 }
 
@@ -771,14 +752,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogWarning("ClientDownload - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                    Logger.LogWarning("ClientDownload - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
                     return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
                 }
 
                 var userIdFromProfile = userProfileApiResponse.Result.Data.XtremeIdiotsForumId;
                 if (string.IsNullOrWhiteSpace(userIdFromProfile))
                 {
-                    this.logger.LogError("ClientDownload - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
+                    Logger.LogError("ClientDownload - User profile missing XtremeIdiotsForumId for profile {UserProfileId}", userProfileApiResponse.Result.Data.UserProfileId);
                     return Content("AuthError: An internal auth error occurred processing your request - missing user ID.");
                 }
 
@@ -786,22 +767,22 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (demoApiResponse.IsNotFound || demoApiResponse.Result?.Data == null)
                 {
-                    this.logger.LogWarning("ClientDownload - Demo {DemoId} not found for user {UserId}", id, userIdFromProfile);
+                    Logger.LogWarning("ClientDownload - Demo {DemoId} not found for user {UserId}", id, userIdFromProfile);
                     return NotFound();
                 }
 
-                this.logger.LogInformation("User {UserId} successfully downloading demo {DemoId} via client", userIdFromProfile, id);
+                Logger.LogInformation("User {UserId} successfully downloading demo {DemoId} via client", userIdFromProfile, id);
 
                 var clientDownloadTelemetry = new EventTelemetry("ClientDemoDownloaded")
                     .Enrich(demoApiResponse.Result.Data);
                 clientDownloadTelemetry.Properties.TryAdd("LoggedInAdminId", userIdFromProfile);
-                this.telemetryClient.TrackEvent(clientDownloadTelemetry);
+                TelemetryClient.TrackEvent(clientDownloadTelemetry);
 
                 return Redirect(demoApiResponse.Result.Data.FileUri);
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Error in ClientDownload endpoint for demo {DemoId}", id);
+                Logger.LogError(ex, "Error in ClientDownload endpoint for demo {DemoId}", id);
 
                 var exceptionTelemetry = new ExceptionTelemetry(ex)
                 {
@@ -809,7 +790,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 };
                 exceptionTelemetry.Properties.TryAdd("DemoId", id.ToString());
                 exceptionTelemetry.Properties.TryAdd("ActionType", "ClientDownload");
-                this.telemetryClient.TrackException(exceptionTelemetry);
+                TelemetryClient.TrackException(exceptionTelemetry);
 
                 return Content("Error: An internal server error occurred while downloading the demo.");
             }

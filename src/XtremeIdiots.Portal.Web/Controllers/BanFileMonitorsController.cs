@@ -1,8 +1,15 @@
-﻿using Microsoft.ApplicationInsights;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
@@ -19,23 +26,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing ban file monitors
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessBanFileMonitors)]
-    public class BanFileMonitorsController : Controller
+    public class BanFileMonitorsController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<BanFileMonitorsController> logger;
 
         public BanFileMonitorsController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
-            ILogger<BanFileMonitorsController> logger)
+            ILogger<BanFileMonitorsController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -47,11 +52,8 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view ban file monitors index",
-                    User.XtremeIdiotsId());
-
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
                 var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
@@ -59,28 +61,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!banFileMonitorsApiResponse.IsSuccess || banFileMonitorsApiResponse.Result?.Data?.Items is null)
                 {
-                    logger.LogError("Failed to retrieve ban file monitors for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogError("Failed to retrieve ban file monitors for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
-                logger.LogInformation("User {UserId} successfully loaded {Count} ban file monitors",
-                    User.XtremeIdiotsId(), banFileMonitorsApiResponse.Result.Data.Items.Count());
-
                 return View(banFileMonitorsApiResponse.Result.Data.Items);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading ban file monitors index for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "LoadBanFileMonitorsIndex");
         }
 
         /// <summary>
@@ -92,31 +78,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view create ban file monitor form",
-                    User.XtremeIdiotsId());
-
                 await AddGameServersViewData(cancellationToken: cancellationToken);
-
-                logger.LogInformation("User {UserId} successfully loaded create ban file monitor form",
-                    User.XtremeIdiotsId());
-
                 return View(new CreateBanFileMonitorViewModel());
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading create ban file monitor form for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "LoadCreateBanFileMonitorForm");
         }
 
         /// <summary>
@@ -131,83 +97,50 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateBanFileMonitorViewModel model, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to create ban file monitor for game server {GameServerId}",
-                    User.XtremeIdiotsId(), model.GameServerId);
-
                 var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(model.GameServerId, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when creating ban file monitor", model.GameServerId);
+                    Logger.LogWarning("Game server {GameServerId} not found when creating ban file monitor", model.GameServerId);
                     return NotFound();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
 
-                if (!ModelState.IsValid)
+                var modelValidationResult = await CheckModelStateAsync(model, async m =>
                 {
-                    logger.LogWarning("Invalid model state for creating ban file monitor for game server {GameServerId}", model.GameServerId);
                     await AddGameServersViewData(model.GameServerId, cancellationToken);
-                    return View(model);
-                }
+                });
+                if (modelValidationResult != null) return modelValidationResult;
 
                 var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canCreateBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.CreateBanFileMonitor);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    authorizationResource,
+                    AuthPolicies.CreateBanFileMonitor,
+                    "Create",
+                    "BanFileMonitor",
+                    $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}",
+                    gameServerData);
 
-                if (!canCreateBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to create ban file monitor for game server {GameServerId}",
-                        User.XtremeIdiotsId(), model.GameServerId);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Create");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 var createBanFileMonitorDto = new CreateBanFileMonitorDto(model.GameServerId, model.FilePath, gameServerData.GameType);
                 await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto, cancellationToken);
 
-                var eventTelemetry = new EventTelemetry("BanFileMonitorCreated");
-                eventTelemetry
-                    .Enrich(User)
-                    .Enrich(gameServerData)
-                    .Enrich(createBanFileMonitorDto);
-                telemetryClient.TrackEvent(eventTelemetry);
-
-                logger.LogInformation("User {UserId} successfully created ban file monitor for game server {GameServerId}",
-                    User.XtremeIdiotsId(), model.GameServerId);
+                TrackSuccessTelemetry("BanFileMonitorCreated", "CreateBanFileMonitor", new Dictionary<string, string>
+                {
+                    { "GameServerId", model.GameServerId.ToString() },
+                    { "FilePath", model.FilePath },
+                    { "GameType", gameServerData.GameType.ToString() }
+                });
 
                 this.AddAlertSuccess($"The ban file monitor has been created for {gameServerData.Title}");
 
                 return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating ban file monitor for game server {GameServerId}", model.GameServerId);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", model.GameServerId.ToString());
-                errorTelemetry.Properties.TryAdd("FilePath", model.FilePath);
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while creating the ban file monitor. Please try again.");
-
-                await AddGameServersViewData(model.GameServerId, cancellationToken);
-                return View(model);
-            }
+            }, "CreateBanFileMonitor");
         }
 
         /// <summary>
@@ -221,61 +154,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view ban file monitor details {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
+                    id, AuthPolicies.ViewBanFileMonitor, "viewing details", cancellationToken);
 
-                var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
-
-                if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
-                {
-                    logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when viewing details", id);
-                    return NotFound();
-                }
-
-                var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
-                var gameServerData = banFileMonitorData.GameServer;
-
-                var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canViewBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.ViewBanFileMonitor);
-
-                if (!canViewBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to view ban file monitor {BanFileMonitorId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(banFileMonitorData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "View");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully viewed ban file monitor details {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                if (actionResult != null) return actionResult;
 
                 return View(banFileMonitorData);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading ban file monitor details {BanFileMonitorId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("BanFileMonitorId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "ViewBanFileMonitorDetails");
         }
 
         /// <summary>
@@ -289,43 +176,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to edit ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
+                    id, AuthPolicies.EditBanFileMonitor, "loading edit form", cancellationToken);
 
-                var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
+                if (actionResult != null) return actionResult;
 
-                if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
-                {
-                    logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when loading edit form", id);
-                    return NotFound();
-                }
-
-                var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
-                var gameServerData = banFileMonitorData.GameServer;
-
-                var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.EditBanFileMonitor);
-
-                if (!canEditBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to edit ban file monitor {BanFileMonitorId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(banFileMonitorData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Edit");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                await AddGameServersViewData(banFileMonitorData.GameServerId, cancellationToken);
+                await AddGameServersViewData(banFileMonitorData!.GameServerId, cancellationToken);
 
                 var viewModel = new EditBanFileMonitorViewModel
                 {
@@ -334,28 +192,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     RemoteFileSize = banFileMonitorData.RemoteFileSize,
                     LastSync = banFileMonitorData.LastSync,
                     GameServerId = banFileMonitorData.GameServerId,
-                    GameServer = gameServerData
+                    GameServer = banFileMonitorData.GameServer
                 };
-
-                logger.LogInformation("User {UserId} successfully loaded edit form for ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
 
                 return View(viewModel);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading edit form for ban file monitor {BanFileMonitorId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("BanFileMonitorId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "LoadEditBanFileMonitorForm");
         }
 
         /// <summary>
@@ -370,85 +211,34 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(EditBanFileMonitorViewModel model, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to update ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), model.BanFileMonitorId);
+                var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
+                    model.BanFileMonitorId, AuthPolicies.EditBanFileMonitor, "updating", cancellationToken);
 
-                var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(model.BanFileMonitorId, cancellationToken);
+                if (actionResult != null) return actionResult;
 
-                if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
+                var modelValidationResult = await CheckModelStateAsync(model, async m =>
                 {
-                    logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when updating", model.BanFileMonitorId);
-                    return NotFound();
-                }
-
-                var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
-                var gameServerData = banFileMonitorData.GameServer;
-
-                if (!ModelState.IsValid)
-                {
-                    logger.LogWarning("Invalid model state for updating ban file monitor {BanFileMonitorId}", model.BanFileMonitorId);
                     await AddGameServersViewData(model.GameServerId, cancellationToken);
-                    model.GameServer = gameServerData;
-                    return View(model);
-                }
+                    model.GameServer = banFileMonitorData!.GameServer;
+                });
+                if (modelValidationResult != null) return modelValidationResult;
 
-                var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canEditBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.EditBanFileMonitor);
-
-                if (!canEditBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to update ban file monitor {BanFileMonitorId}",
-                        User.XtremeIdiotsId(), model.BanFileMonitorId);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(banFileMonitorData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Edit");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorData.BanFileMonitorId, model.FilePath);
+                var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorData!.BanFileMonitorId, model.FilePath);
                 await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto, cancellationToken);
 
-                var eventTelemetry = new EventTelemetry("BanFileMonitorUpdated");
-                eventTelemetry
-                    .Enrich(User)
-                    .Enrich(gameServerData)
-                    .Enrich(editBanFileMonitorDto);
-                telemetryClient.TrackEvent(eventTelemetry);
+                TrackSuccessTelemetry("BanFileMonitorUpdated", "UpdateBanFileMonitor", new Dictionary<string, string>
+                {
+                    { "BanFileMonitorId", model.BanFileMonitorId.ToString() },
+                    { "FilePath", model.FilePath },
+                    { "GameType", banFileMonitorData.GameServer.GameType.ToString() }
+                });
 
-                logger.LogInformation("User {UserId} successfully updated ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), model.BanFileMonitorId);
-
-                this.AddAlertSuccess($"The ban file monitor has been updated for {gameServerData.Title}");
+                this.AddAlertSuccess($"The ban file monitor has been updated for {banFileMonitorData.GameServer.Title}");
 
                 return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error updating ban file monitor {BanFileMonitorId}", model.BanFileMonitorId);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry
-                    .Enrich(User)
-                    .Enrich(new EditBanFileMonitorDto(model.BanFileMonitorId, model.FilePath));
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while updating the ban file monitor. Please try again.");
-
-                await AddGameServersViewData(model.GameServerId, cancellationToken);
-                return View(model);
-            }
+            }, "UpdateBanFileMonitor");
         }
 
         /// <summary>
@@ -462,63 +252,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view delete confirmation for ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
+                    id, AuthPolicies.DeleteBanFileMonitor, "loading delete confirmation", cancellationToken);
 
-                var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
+                if (actionResult != null) return actionResult;
 
-                if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
-                {
-                    logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when loading delete confirmation", id);
-                    return NotFound();
-                }
-
-                var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
-                var gameServerData = banFileMonitorData.GameServer;
-
-                var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.DeleteBanFileMonitor);
-
-                if (!canDeleteBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to delete ban file monitor {BanFileMonitorId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(banFileMonitorData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                await AddGameServersViewData(banFileMonitorData.GameServerId, cancellationToken);
-
-                logger.LogInformation("User {UserId} successfully loaded delete confirmation for ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                await AddGameServersViewData(banFileMonitorData!.GameServerId, cancellationToken);
 
                 return View(banFileMonitorData);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading delete confirmation for ban file monitor {BanFileMonitorId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("BanFileMonitorId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "LoadDeleteBanFileMonitorConfirmation");
         }
 
         /// <summary>
@@ -534,73 +278,26 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to delete ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
+                var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
+                    id, AuthPolicies.DeleteBanFileMonitor, "deleting", cancellationToken);
 
-                var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
-
-                if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
-                {
-                    logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when deleting", id);
-                    return NotFound();
-                }
-
-                var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
-                var gameServerData = banFileMonitorData.GameServer;
-
-                var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
-                var canDeleteBanFileMonitor = await authorizationService.AuthorizeAsync(User, authorizationResource, AuthPolicies.DeleteBanFileMonitor);
-
-                if (!canDeleteBanFileMonitor.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to delete ban file monitor {BanFileMonitorId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(banFileMonitorData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "BanFileMonitors");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "BanFileMonitor");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (actionResult != null) return actionResult;
 
                 await repositoryApiClient.BanFileMonitors.V1.DeleteBanFileMonitor(id, cancellationToken);
 
-                var eventTelemetry = new EventTelemetry("BanFileMonitorDeleted");
-                eventTelemetry
-                    .Enrich(User)
-                    .Enrich(gameServerData)
-                    .Enrich(banFileMonitorData);
-                telemetryClient.TrackEvent(eventTelemetry);
-
-                logger.LogInformation("User {UserId} successfully deleted ban file monitor {BanFileMonitorId}",
-                    User.XtremeIdiotsId(), id);
-
-                this.AddAlertSuccess($"The ban file monitor has been deleted for {gameServerData.Title}");
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error deleting ban file monitor {BanFileMonitorId}", id);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("BanFileMonitorDeleted", "DeleteBanFileMonitor", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("BanFileMonitorId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
+                    { "BanFileMonitorId", id.ToString() },
+                    { "GameType", banFileMonitorData!.GameServer.GameType.ToString() },
+                    { "GameServerId", banFileMonitorData.GameServer.GameServerId.ToString() }
+                });
 
-                this.AddAlertDanger("An error occurred while deleting the ban file monitor. Please try again.");
+                this.AddAlertSuccess($"The ban file monitor has been deleted for {banFileMonitorData.GameServer.Title}");
+
                 return RedirectToAction(nameof(Index));
-            }
+            }, "DeleteBanFileMonitor");
         }
 
         /// <summary>
@@ -623,15 +320,58 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 }
                 else
                 {
-                    logger.LogWarning("Failed to load game servers for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogWarning("Failed to load game servers for user {UserId}", User.XtremeIdiotsId());
                     ViewData["GameServers"] = new SelectList(Enumerable.Empty<GameServerDto>(), nameof(GameServerDto.GameServerId), nameof(GameServerDto.Title));
                 }
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error loading game servers view data for user {UserId}", User.XtremeIdiotsId());
+                Logger.LogError(ex, "Error loading game servers view data for user {UserId}", User.XtremeIdiotsId());
                 ViewData["GameServers"] = new SelectList(Enumerable.Empty<GameServerDto>(), nameof(GameServerDto.GameServerId), nameof(GameServerDto.Title));
             }
+        }
+
+        /// <summary>
+        /// Retrieves and authorizes access to a ban file monitor
+        /// </summary>
+        /// <param name="id">The ban file monitor ID</param>
+        /// <param name="policy">The authorization policy to check</param>
+        /// <param name="action">The action being performed for logging</param>
+        /// <param name="cancellationToken">Cancellation token for the async operation</param>
+        /// <returns>Tuple containing the action result if unauthorized/not found and the ban file monitor data if successful</returns>
+        private async Task<(IActionResult? ActionResult, BanFileMonitorDto? BanFileMonitor)> GetAuthorizedBanFileMonitorAsync(
+            Guid id,
+            string policy,
+            string action,
+            CancellationToken cancellationToken = default)
+        {
+            var banFileMonitorApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
+
+            if (banFileMonitorApiResponse.IsNotFound || banFileMonitorApiResponse.Result?.Data?.GameServer is null)
+            {
+                Logger.LogWarning("Ban file monitor {BanFileMonitorId} not found when {Action}", id, action);
+                return (NotFound(), null);
+            }
+
+            var banFileMonitorData = banFileMonitorApiResponse.Result.Data;
+            var gameServerData = banFileMonitorData.GameServer;
+
+            var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
+            var authResult = await CheckAuthorizationAsync(
+                authorizationService,
+                authorizationResource,
+                policy,
+                action,
+                "BanFileMonitor",
+                $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}",
+                banFileMonitorData);
+
+            if (authResult != null)
+            {
+                return (authResult, null);
+            }
+
+            return (null, banFileMonitorData);
         }
     }
 }

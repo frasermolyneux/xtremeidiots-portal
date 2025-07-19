@@ -1,14 +1,14 @@
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.MapPacks;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
@@ -19,26 +19,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing map packs associated with game servers
     /// </summary>
     [Authorize(Policy = AuthPolicies.ManageMaps)]
-    public class MapPacksController : Controller
+    public class MapPacksController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<MapPacksController> logger;
 
         public MapPacksController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             IServersApiClient serversApiClient,
             TelemetryClient telemetryClient,
-            ILogger<MapPacksController> logger)
+            ILogger<MapPacksController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -52,135 +50,60 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(Guid gameServerId, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to create map pack for game server {GameServerId}",
-                    User.XtremeIdiotsId(), gameServerId);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
+                    gameServerId,
+                    AuthPolicies.CreateMapPack,
+                    "Create",
+                    cancellationToken);
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(gameServerId);
-
-                if (gameServerApiResponse.IsNotFound)
-                {
-                    logger.LogWarning("Game server {GameServerId} not found when creating map pack", gameServerId);
-                    return NotFound();
-                }
-
-                if (gameServerApiResponse.Result?.Data is null)
-                {
-                    logger.LogWarning("Game server data is null for {GameServerId}", gameServerId);
-                    return BadRequest();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.CreateMapPack);
-
-                if (!canManageGameServerMaps.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to create map pack for game server {GameServerId} with game type {GameType}",
-                        User.XtremeIdiotsId(), gameServerId, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "MapPacks");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Create");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "MapPack");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (actionResult != null) return actionResult;
 
                 ViewData["GameServer"] = gameServerData;
 
-                logger.LogInformation("Successfully loaded create map pack form for user {UserId} targeting game server {GameServerId}",
-                    User.XtremeIdiotsId(), gameServerId);
-
                 return View(new CreateMapPackViewModel { GameServerId = gameServerId });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating map pack form for game server {GameServerId}",
-                    gameServerId);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", gameServerId.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "LoadCreateMapPackForm");
         }
 
         /// <summary>
         /// Creates a new map pack for a game server based on the submitted form data
         /// </summary>
-        /// <param name="createMapPackViewModel">The create map pack view model containing the map pack details</param>
+        /// <param name="model">The create map pack view model containing the map pack details</param>
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
         /// <returns>Redirects to manage map packs page on success, or returns the view with validation errors</returns>
         /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create map packs</exception>
         /// <exception cref="KeyNotFoundException">Thrown when game server is not found</exception>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateMapPackViewModel createMapPackViewModel, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Create(CreateMapPackViewModel model, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to create map pack for game server {GameServerId}",
-                    User.XtremeIdiotsId(), createMapPackViewModel.GameServerId);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
+                    model.GameServerId,
+                    AuthPolicies.CreateMapPack,
+                    "Create",
+                    cancellationToken);
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(createMapPackViewModel.GameServerId);
+                if (actionResult != null) return actionResult;
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
+                var modelValidationResult = CheckModelState(model, m =>
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when creating map pack", createMapPackViewModel.GameServerId);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-
-                if (!ModelState.IsValid)
-                {
-                    logger.LogWarning("Invalid model state for creating map pack for game server {GameServerId}", createMapPackViewModel.GameServerId);
                     ViewData["GameServer"] = gameServerData;
-                    return View(createMapPackViewModel);
-                }
+                });
+                if (modelValidationResult != null) return modelValidationResult;
 
-                var canManageGameServerMaps = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.CreateMapPack);
-
-                if (!canManageGameServerMaps.Succeeded)
+                var createMapPackDto = new CreateMapPackDto(model.GameServerId, model.Title, model.Description)
                 {
-                    logger.LogWarning("User {UserId} denied access to create map pack for game server {GameServerId} with game type {GameType}",
-                        User.XtremeIdiotsId(), createMapPackViewModel.GameServerId, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "MapPacks");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Create");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "MapPack");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                var createMapPackDto = new CreateMapPackDto(createMapPackViewModel.GameServerId, createMapPackViewModel.Title, createMapPackViewModel.Description)
-                {
-                    GameMode = createMapPackViewModel.GameMode,
-                    SyncToGameServer = createMapPackViewModel.SyncToGameServer
+                    GameMode = model.GameMode,
+                    SyncToGameServer = model.SyncToGameServer
                 };
 
-                var createMapPackApiResponse = await repositoryApiClient.MapPacks.V1.CreateMapPack(createMapPackDto);
+                var createMapPackApiResponse = await repositoryApiClient.MapPacks.V1.CreateMapPack(createMapPackDto, cancellationToken);
 
                 if (!createMapPackApiResponse.IsSuccess)
                 {
-                    logger.LogWarning("Failed to create map pack for game server {GameServerId}",
-                        createMapPackViewModel.GameServerId);
-
                     if (createMapPackApiResponse.Result?.Errors != null)
                     {
                         foreach (var error in createMapPackApiResponse.Result.Errors)
@@ -194,46 +117,55 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
 
                     ViewData["GameServer"] = gameServerData;
-                    return View(createMapPackViewModel);
+                    return View(model);
                 }
 
-                var eventTelemetry = new EventTelemetry("MapPackCreated")
-                    .Enrich(User)
-                    .Enrich(gameServerData)
-                    .Enrich(createMapPackDto);
-                telemetryClient.TrackEvent(eventTelemetry);
+                TrackSuccessTelemetry("MapPackCreated", "CreateMapPack", new Dictionary<string, string>
+                {
+                    { "GameServerId", model.GameServerId.ToString() },
+                    { "Title", model.Title },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
-                logger.LogInformation("User {UserId} successfully created map pack for game server {GameServerId}",
-                    User.XtremeIdiotsId(), createMapPackViewModel.GameServerId);
+                this.AddAlertSuccess($"Map pack '{model.Title}' has been created successfully for {gameServerData.Title}.");
 
-                this.AddAlertSuccess($"Map pack '{createMapPackViewModel.Title}' has been created successfully for {gameServerData.Title}.");
+                return RedirectToAction("Manage", "MapPacks", new { id = model.GameServerId });
+            }, "CreateMapPack");
+        }
 
-                return RedirectToAction("Manage", "MapPacks", new { id = createMapPackViewModel.GameServerId });
-            }
-            catch (Exception ex)
+        /// <summary>
+        /// Helper method to get game server data and check authorization
+        /// </summary>
+        /// <param name="gameServerId">The game server ID</param>
+        /// <param name="policy">The authorization policy to check</param>
+        /// <param name="action">The action being performed</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>A tuple containing the action result if unauthorized/not found, and the game server data if authorized</returns>
+        private async Task<(IActionResult? ActionResult, GameServerDto? GameServerData)> GetAuthorizedGameServerAsync(
+            Guid gameServerId,
+            string policy,
+            string action,
+            CancellationToken cancellationToken = default)
+        {
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(gameServerId, cancellationToken);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
             {
-                logger.LogError(ex, "Error creating map pack for game server {GameServerId}",
-                    createMapPackViewModel.GameServerId);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", createMapPackViewModel.GameServerId.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while creating the map pack. Please try again.");
-
-                // Reload data for the view
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(createMapPackViewModel.GameServerId);
-                if (gameServerApiResponse.IsSuccess && gameServerApiResponse.Result?.Data is not null)
-                {
-                    ViewData["GameServer"] = gameServerApiResponse.Result.Data;
-                }
-
-                return View(createMapPackViewModel);
+                Logger.LogWarning("Game server {GameServerId} not found when {Action} map pack", gameServerId, action);
+                return (NotFound(), null);
             }
+
+            var gameServerData = gameServerApiResponse.Result.Data;
+            var authResult = await CheckAuthorizationAsync(
+                authorizationService,
+                gameServerData.GameType,
+                policy,
+                action,
+                "MapPack",
+                $"GameType:{gameServerData.GameType},GameServerId:{gameServerId}",
+                gameServerData);
+
+            return authResult != null ? (authResult, null) : (null, gameServerData);
         }
     }
 }

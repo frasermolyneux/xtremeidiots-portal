@@ -1,8 +1,8 @@
-﻿
+
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.InvisionCommunity;
@@ -15,27 +15,27 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for application health check endpoints, providing status information about external dependencies
     /// </summary>
     [AllowAnonymous]
-    public class HealthCheckController : Controller
+    public class HealthCheckController : BaseController
     {
         private readonly List<HealthCheckComponent> healthCheckComponents = new();
         private readonly IInvisionApiClient forumsClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<HealthCheckController> logger;
 
         /// <summary>
         /// Initializes a new instance of the HealthCheckController
         /// </summary>
         /// <param name="forumsClient">Client for accessing forums API services</param>
-        /// <param name="telemetryClient">Client for tracking telemetry events</param>
-        /// <param name="logger">Logger for structured logging</param>
+        /// <param name="TelemetryClient">Client for tracking telemetry events</param>
+        /// <param name="Logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
+        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public HealthCheckController(
             IInvisionApiClient forumsClient,
-            TelemetryClient telemetryClient,
-            ILogger<HealthCheckController> logger)
+            TelemetryClient TelemetryClient,
+            ILogger<HealthCheckController> Logger,
+            IConfiguration configuration)
+            : base(TelemetryClient, Logger, configuration)
         {
             this.forumsClient = forumsClient ?? throw new ArgumentNullException(nameof(forumsClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             healthCheckComponents.Add(new HealthCheckComponent
             {
@@ -68,9 +68,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Status(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("Health check status requested");
+                Logger.LogInformation("Health check status requested");
 
                 var result = new HealthCheckResponse();
 
@@ -104,33 +104,32 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (!result.IsHealthy)
                 {
-                    logger.LogWarning("Health check failed - one or more components are unhealthy");
+                    Logger.LogWarning("Health check failed - one or more components are unhealthy");
                     actionResult.StatusCode = 503;
+
+                    TrackSuccessTelemetry("HealthCheckFailed", "Status", new Dictionary<string, string>
+                    {
+                        { "Controller", "HealthCheck" },
+                        { "Resource", "SystemHealth" },
+                        { "IsHealthy", "false" },
+                        { "ComponentCount", result.Components.Count.ToString() }
+                    });
                 }
                 else
                 {
-                    logger.LogInformation("Health check completed successfully - all components are healthy");
+                    Logger.LogInformation("Health check completed successfully - all components are healthy");
+
+                    TrackSuccessTelemetry("HealthCheckPassed", "Status", new Dictionary<string, string>
+                    {
+                        { "Controller", "HealthCheck" },
+                        { "Resource", "SystemHealth" },
+                        { "IsHealthy", "true" },
+                        { "ComponentCount", result.Components.Count.ToString() }
+                    });
                 }
 
                 return actionResult;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error performing health check");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                if (User.Identity?.IsAuthenticated == true)
-                {
-                    errorTelemetry.Enrich(User);
-                }
-                errorTelemetry.Properties.TryAdd("ActionType", "HealthCheck");
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Status");
         }
 
         /// <summary>

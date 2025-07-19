@@ -1,7 +1,12 @@
-﻿using Microsoft.ApplicationInsights;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Extensions;
@@ -12,23 +17,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// <summary>
     /// Controller for handling error display and diagnostics
     /// </summary>
-    public class ErrorsController : Controller
+    public class ErrorsController : BaseController
     {
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ErrorsController> logger;
-
         /// <summary>
         /// Initializes a new instance of the ErrorsController
         /// </summary>
-        /// <param name="telemetryClient">Client for tracking telemetry events</param>
-        /// <param name="logger">Logger for structured logging</param>
+        /// <param name="TelemetryClient">Client for tracking telemetry events</param>
+        /// <param name="Logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public ErrorsController(
-            TelemetryClient telemetryClient,
-            ILogger<ErrorsController> logger)
+            TelemetryClient TelemetryClient,
+            ILogger<ErrorsController> Logger,
+            IConfiguration configuration)
+            : base(TelemetryClient, Logger, configuration)
         {
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -42,21 +45,31 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             try
             {
-                logger.LogInformation("User {UserId} accessing error display for status code {StatusCode}",
+                Logger.LogInformation("User {UserId} accessing error display for status code {StatusCode}",
                     User.XtremeIdiotsId(), id);
 
                 var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
 
                 if (User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
                 {
-                    logger.LogInformation("Senior admin {UserId} viewing detailed error information for status code {StatusCode}",
+                    Logger.LogInformation("Senior admin {UserId} viewing detailed error information for status code {StatusCode}",
                         User.XtremeIdiotsId(), id);
 
                     if (context?.Error != null)
                     {
                         // Log the exception details for senior admin access
-                        logger.LogWarning("Detailed error information accessed by senior admin {UserId}: {ErrorMessage}",
+                        Logger.LogWarning("Detailed error information accessed by senior admin {UserId}: {ErrorMessage}",
                             User.XtremeIdiotsId(), context.Error.Message);
+
+                        // Track that a senior admin accessed detailed error information
+                        TrackSuccessTelemetry("ErrorDetailsViewed", "Display", new Dictionary<string, string>
+                        {
+                            { "Controller", "Errors" },
+                            { "Resource", "ErrorDetails" },
+                            { "Context", "SeniorAdminAccess" },
+                            { "StatusCode", id.ToString() },
+                            { "HasExceptionContext", "true" }
+                        });
 
                         return Problem(
                             context.Error.StackTrace,
@@ -64,28 +77,46 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     }
                     else
                     {
-                        logger.LogInformation("No exception context available for status code {StatusCode}", id);
+                        Logger.LogInformation("No exception context available for status code {StatusCode}", id);
+
+                        TrackSuccessTelemetry("ErrorPageViewed", "Display", new Dictionary<string, string>
+                        {
+                            { "Controller", "Errors" },
+                            { "Resource", "ErrorPage" },
+                            { "Context", "SeniorAdminAccess" },
+                            { "StatusCode", id.ToString() },
+                            { "HasExceptionContext", "false" }
+                        });
+
                         return View(id);
                     }
                 }
 
                 // Regular users get the standard error view without sensitive details
-                logger.LogInformation("Standard user {UserId} viewing generic error page for status code {StatusCode}",
+                Logger.LogInformation("Standard user {UserId} viewing generic error page for status code {StatusCode}",
                     User.XtremeIdiotsId(), id);
+
+                TrackSuccessTelemetry("ErrorPageViewed", "Display", new Dictionary<string, string>
+                {
+                    { "Controller", "Errors" },
+                    { "Resource", "ErrorPage" },
+                    { "Context", "StandardUserAccess" },
+                    { "StatusCode", id.ToString() }
+                });
 
                 return View(id);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error occurred while displaying error page for status code {StatusCode}", id);
+                Logger.LogError(ex, "Error occurred while displaying error page for status code {StatusCode}", id);
 
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                // Use BaseController's error telemetry tracking
+                TrackErrorTelemetry(ex, "Display", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("StatusCode", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
+                    { "StatusCode", id.ToString() },
+                    { "Controller", "Errors" },
+                    { "Context", "ErrorControllerFailure" }
+                });
 
                 // Fallback to basic error view to prevent error loops
                 return View(id);

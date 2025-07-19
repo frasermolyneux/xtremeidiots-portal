@@ -2,6 +2,7 @@ using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
@@ -11,6 +12,7 @@ using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 
@@ -20,26 +22,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for server administration functionality including RCON access, chat logs, and server management
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
-    public class ServerAdminController : Controller
+    public class ServerAdminController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IServersApiClient serversApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ServerAdminController> logger;
 
         public ServerAdminController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             IServersApiClient serversApiClient,
             TelemetryClient telemetryClient,
-            ILogger<ServerAdminController> logger)
+            ILogger<ServerAdminController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -50,18 +50,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing server admin dashboard", User.XtremeIdiotsId());
-
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
                 var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-                var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50, GameServerOrder.BannerServerListPosition);
+                var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                    gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50,
+                    GameServerOrder.BannerServerListPosition, cancellationToken);
 
-                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
+                if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
                 {
-                    logger.LogError("Failed to retrieve game servers for server admin dashboard for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogError("Failed to retrieve game servers for server admin dashboard for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
@@ -70,24 +70,44 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     GameServer = gs
                 }).ToList();
 
-                logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",
+                Logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",
                     results.Count, User.XtremeIdiotsId());
 
                 return View(results);
-            }
-            catch (Exception ex)
+            }, "Index");
+        }
+
+        /// <summary>
+        /// Helper method to get game server data with authorization check
+        /// </summary>
+        /// <param name="id">The game server ID</param>
+        /// <param name="action">The action being performed for logging</param>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>Tuple containing ActionResult (if unauthorized/not found) and GameServerDto (if successful)</returns>
+        private async Task<(IActionResult? ActionResult, GameServerDto? GameServer)> GetAuthorizedGameServerAsync(
+            Guid id,
+            string action,
+            CancellationToken cancellationToken = default)
+        {
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
             {
-                logger.LogError(ex, "Error loading server admin dashboard for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
+                Logger.LogWarning("Game server {ServerId} not found when {Action}", id, action);
+                return (NotFound(), null);
             }
+
+            var gameServerData = gameServerApiResponse.Result.Data;
+            var authResult = await CheckAuthorizationAsync(
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.ViewLiveRcon,
+                action,
+                "GameServer",
+                $"ServerId:{id},GameType:{gameServerData.GameType}",
+                gameServerData);
+
+            return authResult is not null ? (authResult, null) : (null, gameServerData);
         }
 
         /// <summary>
@@ -99,56 +119,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ViewRcon(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view RCON for server {ServerId}", User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
-
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
-                {
-                    logger.LogWarning("Game server {ServerId} not found when viewing RCON", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to view RCON for server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "ViewRcon");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully accessed RCON view for server {ServerId}",
-                    User.XtremeIdiotsId(), id);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "ViewRcon", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
                 return View(gameServerData);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error viewing RCON for server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "ViewRcon");
         }
 
         /// <summary>
@@ -160,58 +137,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetRconPlayers(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} requesting RCON players for server {ServerId}", User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
-
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
-                {
-                    logger.LogWarning("Game server {ServerId} not found when getting RCON players", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to get RCON players for server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetRconPlayers");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "GetRconPlayers", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
                 var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(id);
 
                 return Json(new
                 {
-                    data = (getServerStatusResult.IsSuccess && getServerStatusResult.Result?.Data != null) ? getServerStatusResult.Result.Data.Players : null
+                    data = (getServerStatusResult.IsSuccess && getServerStatusResult.Result?.Data is not null)
+                        ? getServerStatusResult.Result.Data.Players
+                        : null
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error getting RCON players for server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "GetRconPlayers");
         }
 
         /// <summary>
@@ -224,60 +163,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestartServer(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to restart server {ServerId}", User.XtremeIdiotsId(), id);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartServer", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                // TODO: Implement actual server restart logic when available in ServersApiClient
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                TrackSuccessTelemetry("ServerRestarted", "RestartServer", new Dictionary<string, string>
                 {
-                    logger.LogWarning("Game server {ServerId} not found when restarting server", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to restart server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "RestartServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully initiated server restart for {ServerId}",
-                    User.XtremeIdiotsId(), id);
+                    { "ServerId", id.ToString() },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
                 return Json(new
                 {
-                    Success = true,
-                    //Message = result
+                    Success = true
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error restarting server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "RestartServer");
         }
 
         /// <summary>
@@ -290,60 +193,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RestartMap(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to restart map on server {ServerId}", User.XtremeIdiotsId(), id);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartMap", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                // TODO: Implement actual map restart logic when available in ServersApiClient
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
                 {
-                    logger.LogWarning("Game server {ServerId} not found when restarting map", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to restart map on server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "RestartMap");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully initiated map restart for server {ServerId}",
-                    User.XtremeIdiotsId(), id);
+                    { "ServerId", id.ToString() },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
                 return Json(new
                 {
-                    Success = true,
-                    //Message = result
+                    Success = true
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error restarting map on server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "RestartMap");
         }
 
         /// <summary>
@@ -356,60 +223,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> FastRestartMap(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to fast restart map on server {ServerId}", User.XtremeIdiotsId(), id);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "FastRestartMap", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                // TODO: Implement actual fast map restart logic when available in ServersApiClient
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
                 {
-                    logger.LogWarning("Game server {ServerId} not found when fast restarting map", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to fast restart map on server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "FastRestartMap");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully initiated fast map restart for server {ServerId}",
-                    User.XtremeIdiotsId(), id);
+                    { "ServerId", id.ToString() },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
                 return Json(new
                 {
-                    Success = true,
-                    //Message = result
+                    Success = true
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fast restarting map on server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "FastRestartMap");
         }
 
         /// <summary>
@@ -422,60 +253,24 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NextMap(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to skip to next map on server {ServerId}", User.XtremeIdiotsId(), id);
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "NextMap", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                // TODO: Implement actual next map logic when available in ServersApiClient
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
                 {
-                    logger.LogWarning("Game server {ServerId} not found when skipping to next map", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to skip to next map on server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "NextMap");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} successfully initiated skip to next map for server {ServerId}",
-                    User.XtremeIdiotsId(), id);
+                    { "ServerId", id.ToString() },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
                 return Json(new
                 {
-                    Success = true,
-                    //Message = result
+                    Success = true
                 });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error skipping to next map on server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "NextMap");
         }
 
         /// <summary>
@@ -488,63 +283,30 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> KickPlayer(Guid id, string num, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to kick player {PlayerSlot} from server {ServerId}", User.XtremeIdiotsId(), num, id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
-
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
-                {
-                    logger.LogWarning("Game server {ServerId} not found when kicking player", id);
-                    return NotFound();
-                }
-
-                var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewLiveRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewLiveRcon);
-
-                if (!canViewLiveRcon.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to kick player from server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "KickPlayer");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "KickPlayer", cancellationToken);
+                if (actionResult is not null) return actionResult;
 
                 if (string.IsNullOrWhiteSpace(num))
                 {
-                    logger.LogWarning("Invalid player slot number provided by user {UserId} for server {ServerId}", User.XtremeIdiotsId(), id);
+                    Logger.LogWarning("Invalid player slot number provided by user {UserId} for server {ServerId}: {PlayerSlot}",
+                        User.XtremeIdiotsId(), id, num);
                     return NotFound();
                 }
 
                 // TODO: Implement RCON kick player functionality
                 this.AddAlertSuccess($"Player in slot {num} has been kicked");
-                logger.LogInformation("User {UserId} successfully kicked player {PlayerSlot} from server {ServerId}", User.XtremeIdiotsId(), num, id);
-                return RedirectToAction(nameof(ViewRcon), new { id });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error kicking player {PlayerSlot} from server {ServerId} by user {UserId}", num, id, User.XtremeIdiotsId());
 
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("PlayerKicked", "KickPlayer", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
+                    { "ServerId", id.ToString() },
+                    { "PlayerSlot", num },
+                    { "GameType", gameServerData!.GameType.ToString() }
+                });
 
-                this.AddAlertDanger("An error occurred while kicking the player.");
                 return RedirectToAction(nameof(ViewRcon), new { id });
-            }
+            }, "KickPlayer");
         }
 
         /// <summary>
@@ -555,8 +317,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
         public IActionResult ChatLogIndex()
         {
-            logger.LogInformation("User {UserId} accessing global chat log index", User.XtremeIdiotsId());
-            return View();
+            return ExecuteWithErrorHandlingAsync(async () =>
+            {
+                return await Task.FromResult(View());
+            }, "ChatLogIndex").Result;
         }
 
         /// <summary>
@@ -570,16 +334,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetChatLogAjax(bool? lockedOnly = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} requesting global chat log data", User.XtremeIdiotsId());
                 return await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error getting global chat log for user {UserId}", User.XtremeIdiotsId());
-                throw;
-            }
+            }, "GetChatLogAjax");
         }
 
         /// <summary>
@@ -591,46 +349,22 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GameChatLog(GameType id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to access game chat log for {GameType}", User.XtremeIdiotsId(), id);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    id,
+                    AuthPolicies.ViewGameChatLog,
+                    "View",
+                    "GameChatLog",
+                    $"GameType:{id}",
+                    id);
 
-                var canViewGameChatLog = await authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
-
-                if (!canViewGameChatLog.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to view game chat log for {GameType}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GameChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{id}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 ViewData["GameType"] = id;
-                logger.LogInformation("User {UserId} successfully accessed game chat log for {GameType}", User.XtremeIdiotsId(), id);
                 return View(nameof(ChatLogIndex));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing game chat log for {GameType} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameType", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "GameChatLog");
         }
 
         /// <summary>
@@ -644,34 +378,21 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var canViewGameChatLog = await authorizationService.AuthorizeAsync(User, id, AuthPolicies.ViewGameChatLog);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    id,
+                    AuthPolicies.ViewGameChatLog,
+                    "GetGameChatLogAjax",
+                    "GameChatLog",
+                    $"GameType:{id}",
+                    id);
 
-                if (!canViewGameChatLog.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to get game chat log data for {GameType}",
-                        User.XtremeIdiotsId(), id);
+                if (authResult != null) return authResult;
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetGameChatLogAjax");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{id}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} requesting game chat log data for {GameType}", User.XtremeIdiotsId(), id);
                 return await GetChatLogPrivate(id, null, null, lockedOnly, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error getting game chat log for user {UserId}", User.XtremeIdiotsId());
-                throw;
-            }
+            }, "GetGameChatLogAjax");
         }
 
         /// <summary>
@@ -683,55 +404,32 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ServerChatLog(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to access server chat log for server {ServerId}", User.XtremeIdiotsId(), id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
-
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
                 {
-                    logger.LogWarning("Game server {ServerId} not found when accessing server chat log", id);
+                    Logger.LogWarning("Game server {ServerId} not found when accessing server chat log", id);
                     return NotFound();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewServerChatLog = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewServerChatLog);
 
-                if (!canViewServerChatLog.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to view server chat log for server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.ViewServerChatLog,
+                    "View",
+                    "ServerChatLog",
+                    $"ServerId:{id},GameType:{gameServerData.GameType}",
+                    gameServerData);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "ServerChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 ViewData["GameServerId"] = id;
-                logger.LogInformation("User {UserId} successfully accessed server chat log for server {ServerId}", User.XtremeIdiotsId(), id);
                 return View(nameof(ChatLogIndex));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing server chat log for server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "ServerChatLog");
         }
 
         /// <summary>
@@ -745,43 +443,31 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
-                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
                 {
-                    logger.LogWarning("Game server {ServerId} not found when getting server chat log data", id);
+                    Logger.LogWarning("Game server {ServerId} not found when getting server chat log data", id);
                     return NotFound();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewServerChatLog = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewServerChatLog);
 
-                if (!canViewServerChatLog.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to get server chat log data for server {ServerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.ViewServerChatLog,
+                    "GetServerChatLogAjax",
+                    "ServerChatLog",
+                    $"ServerId:{id},GameType:{gameServerData.GameType}",
+                    gameServerData);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetServerChatLogAjax");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ServerId:{id},GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
+                if (authResult != null) return authResult;
 
-                    return Unauthorized();
-                }
-
-                logger.LogInformation("User {UserId} requesting server chat log data for server {ServerId}", User.XtremeIdiotsId(), id);
                 return await GetChatLogPrivate(null, id, null, lockedOnly, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error getting server chat log for server {ServerId} by user {UserId}", id, User.XtremeIdiotsId());
-                throw;
-            }
+            }, "GetServerChatLogAjax");
         }
 
         /// <summary>
@@ -795,44 +481,31 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} requesting player chat log data for player {PlayerId}", User.XtremeIdiotsId(), id);
-
                 var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
-                if (playerApiResponse.IsNotFound || playerApiResponse.Result?.Data == null)
+                if (playerApiResponse.IsNotFound || playerApiResponse.Result?.Data is null)
                 {
-                    logger.LogWarning("Player {PlayerId} not found when getting player chat log data", id);
+                    Logger.LogWarning("Player {PlayerId} not found when getting player chat log data", id);
                     return NotFound();
                 }
 
                 var playerData = playerApiResponse.Result.Data;
-                var canViewGameChatLog = await authorizationService.AuthorizeAsync(User, playerData.GameType, AuthPolicies.ViewGameChatLog);
 
-                if (!canViewGameChatLog.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to get player chat log data for player {PlayerId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, playerData.GameType);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    playerData.GameType,
+                    AuthPolicies.ViewGameChatLog,
+                    "GetPlayerChatLog",
+                    "PlayerChatLog",
+                    $"PlayerId:{id},GameType:{playerData.GameType}",
+                    playerData);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetPlayerChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatLog");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id},GameType:{playerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult is not null) return authResult;
 
                 return await GetChatLogPrivate(playerData.GameType, null, playerData.PlayerId, lockedOnly, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error getting player chat log for player {PlayerId} by user {UserId}", id, User.XtremeIdiotsId());
-                throw;
-            }
+            }, "GetPlayerChatLog");
         }
 
         /// <summary>
@@ -844,37 +517,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ChatLogPermaLink(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing chat message permalink for message {MessageId}", User.XtremeIdiotsId(), id);
+                var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
-                var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id);
-
-                if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data == null)
+                if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data is null)
                 {
-                    logger.LogWarning("Chat message {MessageId} not found when accessing permalink", id);
+                    Logger.LogWarning("Chat message {MessageId} not found when accessing permalink", id);
                     return NotFound();
                 }
 
-                logger.LogInformation("User {UserId} successfully accessed chat message permalink for message {MessageId}",
-                    User.XtremeIdiotsId(), id);
-
                 return View(chatMessageApiResponse.Result.Data);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing chat message permalink for message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("MessageId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "ChatLogPermaLink");
         }
 
         /// <summary>
@@ -888,69 +542,47 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleChatMessageLock(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to toggle lock status for chat message {MessageId}",
-                    User.XtremeIdiotsId(), id);
+                var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
-                var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id);
-
-                if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer == null)
+                if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer is null)
                 {
-                    logger.LogWarning("Chat message {MessageId} not found when toggling lock status", id);
+                    Logger.LogWarning("Chat message {MessageId} not found when toggling lock status", id);
                     return NotFound();
                 }
 
                 var chatMessageData = chatMessageApiResponse.Result.Data;
-                var canLockChatMessage = await authorizationService.AuthorizeAsync(User, chatMessageData.GameServer.GameType, AuthPolicies.LockChatMessages);
 
-                if (!canLockChatMessage.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to toggle lock status for chat message {MessageId} in game {GameType}",
-                        User.XtremeIdiotsId(), id, chatMessageData.GameServer.GameType);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    chatMessageData.GameServer.GameType,
+                    AuthPolicies.LockChatMessages,
+                    "ToggleLock",
+                    "ChatMessage",
+                    $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
+                    chatMessageData);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ServerAdmin");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "ToggleChatMessageLock");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ChatMessage");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
+                if (authResult != null) return authResult;
 
-                    return Unauthorized();
-                }
-
-                var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id);
+                var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
 
                 if (!toggleResponse.IsSuccess)
                 {
-                    logger.LogError("Failed to toggle lock status for chat message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
+                    Logger.LogError("Failed to toggle lock status for chat message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
                     this.AddAlertDanger("An error occurred while updating the chat message lock status.");
                     return RedirectToAction(nameof(ChatLogPermaLink), new { id });
                 }
 
-                logger.LogInformation("User {UserId} successfully toggled lock status for chat message {MessageId}",
-                    User.XtremeIdiotsId(), id);
-
-                this.AddAlertSuccess($"Chat message lock status has been updated successfully.");
-
-                return RedirectToAction(nameof(ChatLogPermaLink), new { id });
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error toggling chat message lock status for {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("ChatMessageLockToggled", "ToggleChatMessageLock", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("MessageId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
+                    { "MessageId", id.ToString() },
+                    { "GameType", chatMessageData.GameServer.GameType.ToString() }
+                });
 
-                this.AddAlertDanger("An error occurred while updating the chat message lock status.");
+                this.AddAlertSuccess("Chat message lock status has been updated successfully.");
                 return RedirectToAction(nameof(ChatLogPermaLink), new { id });
-            }
+            }, "ToggleChatMessageLock");
         }
 
         /// <summary>
@@ -964,61 +596,55 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <returns>JSON response with chat log data</returns>
         private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)
         {
-            try
+            var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync(cancellationToken);
+
+            var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+
+            if (model is null)
             {
-                var reader = new StreamReader(Request.Body);
-                var requestBody = await reader.ReadToEndAsync();
-
-                var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
-
-                if (model == null)
-                {
-                    logger.LogWarning("Invalid chat log request model for user {UserId}", User.XtremeIdiotsId());
-                    return BadRequest();
-                }
-
-                var order = ChatMessageOrder.TimestampDesc;
-                if (model.Order != null && model.Order.Any())
-                {
-                    var orderColumn = model.Columns[model.Order.First().Column].Name;
-                    var searchOrder = model.Order.First().Dir;
-
-                    switch (orderColumn)
-                    {
-                        case "timestamp":
-                            order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
-                            break;
-                    }
-                }
-
-                // Check for locked filter parameter
-                if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    lockedOnly = true;
-                    model.Search.Value = model.Search.Value.Substring(7).Trim(); // Remove "locked:" prefix
-                }
-
-                var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(gameType, gameServerId, playerId, model.Search?.Value, model.Start, model.Length, order, lockedOnly);
-
-                if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data == null)
-                {
-                    logger.LogError("Failed to retrieve chat messages for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                return Json(new
-                {
-                    model.Draw,
-                    recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
-                    recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
-                    data = chatMessagesApiResponse.Result.Data.Items
-                });
+                Logger.LogWarning("Invalid chat log request model for user {UserId}", User.XtremeIdiotsId());
+                return BadRequest();
             }
-            catch (Exception ex)
+
+            var order = ChatMessageOrder.TimestampDesc;
+            if (model.Order is not null && model.Order.Any())
             {
-                logger.LogError(ex, "Error retrieving chat log data for user {UserId}", User.XtremeIdiotsId());
-                throw;
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var searchOrder = model.Order.First().Dir;
+
+                switch (orderColumn)
+                {
+                    case "timestamp":
+                        order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
+                        break;
+                }
             }
+
+            // Check for locked filter parameter
+            if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                lockedOnly = true;
+                model.Search.Value = model.Search.Value.Substring(7).Trim(); // Remove "locked:" prefix
+            }
+
+            var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(
+                gameType, gameServerId, playerId, model.Search?.Value,
+                model.Start, model.Length, order, lockedOnly, cancellationToken);
+
+            if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data is null)
+            {
+                Logger.LogError("Failed to retrieve chat messages for user {UserId}", User.XtremeIdiotsId());
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+            }
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
+                recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
+                data = chatMessagesApiResponse.Result.Data.Items
+            });
         }
     }
 }

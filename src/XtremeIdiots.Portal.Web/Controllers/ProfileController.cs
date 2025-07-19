@@ -1,7 +1,7 @@
 ﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
@@ -14,12 +14,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing user profile information and settings
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessProfile)]
-    public class ProfileController : Controller
+    public class ProfileController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ProfileController> logger;
 
         /// <summary>
         /// Initializes a new instance of the ProfileController
@@ -28,16 +26,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="repositoryApiClient">Client for accessing repository API services</param>
         /// <param name="telemetryClient">Client for tracking telemetry events</param>
         /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for accessing app settings</param>
         public ProfileController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             TelemetryClient telemetryClient,
-            ILogger<ProfileController> logger)
+            ILogger<ProfileController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -46,33 +45,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
         /// <returns>The profile management view</returns>
         [HttpGet]
-        public IActionResult Manage(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Manage(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing profile management page", User.XtremeIdiotsId());
+                // The authorization is already handled by controller-level policy
+                // No additional data retrieval needed for basic profile management page
 
-                // Validate basic access (already handled by controller-level authorization)
-                // Additional validation could be added here if needed
-
-                logger.LogInformation("Successfully loaded profile management page for user {UserId}", User.XtremeIdiotsId());
-
-                return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading profile management page for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("ActionType", "ProfileManage");
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+                return await Task.FromResult(View());
+            }, "ProfileManage");
         }
     }
 }

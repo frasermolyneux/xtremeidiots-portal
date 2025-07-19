@@ -1,8 +1,7 @@
-﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Extensions;
@@ -14,26 +13,26 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// <summary>
     /// Controller for external integrations and public-facing API endpoints
     /// </summary>
-    public class ExternalController : Controller
+    public class ExternalController : BaseController
     {
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<ExternalController> logger;
 
         /// <summary>
         /// Initializes a new instance of the ExternalController
         /// </summary>
         /// <param name="repositoryApiClient">Client for accessing repository API services</param>
-        /// <param name="telemetryClient">Client for tracking telemetry events</param>
-        /// <param name="logger">Logger for structured logging</param>
+        /// <param name="TelemetryClient">Client for tracking telemetry events</param>
+        /// <param name="Logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
+        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public ExternalController(
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<ExternalController> logger)
+            TelemetryClient TelemetryClient,
+            ILogger<ExternalController> Logger,
+            IConfiguration configuration)
+            : base(TelemetryClient, Logger, configuration)
         {
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -45,38 +44,31 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> LatestAdminActions(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("External request for latest admin actions view");
+                Logger.LogInformation("External request for latest admin actions view");
 
                 var adminActionDtos = await repositoryApiClient.AdminActions.V1.GetAdminActions(
                     null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
 
                 if (!adminActionDtos.IsSuccess || adminActionDtos.Result?.Data is null)
                 {
-                    logger.LogWarning("Failed to retrieve admin actions for external view - API response unsuccessful or null");
+                    Logger.LogWarning("Failed to retrieve admin actions for external view - API response unsuccessful or null");
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
-                logger.LogInformation("Successfully retrieved {Count} admin actions for external view",
+                Logger.LogInformation("Successfully retrieved {Count} admin actions for external view",
                     adminActionDtos.Result.Data.Items?.Count() ?? 0);
 
-                return View(adminActionDtos);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving latest admin actions for external view");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("LatestAdminActionsViewed", "LatestAdminActions", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Properties.TryAdd("Action", "LatestAdminActions");
-                errorTelemetry.Properties.TryAdd("Controller", "External");
-                telemetryClient.TrackException(errorTelemetry);
+                    { "Controller", "External" },
+                    { "Resource", "AdminActionsView" },
+                    { "Count", (adminActionDtos.Result.Data.Items?.Count() ?? 0).ToString() }
+                });
 
-                throw;
-            }
+                return View(adminActionDtos);
+            }, "LatestAdminActions");
         }
 
         /// <summary>
@@ -89,16 +81,16 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetLatestAdminActions(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("External API request for latest admin actions JSON data");
+                Logger.LogInformation("External API request for latest admin actions JSON data");
 
                 var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
                     null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
 
                 if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
                 {
-                    logger.LogWarning("Failed to retrieve admin actions for external API - API response unsuccessful or data is null");
+                    Logger.LogWarning("Failed to retrieve admin actions for external API - API response unsuccessful or data is null");
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
@@ -127,24 +119,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     });
                 }
 
-                logger.LogInformation("Successfully processed {Count} admin actions for external API response", results.Count);
+                Logger.LogInformation("Successfully processed {Count} admin actions for external API response", results.Count);
+
+                TrackSuccessTelemetry("LatestAdminActionsApiCalled", "GetLatestAdminActions", new Dictionary<string, string>
+                {
+                    { "Controller", "External" },
+                    { "Resource", "AdminActionsAPI" },
+                    { "Count", results.Count.ToString() }
+                });
 
                 return Json(results);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving latest admin actions for external API");
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Properties.TryAdd("Action", "GetLatestAdminActions");
-                errorTelemetry.Properties.TryAdd("Controller", "External");
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "GetLatestAdminActions");
         }
     }
 }

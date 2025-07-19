@@ -1,8 +1,10 @@
-﻿using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
@@ -17,23 +19,30 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing game servers including creation, editing, and configuration
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessGameServers)]
-    public class GameServersController : Controller
+    public class GameServersController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<GameServersController> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the GameServersController
+        /// </summary>
+        /// <param name="authorizationService">Service for handling authorization policies</param>
+        /// <param name="repositoryApiClient">Client for accessing repository API services</param>
+        /// <param name="TelemetryClient">Client for tracking telemetry events</param>
+        /// <param name="Logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
+        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public GameServersController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<GameServersController> logger)
+            TelemetryClient TelemetryClient,
+            ILogger<GameServersController> Logger,
+            IConfiguration configuration)
+            : base(TelemetryClient, Logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -44,41 +53,26 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing game servers index", User.XtremeIdiotsId());
-
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameServer };
                 var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-                var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition);
+                var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                    gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
 
                 if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
                 {
-                    logger.LogWarning("Failed to retrieve game servers for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogWarning("Failed to retrieve game servers for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
-                var userId = User.XtremeIdiotsId();
                 var gameServerCount = gameServersApiResponse.Result.Data.Items.Count();
-                logger.LogInformation("User {UserId} successfully accessed {GameServerCount} game servers",
-                    userId, gameServerCount);
+                Logger.LogInformation("User {UserId} successfully accessed {GameServerCount} game servers",
+                    User.XtremeIdiotsId(), gameServerCount);
 
                 return View(gameServersApiResponse.Result.Data.Items);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing game servers index for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Index");
         }
 
         /// <summary>
@@ -87,28 +81,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="cancellationToken">Cancellation token for the async operation</param>
         /// <returns>The create game server view with an empty form</returns>
         [HttpGet]
-        public IActionResult Create(CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} accessing game server creation form", User.XtremeIdiotsId());
-
                 AddGameTypeViewData();
-                return View(new GameServerViewModel());
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing game server creation form for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+                return await Task.FromResult(View(new GameServerViewModel()));
+            }, "Create");
         }
 
         /// <summary>
@@ -122,46 +101,32 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(GameServerViewModel model, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to create game server for {GameType}",
-                    User.XtremeIdiotsId(), model.GameType);
-
-                if (!ModelState.IsValid)
-                {
-                    logger.LogWarning("Invalid model state for creating game server for user {UserId}", User.XtremeIdiotsId());
-                    AddGameTypeViewData(model.GameType);
-                    return View(model);
-                }
+                var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
+                if (modelValidationResult != null) return modelValidationResult;
 
 #pragma warning disable CS8604 // Possible null reference argument. // ModelState check is just above.
                 var createGameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
 #pragma warning restore CS8604 // Possible null reference argument.
 
-                var canCreateGameServer = await authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.CreateGameServer);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    createGameServerDto.GameType,
+                    AuthPolicies.CreateGameServer,
+                    "Create",
+                    "GameServer",
+                    $"GameType:{createGameServerDto.GameType}");
 
-                if (!canCreateGameServer.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to create game server for {GameType}",
-                        User.XtremeIdiotsId(), createGameServerDto.GameType);
+                if (authResult != null) return authResult;
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Create");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{createGameServerDto.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
+                // Set basic properties
                 createGameServerDto.Title = model.Title;
                 createGameServerDto.Hostname = model.Hostname;
                 createGameServerDto.QueryPort = model.QueryPort;
 
+                // Set FTP credentials if user has permission
                 var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerFtp);
-
                 if (canEditGameServerFtp.Succeeded)
                 {
                     createGameServerDto.FtpHostname = model.FtpHostname;
@@ -170,11 +135,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     createGameServerDto.FtpPassword = model.FtpPassword;
                 }
 
+                // Set RCON credentials if user has permission
                 var canEditGameServerRcon = await authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerRcon);
-
                 if (canEditGameServerRcon.Succeeded)
                     createGameServerDto.RconPassword = model.RconPassword;
 
+                // Set configuration options
                 createGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
                 createGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
                 createGameServerDto.ServerListPosition = model.ServerListPosition;
@@ -183,50 +149,29 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 createGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
                 createGameServerDto.BotEnabled = model.BotEnabled;
 
-                var createResult = await repositoryApiClient.GameServers.V1.CreateGameServer(createGameServerDto);
+                var createResult = await repositoryApiClient.GameServers.V1.CreateGameServer(createGameServerDto, cancellationToken);
 
                 if (createResult.IsSuccess)
                 {
-                    var eventTelemetry = new EventTelemetry("GameServerCreated")
-                        .Enrich(User);
-                    eventTelemetry.Properties.TryAdd("GameType", createGameServerDto.GameType.ToString());
-                    eventTelemetry.Properties.TryAdd("Title", createGameServerDto.Title ?? "Unknown");
-                    telemetryClient.TrackEvent(eventTelemetry);
-
-                    logger.LogInformation("User {UserId} successfully created game server for {GameType}",
-                        User.XtremeIdiotsId(), model.GameType);
+                    TrackSuccessTelemetry("GameServerCreated", "Create", new Dictionary<string, string>
+                    {
+                        { "GameType", createGameServerDto.GameType.ToString() },
+                        { "Title", createGameServerDto.Title ?? "Unknown" }
+                    });
 
                     this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
-
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    logger.LogWarning("Failed to create game server for user {UserId} and game type {GameType}",
+                    Logger.LogWarning("Failed to create game server for user {UserId} and game type {GameType}",
                         User.XtremeIdiotsId(), model.GameType);
 
                     this.AddAlertDanger("Failed to create the game server. Please try again.");
                     AddGameTypeViewData(model.GameType);
                     return View(model);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating game server for user {UserId} and game type {GameType}",
-                    User.XtremeIdiotsId(), model.GameType);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameType", model.GameType.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while creating the game server. Please try again.");
-                AddGameTypeViewData(model.GameType);
-                return View(model);
-            }
+            }, "CreatePost");
         }
 
         /// <summary>
@@ -240,70 +185,41 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to view game server details {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when viewing details", id);
+                    Logger.LogWarning("Game server {GameServerId} not found when viewing details", id);
                     return NotFound();
                 }
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server data is null for {GameServerId}", id);
+                    Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canViewGameServer = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.ViewGameServer);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.ViewGameServer,
+                    "View",
+                    "GameServer",
+                    $"GameType:{gameServerData.GameType},GameServerId:{id}",
+                    gameServerData);
 
-                if (!canViewGameServer.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to view game server {GameServerId} for {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Details");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
                 var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
                 gameServerData.ClearNoPermissionBanFileMonitors(gameTypes, banFileMonitorIds);
 
-                logger.LogInformation("User {UserId} successfully viewed game server details {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
                 return View(gameServerData);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error viewing game server details {GameServerId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Details");
         }
 
         /// <summary>
@@ -317,77 +233,46 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to edit game server {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when editing", id);
+                    Logger.LogWarning("Game server {GameServerId} not found when editing", id);
                     return NotFound();
                 }
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server data is null for {GameServerId}", id);
+                    Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
                 AddGameTypeViewData(gameServerData.GameType);
 
-                var canEditGameServer = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServer);
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.EditGameServer,
+                    "Edit",
+                    "GameServer",
+                    $"GameType:{gameServerData.GameType},GameServerId:{id}",
+                    gameServerData);
 
-                if (!canEditGameServer.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to edit game server {GameServerId} for {GameType}",
-                        User.XtremeIdiotsId(), id, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Edit");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
+                if (authResult != null) return authResult;
 
                 var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerFtp);
-
                 if (!canEditGameServerFtp.Succeeded)
                     gameServerData.ClearFtpCredentials();
 
                 var canEditGameServerRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerRcon);
-
                 if (!canEditGameServerRcon.Succeeded)
                     gameServerData.ClearRconCredentials();
 
-                logger.LogInformation("User {UserId} successfully accessed edit form for game server {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
                 return View(gameServerData.ToViewModel());
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing edit form for game server {GameServerId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Edit");
         }
 
         /// <summary>
@@ -402,62 +287,47 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(GameServerViewModel model, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to update game server {GameServerId}",
-                    User.XtremeIdiotsId(), model.GameServerId);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(model.GameServerId);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(model.GameServerId, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when updating", model.GameServerId);
+                    Logger.LogWarning("Game server {GameServerId} not found when updating", model.GameServerId);
                     return NotFound();
                 }
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server data is null for {GameServerId}", model.GameServerId);
+                    Logger.LogWarning("Game server data is null for {GameServerId}", model.GameServerId);
                     return BadRequest();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
 
-                if (!ModelState.IsValid)
+                var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
+                if (modelValidationResult != null) return modelValidationResult;
+
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    gameServerData.GameType,
+                    AuthPolicies.EditGameServer,
+                    "Edit",
+                    "GameServer",
+                    $"GameType:{gameServerData.GameType},GameServerId:{model.GameServerId}",
+                    gameServerData);
+
+                if (authResult != null) return authResult;
+
+                var editGameServerDto = new EditGameServerDto(gameServerData.GameServerId)
                 {
-                    logger.LogWarning("Invalid model state for updating game server {GameServerId} for user {UserId}",
-                        model.GameServerId, User.XtremeIdiotsId());
-                    AddGameTypeViewData(model.GameType);
-                    return View(model);
-                }
+                    Title = model.Title,
+                    Hostname = model.Hostname,
+                    QueryPort = model.QueryPort
+                };
 
-                var canEditGameServer = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServer);
-
-                if (!canEditGameServer.Succeeded)
-                {
-                    logger.LogWarning("User {UserId} denied access to edit game server {GameServerId} for {GameType}",
-                        User.XtremeIdiotsId(), model.GameServerId, gameServerData.GameType);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Edit");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
-                    return Unauthorized();
-                }
-
-                var editGameServerDto = new EditGameServerDto(gameServerData.GameServerId);
-
-                editGameServerDto.Title = model.Title;
-                editGameServerDto.Hostname = model.Hostname;
-                editGameServerDto.QueryPort = model.QueryPort;
-
+                // Set FTP credentials if user has permission
                 var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerFtp);
-
                 if (canEditGameServerFtp.Succeeded)
                 {
                     editGameServerDto.FtpHostname = model.FtpHostname;
@@ -466,11 +336,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     editGameServerDto.FtpPassword = model.FtpPassword;
                 }
 
+                // Set RCON credentials if user has permission
                 var canEditGameServerRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerRcon);
-
                 if (canEditGameServerRcon.Succeeded)
                     editGameServerDto.RconPassword = model.RconPassword;
 
+                // Set configuration options
                 editGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
                 editGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
                 editGameServerDto.ServerListPosition = model.ServerListPosition;
@@ -479,50 +350,30 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 editGameServerDto.ChatLogEnabled = model.ChatLogEnabled;
                 editGameServerDto.BotEnabled = model.BotEnabled;
 
-                var updateResult = await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto);
+                var updateResult = await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto, cancellationToken);
 
                 if (updateResult.IsSuccess)
                 {
-                    var eventTelemetry = new EventTelemetry("GameServerUpdated")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    telemetryClient.TrackEvent(eventTelemetry);
-
-                    logger.LogInformation("User {UserId} successfully updated game server {GameServerId} for {GameType}",
-                        User.XtremeIdiotsId(), gameServerData.GameServerId, gameServerData.GameType);
+                    TrackSuccessTelemetry("GameServerUpdated", "Edit", new Dictionary<string, string>
+                    {
+                        { "GameServerId", gameServerData.GameServerId.ToString() },
+                        { "GameType", gameServerData.GameType.ToString() },
+                        { "Title", gameServerData.Title ?? "Unknown" }
+                    });
 
                     this.AddAlertSuccess($"The game server {gameServerData.Title} has been updated for {gameServerData.GameType}");
-
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    logger.LogWarning("Failed to update game server {GameServerId} for user {UserId}",
+                    Logger.LogWarning("Failed to update game server {GameServerId} for user {UserId}",
                         model.GameServerId, User.XtremeIdiotsId());
 
                     this.AddAlertDanger("Failed to update the game server. Please try again.");
                     AddGameTypeViewData(model.GameType);
                     return View(model);
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error updating game server {GameServerId} for user {UserId}",
-                    model.GameServerId, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", model.GameServerId.ToString());
-                errorTelemetry.Properties.TryAdd("GameType", model.GameType.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while updating the game server. Please try again.");
-                AddGameTypeViewData(model.GameType);
-                return View(model);
-            }
+            }, "EditPost");
         }
 
         /// <summary>
@@ -536,65 +387,34 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to delete game server {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when deleting", id);
+                    Logger.LogWarning("Game server {GameServerId} not found when deleting", id);
                     return NotFound();
                 }
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server data is null for {GameServerId}", id);
+                    Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canDeleteGameServer = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
 
+                // Use direct authorization check since DeleteGameServer doesn't require a resource
+                var canDeleteGameServer = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
                 if (!canDeleteGameServer.Succeeded)
                 {
-                    logger.LogWarning("User {UserId} denied access to delete game server {GameServerId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("Delete", "GameServer", $"GameType:{gameServerData.GameType},GameServerId:{id}", gameServerData);
                     return Unauthorized();
                 }
 
-                logger.LogInformation("User {UserId} successfully accessed delete confirmation for game server {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
                 return View(gameServerData.ToViewModel());
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error accessing delete confirmation for game server {GameServerId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Delete");
         }
 
         /// <summary>
@@ -610,86 +430,55 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to confirm deletion of game server {GameServerId}",
-                    User.XtremeIdiotsId(), id);
-
-                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id);
+                var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
                 if (gameServerApiResponse.IsNotFound)
                 {
-                    logger.LogWarning("Game server {GameServerId} not found when confirming deletion", id);
+                    Logger.LogWarning("Game server {GameServerId} not found when confirming deletion", id);
                     return NotFound();
                 }
 
                 if (gameServerApiResponse.Result?.Data == null)
                 {
-                    logger.LogWarning("Game server data is null for {GameServerId}", id);
+                    Logger.LogWarning("Game server data is null for {GameServerId}", id);
                     return BadRequest();
                 }
 
                 var gameServerData = gameServerApiResponse.Result.Data;
-                var canDeleteGameServer = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
 
+                // Use direct authorization check since DeleteGameServer doesn't require a resource
+                var canDeleteGameServer = await authorizationService.AuthorizeAsync(User, AuthPolicies.DeleteGameServer);
                 if (!canDeleteGameServer.Succeeded)
                 {
-                    logger.LogWarning("User {UserId} denied access to delete game server {GameServerId}",
-                        User.XtremeIdiotsId(), id);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "GameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServer");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"GameType:{gameServerData.GameType}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("Delete", "GameServer", $"GameType:{gameServerData.GameType},GameServerId:{id}", gameServerData);
                     return Unauthorized();
                 }
 
-                var deleteResult = await repositoryApiClient.GameServers.V1.DeleteGameServer(id);
+                var deleteResult = await repositoryApiClient.GameServers.V1.DeleteGameServer(id, cancellationToken);
 
                 if (deleteResult.IsSuccess)
                 {
-                    var eventTelemetry = new EventTelemetry("GameServerDeleted")
-                        .Enrich(User)
-                        .Enrich(gameServerData);
-                    telemetryClient.TrackEvent(eventTelemetry);
-
-                    logger.LogInformation("User {UserId} successfully deleted game server {GameServerId} for {GameType}",
-                        User.XtremeIdiotsId(), gameServerData.GameServerId, gameServerData.GameType);
+                    TrackSuccessTelemetry("GameServerDeleted", "Delete", new Dictionary<string, string>
+                    {
+                        { "GameServerId", gameServerData.GameServerId.ToString() },
+                        { "GameType", gameServerData.GameType.ToString() },
+                        { "Title", gameServerData.Title ?? "Unknown" }
+                    });
 
                     this.AddAlertSuccess($"The game server {gameServerData.Title} has been deleted for {gameServerData.GameType}");
-
                     return RedirectToAction(nameof(Index));
                 }
                 else
                 {
-                    logger.LogWarning("Failed to delete game server {GameServerId} for user {UserId}",
+                    Logger.LogWarning("Failed to delete game server {GameServerId} for user {UserId}",
                         id, User.XtremeIdiotsId());
 
                     this.AddAlertDanger("Failed to delete the game server. Please try again.");
                     return RedirectToAction(nameof(Index));
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error deleting game server {GameServerId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("GameServerId", id.ToString());
-                telemetryClient.TrackException(errorTelemetry);
-
-                this.AddAlertDanger("An error occurred while deleting the game server. Please try again.");
-                return RedirectToAction(nameof(Index));
-            }
+            }, "DeleteConfirmed");
         }
 
         /// <summary>
@@ -706,12 +495,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var gameTypes = User.GetGameTypesForGameServers();
                 ViewData["GameType"] = new SelectList(gameTypes, selected);
 
-                logger.LogDebug("Added {GameTypeCount} game types to ViewData with {SelectedGameType} selected",
+                Logger.LogDebug("Added {GameTypeCount} game types to ViewData with {SelectedGameType} selected",
                     gameTypes.Count(), selected);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error adding game type ViewData for user {UserId}", User.XtremeIdiotsId());
+                Logger.LogError(ex, "Error adding game type ViewData for user {UserId}", User.XtremeIdiotsId());
 
                 // Fallback to empty list to prevent view errors
                 ViewData["GameType"] = new SelectList(Enumerable.Empty<GameType>(), selected ?? GameType.Unknown);

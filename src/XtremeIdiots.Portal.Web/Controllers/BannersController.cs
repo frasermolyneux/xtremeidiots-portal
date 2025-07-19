@@ -1,9 +1,15 @@
-﻿using Microsoft.ApplicationInsights;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using MX.Api.Abstractions;
 
@@ -20,15 +26,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing game server banners and GameTracker integration
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessHome)]
-    public class BannersController : Controller
+    public class BannersController : BaseController
     {
         private const string GameServersListCacheKey = "game-servers-api-response";
 
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IMemoryCache memoryCache;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<BannersController> logger;
 
         /// <summary>
         /// Initializes a new instance of the BannersController
@@ -38,19 +42,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="memoryCache">Memory cache for storing temporary data</param>
         /// <param name="telemetryClient">Client for tracking telemetry and events</param>
         /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for app settings</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public BannersController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,
             IMemoryCache memoryCache,
             TelemetryClient telemetryClient,
-            ILogger<BannersController> logger)
+            ILogger<BannersController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
             this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -62,44 +67,25 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GameServersList(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to access game servers list view", User.XtremeIdiotsId());
-
-                var canAccessGameServers = await authorizationService.AuthorizeAsync(User, AuthPolicies.AccessHome);
-                if (!canAccessGameServers.Succeeded)
+                // Check authorization for accessing game servers
+                var authorizationResult = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.AccessHome);
+                if (!authorizationResult.Succeeded)
                 {
-                    logger.LogWarning("User {UserId} denied access to game servers list view", User.XtremeIdiotsId());
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Banners");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GameServersList");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServersList");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", "BannerManagement");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("Access", "GameServersList", "BannerManagement", null);
                     return Unauthorized();
                 }
 
-                logger.LogInformation("User {UserId} successfully accessed game servers list view", User.XtremeIdiotsId());
+                TrackSuccessTelemetry("GameServersListAccessed", "GameServersList", new Dictionary<string, string>
+                {
+                    { "Controller", "Banners" },
+                    { "Resource", "GameServersList" },
+                    { "Context", "BannerManagement" }
+                });
 
                 return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error loading game servers list view for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("Action", "GameServersList");
-                telemetryClient.TrackException(errorTelemetry);
-
-                throw;
-            }
+            }, "Display game servers list view for banner management");
         }
 
         /// <summary>
@@ -112,23 +98,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [EnableCors("CorsPolicy")]
         public async Task<IActionResult> GetGameServers(CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User {UserId} attempting to retrieve game servers banners data", User.XtremeIdiotsId());
-
-                var canAccessGameServers = await authorizationService.AuthorizeAsync(User, AuthPolicies.AccessHome);
-                if (!canAccessGameServers.Succeeded)
+                var authorizationResult = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.AccessHome);
+                if (!authorizationResult.Succeeded)
                 {
-                    logger.LogWarning("User {UserId} denied access to game servers banners data", User.XtremeIdiotsId());
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Banners");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetGameServers");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameServersBanners");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", "BannerData");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("Access", "GameServersBanners", "BannerData", null);
                     return Unauthorized();
                 }
 
@@ -136,11 +111,11 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (memoryCache.TryGetValue(GameServersListCacheKey, out gameServersApiResponse) && gameServersApiResponse != null)
                 {
-                    logger.LogDebug("Retrieved game servers data from cache for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogDebug("Retrieved game servers data from cache for user {UserId}", User.XtremeIdiotsId());
                 }
                 else
                 {
-                    logger.LogDebug("Fetching game servers data from API for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogDebug("Fetching game servers data from API for user {UserId}", User.XtremeIdiotsId());
 
                     gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
                         null, null, GameServerFilter.BannerServerListEnabled, 0, 50,
@@ -149,13 +124,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     if (gameServersApiResponse != null)
                     {
                         memoryCache.Set(GameServersListCacheKey, gameServersApiResponse, DateTime.UtcNow.AddMinutes(5));
-                        logger.LogDebug("Cached game servers data for user {UserId}", User.XtremeIdiotsId());
+                        Logger.LogDebug("Cached game servers data for user {UserId}", User.XtremeIdiotsId());
                     }
                 }
 
                 if (gameServersApiResponse?.IsSuccess != true || gameServersApiResponse.Result?.Data?.Items == null)
                 {
-                    logger.LogWarning("Failed to retrieve game servers data or data is null for user {UserId}", User.XtremeIdiotsId());
+                    Logger.LogWarning("Failed to retrieve game servers data or data is null for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
@@ -164,25 +139,16 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     .Select(gs => gs.HtmlBanner)
                     .ToList();
 
-                logger.LogInformation("User {UserId} successfully retrieved {BannerCount} HTML banners",
-                    User.XtremeIdiotsId(), htmlBanners.Count);
+                TrackSuccessTelemetry("GameServersBannersRetrieved", "GetGameServers", new Dictionary<string, string>
+                {
+                    { "Controller", "Banners" },
+                    { "Resource", "GameServersBanners" },
+                    { "Context", "BannerData" },
+                    { "BannerCount", htmlBanners.Count.ToString() }
+                });
 
                 return Json(htmlBanners);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error retrieving game servers banners data for user {UserId}", User.XtremeIdiotsId());
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("Action", "GetGameServers");
-                telemetryClient.TrackException(errorTelemetry);
-
-                return RedirectToAction("Display", "Errors", new { id = 500 });
-            }
+            }, "Retrieve game servers banners data");
         }
 
         /// <summary>
@@ -199,33 +165,20 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [Route("gametracker/{ipAddress}:{queryPort}/{imageName}")]
         public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 if (string.IsNullOrWhiteSpace(ipAddress) || string.IsNullOrWhiteSpace(queryPort) || string.IsNullOrWhiteSpace(imageName))
                 {
-                    logger.LogWarning("User {UserId} provided invalid parameters for GameTracker banner request: IP={IpAddress}, Port={QueryPort}, Image={ImageName}",
+                    Logger.LogWarning("User {UserId} provided invalid parameters for GameTracker banner request: IP={IpAddress}, Port={QueryPort}, Image={ImageName}",
                         User.XtremeIdiotsId(), ipAddress, queryPort, imageName);
 
                     return BadRequest("Invalid parameters provided");
                 }
 
-                logger.LogInformation("User {UserId} attempting to retrieve GameTracker banner for {IpAddress}:{QueryPort}/{ImageName}",
-                    User.XtremeIdiotsId(), ipAddress, queryPort, imageName);
-
-                var canAccessGameTracker = await authorizationService.AuthorizeAsync(User, AuthPolicies.AccessHome);
-                if (!canAccessGameTracker.Succeeded)
+                var authorizationResult = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.AccessHome);
+                if (!authorizationResult.Succeeded)
                 {
-                    logger.LogWarning("User {UserId} denied access to GameTracker banner for {IpAddress}:{QueryPort}/{ImageName}",
-                        User.XtremeIdiotsId(), ipAddress, queryPort, imageName);
-
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "Banners");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "GetGameTrackerBanner");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "GameTrackerBanner");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"IpAddress:{ipAddress},QueryPort:{queryPort},ImageName:{imageName}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
-
+                    TrackUnauthorizedAccessAttempt("Access", "GameTrackerBanner", $"IpAddress:{ipAddress},QueryPort:{queryPort},ImageName:{imageName}", null);
                     return Unauthorized();
                 }
 
@@ -234,12 +187,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse != null)
                 {
-                    logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
+                    Logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
                         ipAddress, queryPort, imageName);
                 }
                 else
                 {
-                    logger.LogDebug("Fetching GameTracker banner data from API for {IpAddress}:{QueryPort}/{ImageName}",
+                    Logger.LogDebug("Fetching GameTracker banner data from API for {IpAddress}:{QueryPort}/{ImageName}",
                         ipAddress, queryPort, imageName);
 
                     repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(
@@ -248,7 +201,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     if (repositoryApiResponse != null)
                     {
                         memoryCache.Set(cacheKey, repositoryApiResponse, DateTime.UtcNow.AddMinutes(30));
-                        logger.LogDebug("Cached GameTracker banner data for {IpAddress}:{QueryPort}/{ImageName}",
+                        Logger.LogDebug("Cached GameTracker banner data for {IpAddress}:{QueryPort}/{ImageName}",
                             ipAddress, queryPort, imageName);
                     }
                 }
@@ -257,7 +210,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 {
                     var fallbackUrl = $"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}";
 
-                    logger.LogWarning("GameTracker banner API failed or returned null data for {IpAddress}:{QueryPort}/{ImageName}, redirecting to fallback: {FallbackUrl}",
+                    Logger.LogWarning("GameTracker banner API failed or returned null data for {IpAddress}:{QueryPort}/{ImageName}, redirecting to fallback: {FallbackUrl}",
                         ipAddress, queryPort, imageName, fallbackUrl);
 
                     return Redirect(fallbackUrl);
@@ -265,32 +218,18 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var bannerUrl = repositoryApiResponse.Result.Data.BannerUrl;
 
-                logger.LogInformation("User {UserId} successfully retrieved GameTracker banner URL for {IpAddress}:{QueryPort}/{ImageName}: {BannerUrl}",
-                    User.XtremeIdiotsId(), ipAddress, queryPort, imageName, bannerUrl);
+                TrackSuccessTelemetry("GameTrackerBannerRetrieved", "GetGameTrackerBanner", new Dictionary<string, string>
+                {
+                    { "Controller", "Banners" },
+                    { "Resource", "GameTrackerBanner" },
+                    { "IpAddress", ipAddress },
+                    { "QueryPort", queryPort },
+                    { "ImageName", imageName },
+                    { "BannerUrl", bannerUrl }
+                });
 
                 return Redirect(bannerUrl);
-            }
-            catch (Exception ex)
-            {
-                var fallbackUrl = $"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}";
-
-                logger.LogError(ex, "Error retrieving GameTracker banner for user {UserId} and {IpAddress}:{QueryPort}/{ImageName}, redirecting to fallback: {FallbackUrl}",
-                    User.XtremeIdiotsId(), ipAddress, queryPort, imageName, fallbackUrl);
-
-                var errorTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                errorTelemetry.Enrich(User);
-                errorTelemetry.Properties.TryAdd("IpAddress", ipAddress ?? string.Empty);
-                errorTelemetry.Properties.TryAdd("QueryPort", queryPort ?? string.Empty);
-                errorTelemetry.Properties.TryAdd("ImageName", imageName ?? string.Empty);
-                errorTelemetry.Properties.TryAdd("Action", "GetGameTrackerBanner");
-                errorTelemetry.Properties.TryAdd("FallbackUrl", fallbackUrl);
-                telemetryClient.TrackException(errorTelemetry);
-
-                return Redirect(fallbackUrl);
-            }
+            }, $"Retrieve GameTracker banner for {ipAddress}:{queryPort}/{imageName}");
         }
     }
 }

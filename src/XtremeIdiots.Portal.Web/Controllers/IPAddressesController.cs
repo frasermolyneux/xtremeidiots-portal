@@ -1,5 +1,4 @@
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,29 +16,38 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// Controller for managing IP address details and analysis
     /// </summary>
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public class IPAddressesController : Controller
+    public class IPAddressesController : BaseController
     {
         private readonly IAuthorizationService authorizationService;
         private readonly IGeoLocationApiClient geoLocationClient;
         private readonly IRepositoryApiClient repositoryApiClient;
-        private readonly TelemetryClient telemetryClient;
         private readonly IProxyCheckService proxyCheckService;
-        private readonly ILogger<IPAddressesController> logger;
 
+        /// <summary>
+        /// Initializes a new instance of the IPAddressesController
+        /// </summary>
+        /// <param name="authorizationService">Service for handling authorization checks</param>
+        /// <param name="geoLocationClient">Client for geolocation API services</param>
+        /// <param name="repositoryApiClient">Client for repository API services</param>
+        /// <param name="proxyCheckService">Service for proxy and risk detection</param>
+        /// <param name="telemetryClient">Client for tracking telemetry events</param>
+        /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for application settings</param>
+        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public IPAddressesController(
             IAuthorizationService authorizationService,
             IGeoLocationApiClient geoLocationClient,
             IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
             IProxyCheckService proxyCheckService,
-            ILogger<IPAddressesController> logger)
+            TelemetryClient telemetryClient,
+            ILogger<IPAddressesController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
             this.geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
             this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
             this.proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -53,105 +61,114 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(string ipAddress, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
                 if (string.IsNullOrWhiteSpace(ipAddress))
                 {
-                    logger.LogWarning("User {UserId} attempted to view IP address details with null or empty IP address",
+                    Logger.LogWarning("User {UserId} attempted to view IP address details with null or empty IP address",
                         User.XtremeIdiotsId());
                     return NotFound();
                 }
 
-                logger.LogInformation("User {UserId} attempting to view IP address details for {IpAddress}",
-                    User.XtremeIdiotsId(), ipAddress);
-
                 // Check authorization for viewing IP address details
-                var canViewIpDetails = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.ViewPlayers);
-                if (!canViewIpDetails.Succeeded)
+                var authResult = await CheckAuthorizationAsync(
+                    authorizationService,
+                    ipAddress,
+                    AuthPolicies.ViewPlayers,
+                    "View",
+                    "IPAddressDetails",
+                    $"IpAddress:{ipAddress}",
+                    ipAddress);
+
+                if (authResult != null) return authResult;
+
+                var viewModel = await BuildIPAddressDetailsViewModelAsync(ipAddress, cancellationToken);
+
+                TrackSuccessTelemetry("IPAddressDetailsViewed", "Details", new Dictionary<string, string>
                 {
-                    logger.LogWarning("User {UserId} denied access to view IP address details for {IpAddress}",
-                        User.XtremeIdiotsId(), ipAddress);
+                    { "IpAddress", ipAddress },
+                    { "PlayersCount", viewModel.TotalPlayersCount.ToString() },
+                    { "HasGeoLocation", (viewModel.GeoLocation != null).ToString() },
+                    { "HasProxyCheck", (viewModel.ProxyCheck != null).ToString() }
+                });
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "IPAddresses");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Details");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "IPAddress");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"IpAddress:{ipAddress}");
-                    telemetryClient.TrackEvent(unauthorizedTelemetry);
+                return View(viewModel);
+            }, "ViewIPAddressDetails");
+        }
 
-                    return Unauthorized();
-                }
+        /// <summary>
+        /// Builds the IP address details view model with all enriched data
+        /// </summary>
+        /// <param name="ipAddress">The IP address to analyze</param>
+        /// <param name="cancellationToken">Cancellation token for the async operation</param>
+        /// <returns>Complete view model with geolocation, proxy, and player data</returns>
+        private async Task<IPAddressDetailsViewModel> BuildIPAddressDetailsViewModelAsync(string ipAddress, CancellationToken cancellationToken)
+        {
+            var viewModel = new IPAddressDetailsViewModel
+            {
+                IpAddress = ipAddress
+            };
 
-                var viewModel = new IPAddressDetailsViewModel
-                {
-                    IpAddress = ipAddress
-                };
-
-                // Get GeoLocation information
+            // Get GeoLocation information with resilient error handling
+            try
+            {
                 var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(ipAddress);
                 if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
                 {
                     viewModel.GeoLocation = getGeoLocationResult.Result.Data;
-                    logger.LogInformation("Successfully retrieved geolocation data for IP address {IpAddress}", ipAddress);
+                    Logger.LogDebug("Successfully retrieved geolocation data for IP address {IpAddress}", ipAddress);
                 }
                 else
                 {
-                    logger.LogWarning("Failed to retrieve geolocation data for IP address {IpAddress}", ipAddress);
+                    Logger.LogDebug("No geolocation data available for IP address {IpAddress}", ipAddress);
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning(ex, "Failed to retrieve geolocation data for IP address {IpAddress}", ipAddress);
+                // Continue processing without geolocation data
+            }
 
-                // Get ProxyCheck information
+            // Get ProxyCheck information with resilient error handling
+            try
+            {
                 var proxyCheckResult = await proxyCheckService.GetIpRiskDataAsync(ipAddress);
                 viewModel.ProxyCheck = proxyCheckResult;
 
                 if (proxyCheckResult != null)
                 {
-                    logger.LogInformation("Successfully retrieved proxy check data for IP address {IpAddress}", ipAddress);
+                    Logger.LogDebug("Successfully retrieved proxy check data for IP address {IpAddress}", ipAddress);
                 }
                 else
                 {
-                    logger.LogWarning("Failed to retrieve proxy check data for IP address {IpAddress}", ipAddress);
+                    Logger.LogDebug("No proxy check data available for IP address {IpAddress}", ipAddress);
                 }
-
-                // Get players who have used this IP address
-                var playersResponse = await repositoryApiClient.Players.V1.GetPlayersWithIpAddress(ipAddress, 0, 100, PlayersOrder.LastSeenDesc, PlayerEntityOptions.None);
-                if (playersResponse.IsSuccess && playersResponse.Result?.Data != null)
-                {
-                    viewModel.Players = playersResponse.Result.Data.Items ?? new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
-                    viewModel.TotalPlayersCount = playersResponse.Result.Data.TotalCount;
-                    logger.LogInformation("Successfully retrieved {PlayerCount} players associated with IP address {IpAddress}",
-                        viewModel.TotalPlayersCount, ipAddress);
-                }
-                else
-                {
-                    logger.LogWarning("Failed to retrieve players with IP address {IpAddress}", ipAddress);
-                    viewModel.Players = new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
-                    viewModel.TotalPlayersCount = 0;
-                }
-
-                logger.LogInformation("User {UserId} successfully viewed IP address details for {IpAddress}",
-                    User.XtremeIdiotsId(), ipAddress);
-
-                return View(viewModel);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error retrieving IP address details for {IpAddress} by user {UserId}",
-                    ipAddress, User.XtremeIdiotsId());
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("UserId", User.XtremeIdiotsId());
-                exceptionTelemetry.Properties.TryAdd("IpAddress", ipAddress ?? "null");
-                exceptionTelemetry.Properties.TryAdd("Controller", "IPAddresses");
-                exceptionTelemetry.Properties.TryAdd("Action", "Details");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                this.AddAlertDanger($"An error occurred while retrieving details for IP address {ipAddress}. Please try again.");
-                return RedirectToAction("Display", "Errors", new { id = 500 });
+                Logger.LogWarning(ex, "Failed to retrieve proxy check data for IP address {IpAddress}", ipAddress);
+                // Continue processing without proxy check data
             }
+
+            // Get players who have used this IP address
+            var playersResponse = await repositoryApiClient.Players.V1.GetPlayersWithIpAddress(
+                ipAddress, 0, 100, PlayersOrder.LastSeenDesc, PlayerEntityOptions.None);
+
+            if (playersResponse.IsSuccess && playersResponse.Result?.Data != null)
+            {
+                viewModel.Players = playersResponse.Result.Data.Items ?? new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
+                viewModel.TotalPlayersCount = playersResponse.Result.Data.TotalCount;
+                Logger.LogDebug("Successfully retrieved {PlayerCount} players associated with IP address {IpAddress}",
+                    viewModel.TotalPlayersCount, ipAddress);
+            }
+            else
+            {
+                Logger.LogWarning("Failed to retrieve players for IP address {IpAddress}", ipAddress);
+                viewModel.Players = new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
+                viewModel.TotalPlayersCount = 0;
+            }
+
+            return viewModel;
         }
     }
 }

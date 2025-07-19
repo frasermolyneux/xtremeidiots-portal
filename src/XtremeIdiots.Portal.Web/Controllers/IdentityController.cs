@@ -1,7 +1,8 @@
 ﻿using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 using System.Security.Claims;
 
@@ -13,11 +14,9 @@ namespace XtremeIdiots.Portal.Web.Controllers
     /// <summary>
     /// Controller for managing user authentication and identity operations
     /// </summary>
-    public class IdentityController : Controller
+    public class IdentityController : BaseController
     {
         private readonly IXtremeIdiotsAuth xtremeIdiotsAuth;
-        private readonly TelemetryClient telemetryClient;
-        private readonly ILogger<IdentityController> logger;
 
         /// <summary>
         /// Initializes a new instance of the IdentityController
@@ -25,15 +24,16 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <param name="xtremeIdiotsAuth">Service for handling XtremeIdiots authentication operations</param>
         /// <param name="telemetryClient">Client for tracking telemetry events</param>
         /// <param name="logger">Logger for structured logging</param>
+        /// <param name="configuration">Configuration service for settings access</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public IdentityController(
             IXtremeIdiotsAuth xtremeIdiotsAuth,
             TelemetryClient telemetryClient,
-            ILogger<IdentityController> logger)
+            ILogger<IdentityController> logger,
+            IConfiguration configuration)
+            : base(telemetryClient, logger, configuration)
         {
             this.xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
-            this.telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -44,29 +44,13 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <returns>The login view with return URL context</returns>
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string? returnUrl = null, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Login(string? returnUrl = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("Anonymous user accessing login page with return URL: {ReturnUrl}", returnUrl ?? "none");
-
                 ViewData["ReturnUrl"] = returnUrl;
-
-                logger.LogInformation("Successfully displayed login page");
-                return View();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error displaying login page with return URL: {ReturnUrl}", returnUrl ?? "none");
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+                return await Task.FromResult(View());
+            }, "Login", "Anonymous");
         }
 
         /// <summary>
@@ -78,30 +62,15 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         [HttpPost]
-        public IActionResult LoginWithXtremeIdiots(string? returnUrl = null, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> LoginWithXtremeIdiots(string? returnUrl = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("User initiating login with XtremeIdiots provider, return URL: {ReturnUrl}", returnUrl ?? "none");
-
                 var redirectUrl = Url.Action("ExternalLoginCallback", "Identity", new { ReturnUrl = returnUrl });
                 var properties = xtremeIdiotsAuth.ConfigureExternalAuthenticationProperties(redirectUrl);
 
-                logger.LogInformation("Successfully initiated XtremeIdiots authentication challenge");
-                return new ChallengeResult("XtremeIdiots", properties);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error initiating XtremeIdiots authentication with return URL: {ReturnUrl}", returnUrl ?? "none");
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+                return await Task.FromResult(new ChallengeResult("XtremeIdiots", properties));
+            }, "LoginWithXtremeIdiots", "Anonymous");
         }
 
         /// <summary>
@@ -115,75 +84,56 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogInformation("Processing external login callback with return URL: {ReturnUrl}, error: {RemoteError}", returnUrl ?? "none", remoteError ?? "none");
-
                 if (remoteError != null)
                 {
-                    logger.LogError("External authentication provider returned error: {RemoteError}", remoteError);
-                    return IdentityError("There has been an issue logging you in with the xtremeidiots provider");
+                    Logger.LogError("External authentication provider returned error: {RemoteError}", remoteError);
+                    return await IdentityError("There has been an issue logging you in with the xtremeidiots provider");
                 }
 
                 var info = await xtremeIdiotsAuth.GetExternalLoginInfoAsync();
                 if (info == null)
                 {
-                    logger.LogWarning("External login info was null, redirecting to home");
+                    Logger.LogWarning("External login info was null, redirecting to home");
                     return RedirectToAction(nameof(HomeController.Index), "Home");
                 }
 
                 var username = info.Principal.FindFirstValue(ClaimTypes.Name);
-                logger.LogInformation("User {Username} has successfully authenticated", username);
-
                 var result = await xtremeIdiotsAuth.ProcessExternalLogin(info);
 
                 switch (result)
                 {
                     case XtremeIdiotsAuthResult.Success:
-                        logger.LogInformation("User {Username} successfully logged in", username);
-
-                        var successTelemetry = new EventTelemetry("UserLogin");
-                        successTelemetry.Properties.TryAdd("Username", username ?? "Unknown");
-                        successTelemetry.Properties.TryAdd("LoginResult", "Success");
-                        telemetryClient.TrackEvent(successTelemetry);
+                        TrackSuccessTelemetry("UserLogin", "ExternalLoginCallback", new Dictionary<string, string>
+                        {
+                            { "Username", username ?? "Unknown" },
+                            { "LoginResult", "Success" }
+                        });
 
                         return RedirectToLocal(returnUrl);
 
                     case XtremeIdiotsAuthResult.Locked:
-                        logger.LogWarning("User {Username} account is locked", username);
+                        TrackSuccessTelemetry("UserLoginLocked", "ExternalLoginCallback", new Dictionary<string, string>
+                        {
+                            { "Username", username ?? "Unknown" },
+                            { "LoginResult", "Locked" }
+                        });
 
-                        var lockedTelemetry = new EventTelemetry("UserLogin");
-                        lockedTelemetry.Properties.TryAdd("Username", username ?? "Unknown");
-                        lockedTelemetry.Properties.TryAdd("LoginResult", "Locked");
-                        telemetryClient.TrackEvent(lockedTelemetry);
-
-                        return IdentityError("Your account is currently locked");
+                        return await IdentityError("Your account is currently locked");
 
                     default:
-                        logger.LogWarning("User {Username} authentication failed with result: {Result}", username, result);
+                        Logger.LogWarning("User {Username} authentication failed with result: {Result}", username, result);
 
-                        var failedTelemetry = new EventTelemetry("UserLogin");
-                        failedTelemetry.Properties.TryAdd("Username", username ?? "Unknown");
-                        failedTelemetry.Properties.TryAdd("LoginResult", result.ToString());
-                        telemetryClient.TrackEvent(failedTelemetry);
+                        TrackSuccessTelemetry("UserLoginFailed", "ExternalLoginCallback", new Dictionary<string, string>
+                        {
+                            { "Username", username ?? "Unknown" },
+                            { "LoginResult", result.ToString() }
+                        });
 
-                        return IdentityError("There has been an issue logging you in");
+                        return await IdentityError("There has been an issue logging you in");
                 }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error processing external login callback with return URL: {ReturnUrl}", returnUrl ?? "none");
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("ReturnUrl", returnUrl ?? "none");
-                exceptionTelemetry.Properties.TryAdd("RemoteError", remoteError ?? "none");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "ExternalLoginCallback", "Anonymous");
         }
 
         /// <summary>
@@ -194,32 +144,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <returns>The identity error view with the specified message</returns>
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult IdentityError(string message, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> IdentityError(string message, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                logger.LogWarning("Displaying identity error page with message: {Message}", message);
-
-                var errorTelemetry = new EventTelemetry("IdentityError");
-                errorTelemetry.Properties.TryAdd("ErrorMessage", message ?? "Unknown");
-                telemetryClient.TrackEvent(errorTelemetry);
-
-                logger.LogInformation("Successfully displayed identity error page");
-                return View(message);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error displaying identity error page with message: {Message}", message);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
+                TrackSuccessTelemetry("IdentityError", "IdentityError", new Dictionary<string, string>
                 {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("ErrorMessage", message ?? "Unknown");
-                telemetryClient.TrackException(exceptionTelemetry);
+                    { "ErrorMessage", message ?? "Unknown" }
+                });
 
-                throw;
-            }
+                return await Task.FromResult(View(message));
+            }, "IdentityError", "Anonymous");
         }
 
         /// <summary>
@@ -233,40 +168,17 @@ namespace XtremeIdiots.Portal.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Logout(string? returnUrl = null, CancellationToken cancellationToken = default)
         {
-            try
+            return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                var username = User.Identity?.Name;
-                var userId = User.XtremeIdiotsId();
-
-                logger.LogInformation("User {UserId} ({Username}) initiating logout", userId, username);
-
                 await xtremeIdiotsAuth.SignOutAsync();
 
-                logger.LogInformation("User {UserId} ({Username}) successfully logged out", userId, username);
-
-                var logoutTelemetry = new EventTelemetry("UserLogout")
-                    .Enrich(User);
-                telemetryClient.TrackEvent(logoutTelemetry);
+                TrackSuccessTelemetry("UserLogout", "Logout", new Dictionary<string, string>
+                {
+                    { "ReturnUrl", returnUrl ?? "none" }
+                });
 
                 return RedirectToLocal(returnUrl);
-            }
-            catch (Exception ex)
-            {
-                var username = User.Identity?.Name;
-                var userId = User.XtremeIdiotsId();
-
-                logger.LogError(ex, "Error during logout for user {UserId} ({Username})", userId, username);
-
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Enrich(User);
-                exceptionTelemetry.Properties.TryAdd("ReturnUrl", returnUrl ?? "none");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                throw;
-            }
+            }, "Logout");
         }
 
         /// <summary>
@@ -276,31 +188,12 @@ namespace XtremeIdiots.Portal.Web.Controllers
         /// <returns>Redirect action result to the appropriate URL</returns>
         private IActionResult RedirectToLocal(string? returnUrl)
         {
-            try
+            if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
-                if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-                {
-                    logger.LogInformation("Redirecting user to local return URL: {ReturnUrl}", returnUrl);
-                    return Redirect(returnUrl);
-                }
-
-                logger.LogInformation("Redirecting user to home page (no valid return URL provided)");
-                return RedirectToAction(nameof(HomeController.Index), "Home");
+                return Redirect(returnUrl);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error redirecting to local URL: {ReturnUrl}", returnUrl ?? "none");
 
-                var exceptionTelemetry = new ExceptionTelemetry(ex)
-                {
-                    SeverityLevel = SeverityLevel.Error
-                };
-                exceptionTelemetry.Properties.TryAdd("ReturnUrl", returnUrl ?? "none");
-                telemetryClient.TrackException(exceptionTelemetry);
-
-                // Fallback to home page on error
-                return RedirectToAction(nameof(HomeController.Index), "Home");
-            }
+            return RedirectToAction(nameof(HomeController.Index), "Home");
         }
     }
 }

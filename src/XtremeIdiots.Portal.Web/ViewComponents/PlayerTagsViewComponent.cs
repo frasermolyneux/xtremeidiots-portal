@@ -20,7 +20,7 @@ public class PlayerTagsViewComponent : ViewComponent
         try
         {
             var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(playerId);
-            
+
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
             {
                 if (playerTagsResponse.Result?.Errors is not null && playerTagsResponse.Result.Errors.Any())
@@ -31,7 +31,7 @@ public class PlayerTagsViewComponent : ViewComponent
                 {
                     Console.WriteLine($"Failed to retrieve player tags for playerId {playerId}. Status: {playerTagsResponse.StatusCode}");
                 }
-                
+
                 ViewBag.PlayerId = playerId;
                 return View(new List<PlayerTagDto>());
             }

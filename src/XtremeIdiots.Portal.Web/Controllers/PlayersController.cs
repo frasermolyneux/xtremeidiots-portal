@@ -128,7 +128,7 @@ public class PlayersController : BaseController
 
             var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-            if (model == null)
+            if (model is null)
             {
                 Logger.LogWarning("Invalid DataTable model received from user {UserId}", User.XtremeIdiotsId());
                 return BadRequest();
@@ -139,7 +139,7 @@ public class PlayersController : BaseController
             var playerCollectionApiResponse = await repositoryApiClient.Players.V1.GetPlayers(
                 gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
-            if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result?.Data?.Items == null)
+            if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result?.Data?.Items is null)
             {
                 Logger.LogWarning("Failed to retrieve players data for user {UserId} with filter {Filter}",
                     User.XtremeIdiotsId(), filter);
@@ -159,7 +159,6 @@ public class PlayersController : BaseController
                 player.IpAddress,
                 player.FirstSeen,
                 player.LastSeen,
-                // Add ProxyCheck data
                 ProxyCheckRiskScore = player.ProxyCheckRiskScore(),
                 IsProxy = player.IsProxy(),
                 IsVpn = player.IsVpn()
@@ -273,7 +272,6 @@ public class PlayersController : BaseController
 
         var playerData = playerApiResponse.Result.Data;
 
-        // Check game-specific authorization using BaseController helper
         var authResult = await CheckAuthorizationAsync(
             authorizationService,
             playerData.GameType,

@@ -69,7 +69,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             return await ExecuteWithErrorHandlingAsync(async () =>
             {
-                // Check authorization for accessing game servers
                 var authorizationResult = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.AccessHome);
                 if (!authorizationResult.Succeeded)
                 {
@@ -185,7 +184,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var cacheKey = $"{ipAddress}_{queryPort}_{imageName}";
                 ApiResult<GameTrackerBannerDto>? repositoryApiResponse;
 
-                if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse != null)
+                if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse is not null)
                 {
                     Logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
                         ipAddress, queryPort, imageName);

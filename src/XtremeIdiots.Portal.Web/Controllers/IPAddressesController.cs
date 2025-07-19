@@ -70,7 +70,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                // Check authorization for viewing IP address details
                 var authResult = await CheckAuthorizationAsync(
                     authorizationService,
                     ipAddress,

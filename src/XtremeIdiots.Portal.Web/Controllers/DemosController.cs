@@ -86,7 +86,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 {
                     var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
-                    if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data != null)
+                    if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data is not null)
                     {
                         ViewData["ClientAuthKey"] = userProfileApiResponse.Result.Data.DemoAuthKey;
                         hasAuthKey = true;
@@ -129,7 +129,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
-                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data == null)
+                if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("User profile {UserId} not found when regenerating demo auth key", userId);
                     return NotFound();
@@ -219,7 +219,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
-                if (model == null)
+                if (model is null)
                 {
                     Logger.LogWarning("Invalid request model for demo list AJAX from user {UserId}", User.XtremeIdiotsId());
                     return BadRequest();
@@ -230,7 +230,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 string? filterUserId = null;
                 GameType[]? filterGameTypes;
-                if (id != null)
+                if (id is not null)
                 {
                     filterGameTypes = new[] { (GameType)id };
                     // If the user has the required claims do not filter by user id
@@ -248,14 +248,14 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 var demosApiResponse = await repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, model.Search?.Value, model.Start, model.Length, order, cancellationToken);
 
-                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data == null)
+                if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data is null)
                 {
                     Logger.LogError("Failed to retrieve demos list for user {UserId}", User.XtremeIdiotsId());
                     return RedirectToAction("Display", "Errors", new { id = 500 });
                 }
 
                 var portalDemoEntries = new List<PortalDemoDto>();
-                if (demosApiResponse.Result.Data.Items != null)
+                if (demosApiResponse.Result.Data.Items is not null)
                 {
                     foreach (var demoDto in demosApiResponse.Result.Data.Items)
                     {
@@ -296,7 +296,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             var order = DemoOrder.CreatedDesc;
 
-            if (model.Order != null && model.Order.Any())
+            if (model.Order is not null && model.Order.Any())
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
                 var searchOrder = model.Order.First().Dir;

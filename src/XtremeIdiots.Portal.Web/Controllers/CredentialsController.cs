@@ -135,7 +135,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
         {
             foreach (var gameServerDto in gameServersList)
             {
-                // Check FTP credential authorization
                 var ftpResource = new Tuple<GameType, Guid>(gameServerDto.GameType, gameServerDto.GameServerId);
                 var canViewFtpCredential = await authorizationService.AuthorizeAsync(User, ftpResource, AuthPolicies.ViewFtpCredential);
 
@@ -146,7 +145,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     gameServerDto.ClearFtpCredentials();
                 }
 
-                // Check RCON credential authorization
                 var canViewRconCredential = await authorizationService.AuthorizeAsync(User, ftpResource, AuthPolicies.ViewRconCredential);
 
                 if (!canViewRconCredential.Succeeded)

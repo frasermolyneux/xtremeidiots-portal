@@ -75,7 +75,7 @@ public class AdminActionsController : BaseController
                 $"GameType:{playerData.GameType},AdminActionType:{adminActionType}",
                 playerData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var createAdminActionViewModel = new CreateAdminActionViewModel
             {

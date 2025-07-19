@@ -48,7 +48,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
             {
                 Logger.LogInformation("User {UserId} accessing protected names list", User.XtremeIdiotsId());
 
-                // Check authorization for viewing protected names
                 var canViewProtectedNames = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.ViewProtectedName);
                 if (!canViewProtectedNames.Succeeded)
                 {

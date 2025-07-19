@@ -120,12 +120,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
 
                 if (authResult is not null) return authResult;
 
-                // Set basic properties
                 createGameServerDto.Title = model.Title;
                 createGameServerDto.Hostname = model.Hostname;
                 createGameServerDto.QueryPort = model.QueryPort;
 
-                // Set FTP credentials if user has permission
                 var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerFtp);
                 if (canEditGameServerFtp.Succeeded)
                 {
@@ -135,12 +133,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     createGameServerDto.FtpPassword = model.FtpPassword;
                 }
 
-                // Set RCON credentials if user has permission
                 var canEditGameServerRcon = await authorizationService.AuthorizeAsync(User, createGameServerDto.GameType, AuthPolicies.EditGameServerRcon);
                 if (canEditGameServerRcon.Succeeded)
                     createGameServerDto.RconPassword = model.RconPassword;
 
-                // Set configuration options
                 createGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
                 createGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
                 createGameServerDto.ServerListPosition = model.ServerListPosition;
@@ -297,7 +293,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     return NotFound();
                 }
 
-                if (gameServerApiResponse.Result?.Data == null)
+                if (gameServerApiResponse.Result?.Data is null)
                 {
                     Logger.LogWarning("Game server data is null for {GameServerId}", model.GameServerId);
                     return BadRequest();
@@ -306,7 +302,7 @@ namespace XtremeIdiots.Portal.Web.Controllers
                 var gameServerData = gameServerApiResponse.Result.Data;
 
                 var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
-                if (modelValidationResult != null) return modelValidationResult;
+                if (modelValidationResult is not null) return modelValidationResult;
 
                 var authResult = await CheckAuthorizationAsync(
                     authorizationService,
@@ -326,7 +322,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     QueryPort = model.QueryPort
                 };
 
-                // Set FTP credentials if user has permission
                 var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerFtp);
                 if (canEditGameServerFtp.Succeeded)
                 {
@@ -336,12 +331,10 @@ namespace XtremeIdiots.Portal.Web.Controllers
                     editGameServerDto.FtpPassword = model.FtpPassword;
                 }
 
-                // Set RCON credentials if user has permission
                 var canEditGameServerRcon = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerRcon);
                 if (canEditGameServerRcon.Succeeded)
                     editGameServerDto.RconPassword = model.RconPassword;
 
-                // Set configuration options
                 editGameServerDto.LiveTrackingEnabled = model.LiveTrackingEnabled;
                 editGameServerDto.BannerServerListEnabled = model.BannerServerListEnabled;
                 editGameServerDto.ServerListPosition = model.ServerListPosition;

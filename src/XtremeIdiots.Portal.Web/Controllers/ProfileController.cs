@@ -19,14 +19,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
         private readonly IAuthorizationService authorizationService;
         private readonly IRepositoryApiClient repositoryApiClient;
 
-        /// <summary>
-        /// Initializes a new instance of the ProfileController
-        /// </summary>
-        /// <param name="authorizationService">Service for handling authorization checks</param>
-        /// <param name="repositoryApiClient">Client for accessing repository API services</param>
-        /// <param name="telemetryClient">Client for tracking telemetry events</param>
-        /// <param name="logger">Logger for structured logging</param>
-        /// <param name="configuration">Configuration service for accessing app settings</param>
         public ProfileController(
             IAuthorizationService authorizationService,
             IRepositoryApiClient repositoryApiClient,

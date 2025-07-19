@@ -37,17 +37,6 @@ namespace XtremeIdiots.Portal.Web.Controllers
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly UserManager<IdentityUser> userManager;
 
-        /// <summary>
-        /// Initializes a new instance of the DemosController with required dependencies.
-        /// </summary>
-        /// <param name="authorizationService">Service for handling authorization checks</param>
-        /// <param name="userManager">Manager for identity user operations</param>
-        /// <param name="signInManager">Manager for sign-in operations</param>
-        /// <param name="demosForumsClient">Client for demo forum integration</param>
-        /// <param name="repositoryApiClient">Client for repository API operations</param>
-        /// <param name="telemetryClient">Client for application insights telemetry</param>
-        /// <param name="logger">Logger instance for structured logging</param>
-        /// <param name="configuration">Configuration service for app settings</param>
         /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public DemosController(
             IAuthorizationService authorizationService,

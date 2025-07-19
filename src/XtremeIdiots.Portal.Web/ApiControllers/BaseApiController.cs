@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -10,8 +14,9 @@ using XtremeIdiots.Portal.Web.Extensions;
 namespace XtremeIdiots.Portal.Web.ApiControllers
 {
     /// <summary>
-    /// Base controller for all API controllers that provides API-centric functionality
-    /// with proper HTTP status codes instead of MVC redirects
+    /// Base controller for all API controllers that provides API-centric functionality.
+    /// Unlike MVC controllers, this ensures proper HTTP status codes are returned instead of redirects,
+    /// maintaining RESTful API conventions for external integrations and AJAX calls.
     /// </summary>
     [ApiController]
     public abstract class BaseApiController : ControllerBase

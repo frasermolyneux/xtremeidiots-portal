@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,9 @@ using XtremeIdiots.Portal.Web.Extensions;
 namespace XtremeIdiots.Portal.Web.Controllers;
 
 /// <summary>
-/// Base controller providing common functionality for telemetry, authorization, and error handling
+/// Base controller providing common functionality for telemetry, authorization, and error handling.
+/// Centralizes these cross-cutting concerns to ensure consistent behavior across all controllers
+/// and reduce code duplication while providing comprehensive auditing capabilities.
 /// </summary>
 public abstract class BaseController(
     TelemetryClient telemetryClient,
@@ -26,7 +29,9 @@ public abstract class BaseController(
     protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>
-    /// Tracks unauthorized access attempt telemetry with standardized properties
+    /// Tracks unauthorized access attempts to enable security monitoring and audit trails.
+    /// This is critical for identifying potential security threats and ensuring compliance
+    /// with security policies across the gaming community portal.
     /// </summary>
     /// <param name="action">The action being attempted</param>
     /// <param name="resource">The resource type being accessed</param>
@@ -59,7 +64,9 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Tracks error telemetry with standardized properties
+    /// Centralizes error telemetry tracking to ensure consistent error reporting across all controllers.
+    /// This enables proactive monitoring of system health and helps identify patterns in application failures
+    /// that could impact the gaming community experience.
     /// </summary>
     /// <param name="exception">The exception that occurred</param>
     /// <param name="action">The action that was being performed</param>
@@ -89,7 +96,10 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Standardized authorization check with telemetry tracking
+    /// Provides a consistent authorization check pattern across all controllers to ensure
+    /// game-specific permissions are properly enforced. This is critical for maintaining
+    /// security boundaries in a multi-game community environment where users have different
+    /// permission levels across different games.
     /// </summary>
     /// <param name="authorizationService">The authorization service</param>
     /// <param name="resource">The resource to authorize against</param>
@@ -185,7 +195,9 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Wraps controller actions with standardized error handling and logging
+    /// Wraps controller actions with comprehensive error handling, logging, and telemetry.
+    /// This pattern ensures consistent behavior across all controller actions while providing
+    /// detailed audit trails for troubleshooting and monitoring system health in production.
     /// </summary>
     /// <param name="action">The async action to execute</param>
     /// <param name="actionName">Name of the action for logging</param>

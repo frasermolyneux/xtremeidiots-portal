@@ -12,45 +12,57 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages player tag assignments and removals for player categorization
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
 public class PlayerTagsController : BaseController
 {
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the PlayerTagsController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization checks</param>
+    /// <param name="repositoryApiClient">Client for accessing repository data</param>
+    /// <param name="telemetryClient">Client for tracking telemetry events</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public PlayerTagsController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<PlayerTagsController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<PlayerTagsController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays the form for adding a tag to a player
+    /// </summary>
+    /// <param name="id">The player ID to add a tag to</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>The add player tag view</returns>
     [HttpGet]
     public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             Logger.LogInformation("User {UserId} accessing add player tag form for player {PlayerId}",
-     User.XtremeIdiotsId(), id);
+                User.XtremeIdiotsId(), id);
 
             var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
             if (!canCreatePlayerTag.Succeeded)
             {
                 Logger.LogWarning("User {UserId} denied access to create player tag for player {PlayerId}",
-         User.XtremeIdiotsId(), id);
+                    User.XtremeIdiotsId(), id);
 
-                var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-         .Enrich(User);
-                unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
-                unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Add));
-                unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
-                unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id}");
-                TelemetryClient.TrackEvent(unauthorizedTelemetry); return Unauthorized();
+                TrackUnauthorizedAccessAttempt(nameof(PlayerTagsController), nameof(Add), "PlayerTag", $"PlayerId:{id}");
+                return Unauthorized();
             }
 
             var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
@@ -83,11 +95,11 @@ public class PlayerTagsController : BaseController
             };
 
             Logger.LogInformation("Successfully loaded add player tag form for user {UserId} and player {PlayerId} with {TagCount} available tags",
-     User.XtremeIdiotsId(), id, model.AvailableTags.Count);
+                User.XtremeIdiotsId(), id, model.AvailableTags.Count);
 
             var eventTelemetry = new EventTelemetry("PlayerTagAddPageViewed")
-     .Enrich(User)
-     .Enrich(playerResponse.Result.Data);
+                .Enrich(User)
+                .Enrich(playerResponse.Result.Data);
             eventTelemetry.Properties.TryAdd("AvailableTagCount", model.AvailableTags.Count.ToString());
             TelemetryClient.TrackEvent(eventTelemetry);
 
@@ -95,6 +107,12 @@ public class PlayerTagsController : BaseController
         }, nameof(Add), $"id: {id}");
     }
 
+    /// <summary>
+    /// Processes the form submission for adding a tag to a player
+    /// </summary>
+    /// <param name="model">The view model containing tag assignment data</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Redirects to player details on success, returns view with errors on failure</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(AddPlayerTagViewModel model, CancellationToken cancellationToken = default)
@@ -102,7 +120,7 @@ public class PlayerTagsController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             Logger.LogInformation("User {UserId} attempting to add tag {TagId} to player {PlayerId}",
-     User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+                User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
             var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
             if (!canCreatePlayerTag.Succeeded)

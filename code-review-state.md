@@ -37,8 +37,8 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/MapPacksController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/MapsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerAnalyticsController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/PlayersController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/PlayerTagsController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayersController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerTagsController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ProfileController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs`
@@ -93,7 +93,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs`
 
 ### Models and ViewModels
-- [ ] `src/XtremeIdiots.Portal.Web/Models/Alert.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/Alert.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs`
@@ -101,7 +101,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Models/MapTimelineDataPoint.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/PlayerDtoExtensions.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/AddPlayerTagViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateMapPackViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateProtectedNameViewModel.cs`
@@ -123,7 +123,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/TagsViewModel.cs`
 
 ### Extensions and Helpers
-- [ ] `src/XtremeIdiots.Portal.Web/Extensions/AlertExtensions.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Extensions/AlertExtensions.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Extensions/ClaimsPrincipalExtensions.cs`
 
 ### Services

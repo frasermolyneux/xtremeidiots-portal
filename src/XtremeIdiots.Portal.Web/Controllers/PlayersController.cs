@@ -16,6 +16,9 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages player-related operations including viewing, searching, and analyzing player data
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
 public class PlayersController : BaseController
 {
@@ -24,14 +27,24 @@ public class PlayersController : BaseController
     private readonly IRepositoryApiClient repositoryApiClient;
     private readonly IProxyCheckService proxyCheckService;
 
+    /// <summary>
+    /// Initializes a new instance of the PlayersController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization checks</param>
+    /// <param name="geoLocationClient">Client for geolocation lookups</param>
+    /// <param name="repositoryApiClient">Client for accessing repository data</param>
+    /// <param name="telemetryClient">Client for tracking telemetry events</param>
+    /// <param name="proxyCheckService">Service for checking proxy/VPN status of IP addresses</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public PlayersController(
-    IAuthorizationService authorizationService,
-    IGeoLocationApiClient geoLocationClient,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    IProxyCheckService proxyCheckService,
-    ILogger<PlayersController> logger,
-    IConfiguration configuration) : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IGeoLocationApiClient geoLocationClient,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        IProxyCheckService proxyCheckService,
+        ILogger<PlayersController> logger,
+        IConfiguration configuration) : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
@@ -39,6 +52,10 @@ public class PlayersController : BaseController
         this.proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
     }
 
+    /// <summary>
+    /// Displays the main players index page
+    /// </summary>
+    /// <returns>The players index view</returns>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -48,6 +65,11 @@ public class PlayersController : BaseController
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Displays the players index page filtered by game type
+    /// </summary>
+    /// <param name="id">The game type to filter by</param>
+    /// <returns>The players index view with game type filter applied</returns>
     [HttpGet]
     public async Task<IActionResult> GameIndex(GameType? id)
     {
@@ -58,6 +80,10 @@ public class PlayersController : BaseController
         }, nameof(GameIndex));
     }
 
+    /// <summary>
+    /// Displays the IP address search page for players
+    /// </summary>
+    /// <returns>The IP address search view</returns>
     [HttpGet]
     public async Task<IActionResult> IpIndex()
     {
@@ -67,12 +93,23 @@ public class PlayersController : BaseController
         }, nameof(IpIndex));
     }
 
+    /// <summary>
+    /// Gets players data for DataTable AJAX requests with username/GUID filter
+    /// </summary>
+    /// <param name="id">Optional game type filter</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data for DataTable display</returns>
     [HttpPost]
     public async Task<IActionResult> GetPlayersAjax(GameType? id, CancellationToken cancellationToken = default)
     {
         return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id, cancellationToken);
     }
 
+    /// <summary>
+    /// Gets players data for DataTable AJAX requests with IP address filter
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data for DataTable display</returns>
     [HttpPost]
     public async Task<IActionResult> GetIpSearchListAjax(CancellationToken cancellationToken = default)
     {
@@ -97,12 +134,12 @@ public class PlayersController : BaseController
             var order = GetPlayersOrderFromDataTable(model);
 
             var playerCollectionApiResponse = await repositoryApiClient.Players.V1.GetPlayers(
-     gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
+                gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
             if (!playerCollectionApiResponse.IsSuccess || playerCollectionApiResponse.Result?.Data?.Items is null)
             {
                 Logger.LogWarning("Failed to retrieve players data for user {UserId} with filter {Filter}",
-         User.XtremeIdiotsId(), filter);
+                    User.XtremeIdiotsId(), filter);
                 return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
             }
 
@@ -123,7 +160,7 @@ public class PlayersController : BaseController
             }).ToList();
 
             Logger.LogInformation("Successfully retrieved {Count} players for user {UserId} with filter {Filter}",
-     playerData.Count, User.XtremeIdiotsId(), filter);
+                playerData.Count, User.XtremeIdiotsId(), filter);
 
             return Json(new
             {
@@ -157,6 +194,12 @@ public class PlayersController : BaseController
         return order;
     }
 
+    /// <summary>
+    /// Displays detailed information about a specific player
+    /// </summary>
+    /// <param name="id">The player ID</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>The player details view with enriched data</returns>
     [HttpGet]
     public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken = default)
     {
@@ -178,24 +221,24 @@ public class PlayersController : BaseController
             }
 
             TrackSuccessTelemetry("PlayerDetailsViewed", "ViewPlayerDetails", new Dictionary<string, string>
-        {
- { "PlayerId", id.ToString() },
- { "GameType", playerData.GameType.ToString() },
- { "IpAddressCount", playerData.PlayerIpAddresses?.Count.ToString() ?? "0" }
-        });
+            {
+                { "PlayerId", id.ToString() },
+                { "GameType", playerData.GameType.ToString() },
+                { "IpAddressCount", playerData.PlayerIpAddresses?.Count.ToString() ?? "0" }
+            });
 
             return View(playerDetailsViewModel);
         }, nameof(Details));
     }
 
     private async Task<(IActionResult? ActionResult, PlayerDto? Data)> GetAuthorizedPlayerAsync(
-    Guid id,
-    string action,
-    CancellationToken cancellationToken = default)
+        Guid id,
+        string action,
+        CancellationToken cancellationToken = default)
     {
         var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id,
-        PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions |
-        PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames | PlayerEntityOptions.Tags);
+            PlayerEntityOptions.Aliases | PlayerEntityOptions.IpAddresses | PlayerEntityOptions.AdminActions |
+            PlayerEntityOptions.RelatedPlayers | PlayerEntityOptions.ProtectedNames | PlayerEntityOptions.Tags);
 
         if (playerApiResponse.IsNotFound)
         {
@@ -212,13 +255,13 @@ public class PlayersController : BaseController
         var playerData = playerApiResponse.Result.Data;
 
         var authResult = await CheckAuthorizationAsync(
-        authorizationService,
-        playerData.GameType,
-        AuthPolicies.ViewPlayers,
-        action,
-        "Player",
-        $"GameType:{playerData.GameType}",
-        playerData);
+            authorizationService,
+            playerData.GameType,
+            AuthPolicies.ViewPlayers,
+            action,
+            "Player",
+            $"GameType:{playerData.GameType}",
+            playerData);
 
         if (authResult is not null) return (authResult, null);
 
@@ -239,7 +282,7 @@ public class PlayersController : BaseController
         catch (Exception ex)
         {
             Logger.LogWarning(ex, "Failed to retrieve geolocation for IP {IpAddress} for player {PlayerId}",
-            playerData.IpAddress, playerId);
+                playerData.IpAddress, playerId);
         }
     }
 
@@ -271,7 +314,7 @@ public class PlayersController : BaseController
             catch (Exception ex)
             {
                 Logger.LogWarning(ex, "Failed to enrich IP address {IpAddress} for player {PlayerId}",
-                ipAddress.Address, playerId);
+                    ipAddress.Address, playerId);
             }
 
             viewModel.EnrichedIpAddresses.Add(enrichedIp);

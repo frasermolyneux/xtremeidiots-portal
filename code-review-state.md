@@ -39,7 +39,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerAnalyticsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerTagsController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ProfileController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ProfileController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServersController.cs`
@@ -94,7 +94,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Models and ViewModels
 - [x] `src/XtremeIdiots.Portal.Web/Models/Alert.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs`
@@ -124,13 +124,13 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Extensions and Helpers
 - [x] `src/XtremeIdiots.Portal.Web/Extensions/AlertExtensions.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Extensions/ClaimsPrincipalExtensions.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Extensions/ClaimsPrincipalExtensions.cs` ✅ **COMPLETED**
 
 ### Services
-- [ ] `src/XtremeIdiots.Portal.Web/Services/ProxyCheckService.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Services/ProxyCheckService.cs` ✅ **COMPLETED**
 
 ### ViewComponents
-- [ ] `src/XtremeIdiots.Portal.Web/ViewComponents/AdminActionsViewComponent.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewComponents/AdminActionsViewComponent.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewComponents/GameServerListViewComponent.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewComponents/PlayerTagsViewComponent.cs`
 

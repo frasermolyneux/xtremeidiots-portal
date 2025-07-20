@@ -73,12 +73,12 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/StatusAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/UsersAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/AdminActionsAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BanFileMonitorsAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BanFileMonitorsAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BaseAuthorizationHelper.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ChangeLogAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/CredentialsAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/DemosAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/GameServersAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ChangeLogAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/CredentialsAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/DemosAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/GameServersAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs`

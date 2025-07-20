@@ -5,10 +5,19 @@ using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Authorization handler for demo file operations
+/// </summary>
+/// <param name="httpContextAccessor">HTTP context accessor for request header validation</param>
 public class DemosAuthHandler(IHttpContextAccessor httpContextAccessor) : IAuthorizationHandler
 {
     private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
+    /// <summary>
+    /// Handles authorization requirements for demo operations
+    /// </summary>
+    /// <param name="context">The authorization context containing user claims and requirements</param>
+    /// <returns>A completed task indicating the authorization check is complete</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
@@ -50,7 +59,6 @@ public class DemosAuthHandler(IHttpContextAccessor httpContextAccessor) : IAutho
 
     private void HandleAccessDemos(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
-
         BaseAuthorizationHelper.CheckAuthenticated(context, requirement);
 
         var httpContext = httpContextAccessor.HttpContext;

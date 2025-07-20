@@ -4,9 +4,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Authorization handler for game server operations
+/// </summary>
 public class GameServersAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization requirements for game server operations
+    /// </summary>
+    /// <param name="context">The authorization context containing user claims and requirements</param>
+    /// <returns>A completed task indicating the authorization check is complete</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
@@ -49,8 +56,6 @@ public class GameServersAuthHandler : IAuthorizationHandler
 
         return Task.CompletedTask;
     }
-
-    #region Authorization Handlers
 
     private static void HandleAccessGameServers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
@@ -113,6 +118,4 @@ public class GameServersAuthHandler : IAuthorizationHandler
     {
         BaseAuthorizationHelper.CheckSeniorOrLiveRconAccessWithResource(context, requirement);
     }
-
-    #endregion
 }

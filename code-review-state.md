@@ -64,11 +64,11 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/GameServersAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/HomeAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/MapsAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/PlayersAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ProfileAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServerAdminAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/HomeAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/MapsAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/PlayersAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ProfileAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServerAdminAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServersAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/StatusAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/UsersAuthRequirements.cs`

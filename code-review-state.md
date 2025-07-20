@@ -41,7 +41,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerTagsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ProfileController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServersController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/StatusController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/TagsController.cs`
@@ -49,7 +49,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### API Controllers
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BaseApiController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/BannersController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BannersController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/DataController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/HealthCheckController.cs`
@@ -59,7 +59,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Authorization System
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Constants/AuthPolicies.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs`
@@ -96,13 +96,13 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Models/Alert.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/MapTimelineDataPoint.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/PlayerDtoExtensions.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/AddPlayerTagViewModel.cs`
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateMapPackViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateProtectedNameViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateTagViewModel.cs`

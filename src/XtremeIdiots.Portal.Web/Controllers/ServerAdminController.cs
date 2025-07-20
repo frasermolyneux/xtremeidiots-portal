@@ -16,26 +16,43 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Controller for server administration functionality including RCON commands and chat log management
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
 public class ServerAdminController : BaseController
 {
-    private readonly IAuthorizationService _authorizationService;
-    private readonly IRepositoryApiClient _repositoryApiClient;
-    private readonly IServersApiClient _serversApiClient;
+    private readonly IAuthorizationService authorizationService;
+    private readonly IRepositoryApiClient repositoryApiClient;
+    private readonly IServersApiClient serversApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the ServerAdminController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization policies</param>
+    /// <param name="repositoryApiClient">Client for accessing repository data</param>
+    /// <param name="serversApiClient">Client for server RCON operations</param>
+    /// <param name="telemetryClient">Client for tracking telemetry events</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public ServerAdminController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    IServersApiClient serversApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<ServerAdminController> logger,
-    IConfiguration configuration) : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        IServersApiClient serversApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<ServerAdminController> logger,
+        IConfiguration configuration) : base(telemetryClient, logger, configuration)
     {
-        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        _repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        _serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
+        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+        this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
     }
 
+    /// <summary>
+    /// Displays the main server administration dashboard with available game servers
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the request</param>
+    /// <returns>View with list of administrable game servers</returns>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
@@ -44,9 +61,9 @@ public class ServerAdminController : BaseController
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
-            var gameServersApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServers(
-     gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50,
-     GameServerOrder.BannerServerListPosition, cancellationToken);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50,
+                GameServerOrder.BannerServerListPosition, cancellationToken);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
             {
@@ -62,18 +79,25 @@ public class ServerAdminController : BaseController
             }).ToList();
 
             Logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",
-     results.Count, User.XtremeIdiotsId());
+                results.Count, User.XtremeIdiotsId());
 
             return View(results);
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Helper method to retrieve and authorize access to a game server
+    /// </summary>
+    /// <param name="id">Game server ID</param>
+    /// <param name="action">Action being performed for logging</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Tuple containing potential action result for unauthorized access and game server data</returns>
     private async Task<(IActionResult? ActionResult, GameServerDto? GameServer)> GetAuthorizedGameServerAsync(
-    Guid id,
-    string action,
-    CancellationToken cancellationToken = default)
+        Guid id,
+        string action,
+        CancellationToken cancellationToken = default)
     {
-        var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+        var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
         if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
         {
@@ -83,17 +107,23 @@ public class ServerAdminController : BaseController
 
         var gameServerData = gameServerApiResponse.Result.Data;
         var authResult = await CheckAuthorizationAsync(
-        _authorizationService,
-        gameServerData.GameType,
-        AuthPolicies.ViewLiveRcon,
-        action,
-        "GameServer",
-        $"ServerId:{id},GameType:{gameServerData.GameType}",
-        gameServerData);
+            authorizationService,
+            gameServerData.GameType,
+            AuthPolicies.ViewLiveRcon,
+            action,
+            "GameServer",
+            $"ServerId:{id},GameType:{gameServerData.GameType}",
+            gameServerData);
 
         return authResult is not null ? (authResult, null) : (null, gameServerData);
     }
 
+    /// <summary>
+    /// Displays the RCON interface for a specific game server
+    /// </summary>
+    /// <param name="id">Game server ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>RCON interface view for the server</returns>
     [HttpGet]
     public async Task<IActionResult> ViewRcon(Guid id, CancellationToken cancellationToken = default)
     {
@@ -114,7 +144,7 @@ public class ServerAdminController : BaseController
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(GetRconPlayers), cancellationToken);
             if (actionResult is not null) return actionResult;
 
-            var getServerStatusResult = await _serversApiClient.Rcon.V1.GetServerStatus(id);
+            var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(id);
 
             return Json(new
             {
@@ -135,10 +165,10 @@ public class ServerAdminController : BaseController
             if (actionResult is not null) return actionResult;
 
             TrackSuccessTelemetry("ServerRestarted", nameof(RestartServer), new Dictionary<string, string>
-        {
- { "ServerId", id.ToString() },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { "ServerId", id.ToString() },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             return Json(new
             {
@@ -157,10 +187,10 @@ public class ServerAdminController : BaseController
             if (actionResult is not null) return actionResult;
 
             TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
-        {
- { "ServerId", id.ToString() },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { "ServerId", id.ToString() },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             return Json(new
             {
@@ -179,10 +209,10 @@ public class ServerAdminController : BaseController
             if (actionResult is not null) return actionResult;
 
             TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
-        {
- { "ServerId", id.ToString() },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { "ServerId", id.ToString() },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             return Json(new
             {
@@ -201,10 +231,10 @@ public class ServerAdminController : BaseController
             if (actionResult is not null) return actionResult;
 
             TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
-        {
- { "ServerId", id.ToString() },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { "ServerId", id.ToString() },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             return Json(new
             {
@@ -224,18 +254,18 @@ public class ServerAdminController : BaseController
             if (string.IsNullOrWhiteSpace(num))
             {
                 Logger.LogWarning("Invalid player slot number provided by user {UserId} for server {ServerId}: {PlayerSlot}",
-         User.XtremeIdiotsId(), id, num);
+                    User.XtremeIdiotsId(), id, num);
                 return NotFound();
             }
 
             this.AddAlertSuccess($"Player in slot {num} has been kicked");
 
             TrackSuccessTelemetry("PlayerKicked", nameof(KickPlayer), new Dictionary<string, string>
-        {
- { "ServerId", id.ToString() },
- { "PlayerSlot", num },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { "ServerId", id.ToString() },
+                { "PlayerSlot", num },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             return RedirectToAction(nameof(ViewRcon), new { id });
         }, nameof(KickPlayer));
@@ -268,13 +298,13 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     id,
-     AuthPolicies.ViewGameChatLog,
-     "View",
-     "GameChatLog",
-     $"GameType:{id}",
-     id);
+                authorizationService,
+                id,
+                AuthPolicies.ViewGlobalChatLog,
+                "View",
+                "GameChatLog",
+                $"GameType:{id}",
+                id);
 
             if (authResult != null) return authResult;
 
@@ -290,13 +320,13 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     id,
-     AuthPolicies.ViewGameChatLog,
-     "GetGameChatLogAjax",
-     "GameChatLog",
-     $"GameType:{id}",
-     id);
+                authorizationService,
+                id,
+                AuthPolicies.ViewGameChatLog,
+                "GetGameChatLogAjax",
+                "GameChatLog",
+                $"GameType:{id}",
+                id);
 
             if (authResult != null) return authResult;
 
@@ -309,7 +339,7 @@ public class ServerAdminController : BaseController
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
             {
@@ -320,13 +350,13 @@ public class ServerAdminController : BaseController
             var gameServerData = gameServerApiResponse.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     gameServerData.GameType,
-     AuthPolicies.ViewServerChatLog,
-     "View",
-     "ServerChatLog",
-     $"ServerId:{id},GameType:{gameServerData.GameType}",
-     gameServerData);
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.ViewServerChatLog,
+                "View",
+                "ServerChatLog",
+                $"ServerId:{id},GameType:{gameServerData.GameType}",
+                gameServerData);
 
             if (authResult != null) return authResult;
 
@@ -341,7 +371,7 @@ public class ServerAdminController : BaseController
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
             {
@@ -352,13 +382,13 @@ public class ServerAdminController : BaseController
             var gameServerData = gameServerApiResponse.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     gameServerData.GameType,
-     AuthPolicies.ViewServerChatLog,
-     "GetServerChatLogAjax",
-     "ServerChatLog",
-     $"ServerId:{id},GameType:{gameServerData.GameType}",
-     gameServerData);
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.ViewServerChatLog,
+                "GetServerChatLogAjax",
+                "ServerChatLog",
+                $"ServerId:{id},GameType:{gameServerData.GameType}",
+                gameServerData);
 
             if (authResult != null) return authResult;
 
@@ -372,7 +402,7 @@ public class ServerAdminController : BaseController
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var playerApiResponse = await _repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+            var playerApiResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
             if (playerApiResponse.IsNotFound || playerApiResponse.Result?.Data is null)
             {
@@ -383,13 +413,13 @@ public class ServerAdminController : BaseController
             var playerData = playerApiResponse.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     playerData.GameType,
-     AuthPolicies.ViewGameChatLog,
-     "GetPlayerChatLog",
-     "PlayerChatLog",
-     $"PlayerId:{id},GameType:{playerData.GameType}",
-     playerData);
+                authorizationService,
+                playerData.GameType,
+                AuthPolicies.ViewGameChatLog,
+                "GetPlayerChatLog",
+                "PlayerChatLog",
+                $"PlayerId:{id},GameType:{playerData.GameType}",
+                playerData);
 
             if (authResult is not null) return authResult;
 
@@ -402,7 +432,7 @@ public class ServerAdminController : BaseController
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
             if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data is null)
             {
@@ -421,7 +451,7 @@ public class ServerAdminController : BaseController
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
+            var chatMessageApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
             if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer is null)
             {
@@ -432,17 +462,17 @@ public class ServerAdminController : BaseController
             var chatMessageData = chatMessageApiResponse.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-     _authorizationService,
-     chatMessageData.GameServer.GameType,
-     AuthPolicies.LockChatMessages,
-     "ToggleLock",
-     "ChatMessage",
-     $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
-     chatMessageData);
+                authorizationService,
+                chatMessageData.GameServer.GameType,
+                AuthPolicies.LockChatMessages,
+                "ToggleLock",
+                "ChatMessage",
+                $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
+                chatMessageData);
 
             if (authResult != null) return authResult;
 
-            var toggleResponse = await _repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
+            var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
 
             if (!toggleResponse.IsSuccess)
             {
@@ -452,10 +482,10 @@ public class ServerAdminController : BaseController
             }
 
             TrackSuccessTelemetry("ChatMessageLockToggled", nameof(ToggleChatMessageLock), new Dictionary<string, string>
-        {
- { "MessageId", id.ToString() },
- { "GameType", chatMessageData.GameServer.GameType.ToString() }
-        });
+            {
+                { "MessageId", id.ToString() },
+                { "GameType", chatMessageData.GameServer.GameType.ToString() }
+            });
 
             this.AddAlertSuccess("Chat message lock status has been updated successfully.");
             return RedirectToAction(nameof(ChatLogPermaLink), new { id });
@@ -495,9 +525,9 @@ public class ServerAdminController : BaseController
             model.Search.Value = model.Search.Value.Substring(7).Trim();
         }
 
-        var chatMessagesApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessages(
-        gameType, gameServerId, playerId, model.Search?.Value,
-        model.Start, model.Length, order, lockedOnly, cancellationToken);
+        var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(
+            gameType, gameServerId, playerId, model.Search?.Value,
+            model.Start, model.Length, order, lockedOnly, cancellationToken);
 
         if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data is null)
         {

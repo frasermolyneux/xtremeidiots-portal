@@ -11,38 +11,54 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Controller for managing system status and monitoring operations
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessStatus)]
 public class StatusController : BaseController
 {
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the StatusController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization checks</param>
+    /// <param name="repositoryApiClient">Client for repository API operations</param>
+    /// <param name="telemetryClient">Client for application telemetry</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
+    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
     public StatusController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<StatusController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<StatusController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays the ban file monitor status page showing synchronization status and file information
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with ban file monitor status information or empty list if none found</returns>
     [HttpGet]
     public async Task<IActionResult> BanFileStatus(CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
             Logger.LogInformation("User {UserId} has access to {GameTypeCount} game types and {MonitorCount} ban file monitors",
-     User.XtremeIdiotsId(), gameTypes.Count(), banFileMonitorIds.Count());
+                User.XtremeIdiotsId(), gameTypes.Count(), banFileMonitorIds.Count());
 
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(
-     gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition, cancellationToken);
+                gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition, cancellationToken);
 
             if (banFileMonitorsApiResponse.IsNotFound || banFileMonitorsApiResponse.Result?.Data?.Items is null)
             {
@@ -58,7 +74,6 @@ public class StatusController : BaseController
 
                 if (actionResult is not null)
                 {
-
                     continue;
                 }
 
@@ -77,22 +92,29 @@ public class StatusController : BaseController
             }
 
             TrackSuccessTelemetry("BanFileStatusRetrieved", nameof(BanFileStatus), new Dictionary<string, string>
-        {
- { "MonitorCount", models.Count.ToString() },
- { "GameTypeCount", gameTypes.Count().ToString() }
-        });
+            {
+                { "MonitorCount", models.Count.ToString() },
+                { "GameTypeCount", gameTypes.Count().ToString() }
+            });
 
             Logger.LogInformation("User {UserId} successfully retrieved {MonitorCount} ban file monitor statuses",
-     User.XtremeIdiotsId(), models.Count);
+                User.XtremeIdiotsId(), models.Count);
 
             return View(models);
         }, nameof(BanFileStatus));
     }
 
+    /// <summary>
+    /// Retrieves game server data for a specific ban file monitor
+    /// </summary>
+    /// <param name="gameServerId">The unique identifier of the game server</param>
+    /// <param name="banFileMonitorId">The unique identifier of the ban file monitor</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Tuple containing potential action result for errors and game server data if successful</returns>
     private async Task<(IActionResult? ActionResult, GameServerDto? Data)> GetGameServerDataAsync(
-    Guid gameServerId,
-    Guid banFileMonitorId,
-    CancellationToken cancellationToken = default)
+        Guid gameServerId,
+        Guid banFileMonitorId,
+        CancellationToken cancellationToken = default)
     {
         try
         {
@@ -101,7 +123,7 @@ public class StatusController : BaseController
             if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
             {
                 Logger.LogWarning("Game server {GameServerId} not found for ban file monitor {BanFileMonitorId}",
-                gameServerId, banFileMonitorId);
+                    gameServerId, banFileMonitorId);
                 return (null, null);
             }
 
@@ -110,13 +132,13 @@ public class StatusController : BaseController
         catch (Exception ex)
         {
             Logger.LogError(ex, "Error retrieving game server {GameServerId} for ban file monitor {BanFileMonitorId}",
-            gameServerId, banFileMonitorId);
+                gameServerId, banFileMonitorId);
 
             TrackErrorTelemetry(ex, nameof(GetGameServerDataAsync), new Dictionary<string, string>
- {
- { nameof(gameServerId), gameServerId.ToString() },
- { nameof(banFileMonitorId), banFileMonitorId.ToString() }
- });
+            {
+                { nameof(gameServerId), gameServerId.ToString() },
+                { nameof(banFileMonitorId), banFileMonitorId.ToString() }
+            });
 
             return (null, null);
         }

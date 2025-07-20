@@ -43,8 +43,8 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ServersController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/StatusController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/TagsController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/StatusController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/TagsController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/UserController.cs`
 
 ### API Controllers

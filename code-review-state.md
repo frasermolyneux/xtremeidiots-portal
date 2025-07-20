@@ -104,11 +104,11 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateMapPackViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateProtectedNameViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateTagViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/DeleteMapFromHostModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/EditAdminActionViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/EditBanFileMonitorViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateProtectedNameViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateTagViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/DeleteMapFromHostModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditAdminActionViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditBanFileMonitorViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/EditTagViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/GameServerViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs`

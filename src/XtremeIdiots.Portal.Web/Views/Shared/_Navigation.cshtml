@@ -3,7 +3,6 @@
 @using XtremeIdiots.Portal.Web.Auth.Constants
 @using XtremeIdiots.Portal.Web.Constants
 @using XtremeIdiots.Portal.Web.Extensions
-@using XtremeIdiots.Portal.Web.ViewModels
 @using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
 @using XtremeIdiots.Portal.Repository.Abstractions.Extensions.V1
 @inject IAuthorizationService AuthorizationService
@@ -11,45 +10,47 @@
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
-            <li class="nav-header"> @if (SignInManager.IsSignedIn(User))
-                                {
+            <li class="nav-header">
+                @if (SignInManager.IsSignedIn(User))
+                {
                     <div class="dropdown profile-element">
-                        <img src="@(User.PhotoUrl())" alt="Avatar" class="img-fluid rounded-circle shadow-sm"
+                        <img src="@(User.PhotoUrl())" alt="User Avatar" class="img-fluid rounded-circle shadow-sm"
                             style="max-height: 80px; max-width: 80px; margin: 0 auto 10px; display: block">
                         <a data-toggle="dropdown" class="dropdown-toggle d-flex align-items-center justify-content-center"
-                            href="#">
+                            href="#" aria-expanded="false">
                             <span class="block m-t-xs font-bold text-center">
-                                <i class="fa fa-user-circle fa-fw"></i> @(User.Identity?.Name) <b class="caret"></b>
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b
+                                    class="caret"></b>
                             </span>
                         </a>
                         <ul class="dropdown-menu animated fadeInDown m-t-xs"
                             style="left: 0; position: absolute; top: 91px; will-change: top, left;">
                             <li>
                                 <a asp-controller="Profile" asp-action="Manage" class="dropdown-item">
-                                    <i class="fa fa-id-card fa-fw"></i> Manage Profile
+                                    <i class="fa fa-id-card fa-fw" aria-hidden="true"></i> Manage Profile
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
                                     <button class="dropdown-item" type="submit">
-                                        <i class="fa fa-sign-out fa-fw"></i> Logout
+                                        <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i> Logout
                                     </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                 }
-                                else
+                else
                 {
                     <div class="dropdown profile-element text-center">
                         <div class="placeholder-avatar mb-3">
-                            <i class="fa fa-user-circle fa-4x text-muted"></i>
+                            <i class="fa fa-user-circle fa-4x text-muted" aria-hidden="true"></i>
                         </div>
                         <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots"
                             method="post">
                             <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fa fa-sign-in fa-fw"></i> XtremeIdiots Login
+                                <i class="fa fa-sign-in fa-fw" aria-hidden="true"></i> XtremeIdiots Login
                             </button>
                         </form>
                     </div>
@@ -61,21 +62,23 @@
             </li>
             <li policy="@AuthPolicies.AccessHome" class="@Html.IsSelected("Home", "Index")">
                 <a asp-controller="Home" asp-action="Index">
-                    <i class="fa fa-home fa-fw"></i> <span class="nav-label">Home</span>
+                    <i class="fa fa-home fa-fw" aria-hidden="true"></i> <span class="nav-label">Home</span>
                 </a>
             </li>
             <li policy="@AuthPolicies.AccessServers" class="@Html.IsSelected("Servers", "Index") nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fa fa-server fa-fw"></i> <span class="nav-label">Servers</span> <span
+                    <i class="fa fa-server fa-fw" aria-hidden="true"></i> <span class="nav-label">Servers</span> <span
                         class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level collapse @Html.IsSelected("Servers", cssClass: "show")">
                     <li class="@Html.IsSelected("Servers", "Index")">
-                        <a asp-controller="Servers" asp-action="Index"><i class="fa fa-list fa-fw"></i> Game Servers</a>
+                        <a asp-controller="Servers" asp-action="Index"><i class="fa fa-list fa-fw"
+                                aria-hidden="true"></i> Game Servers</a>
                     </li>
 
                     <li class="@Html.IsSelected("Servers", "Map")">
-                        <a asp-controller="Servers" asp-action="Map"><i class="fa fa-map-marker fa-fw"></i> Player
+                        <a asp-controller="Servers" asp-action="Map"><i class="fa fa-map-marker fa-fw"
+                                aria-hidden="true"></i> Player
                             Map</a>
                     </li>
                 </ul>
@@ -83,23 +86,25 @@
 
             <li policy="@AuthPolicies.AccessCredentials" class="@Html.IsSelected("Credentials", "Index")">
                 <a asp-controller="Credentials" asp-action="Index">
-                    <i class="fa fa-key fa-fw"></i> <span class="nav-label">Credentials</span>
+                    <i class="fa fa-key fa-fw" aria-hidden="true"></i> <span class="nav-label">Credentials</span>
                 </a>
             </li>
             <li policy="@AuthPolicies.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin", "Index") nav-item">
                 <a href="#" class="nav-link">
-                    <i class="fa fa-terminal fa-fw"></i> <span class="nav-label">Server Admin</span> <span
-                        class="fa arrow"></span>
+                    <i class="fa fa-terminal fa-fw" aria-hidden="true"></i> <span class="nav-label">Server Admin</span>
+                    <span class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "show")">
                     <li class="@Html.IsSelected("ServerAdmin", "Index")">
-                        <a asp-controller="ServerAdmin" asp-action="Index"><i class="fa fa-server fa-fw"></i>
+                        <a asp-controller="ServerAdmin" asp-action="Index"><i class="fa fa-server fa-fw"
+                                aria-hidden="true"></i>
                             Servers</a>
                     </li>
 
                     <li policy="@AuthPolicies.ViewGlobalChatLog"
                         class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
-                        <a asp-controller="ServerAdmin" asp-action="ChatLogIndex"><i class="fa fa-comments fa-fw"></i>
+                        <a asp-controller="ServerAdmin" asp-action="ChatLogIndex"><i class="fa fa-comments fa-fw"
+                                aria-hidden="true"></i>
                             Global ChatLog</a>
                     </li>
 

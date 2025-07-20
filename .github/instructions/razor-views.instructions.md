@@ -538,6 +538,202 @@ Test complete user workflows:
 - AJAX interactions
 - Responsive behavior
 
+### Automation Testing & Element Identification
+
+**ALL interactive elements must include automation IDs for end-to-end testing.**
+
+#### Automation ID Naming Convention
+Use the `data-testid` attribute with a consistent kebab-case naming pattern:
+
+```
+data-testid="{page-context}-{element-type}-{action/purpose}"
+```
+
+#### Common Element Patterns
+
+**Buttons:**
+```html
+<!-- Primary actions -->
+<button type="submit" class="btn btn-primary" data-testid="player-create-submit">
+    Create Player
+</button>
+
+<!-- Secondary actions -->
+<a class="btn btn-secondary" asp-action="Index" data-testid="player-details-back">
+    Back to List
+</a>
+
+<!-- Action buttons in tables/lists -->
+<a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@item.Id" 
+   data-testid="player-@(item.Id)-edit">
+    Edit
+</a>
+```
+
+**Form Controls:**
+```html
+<!-- Input fields -->
+<input asp-for="Username" class="form-control" 
+       data-testid="player-form-username" />
+
+<!-- Select dropdowns -->
+<select asp-for="GameType" class="form-control" 
+        data-testid="player-form-gametype">
+    <!-- Options -->
+</select>
+
+<!-- Checkboxes -->
+<input type="checkbox" asp-for="IsActive" 
+       data-testid="player-form-isactive" />
+
+<!-- Text areas -->
+<textarea asp-for="Reason" class="form-control" 
+          data-testid="admin-action-form-reason"></textarea>
+```
+
+**Navigation & Links:**
+```html
+<!-- Main navigation -->
+<a asp-controller="Players" asp-action="Index" 
+   data-testid="nav-players">Players</a>
+
+<!-- Breadcrumb links -->
+<a asp-action="Details" asp-route-id="@Model.PlayerId" 
+   data-testid="breadcrumb-player-details">@Model.Player.Username</a>
+
+<!-- Tab navigation -->
+<a class="nav-link" href="#admin-actions" 
+   data-testid="player-tab-admin-actions">Admin Actions</a>
+```
+
+**Tables & Data Display:**
+```html
+<!-- Table headers (for sorting) -->
+<th>
+    <a asp-action="Index" asp-route-sortOrder="@ViewData["UsernameSort"]"
+       data-testid="players-table-sort-username">
+        Username
+    </a>
+</th>
+
+<!-- Table row actions -->
+<td>
+    <div class="btn-group" role="group">
+        <a class="btn btn-sm btn-primary" asp-action="Details" 
+           asp-route-id="@item.PlayerId"
+           data-testid="player-@(item.PlayerId)-details">
+            Details
+        </a>
+        <a class="btn btn-sm btn-warning" asp-action="Edit" 
+           asp-route-id="@item.PlayerId"
+           data-testid="player-@(item.PlayerId)-edit">
+            Edit
+        </a>
+    </div>
+</td>
+```
+
+**Modals & Dialogs:**
+```html
+<!-- Modal triggers -->
+<button type="button" class="btn btn-danger" data-toggle="modal" 
+        data-target="#deleteModal" 
+        data-testid="admin-action-delete-trigger">
+    Delete
+</button>
+
+<!-- Modal actions -->
+<div class="modal" id="deleteModal">
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                data-testid="delete-modal-cancel">
+            Cancel
+        </button>
+        <button type="button" class="btn btn-danger" 
+                data-testid="delete-modal-confirm">
+            Delete
+        </button>
+    </div>
+</div>
+```
+
+**Search & Filters:**
+```html
+<!-- Search inputs -->
+<input type="text" class="form-control" placeholder="Search players..." 
+       data-testid="players-search-input" />
+
+<!-- Filter dropdowns -->
+<select class="form-control" data-testid="players-filter-gametype">
+    <option value="">All Games</option>
+    <!-- Options -->
+</select>
+
+<!-- Apply filters button -->
+<button type="submit" class="btn btn-primary" 
+        data-testid="players-filter-apply">
+    Apply Filters
+</button>
+```
+
+**Status Indicators & Badges:**
+```html
+<!-- Status badges -->
+<span class="badge badge-success" 
+      data-testid="player-@(item.PlayerId)-status">
+    Active
+</span>
+
+<!-- Gaming-specific indicators -->
+<span class="game-server-status online" 
+      data-testid="server-@(server.Id)-status">
+    Online
+</span>
+```
+
+#### Context-Specific Patterns
+
+**Controller/Page Context Examples:**
+- `player-details-*` - Player details page elements
+- `admin-actions-*` - Admin actions related elements
+- `server-list-*` - Server listing page elements
+- `ban-file-monitor-*` - Ban file monitor elements
+
+**Action/Purpose Examples:**
+- `*-submit` - Form submission buttons
+- `*-cancel` - Cancel/back actions
+- `*-edit` - Edit action links/buttons
+- `*-delete` - Delete action elements
+- `*-create` - Create/add new elements
+- `*-search` - Search functionality
+- `*-filter` - Filter controls
+- `*-sort` - Sorting controls
+
+#### Testing Best Practices
+
+1. **Uniqueness:** Each automation ID should be unique within the page
+2. **Stability:** IDs should remain stable across code changes
+3. **Meaningful:** IDs should clearly indicate the element's purpose
+4. **Hierarchical:** Use context to create logical groupings
+5. **Dynamic IDs:** For repeated elements (like table rows), include unique identifiers:
+   ```html
+   data-testid="player-@(item.PlayerId)-edit"
+   ```
+
+#### ViewComponent Testing
+ViewComponents should also include automation IDs:
+```html
+<!-- In ViewComponent templates -->
+<div class="player-tags-component" data-testid="player-tags-component">
+    @foreach (var tag in Model)
+    {
+        <span class="badge" data-testid="player-tag-@(tag.TagId)">
+            @tag.Name
+        </span>
+    }
+</div>
+```
+
 ## Summary
 
 Razor views in the XtremeIdiots Portal should be **strongly-typed, secure, accessible, and follow gaming community UI patterns**. Focus on creating reusable components, maintaining consistent styling, and ensuring excellent user experience across all devices.

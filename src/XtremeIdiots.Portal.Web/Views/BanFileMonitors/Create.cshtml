@@ -3,58 +3,71 @@
 
 @{
     ViewData["Title"] = "Create Ban File Monitor";
+    ViewData["Description"] = "Create a new ban file monitor for a game server";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
-
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> There may be a delay of 15 - 30 minutes before the next execution of the monitor process after creating.
+        <i class="fa fa-info-circle" aria-hidden="true"></i>
+        There may be a delay of 15 - 30 minutes before the next execution of the monitor process after creating.
     </div>
 
-    <row class="row">
+    <div class="row">
         <div class="col-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h5>@ViewData["Title"]</h5>
+                </div>
+                <div class="ibox-content">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-            <div class="container-fluid">
-                <div class="ibox">
-                    <div class="ibox-title">
-                        @ViewData["Title"]
-                    </div>
-                    <div class="ibox-content">
-                        <form asp-action="Create">
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                            <div class="form-group">
-                                <label asp-for="GameServerId" class="control-label"></label>
-                                <select asp-for="GameServerId" class="form-control" asp-items="ViewBag.GameServers"></select>
-                                <span asp-validation-for="GameServerId" class="text-danger"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="FilePath" class="control-label"></label>
-                                <input asp-for="FilePath" class="form-control"/>
-                                <span asp-validation-for="FilePath" class="text-danger"></span>
-                            </div>
-                            <div class="alert alert-primary" role="alert">
-                                <i class="fa fa-info-circle"></i> You do not need to enter the ftp hostname or credentials. example: /mods/xinam/ban.txt
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-plus"> Create</i></button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="ibox-footer">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a type="button" class="btn btn-primary" asp-action="Index"><i class="fa fa-arrow-left"></i> Back to List</a>
+                        <div class="form-group">
+                            <label asp-for="GameServerId" class="control-label"></label>
+                            <select asp-for="GameServerId" class="form-control" asp-items="ViewBag.GameServers"
+                                aria-describedby="gameServerHelp">
+                                <option value="">-- Select a Game Server --</option>
+                            </select>
+                            <span asp-validation-for="GameServerId" class="text-danger"></span>
                         </div>
+
+                        <div class="form-group">
+                            <label asp-for="FilePath" class="control-label"></label>
+                            <input asp-for="FilePath" class="form-control" aria-describedby="filePathHelp" />
+                            <span asp-validation-for="FilePath" class="text-danger"></span>
+                        </div>
+
+                        <div class="alert alert-primary" role="alert">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            You do not need to enter the FTP hostname or credentials. Example: /mods/xinam/ban.txt
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-plus" aria-hidden="true"></i> Create
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="ibox-footer">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a class="btn btn-primary" asp-action="Index" aria-label="Return to ban file monitors list">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i> Back to List
+                        </a>
                     </div>
                 </div>
             </div>
-
         </div>
-    </row>
-
+    </div>
 </div>
 
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+       
+   

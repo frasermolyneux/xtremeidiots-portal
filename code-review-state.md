@@ -141,15 +141,15 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Configuration Files
 - [x] `src/XtremeIdiots.Portal.Web/appsettings.json` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/appsettings.Development.json` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/libman.json`
+- [x] `src/XtremeIdiots.Portal.Web/libman.json` ✅ **COMPLETED**
 
 ### Razor Views (Follow razor-views.instructions.md)
 
 #### Core Layout and Shared Views
 - [x] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml`
@@ -270,7 +270,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/DemoManager.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/IAdminActionTopics.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/IDemoManager.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/GameTypeExtensions.cs`
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/GameTypeExtensions.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/ServiceCollectionExtensions.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/Models/DemoManagerClientDto.cs` ✅ **COMPLETED**
 

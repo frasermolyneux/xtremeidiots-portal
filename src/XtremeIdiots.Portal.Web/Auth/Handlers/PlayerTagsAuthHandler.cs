@@ -3,9 +3,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization requirements for player tag operations
+/// </summary>
 public class PlayerTagsAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization context for player tag-related requirements
+    /// </summary>
+    /// <param name="context">The authorization context</param>
+    /// <returns>Completed task</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();

@@ -82,13 +82,13 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServerAdminAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServerAdminAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServersAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/StatusAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/UsersAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/IXtremeIdiotsAuth.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/IXtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs`
 
@@ -114,7 +114,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNameReportViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNamesViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PushMapToRemote.cs`

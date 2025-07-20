@@ -4,9 +4,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization requirements for server administration operations
+/// </summary>
 public class ServerAdminAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization context for server admin-related requirements
+    /// </summary>
+    /// <param name="context">The authorization context</param>
+    /// <returns>Completed task</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();

@@ -1,6 +1,6 @@
-﻿using XtremeIdiots.Portal.Web.Services;
+﻿using MX.GeoLocation.Abstractions.Models.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
-using MX.GeoLocation.Abstractions.Models.V1;
+using XtremeIdiots.Portal.Web.Services;
 
 namespace XtremeIdiots.Portal.Web.ViewModels;
 

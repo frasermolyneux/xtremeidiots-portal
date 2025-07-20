@@ -7,10 +7,9 @@ public static class GameServerHtmlExtensions
 {
     public static HtmlString ServerHostAndPort(this IHtmlHelper html, string? hostname, int port)
     {
-        if (string.IsNullOrWhiteSpace(hostname) && port == 0)
-            return new HtmlString("");
-
-        return !string.IsNullOrWhiteSpace(hostname) && port == 0 ? new HtmlString(hostname) : new HtmlString($"{hostname}:{port}");
+        return string.IsNullOrWhiteSpace(hostname) && port == 0
+            ? new HtmlString("")
+            : !string.IsNullOrWhiteSpace(hostname) && port == 0 ? new HtmlString(hostname) : new HtmlString($"{hostname}:{port}");
     }
 
     public static HtmlString ServerName(this IHtmlHelper html, string? title, string? liveTitle)

@@ -235,6 +235,7 @@ public class TagsController(
                     this.AddAlertDanger("You do not have permission to edit this tag");
                     return View(model);
                 }
+
                 return actionResult;
             }
 
@@ -310,6 +311,7 @@ public class TagsController(
                     this.AddAlertDanger($"You do not have permission to delete this tag");
                     return RedirectToAction(nameof(Index));
                 }
+
                 return actionResult;
             }
 

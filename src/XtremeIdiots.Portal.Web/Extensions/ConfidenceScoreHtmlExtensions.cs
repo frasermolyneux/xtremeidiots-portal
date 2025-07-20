@@ -11,19 +11,15 @@ public static class ConfidenceScoreHtmlExtensions
         {
             return new HtmlString("<span class=\"label label-default\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"There is not yet have enough data to score this\">N/A - Unknown Confidence</span>");
         }
-        else if (confidenceScore is > 0 and < 2)
-        {
-            return new HtmlString("<span class=\"label label-danger\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has only been linked >0 and <2 times\">Very Low Confidence</span>");
-        }
-        else if (confidenceScore is > 2 and < 5)
-        {
-            return new HtmlString("<span class=\"label label-warning\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has been linked >2 and <5 times\">Average Confidence</span>");
-        }
         else
         {
-            return lastUsed < DateTime.UtcNow.AddMonths(-6)
-                ? new HtmlString("<span class=\"label label-warning\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has not been used in over 6 months\">Average Confidence</span>")
-                : new HtmlString($"<span class=\"label label-success\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has been linked {confidenceScore} times\">High Confidence</span>");
+            return confidenceScore is > 0 and < 2
+                ? new HtmlString("<span class=\"label label-danger\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has only been linked >0 and <2 times\">Very Low Confidence</span>")
+                : confidenceScore is > 2 and < 5
+                            ? new HtmlString("<span class=\"label label-warning\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has been linked >2 and <5 times\">Average Confidence</span>")
+                            : lastUsed < DateTime.UtcNow.AddMonths(-6)
+                                        ? new HtmlString("<span class=\"label label-warning\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has not been used in over 6 months\">Average Confidence</span>")
+                                        : new HtmlString($"<span class=\"label label-success\" data-toggle=\"tooltip\" data-placement=\"bottom\" title=\"This data record has been linked {confidenceScore} times\">High Confidence</span>");
         }
     }
 }

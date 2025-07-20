@@ -250,10 +250,7 @@ public class PlayersController(
             $"GameType:{playerData.GameType}",
             playerData);
 
-        if (authResult is not null)
-            return (authResult, null);
-
-        return (null, playerData);
+        return authResult is not null ? ((IActionResult? ActionResult, PlayerDto? Data))(authResult, null) : ((IActionResult? ActionResult, PlayerDto? Data))(null, playerData);
     }
 
     private async Task EnrichCurrentPlayerGeoLocationAsync(PlayerDetailsViewModel viewModel, PlayerDto playerData, Guid playerId)

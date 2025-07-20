@@ -19,6 +19,13 @@ Do *NOT* use the processes defined in the `tasks.json` to execute commands. Inst
 - Use the project-specific build command when available: `dotnet build src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj`
 - For solution-wide builds, use: `dotnet build src/XtremeIdiots.Portal.Web.sln`
 
+### Razor View Validation
+- **For Razor view changes**: Run Razor-specific validation to catch view compilation errors
+- Use `dotnet build --configuration Release` to validate Razor views with build-time compilation
+- Use custom validation target: `dotnet build -p:ValidateRazor=true` for explicit Razor validation
+- **Development**: Debug builds use runtime compilation for fast iteration
+- **Production**: Release builds use build-time compilation for performance and reliability
+
 ### Test Verification  
 - **ALWAYS** run `dotnet test` after making code changes that could affect functionality
 - Use the test filter to exclude integration tests: `dotnet test src --filter "FullyQualifiedName!~IntegrationTests"`
@@ -31,8 +38,9 @@ Do *NOT* use the processes defined in the `tasks.json` to execute commands. Inst
 ## Command Execution Order
 
 1. **After Code Changes**: Immediately run build verification
-2. **After Logic Changes**: Run test verification to ensure functionality is preserved
-3. **Before Completion**: Ensure both build and tests pass before concluding the task
+2. **After Razor View Changes**: Run Razor validation with Release build or custom target
+3. **After Logic Changes**: Run test verification to ensure functionality is preserved
+4. **Before Completion**: Ensure both build and tests pass before concluding the task
 
 ## Examples
 
@@ -43,6 +51,18 @@ dotnet build src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
 
 # After making changes that affect business logic
 dotnet test src --filter "FullyQualifiedName!~IntegrationTests"
+```
+
+### Razor View Changes Workflow
+```bash
+# After making changes to Razor views (.cshtml files)
+dotnet build --configuration Debug src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
+
+# Validate Razor views for production readiness
+dotnet build --configuration Release src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
+
+# Or use explicit Razor validation
+dotnet build src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj -p:ValidateRazor=true
 ```
 
 ### Troubleshooting Workflow
@@ -57,6 +77,18 @@ dotnet build src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
 # For production-ready code
 dotnet clean --configuration Release src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
 dotnet build --configuration Release src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
+```
+
+### Razor Compilation Strategy Verification
+```bash
+# Development builds (with runtime compilation for fast iteration)
+dotnet build --configuration Debug src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
+
+# Production builds (with build-time compilation for performance)
+dotnet build --configuration Release src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj
+
+# Explicit Razor validation (catches view compilation errors)
+dotnet build src/XtremeIdiots.Portal.Web/XtremeIdiots.Portal.Web.csproj -p:ValidateRazor=true
 ```
 
 ## Error Handling

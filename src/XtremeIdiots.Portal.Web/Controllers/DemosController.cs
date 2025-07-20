@@ -576,6 +576,7 @@ public class DemosController(
                 exceptionTelemetry.Properties.TryAdd("FileName", file.FileName);
                 exceptionTelemetry.Properties.TryAdd("FileSize", file.Length.ToString());
             }
+
             TelemetryClient.TrackException(exceptionTelemetry);
 
             return Content("Error: An internal server error occurred while uploading your demo.");

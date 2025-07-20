@@ -1,6 +1,6 @@
-﻿using XtremeIdiots.Portal.Web.Models;
+﻿using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
+using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.Services;
-using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 
 namespace XtremeIdiots.Portal.Web.Extensions;
 

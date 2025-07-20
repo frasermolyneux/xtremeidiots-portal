@@ -4,6 +4,7 @@
 
 @{
     ViewData["Title"] = $"Create {Model.Type} for {Model.PlayerDto?.Username ?? "Unknown Player"}";
+    ViewData["Description"] = $"Create a new {Model.Type} admin action for player";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -38,7 +39,8 @@
                         <div class="form-group">
                             <label asp-for="Text" class="sr-only">Reason</label>
                             <textarea id="summernote" asp-for="Text" class="form-control"
-                                placeholder="Enter the reason for this @Model.Type..."></textarea>
+                                placeholder="Enter the reason for this @Model.Type..."
+                                aria-describedby="textHelp"></textarea>
                             <span asp-validation-for="Text" class="text-danger"></span>
                         </div>
 
@@ -52,11 +54,11 @@
                         }
 
                         <div class="form-group">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-primary" aria-describedby="submitHelp">
                                 <i class="fa fa-save fa-fw" aria-hidden="true"></i> Create @Model.Type
                             </button>
                             <a asp-controller="Players" asp-action="Details" asp-route-id="@Model.PlayerId"
-                                class="btn btn-secondary ml-2">
+                                class="btn btn-secondary ml-2" aria-label="Cancel and return to player details">
                                 <i class="fa fa-times fa-fw" aria-hidden="true"></i> Cancel
                             </a>
                         </div>
@@ -86,7 +88,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-
             $('#summernote').summernote({
                 focus: true,
                 styleWithSpan: false,
@@ -98,8 +99,6 @@
                 ],
                 height: 350
             });
-
         });
-
     </script>
 }

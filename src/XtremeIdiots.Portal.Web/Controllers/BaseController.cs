@@ -177,6 +177,7 @@ public abstract class BaseController(
             {
                 await additionalSetupAsync(model);
             }
+
             return View(model);
         }
 

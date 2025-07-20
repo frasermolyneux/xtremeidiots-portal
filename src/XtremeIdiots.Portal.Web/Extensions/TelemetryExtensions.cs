@@ -1,7 +1,5 @@
-﻿using System.Security.Claims;
-
-using Microsoft.ApplicationInsights.DataContracts;
-
+﻿using Microsoft.ApplicationInsights.DataContracts;
+using System.Security.Claims;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Demos;

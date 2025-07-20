@@ -1,9 +1,4 @@
-﻿@using Microsoft.AspNetCore.Authorization
-@using XtremeIdiots.Portal.Web.Auth.Constants
-@using XtremeIdiots.Portal.Web.Extensions
-@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
-@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors
-@inject IAuthorizationService AuthorizationService
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors
 @model IEnumerable<BanFileMonitorDto>
 
 @{
@@ -23,7 +18,7 @@
             <div class="ibox">
                 <div class="ibox-content">
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped" aria-label="Ban file monitors list">
                             <thead>
                                 <tr>
                                     <th scope="col">Game Server</th>
@@ -65,11 +60,15 @@
                                             @if (!string.IsNullOrWhiteSpace(item.FilePath) && !string.IsNullOrWhiteSpace(item.GameServer?.LiveMod) 
                                                 && item.FilePath.ToLower().Contains(item.GameServer.LiveMod.ToLower()))
                                             {
-                                                <span class="badge badge-success">@item.GameServer.LiveMod is included in path</span>
+                                                <span class="badge badge-success" title="Mod check passed">
+                                                    @item.GameServer.LiveMod is included in path
+                                                </span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-danger">@(item.GameServer?.LiveMod ?? "Unknown mod") is not included in path</span>
+                                                <span class="badge badge-danger" title="Mod check failed">
+                                                    @(item.GameServer?.LiveMod ?? "Unknown mod") is not included in path
+                                                </span>
                                             }
                                         </td>
                                         <td>

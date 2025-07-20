@@ -342,11 +342,6 @@ public class BanFileMonitorsController(
             $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}",
             banFileMonitorData);
 
-        if (authResult is not null)
-        {
-            return (authResult, null);
-        }
-
-        return (null, banFileMonitorData);
+        return authResult is not null ? ((IActionResult? ActionResult, BanFileMonitorDto? BanFileMonitor))(authResult, null) : ((IActionResult? ActionResult, BanFileMonitorDto? BanFileMonitor))(null, banFileMonitorData);
     }
 }

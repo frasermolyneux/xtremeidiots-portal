@@ -52,13 +52,10 @@ public class ExternalController(
             foreach (var adminActionDto in adminActionsApiResponse.Result.Data.Items)
             {
                 // Determine action text based on admin action type and expiration status
-                string actionText;
-                if (adminActionDto.Expires <= DateTime.UtcNow &&
-                    (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
-                    actionText = $"lifted a {adminActionDto.Type} on";
-                else
-                    actionText = $"added a {adminActionDto.Type} to";
-
+                var actionText = adminActionDto.Expires <= DateTime.UtcNow &&
+                    (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan)
+                    ? $"lifted a {adminActionDto.Type} on"
+                    : $"added a {adminActionDto.Type} to";
                 var adminName = adminActionDto.UserProfile?.DisplayName ?? "Unknown";
                 var adminId = adminActionDto.UserProfile?.XtremeIdiotsForumId;
 

@@ -146,23 +146,23 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Razor Views (Follow razor-views.instructions.md)
 
 #### Core Layout and Shared Views
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml`
 
 #### Controller Views - AdminAction
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Create.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Create.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Edit.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Delete.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Claim.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Lift.cshtml`
 
 #### Controller Views - BanFileMonitors
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Index.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Index.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Create.cshtml`
 - [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Edit.cshtml` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Details.cshtml` ✅ **COMPLETED**

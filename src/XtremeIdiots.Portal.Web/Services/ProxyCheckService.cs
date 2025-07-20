@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
 
 namespace XtremeIdiots.Portal.Web.Services;
 

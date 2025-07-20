@@ -21,14 +21,12 @@ public static class GeoLocationDtoExtensions
 
     public static HtmlString LocationSummary(this GeoLocationDto geoLocationDto)
     {
-        if (!string.IsNullOrWhiteSpace(geoLocationDto.CityName) &&
-            !string.IsNullOrWhiteSpace(geoLocationDto.CountryName))
-            return new HtmlString($"{geoLocationDto.CityName}, {geoLocationDto.CountryName}");
-
-        if (!string.IsNullOrWhiteSpace(geoLocationDto.CountryCode))
-            return new HtmlString($"{geoLocationDto.CountryCode}");
-
-        return !string.IsNullOrWhiteSpace(geoLocationDto.RegisteredCountry)
+        return !string.IsNullOrWhiteSpace(geoLocationDto.CityName) &&
+            !string.IsNullOrWhiteSpace(geoLocationDto.CountryName)
+            ? new HtmlString($"{geoLocationDto.CityName}, {geoLocationDto.CountryName}")
+            : !string.IsNullOrWhiteSpace(geoLocationDto.CountryCode)
+            ? new HtmlString($"{geoLocationDto.CountryCode}")
+            : !string.IsNullOrWhiteSpace(geoLocationDto.RegisteredCountry)
             ? new HtmlString($"{geoLocationDto.RegisteredCountry}")
             : new HtmlString("Unknown");
     }

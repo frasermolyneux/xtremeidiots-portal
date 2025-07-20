@@ -8,6 +8,19 @@
     <UserSecretsId>aspnet-XtremeIdiots.Portal.Web-C68F0D1A-4DA1-4487-9A50-680D1F2E79E0</UserSecretsId>
   </PropertyGroup>
 
+  <!-- Razor Compilation Strategy: Hybrid Development/Production -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <!-- Development: Runtime compilation for fast iteration -->
+    <RazorCompileOnBuild>false</RazorCompileOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <!-- Production: Build-time compilation for performance and reliability -->
+    <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    <RazorCompileOnPublish>true</RazorCompileOnPublish>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.Profiler.AspNetCore" Version="2.7.3" />
@@ -15,7 +28,9 @@
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.7" />
+    <!-- Runtime compilation only in Debug builds for development productivity -->
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.7" 
+                      Condition="'$(Configuration)' == 'Debug'" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
       <PrivateAssets>all</PrivateAssets>
@@ -40,5 +55,14 @@
   <ItemGroup>
     <Folder Include="wwwroot\images\service-icons\" />
   </ItemGroup>
+
+  <!-- Custom target to validate Razor views without runtime compilation -->
+  <Target Name="ValidateRazorViews" BeforeTargets="Build" Condition="'$(ValidateRazor)' == 'true'">
+    <PropertyGroup>
+      <EnableDefaultRazorTargetAssemblyInfoAttributes>false</EnableDefaultRazorTargetAssemblyInfoAttributes>
+      <RazorCompileOnBuild>true</RazorCompileOnBuild>
+    </PropertyGroup>
+    <Message Text="Validating Razor views for compilation errors..." Importance="high" />
+  </Target>
 
 </Project>

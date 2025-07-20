@@ -1,6 +1,6 @@
-﻿using XtremeIdiots.Portal.Web.Models;
-using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
+﻿using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Maps;
+using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.ViewModels;
 

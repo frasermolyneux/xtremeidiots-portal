@@ -1,6 +1,6 @@
 ﻿@using XtremeIdiots.Portal.Web.Extensions
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -17,12 +17,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
     <title>@ViewData["Title"] - XI Portal</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="description" content="XtremeIdiots Portal - Game servers management and administration">
+    <meta name="description"
+        content="@(ViewData["Description"] ?? "XtremeIdiots Portal - Game servers management and administration")">
     <meta name="theme-color" content="#1ab394">
 
     @if (IsSectionDefined("Styles"))
     {
-        @RenderSection("Styles", false)
+        @await RenderSectionAsync("Styles", false)
     }
 
     <environment names="Development">
@@ -104,7 +105,7 @@
         <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
     </environment>
 
-    @RenderSection("scripts", false)
+    @await RenderSectionAsync("scripts", false)
 </body>
 
 </html>

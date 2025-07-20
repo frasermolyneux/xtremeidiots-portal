@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using XtremeIdiots.Portal.Web.Auth.XtremeIdiots;
 
 namespace XtremeIdiots.Portal.Web.Controllers;

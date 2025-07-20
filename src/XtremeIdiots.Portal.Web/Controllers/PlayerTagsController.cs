@@ -142,11 +142,13 @@ public class PlayerTagsController(
                 {
                     model.Player = playerResponse.Result.Data;
                 }
+
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
                 {
                     model.AvailableTags = [.. tagsResponse.Result.Data.Items.Where(t => t.UserDefined)];
                 }
+
                 return View(model);
             }
 
@@ -313,6 +315,7 @@ public class PlayerTagsController(
 
                 return Unauthorized();
             }
+
             var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
             if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
             {

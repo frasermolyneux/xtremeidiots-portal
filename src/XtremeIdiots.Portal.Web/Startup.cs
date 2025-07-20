@@ -3,15 +3,14 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using MX.GeoLocation.Api.Client.V1;
 using XtremeIdiots.InvisionCommunity;
-using XtremeIdiots.Portal.Web.Areas.Identity.Data;
-using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Integrations.Forums;
 using XtremeIdiots.Portal.Integrations.Forums.Extensions;
-using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
-using MX.GeoLocation.Api.Client.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Web.Areas.Identity.Data;
+using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web;
 
@@ -76,7 +75,13 @@ public class Startup(IConfiguration configuration)
                     .AllowCredentials());
         });
 
-        services.AddControllersWithViews().AddRazorRuntimeCompilation();
+        // Add MVC with conditional Razor runtime compilation
+        var mvcBuilder = services.AddControllersWithViews();
+
+#if DEBUG
+        // Only add runtime compilation in Debug builds for development productivity
+        mvcBuilder.AddRazorRuntimeCompilation();
+#endif
 
         services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.IsEssential = true);
 

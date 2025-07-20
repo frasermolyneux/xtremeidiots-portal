@@ -4,10 +4,21 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ViewComponents;
 
-public class PlayerTagsViewComponent(IRepositoryApiClient repositoryApiClient) : ViewComponent
+/// <summary>
+/// View component that displays tags associated with a specific player
+/// </summary>
+public class PlayerTagsViewComponent(
+    IRepositoryApiClient repositoryApiClient,
+    ILogger<PlayerTagsViewComponent> logger) : ViewComponent
 {
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly ILogger<PlayerTagsViewComponent> logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+    /// <summary>
+    /// Invokes the view component to display player tags
+    /// </summary>
+    /// <param name="playerId">The unique identifier of the player whose tags to display</param>
+    /// <returns>A view component result containing the player's tags</returns>
     public async Task<IViewComponentResult> InvokeAsync(Guid playerId)
     {
         try
@@ -18,11 +29,13 @@ public class PlayerTagsViewComponent(IRepositoryApiClient repositoryApiClient) :
             {
                 if (playerTagsResponse.Result?.Errors is not null && playerTagsResponse.Result.Errors.Length != 0)
                 {
-                    Console.WriteLine($"Error retrieving player tags for playerId {playerId}: {string.Join(", ", playerTagsResponse.Result.Errors.Select(e => e.Message))}");
+                    logger.LogWarning("Error retrieving player tags for playerId {PlayerId}: {Errors}",
+                        playerId, string.Join(", ", playerTagsResponse.Result.Errors.Select(e => e.Message)));
                 }
                 else
                 {
-                    Console.WriteLine($"Failed to retrieve player tags for playerId {playerId}. Status: {playerTagsResponse.StatusCode}");
+                    logger.LogWarning("Failed to retrieve player tags for playerId {PlayerId}. Status: {StatusCode}",
+                        playerId, playerTagsResponse.StatusCode);
                 }
 
                 ViewBag.PlayerId = playerId;
@@ -34,7 +47,7 @@ public class PlayerTagsViewComponent(IRepositoryApiClient repositoryApiClient) :
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Exception retrieving player tags for playerId {playerId}: {ex.Message}");
+            logger.LogError(ex, "Exception retrieving player tags for playerId {PlayerId}", playerId);
             ViewBag.PlayerId = playerId;
             return View(new List<PlayerTagDto>());
         }

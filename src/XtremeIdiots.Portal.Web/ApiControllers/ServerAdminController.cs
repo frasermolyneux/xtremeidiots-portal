@@ -12,6 +12,9 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
+/// <summary>
+/// Provides REST API endpoints for server administration functions including chat log retrieval
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
 [Route("ServerAdmin")]
 public class ServerAdminController(
@@ -24,6 +27,12 @@ public class ServerAdminController(
     private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
+    /// <summary>
+    /// Retrieves chat log data for all games using AJAX DataTable format
+    /// </summary>
+    /// <param name="lockedOnly">Optional filter to show only locked chat messages</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON response formatted for DataTables with chat log data</returns>
     [HttpPost("GetChatLogAjax")]
     [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
     [ValidateAntiForgeryToken]
@@ -32,6 +41,13 @@ public class ServerAdminController(
         return await ExecuteWithErrorHandlingAsync(async () => await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken), "GetChatLogAjax");
     }
 
+    /// <summary>
+    /// Retrieves chat log data for a specific game type using AJAX DataTable format
+    /// </summary>
+    /// <param name="id">The game type to filter chat messages by</param>
+    /// <param name="lockedOnly">Optional filter to show only locked chat messages</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON response formatted for DataTables with chat log data</returns>
     [HttpPost("GetGameChatLogAjax")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
@@ -51,6 +67,14 @@ public class ServerAdminController(
         }, "GetGameChatLogAjax");
     }
 
+    /// <summary>
+    /// Retrieves chat log data for a specific game server using AJAX DataTable format
+    /// </summary>
+    /// <param name="id">The game server ID to filter chat messages by</param>
+    /// <param name="lockedOnly">Optional filter to show only locked chat messages</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON response formatted for DataTables with chat log data</returns>
+    /// <exception cref="NotFoundException">Thrown when the specified game server is not found</exception>
     [HttpPost("GetServerChatLogAjax")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)

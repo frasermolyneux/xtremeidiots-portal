@@ -53,7 +53,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/DataController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/HealthCheckController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/PlayerAnalyticsController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ApiControllers/PlayerAnalyticsController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ServerAdminController.cs`
 
 ### Authorization System
@@ -62,7 +62,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/GameServersAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/HomeAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/MapsAuthRequirements.cs`
@@ -103,7 +103,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/AddPlayerTagViewModel.cs`
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateMapPackViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateMapPackViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateProtectedNameViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/CreateTagViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/DeleteMapFromHostModel.cs`

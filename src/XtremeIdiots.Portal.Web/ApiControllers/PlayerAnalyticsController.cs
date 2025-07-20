@@ -8,6 +8,13 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
+/// <summary>
+/// API controller for player analytics data endpoints
+/// </summary>
+/// <remarks>
+/// Provides JSON endpoints for various player analytics charts and graphs
+/// including cumulative players, new players per game, and player drop-off rates
+/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
 [Route("PlayerAnalytics")]
 public class PlayerAnalyticsController(
@@ -18,6 +25,12 @@ public class PlayerAnalyticsController(
 {
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
+    /// <summary>
+    /// Gets cumulative daily players data for analytics charts
+    /// </summary>
+    /// <param name="cutoff">The date from which to retrieve data</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data containing cumulative daily player counts</returns>
     [HttpGet("GetCumulativeDailyPlayersJson")]
     public async Task<IActionResult> GetCumulativeDailyPlayersJson(DateTime cutoff, CancellationToken cancellationToken = default)
     {
@@ -39,6 +52,12 @@ public class PlayerAnalyticsController(
         }, "GetCumulativeDailyPlayersJson", $"cutoff: {cutoff}");
     }
 
+    /// <summary>
+    /// Gets new daily players per game data for analytics charts
+    /// </summary>
+    /// <param name="cutoff">The date from which to retrieve data</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data containing new daily player counts broken down by game</returns>
     [HttpGet("GetNewDailyPlayersPerGameJson")]
     public async Task<IActionResult> GetNewDailyPlayersPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
     {
@@ -60,6 +79,12 @@ public class PlayerAnalyticsController(
         }, "GetNewDailyPlayersPerGameJson", $"cutoff: {cutoff}");
     }
 
+    /// <summary>
+    /// Gets players drop-off per game data for analytics charts
+    /// </summary>
+    /// <param name="cutoff">The date from which to retrieve data</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data containing player drop-off rates broken down by game</returns>
     [HttpGet("GetPlayersDropOffPerGameJson")]
     public async Task<IActionResult> GetPlayersDropOffPerGameJson(DateTime cutoff, CancellationToken cancellationToken = default)
     {

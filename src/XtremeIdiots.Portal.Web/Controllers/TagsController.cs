@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
@@ -22,282 +14,282 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 [Authorize(Policy = AuthPolicies.AccessPlayerTags)]
 public class TagsController : BaseController
 {
- private readonly IAuthorizationService authorizationService;
- private readonly IRepositoryApiClient repositoryApiClient;
+    private readonly IAuthorizationService authorizationService;
+    private readonly IRepositoryApiClient repositoryApiClient;
 
- public TagsController(
- IAuthorizationService authorizationService,
- IRepositoryApiClient repositoryApiClient,
- TelemetryClient telemetryClient,
- ILogger<TagsController> logger,
- IConfiguration configuration)
- : base(telemetryClient, logger, configuration)
- {
- this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
- this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
- }
+    public TagsController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<TagsController> logger,
+    IConfiguration configuration)
+    : base(telemetryClient, logger, configuration)
+    {
+        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    }
 
- private async Task<(IActionResult? ActionResult, TagDto? Data)> GetAuthorizedTagAsync(
- Guid id,
- string policy,
- string action,
- CancellationToken cancellationToken = default)
- {
- var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id, cancellationToken);
+    private async Task<(IActionResult? ActionResult, TagDto? Data)> GetAuthorizedTagAsync(
+    Guid id,
+    string policy,
+    string action,
+    CancellationToken cancellationToken = default)
+    {
+        var tagResponse = await repositoryApiClient.Tags.V1.GetTag(id, cancellationToken);
 
- if (tagResponse.IsNotFound || tagResponse.Result?.Data is null)
- {
- Logger.LogWarning("Tag {TagId} not found when {Action}", id, action);
- return (NotFound(), null);
- }
+        if (tagResponse.IsNotFound || tagResponse.Result?.Data is null)
+        {
+            Logger.LogWarning("Tag {TagId} not found when {Action}", id, action);
+            return (NotFound(), null);
+        }
 
- if (!tagResponse.IsSuccess)
- {
- Logger.LogWarning("Failed to retrieve tag {TagId} for {Action}", id, action);
- return (RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 }), null);
- }
+        if (!tagResponse.IsSuccess)
+        {
+            Logger.LogWarning("Failed to retrieve tag {TagId} for {Action}", id, action);
+            return (RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 }), null);
+        }
 
- var tagData = tagResponse.Result.Data;
- var authResult = await CheckAuthorizationAsync(
- authorizationService,
- tagData,
- policy,
- action,
- nameof(PlayerTagsController),
- $"TagId:{id},TagName:{tagData.Name}",
- tagData);
+        var tagData = tagResponse.Result.Data;
+        var authResult = await CheckAuthorizationAsync(
+        authorizationService,
+        tagData,
+        policy,
+        action,
+        nameof(PlayerTagsController),
+        $"TagId:{id},TagName:{tagData.Name}",
+        tagData);
 
- return authResult is not null ? (authResult, null) : (null, tagData);
- }
+        return authResult is not null ? (authResult, null) : (null, tagData);
+    }
 
- [HttpGet]
- public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100, cancellationToken);
 
- if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
- {
- Logger.LogWarning("Failed to retrieve tags for user {UserId}", User.XtremeIdiotsId());
- return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
- }
+            if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve tags for user {UserId}", User.XtremeIdiotsId());
+                return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+            }
 
- var model = new TagsViewModel
- {
- Tags = tagsResponse.Result.Data.Items.ToList(),
- };
+            var model = new TagsViewModel
+            {
+                Tags = tagsResponse.Result.Data.Items.ToList(),
+            };
 
- return View(model);
- }, nameof(Index));
- }
+            return View(model);
+        }, nameof(Index));
+    }
 
- [HttpGet]
- [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
- public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var canCreateTag = await authorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag);
+    [HttpGet]
+    [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
+    public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var canCreateTag = await authorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag);
 
- if (!canCreateTag.Succeeded)
- {
- TrackUnauthorizedAccessAttempt(nameof(Create), nameof(PlayerTagsController), "AccessCreateForm");
- return Unauthorized();
- }
+            if (!canCreateTag.Succeeded)
+            {
+                TrackUnauthorizedAccessAttempt(nameof(Create), nameof(PlayerTagsController), "AccessCreateForm");
+                return Unauthorized();
+            }
 
- return View(new CreateTagViewModel());
- }, nameof(Create));
- }
+            return View(new CreateTagViewModel());
+        }, nameof(Create));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
- public async Task<IActionResult> Create(CreateTagViewModel model, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var modelValidationResult = CheckModelState(model);
- if (modelValidationResult is not null) return modelValidationResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
+    public async Task<IActionResult> Create(CreateTagViewModel model, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var modelValidationResult = CheckModelState(model);
+            if (modelValidationResult is not null) return modelValidationResult;
 
- var canCreateTag = await authorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag);
+            var canCreateTag = await authorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag);
 
- if (!canCreateTag.Succeeded)
- {
- TrackUnauthorizedAccessAttempt(nameof(Create), nameof(PlayerTagsController), $"TagName:{model.Name}");
- this.AddAlertDanger("You do not have permission to create player tags");
- return View(model);
- }
+            if (!canCreateTag.Succeeded)
+            {
+                TrackUnauthorizedAccessAttempt(nameof(Create), nameof(PlayerTagsController), $"TagName:{model.Name}");
+                this.AddAlertDanger("You do not have permission to create player tags");
+                return View(model);
+            }
 
- var createTagDto = new TagDto
- {
- Name = model.Name,
- Description = model.Description,
- TagHtml = model.TagHtml,
- UserDefined = model.UserDefined
- };
+            var createTagDto = new TagDto
+            {
+                Name = model.Name,
+                Description = model.Description,
+                TagHtml = model.TagHtml,
+                UserDefined = model.UserDefined
+            };
 
- var response = await repositoryApiClient.Tags.V1.CreateTag(createTagDto, cancellationToken);
+            var response = await repositoryApiClient.Tags.V1.CreateTag(createTagDto, cancellationToken);
 
- if (!response.IsSuccess)
- {
- Logger.LogWarning("Failed to create tag '{TagName}' for user {UserId}",
- model.Name, User.XtremeIdiotsId());
- this.AddAlertDanger($"Failed to create tag '{model.Name}'. Please try again.");
- return View(model);
- }
+            if (!response.IsSuccess)
+            {
+                Logger.LogWarning("Failed to create tag '{TagName}' for user {UserId}",
+         model.Name, User.XtremeIdiotsId());
+                this.AddAlertDanger($"Failed to create tag '{model.Name}'. Please try again.");
+                return View(model);
+            }
 
- TrackSuccessTelemetry("TagCreated", nameof(Create), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("TagCreated", nameof(Create), new Dictionary<string, string>
+        {
  { "TagName", model.Name },
  { "UserDefined", model.UserDefined.ToString() }
- });
+        });
 
- this.AddAlertSuccess($"The tag '{model.Name}' has been successfully created");
+            this.AddAlertSuccess($"The tag '{model.Name}' has been successfully created");
 
- return RedirectToAction(nameof(Index));
- }, nameof(Create));
- }
+            return RedirectToAction(nameof(Index));
+        }, nameof(Create));
+    }
 
- [HttpGet]
- [Authorize(Policy = AuthPolicies.EditPlayerTag)]
- public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpGet]
+    [Authorize(Policy = AuthPolicies.EditPlayerTag)]
+    public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- var model = new EditTagViewModel
- {
- TagId = tagData!.TagId,
- Name = tagData.Name,
- Description = tagData.Description,
- TagHtml = tagData.TagHtml,
- UserDefined = tagData.UserDefined
- };
+            var model = new EditTagViewModel
+            {
+                TagId = tagData!.TagId,
+                Name = tagData.Name,
+                Description = tagData.Description,
+                TagHtml = tagData.TagHtml,
+                UserDefined = tagData.UserDefined
+            };
 
- return View(model);
- }, nameof(Edit));
- }
+            return View(model);
+        }, nameof(Edit));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- [Authorize(Policy = AuthPolicies.EditPlayerTag)]
- public async Task<IActionResult> Edit(EditTagViewModel model, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var modelValidationResult = CheckModelState(model);
- if (modelValidationResult is not null) return modelValidationResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = AuthPolicies.EditPlayerTag)]
+    public async Task<IActionResult> Edit(EditTagViewModel model, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var modelValidationResult = CheckModelState(model);
+            if (modelValidationResult is not null) return modelValidationResult;
 
- var (actionResult, originalTagData) = await GetAuthorizedTagAsync(model.TagId, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
- if (actionResult is not null)
- {
- if (actionResult is UnauthorizedResult)
- {
- this.AddAlertDanger("You do not have permission to edit this tag");
- return View(model);
- }
- return actionResult;
- }
+            var (actionResult, originalTagData) = await GetAuthorizedTagAsync(model.TagId, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
+            if (actionResult is not null)
+            {
+                if (actionResult is UnauthorizedResult)
+                {
+                    this.AddAlertDanger("You do not have permission to edit this tag");
+                    return View(model);
+                }
+                return actionResult;
+            }
 
- var tagDto = new TagDto
- {
- TagId = model.TagId,
- Name = model.Name,
- Description = model.Description,
- TagHtml = model.TagHtml,
- UserDefined = model.UserDefined
- };
+            var tagDto = new TagDto
+            {
+                TagId = model.TagId,
+                Name = model.Name,
+                Description = model.Description,
+                TagHtml = model.TagHtml,
+                UserDefined = model.UserDefined
+            };
 
- var response = await repositoryApiClient.Tags.V1.UpdateTag(tagDto, cancellationToken);
+            var response = await repositoryApiClient.Tags.V1.UpdateTag(tagDto, cancellationToken);
 
- if (!response.IsSuccess)
- {
- Logger.LogWarning("Failed to update tag {TagId} '{TagName}' for user {UserId}",
- model.TagId, model.Name, User.XtremeIdiotsId());
- this.AddAlertDanger($"Failed to update tag '{model.Name}'. Please try again.");
- return View(model);
- }
+            if (!response.IsSuccess)
+            {
+                Logger.LogWarning("Failed to update tag {TagId} '{TagName}' for user {UserId}",
+         model.TagId, model.Name, User.XtremeIdiotsId());
+                this.AddAlertDanger($"Failed to update tag '{model.Name}'. Please try again.");
+                return View(model);
+            }
 
- TrackSuccessTelemetry("TagUpdated", nameof(Edit), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("TagUpdated", nameof(Edit), new Dictionary<string, string>
+        {
  { "TagName", model.Name },
  { "TagId", model.TagId.ToString() },
  { "UserDefined", model.UserDefined.ToString() }
- });
+        });
 
- this.AddAlertSuccess($"The tag '{model.Name}' has been successfully updated");
+            this.AddAlertSuccess($"The tag '{model.Name}' has been successfully updated");
 
- return RedirectToAction(nameof(Index));
- }, nameof(Edit));
- }
+            return RedirectToAction(nameof(Index));
+        }, nameof(Edit));
+    }
 
- [HttpGet]
- [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
- public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.DeletePlayerTag, nameof(Delete), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpGet]
+    [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.DeletePlayerTag, nameof(Delete), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- return View(tagData);
- }, nameof(Delete));
- }
+            return View(tagData);
+        }, nameof(Delete));
+    }
 
- [HttpPost]
- [ActionName(nameof(Delete))]
- [ValidateAntiForgeryToken]
- [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
- public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.DeletePlayerTag, nameof(Delete), cancellationToken);
- if (actionResult is not null)
- {
- if (actionResult is UnauthorizedResult)
- {
- this.AddAlertDanger($"You do not have permission to delete this tag");
- return RedirectToAction(nameof(Index));
- }
- return actionResult;
- }
+    [HttpPost]
+    [ActionName(nameof(Delete))]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
+    public async Task<IActionResult> DeleteConfirmed(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.DeletePlayerTag, nameof(Delete), cancellationToken);
+            if (actionResult is not null)
+            {
+                if (actionResult is UnauthorizedResult)
+                {
+                    this.AddAlertDanger($"You do not have permission to delete this tag");
+                    return RedirectToAction(nameof(Index));
+                }
+                return actionResult;
+            }
 
- if (!tagData!.UserDefined)
- {
- if (!User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
- {
- TrackUnauthorizedAccessAttempt(nameof(Delete), "SystemPlayerTag",
- $"TagId:{id},TagName:{tagData.Name},RequiresSeniorAdmin:true");
+            if (!tagData!.UserDefined)
+            {
+                if (!User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))
+                {
+                    TrackUnauthorizedAccessAttempt(nameof(Delete), "SystemPlayerTag",
+             $"TagId:{id},TagName:{tagData.Name},RequiresSeniorAdmin:true");
 
- this.AddAlertDanger($"You do not have permission to delete the system tag '{tagData.Name}'");
- return RedirectToAction(nameof(Index));
- }
- }
+                    this.AddAlertDanger($"You do not have permission to delete the system tag '{tagData.Name}'");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
- var response = await repositoryApiClient.Tags.V1.DeleteTag(id, cancellationToken);
+            var response = await repositoryApiClient.Tags.V1.DeleteTag(id, cancellationToken);
 
- if (!response.IsSuccess)
- {
- Logger.LogWarning("Failed to delete tag {TagId} '{TagName}' for user {UserId}",
- id, tagData.Name, User.XtremeIdiotsId());
- this.AddAlertDanger($"Failed to delete tag '{tagData.Name}'. Please try again.");
- return RedirectToAction(nameof(Index));
- }
+            if (!response.IsSuccess)
+            {
+                Logger.LogWarning("Failed to delete tag {TagId} '{TagName}' for user {UserId}",
+         id, tagData.Name, User.XtremeIdiotsId());
+                this.AddAlertDanger($"Failed to delete tag '{tagData.Name}'. Please try again.");
+                return RedirectToAction(nameof(Index));
+            }
 
- TrackSuccessTelemetry("TagDeleted", nameof(Delete), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("TagDeleted", nameof(Delete), new Dictionary<string, string>
+        {
  { "TagName", tagData.Name },
  { "TagId", id.ToString() },
  { "UserDefined", tagData.UserDefined.ToString() }
- });
+        });
 
- this.AddAlertSuccess($"The tag '{tagData.Name}' has been successfully deleted");
+            this.AddAlertSuccess($"The tag '{tagData.Name}' has been successfully deleted");
 
- return RedirectToAction(nameof(Index));
- }, nameof(DeleteConfirmed));
- }
+            return RedirectToAction(nameof(Index));
+        }, nameof(DeleteConfirmed));
+    }
 }

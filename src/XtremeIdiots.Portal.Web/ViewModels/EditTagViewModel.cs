@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
-
 namespace XtremeIdiots.Portal.Web.ViewModels
 {
     public class EditTagViewModel

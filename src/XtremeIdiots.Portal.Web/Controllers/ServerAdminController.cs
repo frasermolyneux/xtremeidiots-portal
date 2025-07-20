@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
@@ -28,498 +19,498 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
 public class ServerAdminController : BaseController
 {
- private readonly IAuthorizationService _authorizationService;
- private readonly IRepositoryApiClient _repositoryApiClient;
- private readonly IServersApiClient _serversApiClient;
+    private readonly IAuthorizationService _authorizationService;
+    private readonly IRepositoryApiClient _repositoryApiClient;
+    private readonly IServersApiClient _serversApiClient;
 
- public ServerAdminController(
- IAuthorizationService authorizationService,
- IRepositoryApiClient repositoryApiClient,
- IServersApiClient serversApiClient,
- TelemetryClient telemetryClient,
- ILogger<ServerAdminController> logger,
- IConfiguration configuration) : base(telemetryClient, logger, configuration)
- {
- _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
- _repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
- _serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
- }
+    public ServerAdminController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IServersApiClient serversApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ServerAdminController> logger,
+    IConfiguration configuration) : base(telemetryClient, logger, configuration)
+    {
+        _authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        _repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+        _serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
+    }
 
- [HttpGet]
- public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
- var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.ServerAdmin };
+            var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
- var gameServersApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServers(
- gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50,
- GameServerOrder.BannerServerListPosition, cancellationToken);
+            var gameServersApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServers(
+     gameTypes, gameServerIds, GameServerFilter.LiveTrackingEnabled, 0, 50,
+     GameServerOrder.BannerServerListPosition, cancellationToken);
 
- if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
- {
- Logger.LogError("Failed to retrieve game servers for server admin dashboard for user {UserId}", User.XtremeIdiotsId());
- return RedirectToAction("Display", "Errors", new { id = 500 });
- }
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogError("Failed to retrieve game servers for server admin dashboard for user {UserId}", User.XtremeIdiotsId());
+                return RedirectToAction("Display", "Errors", new { id = 500 });
+            }
 
- var results = gameServersApiResponse.Result.Data.Items.Select(gs => new ServerAdminGameServerViewModel
- {
- GameServer = gs,
- GameServerQueryStatus = new ServerQueryStatusResponseDto(),
- GameServerRconStatus = new ServerRconStatusResponseDto()
- }).ToList();
+            var results = gameServersApiResponse.Result.Data.Items.Select(gs => new ServerAdminGameServerViewModel
+            {
+                GameServer = gs,
+                GameServerQueryStatus = new ServerQueryStatusResponseDto(),
+                GameServerRconStatus = new ServerRconStatusResponseDto()
+            }).ToList();
 
- Logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",
- results.Count, User.XtremeIdiotsId());
+            Logger.LogInformation("Successfully loaded {Count} game servers for user {UserId} server admin dashboard",
+     results.Count, User.XtremeIdiotsId());
 
- return View(results);
- }, nameof(Index));
- }
+            return View(results);
+        }, nameof(Index));
+    }
 
- private async Task<(IActionResult? ActionResult, GameServerDto? GameServer)> GetAuthorizedGameServerAsync(
- Guid id,
- string action,
- CancellationToken cancellationToken = default)
- {
- var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+    private async Task<(IActionResult? ActionResult, GameServerDto? GameServer)> GetAuthorizedGameServerAsync(
+    Guid id,
+    string action,
+    CancellationToken cancellationToken = default)
+    {
+        var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
- if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Game server {ServerId} not found when {Action}", id, action);
- return (NotFound(), null);
- }
+        if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
+        {
+            Logger.LogWarning("Game server {ServerId} not found when {Action}", id, action);
+            return (NotFound(), null);
+        }
 
- var gameServerData = gameServerApiResponse.Result.Data;
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- gameServerData.GameType,
- AuthPolicies.ViewLiveRcon,
- action,
- "GameServer",
- $"ServerId:{id},GameType:{gameServerData.GameType}",
- gameServerData);
+        var gameServerData = gameServerApiResponse.Result.Data;
+        var authResult = await CheckAuthorizationAsync(
+        _authorizationService,
+        gameServerData.GameType,
+        AuthPolicies.ViewLiveRcon,
+        action,
+        "GameServer",
+        $"ServerId:{id},GameType:{gameServerData.GameType}",
+        gameServerData);
 
- return authResult is not null ? (authResult, null) : (null, gameServerData);
- }
+        return authResult is not null ? (authResult, null) : (null, gameServerData);
+    }
 
- [HttpGet]
- public async Task<IActionResult> ViewRcon(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(ViewRcon), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpGet]
+    public async Task<IActionResult> ViewRcon(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(ViewRcon), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- return View(gameServerData);
- }, nameof(ViewRcon));
- }
+            return View(gameServerData);
+        }, nameof(ViewRcon));
+    }
 
- [HttpGet]
- public async Task<IActionResult> GetRconPlayers(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(GetRconPlayers), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpGet]
+    public async Task<IActionResult> GetRconPlayers(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(GetRconPlayers), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- var getServerStatusResult = await _serversApiClient.Rcon.V1.GetServerStatus(id);
+            var getServerStatusResult = await _serversApiClient.Rcon.V1.GetServerStatus(id);
 
- return Json(new
- {
- data = (getServerStatusResult.IsSuccess && getServerStatusResult.Result?.Data is not null)
- ? getServerStatusResult.Result.Data.Players
- : null
- });
- }, nameof(GetRconPlayers));
- }
+            return Json(new
+            {
+                data = (getServerStatusResult.IsSuccess && getServerStatusResult.Result?.Data is not null)
+     ? getServerStatusResult.Result.Data.Players
+     : null
+            });
+        }, nameof(GetRconPlayers));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> RestartServer(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(RestartServer), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RestartServer(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(RestartServer), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- TrackSuccessTelemetry("ServerRestarted", nameof(RestartServer), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("ServerRestarted", nameof(RestartServer), new Dictionary<string, string>
+        {
  { "ServerId", id.ToString() },
  { "GameType", gameServerData!.GameType.ToString() }
- });
+        });
 
- return Json(new
- {
- Success = true
- });
- }, nameof(RestartServer));
- }
+            return Json(new
+            {
+                Success = true
+            });
+        }, nameof(RestartServer));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> RestartMap(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartMap", cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RestartMap(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartMap", cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
+        {
  { "ServerId", id.ToString() },
  { "GameType", gameServerData!.GameType.ToString() }
- });
+        });
 
- return Json(new
- {
- Success = true
- });
- }, "RestartMap");
- }
+            return Json(new
+            {
+                Success = true
+            });
+        }, "RestartMap");
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> FastRestartMap(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "FastRestartMap", cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FastRestartMap(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "FastRestartMap", cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
+        {
  { "ServerId", id.ToString() },
  { "GameType", gameServerData!.GameType.ToString() }
- });
+        });
 
- return Json(new
- {
- Success = true
- });
- }, "FastRestartMap");
- }
+            return Json(new
+            {
+                Success = true
+            });
+        }, "FastRestartMap");
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> NextMap(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "NextMap", cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> NextMap(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "NextMap", cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
+        {
  { "ServerId", id.ToString() },
  { "GameType", gameServerData!.GameType.ToString() }
- });
+        });
 
- return Json(new
- {
- Success = true
- });
- }, "NextMap");
- }
+            return Json(new
+            {
+                Success = true
+            });
+        }, "NextMap");
+    }
 
- [HttpGet]
- public async Task<IActionResult> KickPlayer(Guid id, string num, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(KickPlayer), cancellationToken);
- if (actionResult is not null) return actionResult;
+    [HttpGet]
+    public async Task<IActionResult> KickPlayer(Guid id, string num, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(KickPlayer), cancellationToken);
+            if (actionResult is not null) return actionResult;
 
- if (string.IsNullOrWhiteSpace(num))
- {
- Logger.LogWarning("Invalid player slot number provided by user {UserId} for server {ServerId}: {PlayerSlot}",
- User.XtremeIdiotsId(), id, num);
- return NotFound();
- }
+            if (string.IsNullOrWhiteSpace(num))
+            {
+                Logger.LogWarning("Invalid player slot number provided by user {UserId} for server {ServerId}: {PlayerSlot}",
+         User.XtremeIdiotsId(), id, num);
+                return NotFound();
+            }
 
- this.AddAlertSuccess($"Player in slot {num} has been kicked");
+            this.AddAlertSuccess($"Player in slot {num} has been kicked");
 
- TrackSuccessTelemetry("PlayerKicked", nameof(KickPlayer), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("PlayerKicked", nameof(KickPlayer), new Dictionary<string, string>
+        {
  { "ServerId", id.ToString() },
  { "PlayerSlot", num },
  { "GameType", gameServerData!.GameType.ToString() }
- });
+        });
 
- return RedirectToAction(nameof(ViewRcon), new { id });
- }, nameof(KickPlayer));
- }
+            return RedirectToAction(nameof(ViewRcon), new { id });
+        }, nameof(KickPlayer));
+    }
 
- [HttpGet]
- [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
- public IActionResult ChatLogIndex()
- {
- return ExecuteWithErrorHandlingAsync(async () =>
- {
- return await Task.FromResult(View());
- }, nameof(ChatLogIndex)).Result;
- }
+    [HttpGet]
+    [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
+    public IActionResult ChatLogIndex()
+    {
+        return ExecuteWithErrorHandlingAsync(async () =>
+        {
+            return await Task.FromResult(View());
+        }, nameof(ChatLogIndex)).Result;
+    }
 
- [HttpPost]
- [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> GetChatLogAjax(bool? lockedOnly = null, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- return await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken);
- }, "GetChatLogAjax");
- }
+    [HttpPost]
+    [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GetChatLogAjax(bool? lockedOnly = null, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            return await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken);
+        }, "GetChatLogAjax");
+    }
 
- [HttpGet]
- public async Task<IActionResult> GameChatLog(GameType id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- id,
- AuthPolicies.ViewGameChatLog,
- "View",
- "GameChatLog",
- $"GameType:{id}",
- id);
+    [HttpGet]
+    public async Task<IActionResult> GameChatLog(GameType id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     id,
+     AuthPolicies.ViewGameChatLog,
+     "View",
+     "GameChatLog",
+     $"GameType:{id}",
+     id);
 
- if (authResult != null) return authResult;
+            if (authResult != null) return authResult;
 
- ViewData["GameType"] = id;
- return View(nameof(ChatLogIndex));
- }, "GameChatLog");
- }
+            ViewData["GameType"] = id;
+            return View(nameof(ChatLogIndex));
+        }, "GameChatLog");
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- id,
- AuthPolicies.ViewGameChatLog,
- "GetGameChatLogAjax",
- "GameChatLog",
- $"GameType:{id}",
- id);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     id,
+     AuthPolicies.ViewGameChatLog,
+     "GetGameChatLogAjax",
+     "GameChatLog",
+     $"GameType:{id}",
+     id);
 
- if (authResult != null) return authResult;
+            if (authResult != null) return authResult;
 
- return await GetChatLogPrivate(id, null, null, lockedOnly, cancellationToken);
- }, "GetGameChatLogAjax");
- }
+            return await GetChatLogPrivate(id, null, null, lockedOnly, cancellationToken);
+        }, "GetGameChatLogAjax");
+    }
 
- [HttpGet]
- public async Task<IActionResult> ServerChatLog(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> ServerChatLog(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
- if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Game server {ServerId} not found when accessing server chat log", id);
- return NotFound();
- }
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
+            {
+                Logger.LogWarning("Game server {ServerId} not found when accessing server chat log", id);
+                return NotFound();
+            }
 
- var gameServerData = gameServerApiResponse.Result.Data;
+            var gameServerData = gameServerApiResponse.Result.Data;
 
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- gameServerData.GameType,
- AuthPolicies.ViewServerChatLog,
- "View",
- "ServerChatLog",
- $"ServerId:{id},GameType:{gameServerData.GameType}",
- gameServerData);
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     gameServerData.GameType,
+     AuthPolicies.ViewServerChatLog,
+     "View",
+     "ServerChatLog",
+     $"ServerId:{id},GameType:{gameServerData.GameType}",
+     gameServerData);
 
- if (authResult != null) return authResult;
+            if (authResult != null) return authResult;
 
- ViewData["GameServerId"] = id;
- return View(nameof(ChatLogIndex));
- }, nameof(ServerChatLog));
- }
+            ViewData["GameServerId"] = id;
+            return View(nameof(ChatLogIndex));
+        }, nameof(ServerChatLog));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var gameServerApiResponse = await _repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
- if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Game server {ServerId} not found when getting server chat log data", id);
- return NotFound();
- }
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
+            {
+                Logger.LogWarning("Game server {ServerId} not found when getting server chat log data", id);
+                return NotFound();
+            }
 
- var gameServerData = gameServerApiResponse.Result.Data;
+            var gameServerData = gameServerApiResponse.Result.Data;
 
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- gameServerData.GameType,
- AuthPolicies.ViewServerChatLog,
- "GetServerChatLogAjax",
- "ServerChatLog",
- $"ServerId:{id},GameType:{gameServerData.GameType}",
- gameServerData);
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     gameServerData.GameType,
+     AuthPolicies.ViewServerChatLog,
+     "GetServerChatLogAjax",
+     "ServerChatLog",
+     $"ServerId:{id},GameType:{gameServerData.GameType}",
+     gameServerData);
 
- if (authResult != null) return authResult;
+            if (authResult != null) return authResult;
 
- return await GetChatLogPrivate(null, id, null, lockedOnly, cancellationToken);
- }, nameof(GetServerChatLogAjax));
- }
+            return await GetChatLogPrivate(null, id, null, lockedOnly, cancellationToken);
+        }, nameof(GetServerChatLogAjax));
+    }
 
- [HttpPost]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var playerApiResponse = await _repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var playerApiResponse = await _repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
- if (playerApiResponse.IsNotFound || playerApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Player {PlayerId} not found when getting player chat log data", id);
- return NotFound();
- }
+            if (playerApiResponse.IsNotFound || playerApiResponse.Result?.Data is null)
+            {
+                Logger.LogWarning("Player {PlayerId} not found when getting player chat log data", id);
+                return NotFound();
+            }
 
- var playerData = playerApiResponse.Result.Data;
+            var playerData = playerApiResponse.Result.Data;
 
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- playerData.GameType,
- AuthPolicies.ViewGameChatLog,
- "GetPlayerChatLog",
- "PlayerChatLog",
- $"PlayerId:{id},GameType:{playerData.GameType}",
- playerData);
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     playerData.GameType,
+     AuthPolicies.ViewGameChatLog,
+     "GetPlayerChatLog",
+     "PlayerChatLog",
+     $"PlayerId:{id},GameType:{playerData.GameType}",
+     playerData);
 
- if (authResult is not null) return authResult;
+            if (authResult is not null) return authResult;
 
- return await GetChatLogPrivate(playerData.GameType, null, playerData.PlayerId, lockedOnly, cancellationToken);
- }, nameof(GetPlayerChatLog));
- }
+            return await GetChatLogPrivate(playerData.GameType, null, playerData.PlayerId, lockedOnly, cancellationToken);
+        }, nameof(GetPlayerChatLog));
+    }
 
- [HttpGet]
- public async Task<IActionResult> ChatLogPermaLink(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> ChatLogPermaLink(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
- if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Chat message {MessageId} not found when accessing permalink", id);
- return NotFound();
- }
+            if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data is null)
+            {
+                Logger.LogWarning("Chat message {MessageId} not found when accessing permalink", id);
+                return NotFound();
+            }
 
- return View(chatMessageApiResponse.Result.Data);
- }, nameof(ChatLogPermaLink));
- }
+            return View(chatMessageApiResponse.Result.Data);
+        }, nameof(ChatLogPermaLink));
+    }
 
- [HttpPost]
- [Authorize(Policy = AuthPolicies.LockChatMessages)]
- [ValidateAntiForgeryToken]
- public async Task<IActionResult> ToggleChatMessageLock(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
+    [HttpPost]
+    [Authorize(Policy = AuthPolicies.LockChatMessages)]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleChatMessageLock(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var chatMessageApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessage(id, cancellationToken);
 
- if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer is null)
- {
- Logger.LogWarning("Chat message {MessageId} not found when toggling lock status", id);
- return NotFound();
- }
+            if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer is null)
+            {
+                Logger.LogWarning("Chat message {MessageId} not found when toggling lock status", id);
+                return NotFound();
+            }
 
- var chatMessageData = chatMessageApiResponse.Result.Data;
+            var chatMessageData = chatMessageApiResponse.Result.Data;
 
- var authResult = await CheckAuthorizationAsync(
- _authorizationService,
- chatMessageData.GameServer.GameType,
- AuthPolicies.LockChatMessages,
- "ToggleLock",
- "ChatMessage",
- $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
- chatMessageData);
+            var authResult = await CheckAuthorizationAsync(
+     _authorizationService,
+     chatMessageData.GameServer.GameType,
+     AuthPolicies.LockChatMessages,
+     "ToggleLock",
+     "ChatMessage",
+     $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
+     chatMessageData);
 
- if (authResult != null) return authResult;
+            if (authResult != null) return authResult;
 
- var toggleResponse = await _repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
+            var toggleResponse = await _repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
 
- if (!toggleResponse.IsSuccess)
- {
- Logger.LogError("Failed to toggle lock status for chat message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
- this.AddAlertDanger("An error occurred while updating the chat message lock status.");
- return RedirectToAction(nameof(ChatLogPermaLink), new { id });
- }
+            if (!toggleResponse.IsSuccess)
+            {
+                Logger.LogError("Failed to toggle lock status for chat message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
+                this.AddAlertDanger("An error occurred while updating the chat message lock status.");
+                return RedirectToAction(nameof(ChatLogPermaLink), new { id });
+            }
 
- TrackSuccessTelemetry("ChatMessageLockToggled", nameof(ToggleChatMessageLock), new Dictionary<string, string>
- {
+            TrackSuccessTelemetry("ChatMessageLockToggled", nameof(ToggleChatMessageLock), new Dictionary<string, string>
+        {
  { "MessageId", id.ToString() },
  { "GameType", chatMessageData.GameServer.GameType.ToString() }
- });
+        });
 
- this.AddAlertSuccess("Chat message lock status has been updated successfully.");
- return RedirectToAction(nameof(ChatLogPermaLink), new { id });
- }, nameof(ToggleChatMessageLock));
- }
+            this.AddAlertSuccess("Chat message lock status has been updated successfully.");
+            return RedirectToAction(nameof(ChatLogPermaLink), new { id });
+        }, nameof(ToggleChatMessageLock));
+    }
 
- private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)
- {
- var reader = new StreamReader(Request.Body);
- var requestBody = await reader.ReadToEndAsync(cancellationToken);
+    private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)
+    {
+        var reader = new StreamReader(Request.Body);
+        var requestBody = await reader.ReadToEndAsync(cancellationToken);
 
- var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
+        var model = JsonConvert.DeserializeObject<DataTableAjaxPostModel>(requestBody);
 
- if (model is null)
- {
- Logger.LogWarning("Invalid chat log request model for user {UserId}", User.XtremeIdiotsId());
- return BadRequest();
- }
+        if (model is null)
+        {
+            Logger.LogWarning("Invalid chat log request model for user {UserId}", User.XtremeIdiotsId());
+            return BadRequest();
+        }
 
- var order = ChatMessageOrder.TimestampDesc;
- if (model.Order is not null && model.Order.Any())
- {
- var orderColumn = model.Columns[model.Order.First().Column].Name;
- var searchOrder = model.Order.First().Dir;
+        var order = ChatMessageOrder.TimestampDesc;
+        if (model.Order is not null && model.Order.Any())
+        {
+            var orderColumn = model.Columns[model.Order.First().Column].Name;
+            var searchOrder = model.Order.First().Dir;
 
- switch (orderColumn)
- {
- case "timestamp":
- order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
- break;
- }
- }
+            switch (orderColumn)
+            {
+                case "timestamp":
+                    order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
+                    break;
+            }
+        }
 
- if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
- {
- lockedOnly = true;
- model.Search.Value = model.Search.Value.Substring(7).Trim();
- }
+        if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            lockedOnly = true;
+            model.Search.Value = model.Search.Value.Substring(7).Trim();
+        }
 
- var chatMessagesApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessages(
- gameType, gameServerId, playerId, model.Search?.Value,
- model.Start, model.Length, order, lockedOnly, cancellationToken);
+        var chatMessagesApiResponse = await _repositoryApiClient.ChatMessages.V1.GetChatMessages(
+        gameType, gameServerId, playerId, model.Search?.Value,
+        model.Start, model.Length, order, lockedOnly, cancellationToken);
 
- if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data is null)
- {
- Logger.LogError("Failed to retrieve chat messages for user {UserId}", User.XtremeIdiotsId());
- return RedirectToAction("Display", "Errors", new { id = 500 });
- }
+        if (!chatMessagesApiResponse.IsSuccess || chatMessagesApiResponse.Result?.Data is null)
+        {
+            Logger.LogError("Failed to retrieve chat messages for user {UserId}", User.XtremeIdiotsId());
+            return RedirectToAction("Display", "Errors", new { id = 500 });
+        }
 
- return Json(new
- {
- model.Draw,
- recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
- recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
- data = chatMessagesApiResponse.Result.Data.Items
- });
- }
+        return Json(new
+        {
+            model.Draw,
+            recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
+            recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
+            data = chatMessagesApiResponse.Result.Data.Items
+        });
+    }
 }

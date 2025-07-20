@@ -1,14 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
@@ -24,170 +16,170 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 [Authorize(Policy = AuthPolicies.AccessServers)]
 public class ServersController : BaseController
 {
- private readonly IAuthorizationService authorizationService;
- private readonly IRepositoryApiClient repositoryApiClient;
+    private readonly IAuthorizationService authorizationService;
+    private readonly IRepositoryApiClient repositoryApiClient;
 
- public ServersController(
- IAuthorizationService authorizationService,
- IRepositoryApiClient repositoryApiClient,
- TelemetryClient telemetryClient,
- ILogger<ServersController> logger,
- IConfiguration configuration)
- : base(telemetryClient, logger, configuration)
- {
- this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
- this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
- }
+    public ServersController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ServersController> logger,
+    IConfiguration configuration)
+    : base(telemetryClient, logger, configuration)
+    {
+        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    }
 
- [HttpGet]
- public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
- null, null, GameServerFilter.PortalServerListEnabled, 0, 50,
- GameServerOrder.BannerServerListPosition, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+     null, null, GameServerFilter.PortalServerListEnabled, 0, 50,
+     GameServerOrder.BannerServerListPosition, cancellationToken);
 
- if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
- {
- Logger.LogWarning("Failed to retrieve game servers for user {UserId}. API Success: {IsSuccess}",
- User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
- return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController).Replace("Controller", ""), new { id = 500 });
- }
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve game servers for user {UserId}. API Success: {IsSuccess}",
+         User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
+                return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController).Replace("Controller", ""), new { id = 500 });
+            }
 
- var result = gameServersApiResponse.Result.Data.Items
- .Select(gs => new ServersGameServerViewModel(gs))
- .ToList();
+            var result = gameServersApiResponse.Result.Data.Items
+     .Select(gs => new ServersGameServerViewModel(gs))
+     .ToList();
 
- Logger.LogInformation("User {UserId} successfully retrieved {ServerCount} servers",
- User.XtremeIdiotsId(), result.Count);
+            Logger.LogInformation("User {UserId} successfully retrieved {ServerCount} servers",
+     User.XtremeIdiotsId(), result.Count);
 
- return View(result);
- }, nameof(Index));
- }
+            return View(result);
+        }, nameof(Index));
+    }
 
- [HttpGet]
- public async Task<IActionResult> Map(CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var response = await repositoryApiClient.RecentPlayers.V1.GetRecentPlayers(
- null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated,
- 0, 200, null, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> Map(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var response = await repositoryApiClient.RecentPlayers.V1.GetRecentPlayers(
+     null, null, DateTime.UtcNow.AddHours(-48), RecentPlayersFilter.GeoLocated,
+     0, 200, null, cancellationToken);
 
- if (response.Result?.Data?.Items is null)
- {
- Logger.LogWarning("Failed to retrieve recent players for map view for user {UserId}. API Success: {IsSuccess}",
- User.XtremeIdiotsId(), response.IsSuccess);
- return View(new List<object>());
- }
+            if (response.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve recent players for map view for user {UserId}. API Success: {IsSuccess}",
+         User.XtremeIdiotsId(), response.IsSuccess);
+                return View(new List<object>());
+            }
 
- Logger.LogInformation("User {UserId} successfully retrieved {PlayerCount} recent players for map view",
- User.XtremeIdiotsId(), response.Result.Data.Items.Count());
+            Logger.LogInformation("User {UserId} successfully retrieved {PlayerCount} recent players for map view",
+     User.XtremeIdiotsId(), response.Result.Data.Items.Count());
 
- return View(response.Result.Data.Items);
- }, nameof(Map));
- }
+            return View(response.Result.Data.Items);
+        }, nameof(Map));
+    }
 
- [HttpGet]
- public async Task<IActionResult> ServerInfo(Guid id, CancellationToken cancellationToken = default)
- {
- return await ExecuteWithErrorHandlingAsync(async () =>
- {
- var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
+    [HttpGet]
+    public async Task<IActionResult> ServerInfo(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(id, cancellationToken);
 
- if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
- {
- Logger.LogWarning("Server {ServerId} not found when accessing server info for user {UserId}",
- id, User.XtremeIdiotsId());
- return NotFound();
- }
+            if (gameServerApiResponse.IsNotFound || gameServerApiResponse.Result?.Data is null)
+            {
+                Logger.LogWarning("Server {ServerId} not found when accessing server info for user {UserId}",
+         id, User.XtremeIdiotsId());
+                return NotFound();
+            }
 
- var gameServerData = gameServerApiResponse.Result.Data;
+            var gameServerData = gameServerApiResponse.Result.Data;
 
- MapDto? mapDto = null;
- if (!string.IsNullOrWhiteSpace(gameServerData.LiveMap))
- {
- try
- {
- var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(
- gameServerData.GameType, gameServerData.LiveMap, cancellationToken);
- mapDto = mapApiResponse.Result?.Data;
- }
- catch (Exception ex)
- {
- Logger.LogWarning(ex, "Failed to retrieve map {MapName} for server {ServerId}",
- gameServerData.LiveMap, id);
- }
- }
+            MapDto? mapDto = null;
+            if (!string.IsNullOrWhiteSpace(gameServerData.LiveMap))
+            {
+                try
+                {
+                    var mapApiResponse = await repositoryApiClient.Maps.V1.GetMap(
+             gameServerData.GameType, gameServerData.LiveMap, cancellationToken);
+                    mapDto = mapApiResponse.Result?.Data;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Failed to retrieve map {MapName} for server {ServerId}",
+             gameServerData.LiveMap, id);
+                }
+            }
 
- var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1
- .GetGameServerStatusStats(gameServerData.GameServerId, DateTime.UtcNow.AddDays(-2), cancellationToken);
+            var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1
+     .GetGameServerStatusStats(gameServerData.GameServerId, DateTime.UtcNow.AddDays(-2), cancellationToken);
 
- var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
- var gameServerStatDtos = new List<GameServerStatDto>();
- var maps = new List<MapDto>();
+            var mapTimelineDataPoints = new List<MapTimelineDataPoint>();
+            var gameServerStatDtos = new List<GameServerStatDto>();
+            var maps = new List<MapDto>();
 
- if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result?.Data?.Items != null)
- {
- gameServerStatDtos = gameServerStatsResponseDto.Result.Data.Items.ToList();
+            if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result?.Data?.Items != null)
+            {
+                gameServerStatDtos = gameServerStatsResponseDto.Result.Data.Items.ToList();
 
- GameServerStatDto? current = null;
- var orderedStats = gameServerStatsResponseDto.Result.Data.Items.OrderBy(gss => gss.Timestamp).ToList();
+                GameServerStatDto? current = null;
+                var orderedStats = gameServerStatsResponseDto.Result.Data.Items.OrderBy(gss => gss.Timestamp).ToList();
 
- foreach (var gameServerStatusStatDto in orderedStats)
- {
- if (current is null)
- {
- current = gameServerStatusStatDto;
- continue;
- }
+                foreach (var gameServerStatusStatDto in orderedStats)
+                {
+                    if (current is null)
+                    {
+                        current = gameServerStatusStatDto;
+                        continue;
+                    }
 
- if (current.MapName != gameServerStatusStatDto.MapName)
- {
- mapTimelineDataPoints.Add(new MapTimelineDataPoint(
- current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
- current = gameServerStatusStatDto;
- continue;
- }
+                    if (current.MapName != gameServerStatusStatDto.MapName)
+                    {
+                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(
+                 current.MapName, current.Timestamp, gameServerStatusStatDto.Timestamp));
+                        current = gameServerStatusStatDto;
+                        continue;
+                    }
 
- if (current == orderedStats.Last())
- mapTimelineDataPoints.Add(new MapTimelineDataPoint(
- current.MapName, current.Timestamp, DateTime.UtcNow));
- }
+                    if (current == orderedStats.Last())
+                        mapTimelineDataPoints.Add(new MapTimelineDataPoint(
+                 current.MapName, current.Timestamp, DateTime.UtcNow));
+                }
 
- try
- {
- var mapNames = gameServerStatsResponseDto.Result.Data.Items
- .GroupBy(m => m.MapName)
- .Select(m => m.Key)
- .ToArray();
+                try
+                {
+                    var mapNames = gameServerStatsResponseDto.Result.Data.Items
+             .GroupBy(m => m.MapName)
+             .Select(m => m.Key)
+             .ToArray();
 
- var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(
- gameServerData.GameType, mapNames, null, null, 0, 50,
- MapsOrder.MapNameAsc, cancellationToken);
+                    var mapsCollectionApiResponse = await repositoryApiClient.Maps.V1.GetMaps(
+             gameServerData.GameType, mapNames, null, null, 0, 50,
+             MapsOrder.MapNameAsc, cancellationToken);
 
- if (mapsCollectionApiResponse.Result?.Data?.Items != null)
- maps = mapsCollectionApiResponse.Result.Data.Items.ToList();
- }
- catch (Exception ex)
- {
- Logger.LogWarning(ex, "Failed to retrieve map details for server {ServerId}", id);
- }
- }
+                    if (mapsCollectionApiResponse.Result?.Data?.Items != null)
+                        maps = mapsCollectionApiResponse.Result.Data.Items.ToList();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Failed to retrieve map details for server {ServerId}", id);
+                }
+            }
 
- var viewModel = new ServersGameServerViewModel(gameServerData)
- {
- Map = mapDto,
- Maps = maps,
- GameServerStats = gameServerStatDtos,
- MapTimelineDataPoints = mapTimelineDataPoints
- };
+            var viewModel = new ServersGameServerViewModel(gameServerData)
+            {
+                Map = mapDto,
+                Maps = maps,
+                GameServerStats = gameServerStatDtos,
+                MapTimelineDataPoints = mapTimelineDataPoints
+            };
 
- Logger.LogInformation("User {UserId} successfully retrieved server info for server {ServerId} with {MapCount} maps and {StatCount} statistics",
- User.XtremeIdiotsId(), id, maps.Count, gameServerStatDtos.Count);
+            Logger.LogInformation("User {UserId} successfully retrieved server info for server {ServerId} with {MapCount} maps and {StatCount} statistics",
+     User.XtremeIdiotsId(), id, maps.Count, gameServerStatDtos.Count);
 
- return View(viewModel);
- }, nameof(ServerInfo));
- }
+            return View(viewModel);
+        }, nameof(ServerInfo));
+    }
 }

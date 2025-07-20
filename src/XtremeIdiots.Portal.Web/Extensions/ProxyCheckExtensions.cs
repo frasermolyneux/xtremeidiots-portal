@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using XtremeIdiots.Portal.Web.Models;
+﻿using XtremeIdiots.Portal.Web.Models;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 

@@ -5,7 +5,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
 public class PlayersAuthHandler : IAuthorizationHandler
 {
-
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();

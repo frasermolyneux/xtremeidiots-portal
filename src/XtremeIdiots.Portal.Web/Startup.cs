@@ -21,7 +21,6 @@ public class Startup(IConfiguration configuration)
 
     public void ConfigureServices(IServiceCollection services)
     {
-
         services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
         services.AddLogging();
 
@@ -48,17 +47,20 @@ public class Startup(IConfiguration configuration)
         services.AddAdminActionTopics();
         services.AddScoped<IDemoManager, DemoManager>();
 
-        services.AddRepositoryApiClient(options => options.WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
-     .WithApiKeyAuthentication(Configuration["RepositoryApi:ApiKey"] ?? throw new InvalidOperationException("RepositoryApi:ApiKey configuration is required"))
-     .WithEntraIdAuthentication(Configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required")));
+        services.AddRepositoryApiClient(options => options
+            .WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
+            .WithApiKeyAuthentication(Configuration["RepositoryApi:ApiKey"] ?? throw new InvalidOperationException("RepositoryApi:ApiKey configuration is required"))
+            .WithEntraIdAuthentication(Configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required")));
 
-        services.AddServersApiClient(options => options.WithBaseUrl(Configuration["ServersIntegrationApi:BaseUrl"] ?? throw new InvalidOperationException("ServersIntegrationApi:BaseUrl configuration is required"))
-     .WithApiKeyAuthentication(Configuration["ServersIntegrationApi:ApiKey"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApiKey configuration is required"))
-     .WithEntraIdAuthentication(Configuration["ServersIntegrationApi:ApplicationAudience"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApplicationAudience configuration is required")));
+        services.AddServersApiClient(options => options
+            .WithBaseUrl(Configuration["ServersIntegrationApi:BaseUrl"] ?? throw new InvalidOperationException("ServersIntegrationApi:BaseUrl configuration is required"))
+            .WithApiKeyAuthentication(Configuration["ServersIntegrationApi:ApiKey"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApiKey configuration is required"))
+            .WithEntraIdAuthentication(Configuration["ServersIntegrationApi:ApplicationAudience"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApplicationAudience configuration is required")));
 
-        services.AddGeoLocationApiClient(options => options.WithBaseUrl(Configuration["GeoLocationApi:BaseUrl"] ?? throw new InvalidOperationException("GeoLocationApi:BaseUrl configuration is required"))
-     .WithApiKeyAuthentication(Configuration["GeoLocationApi:ApiKey"] ?? throw new InvalidOperationException("GeoLocationApi:ApiKey configuration is required"))
-     .WithEntraIdAuthentication(Configuration["GeoLocationApi:ApplicationAudience"] ?? throw new InvalidOperationException("GeoLocationApi:ApplicationAudience configuration is required")));
+        services.AddGeoLocationApiClient(options => options
+            .WithBaseUrl(Configuration["GeoLocationApi:BaseUrl"] ?? throw new InvalidOperationException("GeoLocationApi:BaseUrl configuration is required"))
+            .WithApiKeyAuthentication(Configuration["GeoLocationApi:ApiKey"] ?? throw new InvalidOperationException("GeoLocationApi:ApiKey configuration is required"))
+            .WithEntraIdAuthentication(Configuration["GeoLocationApi:ApplicationAudience"] ?? throw new InvalidOperationException("GeoLocationApi:ApplicationAudience configuration is required")));
 
         services.AddXtremeIdiotsAuth();
         services.AddAuthorization(options => options.AddXtremeIdiotsPolicies());
@@ -67,10 +69,11 @@ public class Startup(IConfiguration configuration)
         {
             var corsOrigin = Configuration["xtremeidiots_forums_base_url"] ?? throw new InvalidOperationException("xtremeidiots_forums_base_url configuration is required");
             options.AddPolicy("CorsPolicy",
-     builder => builder.WithOrigins(corsOrigin)
-     .AllowAnyMethod()
-     .AllowAnyHeader()
-     .AllowCredentials());
+                builder => builder
+                    .WithOrigins(corsOrigin)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials());
         });
 
         services.AddControllersWithViews().AddRazorRuntimeCompilation();
@@ -93,7 +96,6 @@ public class Startup(IConfiguration configuration)
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-
         app.UseForwardedHeaders();
 
         if (env.IsDevelopment())
@@ -119,12 +121,11 @@ public class Startup(IConfiguration configuration)
 
         app.UseEndpoints(endpoints =>
         {
-
             endpoints.MapControllers();
 
             endpoints.MapControllerRoute(
-     name: "default",
-     pattern: "{controller=Home}/{action=Index}/{id?}");
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
         });
 
         app.UseHealthChecks(new PathString("/api/health"));

@@ -15,7 +15,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Core Application Files
 - [ ] `src/XtremeIdiots.Portal.Web/Program.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Startup.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Startup.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/TelemetryInitializer.cs` ✅ **COMPLETED**
 
 ### Controllers (Priority - Follow specific controller patterns)
@@ -81,7 +81,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/GameServersAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServerAdminAuthHandler.cs`
@@ -89,7 +89,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/StatusAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/UsersAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/IXtremeIdiotsAuth.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuth.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs`
 
 ### Models and ViewModels
@@ -112,8 +112,8 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditTagViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/GameServerViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNameReportViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNamesViewModel.cs`

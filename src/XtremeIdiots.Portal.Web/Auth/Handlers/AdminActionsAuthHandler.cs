@@ -1,13 +1,19 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-
-using XtremeIdiots.Portal.Web.Auth.Requirements;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization for admin action related operations including create, edit, delete, claim, and lift actions
+/// </summary>
 public class AdminActionsAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Processes authorization requirements for admin actions
+    /// </summary>
+    /// <param name="context">The authorization context containing user and resource information</param>
+    /// <returns>A completed task</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
@@ -55,85 +61,34 @@ public class AdminActionsAuthHandler : IAuthorizationHandler
         return BaseAuthorizationHelper.IsActionOwner(context, adminId);
     }
 
+    // Check if action type can be performed by moderators (lower privilege actions)
+    private static bool IsModeratorLevelAction(AdminActionType adminActionType)
+    {
+        return adminActionType is AdminActionType.Observation or
+                               AdminActionType.Warning or
+                               AdminActionType.Kick;
+    }
+
     #endregion
 
     #region Authorization Handlers
 
-    private static void HandleCreateAdminActionTopic(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    private static void HandleAccessAdminActions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
+    }
+
+    private static void HandleChangeAdminActionAdmin(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
+
+        if (context.Resource is GameType gameType)
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+    }
+
+    private static void HandleClaimAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
         BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
-    }
-
-    private static void HandleDeleteAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-    {
-        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-    }
-
-    private static void HandleEditAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-    {
-        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-
-        if (context.Resource is Tuple<GameType, AdminActionType, string?> resource)
-        {
-            var (gameType, adminActionType, adminId) = resource;
-
-            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            CheckActionSpecificEditPermissions(context, requirement, gameType, adminActionType, adminId);
-        }
-    }
-
-    private static void CheckActionSpecificEditPermissions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement, GameType gameType, AdminActionType adminActionType, string? adminId)
-    {
-        var gameTypeString = gameType.ToString();
-        var isOwner = IsAdminActionOwner(context, adminId);
-        var isModerator = context.User.HasClaim(UserProfileClaimType.Moderator, gameTypeString);
-        var isGameAdmin = context.User.HasClaim(UserProfileClaimType.GameAdmin, gameTypeString);
-
-        switch (adminActionType)
-        {
-            case AdminActionType.Observation:
-            case AdminActionType.Warning:
-            case AdminActionType.Kick:
-                if ((isModerator || isGameAdmin) && isOwner)
-                {
-                    context.Succeed(requirement);
-                }
-                break;
-
-            case AdminActionType.TempBan:
-            case AdminActionType.Ban:
-                if (isGameAdmin && isOwner)
-                {
-                    context.Succeed(requirement);
-                }
-                break;
-            default:
-                break;
-        }
-    }
-
-    private static void HandleCreateAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-    {
-        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-
-        if (context.Resource is Tuple<GameType, AdminActionType> resource)
-        {
-            var (gameType, adminActionType) = resource;
-
-            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
-
-            if (IsModeratorLevelAction(adminActionType))
-            {
-                BaseAuthorizationHelper.CheckModeratorAccess(context, requirement, gameType);
-            }
-        }
-    }
-
-    private static bool IsModeratorLevelAction(AdminActionType adminActionType)
-    {
-        return adminActionType is AdminActionType.Observation or
-               AdminActionType.Warning or
-               AdminActionType.Kick;
     }
 
     private static void HandleLiftAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
@@ -154,24 +109,69 @@ public class AdminActionsAuthHandler : IAuthorizationHandler
         }
     }
 
-    private static void HandleClaimAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-    {
-        BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
-    }
-
-    private static void HandleChangeAdminActionAdmin(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    private static void HandleCreateAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
 
-        if (context.Resource is GameType gameType)
+        if (context.Resource is Tuple<GameType, AdminActionType> resource)
         {
-            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            var (gameType, adminActionType) = resource;
+
+            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
+
+            if (IsModeratorLevelAction(adminActionType))
+                BaseAuthorizationHelper.CheckModeratorAccess(context, requirement, gameType);
         }
     }
 
-    private static void HandleAccessAdminActions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    private static void HandleEditAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
-        BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
+        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
+
+        if (context.Resource is Tuple<GameType, AdminActionType, string?> resource)
+        {
+            var (gameType, adminActionType, adminId) = resource;
+
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            CheckActionSpecificEditPermissions(context, requirement, gameType, adminActionType, adminId);
+        }
+    }
+
+    // Different action types have different permission requirements for editing
+    private static void CheckActionSpecificEditPermissions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement, GameType gameType, AdminActionType adminActionType, string? adminId)
+    {
+        var gameTypeString = gameType.ToString();
+        var isOwner = IsAdminActionOwner(context, adminId);
+        var isModerator = context.User.HasClaim(UserProfileClaimType.Moderator, gameTypeString);
+        var isGameAdmin = context.User.HasClaim(UserProfileClaimType.GameAdmin, gameTypeString);
+
+        switch (adminActionType)
+        {
+            case AdminActionType.Observation:
+            case AdminActionType.Warning:
+            case AdminActionType.Kick:
+                if ((isModerator || isGameAdmin) && isOwner)
+                    context.Succeed(requirement);
+                break;
+
+            case AdminActionType.TempBan:
+            case AdminActionType.Ban:
+                if (isGameAdmin && isOwner)
+                    context.Succeed(requirement);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static void HandleDeleteAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
+    }
+
+    private static void HandleCreateAdminActionTopic(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
     }
 
     #endregion

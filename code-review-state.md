@@ -69,12 +69,12 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/PlayersAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ProfileAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServerAdminAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServersAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/StatusAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/UsersAuthRequirements.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/AdminActionsAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ServersAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/StatusAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/UsersAuthRequirements.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/AdminActionsAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BanFileMonitorsAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BaseAuthorizationHelper.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/BaseAuthorizationHelper.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ChangeLogAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/CredentialsAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/DemosAuthHandler.cs`

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Html;
+﻿using Microsoft.AspNetCore.Html;
 using System.Text;
 using XtremeIdiots.Portal.Web.Services;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
@@ -7,23 +7,10 @@ using MX.GeoLocation.Abstractions.Models.V1;
 
 namespace XtremeIdiots.Portal.Web.Extensions
 {
-    /// <summary>
-    /// Extension methods for displaying IP addresses with consistent formatting.
-    /// </summary>
+
     public static class IPAddressExtensions
     {
-        /// <summary>
-        /// Renders an IP address with consistent formatting following the pattern:
-        /// {country flag} {IP Address} {VPN Pill} {Risk Pill} {Type Pill}
-        /// </summary>
-        /// <param name="ipAddress">The IP address to display</param>
-        /// <param name="geoLocation">Optional GeoLocation data</param>
-        /// <param name="riskScore">Optional risk score from ProxyCheck</param>
-        /// <param name="isProxy">Optional flag indicating if the IP is a proxy</param>
-        /// <param name="isVpn">Optional flag indicating if the IP is a VPN</param>
-        /// <param name="proxyType">Optional proxy type</param>
-        /// <param name="linkToDetails">Whether to link the IP to the details page</param>
-        /// <returns>HTML formatted IP address</returns>
+
         public static HtmlString FormatIPAddress(
             this string ipAddress,
             GeoLocationDto? geoLocation = null,
@@ -38,7 +25,6 @@ namespace XtremeIdiots.Portal.Web.Extensions
 
             var sb = new StringBuilder();
 
-            // 1. Country Flag
             if (geoLocation != null)
             {
                 sb.Append(geoLocation.FlagImage().Value);
@@ -51,11 +37,10 @@ namespace XtremeIdiots.Portal.Web.Extensions
             }
             else
             {
-                // Default flag for unknown country
+
                 sb.Append("<img src=\"/images/flags/unknown.png\" /> ");
             }
 
-            // 2. IP Address (with or without link)
             if (linkToDetails)
             {
                 sb.Append($"<a href=\"/IPAddresses/Details?ipAddress={ipAddress}\">{ipAddress}</a>");
@@ -65,26 +50,22 @@ namespace XtremeIdiots.Portal.Web.Extensions
                 sb.Append(ipAddress);
             }
 
-            // 3. Risk Pill (if available)
             if (riskScore.HasValue)
             {
                 string riskClass = GetRiskClass(riskScore.Value);
                 sb.Append($" <span class=\"badge rounded-pill {riskClass}\">Risk: {riskScore}</span>");
             }
 
-            // 4. Type Pill (if available)
             if (!string.IsNullOrEmpty(proxyType))
             {
                 sb.Append($" <span class=\"badge rounded-pill text-bg-primary\">{proxyType}</span>");
             }
 
-            // 5. Proxy Pill
             if (isProxy == true)
             {
                 sb.Append(" <span class=\"badge rounded-pill text-bg-danger\">Proxy</span>");
             }
 
-            // 6. VPN Pill
             if (isVpn == true)
             {
                 sb.Append(" <span class=\"badge rounded-pill text-bg-warning\">VPN</span>");
@@ -93,13 +74,6 @@ namespace XtremeIdiots.Portal.Web.Extensions
             return new HtmlString(sb.ToString());
         }
 
-        /// <summary>
-        /// Renders an IP address for a player using the player's properties.
-        /// </summary>
-        /// <param name="player">The player DTO containing IP information</param>
-        /// <param name="geoLocation">Optional GeoLocation data</param>
-        /// <param name="linkToDetails">Whether to link the IP to the details page</param>
-        /// <returns>HTML formatted IP address</returns>
         public static HtmlString FormatIPAddress(
             this PlayerDto player,
             GeoLocationDto? geoLocation = null,
@@ -118,14 +92,6 @@ namespace XtremeIdiots.Portal.Web.Extensions
                 linkToDetails);
         }
 
-        /// <summary>
-        /// Renders an IP address using data from a ProxyCheckResult.
-        /// </summary>
-        /// <param name="ipAddress">The IP address to display</param>
-        /// <param name="proxyCheckResult">The ProxyCheck result</param>
-        /// <param name="geoLocation">Optional GeoLocation data</param>
-        /// <param name="linkToDetails">Whether to link the IP to the details page</param>
-        /// <returns>HTML formatted IP address</returns>
         public static HtmlString FormatIPAddress(
             this string ipAddress,
             ProxyCheckResult proxyCheckResult,
@@ -145,9 +111,6 @@ namespace XtremeIdiots.Portal.Web.Extensions
                 linkToDetails);
         }
 
-        /// <summary>
-        /// Gets a CSS class based on the risk score for color-coding.
-        /// </summary>
         private static string GetRiskClass(int riskScore)
         {
             return riskScore switch

@@ -2,9 +2,7 @@
 
 namespace XtremeIdiots.Portal.Web.Models
 {
-    /// <summary>
-    /// Represents column configuration from DataTable AJAX requests
-    /// </summary>
+
     public class DataTableColumn
     {
         [JsonProperty("data")]

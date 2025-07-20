@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,22 +25,6 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for server administration functionality including RCON access, chat logs and server management.
-/// Provides tools for game server administrators to manage Call of Duty servers including live RCON commands,
-/// player management, chat log monitoring and server control operations with granular authorization.
-/// </summary>
-/// <remarks>
-/// This controller handles server administration operations including:
-/// - Live RCON access for authorized administrators
-/// - Server control operations (restart, map changes, player management)
-/// - Chat log viewing and management with filtering capabilities
-/// - Real-time server status monitoring and player lists
-/// - Authorization-based access control for different admin levels
-/// 
-/// All operations require appropriate authorization policies and are logged for audit purposes.
-/// Game server operations are performed through the Servers API integration.
-/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
 public class ServerAdminController : BaseController
 {
@@ -48,16 +32,6 @@ public class ServerAdminController : BaseController
  private readonly IRepositoryApiClient _repositoryApiClient;
  private readonly IServersApiClient _serversApiClient;
 
- /// <summary>
- /// Initializes a new instance of the <see cref="ServerAdminController"/> class.
- /// </summary>
- /// <param name="authorizationService">Service for handling authorization checks and policy evaluation</param>
- /// <param name="repositoryApiClient">Client for accessing repository API endpoints for data operations</param>
- /// <param name="serversApiClient">Client for accessing servers API endpoints for RCON and server operations</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking events and metrics</param>
- /// <param name="logger">Logger instance for structured logging of controller operations</param>
- /// <param name="configuration">Configuration provider for accessing application settings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required parameter is null</exception>
  public ServerAdminController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -71,13 +45,6 @@ public class ServerAdminController : BaseController
  _serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
  }
 
- /// <summary>
- /// Displays the server administration dashboard with a list of game servers that support live tracking.
- /// Shows servers the user has administrative access to based on their role claims and game permissions.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The server admin dashboard view with available game servers and their current status</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks server admin access</exception>
  [HttpGet]
  public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
  {
@@ -110,15 +77,6 @@ public class ServerAdminController : BaseController
  }, nameof(Index));
  }
 
- /// <summary>
- /// Helper method to get game server data with authorization check for RCON operations.
- /// Validates server existence and checks user permissions for RCON access.
- /// </summary>
- /// <param name="id">The game server ID to validate and authorize access for</param>
- /// <param name="action">The action being performed for logging and audit purposes</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Tuple containing ActionResult (if unauthorized/not found) and GameServerDto (if successful)</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks RCON permissions for the specified server</exception>
  private async Task<(IActionResult? ActionResult, GameServerDto? GameServer)> GetAuthorizedGameServerAsync(
  Guid id,
  string action,
@@ -145,15 +103,6 @@ public class ServerAdminController : BaseController
  return authResult is not null ? (authResult, null) : (null, gameServerData);
  }
 
- /// <summary>
- /// Displays the live RCON view for a specific game server.
- /// Provides real-time server administration interface with player list and command execution capabilities.
- /// </summary>
- /// <param name="id">The game server ID to view RCON interface for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The RCON view for the specified server with live administration tools, or appropriate error response</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks RCON permissions for the specified server</exception>
- /// <exception cref="NotFoundException">Thrown when the specified game server is not found</exception>
  [HttpGet]
  public async Task<IActionResult> ViewRcon(Guid id, CancellationToken cancellationToken = default)
  {
@@ -166,15 +115,6 @@ public class ServerAdminController : BaseController
  }, nameof(ViewRcon));
  }
 
- /// <summary>
- /// Gets the current players on a game server via RCON for AJAX requests.
- /// Returns real-time player information including names, scores and connection details.
- /// </summary>
- /// <param name="id">The game server ID to get player list for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with current server players and their status information</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks RCON permissions for the specified server</exception>
- /// <exception cref="NotFoundException">Thrown when the specified game server is not found</exception>
  [HttpGet]
  public async Task<IActionResult> GetRconPlayers(Guid id, CancellationToken cancellationToken = default)
  {
@@ -194,15 +134,6 @@ public class ServerAdminController : BaseController
  }, nameof(GetRconPlayers));
  }
 
- /// <summary>
- /// Restarts a game server via RCON command.
- /// Performs a complete server restart including map reload and player reconnection.
- /// </summary>
- /// <param name="id">The game server ID to restart</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response indicating success or failure of the restart operation</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks server restart permissions</exception>
- /// <exception cref="NotFoundException">Thrown when the specified game server is not found</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> RestartServer(Guid id, CancellationToken cancellationToken = default)
@@ -211,8 +142,6 @@ public class ServerAdminController : BaseController
  {
  var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(RestartServer), cancellationToken);
  if (actionResult is not null) return actionResult;
-
- // TODO: Implement actual server restart logic when available in ServersApiClient
 
  TrackSuccessTelemetry("ServerRestarted", nameof(RestartServer), new Dictionary<string, string>
  {
@@ -227,12 +156,6 @@ public class ServerAdminController : BaseController
  }, nameof(RestartServer));
  }
 
- /// <summary>
- /// Restarts the map on a game server via RCON
- /// </summary>
- /// <param name="id">The game server ID to restart the map on</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response indicating success or failure</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> RestartMap(Guid id, CancellationToken cancellationToken = default)
@@ -241,8 +164,6 @@ public class ServerAdminController : BaseController
  {
  var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartMap", cancellationToken);
  if (actionResult is not null) return actionResult;
-
- // TODO: Implement actual map restart logic when available in ServersApiClient
 
  TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
  {
@@ -257,12 +178,6 @@ public class ServerAdminController : BaseController
  }, "RestartMap");
  }
 
- /// <summary>
- /// Performs a fast restart of the map on a game server via RCON
- /// </summary>
- /// <param name="id">The game server ID to fast restart the map on</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response indicating success or failure</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> FastRestartMap(Guid id, CancellationToken cancellationToken = default)
@@ -271,8 +186,6 @@ public class ServerAdminController : BaseController
  {
  var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "FastRestartMap", cancellationToken);
  if (actionResult is not null) return actionResult;
-
- // TODO: Implement actual fast map restart logic when available in ServersApiClient
 
  TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
  {
@@ -287,12 +200,6 @@ public class ServerAdminController : BaseController
  }, "FastRestartMap");
  }
 
- /// <summary>
- /// Skips to the next map on a game server via RCON
- /// </summary>
- /// <param name="id">The game server ID to skip to the next map on</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response indicating success or failure</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> NextMap(Guid id, CancellationToken cancellationToken = default)
@@ -301,8 +208,6 @@ public class ServerAdminController : BaseController
  {
  var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "NextMap", cancellationToken);
  if (actionResult is not null) return actionResult;
-
- // TODO: Implement actual next map logic when available in ServersApiClient
 
  TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
  {
@@ -317,17 +222,6 @@ public class ServerAdminController : BaseController
  }, "NextMap");
  }
 
- /// <summary>
- /// Kicks a player from the server by slot number via RCON command.
- /// Removes the specified player from the game server and logs the administrative action.
- /// </summary>
- /// <param name="id">The game server ID where the player is located</param>
- /// <param name="num">The slot number of the player to kick from the server</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirects to RCON view with success message, or appropriate error response</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks player kick permissions</exception>
- /// <exception cref="NotFoundException">Thrown when the specified game server is not found</exception>
- /// <exception cref="ArgumentException">Thrown when the player slot number is invalid</exception>
  [HttpGet]
  public async Task<IActionResult> KickPlayer(Guid id, string num, CancellationToken cancellationToken = default)
  {
@@ -343,7 +237,6 @@ public class ServerAdminController : BaseController
  return NotFound();
  }
 
- // TODO: Implement RCON kick player functionality
  this.AddAlertSuccess($"Player in slot {num} has been kicked");
 
  TrackSuccessTelemetry("PlayerKicked", nameof(KickPlayer), new Dictionary<string, string>
@@ -357,12 +250,6 @@ public class ServerAdminController : BaseController
  }, nameof(KickPlayer));
  }
 
- /// <summary>
- /// Displays the global chat log index page for administrators.
- /// Provides access to view chat messages across all game servers with filtering and search capabilities.
- /// </summary>
- /// <returns>The chat log index view with global scope for authorized administrators</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks global chat log viewing permissions</exception>
  [HttpGet]
  [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
  public IActionResult ChatLogIndex()
@@ -373,12 +260,6 @@ public class ServerAdminController : BaseController
  }, nameof(ChatLogIndex)).Result;
  }
 
- /// <summary>
- /// Gets chat log data for AJAX DataTables requests (global scope)
- /// </summary>
- /// <param name="lockedOnly">Filter to show only locked messages</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with chat log data</returns>
  [HttpPost]
  [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
  [ValidateAntiForgeryToken]
@@ -390,12 +271,6 @@ public class ServerAdminController : BaseController
  }, "GetChatLogAjax");
  }
 
- /// <summary>
- /// Displays the chat log for a specific game type
- /// </summary>
- /// <param name="id">The game type to view chat logs for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The chat log view for the specified game type</returns>
  [HttpGet]
  public async Task<IActionResult> GameChatLog(GameType id, CancellationToken cancellationToken = default)
  {
@@ -417,13 +292,6 @@ public class ServerAdminController : BaseController
  }, "GameChatLog");
  }
 
- /// <summary>
- /// Gets chat log data for AJAX DataTables requests (game scope)
- /// </summary>
- /// <param name="id">The game type ID</param>
- /// <param name="lockedOnly">Filter to show only locked messages</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with chat log data</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> GetGameChatLogAjax(GameType id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
@@ -445,12 +313,6 @@ public class ServerAdminController : BaseController
  }, "GetGameChatLogAjax");
  }
 
- /// <summary>
- /// Displays the chat log for a specific server
- /// </summary>
- /// <param name="id">The game server ID to view chat logs for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The chat log view for the specified game server</returns>
  [HttpGet]
  public async Task<IActionResult> ServerChatLog(Guid id, CancellationToken cancellationToken = default)
  {
@@ -482,13 +344,6 @@ public class ServerAdminController : BaseController
  }, nameof(ServerChatLog));
  }
 
- /// <summary>
- /// Gets chat log data for AJAX DataTables requests (server scope)
- /// </summary>
- /// <param name="id">The game server ID</param>
- /// <param name="lockedOnly">Filter to show only locked messages</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with chat log data</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> GetServerChatLogAjax(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
@@ -520,13 +375,6 @@ public class ServerAdminController : BaseController
  }, nameof(GetServerChatLogAjax));
  }
 
- /// <summary>
- /// Gets chat log data for AJAX DataTables requests (player scope)
- /// </summary>
- /// <param name="id">The player ID</param>
- /// <param name="lockedOnly">Filter to show only locked messages</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with chat log data</returns>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> GetPlayerChatLog(Guid id, bool? lockedOnly = null, CancellationToken cancellationToken = default)
@@ -558,12 +406,6 @@ public class ServerAdminController : BaseController
  }, nameof(GetPlayerChatLog));
  }
 
- /// <summary>
- /// Displays a permanent link to a specific chat message
- /// </summary>
- /// <param name="id">The chat message ID to display</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The chat message permalink view</returns>
  [HttpGet]
  public async Task<IActionResult> ChatLogPermaLink(Guid id, CancellationToken cancellationToken = default)
  {
@@ -581,12 +423,6 @@ public class ServerAdminController : BaseController
  }, nameof(ChatLogPermaLink));
  }
 
- /// <summary>
- /// Toggles the lock status of a chat message
- /// </summary>
- /// <param name="id">The chat message ID to toggle lock status for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirects to chat message permalink or appropriate error response</returns>
  [HttpPost]
  [Authorize(Policy = AuthPolicies.LockChatMessages)]
  [ValidateAntiForgeryToken]
@@ -635,15 +471,6 @@ public class ServerAdminController : BaseController
  }, nameof(ToggleChatMessageLock));
  }
 
- /// <summary>
- /// Private helper method to retrieve chat log data for DataTables AJAX requests
- /// </summary>
- /// <param name="gameType">Optional game type filter</param>
- /// <param name="gameServerId">Optional game server filter</param>
- /// <param name="playerId">Optional player filter</param>
- /// <param name="lockedOnly">Optional locked messages filter</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with chat log data</returns>
  private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)
  {
  var reader = new StreamReader(Request.Body);
@@ -671,7 +498,6 @@ public class ServerAdminController : BaseController
  }
  }
 
- // Support special "locked:" prefix to filter chat messages that are locked by admins
  if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
  {
  lockedOnly = true;

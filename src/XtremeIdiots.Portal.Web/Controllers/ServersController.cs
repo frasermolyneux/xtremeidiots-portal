@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,39 +21,12 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for displaying public server information including real-time statistics
-/// and map rotation data. Provides the community-facing view of server status
-/// without exposing administrative functions.
-/// </summary>
-/// <remarks>
-/// This controller handles the public-facing server display functionality .
-/// It provides read-only access to server information, real-time statistics, map rotations and geographical
-/// player distribution data. The controller supports community members viewing server status, map timelines,
-/// and recent player activity without requiring administrative privileges.
-/// 
-/// Key features include:
-/// - Server list display with live statistics
-/// - Global map view showing recent player locations
-/// - Detailed server information with map rotation history
-/// - Integration with Repository API for game server data
-/// - Geolocation visualization for community engagement
-/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessServers)]
 public class ServersController : BaseController
 {
  private readonly IAuthorizationService authorizationService;
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the <see cref="ServersController"/> class.
- /// </summary>
- /// <param name="authorizationService">Service for handling authorization policies and requirements</param>
- /// <param name="repositoryApiClient">Client for accessing the repository API to retrieve server and player data</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking server access events</param>
- /// <param name="logger">Logger instance for recording server display operations and errors</param>
- /// <param name="configuration">Configuration settings for server display behavior and API endpoints</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public ServersController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -66,12 +39,6 @@ public class ServersController : BaseController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Displays the list of enabled game servers for the portal
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The server list view with available game servers</returns>
- /// <exception cref="InvalidOperationException">Thrown when the Repository API fails to return server data</exception>
  [HttpGet]
  public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
  {
@@ -99,12 +66,6 @@ public class ServersController : BaseController
  }, nameof(Index));
  }
 
- /// <summary>
- /// Displays the global map view showing recent player locations
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The map view with recent player geo-location data</returns>
- /// <exception cref="InvalidOperationException">Thrown when the Repository API fails to return recent player data</exception>
  [HttpGet]
  public async Task<IActionResult> Map(CancellationToken cancellationToken = default)
  {
@@ -128,14 +89,6 @@ public class ServersController : BaseController
  }, nameof(Map));
  }
 
- /// <summary>
- /// Displays detailed information for a specific game server including maps, statistics and timeline
- /// </summary>
- /// <param name="id">The unique identifier of the game server</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The server info view with comprehensive server data, or NotFound if server doesn't exist</returns>
- /// <exception cref="InvalidOperationException">Thrown when the Repository API fails to return server data</exception>
- /// <exception cref="ArgumentException">Thrown when the server ID is invalid or malformed</exception>
  [HttpGet]
  public async Task<IActionResult> ServerInfo(Guid id, CancellationToken cancellationToken = default)
  {
@@ -152,7 +105,6 @@ public class ServersController : BaseController
 
  var gameServerData = gameServerApiResponse.Result.Data;
 
- // Fetch current map details to display additional context about the game state
  MapDto? mapDto = null;
  if (!string.IsNullOrWhiteSpace(gameServerData.LiveMap))
  {
@@ -169,8 +121,6 @@ public class ServersController : BaseController
  }
  }
 
- // Retrieve recent server statistics to build a map rotation timeline
- // This helps players understand server activity patterns and map preferences
  var gameServerStatsResponseDto = await repositoryApiClient.GameServersStats.V1
  .GetGameServerStatusStats(gameServerData.GameServerId, DateTime.UtcNow.AddDays(-2), cancellationToken);
 
@@ -182,8 +132,6 @@ public class ServersController : BaseController
  {
  gameServerStatDtos = gameServerStatsResponseDto.Result.Data.Items.ToList();
 
- // Build timeline showing when map changes occurred
- // This algorithm identifies map transitions by comparing consecutive statistics
  GameServerStatDto? current = null;
  var orderedStats = gameServerStatsResponseDto.Result.Data.Items.OrderBy(gss => gss.Timestamp).ToList();
 
@@ -195,7 +143,6 @@ public class ServersController : BaseController
  continue;
  }
 
- // Map change detected - record the previous map's duration
  if (current.MapName != gameServerStatusStatDto.MapName)
  {
  mapTimelineDataPoints.Add(new MapTimelineDataPoint(
@@ -204,13 +151,11 @@ public class ServersController : BaseController
  continue;
  }
 
- // Handle the final map in the timeline
  if (current == orderedStats.Last())
  mapTimelineDataPoints.Add(new MapTimelineDataPoint(
  current.MapName, current.Timestamp, DateTime.UtcNow));
  }
 
- // Enrich timeline with map metadata for better visual presentation
  try
  {
  var mapNames = gameServerStatsResponseDto.Result.Data.Items

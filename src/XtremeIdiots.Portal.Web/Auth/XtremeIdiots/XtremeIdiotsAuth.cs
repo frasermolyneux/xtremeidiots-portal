@@ -10,10 +10,7 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
 {
-    /// <summary>
-    /// Provides authentication services for XtremeIdiots external login integration.
-    /// Handles user registration, login, and profile synchronization with the forums system.
-    /// </summary>
+
     public class XtremeIdiotsAuth : IXtremeIdiotsAuth
     {
         private const string XtremeIdiotsProvider = "XtremeIdiots";
@@ -63,7 +60,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                     return result;
                 }
 
-                // If sign in failed, try to register new user
                 await RegisterNewUser(info, cancellationToken).ConfigureAwait(false);
                 return XtremeIdiotsAuthResult.Success;
             }
@@ -79,12 +75,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             await signInManager.SignOutAsync().ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Updates an existing user's profile and claims based on the latest forum data.
-        /// </summary>
-        /// <param name="info">The external login information containing user details.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous update operation.</returns>
         private async Task UpdateExistingUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
         {
             if (info?.Principal is null)
@@ -139,12 +129,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             }
         }
 
-        /// <summary>
-        /// Registers a new user in the system and synchronizes their profile with forum data.
-        /// </summary>
-        /// <param name="info">The external login information containing user details.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous registration operation.</returns>
         private async Task RegisterNewUser(ExternalLoginInfo info, CancellationToken cancellationToken = default)
         {
             if (info?.Principal is null)
@@ -216,13 +200,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             }
         }
 
-        /// <summary>
-        /// Ensures a user profile exists in the repository, creating one if necessary.
-        /// </summary>
-        /// <param name="memberId">The member ID from the forums system.</param>
-        /// <param name="member">The member data from the forums API.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task{UserProfileDto}"/> representing the user profile.</returns>
         private async Task<UserProfileDto?> EnsureUserProfileExists(string memberId, Member member, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(memberId))
@@ -265,7 +242,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
                         return null;
                     }
 
-                    // Retrieve the newly created profile
                     userProfileDtoApiResponse = await repositoryApiClient.UserProfiles.V1
                         .GetUserProfileByXtremeIdiotsId(memberId, cancellationToken).ConfigureAwait(false);
                 }
@@ -286,12 +262,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             }
         }
 
-        /// <summary>
-        /// Validates the external login information for required properties.
-        /// </summary>
-        /// <param name="info">The external login information to validate.</param>
-        /// <exception cref="ArgumentNullException">Thrown when info is null.</exception>
-        /// <exception cref="ArgumentException">Thrown when required properties are missing.</exception>
         private static void ValidateExternalLoginInfo(ExternalLoginInfo info)
         {
             if (info is null)
@@ -315,12 +285,6 @@ namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
             }
         }
 
-        /// <summary>
-        /// Attempts to sign in using external login credentials.
-        /// </summary>
-        /// <param name="info">The external login information.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A <see cref="Task{XtremeIdiotsAuthResult}"/> representing the sign-in result.</returns>
         private async Task<XtremeIdiotsAuthResult> AttemptExternalLoginSignIn(ExternalLoginInfo info, CancellationToken cancellationToken)
         {
             var result = await signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, true).ConfigureAwait(false);

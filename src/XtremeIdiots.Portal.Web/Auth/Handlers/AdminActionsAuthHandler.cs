@@ -6,17 +6,10 @@ using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers
 {
-    /// <summary>
-    /// Handles authorization requirements for admin actions based on user claims and game types.
-    /// Evaluates permissions for creating, editing, deleting, and managing admin actions within the gaming portal.
-    /// </summary>
+
     public class AdminActionsAuthHandler : IAuthorizationHandler
     {
-        /// <summary>
-        /// Evaluates authorization requirements for admin actions.
-        /// </summary>
-        /// <param name="context">The authorization context containing user claims and requirements.</param>
-        /// <returns>A completed task representing the authorization evaluation.</returns>
+
         public Task HandleAsync(AuthorizationHandlerContext context)
         {
             var pendingRequirements = context.PendingRequirements.ToList();
@@ -57,12 +50,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
 
         #region Helper Methods
 
-        /// <summary>
-        /// Checks if the user is the owner of the admin action (matches admin ID).
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="adminId">The admin ID to check ownership against.</param>
-        /// <returns>True if the user is the owner, false otherwise.</returns>
         private static bool IsAdminActionOwner(AuthorizationHandlerContext context, string? adminId)
         {
             return BaseAuthorizationHelper.IsActionOwner(context, adminId);
@@ -72,32 +59,16 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
 
         #region Authorization Handlers
 
-        /// <summary>
-        /// Handles authorization for creating admin action topics.
-        /// Requires senior admin, head admin, or game admin permissions for the specific game.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The create admin action topic requirement.</param>
         private static void HandleCreateAdminActionTopic(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
-        /// <summary>
-        /// Handles authorization for deleting admin actions.
-        /// Requires senior admin permissions only.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The delete admin action requirement.</param>
         private static void HandleDeleteAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-        }        /// <summary>
-                 /// Handles authorization for editing admin actions.
-                 /// Permissions vary based on admin action type and user role.
-                 /// </summary>
-                 /// <param name="context">The authorization context.</param>
-                 /// <param name="requirement">The edit admin action requirement.</param>
+        }
+
         private static void HandleEditAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
@@ -111,14 +82,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             }
         }
 
-        /// <summary>
-        /// Checks action-specific edit permissions based on admin action type.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The requirement to potentially succeed.</param>
-        /// <param name="gameType">The game type.</param>
-        /// <param name="adminActionType">The type of admin action.</param>
-        /// <param name="adminId">The ID of the admin who created the action.</param>
         private static void CheckActionSpecificEditPermissions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement, GameType gameType, AdminActionType adminActionType, string? adminId)
         {
             var gameTypeString = gameType.ToString();
@@ -147,12 +110,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             }
         }
 
-        /// <summary>
-        /// Handles authorization for creating admin actions.
-        /// Permissions vary based on admin action type and user role.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The create admin action requirement.</param>
         private static void HandleCreateAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
@@ -163,7 +120,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
 
                 BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
 
-                // Moderators can only create certain action types
                 if (IsModeratorLevelAction(adminActionType))
                 {
                     BaseAuthorizationHelper.CheckModeratorAccess(context, requirement, gameType);
@@ -171,11 +127,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             }
         }
 
-        /// <summary>
-        /// Determines if the admin action type can be performed by moderators.
-        /// </summary>
-        /// <param name="adminActionType">The admin action type to check.</param>
-        /// <returns>True if moderators can perform this action type, false otherwise.</returns>
         private static bool IsModeratorLevelAction(AdminActionType adminActionType)
         {
             return adminActionType == AdminActionType.Observation ||
@@ -183,12 +134,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
                    adminActionType == AdminActionType.Kick;
         }
 
-        /// <summary>
-        /// Handles authorization for lifting admin actions.
-        /// Allows senior admins, head admins, or game admins who created the action.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The lift admin action requirement.</param>
         private static void HandleLiftAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
@@ -199,7 +144,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
 
                 BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
 
-                // Game admins can only lift their own actions
                 if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()) &&
                     IsAdminActionOwner(context, adminId))
                 {
@@ -208,23 +152,11 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             }
         }
 
-        /// <summary>
-        /// Handles authorization for claiming admin actions.
-        /// Allows senior admins, head admins, or game admins for the specific game.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The claim admin action requirement.</param>
         private static void HandleClaimAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorOrGameAdminAccessWithResource(context, requirement);
         }
 
-        /// <summary>
-        /// Handles authorization for changing admin action admin assignment.
-        /// Requires senior admin or head admin permissions for the specific game.
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The change admin action admin requirement.</param>
         private static void HandleChangeAdminActionAdmin(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
@@ -235,12 +167,6 @@ namespace XtremeIdiots.Portal.Web.Auth.Handlers
             }
         }
 
-        /// <summary>
-        /// Handles authorization for accessing admin actions.
-        /// Allows any admin level (senior admin, head admin, game admin, or moderator).
-        /// </summary>
-        /// <param name="context">The authorization context.</param>
-        /// <param name="requirement">The access admin actions requirement.</param>
         private static void HandleAccessAdminActions(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
         {
             BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);

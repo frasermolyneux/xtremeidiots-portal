@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -14,27 +14,12 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for handling error display and diagnostics.
-/// Provides different error views based on user permissions - senior admins get detailed
-/// diagnostic information while regular users get sanitized error pages to prevent
-/// information disclosure vulnerabilities.
-/// </summary>
 public class ErrorsController(
  TelemetryClient telemetryClient,
  ILogger<ErrorsController> logger,
  IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
 
- /// <summary>
- /// Displays error information with security-conscious permission-based detail levels.
- /// Senior admins receive full diagnostic information to aid in troubleshooting,
- /// while regular users receive sanitized error pages to prevent information disclosure.
- /// </summary>
- /// <param name="id">The HTTP status code of the error</param>
- /// <param name="webHostEnvironment">The web host environment service</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Error details for senior admins or generic error view for other users</returns>
  public IActionResult Display(int id, [FromServices] IWebHostEnvironment webHostEnvironment, CancellationToken cancellationToken = default)
  {
  try
@@ -84,7 +69,6 @@ public class ErrorsController(
  }
  }
 
- // Regular users get sanitized error views to prevent information disclosure
  Logger.LogInformation("Standard user {UserId} viewing generic error page for status code {StatusCode}",
  User.XtremeIdiotsId(), id);
 
@@ -109,7 +93,6 @@ public class ErrorsController(
  { "Context", "ErrorControllerFailure" }
  });
 
- // Prevent error loops by returning basic view without additional processing
  return View(id);
  }
  }

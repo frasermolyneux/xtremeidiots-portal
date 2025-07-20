@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,10 +13,6 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing ban file monitors that track and synchronize ban files from game servers.
-/// Provides functionality to create, view, edit and delete ban file monitors with game-specific authorization.
-/// </summary>
 [Authorize(Policy = AuthPolicies.AccessBanFileMonitors)]
 public class BanFileMonitorsController(
  IAuthorizationService authorizationService,
@@ -28,16 +24,6 @@ public class BanFileMonitorsController(
  private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
  private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
- /// <summary>
- /// Displays the list of ban file monitors accessible to the current user.
- /// Filters results based on user's game-specific permissions and claims.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// The ban file monitors index view with accessible monitors, 
- /// or Redirects to error page if API call fails
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess ban file monitors</exception>
  [HttpGet]
  public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
  {
@@ -58,16 +44,6 @@ public class BanFileMonitorsController(
  }, nameof(Index));
  }
 
- /// <summary>
- /// Displays the create ban file monitor form with available game servers.
- /// Populates dropdown with game servers accessible to the current user.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// The create ban file monitor view with populated game servers dropdown,
- /// or error response if view data cannot be loaded
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate ban file monitors</exception>
  [HttpGet]
  public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
  {
@@ -78,20 +54,6 @@ public class BanFileMonitorsController(
  }, nameof(Create));
  }
 
- /// <summary>
- /// Creates a new ban file monitor for a specified game server.
- /// Validates user authorization for the target game server and creates the monitor
- /// with the specified file path.
- /// </summary>
- /// <param name="model">The create ban file monitor view model containing form data</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// Redirects to index with success message on successful creation,
- /// returns view with validation errors if model is invalid,
- /// returns NotFound if game server doesn't exist
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate ban file monitors</exception>
- /// <exception cref="KeyNotFoundException">Thrown when game server is not found</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> Create(CreateBanFileMonitorViewModel model, CancellationToken cancellationToken = default)
@@ -143,19 +105,6 @@ public class BanFileMonitorsController(
  }, nameof(Create));
  }
 
- /// <summary>
- /// Displays details for a specific ban file monitor including sync status and configuration.
- /// Validates user authorization before showing detailed information.
- /// </summary>
- /// <param name="id">The ban file monitor ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// The ban file monitor details view with full monitor information,
- /// returns NotFound if monitor doesn't exist,
- /// returns authorization error if user lacks access
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionview ban file monitor</exception>
- /// <exception cref="KeyNotFoundException">Thrown when ban file monitor is not found</exception>
  [HttpGet]
  public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken = default)
  {
@@ -170,19 +119,6 @@ public class BanFileMonitorsController(
  }, nameof(Details));
  }
 
- /// <summary>
- /// Displays the edit form for a ban file monitor with pre-populated data.
- /// Loads current monitor configuration and populates available game servers.
- /// </summary>
- /// <param name="id">The ban file monitor ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// The edit ban file monitor view with current data and game servers dropdown,
- /// returns NotFound if monitor doesn't exist,
- /// returns authorization error if user lacks access
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit ban file monitor</exception>
- /// <exception cref="KeyNotFoundException">Thrown when ban file monitor is not found</exception>
  [HttpGet]
  public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
  {
@@ -209,19 +145,6 @@ public class BanFileMonitorsController(
  }, nameof(Edit));
  }
 
- /// <summary>
- /// Updates an existing ban file monitor with new configuration.
- /// Validates user authorization and model state before applying changes.
- /// </summary>
- /// <param name="model">The edit ban file monitor view model containing updated form data</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// Redirects to index with success message on successful update,
- /// returns view with validation errors if model is invalid,
- /// returns authorization error if user lacks access
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit ban file monitor</exception>
- /// <exception cref="KeyNotFoundException">Thrown when ban file monitor is not found</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> Edit(EditBanFileMonitorViewModel model, CancellationToken cancellationToken = default)
@@ -256,19 +179,6 @@ public class BanFileMonitorsController(
  }, nameof(Edit));
  }
 
- /// <summary>
- /// Displays the delete confirmation for a ban file monitor.
- /// Shows monitor details to confirm the deletion operation.
- /// </summary>
- /// <param name="id">The ban file monitor ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// The delete ban file monitor confirmation view with monitor details,
- /// returns NotFound if monitor doesn't exist,
- /// returns authorization error if user lacks access
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete ban file monitor</exception>
- /// <exception cref="KeyNotFoundException">Thrown when ban file monitor is not found</exception>
  [HttpGet]
  public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
  {
@@ -285,19 +195,6 @@ public class BanFileMonitorsController(
  }, nameof(Delete));
  }
 
- /// <summary>
- /// Deletes a ban file monitor after confirmation.
- /// Performs final authorization check and removes the monitor from the system.
- /// </summary>
- /// <param name="id">The ban file monitor ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// Redirects to index with success message on successful deletion,
- /// Redirects to index with error alert on failure,
- /// returns authorization error if user lacks access
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete ban file monitor</exception>
- /// <exception cref="KeyNotFoundException">Thrown when ban file monitor is not found</exception>
  [HttpPost]
  [ActionName("Delete")]
  [ValidateAntiForgeryToken]
@@ -325,11 +222,6 @@ public class BanFileMonitorsController(
  }, nameof(DeleteConfirmed));
  }
 
- /// <summary>
- /// Adds game servers view data for dropdown selection
- /// </summary>
- /// <param name="selected">The selected game server ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
  private async Task AddGameServersViewData(Guid? selected = null, CancellationToken cancellationToken = default)
  {
  try
@@ -356,14 +248,6 @@ public class BanFileMonitorsController(
  }
  }
 
- /// <summary>
- /// Retrieves and authorizes access to a ban file monitor
- /// </summary>
- /// <param name="id">The ban file monitor ID</param>
- /// <param name="policy">The authorization policy to check</param>
- /// <param name="action">The action being performed for logging</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Tuple containing the action result if unauthorized/not found and the ban file monitor data if successful</returns>
  private async Task<(IActionResult? ActionResult, BanFileMonitorDto? BanFileMonitor)> GetAuthorizedBanFileMonitorAsync(
  Guid id,
  string policy,

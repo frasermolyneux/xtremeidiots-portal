@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -9,21 +9,10 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for external integrations and public-facing API endpoints that provide data for external consumption
-/// </summary>
 public class ExternalController : BaseController
 {
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the ExternalController for handling external integrations and public API endpoints
- /// </summary>
- /// <param name="repositoryApiClient">Client for accessing repository API services to retrieve admin actions and other data</param>
- /// <param name="telemetryClient">Client for tracking telemetry events and application insights</param>
- /// <param name="logger">Logger for structured logging throughout controller operations</param>
- /// <param name="configuration">Configuration service for accessing application settings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public ExternalController(
  IRepositoryApiClient repositoryApiClient,
  TelemetryClient telemetryClient,
@@ -34,12 +23,6 @@ public class ExternalController : BaseController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// A view displaying the latest admin actions for external display purposes, typically used for embedding in external websites or forum integrations
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
- /// <returns>A view containing the latest admin actions data for external consumption</returns>
- /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions from the repository API</exception>
  [HttpGet]
  public async Task<IActionResult> LatestAdminActions(CancellationToken cancellationToken = default)
  {
@@ -70,12 +53,6 @@ public class ExternalController : BaseController
  }, nameof(LatestAdminActions));
  }
 
- /// <summary>
- /// Returns JSON data containing the latest admin actions for external API consumption (deprecated endpoint - Redirects to new API)
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation (not used in redirect)</param>
- /// <returns>Permanent redirect to the new API endpoint for latest admin actions</returns>
- /// <remarks>This endpoint is deprecated and Redirects to maintain backward compatibility with external integrations</remarks>
  [HttpGet]
  [EnableCors("CorsPolicy")]
  public IActionResult GetLatestAdminActions(CancellationToken cancellationToken = default)

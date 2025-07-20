@@ -2,9 +2,7 @@
 
 namespace XtremeIdiots.Portal.Web.Models
 {
-    /// <summary>
-    /// Represents the complete DataTable AJAX POST request model
-    /// </summary>
+
     public class DataTableAjaxPostModel
     {
         [JsonProperty("draw")]

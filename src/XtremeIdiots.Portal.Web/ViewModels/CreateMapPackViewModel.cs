@@ -1,11 +1,9 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {
-    /// <summary>
-    /// ViewModel for creating a new map pack
-    /// </summary>
+
     public class CreateMapPackViewModel
     {
         public Guid GameServerId { get; set; }

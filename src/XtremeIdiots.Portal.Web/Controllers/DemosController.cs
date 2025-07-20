@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,10 +17,6 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller responsible for managing demo files including upload, download and deletion functionality.
-/// Provides both web UI and client API endpoints for demo management with game-specific authorization.
-/// </summary>
 [Authorize(Policy = AuthPolicies.AccessDemos)]
 public class DemosController : BaseController
 {
@@ -30,18 +26,6 @@ public class DemosController : BaseController
  private readonly IDemoManager demosForumsClient;
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the DemosController with required dependencies.
- /// </summary>
- /// <param name="authorizationService">Service for checking user authorization policies</param>
- /// <param name="userManager">ASP.NET Core Identity user manager for user operations</param>
- /// <param name="signInManager">ASP.NET Core Identity sign-in manager for claims creation</param>
- /// <param name="demosForumsClient">Client for interfacing with demo manager forum integration</param>
- /// <param name="repositoryApiClient">Client for accessing the repository API services</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking events</param>
- /// <param name="logger">Logger instance for structured logging</param>
- /// <param name="configuration">Application configuration settings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public DemosController(
  IAuthorizationService authorizationService,
  UserManager<IdentityUser> userManager,
@@ -60,13 +44,6 @@ public class DemosController : BaseController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Displays the demo client configuration page with user authentication key.
- /// Retrieves the user's demo authentication key for configuring desktop client applications.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Demo client configuration view with authentication key and client download information</returns>
- /// <exception cref="InvalidOperationException">Thrown when demo manager client configuration cannot be retrieved</exception>
  [HttpGet]
  public async Task<IActionResult> DemoClient(CancellationToken cancellationToken = default)
  {
@@ -102,13 +79,6 @@ public class DemosController : BaseController
  }, $"Display {nameof(DemoClient)} configuration page with authentication key");
  }
 
- /// <summary>
- /// Regenerates the demo authentication key for the current user.
- /// Creates a new GUID-based authentication key for demo client applications and updates the user profile.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Redirect to demo client page with success message or NotFound if user profile doesn't exist</returns>
- /// <exception cref="InvalidOperationException">Thrown when user profile update operation fails</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> RegenerateAuthKey(CancellationToken cancellationToken = default)
@@ -153,17 +123,12 @@ public class DemosController : BaseController
  }, $"Regenerate demo authentication key for user");
  }
 
- /// <summary>
- /// Displays the main demos index page.
- /// Shows a comprehensive listing of demo files across all supported game types.
- /// </summary>
- /// <returns>Demos index view with DataTables integration for filtering and pagination</returns>
  [HttpGet]
  public async Task<IActionResult> Index()
  {
  return await ExecuteWithErrorHandlingAsync(async () =>
  {
- await Task.CompletedTask; // Placeholder for consistency with async pattern
+ await Task.CompletedTask;
 
  TrackSuccessTelemetry(nameof(Index), nameof(Index), new Dictionary<string, string>
  {
@@ -175,18 +140,12 @@ public class DemosController : BaseController
  }, nameof(Index));
  }
 
- /// <summary>
- /// Displays the demos index page filtered by a specific game type.
- /// Shows demo files only for the specified game type with appropriate authorization checks.
- /// </summary>
- /// <param name="id">The game type to filter by (e.g., COD2, COD4, COD5)</param>
- /// <returns>Filtered demos index view with game-specific demo listings</returns>
  [HttpGet]
  public async Task<IActionResult> GameIndex(GameType? id)
  {
  return await ExecuteWithErrorHandlingAsync(async () =>
  {
- await Task.CompletedTask; // Placeholder for consistency with async pattern
+ await Task.CompletedTask;
 
  ViewData["GameType"] = id;
 
@@ -201,13 +160,6 @@ public class DemosController : BaseController
  }, nameof(GameIndex));
  }
 
- /// <summary>
- /// Provides AJAX endpoint for DataTables to load demo data with filtering and pagination.
- /// Supports game type filtering and role-based access control for demo management.
- /// </summary>
- /// <param name="id">Optional game type filter to restrict results to a specific game</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>JSON response with demo data formatted for DataTables consumption</returns>
  [HttpPost]
  public async Task<IActionResult> GetDemoListAjax(GameType? id, CancellationToken cancellationToken = default)
  {
@@ -232,14 +184,13 @@ public class DemosController : BaseController
  if (id is not null)
  {
  filterGameTypes = new[] { (GameType)id };
- // If the user has the required claims do not filter by user id
+
  filterUserId = gameTypes.Contains((GameType)id) ? null : User.XtremeIdiotsId();
  }
  else
  {
  filterGameTypes = gameTypes.ToArray();
 
- // If the user has any required claims for games do not filter by user id
  if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
  }
 
@@ -286,11 +237,6 @@ public class DemosController : BaseController
  }, nameof(GetDemoListAjax));
  }
 
- /// <summary>
- /// Helper method to determine the correct DemoOrder from DataTable model
- /// </summary>
- /// <param name="model">The DataTable AJAX model containing order information</param>
- /// <returns>The appropriate DemoOrder enum value</returns>
  private static DemoOrder GetDemoOrderFromDataTable(DataTableAjaxPostModel model)
  {
  var order = DemoOrder.CreatedDesc;
@@ -313,14 +259,6 @@ public class DemosController : BaseController
  return order;
  }
 
- /// <summary>
- /// Downloads a demo file by redirecting to its storage URI.
- /// Verifies demo existence and tracks download telemetry before redirecting to the actual file location.
- /// </summary>
- /// <param name="id">The unique identifier of the demo</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Redirect to demo file URI or NotFound if demo doesn't exist</returns>
- /// <exception cref="InvalidOperationException">Thrown when demo retrieval fails</exception>
  [HttpGet]
  public async Task<IActionResult> Download(Guid id, CancellationToken cancellationToken = default)
  {
@@ -348,15 +286,6 @@ public class DemosController : BaseController
  }, nameof(Download));
  }
 
- /// <summary>
- /// Displays the delete confirmation page for a demo.
- /// Verifies user authorization for demo deletion and presents confirmation interface.
- /// </summary>
- /// <param name="id">The unique identifier of the demo</param>
- /// <param name="filterGame">Whether to return to game-filtered view after deletion</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Delete confirmation view or authorization error</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete the demo</exception>
  [HttpGet]
  public async Task<IActionResult> Delete(Guid id, bool filterGame = false, CancellationToken cancellationToken = default)
  {
@@ -386,16 +315,6 @@ public class DemosController : BaseController
  }, nameof(Delete));
  }
 
- /// <summary>
- /// Processes the demo deletion after confirmation.
- /// Performs authorization check, deletes the demo file and redirects with success notification.
- /// </summary>
- /// <param name="id">The unique identifier of the demo</param>
- /// <param name="filterGame">Whether to return to game-filtered view after deletion</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Redirect to demos list with success message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete the demo</exception>
- /// <exception cref="InvalidOperationException">Thrown when demo deletion operation fails</exception>
  [HttpPost]
  [ActionName(nameof(Delete))]
  [ValidateAntiForgeryToken]
@@ -431,15 +350,6 @@ public class DemosController : BaseController
  }, nameof(DeleteConfirmed));
  }
 
- /// <summary>
- /// Provides API endpoint for demo client applications to retrieve demo list.
- /// Authenticates using demo-manager-auth-key header and returns JSON list of accessible demos
- /// based on user's game administration permissions.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>JSON array of demos or authentication error message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when authentication key is invalid</exception>
- /// <exception cref="InvalidOperationException">Thrown when demo retrieval fails</exception>
  [HttpGet]
  public async Task<IActionResult> ClientDemoList(CancellationToken cancellationToken = default)
  {
@@ -537,17 +447,6 @@ public class DemosController : BaseController
  }
  }
 
- /// <summary>
- /// Handles demo file uploads from client applications.
- /// Authenticates the request, validates file type and stores the demo file with metadata.
- /// Supports .dm_1 and .dm_6 file extensions for Call of Duty demo files.
- /// </summary>
- /// <param name="file">The demo file to upload (must be .dm_1 or .dm_6 format)</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Success response or error message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when authentication key is invalid</exception>
- /// <exception cref="ArgumentException">Thrown when file type is not supported</exception>
- /// <exception cref="InvalidOperationException">Thrown when demo upload operation fails</exception>
  [HttpPost]
  public async Task<ActionResult> ClientUploadDemo(IFormFile file, CancellationToken cancellationToken = default)
  {
@@ -647,15 +546,6 @@ public class DemosController : BaseController
  }
  }
 
- /// <summary>
- /// Provides demo download endpoint for client applications.
- /// Authenticates the request and Redirects to the demo file's storage location for download.
- /// </summary>
- /// <param name="id">The unique identifier of the demo</param>
- /// <param name="cancellationToken">Cancellation token for the operation</param>
- /// <returns>Redirect to demo file URI or error message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when authentication key is invalid</exception>
- /// <exception cref="InvalidOperationException">Thrown when demo retrieval fails</exception>
  [HttpGet]
  public async Task<IActionResult> ClientDownload(Guid id, CancellationToken cancellationToken = default)
  {
@@ -723,17 +613,9 @@ public class DemosController : BaseController
  }
  }
 
- /// <summary>
- /// Data transfer object for demo entries displayed in the portal UI.
- /// Transforms repository demo data into a format suitable for web presentation with additional UI metadata.
- /// </summary>
  public class PortalDemoDto
  {
- /// <summary>
- /// Initializes a new instance of PortalDemoDto from a repository demo object.
- /// Maps demo properties and provides default values for missing user profile information.
- /// </summary>
- /// <param name="demo">The demo data from the repository</param>
+
  public PortalDemoDto(DemoDto demo)
  {
  DemoId = demo.DemoId;

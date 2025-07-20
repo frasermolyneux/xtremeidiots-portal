@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,15 +15,6 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing user accounts, profiles and claims 
-/// </summary>
-/// <remarks>
-/// This controller handles user management operations including profile management, claim assignment,
-/// forced logout functionality and user permissions for the gaming community management system.
-/// Integrates with ASP.NET Core Identity for user authentication and custom authorization policies
-/// for game-specific permissions and administrative access control.
-/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessUsers)]
 public class UserController : BaseController
 {
@@ -31,16 +22,6 @@ public class UserController : BaseController
  private readonly IRepositoryApiClient repositoryApiClient;
  private readonly UserManager<IdentityUser> userManager;
 
- /// <summary>
- /// Initializes a new instance of the <see cref="UserController"/> class
- /// </summary>
- /// <param name="authorizationService">Service for handling authorization policies and requirements</param>
- /// <param name="repositoryApiClient">Client for accessing repository API for user profile data operations</param>
- /// <param name="userManager">ASP.NET Core Identity user manager for user account operations</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking user management operations</param>
- /// <param name="logger">Logger instance for this controller</param>
- /// <param name="configuration">Application configuration for accessing settings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required parameter is null</exception>
  public UserController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -55,14 +36,6 @@ public class UserController : BaseController
  this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
  }
 
- /// <summary>
- /// Displays the main users management page
- /// </summary>
- /// <returns>The users index view for managing user accounts and profiles</returns>
- /// <remarks>
- /// This endpoint provides the main entry point for user management operations .
- /// The actual user data is loaded via AJAX through the GetUsersAjax endpoint for better performance.
- /// </remarks>
  [HttpGet]
  public async Task<IActionResult> Index()
  {
@@ -73,14 +46,6 @@ public class UserController : BaseController
  }, nameof(Index));
  }
 
- /// <summary>
- /// Displays the permissions management page
- /// </summary>
- /// <returns>The permissions view for managing user permissions and access control</returns>
- /// <remarks>
- /// This endpoint provides access to the permissions management interface for configuring
- /// user access control and authorization policies within the gaming community management system.
- /// </remarks>
  [HttpGet]
  public async Task<IActionResult> Permissions()
  {
@@ -91,19 +56,6 @@ public class UserController : BaseController
  }, nameof(Permissions));
  }
 
- /// <summary>
- /// Displays the user profile management page for a specific user
- /// </summary>
- /// <param name="id">The user profile ID to manage</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The manage profile view with user data and available game servers for claim assignment</returns>
- /// <exception cref="KeyNotFoundException">Thrown when user profile is not found</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionmanage user profiles</exception>
- /// <remarks>
- /// This endpoint allows senior administrators and head administrators to manage user profiles,
- /// including adding and removing claims for game-specific permissions. The available game servers
- /// are filtered based on the current user's claims and permissions within the gaming community.
- /// </remarks>
  [HttpGet]
  public async Task<IActionResult> ManageProfile(Guid id, CancellationToken cancellationToken = default)
  {
@@ -136,17 +88,6 @@ public class UserController : BaseController
  }, nameof(ManageProfile));
  }
 
- /// <summary>
- /// AJAX endpoint for retrieving users data for DataTables
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with user data formatted for DataTables jQuery plugin</returns>
- /// <exception cref="ArgumentException">Thrown when request body is invalid or malformed</exception>
- /// <remarks>
- /// This endpoint processes DataTables AJAX requests for the user management interface,
- /// providing server-side pagination, filtering and sorting of user profile data.
- /// The response format is compatible with the DataTables jQuery plugin requirements.
- /// </remarks>
  [HttpPost]
  public async Task<IActionResult> GetUsersAjax(CancellationToken cancellationToken = default)
  {
@@ -182,20 +123,6 @@ public class UserController : BaseController
  }, nameof(GetUsersAjax));
  }
 
- /// <summary>
- /// Forces a user to log out by updating their security stamp
- /// </summary>
- /// <param name="id">The user ID to force logout</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirect to Index with success/warning message</returns>
- /// <exception cref="ArgumentException">Thrown when user ID is null or empty</exception>
- /// <exception cref="KeyNotFoundException">Thrown when user with specified ID is not found</exception>
- /// <remarks>
- /// This administrative function forcibly logs out a user by updating their security stamp,
- /// which invalidates all their existing authentication tokens. The logout may take up to 15 minutes
- /// to take effect due to token caching. This is typically used for security purposes or when
- /// user permissions have been revoked.
- /// </remarks>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> LogUserOut(string id, CancellationToken cancellationToken = default)
@@ -231,23 +158,6 @@ public class UserController : BaseController
  }, nameof(LogUserOut));
  }
 
- /// <summary>
- /// Creates a new user claim for the specified user profile
- /// </summary>
- /// <param name="id">The user profile ID to add the claim to</param>
- /// <param name="claimType">The type of claim to create (e.g., GameAdmin, BanFileMonitor)</param>
- /// <param name="claimValue">The value of the claim (typically a game server ID)</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirect to ManageProfile with success/error message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate user claims</exception>
- /// <exception cref="KeyNotFoundException">Thrown when user profile or game server is not found</exception>
- /// <exception cref="ArgumentException">Thrown when claim parameters are invalid</exception>
- /// <remarks>
- /// This endpoint allows authorized administrators to assign game-specific claims to user profiles,
- /// granting them permissions for specific game servers or administrative functions. The authorization
- /// is checked against the game type associated with the claim value (game server ID). If the user
- /// already has the specified claim, no duplicate is created.
- /// </remarks>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> CreateUserClaim(Guid id, string claimType, string claimValue, CancellationToken cancellationToken = default)
@@ -324,22 +234,6 @@ public class UserController : BaseController
  }, nameof(CreateUserClaim), id.ToString());
  }
 
- /// <summary>
- /// Removes a user claim from the specified user profile
- /// </summary>
- /// <param name="id">The user profile ID to remove the claim from</param>
- /// <param name="claimId">The specific claim ID to remove</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirect to ManageProfile with success/error message</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete user claims</exception>
- /// <exception cref="KeyNotFoundException">Thrown when user profile or claim is not found</exception>
- /// <remarks>
- /// This endpoint allows authorized administrators to remove game-specific claims from user profiles,
- /// revoking their permissions for specific game servers or administrative functions. Special handling
- /// is provided for legacy claims where the associated game server may no longer exist. After removing
- /// a claim, the user's security stamp is updated to invalidate their current authentication tokens,
- /// ensuring the permission change takes effect (may take up to 15 minutes due to token caching).
- /// </remarks>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> RemoveUserClaim(Guid id, Guid claimId, CancellationToken cancellationToken = default)
@@ -371,7 +265,6 @@ public class UserController : BaseController
 
  var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(Guid.Parse(claim.ClaimValue), cancellationToken);
 
- // Handle authorization for legacy claims differently
  var canDeleteUserClaim = false;
  if (gameServerApiResponse.IsNotFound)
  {

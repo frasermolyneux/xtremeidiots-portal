@@ -2,9 +2,7 @@
 
 namespace XtremeIdiots.Portal.Web.Models
 {
-    /// <summary>
-    /// Represents ordering parameters from DataTable AJAX requests
-    /// </summary>
+
     public class DataTableOrder
     {
         [JsonProperty("column")]

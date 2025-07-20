@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -10,9 +10,7 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers
 {
-    /// <summary>
-    /// API controller for application health check endpoints, providing status information about external dependencies
-    /// </summary>
+
     [AllowAnonymous]
     [Route("api/[controller]")]
     public class HealthCheckController : BaseApiController
@@ -20,14 +18,6 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
         private readonly List<HealthCheckComponent> healthCheckComponents = new();
         private readonly IInvisionApiClient forumsClient;
 
-        /// <summary>
-        /// Initializes a new instance of the HealthCheckController
-        /// </summary>
-        /// <param name="forumsClient">Client for accessing forums API services</param>
-        /// <param name="telemetryClient">Client for tracking telemetry events</param>
-        /// <param name="logger">Logger for structured logging</param>
-        /// <param name="configuration">Configuration service for app settings</param>
-        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
         public HealthCheckController(
             IInvisionApiClient forumsClient,
             TelemetryClient telemetryClient,
@@ -60,11 +50,6 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
             });
         }
 
-        /// <summary>
-        /// Returns the health status of all system components
-        /// </summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>JSON response containing health status of all components</returns>
         [HttpGet("status")]
         public async Task<IActionResult> Status(CancellationToken cancellationToken = default)
         {
@@ -132,68 +117,35 @@ namespace XtremeIdiots.Portal.Web.ApiControllers
             }, "Status");
         }
 
-        /// <summary>
-        /// Represents a health check response containing the status of all system components
-        /// </summary>
         public class HealthCheckResponse
         {
-            /// <summary>
-            /// Gets a value indicating whether all components are healthy
-            /// </summary>
+
             public bool IsHealthy {
                 get { return Components.All(c => c.IsHealthy); }
             }
 
-            /// <summary>
-            /// Gets or sets the list of component statuses
-            /// </summary>
             public List<HealthCheckComponentStatus> Components { get; set; } = new();
         }
 
-        /// <summary>
-        /// Represents a health check component configuration
-        /// </summary>
         public class HealthCheckComponent
         {
-            /// <summary>
-            /// Gets or sets the name of the component
-            /// </summary>
+
             public string? Name { get; set; }
 
-            /// <summary>
-            /// Gets or sets a value indicating whether this component is critical to overall system health
-            /// </summary>
             public bool Critical { get; set; }
 
-            /// <summary>
-            /// Gets or sets the function to execute for health checking
-            /// </summary>
             public Func<Task<Tuple<bool, string>>>? HealthFunc { get; set; }
         }
 
-        /// <summary>
-        /// Represents the status of a health check component
-        /// </summary>
         public class HealthCheckComponentStatus
         {
-            /// <summary>
-            /// Gets or sets the name of the component
-            /// </summary>
+
             public string? Name { get; set; }
 
-            /// <summary>
-            /// Gets or sets a value indicating whether this component is critical to overall system health
-            /// </summary>
             public bool Critical { get; set; }
 
-            /// <summary>
-            /// Gets or sets a value indicating whether the component is healthy
-            /// </summary>
             public bool IsHealthy { get; set; }
 
-            /// <summary>
-            /// Gets or sets additional data about the component status
-            /// </summary>
             public string? AdditionalData { get; set; }
         }
     }

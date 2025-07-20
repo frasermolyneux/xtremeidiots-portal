@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,37 +15,11 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
-/// <summary>
-/// API controller for external integrations and public-facing endpoints that provide data access for third-party applications and forum integrations.
-/// Serves as a RESTful API bridge enabling external systems to access XtremeIdiots Portal data with proper CORS support and structured JSON responses.
-/// </summary>
-/// <remarks>
-/// This controller provides external API endpoints primarily used by:
-/// - Forum integrations for displaying admin actions
-/// - Third-party applications requiring read-only access to portal data
-/// - External services that need to consume portal data via API
-/// All endpoints support CORS for cross-domain access and implement proper error handling with structured logging.
-/// </remarks>
 [Route("External")]
 public class ExternalController : BaseApiController
 {
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the ExternalController with the required dependencies for external API operations.
- /// </summary>
- /// <param name="repositoryApiClient">Client for accessing repository API services and data retrieval operations</param>
- /// <param name="telemetryClient">Client for tracking telemetry events and monitoring external API usage</param>
- /// <param name="logger">Logger for structured logging of external API operations and error tracking</param>
- /// <param name="configuration">Configuration service for accessing application settings and external service endpoints</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
- /// <remarks>
- /// The constructor establishes dependencies required for:
- /// - Repository data access for admin actions and player information
- /// - Telemetry tracking for monitoring external API performance
- /// - Structured logging for debugging and operational monitoring
- /// - Configuration access for external service integration settings
- /// </remarks>
  public ExternalController(
  IRepositoryApiClient repositoryApiClient,
  TelemetryClient telemetryClient,
@@ -56,26 +30,6 @@ public class ExternalController : BaseApiController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Returns JSON data containing the latest admin actions for external API consumption with structured format for forum integration.
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation to allow request cancellation</param>
- /// <returns>
- /// JSON array of formatted admin action data containing game icons, admin information, action details and player links.
- /// Returns HTTP 200 OK with admin action array on success, or HTTP 500 on repository service failure.
- /// </returns>
- /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions from repository service</exception>
- /// <remarks>
- /// This endpoint provides external API access to the latest 15 admin actions with:
- /// - Game-specific icon URLs for visual representation
- /// - Admin profile information including display names and forum IDs
- /// - Formatted action text describing the admin action performed
- /// - Direct links to player detail pages for additional context
- /// - Support for expired ban detection with appropriate action text formatting
- /// 
- /// The endpoint is configured with CORS policy to allow cross-domain access for forum integrations
- /// and implements comprehensive error handling with telemetry tracking for monitoring API usage.
- /// </remarks>
  [HttpGet("GetLatestAdminActions")]
  [EnableCors("CorsPolicy")]
  public async Task<IActionResult> GetLatestAdminActions(CancellationToken cancellationToken = default)

@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,15 +12,6 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing game server credentials display and access .
-/// Provides secure access to FTP and RCON credentials for authorized game server administrators.
-/// </summary>
-/// <remarks>
-/// This controller handles credential viewing for Call of Duty game servers, applying granular 
-/// authorization policies to ensure users only see credentials they're authorized to access.
-/// Authorization is applied at both controller and individual credential levels.
-/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessCredentials)]
 public class CredentialsController(
  IAuthorizationService authorizationService,
@@ -32,17 +23,6 @@ public class CredentialsController(
  private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
  private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
- /// <summary>
- /// Displays the credentials index page with filtered game servers based on user permissions.
- /// Shows FTP and RCON credentials for game servers the user is authorized to access.
- /// </summary>
- /// <param name="cancellationToken">Token to monitor for cancellation requests during the async operation</param>
- /// <returns>
- /// credentials index view containing game servers with credentials the user can access.
- /// Redirects to error page if game server retrieval fails.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess credentials</exception>
- /// <exception cref="InvalidOperationException">Thrown when game server API call fails</exception>
  [HttpGet]
  public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
  {
@@ -77,17 +57,6 @@ public class CredentialsController(
  }, "Display credentials index page with game server credentials");
  }
 
- /// <summary>
- /// Retrieves game servers that the user is authorized to view credentials for based on their claims.
- /// Filters servers by game types and specific server IDs that the user has permission to access.
- /// </summary>
- /// <param name="gameTypes">Array of game types the user has administrative access to</param>
- /// <param name="gameServerIds">Array of specific game server IDs the user has access to</param>
- /// <param name="cancellationToken">Token to monitor for cancellation requests during the async operation</param>
- /// <returns>
- /// List of game servers the user can access for credential viewing, or null if the API call fails.
- /// Returns empty list if user has no accessible servers.
- /// </returns>
  private async Task<List<GameServerDto>?> GetAuthorizedGameServersAsync(GameType[]? gameTypes, Guid[]? gameServerIds, CancellationToken cancellationToken)
  {
  var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
@@ -112,17 +81,6 @@ public class CredentialsController(
  return gameServersApiResponse.Result.Data.Items.ToList();
  }
 
- /// <summary>
- /// Applies credential-specific authorization to each game server, clearing credentials for unauthorized access.
- /// Performs fine-grained authorization checks for FTP and RCON credentials separately for each server.
- /// </summary>
- /// <param name="gameServersList">List of game servers to apply credential authorization filtering to</param>
- /// <param name="cancellationToken">Token to monitor for cancellation requests during the async operation</param>
- /// <remarks>
- /// This method modifies the game server DTOs in-place, clearing FTP or RCON credentials
- /// from servers where the user lacks specific credential access permissions.
- /// Unauthorized access attempts are tracked for security monitoring.
- /// </remarks>
  private async Task ApplyCredentialAuthorizationAsync(List<GameServerDto> gameServersList, CancellationToken cancellationToken)
  {
  foreach (var gameServerDto in gameServersList)

@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +13,6 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing administrative actions against players
-/// </summary>
 [Authorize(Policy = AuthPolicies.AccessAdminActionsController)]
 public class AdminActionsController(
  IAuthorizationService authorizationService,
@@ -33,13 +30,6 @@ public class AdminActionsController(
     private readonly IAdminActionTopics adminActionTopics = adminActionTopics ?? throw new ArgumentNullException(nameof(adminActionTopics));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
-    /// <summary>
-    /// Displays the form for creating a new admin action against a player
-    /// </summary>
-    /// <param name="id">The player ID to create an admin action against</param>
-    /// <param name="adminActionType">The type of admin action to create</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Create admin action view with pre-populated data</returns>
     [HttpGet]
     public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType, CancellationToken cancellationToken = default)
     {
@@ -74,13 +64,6 @@ public class AdminActionsController(
         }, $"CreateAdminActionForm-{adminActionType}");
     }
 
-    /// <summary>
-    /// Processes the creation of a new admin action with form validation and authorization checks
-    /// </summary>
-    /// <param name="model">The create admin action view model containing form data</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details on success, returns view with validation errors on failure</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate admin actions</exception>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateAdminActionViewModel model, CancellationToken cancellationToken = default)
@@ -137,13 +120,6 @@ public class AdminActionsController(
         }, $"CreateAdminAction-{model.Type}");
     }
 
-    /// <summary>
-    /// Displays the form for editing an existing admin action
-    /// </summary>
-    /// <param name="id">The admin action ID to edit</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>edit admin action view with current data, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit the admin action</exception>
     [HttpGet]
     public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
     {
@@ -182,13 +158,6 @@ public class AdminActionsController(
         }, "EditAdminActionForm");
     }
 
-    /// <summary>
-    /// Processes the editing of an admin action with validation and authorization checks
-    /// </summary>
-    /// <param name="model">The edit admin action view model containing updated form data</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details on success, returns view with validation errors on failure</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit admin actions</exception>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditAdminActionViewModel model, CancellationToken cancellationToken = default)
@@ -252,13 +221,6 @@ public class AdminActionsController(
         }, nameof(Edit));
     }
 
-    /// <summary>
-    /// Displays the confirmation form for lifting (ending) an admin action
-    /// </summary>
-    /// <param name="id">The admin action ID to lift</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>lift confirmation view, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionlift admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Lift(Guid id, CancellationToken cancellationToken = default)
     {
@@ -286,14 +248,6 @@ public class AdminActionsController(
         }, "LiftAdminActionForm");
     }
 
-    /// <summary>
-    /// Processes the lifting (ending) of an admin action by setting its expiry to now
-    /// </summary>
-    /// <param name="id">The admin action ID to lift</param>
-    /// <param name="playerId">The player ID associated with the admin action</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionlift admin actions</exception>
     [HttpPost]
     [ActionName(nameof(Lift))]
     [ValidateAntiForgeryToken]
@@ -341,13 +295,6 @@ public class AdminActionsController(
         }, nameof(Lift));
     }
 
-    /// <summary>
-    /// Displays the confirmation form for claiming ownership of an unclaimed admin action
-    /// </summary>
-    /// <param name="id">The admin action ID to claim</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>claim confirmation view, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionclaim admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Claim(Guid id, CancellationToken cancellationToken = default)
     {
@@ -379,14 +326,6 @@ public class AdminActionsController(
         }, "ClaimAdminActionForm");
     }
 
-    /// <summary>
-    /// Claims ownership of an admin action by assigning it to the current user
-    /// </summary>
-    /// <param name="id">The admin action ID to claim</param>
-    /// <param name="playerId">The player ID associated with the admin action</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionclaim admin actions</exception>
     [HttpPost]
     [ActionName(nameof(Claim))]
     [ValidateAntiForgeryToken]
@@ -450,13 +389,6 @@ public class AdminActionsController(
         }, nameof(Claim));
     }
 
-    /// <summary>
-    /// Creates a forum discussion topic for an existing admin action that doesn't have one
-    /// </summary>
-    /// <param name="id">The admin action ID to create a discussion topic for</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details with success message and forum link, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate admin action topics</exception>
     [HttpGet]
     public async Task<IActionResult> CreateDiscussionTopic(Guid id, CancellationToken cancellationToken = default)
     {
@@ -514,13 +446,6 @@ public class AdminActionsController(
         }, nameof(CreateDiscussionTopic));
     }
 
-    /// <summary>
-    /// Displays the confirmation form for deleting an admin action
-    /// </summary>
-    /// <param name="id">The admin action ID to delete</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>delete confirmation view, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
@@ -551,14 +476,6 @@ public class AdminActionsController(
         }, "DeleteAdminActionForm");
     }
 
-    /// <summary>
-    /// Processes the deletion of an admin action after confirmation
-    /// </summary>
-    /// <param name="id">The admin action ID to delete</param>
-    /// <param name="playerId">The player ID associated with the admin action</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete admin actions</exception>
     [HttpPost]
     [ActionName(nameof(Delete))]
     [ValidateAntiForgeryToken]
@@ -603,25 +520,10 @@ public class AdminActionsController(
         }, nameof(Delete));
     }
 
-    /// <summary>
-    /// Gets the configured forum base URL or default
-    /// </summary>
-    /// <returns>The forum base URL for creating links to admin action topics</returns>
     private string GetForumBaseUrl() => GetConfigurationValue("AdminActions:ForumBaseUrl", DefaultForumBaseUrl);
 
-    /// <summary>
-    /// Gets the configured fallback admin ID or default
-    /// </summary>
-    /// <returns>The fallback admin ID to use when no admin is specified</returns>
     private string GetFallbackAdminId() => GetConfigurationValue("AdminActions:FallbackAdminId", DefaultFallbackAdminId);
 
-    /// <summary>
-    /// Retrieves player data by ID with error handling and validation
-    /// </summary>
-    /// <param name="playerId">The player ID to retrieve</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The player data if found, null if not found</returns>
-    /// <exception cref="InvalidOperationException">Thrown when player data retrieval fails unexpectedly</exception>
     private async Task<PlayerDto?> GetPlayerDataAsync(Guid playerId, CancellationToken cancellationToken = default)
     {
         var getPlayerResult = await repositoryApiClient.Players.V1.GetPlayer(playerId, PlayerEntityOptions.None);
@@ -641,12 +543,6 @@ public class AdminActionsController(
         return getPlayerResult.Result.Data;
     }
 
-    /// <summary>
-    /// Retrieves admin action data by ID with error handling and validation
-    /// </summary>
-    /// <param name="adminActionId">The admin action ID to retrieve</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The admin action data if found, null if not found or has no associated player</returns>
     private async Task<AdminActionDto?> GetAdminActionDataAsync(Guid adminActionId, CancellationToken cancellationToken = default)
     {
         var getAdminActionResult = await repositoryApiClient.AdminActions.V1.GetAdminAction(adminActionId, cancellationToken);
@@ -660,12 +556,6 @@ public class AdminActionsController(
         return getAdminActionResult.Result.Data;
     }
 
-    /// <summary>
-    /// Updates the forum topic for an admin action if it exists
-    /// </summary>
-    /// <param name="adminActionData">The admin action data containing forum topic information</param>
-    /// <param name="text">The updated text for the admin action</param>
-    /// <param name="adminForumId">The admin forum ID to associate with the action</param>
     private async Task UpdateForumTopicIfExistsAsync(AdminActionDto adminActionData, string text, string? adminForumId)
     {
         if (adminActionData.ForumTopicId.HasValue && adminActionData.ForumTopicId != 0 && adminActionData.Player is not null)
@@ -682,34 +572,15 @@ public class AdminActionsController(
         }
     }
 
-    /// <summary>
-    /// Creates a success message for when an admin action is applied with forum topic link
-    /// </summary>
-    /// <param name="actionType">The type of admin action</param>
-    /// <param name="username">The username of the affected player</param>
-    /// <param name="forumTopicId">The forum topic ID for the admin action</param>
-    /// <returns>A formatted HTML message with forum topic link</returns>
     private string CreateActionAppliedMessage(AdminActionType actionType, string username, int? forumTopicId)
     {
         var forumBaseUrl = GetForumBaseUrl();
         return $"The {actionType} has been successfully applied against {username} with a <a target=\"_blank\" href=\"{forumBaseUrl}{forumTopicId}-topic/\" class=\"alert-link\">topic</a>";
     }
 
-    /// <summary>
-    /// Creates a success message for admin action operations (updated, lifted, etc.)
-    /// </summary>
-    /// <param name="actionType">The type of admin action</param>
-    /// <param name="username">The username of the affected player</param>
-    /// <param name="operation">The operation performed (updated, lifted, etc.)</param>
-    /// <returns>A formatted success message</returns>
     private static string CreateActionOperationMessage(AdminActionType actionType, string username, string operation) =>
     $"The {actionType} has been successfully {operation} for {username}";
 
-    /// <summary>
-    /// Displays admin actions created by the current user
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>A view with the user's admin actions, or error page on failure</returns>
     [HttpGet]
     public async Task<IActionResult> MyActions(CancellationToken cancellationToken = default)
     {
@@ -730,11 +601,6 @@ public class AdminActionsController(
         }, nameof(MyActions));
     }
 
-    /// <summary>
-    /// Displays unclaimed admin actions (typically bans) that need to be assigned to administrators
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>A view with unclaimed admin actions, or error page on failure</returns>
     [HttpGet]
     public async Task<IActionResult> Unclaimed(CancellationToken cancellationToken = default)
     {

@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,15 +21,6 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing game server banners and GameTracker integration
-/// </summary>
-/// <param name="authorizationService">Service for handling authorization checks</param>
-/// <param name="repositoryApiClient">Client for accessing repository API endpoints</param>
-/// <param name="memoryCache">Memory cache for banner data optimization</param>
-/// <param name="telemetryClient">Application Insights telemetry client for tracking</param>
-/// <param name="logger">Logger instance for this controller</param>
-/// <param name="configuration">Configuration provider for application settings</param>
 [Authorize(Policy = AuthPolicies.AccessHome)]
 public class BannersController(
  IAuthorizationService authorizationService,
@@ -45,12 +36,6 @@ public class BannersController(
  private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  private readonly IMemoryCache memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
- /// <summary>
- /// Displays the game servers list view for banner management
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The game servers list view or an authorization failure response</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess game servers</exception>
  [HttpGet]
  public async Task<IActionResult> GameServersList(CancellationToken cancellationToken = default)
  {
@@ -74,12 +59,6 @@ public class BannersController(
  }, "Display game servers list view for banner management");
  }
 
- /// <summary>
- /// Gets the list of game servers with banner information (CORS enabled for external access)
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON array of HTML banners or error response</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess game servers</exception>
  [HttpGet]
  [EnableCors("CorsPolicy")]
  public async Task<IActionResult> GetGameServers(CancellationToken cancellationToken = default)
@@ -137,16 +116,6 @@ public class BannersController(
  }, "Retrieve game servers banners data");
  }
 
- /// <summary>
- /// Redirects to GameTracker banner with caching support and fallback handling
- /// </summary>
- /// <param name="ipAddress">Server IP address for the GameTracker banner</param>
- /// <param name="queryPort">Server query port for the GameTracker banner</param>
- /// <param name="imageName">Banner image name requested from GameTracker</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirect to banner URL or fallback GameTracker URL</returns>
- /// <exception cref="ArgumentException">Thrown when invalid parameters are provided</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess GameTracker banners</exception>
  [HttpGet]
  [Route("gametracker/{ipAddress}:{queryPort}/{imageName}")]
  public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName, CancellationToken cancellationToken = default)

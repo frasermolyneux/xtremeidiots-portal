@@ -5,9 +5,7 @@ using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 
 namespace XtremeIdiots.Portal.Web.ViewModels
 {
-    /// <summary>
-    /// ViewModel for editing an existing ban file monitor
-    /// </summary>
+
     public class EditBanFileMonitorViewModel
     {
         public Guid BanFileMonitorId { get; set; }

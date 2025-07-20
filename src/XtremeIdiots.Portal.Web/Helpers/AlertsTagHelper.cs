@@ -6,9 +6,7 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Helpers
 {
-    /// <summary>
-    /// Tag helper for displaying alert messages from TempData
-    /// </summary>
+
     public class AlertsTagHelper : TagHelper
     {
         private const string AlertKey = "Alerts";
@@ -25,7 +23,6 @@ namespace XtremeIdiots.Portal.Web.Helpers
             if (TempData[AlertKey] is null)
                 TempData[AlertKey] = JsonConvert.SerializeObject(new HashSet<Alert>());
 
-            // TempData values are guaranteed to be non-null after the check above
             var alertsJson = TempData[AlertKey]?.ToString() ?? throw new InvalidOperationException("TempData alert key is unexpectedly null");
             var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsJson) ?? new HashSet<Alert>();
 

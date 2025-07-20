@@ -23,7 +23,7 @@ namespace XtremeIdiots.Portal.Integrations.Forums
         {
             try
             {
-                var userId = 21145; // Admin
+                var userId = 21145;
 
                 if (adminId != null)
                     userId = Convert.ToInt32(adminId);
@@ -50,7 +50,6 @@ namespace XtremeIdiots.Portal.Integrations.Forums
 
                 var postTopicResult = await _invisionClient.Forums.PostTopic(forumId, userId, $"{username} - {type}", PostContent(type, playerId, username, created, text), type.ToString());
 
-                // Ensure we have a valid topic result before returning
                 if (postTopicResult is null)
                 {
                     _logger.LogWarning("Failed to create forum topic for admin action - null response");
@@ -71,7 +70,7 @@ namespace XtremeIdiots.Portal.Integrations.Forums
             if (topicId == 0)
                 return;
 
-            var userId = 21145; // Admin
+            var userId = 21145;
 
             if (adminId != null)
                 userId = Convert.ToInt32(adminId);

@@ -4,9 +4,7 @@ using System.Security.Claims;
 
 namespace XtremeIdiots.Portal.Web.Helpers
 {
-    /// <summary>
-    /// Tag helper for conditionally rendering content based on authorization policies
-    /// </summary>
+
     [HtmlTargetElement(Attributes = "policy")]
     public class PolicyTagHelper : TagHelper
     {
@@ -16,7 +14,7 @@ namespace XtremeIdiots.Portal.Web.Helpers
         public PolicyTagHelper(IAuthorizationService authService, IHttpContextAccessor httpContextAccessor)
         {
             _authService = authService;
-            // HttpContext should not be null in normal request flow
+
             _principal = httpContextAccessor.HttpContext?.User ?? throw new InvalidOperationException("HttpContext is not available");
         }
 

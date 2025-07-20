@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -19,31 +19,12 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Manages player tag operations including creation, editing, deletion and display .
-/// Provides CRUD operations for both user-defined and system tags with role-based authorization.
-/// </summary>
-/// <remarks>
-/// This controller handles tag management for the gaming community portal, supporting both user-defined tags
-/// and system tags with different permission levels. System tags require senior admin privileges for deletion,
-/// while user-defined tags can be managed by users with appropriate permissions. The controller integrates
-/// with the Repository API for persistence and includes comprehensive telemetry tracking for audit purposes.
-/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessPlayerTags)]
 public class TagsController : BaseController
 {
  private readonly IAuthorizationService authorizationService;
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the TagsController with required dependencies for tag management operations.
- /// </summary>
- /// <param name="authorizationService">Service for handling authorization checks and policy validation</param>
- /// <param name="repositoryApiClient">Client for interacting with the Repository API for tag data operations</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking user actions and system events</param>
- /// <param name="logger">Logger instance for recording application events and debugging information</param>
- /// <param name="configuration">Application configuration for accessing settings and connection strings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public TagsController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -56,19 +37,6 @@ public class TagsController : BaseController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Helper method to retrieve a tag with comprehensive authorization checking and error handling.
- /// </summary>
- /// <param name="id">The unique identifier of the tag to retrieve</param>
- /// <param name="policy">The authorization policy name to validate against the current user</param>
- /// <param name="action">The specific action being performed for telemetry and logging purposes</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// A tuple containing either an action result (for errors/unauthorized access) or the tag data.
- /// If ActionResult is not null, it should be returned immediately. If tag data is not null, the operation succeeded.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks permission to access the specified tag</exception>
- /// <exception cref="NotFoundException">Thrown when the tag with the specified ID does not exist</exception>
  private async Task<(IActionResult? ActionResult, TagDto? Data)> GetAuthorizedTagAsync(
  Guid id,
  string policy,
@@ -101,16 +69,7 @@ public class TagsController : BaseController
 
  return authResult is not null ? (authResult, null) : (null, tagData);
  }
- /// <summary>
- /// Displays a comprehensive list of all available player tags with pagination support.
- /// </summary>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// A view containing the tags list on success, or Redirects to an error page if the operation fails.
- /// The view model includes all available tags for display and management.
- /// </returns>
- /// <exception cref="RepositoryException">Thrown when the repository API fails to retrieve tags data</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks permission to view tags</exception>
+
  [HttpGet]
  public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
  {
@@ -133,15 +92,6 @@ public class TagsController : BaseController
  }, nameof(Index));
  }
 
- /// <summary>
- /// Displays the form for creating a new player tag with proper authorization validation.
- /// </summary>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// create tag view with an empty model on success, or an unauthorized response if the user lacks permission.
- /// The form includes fields for tag name, description, HTML styling and user-defined status.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks CreatePlayerTag permission</exception>
  [HttpGet]
  [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
  public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
@@ -159,18 +109,7 @@ public class TagsController : BaseController
  return View(new CreateTagViewModel());
  }, nameof(Create));
  }
- /// <summary>
- /// Creates a new player tag based on the submitted form data with comprehensive validation and authorization checks.
- /// </summary>
- /// <param name="model">The create tag view model containing the tag details including name, description, HTML styling and user-defined status</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// Redirects to the tags list on successful creation with a success message, or view with validation errors and appropriate feedback.
- /// On authorization failure, displays an error message and form for correction.
- /// </returns>
- /// <exception cref="ArgumentNullException">Thrown when the model parameter is null</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks CreatePlayerTag permission</exception>
- /// <exception cref="RepositoryException">Thrown when the repository API fails to create the tag</exception>
+
  [HttpPost]
  [ValidateAntiForgeryToken]
  [Authorize(Policy = AuthPolicies.CreatePlayerTag)]
@@ -220,18 +159,6 @@ public class TagsController : BaseController
  }, nameof(Create));
  }
 
- /// <summary>
- /// Displays the form for editing an existing player tag with pre-populated data and authorization validation.
- /// </summary>
- /// <param name="id">The unique identifier of the tag to edit</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// edit tag view with populated form data on success, or appropriate error responses for not found/unauthorized scenarios.
- /// The form includes all editable fields pre-filled with current tag values.
- /// </returns>
- /// <exception cref="ArgumentException">Thrown when the ID parameter is empty or invalid</exception>
- /// <exception cref="NotFoundException">Thrown when the tag with the specified ID does not exist</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks EditPlayerTag permission for this specific tag</exception>
  [HttpGet]
  [Authorize(Policy = AuthPolicies.EditPlayerTag)]
  public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
@@ -254,19 +181,6 @@ public class TagsController : BaseController
  }, nameof(Edit));
  }
 
- /// <summary>
- /// Updates an existing player tag based on the submitted form data with comprehensive validation and authorization checks.
- /// </summary>
- /// <param name="model">The edit tag view model containing the updated tag details including ID, name, description, HTML styling and user-defined status</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// Redirects to the tags list on successful update with a success message, or view with validation errors and appropriate feedback.
- /// On authorization failure, displays an error message and form for correction.
- /// </returns>
- /// <exception cref="ArgumentNullException">Thrown when the model parameter is null</exception>
- /// <exception cref="NotFoundException">Thrown when the tag with the specified ID does not exist</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks EditPlayerTag permission for this specific tag</exception>
- /// <exception cref="RepositoryException">Thrown when the repository API fails to update the tag</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  [Authorize(Policy = AuthPolicies.EditPlayerTag)]
@@ -320,18 +234,6 @@ public class TagsController : BaseController
  }, nameof(Edit));
  }
 
- /// <summary>
- /// Displays the confirmation page for deleting a player tag with comprehensive authorization and data validation.
- /// </summary>
- /// <param name="id">The unique identifier of the tag to delete</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// delete confirmation view displaying tag details for user review, or appropriate error responses for not found/unauthorized scenarios.
- /// The confirmation page shows tag information and warns about the permanent nature of deletion.
- /// </returns>
- /// <exception cref="ArgumentException">Thrown when the ID parameter is empty or invalid</exception>
- /// <exception cref="NotFoundException">Thrown when the tag with the specified ID does not exist</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks DeletePlayerTag permission for this specific tag</exception>
  [HttpGet]
  [Authorize(Policy = AuthPolicies.DeletePlayerTag)]
  public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
@@ -345,23 +247,6 @@ public class TagsController : BaseController
  }, nameof(Delete));
  }
 
- /// <summary>
- /// Permanently deletes a player tag after confirmation with comprehensive authorization checks and business rule validation.
- /// </summary>
- /// <param name="id">The unique identifier of the tag to delete</param>
- /// <param name="cancellationToken">Token to cancel the async operation if needed</param>
- /// <returns>
- /// Redirects to the tags list on successful deletion with appropriate feedback message, or returns error responses for failures.
- /// System tags require senior admin privileges for deletion, while user-defined tags follow standard authorization.
- /// </returns>
- /// <exception cref="ArgumentException">Thrown when the ID parameter is empty or invalid</exception>
- /// <exception cref="NotFoundException">Thrown when the tag with the specified ID does not exist</exception>
- /// <exception cref="UnauthorizedAccessException">Thrown when the user lacks DeletePlayerTag permission or senior admin access for system tags</exception>
- /// <exception cref="RepositoryException">Thrown when the repository API fails to delete the tag</exception>
- /// <remarks>
- /// This method enforces business rules where system tags (UserDefined = false) require senior admin privileges,
- /// while user-defined tags can be deleted by users with standard DeletePlayerTag permission.
- /// </remarks>
  [HttpPost]
  [ActionName(nameof(Delete))]
  [ValidateAntiForgeryToken]
@@ -381,7 +266,6 @@ public class TagsController : BaseController
  return actionResult;
  }
 
- // Additional business logic for system tags
  if (!tagData!.UserDefined)
  {
  if (!User.HasClaim(claim => claim.Type == UserProfileClaimType.SeniorAdmin))

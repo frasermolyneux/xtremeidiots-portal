@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -23,9 +23,6 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
-/// <summary>
-/// API controller for game server banners with caching and CORS support
-/// </summary>
 [Authorize(Policy = AuthPolicies.AccessHome)]
 [Route("Banners")]
 public class BannersController : BaseApiController
@@ -33,16 +30,8 @@ public class BannersController : BaseApiController
     private const string GameServersListCacheKey = nameof(GameServersListCacheKey);
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IMemoryCache memoryCache; /// <summary>
-                                               /// Initializes a new instance of the BannersController
-                                               /// </summary>
-                                               /// <param name="authorizationService">Service for handling authorization checks</param>
-                                               /// <param name="repositoryApiClient">Client for accessing repository API services</param>
-                                               /// <param name="memoryCache">Memory cache for caching banner data</param>
-                                               /// <param name="telemetryClient">Client for tracking telemetry events</param>
-                                               /// <param name="logger">Logger for structured logging</param>
-                                               /// <param name="configuration">Configuration service for app settings</param>
-                                               /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
+    private readonly IMemoryCache memoryCache;
+
     public BannersController(
     IAuthorizationService authorizationService,
     IRepositoryApiClient repositoryApiClient,
@@ -57,20 +46,6 @@ public class BannersController : BaseApiController
         this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
     }
 
-    /// <summary>
-    /// Gets the list of game servers with banner information enabled for public display.
-    /// This endpoint supports CORS to allow external websites to fetch banner data for community integration.
-    /// Results are cached for 5 minutes to improve performance and reduce API load.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
-    /// <returns>
-    /// HTTP 200 with JSON array of HTML banner strings when successful.
-    /// HTTP 401 when user lacks permission to access home page data.
-    /// HTTP 500 when repository API fails or returns invalid data.
-    /// </returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess game server banner data</exception>
-    /// <exception cref="HttpRequestException">Thrown when repository API communication fails</exception>
-    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
     [HttpGet("GetGameServers")]
     [EnableCors("CorsPolicy")]
     public async Task<IActionResult> GetGameServers(CancellationToken cancellationToken = default)
@@ -128,25 +103,6 @@ public class BannersController : BaseApiController
         }, "Retrieve game servers banners data");
     }
 
-    /// <summary>
-    /// Proxies and Redirects to GameTracker banner URLs with intelligent caching and fallback handling.
-    /// This endpoint serves as a proxy to cache GameTracker banner URLs and provide fallback URLs when the
-    /// repository API is unavailable. Results are cached for 5 minutes to improve performance.
-    /// </summary>
-    /// <param name="ipAddress">Server IP address for the GameTracker banner lookup (e.g., "192.168.1.1")</param>
-    /// <param name="queryPort">Server query port for the GameTracker banner lookup (e.g., "28960")</param>
-    /// <param name="imageName">Banner image name requested from GameTracker (e.g., "status_160x30.png")</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
-    /// <returns>
-    /// HTTP 302 redirect to the cached GameTracker banner URL when repository API succeeds.
-    /// HTTP 302 redirect to fallback GameTracker URL when repository API fails.
-    /// HTTP 400 when required parameters are missing or invalid.
-    /// HTTP 401 when user lacks permission to access banner data.
-    /// </returns>
-    /// <exception cref="ArgumentException">Thrown when IP address, query port, or image name parameters are invalid</exception>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess GameTracker banner data</exception>
-    /// <exception cref="HttpRequestException">Thrown when repository API communication fails</exception>
-    /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
     [HttpGet("gametracker/{ipAddress}:{queryPort}/{imageName}")]
     public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName, CancellationToken cancellationToken = default)
     {

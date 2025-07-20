@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,28 +21,11 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
-/// <summary>
-/// RESTful API controller providing DataTable AJAX endpoints for players, maps and users data
-/// </summary>
-/// <remarks>
-/// This controller serves as the data bridge between client-side DataTables and the Repository API,
-/// handling AJAX requests with proper filtering, sorting, pagination and search functionality.
-/// It supports game-specific filtering and provides structured JSON responses formatted for DataTable consumption.
-/// All endpoints implement authorization-based access control and comprehensive telemetry tracking.
-/// </remarks>
 [Route("api/[controller]")]
 public class DataController : BaseApiController
 {
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the DataController with required dependencies
- /// </summary>
- /// <param name="repositoryApiClient">Client for accessing repository API endpoints</param>
- /// <param name="telemetryClient">Application Insights telemetry client for tracking and monitoring</param>
- /// <param name="logger">Logger instance for structured logging and diagnostics</param>
- /// <param name="configuration">Application configuration settings</param>
- /// <exception cref="ArgumentNullException">Thrown when repositoryApiClient is null</exception>
  public DataController(
  IRepositoryApiClient repositoryApiClient,
  TelemetryClient telemetryClient,
@@ -53,13 +36,6 @@ public class DataController : BaseApiController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Returns players data as JSON for DataTable with optional game type filter
- /// </summary>
- /// <param name="id">Optional game type to filter players by</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON data formatted for DataTable consumption with player information</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess player data</exception>
  [HttpPost("Players/GetPlayersAjax")]
  [Authorize(Policy = AuthPolicies.AccessPlayers)]
  public async Task<IActionResult> GetPlayersAjax(GameType? id, CancellationToken cancellationToken = default)
@@ -67,12 +43,6 @@ public class DataController : BaseApiController
  return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id, cancellationToken);
  }
 
- /// <summary>
- /// Returns players data as JSON for IP address search DataTable
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON data formatted for DataTable consumption with IP address filtering enabled</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess player data</exception>
  [HttpPost("Players/GetIpSearchListAjax")]
  [Authorize(Policy = AuthPolicies.AccessPlayers)]
  public async Task<IActionResult> GetIpSearchListAjax(CancellationToken cancellationToken = default)
@@ -80,14 +50,6 @@ public class DataController : BaseApiController
  return await GetPlayersAjaxPrivate(PlayersFilter.IpAddress, null, cancellationToken);
  }
 
- /// <summary>
- /// Returns maps data as JSON for DataTable with optional game type filter
- /// </summary>
- /// <param name="id">Optional game type to filter maps by</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON data formatted for DataTable consumption with map information and statistics</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess map data</exception>
- /// <exception cref="ArgumentException">Thrown when DataTable request body is invalid</exception>
  [HttpPost("Maps/GetMapListAjax")]
  [Authorize(Policy = AuthPolicies.AccessMaps)]
  public async Task<IActionResult> GetMapListAjax(GameType? id, CancellationToken cancellationToken = default)
@@ -148,13 +110,6 @@ public class DataController : BaseApiController
  }, nameof(GetMapListAjax));
  }
 
- /// <summary>
- /// AJAX endpoint for retrieving users data for DataTables
- /// </summary>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON response with user data formatted for DataTables consumption</returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionaccess user data</exception>
- /// <exception cref="ArgumentException">Thrown when DataTable request body is invalid</exception>
  [HttpPost("Users/GetUsersAjax")]
  [Authorize(Policy = AuthPolicies.AccessUsers)]
  public async Task<IActionResult> GetUsersAjax(CancellationToken cancellationToken = default)
@@ -191,15 +146,6 @@ public class DataController : BaseApiController
  }, nameof(GetUsersAjax));
  }
 
- /// <summary>
- /// Private method to handle DataTable AJAX requests for player data with filtering and pagination
- /// </summary>
- /// <param name="filter">The filter type to apply to the search (username/GUID or IP address)</param>
- /// <param name="gameType">Optional game type filter to restrict results to specific game</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>JSON data formatted for DataTable consumption with player information</returns>
- /// <exception cref="ArgumentException">Thrown when DataTable request body is invalid</exception>
- /// <exception cref="InvalidOperationException">Thrown when API response is unsuccessful</exception>
  private async Task<IActionResult> GetPlayersAjaxPrivate(PlayersFilter filter, GameType? gameType, CancellationToken cancellationToken = default)
  {
  return await ExecuteWithErrorHandlingAsync(async () =>

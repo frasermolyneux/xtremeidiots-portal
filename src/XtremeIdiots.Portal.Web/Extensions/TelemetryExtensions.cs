@@ -13,17 +13,9 @@ using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
 
 namespace XtremeIdiots.Portal.Web.Extensions;
 
-/// <summary>
-/// Extension methods for enriching Application Insights telemetry with XtremeIdiots Portal specific data
-/// </summary>
 public static class TelemetryExtensions
 {
-    /// <summary>
-    /// Enriches event telemetry with user claims information
-    /// </summary>
-    /// <param name="eventTelemetry">The event telemetry to enrich</param>
-    /// <param name="claimsPrincipal">The claims principal containing user information</param>
-    /// <returns>The enriched event telemetry</returns>
+
     public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, ClaimsPrincipal claimsPrincipal)
     {
         eventTelemetry.Properties.TryAdd("LoggedInAdminId", claimsPrincipal.XtremeIdiotsId());
@@ -32,12 +24,6 @@ public static class TelemetryExtensions
         return eventTelemetry;
     }
 
-    /// <summary>
-    /// Enriches event telemetry with admin action data
-    /// </summary>
-    /// <param name="eventTelemetry">The event telemetry to enrich</param>
-    /// <param name="adminActionDto">The admin action data</param>
-    /// <returns>The enriched event telemetry</returns>
     public static EventTelemetry Enrich(this EventTelemetry eventTelemetry, AdminActionDto adminActionDto)
     {
         eventTelemetry.Properties.TryAdd("PlayerId", adminActionDto.PlayerId.ToString());
@@ -138,7 +124,6 @@ public static class TelemetryExtensions
         return eventTelemetry;
     }
 
-    // ExceptionTelemetry enrichment methods
     public static ExceptionTelemetry Enrich(this ExceptionTelemetry exceptionTelemetry, ClaimsPrincipal claimsPrincipal)
     {
         exceptionTelemetry.Properties.TryAdd("LoggedInAdminId", claimsPrincipal.XtremeIdiotsId());

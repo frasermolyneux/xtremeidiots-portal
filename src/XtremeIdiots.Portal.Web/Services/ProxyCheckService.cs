@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
@@ -10,17 +10,10 @@ using Microsoft.Extensions.Logging;
 
 namespace XtremeIdiots.Portal.Web.Services
 {
-    /// <summary>
-    /// Service to interact with the ProxyCheck.io API for IP risk assessment.
-    /// </summary>
+
     public interface IProxyCheckService
     {
-        /// <summary>
-        /// Gets risk data for the specified IP address.
-        /// </summary>
-        /// <param name="ipAddress">The IP address to check.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>ProxyCheck risk data.</returns>
+
         Task<ProxyCheckResult> GetIpRiskDataAsync(string ipAddress, CancellationToken cancellationToken = default);
     }
     public class ProxyCheckService : IProxyCheckService
@@ -32,13 +25,6 @@ namespace XtremeIdiots.Portal.Web.Services
         private readonly string _apiBaseUrl = "https://proxycheck.io/v2/";
         private readonly TimeSpan _cacheDuration = TimeSpan.FromHours(1);
 
-        /// <summary>
-        /// Creates a new instance of ProxyCheckService.
-        /// </summary>
-        /// <param name="httpClientFactory">HTTP client factory.</param>
-        /// <param name="memoryCache">Memory cache for storing API results.</param>
-        /// <param name="configuration">Application configuration for retrieving API key.</param>
-        /// <param name="logger">Logger.</param>
         public ProxyCheckService(
             IHttpClientFactory httpClientFactory,
             IMemoryCache memoryCache,
@@ -48,13 +34,13 @@ namespace XtremeIdiots.Portal.Web.Services
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            // Get API key from configuration
+
             _apiKey = configuration["ProxyCheck:ApiKey"];
             if (string.IsNullOrEmpty(_apiKey))
             {
                 logger.LogWarning("ProxyCheck:ApiKey is not configured. ProxyCheck service will not be able to make API calls.");
             }
-        }        /// <inheritdoc/>
+        }
         public async Task<ProxyCheckResult> GetIpRiskDataAsync(string ipAddress, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(ipAddress))
@@ -63,7 +49,6 @@ namespace XtremeIdiots.Portal.Web.Services
                 return new ProxyCheckResult { IsError = true, ErrorMessage = "Invalid IP address" };
             }
 
-            // Try to get from cache first
             var cacheKey = $"ProxyCheck_{ipAddress}";
             if (_memoryCache.TryGetValue(cacheKey, out ProxyCheckResult? cachedResult) && cachedResult != null)
             {
@@ -71,7 +56,6 @@ namespace XtremeIdiots.Portal.Web.Services
                 return cachedResult;
             }
 
-            // If API key is not configured, return a dummy result
             if (string.IsNullOrEmpty(_apiKey))
             {
                 _logger.LogWarning("ProxyCheck API key is not configured. Returning dummy result for IP {IpAddress}", ipAddress);
@@ -88,7 +72,6 @@ namespace XtremeIdiots.Portal.Web.Services
             {
                 var httpClient = _httpClientFactory.CreateClient();
 
-                // Build the API URL with parameters
                 var apiUrl = $"{_apiBaseUrl}{ipAddress}?key={_apiKey}&vpn=1&asn=1&risk=1&seen=1&tag=portal";
 
                 _logger.LogDebug("Calling ProxyCheck.io API for IP {IpAddress}", ipAddress);
@@ -102,7 +85,6 @@ namespace XtremeIdiots.Portal.Web.Services
                     return new ProxyCheckResult { IsError = true, ErrorMessage = $"API Error: {response.StatusCode}" };
                 }
 
-                // Parse the response content
                 using var document = JsonDocument.Parse(responseContent);
                 var root = document.RootElement;
 
@@ -124,7 +106,6 @@ namespace XtremeIdiots.Portal.Web.Services
                             IpAddress = ipAddress
                         };
 
-                        // Cache the result
                         _memoryCache.Set(cacheKey, result, _cacheDuration);
                         return result;
                     }
@@ -139,69 +120,33 @@ namespace XtremeIdiots.Portal.Web.Services
                 return new ProxyCheckResult { IsError = true, ErrorMessage = $"Exception: {ex.Message}" };
             }
         }
-    }    /// <summary>
-         /// Result from the ProxyCheck.io API.
-         /// </summary>
+    }
+
     public class ProxyCheckResult
     {
-        /// <summary>
-        /// The IP address that was checked.
-        /// </summary>
+
         public string IpAddress { get; set; } = string.Empty;
 
-        /// <summary>
-        /// True if an error occurred during the API call.
-        /// </summary>
         public bool IsError { get; set; }
 
-        /// <summary>
-        /// Error message if an error occurred.
-        /// </summary>
         public string ErrorMessage { get; set; } = string.Empty;
 
-        /// <summary>
-        /// True if the IP is a proxy.
-        /// </summary>
         public bool IsProxy { get; set; }
 
-        /// <summary>
-        /// True if the IP is a VPN.
-        /// </summary>
         public bool IsVpn { get; set; }
 
-        /// <summary>
-        /// The type of proxy (e.g., VPN, TOR, etc.).
-        /// </summary>
         public string Type { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Risk score from 0-100 where higher values indicate higher risk.
-        /// </summary>
         public int RiskScore { get; set; }
 
-        /// <summary>
-        /// Country of the IP address.
-        /// </summary>
         public string Country { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Region of the IP address.
-        /// </summary>
         public string Region { get; set; } = string.Empty;
 
-        /// <summary>
-        /// AS number for the IP address.
-        /// </summary>
         public string AsNumber { get; set; } = string.Empty;
 
-        /// <summary>
-        /// AS organization for the IP address.
-        /// </summary>
         public string AsOrganization { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets a CSS class based on the risk score for color-coding.
-        /// </summary>
         public string GetRiskClass()
         {
             return RiskScore switch

@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights;
+﻿using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,20 +15,6 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing map packs associated with Call of Duty game servers.
-/// Provides functionality to create, manage and synchronize map packs for supported game types.
-/// </summary>
-/// <remarks>
-/// This controller handles map pack operations for Call of Duty game servers including:
-/// - Creating new map packs with titles, descriptions and game modes
-/// - Synchronizing map packs to game servers via FTP integration
-/// - Authorization validation based on game type permissions
-/// - Integration with XtremeIdiots Portal repository and servers APIs
-/// 
-/// All operations require appropriate map management permissions and are validated against
-/// the user's game type authorization levels.
-/// </remarks>
 [Authorize(Policy = AuthPolicies.ManageMaps)]
 public class MapPacksController : BaseController
 {
@@ -36,16 +22,6 @@ public class MapPacksController : BaseController
  private readonly IRepositoryApiClient repositoryApiClient;
  private readonly IServersApiClient serversApiClient;
 
- /// <summary>
- /// Initializes a new instance of the <see cref="MapPacksController"/> class.
- /// </summary>
- /// <param name="authorizationService">The authorization service for validating user permissions for map pack operations</param>
- /// <param name="repositoryApiClient">The repository API client for accessing map pack and game server data</param>
- /// <param name="serversApiClient">The servers API client for game server integration and FTP operations</param>
- /// <param name="telemetryClient">The Application Insights telemetry client for tracking map pack operations</param>
- /// <param name="logger">The logger instance for capturing map pack management events and errors</param>
- /// <param name="configuration">The configuration instance for accessing app settings and connection strings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public MapPacksController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -60,18 +36,6 @@ public class MapPacksController : BaseController
  this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
  }
 
- /// <summary>
- /// Displays the creation form for a new map pack associated with a specific Call of Duty game server.
- /// </summary>
- /// <param name="gameServerId">The unique identifier of the game server to create a map pack for</param>
- /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
- /// <returns>
- /// create map pack view with pre-populated form data including game server context,
- /// or NotFound if the game server doesn't exist, or Unauthorized if user lacks permissions
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate map packs for the specified game type</exception>
- /// <exception cref="KeyNotFoundException">Thrown when the specified game server is not found in the repository</exception>
- /// <exception cref="InvalidOperationException">Thrown when the repository API An unexpected response format</exception>
  [HttpGet]
  public async Task<IActionResult> Create(Guid gameServerId, CancellationToken cancellationToken = default)
  {
@@ -97,19 +61,6 @@ public class MapPacksController : BaseController
  }, nameof(Create));
  }
 
- /// <summary>
- /// Creates a new map pack for a Call of Duty game server based on the submitted form data.
- /// Validates the input, creates the map pack in the repository and optionally synchronizes to the game server.
- /// </summary>
- /// <param name="model">The create map pack view model containing the map pack details including title, description and game mode</param>
- /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
- /// <returns>
- /// A redirect to the map manager page on successful creation with success notification,
- /// or view with validation errors if creation fails or model validation fails
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate map packs for the specified game type</exception>
- /// <exception cref="KeyNotFoundException">Thrown when the specified game server is not found in the repository</exception>
- /// <exception cref="InvalidOperationException">Thrown when the repository API An unexpected response format or creation fails</exception>
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> Create(CreateMapPackViewModel model, CancellationToken cancellationToken = default)
@@ -169,19 +120,6 @@ public class MapPacksController : BaseController
  }, nameof(Create));
  }
 
- /// <summary>
- /// Helper method to retrieve game server data and validate user authorization for map pack operations.
- /// </summary>
- /// <param name="gameServerId">The unique identifier of the game server to authorize access for</param>
- /// <param name="policy">The authorization policy to validate against user permissions</param>
- /// <param name="action">The specific action being performed for telemetry and logging purposes</param>
- /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
- /// <returns>
- /// A tuple containing:
- /// - ActionResult: Non-null if authorization fails (Unauthorized) or game server not found (NotFound)
- /// - GameServerData: The game server information if authorization succeeds and server exists
- /// </returns>
- /// <exception cref="InvalidOperationException">Thrown when the repository API An unexpected response format</exception>
  private async Task<(IActionResult? ActionResult, GameServerDto? GameServerData)> GetAuthorizedGameServerAsync(
  Guid gameServerId,
  string policy,

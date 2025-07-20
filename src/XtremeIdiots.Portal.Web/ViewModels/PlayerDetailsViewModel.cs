@@ -15,9 +15,6 @@ namespace XtremeIdiots.Portal.Web.ViewModels
         public PlayerDto? Player { get; set; }
         public GeoLocationDto? GeoLocation { get; set; }
 
-        /// <summary>
-        /// A collection of IP addresses with their associated geolocation and proxy check data
-        /// </summary>
         public List<PlayerIpAddressViewModel> EnrichedIpAddresses { get; set; }
     }
 }

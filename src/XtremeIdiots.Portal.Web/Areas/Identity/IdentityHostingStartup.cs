@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -18,9 +18,7 @@ using XtremeIdiots.Portal.Web.Areas.Identity.Data;
 [assembly: HostingStartup(typeof(IdentityHostingStartup))]
 namespace XtremeIdiots.Portal.Web.Areas.Identity
 {
-    /// <summary>
-    /// Configures ASP.NET Core Identity services and authentication providers for the XtremeIdiots Portal.
-    /// </summary>
+
     public class IdentityHostingStartup : IHostingStartup
     {
         private const int SecurityStampValidationIntervalMinutes = 15;
@@ -29,14 +27,6 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
         private const string CookieName = "XIPortal";
         private const string OAuthSchemeName = "XtremeIdiots";
 
-        /// <summary>
-        /// Configures the web host builder with Identity and authentication services.
-        /// </summary>
-        /// <param name="builder">The web host builder to configure.</param>
-        /// <summary>
-        /// Configures the web host builder with Identity and authentication services.
-        /// </summary>
-        /// <param name="builder">The web host builder to configure.</param>
         public void Configure(IWebHostBuilder builder)
         {
             builder.ConfigureServices((context, services) =>
@@ -50,11 +40,6 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
             });
         }
 
-        /// <summary>
-        /// Validates that all required configuration values are present.
-        /// </summary>
-        /// <param name="configuration">The configuration to validate.</param>
-        /// <exception cref="InvalidOperationException">Thrown when required configuration is missing.</exception>
         private static void ValidateConfiguration(IConfiguration configuration)
         {
             var requiredKeys = new[]
@@ -73,21 +58,12 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
             }
         }
 
-        /// <summary>
-        /// Configures the database context for Identity.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
-        /// <param name="configuration">The application configuration.</param>
         private static void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<IdentityDataContext>(options =>
                 options.UseSqlServer(configuration["sql_connection_string"]));
         }
 
-        /// <summary>
-        /// Configures ASP.NET Core Identity services.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
         private static void ConfigureIdentity(IServiceCollection services)
         {
             services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -104,10 +80,6 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
             });
         }
 
-        /// <summary>
-        /// Configures cookie policy options.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
         private static void ConfigureCookiePolicy(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
@@ -118,11 +90,6 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
             });
         }
 
-        /// <summary>
-        /// Configures authentication schemes including cookies and OAuth.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
-        /// <param name="configuration">The application configuration.</param>
         private static void ConfigureAuthentication(IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(options =>
@@ -188,10 +155,6 @@ namespace XtremeIdiots.Portal.Web.Areas.Identity
             });
         }
 
-        /// <summary>
-        /// Configures data protection services.
-        /// </summary>
-        /// <param name="services">The service collection to configure.</param>
         private static void ConfigureDataProtection(IServiceCollection services)
         {
             services.AddDataProtection()

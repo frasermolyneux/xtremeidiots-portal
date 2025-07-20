@@ -7,9 +7,6 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Extensions;
 
-/// <summary>
-/// Extension methods for adding alert messages to controllers using TempData
-/// </summary>
 public static class AlertExtensions
 {
     private const string AlertKey = "Alerts";

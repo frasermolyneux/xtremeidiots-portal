@@ -1,4 +1,4 @@
-namespace XtremeIdiots.Portal.Web.ViewModels
+﻿namespace XtremeIdiots.Portal.Web.ViewModels
 {
     public class DeleteMapFromHostModel
     {

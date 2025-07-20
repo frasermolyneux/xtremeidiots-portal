@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
@@ -11,21 +11,10 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
-/// <summary>
-/// Controller for managing user authentication and identity operations
-/// </summary>
 public class IdentityController : BaseController
 {
  private readonly IXtremeIdiotsAuth xtremeIdiotsAuth;
 
- /// <summary>
- /// Initializes a new instance of the IdentityController
- /// </summary>
- /// <param name="xtremeIdiotsAuth">Service for handling XtremeIdiots authentication operations</param>
- /// <param name="telemetryClient">Client for tracking telemetry events</param>
- /// <param name="logger">Logger for structured logging</param>
- /// <param name="configuration">Configuration service for settings access</param>
- /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
  public IdentityController(
  IXtremeIdiotsAuth xtremeIdiotsAuth,
  TelemetryClient telemetryClient,
@@ -36,12 +25,6 @@ public class IdentityController : BaseController
  this.xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
  }
 
- /// <summary>
- /// Displays the login page for user authentication
- /// </summary>
- /// <param name="returnUrl">Optional URL to redirect to after successful login</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The login view with return URL context</returns>
  [HttpGet]
  [AllowAnonymous]
  public async Task<IActionResult> Login(string? returnUrl = null, CancellationToken cancellationToken = default)
@@ -53,12 +36,6 @@ public class IdentityController : BaseController
  }, "Login", "Anonymous");
  }
 
- /// <summary>
- /// Initiates external authentication with XtremeIdiots OAuth provider
- /// </summary>
- /// <param name="returnUrl">Optional URL to redirect to after successful authentication</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Challenge result that Redirects to external authentication provider</returns>
  [AllowAnonymous]
  [ValidateAntiForgeryToken]
  [HttpPost]
@@ -73,13 +50,6 @@ public class IdentityController : BaseController
  }, "LoginWithXtremeIdiots", "Anonymous");
  }
 
- /// <summary>
- /// Handles the callback from external authentication provider and processes user login
- /// </summary>
- /// <param name="returnUrl">Optional URL to redirect to after successful authentication</param>
- /// <param name="remoteError">Optional error message from external authentication provider</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Appropriate redirect or error view based on authentication result</returns>
  [HttpGet]
  [AllowAnonymous]
  public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null, CancellationToken cancellationToken = default)
@@ -136,12 +106,6 @@ public class IdentityController : BaseController
  }, "ExternalLoginCallback", "Anonymous");
  }
 
- /// <summary>
- /// Displays an error page with the specified message
- /// </summary>
- /// <param name="message">The error message to display to the user</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>The identity error view with the specified message</returns>
  [AllowAnonymous]
  [HttpGet]
  public async Task<IActionResult> IdentityError(string message, CancellationToken cancellationToken = default)
@@ -157,12 +121,6 @@ public class IdentityController : BaseController
  }, "IdentityError", "Anonymous");
  }
 
- /// <summary>
- /// Logs out the current user and Redirects to the specified URL or home page
- /// </summary>
- /// <param name="returnUrl">Optional URL to redirect to after logout</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>Redirect to the specified return URL or home page</returns>
  [Authorize]
  [ValidateAntiForgeryToken]
  [HttpPost]
@@ -181,11 +139,6 @@ public class IdentityController : BaseController
  }, "Logout");
  }
 
- /// <summary>
- /// Redirects to the specified return URL if it's a local URL, otherwise Redirects to the home page
- /// </summary>
- /// <param name="returnUrl">The URL to redirect to if it's local</param>
- /// <returns>Redirect action result to the appropriate URL</returns>
  private IActionResult RedirectToLocal(string? returnUrl)
  {
  if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))

@@ -1,4 +1,4 @@
-using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -15,39 +15,22 @@ using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web;
 
-/// <summary>
-/// Configures application services and the HTTP request pipeline .
-/// This class handles dependency injection, authentication, authorization and middleware configuration.
-/// </summary>
 public class Startup
 {
- /// <summary>
- /// Initializes a new instance of the <see cref="Startup"/> class.
- /// </summary>
- /// <param name="configuration">The application configuration settings</param>
+
  public Startup(IConfiguration configuration)
  {
  Configuration = configuration;
  }
 
- /// <summary>
- /// Gets the application configuration settings.
- /// </summary>
  public IConfiguration Configuration { get; }
 
- /// <summary>
- /// Configures application services for dependency injection.
- /// This method gets called by the runtime to add services to the container.
- /// </summary>
- /// <param name="services">The service collection to configure</param>
  public void ConfigureServices(IServiceCollection services)
  {
- // Configure Application Insights telemetry
+
  services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
  services.AddLogging();
 
- // Configure adaptive sampling to exclude exceptions per Microsoft guidance
- // https://learn.microsoft.com/en-us/azure/azure-monitor/app/sampling-classic-api#configure-sampling-settings
  services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
  {
  var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
@@ -62,7 +45,6 @@ public class Startup
 
  services.AddServiceProfiler();
 
- // Configure Invision Community forum integration
  services.AddInvisionApiClient(options =>
  {
  options.BaseUrl = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException(nameof(Configuration), "xtremeidiots_forums_base_url configuration is required");
@@ -72,7 +54,6 @@ public class Startup
  services.AddAdminActionTopics();
  services.AddScoped<IDemoManager, DemoManager>();
 
- // Configure external API clients with dual authentication (API key + Entra ID)
  services.AddRepositoryApiClient(options =>
  {
  options.WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(Configuration), "RepositoryApi:BaseUrl configuration is required"))
@@ -94,14 +75,12 @@ public class Startup
  .WithEntraIdAuthentication(Configuration["GeoLocationApi:ApplicationAudience"] ?? throw new ArgumentNullException(nameof(Configuration), "GeoLocationApi:ApplicationAudience configuration is required"));
  });
 
- // Configure XtremeIdiots custom authentication and authorization
  services.AddXtremeIdiotsAuth();
  services.AddAuthorization(options =>
  {
  options.AddXtremeIdiotsPolicies();
  });
 
- // Configure CORS for forum integration
  services.AddCors(options =>
  {
  var corsOrigin = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException(nameof(Configuration), "xtremeidiots_forums_base_url configuration is required");
@@ -114,18 +93,15 @@ public class Startup
 
  services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
- // Configure essential cookies for TempData
  services.Configure<CookieTempDataProviderOptions>(options =>
  {
  options.Cookie.IsEssential = true;
  });
 
- // Configure additional services
  services.AddHttpClient();
  services.AddMemoryCache();
  services.AddScoped<Services.IProxyCheckService, Services.ProxyCheckService>();
 
- // Configure forwarded headers for proxy scenarios
  services.Configure<ForwardedHeadersOptions>(options =>
  {
  options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
@@ -136,18 +112,11 @@ public class Startup
  services.AddHealthChecks();
  }
 
- /// <summary>
- /// Configures the HTTP request pipeline and middleware.
- /// This method gets called by the runtime to configure the HTTP request pipeline.
- /// </summary>
- /// <param name="app">The application builder to configure</param>
- /// <param name="env">The web host environment</param>
  public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
  {
- // Enable forwarded headers for proxy scenarios (must be first)
+
  app.UseForwardedHeaders();
 
- // Configure error handling based on environment
  if (env.IsDevelopment())
  {
  app.UseDeveloperExceptionPage();
@@ -158,36 +127,29 @@ public class Startup
  app.UseHsts();
  }
 
- // Core middleware pipeline
  app.UseHttpsRedirection();
  app.UseStaticFiles();
  app.UseCookiePolicy();
  app.UseRouting();
 
- // Authentication and authorization middleware
  app.UseCors();
  app.UseAuthentication();
  app.UseAuthorization();
 
- // Custom error page handling
  app.UseStatusCodePagesWithRedirects("/Errors/Display/{0}");
 
- // Configure endpoint routing
  app.UseEndpoints(endpoints =>
  {
- // API Controller routes - configured with explicit routing
+
  endpoints.MapControllers();
 
- // Traditional MVC routes
  endpoints.MapControllerRoute(
  name: "default",
  pattern: "{controller=Home}/{action=Index}/{id?}");
  });
 
- // Health check endpoint
  app.UseHealthChecks(new PathString("/api/health"));
 
- // Perform database migration on startup
  using var scope = app.ApplicationServices.CreateScope();
  var identityDataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
  identityDataContext.Database.Migrate();

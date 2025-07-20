@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,33 +18,13 @@ using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
-/// <summary>
-/// Controller for managing player tag assignments .
-/// Handles adding and removing user-defined tags to/from players with proper authorization.
-/// </summary>
-/// <remarks>
-/// This controller provides functionality for:
-/// - Adding user-defined tags to players with proper validation
-/// - Removing user-defined tags from players with authorization checks
-/// - Tracking telemetry for tag management operations
-/// - Maintaining audit trails for tag assignments and removals
-/// All operations require appropriate authorization policies for player access and tag management.
-/// </remarks>
+
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
 public class PlayerTagsController : BaseController
 {
  private readonly IAuthorizationService authorizationService;
  private readonly IRepositoryApiClient repositoryApiClient;
 
- /// <summary>
- /// Initializes a new instance of the <see cref="PlayerTagsController"/> class.
- /// </summary>
- /// <param name="authorizationService">Service for handling authorization policy evaluation</param>
- /// <param name="repositoryApiClient">Client for accessing the repository API for player and tag operations</param>
- /// <param name="telemetryClient">Client for tracking application telemetry and analytics</param>
- /// <param name="logger">Logger instance for recording controller operations and errors</param>
- /// <param name="configuration">Application configuration settings</param>
- /// <exception cref="ArgumentNullException">Thrown when any required service dependency is null</exception>
  public PlayerTagsController(
  IAuthorizationService authorizationService,
  IRepositoryApiClient repositoryApiClient,
@@ -57,19 +37,6 @@ public class PlayerTagsController : BaseController
  this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
  }
 
- /// <summary>
- /// Displays the form to add a user-defined tag to a specific player.
- /// </summary>
- /// <param name="id">The unique identifier of the player to add a tag to</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// add player tag view with available user-defined tags on success.
- /// Returns <see cref="UnauthorizedResult"/> if the user lacks CreatePlayerTag permissions.
- /// Returns <see cref="NotFoundResult"/> if the player is not found.
- /// Returns error page redirect if API calls fail.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate player tags</exception>
- /// <exception cref="InvalidOperationException">Thrown when player or tags data cannot be retrieved</exception>
  [HttpGet]
  public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
  {
@@ -133,21 +100,8 @@ public class PlayerTagsController : BaseController
 
  return View(model);
  }, nameof(Add), $"id: {id}");
- } /// <summary>
- /// Creates a new player tag assignment based on the submitted form data.
- /// Validates that the tag is user-defined and assigns it to the specified player.
- /// </summary>
- /// <param name="model">The add player tag view model containing the tag assignment details including player ID and tag ID</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// Returns redirect to player details page on successful tag assignment.
- /// Returns <see cref="UnauthorizedResult"/> if the user lacks CreatePlayerTag permissions.
- /// view with validation errors if the model state is invalid or tag constraints are violated.
- /// Returns error page redirect if API calls fail or player/tag are not found.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate player tags</exception>
- /// <exception cref="InvalidOperationException">Thrown when player, tag data cannot be retrieved or tag assignment fails</exception>
- /// <exception cref="ArgumentException">Thrown when attempting to assign a non-user-defined tag</exception>
+ }
+
  [HttpPost]
  [ValidateAntiForgeryToken]
  public async Task<IActionResult> Add(AddPlayerTagViewModel model, CancellationToken cancellationToken = default)
@@ -262,23 +216,6 @@ public class PlayerTagsController : BaseController
  }, nameof(Add), $"PlayerId: {model.PlayerId}, TagId: {model.TagId}");
  }
 
- /// <summary>
- /// Displays the confirmation page for removing a user-defined player tag assignment.
- /// Validates that the tag exists, belongs to the player and is user-defined before showing confirmation.
- /// </summary>
- /// <param name="id">The unique identifier of the player to remove the tag from</param>
- /// <param name="playerTagId">The unique identifier of the player tag assignment to remove</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// remove player tag confirmation view with player and tag details on success.
- /// Returns <see cref="UnauthorizedResult"/> if the user lacks DeletePlayerTag permissions.
- /// Returns <see cref="NotFoundResult"/> if the player or player tag is not found.
- /// Returns redirect to player details with alert if attempting to remove non-user-defined tag.
- /// Returns error page redirect if API calls fail.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete player tags</exception>
- /// <exception cref="InvalidOperationException">Thrown when player or player tag data cannot be retrieved</exception>
- /// <exception cref="ArgumentException">Thrown when attempting to remove a non-user-defined tag</exception>
  [HttpGet]
  public async Task<IActionResult> Remove(Guid id, Guid playerTagId, CancellationToken cancellationToken = default)
  {
@@ -343,23 +280,6 @@ public class PlayerTagsController : BaseController
  }, nameof(Remove), $"id: {id}, playerTagId: {playerTagId}");
  }
 
- /// <summary>
- /// Confirms and executes the removal of a user-defined player tag assignment.
- /// Performs final validation before permanently removing the tag assignment from the player.
- /// </summary>
- /// <param name="id">The unique identifier of the player to remove the tag from</param>
- /// <param name="playerTagId">The unique identifier of the player tag assignment to remove</param>
- /// <param name="cancellationToken">Cancellation token for the async operation</param>
- /// <returns>
- /// Returns redirect to player details page with success message on successful removal.
- /// Returns <see cref="UnauthorizedResult"/> if the user lacks DeletePlayerTag permissions.
- /// Returns <see cref="NotFoundResult"/> if the player or player tag is not found.
- /// Returns redirect to player details with alert if attempting to remove non-user-defined tag.
- /// Returns error page redirect if API calls fail.
- /// </returns>
- /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete player tags</exception>
- /// <exception cref="InvalidOperationException">Thrown when player, player tag data cannot be retrieved or tag removal fails</exception>
- /// <exception cref="ArgumentException">Thrown when attempting to remove a non-user-defined tag</exception>
  [HttpPost]
  [ActionName(nameof(Remove))]
  [ValidateAntiForgeryToken]

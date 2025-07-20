@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,13 +13,6 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
-/// <summary>
-/// Base controller for API controllers with proper HTTP status codes
-/// </summary>
-/// <param name="telemetryClient">Application Insights telemetry client for tracking API usage</param>
-/// <param name="logger">Logger instance for structured logging of API operations</param>
-/// <param name="configuration">Configuration provider for application settings</param>
-/// <exception cref="ArgumentNullException">Thrown when any required parameter is null</exception>
 [ApiController]
 public abstract class BaseApiController(
     TelemetryClient telemetryClient,
@@ -30,14 +23,6 @@ public abstract class BaseApiController(
     protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
-    /// <summary>
-    /// Standardized model validation check for API endpoints
-    /// </summary>
-    /// <returns>BadRequest with validation errors if model is invalid, null if valid</returns>
-    /// <remarks>
-    /// This method provides centralized model validation for API endpoints, returning
-    /// structured validation error responses that are compatible with API consumers.
-    /// </remarks>
     protected IActionResult? CheckModelState()
     {
         if (!ModelState.IsValid)
@@ -49,23 +34,6 @@ public abstract class BaseApiController(
         return null;
     }
 
-    /// <summary>
-    /// Standardized authorization check with API-appropriate responses
-    /// </summary>
-    /// <param name="authorizationService">The authorization service</param>
-    /// <param name="resource">The resource to authorize against</param>
-    /// <param name="policy">The authorization policy</param>
-    /// <param name="action">The action being performed</param>
-    /// <param name="resourceType">The type of resource</param>
-    /// <param name="context">Additional context for unauthorized access tracking</param>
-    /// <param name="additionalData">Additional data for telemetry</param>
-    /// <returns>ActionResult if unauthorized, null if authorized</returns>
-    /// <remarks>
-    /// Unlike MVC controllers that redirect to login pages, this method returns proper
-    /// HTTP status codes: 401 Unauthorized for unauthenticated users and 403 Forbidden
-    /// for authenticated users without sufficient permissions. This maintains RESTful
-    /// API conventions for external integrations.
-    /// </remarks>
     protected async Task<IActionResult?> CheckAuthorizationAsync(
         IAuthorizationService authorizationService,
         object resource,
@@ -82,29 +50,13 @@ public abstract class BaseApiController(
             TrackUnauthorizedAccessAttempt(action, resourceType, context, additionalData);
 
             return User.Identity?.IsAuthenticated == true
-                ? Forbid()        // User is authenticated but not authorized - return 403 Forbidden
-                : Unauthorized(); // User is not authenticated - return 401 Unauthorized
+                ? Forbid()
+                : Unauthorized();
         }
 
         return null;
     }
 
-    /// <summary>
-    /// Wraps API controller actions with standardized error handling and logging
-    /// Returns proper HTTP status codes for API responses
-    /// </summary>
-    /// <param name="action">The async action to execute</param>
-    /// <param name="actionName">Name of the action for logging</param>
-    /// <param name="userId">Optional user ID for context</param>
-    /// <returns>The result of the action or appropriate error response</returns>
-    /// <remarks>
-    /// This method provides standardized error handling for API endpoints with:
-    /// - Structured logging for all operations with user context
-    /// - Automatic exception to HTTP status code mapping
-    /// - Telemetry tracking for all errors and exceptions
-    /// - Consistent error response formatting for API consumers
-    /// Unlike MVC controllers, returns HTTP status codes instead of redirects.
-    /// </remarks>
     protected async Task<IActionResult> ExecuteWithErrorHandlingAsync(
         Func<Task<IActionResult>> action,
         string actionName,
@@ -139,16 +91,6 @@ public abstract class BaseApiController(
         }
     }
 
-    /// <summary>
-    /// Standardized success telemetry tracking for API operations
-    /// </summary>
-    /// <param name="eventName">The name of the successful event</param>
-    /// <param name="action">The action that was performed</param>
-    /// <param name="additionalProperties">Additional properties to include</param>
-    /// <remarks>
-    /// This method creates structured success telemetry events with user context
-    /// and controller information for monitoring API performance and usage patterns.
-    /// </remarks>
     protected void TrackSuccessTelemetry(string eventName, string action, Dictionary<string, string>? additionalProperties = null)
     {
         var successTelemetry = new EventTelemetry(eventName).Enrich(User);
@@ -168,18 +110,6 @@ public abstract class BaseApiController(
         TelemetryClient.TrackEvent(successTelemetry);
     }
 
-    /// <summary>
-    /// Tracks unauthorized access attempts for API endpoints
-    /// </summary>
-    /// <param name="action">The action being performed</param>
-    /// <param name="resourceType">The type of resource</param>
-    /// <param name="context">Additional context</param>
-    /// <param name="additionalData">Additional data for telemetry</param>
-    /// <remarks>
-    /// This method creates structured telemetry events for unauthorized access attempts,
-    /// including user context, controller information and additional metadata for
-    /// security monitoring and audit purposes.
-    /// </remarks>
     protected void TrackUnauthorizedAccessAttempt(string action, string resourceType, string? context = null, object? additionalData = null)
     {
         var unauthorizedTelemetry = new EventTelemetry("UnauthorizedAccess").Enrich(User);
@@ -198,16 +128,6 @@ public abstract class BaseApiController(
         TelemetryClient.TrackEvent(unauthorizedTelemetry);
     }
 
-    /// <summary>
-    /// Tracks error telemetry for API endpoints
-    /// </summary>
-    /// <param name="exception">The exception that occurred</param>
-    /// <param name="action">The action where the error occurred</param>
-    /// <param name="additionalProperties">Additional properties for context</param>
-    /// <remarks>
-    /// This method creates structured exception telemetry with user context and
-    /// controller information to aid in debugging and monitoring API performance.
-    /// </remarks>
     protected void TrackErrorTelemetry(Exception exception, string action, Dictionary<string, string>? additionalProperties = null)
     {
         var errorTelemetry = new ExceptionTelemetry(exception).Enrich(User);
@@ -227,16 +147,6 @@ public abstract class BaseApiController(
         TelemetryClient.TrackException(errorTelemetry);
     }
 
-    /// <summary>
-    /// Gets a configuration value with an optional fallback
-    /// </summary>
-    /// <param name="key">The configuration key</param>
-    /// <param name="fallback">The fallback value if the key is not found</param>
-    /// <returns>The configuration value or fallback</returns>
-    /// <remarks>
-    /// This method provides a safe way to access configuration values with fallback support,
-    /// useful for API endpoints that need configurable behavior or external service URLs.
-    /// </remarks>
     protected string GetConfigurationValue(string key, string fallback = "")
     {
         return Configuration[key] ?? fallback;

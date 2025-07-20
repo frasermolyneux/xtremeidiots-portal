@@ -3,85 +3,83 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
-using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Web.Extensions;
 
-namespace XtremeIdiots.Portal.Web.Controllers
+namespace XtremeIdiots.Portal.Web.Controllers;
+
+/// <summary>
+/// Controller for external integrations and public-facing API endpoints that provide data for external consumption
+/// </summary>
+public class ExternalController : BaseController
 {
-    /// <summary>
-    /// Controller for external integrations and public-facing API endpoints
-    /// </summary>
-    public class ExternalController : BaseController
-    {
-        private readonly IRepositoryApiClient repositoryApiClient;
+ private readonly IRepositoryApiClient repositoryApiClient;
 
-        /// <summary>
-        /// Initializes a new instance of the ExternalController
-        /// </summary>
-        /// <param name="repositoryApiClient">Client for accessing repository API services</param>
-        /// <param name="TelemetryClient">Client for tracking telemetry events</param>
-        /// <param name="Logger">Logger for structured logging</param>
-        /// <param name="configuration">Configuration service for app settings</param>
-        /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
-        public ExternalController(
-            IRepositoryApiClient repositoryApiClient,
-            TelemetryClient TelemetryClient,
-            ILogger<ExternalController> Logger,
-            IConfiguration configuration)
-            : base(TelemetryClient, Logger, configuration)
-        {
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        }
+ /// <summary>
+ /// Initializes a new instance of the ExternalController for handling external integrations and public API endpoints
+ /// </summary>
+ /// <param name="repositoryApiClient">Client for accessing repository API services to retrieve admin actions and other data</param>
+ /// <param name="telemetryClient">Client for tracking telemetry events and application insights</param>
+ /// <param name="logger">Logger for structured logging throughout controller operations</param>
+ /// <param name="configuration">Configuration service for accessing application settings</param>
+ /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
+ public ExternalController(
+ IRepositoryApiClient repositoryApiClient,
+ TelemetryClient telemetryClient,
+ ILogger<ExternalController> logger,
+ IConfiguration configuration)
+ : base(telemetryClient, logger, configuration)
+ {
+ this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+ }
 
-        /// <summary>
-        /// Returns a view displaying the latest admin actions for external display purposes
-        /// </summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>A view containing the latest admin actions</returns>
-        /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions</exception>
-        [HttpGet]
-        public async Task<IActionResult> LatestAdminActions(CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("External request for latest admin actions view");
+ /// <summary>
+ /// A view displaying the latest admin actions for external display purposes, typically used for embedding in external websites or forum integrations
+ /// </summary>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>A view containing the latest admin actions data for external consumption</returns>
+ /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions from the repository API</exception>
+ [HttpGet]
+ public async Task<IActionResult> LatestAdminActions(CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ Logger.LogInformation("External request for latest admin actions view");
 
-                var adminActionDtos = await repositoryApiClient.AdminActions.V1.GetAdminActions(
-                    null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
+ var adminActionDtos = await repositoryApiClient.AdminActions.V1.GetAdminActions(
+ null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
 
-                if (!adminActionDtos.IsSuccess || adminActionDtos.Result?.Data is null)
-                {
-                    Logger.LogWarning("Failed to retrieve admin actions for external view - API response unsuccessful or null");
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ if (!adminActionDtos.IsSuccess || adminActionDtos.Result?.Data is null)
+ {
+ Logger.LogWarning("Failed to retrieve admin actions for external view - API response unsuccessful or null");
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController).Replace("Controller", ""), new { id = 500 });
+ }
 
-                Logger.LogInformation("Successfully retrieved {Count} admin actions for external view",
-                    adminActionDtos.Result.Data.Items?.Count() ?? 0);
+ Logger.LogInformation("Successfully retrieved {Count} admin actions for external view",
+ adminActionDtos.Result.Data.Items?.Count() ?? 0);
 
-                TrackSuccessTelemetry("LatestAdminActionsViewed", "LatestAdminActions", new Dictionary<string, string>
-                {
-                    { "Controller", "External" },
-                    { "Resource", "AdminActionsView" },
-                    { "Count", (adminActionDtos.Result.Data.Items?.Count() ?? 0).ToString() }
-                });
+ TrackSuccessTelemetry("LatestAdminActionsViewed", nameof(LatestAdminActions), new Dictionary<string, string>
+ {
+ { "Controller", nameof(ExternalController).Replace("Controller", "") },
+ { "Resource", "AdminActionsView" },
+ { "Count", (adminActionDtos.Result.Data.Items?.Count() ?? 0).ToString() }
+ });
 
-                return View(adminActionDtos);
-            }, "LatestAdminActions");
-        }
+ return View(adminActionDtos);
+ }, nameof(LatestAdminActions));
+ }
 
-        /// <summary>
-        /// Returns JSON data containing the latest admin actions for external API consumption
-        /// </summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>Redirect to the new API endpoint</returns>
-        /// <exception cref="InvalidOperationException">Thrown when unable to retrieve admin actions</exception>
-        [HttpGet]
-        [EnableCors("CorsPolicy")]
-        public IActionResult GetLatestAdminActions(CancellationToken cancellationToken = default)
-        {
-            return RedirectPermanent("/External/GetLatestAdminActions");
-        }
-    }
+ /// <summary>
+ /// Returns JSON data containing the latest admin actions for external API consumption (deprecated endpoint - Redirects to new API)
+ /// </summary>
+ /// <param name="cancellationToken">Cancellation token for the async operation (not used in redirect)</param>
+ /// <returns>Permanent redirect to the new API endpoint for latest admin actions</returns>
+ /// <remarks>This endpoint is deprecated and Redirects to maintain backward compatibility with external integrations</remarks>
+ [HttpGet]
+ [EnableCors("CorsPolicy")]
+ public IActionResult GetLatestAdminActions(CancellationToken cancellationToken = default)
+ {
+ return RedirectPermanent("/External/GetLatestAdminActions");
+ }
 }

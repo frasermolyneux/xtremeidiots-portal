@@ -7,156 +7,91 @@ applyTo: '**'
 
 ## Core Principle
 **Write code that speaks for itself. Comment only when necessary to explain WHY, not WHAT.**
-We do not need comments most of the time.
+We do not need inline comments most of the time.
 
-## Commenting Guidelines
+## Comment Types
 
-### ❌ AVOID These Comment Types
+### 🔧 API Documentation (REQUIRED)
+**XML documentation comments for public APIs are MANDATORY and different from inline comments:**
+
+```csharp
+/// <summary>
+/// Creates a new admin action for the specified player
+/// </summary>
+/// <param name="model">The create admin action view model containing form data</param>
+/// <param name="cancellationToken">Cancellation token for the async operation</param>
+/// <returns>Redirects to player details on success, returns view with validation errors on failure</returns>
+/// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create admin actions</exception>
+[HttpPost]
+public async Task<IActionResult> Create(CreateAdminActionViewModel model, CancellationToken cancellationToken = default)
+```
+
+**API documentation should include:**
+- Clear `<summary>` describing what the method does
+- `<param>` for each parameter explaining its purpose
+- `<returns>` describing the return value and conditions
+- `<exception>` for expected exceptions
+- `<example>` and `<code>` when helpful for complex APIs
+
+### 🚫 Inline Comments (AVOID UNLESS NECESSARY)
+
+## Commenting Guidelines for Inline Comments
+
+### ❌ AVOID These Inline Comment Types
 
 **Obvious Comments**
-```javascript
+```csharp
 // Bad: States the obvious
-let counter = 0;  // Initialize counter to zero
+var counter = 0;  // Initialize counter to zero
 counter++;  // Increment counter by one
 ```
 
 **Redundant Comments**
-```javascript
+```csharp
 // Bad: Comment repeats the code
-function getUserName() {
-    return user.name;  // Return the user's name
+private string GetUserName() {
+    return user.Name;  // Return the user's name
 }
 ```
 
-**Outdated Comments**
-```javascript
-// Bad: Comment doesn't match the code
-// Calculate tax at 5% rate
-const tax = price * 0.08;  // Actually 8%
-```
-
-### ✅ WRITE These Comment Types
+### ✅ WRITE These Inline Comment Types
 
 **Complex Business Logic**
-```javascript
+```csharp
 // Good: Explains WHY this specific calculation
 // Apply progressive tax brackets: 10% up to 10k, 20% above
-const tax = calculateProgressiveTax(income, [0.10, 0.20], [10000]);
+var tax = CalculateProgressiveTax(income, [0.10, 0.20], [10000]);
 ```
 
 **Non-obvious Algorithms**
-```javascript
+```csharp
 // Good: Explains the algorithm choice
 // Using Floyd-Warshall for all-pairs shortest paths
 // because we need distances between all nodes
-for (let k = 0; k < vertices; k++) {
-    for (let i = 0; i < vertices; i++) {
-        for (let j = 0; j < vertices; j++) {
-            // ... implementation
-        }
-    }
+for (int k = 0; k < vertices; k++) {
+    // ... implementation
 }
 ```
 
-**Regex Patterns**
-```javascript
-// Good: Explains what the regex matches
-// Match email format: username@domain.extension
-const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-```
-
-**API Constraints or Gotchas**
-```javascript
+**Business Rules and Constraints**
+```csharp
 // Good: Explains external constraint
 // GitHub API rate limit: 5000 requests/hour for authenticated users
-await rateLimiter.wait();
-const response = await fetch(githubApiUrl);
+await rateLimiter.Wait();
+var response = await fetch(githubApiUrl);
 ```
 
 ## Decision Framework
 
-Before writing a comment, ask:
-1. **Is the code self-explanatory?** → No comment needed
-2. **Would a better variable/function name eliminate the need?** → Refactor instead
-3. **Does this explain WHY, not WHAT?** → Good comment
-4. **Will this help future maintainers?** → Good comment
-
-## Special Cases for Comments
-
-### Public APIs
-```javascript
-/**
- * Calculate compound interest using the standard formula.
- * 
- * @param {number} principal - Initial amount invested
- * @param {number} rate - Annual interest rate (as decimal, e.g., 0.05 for 5%)
- * @param {number} time - Time period in years
- * @param {number} compoundFrequency - How many times per year interest compounds (default: 1)
- * @returns {number} Final amount after compound interest
- */
-function calculateCompoundInterest(principal, rate, time, compoundFrequency = 1) {
-    // ... implementation
-}
-```
-
-### Configuration and Constants
-```javascript
-// Good: Explains the source or reasoning
-const MAX_RETRIES = 3;  // Based on network reliability studies
-const API_TIMEOUT = 5000;  // AWS Lambda timeout is 15s, leaving buffer
-```
-
-### Annotations
-```javascript
-// TODO: Replace with proper user authentication after security review
-// FIXME: Memory leak in production - investigate connection pooling
-// HACK: Workaround for bug in library v2.1.0 - remove after upgrade
-// NOTE: This implementation assumes UTC timezone for all calculations
-// WARNING: This function modifies the original array instead of creating a copy
-// PERF: Consider caching this result if called frequently in hot path
-// SECURITY: Validate input to prevent SQL injection before using in query
-// BUG: Edge case failure when array is empty - needs investigation
-// REFACTOR: Extract this logic into separate utility function for reusability
-// DEPRECATED: Use newApiFunction() instead - this will be removed in v3.0
-```
-
-## Anti-Patterns to Avoid
-
-### Dead Code Comments
-```javascript
-// Bad: Don't comment out code
-// const oldFunction = () => { ... };
-const newFunction = () => { ... };
-```
-
-### Changelog Comments
-```javascript
-// Bad: Don't maintain history in comments
-// Modified by John on 2023-01-15
-// Fixed bug reported by Sarah on 2023-02-03
-function processData() {
-    // ... implementation
-}
-```
-
-### Divider Comments
-```javascript
-// Bad: Don't use decorative comments
-//=====================================
-// UTILITY FUNCTIONS
-//=====================================
-```
-
-## Quality Checklist
-
-Before committing, ensure your comments:
-- [ ] Explain WHY, not WHAT
-- [ ] Are grammatically correct and clear
-- [ ] Will remain accurate as code evolves
-- [ ] Add genuine value to code understanding
-- [ ] Are placed appropriately (above the code they describe)
-- [ ] Use proper spelling and professional language
+Before writing an inline comment, ask:
+1. **Is this API documentation?** → Use XML docs (required for public APIs)
+2. **Is the code self-explanatory?** → No inline comment needed
+3. **Would a better variable/function name eliminate the need?** → Refactor instead
+4. **Does this explain WHY, not WHAT?** → Good inline comment
+5. **Will this help future maintainers understand business logic?** → Good inline comment
 
 ## Summary
 
-Remember: **The best comment is the one you don't need to write because the code is self-documenting.**
+- **API Documentation (XML docs)**: **REQUIRED** for all public methods, properties, and classes
+- **Inline Comments**: **AVOID** unless explaining complex business logic, algorithms, or non-obvious constraints
+- **The best inline comment is the one you don't need to write because the code is self-documenting**

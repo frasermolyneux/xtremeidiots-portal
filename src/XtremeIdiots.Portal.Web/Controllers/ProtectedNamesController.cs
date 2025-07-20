@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -5,340 +11,346 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-using XtremeIdiots.Portal.Web.Auth.Constants;
-using XtremeIdiots.Portal.Web.Extensions;
-using XtremeIdiots.Portal.Web.Models;
-using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Web.Auth.Constants;
+using XtremeIdiots.Portal.Web.Extensions;
+using XtremeIdiots.Portal.Web.ViewModels;
 
-namespace XtremeIdiots.Portal.Web.Controllers
+namespace XtremeIdiots.Portal.Web.Controllers;
+
+/// <summary>
+/// Controller for managing protected player names 
+/// </summary>
+/// <remarks>
+/// This controller provides functionality for creating, viewing and deleting protected player names 
+/// in the gaming community management system. Protected names allow players to reserve specific 
+/// usernames across different game servers, preventing impersonation and maintaining player identity.
+/// The controller enforces authorization policies to ensure only authorized administrators can manage 
+/// protected names and provides detailed usage reporting for protected name violations.
+/// Integrates with the repository API for data persistence and includes comprehensive telemetry 
+/// tracking for security monitoring and administrative auditing.
+/// </remarks>
+[Authorize(Policy = AuthPolicies.AccessPlayers)]
+public class ProtectedNamesController : BaseController
 {
-    /// <summary>
-    /// Controller for managing protected player names
-    /// </summary>
-    [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public class ProtectedNamesController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ProtectedNamesController> logger,
-        IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
-    {
-        private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+ private readonly IAuthorizationService authorizationService;
+ private readonly IRepositoryApiClient repositoryApiClient;
 
-        /// <summary>
-        /// Displays the list of all protected player names
-        /// </summary>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>The protected names view with the list of protected names</returns>
-        [HttpGet]
-        public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} accessing protected names list", User.XtremeIdiotsId());
+ /// <summary>
+ /// Initializes a new instance of the <see cref="ProtectedNamesController"/> class
+ /// </summary>
+ /// <param name="authorizationService">Service for handling authorization checks and policy validation for protected name operations</param>
+ /// <param name="repositoryApiClient">Client for accessing the repository API for protected name data operations and player information</param>
+ /// <param name="telemetryClient">Application Insights telemetry client for tracking protected name operations and security events</param>
+ /// <param name="logger">Logger instance for recording controller operation details and security audit information</param>
+ /// <param name="configuration">Application configuration for accessing protected name management settings and feature flags</param>
+ /// <exception cref="ArgumentNullException">Thrown when any required dependency is null</exception>
+ public ProtectedNamesController(
+ IAuthorizationService authorizationService,
+ IRepositoryApiClient repositoryApiClient,
+ TelemetryClient telemetryClient,
+ ILogger<ProtectedNamesController> logger,
+ IConfiguration configuration)
+ : base(telemetryClient, logger, configuration)
+ {
+ this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+ this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+ }
 
-                var canViewProtectedNames = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.ViewProtectedName);
-                if (!canViewProtectedNames.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to view protected names",
-                        User.XtremeIdiotsId());
+ /// <summary>
+ /// Displays the list of all protected player names with appropriate authorization validation
+ /// </summary>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>
+ /// protected names index view with the list of all protected names on success.
+ /// Returns Unauthorized result if user lacks ViewProtectedName permission.
+ /// Redirects to error page if API call fails or an unexpected error occurs.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionview protected names</exception>
+ /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
+ [HttpGet]
+ public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ var authResult = await CheckAuthorizationAsync(
+ authorizationService,
+ new object(),
+ AuthPolicies.ViewProtectedName,
+ nameof(Index),
+ "ProtectedName",
+ "ViewAll");
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ProtectedNames");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Index");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ProtectedName");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", "ViewAll");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ if (authResult is not null) return authResult;
 
-                    return Unauthorized();
-                }
+ var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
 
-                var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
+ if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result?.Data?.Items is null)
+ {
+ Logger.LogWarning("Failed to retrieve protected names for user {UserId}", User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-                if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result?.Data?.Items is null)
-                {
-                    Logger.LogWarning("Failed to retrieve protected names for user {UserId}", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var model = new ProtectedNamesViewModel
+ {
+ ProtectedNames = protectedNamesResponse.Result.Data.Items.ToList()
+ };
 
-                var model = new ProtectedNamesViewModel
-                {
-                    ProtectedNames = protectedNamesResponse.Result.Data.Items.ToList()
-                };
+ TrackSuccessTelemetry("ProtectedNamesViewed", nameof(Index), new Dictionary<string, string>
+ {
+ { "ProtectedNamesCount", model.ProtectedNames.Count.ToString() }
+ });
 
-                Logger.LogInformation("Successfully retrieved {Count} protected names for user {UserId}",
-                    model.ProtectedNames.Count, User.XtremeIdiotsId());
+ return View(model);
+ }, nameof(Index));
+ }
 
-                return View(model);
-            }, "Index");
-        }
+ /// <summary>
+ /// Displays the form to add a protected name for a specific player with authorization validation
+ /// </summary>
+ /// <param name="id">The unique identifier of the player to add a protected name for</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>
+ /// add protected name view with player information on success.
+ /// Returns NotFound result if the specified player does not exist.
+ /// Returns Unauthorized result if user lacks CreateProtectedName permission.
+ /// Redirects to error page if API call fails or an unexpected error occurs.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate protected names</exception>
+ /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
+ [HttpGet]
+ public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ var authResult = await CheckAuthorizationAsync(
+ authorizationService,
+ new object(),
+ AuthPolicies.CreateProtectedName,
+ nameof(Add),
+ "ProtectedName",
+ $"PlayerId:{id}");
 
-        /// <summary>
-        /// Displays the form to add a protected name for a specific player
-        /// </summary>
-        /// <param name="id">The player ID to add a protected name for</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>The add protected name view or error response</returns>
-        [HttpGet]
-        public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} accessing add protected name form for player {PlayerId}",
-                    User.XtremeIdiotsId(), id);
+ if (authResult is not null) return authResult;
 
-                var canCreateProtectedName = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreateProtectedName);
-                if (!canCreateProtectedName.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to create protected name for player {PlayerId}",
-                        User.XtremeIdiotsId(), id);
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ProtectedNames");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Add");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ProtectedName");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ if (playerResponse.IsNotFound)
+ {
+ Logger.LogWarning("Player {PlayerId} not found when adding protected name", id);
+ return NotFound();
+ }
 
-                    return Unauthorized();
-                }
+ if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Failed to retrieve player {PlayerId} for protected name", id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+ var model = new CreateProtectedNameViewModel(id)
+ {
+ Player = playerResponse.Result.Data
+ };
 
-                if (playerResponse.IsNotFound)
-                {
-                    Logger.LogWarning("Player {PlayerId} not found when adding protected name", id);
-                    return NotFound();
-                }
+ return View(model);
+ }, nameof(Add), $"id: {id}");
+ }
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Failed to retrieve player {PlayerId} for protected name", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ /// <summary>
+ /// Creates a new protected name for a player based on the submitted form data with comprehensive validation
+ /// </summary>
+ /// <param name="model">The create protected name view model containing the protection details and player information</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>
+ /// Redirects to player details page on successful creation.
+ /// view with validation errors if model state is invalid or protected name already exists.
+ /// Returns NotFound result if the specified player does not exist.
+ /// Returns Unauthorized result if user lacks CreateProtectedName permission.
+ /// Redirects to error page if API call fails or an unexpected error occurs.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate protected names</exception>
+ /// <exception cref="InvalidOperationException">Thrown when user XtremeIdiotsId is null during protected name creation</exception>
+ /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
+ [HttpPost]
+ [ValidateAntiForgeryToken]
+ public async Task<IActionResult> Add(CreateProtectedNameViewModel model, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ // Load player data for authorization and telemetry enrichment
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+ if (playerResponse.IsNotFound)
+ {
+ Logger.LogWarning("Player {PlayerId} not found when creating protected name", model.PlayerId);
+ return NotFound();
+ }
 
-                var model = new CreateProtectedNameViewModel(id)
-                {
-                    Player = playerResponse.Result.Data
-                };
+ if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Player data is null for {PlayerId} when creating protected name", model.PlayerId);
+ return BadRequest();
+ }
 
-                Logger.LogInformation("Successfully loaded add protected name form for user {UserId} and player {PlayerId}",
-                    User.XtremeIdiotsId(), id);
+ var playerData = playerResponse.Result.Data;
 
-                return View(model);
-            }, "Add", $"id: {id}");
-        }
+ var authResult = await CheckAuthorizationAsync(
+ authorizationService,
+ new object(),
+ AuthPolicies.CreateProtectedName,
+ nameof(Add),
+ "ProtectedName",
+ $"PlayerId:{model.PlayerId}",
+ playerData);
 
-        /// <summary>
-        /// Creates a new protected name for a player based on the submitted form data
-        /// </summary>
-        /// <param name="model">The create protected name view model containing the protection details</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>Redirects to player details page on success, or returns the view with validation errors</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(CreateProtectedNameViewModel model, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} attempting to create protected name for player {PlayerId}",
-                    User.XtremeIdiotsId(), model.PlayerId);
+ if (authResult is not null) return authResult;
 
-                // Load player data for authorization and telemetry enrichment
-                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
-                if (playerResponse.IsNotFound)
-                {
-                    Logger.LogWarning("Player {PlayerId} not found when creating protected name", model.PlayerId);
-                    return NotFound();
-                }
+ var modelValidationResult = CheckModelState(model, m => m.Player = playerData);
+ if (modelValidationResult is not null) return modelValidationResult;
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Player data is null for {PlayerId} when creating protected name", model.PlayerId);
-                    return BadRequest();
-                }
+ var createProtectedNameDto = new CreateProtectedNameDto(
+ model.PlayerId,
+ model.Name,
+ User.XtremeIdiotsId() ?? throw new InvalidOperationException("User XtremeIdiotsId is required"));
 
-                var playerData = playerResponse.Result.Data;
+ var response = await repositoryApiClient.Players.V1.CreateProtectedName(createProtectedNameDto);
 
-                var canCreateProtectedName = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreateProtectedName);
-                if (!canCreateProtectedName.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to create protected name for player {PlayerId}",
-                        User.XtremeIdiotsId(), model.PlayerId);
+ if (!response.IsSuccess)
+ {
+ if (response.IsConflict)
+ {
+ Logger.LogWarning("Protected name '{ProtectedName}' already exists for another player when user {UserId} attempted to protect it for player {PlayerId}",
+ model.Name, User.XtremeIdiotsId(), model.PlayerId);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User)
-                        .Enrich(playerData);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ProtectedNames");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Add");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ProtectedName");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{model.PlayerId}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ ModelState.AddModelError(nameof(model.Name), "This name is already protected by another player");
+ model.Player = playerData;
+ return View(model);
+ }
 
-                    return Unauthorized();
-                }
+ Logger.LogWarning("Failed to create protected name for player {PlayerId} by user {UserId}",
+ model.PlayerId, User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-                if (!ModelState.IsValid)
-                {
-                    Logger.LogWarning("Invalid model state for creating protected name for player {PlayerId}", model.PlayerId);
-                    model.Player = playerData;
-                    return View(model);
-                }
+ TrackSuccessTelemetry("ProtectedNameCreated", nameof(Add), new Dictionary<string, string>
+ {
+ { "PlayerId", model.PlayerId.ToString() },
+ { "ProtectedName", model.Name }
+ });
 
-                var createProtectedNameDto = new CreateProtectedNameDto(
-                    model.PlayerId,
-                    model.Name,
-                    User.XtremeIdiotsId() ?? throw new InvalidOperationException("User XtremeIdiotsId is required"));
+ this.AddAlertSuccess($"Protected name '{model.Name}' has been successfully added");
 
-                var response = await repositoryApiClient.Players.V1.CreateProtectedName(createProtectedNameDto);
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController), new { id = model.PlayerId });
+ }, nameof(Add), $"PlayerId: {model.PlayerId}");
+ }
 
-                if (!response.IsSuccess)
-                {
-                    if (response.IsConflict)
-                    {
-                        Logger.LogWarning("Protected name '{ProtectedName}' already exists for another player when user {UserId} attempted to protect it for player {PlayerId}",
-                            model.Name, User.XtremeIdiotsId(), model.PlayerId);
+ /// <summary>
+ /// Deletes a protected name by ID with comprehensive authorization and validation
+ /// </summary>
+ /// <param name="id">The unique identifier of the protected name to delete</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>
+ /// Redirects to player details page on successful deletion.
+ /// Returns NotFound result if the specified protected name does not exist.
+ /// Returns Unauthorized result if user lacks DeleteProtectedName permission.
+ /// Redirects to error page if API call fails or an unexpected error occurs.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete protected names</exception>
+ /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
+ [HttpGet]
+ public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ var authResult = await CheckAuthorizationAsync(
+ authorizationService,
+ new object(),
+ AuthPolicies.DeleteProtectedName,
+ nameof(Delete),
+ "ProtectedName",
+ $"ProtectedNameId:{id}");
 
-                        ModelState.AddModelError("Name", "This name is already protected by another player");
-                        model.Player = playerData;
-                        return View(model);
-                    }
+ if (authResult is not null) return authResult;
 
-                    Logger.LogWarning("Failed to create protected name for player {PlayerId} by user {UserId}",
-                        model.PlayerId, User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var protectedNameResponse = await repositoryApiClient.Players.V1.GetProtectedName(id);
 
-                Logger.LogInformation("Successfully created protected name '{ProtectedName}' for player {PlayerId} by user {UserId}",
-                    model.Name, model.PlayerId, User.XtremeIdiotsId());
+ if (protectedNameResponse.IsNotFound)
+ {
+ Logger.LogWarning("Protected name {ProtectedNameId} not found when deleting", id);
+ return NotFound();
+ }
 
-                var eventTelemetry = new EventTelemetry("ProtectedNameCreated")
-                    .Enrich(User)
-                    .Enrich(playerData);
-                eventTelemetry.Properties.TryAdd("ProtectedName", model.Name);
-                TelemetryClient.TrackEvent(eventTelemetry);
+ if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Failed to retrieve protected name {ProtectedNameId} for deletion", id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-                this.AddAlertSuccess($"Protected name '{model.Name}' has been successfully added");
+ var playerId = protectedNameResponse.Result.Data.PlayerId;
+ var deleteProtectedNameDto = new DeleteProtectedNameDto(id);
+ var response = await repositoryApiClient.Players.V1.DeleteProtectedName(deleteProtectedNameDto);
 
-                return RedirectToAction("Details", "Players", new { id = model.PlayerId });
-            }, "Add", $"PlayerId: {model.PlayerId}");
-        }
+ if (!response.IsSuccess)
+ {
+ Logger.LogWarning("Failed to delete protected name {ProtectedNameId} for user {UserId}",
+ id, User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-        /// <summary>
-        /// Deletes a protected name by ID
-        /// </summary>
-        /// <param name="id">The protected name ID to delete</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>Redirects to player details page on success, or appropriate error response</returns>
-        [HttpGet]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} attempting to delete protected name {ProtectedNameId}",
-                    User.XtremeIdiotsId(), id);
+ TrackSuccessTelemetry("ProtectedNameDeleted", nameof(Delete), new Dictionary<string, string>
+ {
+ { "ProtectedNameId", id.ToString() },
+ { "PlayerId", playerId.ToString() }
+ });
 
-                var canDeleteProtectedName = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.DeleteProtectedName);
-                if (!canDeleteProtectedName.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to delete protected name {ProtectedNameId}",
-                        User.XtremeIdiotsId(), id);
+ this.AddAlertSuccess("Protected name has been successfully deleted");
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "ProtectedNames");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Delete");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "ProtectedName");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"ProtectedNameId:{id}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController), new { id = playerId });
+ }, nameof(Delete), $"id: {id}");
+ }
 
-                    return Unauthorized();
-                }
+ /// <summary>
+ /// Displays the usage report for a specific protected name showing violation history and statistics
+ /// </summary>
+ /// <param name="id">The unique identifier of the protected name to generate report for</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation to support request cancellation</param>
+ /// <returns>
+ /// protected name report view with usage statistics and violation history on success.
+ /// Returns NotFound result if the specified protected name does not exist.
+ /// Redirects to error page if API call fails or an unexpected error occurs.
+ /// </returns>
+ /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled via the cancellation token</exception>
+ [HttpGet]
+ public async Task<IActionResult> Report(Guid id, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ var reportResponse = await repositoryApiClient.Players.V1.GetProtectedNameUsageReport(id);
 
-                var protectedNameResponse = await repositoryApiClient.Players.V1.GetProtectedName(id);
+ if (reportResponse.IsNotFound)
+ {
+ Logger.LogWarning("Protected name report {ProtectedNameId} not found", id);
+ return NotFound();
+ }
 
-                if (protectedNameResponse.IsNotFound)
-                {
-                    Logger.LogWarning("Protected name {ProtectedNameId} not found when deleting", id);
-                    return NotFound();
-                }
+ if (!reportResponse.IsSuccess || reportResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Failed to retrieve protected name report {ProtectedNameId}", id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
+ }
 
-                if (!protectedNameResponse.IsSuccess || protectedNameResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Failed to retrieve protected name {ProtectedNameId} for deletion", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var model = new ProtectedNameReportViewModel
+ {
+ Report = reportResponse.Result.Data
+ };
 
-                var playerId = protectedNameResponse.Result.Data.PlayerId;
-                var deleteProtectedNameDto = new DeleteProtectedNameDto(id);
-                var response = await repositoryApiClient.Players.V1.DeleteProtectedName(deleteProtectedNameDto);
+ TrackSuccessTelemetry("ProtectedNameReportViewed", nameof(Report), new Dictionary<string, string>
+ {
+ { "ProtectedNameId", id.ToString() }
+ });
 
-                if (!response.IsSuccess)
-                {
-                    Logger.LogWarning("Failed to delete protected name {ProtectedNameId} for user {UserId}",
-                        id, User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                Logger.LogInformation("Successfully deleted protected name {ProtectedNameId} by user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                var eventTelemetry = new EventTelemetry("ProtectedNameDeleted")
-                    .Enrich(User);
-                eventTelemetry.Properties.TryAdd("ProtectedNameId", id.ToString());
-                eventTelemetry.Properties.TryAdd("PlayerId", playerId.ToString());
-                TelemetryClient.TrackEvent(eventTelemetry);
-
-                this.AddAlertSuccess("Protected name has been successfully deleted");
-
-                return RedirectToAction("Details", "Players", new { id = playerId });
-            }, "Delete", $"id: {id}");
-        }
-
-        /// <summary>
-        /// Displays the usage report for a specific protected name
-        /// </summary>
-        /// <param name="id">The protected name ID to generate report for</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>The protected name report view or error response</returns>
-        [HttpGet]
-        public async Task<IActionResult> Report(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} accessing protected name report for {ProtectedNameId}",
-                    User.XtremeIdiotsId(), id);
-
-                var reportResponse = await repositoryApiClient.Players.V1.GetProtectedNameUsageReport(id);
-
-                if (reportResponse.IsNotFound)
-                {
-                    Logger.LogWarning("Protected name report {ProtectedNameId} not found", id);
-                    return NotFound();
-                }
-
-                if (!reportResponse.IsSuccess || reportResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Failed to retrieve protected name report {ProtectedNameId}", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                var model = new ProtectedNameReportViewModel
-                {
-                    Report = reportResponse.Result.Data
-                };
-
-                Logger.LogInformation("Successfully retrieved protected name report {ProtectedNameId} for user {UserId}",
-                    id, User.XtremeIdiotsId());
-
-                return View(model);
-            }, "Report", $"id: {id}");
-        }
-    }
+ return View(model);
+ }, nameof(Report), $"id: {id}");
+ }
 }

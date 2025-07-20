@@ -1,8 +1,6 @@
 using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
@@ -16,16 +14,16 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 namespace XtremeIdiots.Portal.Web.Controllers;
 
 /// <summary>
-/// Controller for managing admin actions (bans, kicks, warnings, etc.) against players
+/// Controller for managing administrative actions against players
 /// </summary>
 [Authorize(Policy = AuthPolicies.AccessAdminActionsController)]
 public class AdminActionsController(
-    IAuthorizationService authorizationService,
-    IAdminActionTopics adminActionTopics,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<AdminActionsController> logger,
-    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
+ IAuthorizationService authorizationService,
+ IAdminActionTopics adminActionTopics,
+ IRepositoryApiClient repositoryApiClient,
+ TelemetryClient telemetryClient,
+ ILogger<AdminActionsController> logger,
+ IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
     private const string DefaultForumBaseUrl = "https://www.xtremeidiots.com/forums/topic/";
     private const string DefaultFallbackAdminId = "21145";
@@ -36,14 +34,12 @@ public class AdminActionsController(
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
-    /// Displays the creation form for a new admin action against a specific player
+    /// Displays the form for creating a new admin action against a player
     /// </summary>
-    /// <param name="id">The player ID to create an admin action for</param>
-    /// <param name="adminActionType">The type of admin action to create (Ban, Kick, Warning, etc.)</param>
+    /// <param name="id">The player ID to create an admin action against</param>
+    /// <param name="adminActionType">The type of admin action to create</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The create admin action view with pre-populated form data, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when player is not found</exception>
+    /// <returns>Create admin action view with pre-populated data</returns>
     [HttpGet]
     public async Task<IActionResult> Create(Guid id, AdminActionType adminActionType, CancellationToken cancellationToken = default)
     {
@@ -56,13 +52,13 @@ public class AdminActionsController(
             var authorizationResource = (playerData.GameType, adminActionType);
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.CreateAdminAction,
-                "Create",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionType:{adminActionType}",
-                playerData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.CreateAdminAction,
+     "Create",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionType:{adminActionType}",
+     playerData);
 
             if (authResult is not null) return authResult;
 
@@ -79,13 +75,12 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Creates a new admin action for a player based on the submitted form data
+    /// Processes the creation of a new admin action with form validation and authorization checks
     /// </summary>
-    /// <param name="model">The create admin action view model containing the action details</param>
+    /// <param name="model">The create admin action view model containing form data</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page on success, or returns the view with validation errors</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when player is not found</exception>
+    /// <returns>Redirects to player details on success, returns view with validation errors on failure</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate admin actions</exception>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateAdminActionViewModel model, CancellationToken cancellationToken = default)
@@ -97,19 +92,19 @@ public class AdminActionsController(
                 return NotFound();
 
             var modelValidationResult = CheckModelState(model, m => m.PlayerDto = playerData);
-            if (modelValidationResult != null) return modelValidationResult;
+            if (modelValidationResult is not null) return modelValidationResult;
 
             var authorizationResource = (playerData.GameType, model.Type);
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.CreateAdminAction,
-                "Create",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionType:{model.Type}",
-                playerData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.CreateAdminAction,
+     "Create",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionType:{model.Type}",
+     playerData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var adminId = User.XtremeIdiotsId();
             var createAdminActionDto = new CreateAdminActionDto(playerData.PlayerId, model.Type, model.Text)
@@ -119,24 +114,23 @@ public class AdminActionsController(
             };
 
             createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(
-                model.Type,
-                playerData.GameType,
-                playerData.PlayerId,
-                playerData.Username,
-                DateTime.UtcNow,
-                model.Text,
-                adminId);
+     model.Type,
+     playerData.GameType,
+     playerData.PlayerId,
+     playerData.Username,
+     DateTime.UtcNow,
+     model.Text,
+     adminId);
 
             await repositoryApiClient.AdminActions.V1.CreateAdminAction(createAdminActionDto, cancellationToken);
 
             TrackSuccessTelemetry("AdminActionCreated", "CreateAdminAction", new Dictionary<string, string>
-            {
-                    { "PlayerId", model.PlayerId.ToString() },
-                    { "AdminActionType", model.Type.ToString() },
-                    { "ForumTopicId", createAdminActionDto.ForumTopicId?.ToString() ?? "null" }
-            });
+        {
+ { "PlayerId", model.PlayerId.ToString() },
+ { "AdminActionType", model.Type.ToString() },
+ { "ForumTopicId", createAdminActionDto.ForumTopicId?.ToString() ?? string.Empty }
+        });
 
-            var forumBaseUrl = GetForumBaseUrl();
             this.AddAlertSuccess(CreateActionAppliedMessage(model.Type, playerData.Username, createAdminActionDto.ForumTopicId));
 
             return RedirectToAction("Details", "Players", new { id = model.PlayerId });
@@ -144,13 +138,12 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Displays the edit form for modifying an existing admin action
+    /// Displays the form for editing an existing admin action
     /// </summary>
     /// <param name="id">The admin action ID to edit</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The edit admin action view with populated form data, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to edit admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>edit admin action view with current data, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit the admin action</exception>
     [HttpGet]
     public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken = default)
     {
@@ -164,15 +157,15 @@ public class AdminActionsController(
 
             var authorizationResource = (playerData.GameType, adminActionData.Type, adminActionData.UserProfile?.XtremeIdiotsForumId);
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.EditAdminAction,
-                "Edit",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{id}",
-                adminActionData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.EditAdminAction,
+     "Edit",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{id}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var viewModel = new EditAdminActionViewModel
             {
@@ -190,13 +183,12 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Updates an existing admin action with the provided modifications
+    /// Processes the editing of an admin action with validation and authorization checks
     /// </summary>
-    /// <param name="model">The edit admin action view model containing updated values</param>
+    /// <param name="model">The edit admin action view model containing updated form data</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page on success, or returns the view with validation errors</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to edit admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>Redirects to player details on success, returns view with validation errors on failure</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionedit admin actions</exception>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(EditAdminActionViewModel model, CancellationToken cancellationToken = default)
@@ -210,19 +202,19 @@ public class AdminActionsController(
             var playerData = adminActionData.Player!;
 
             var modelValidationResult = CheckModelState(model, m => m.PlayerDto = playerData);
-            if (modelValidationResult != null) return modelValidationResult;
+            if (modelValidationResult is not null) return modelValidationResult;
 
             var authorizationResource = (playerData.GameType, adminActionData.Type, adminActionData.UserProfile?.XtremeIdiotsForumId);
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.EditAdminAction,
-                "Edit",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{model.AdminActionId}",
-                adminActionData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.EditAdminAction,
+     "Edit",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{model.AdminActionId}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
             {
@@ -236,38 +228,37 @@ public class AdminActionsController(
             {
                 editAdminActionDto.AdminId = string.IsNullOrWhiteSpace(model.AdminId) ? GetFallbackAdminId() : model.AdminId;
                 Logger.LogInformation("User {UserId} changed admin for action {AdminActionId} to {NewAdminId}",
-                    User.XtremeIdiotsId(), model.AdminActionId, editAdminActionDto.AdminId);
+         User.XtremeIdiotsId(), model.AdminActionId, editAdminActionDto.AdminId);
             }
 
             await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto, cancellationToken);
 
             var adminForumId = canChangeAdminActionAdmin.Succeeded && adminActionData.UserProfile?.XtremeIdiotsForumId != model.AdminId
-                ? editAdminActionDto.AdminId
-                : adminActionData.UserProfile?.XtremeIdiotsForumId;
+     ? editAdminActionDto.AdminId
+     : adminActionData.UserProfile?.XtremeIdiotsForumId;
 
             await UpdateForumTopicIfExistsAsync(adminActionData, model.Text, adminForumId);
 
-            TrackSuccessTelemetry("AdminActionEdited", "EditAdminAction", new Dictionary<string, string>
-            {
-                    { "AdminActionId", model.AdminActionId.ToString() },
-                    { "PlayerId", model.PlayerId.ToString() },
-                    { "AdminActionType", model.Type.ToString() }
-            });
+            TrackSuccessTelemetry("AdminActionEdited", nameof(Edit), new Dictionary<string, string>
+        {
+ { nameof(model.AdminActionId), model.AdminActionId.ToString() },
+ { nameof(model.PlayerId), model.PlayerId.ToString() },
+ { "AdminActionType", model.Type.ToString() }
+        });
 
             this.AddAlertSuccess(CreateActionOperationMessage(model.Type, playerData.Username, "updated"));
 
-            return RedirectToAction("Details", "Players", new { id = model.PlayerId });
-        }, "EditAdminAction");
+            return RedirectToAction(nameof(PlayersController.Details), "Players", new { id = model.PlayerId });
+        }, nameof(Edit));
     }
 
     /// <summary>
-    /// Displays the lift confirmation page for an admin action
+    /// Displays the confirmation form for lifting (ending) an admin action
     /// </summary>
-    /// <param name="id">The admin action ID to display lift confirmation for</param>
+    /// <param name="id">The admin action ID to lift</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The lift confirmation view with admin action details, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to lift admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>lift confirmation view, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionlift admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Lift(Guid id, CancellationToken cancellationToken = default)
     {
@@ -281,31 +272,30 @@ public class AdminActionsController(
 
             var authorizationResource = (playerData.GameType, adminActionData.UserProfile?.XtremeIdiotsForumId);
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.LiftAdminAction,
-                "Lift",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{id}",
-                adminActionData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.LiftAdminAction,
+     "Lift",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{id}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             return View(adminActionData);
         }, "LiftAdminActionForm");
     }
 
     /// <summary>
-    /// Lifts an admin action by setting its expiry date to the current time, effectively ending it
+    /// Processes the lifting (ending) of an admin action by setting its expiry to now
     /// </summary>
     /// <param name="id">The admin action ID to lift</param>
     /// <param name="playerId">The player ID associated with the admin action</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to lift admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>Redirects to player details with success message, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionlift admin actions</exception>
     [HttpPost]
-    [ActionName("Lift")]
+    [ActionName(nameof(Lift))]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> LiftConfirmed(Guid id, Guid playerId, CancellationToken cancellationToken = default)
     {
@@ -319,15 +309,15 @@ public class AdminActionsController(
 
             var authorizationResource = (playerData.GameType, adminActionData.UserProfile?.XtremeIdiotsForumId);
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                authorizationResource,
-                AuthPolicies.LiftAdminAction,
-                "Lift",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
-                adminActionData);
+     authorizationService,
+     authorizationResource,
+     AuthPolicies.LiftAdminAction,
+     "Lift",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
             {
@@ -338,27 +328,26 @@ public class AdminActionsController(
 
             await UpdateForumTopicIfExistsAsync(adminActionData, adminActionData.Text, adminActionData.UserProfile?.XtremeIdiotsForumId);
 
-            TrackSuccessTelemetry("AdminActionLifted", "LiftAdminAction", new Dictionary<string, string>
-            {
-                    { "AdminActionId", id.ToString() },
-                    { "PlayerId", playerId.ToString() },
-                    { "AdminActionType", adminActionData.Type.ToString() }
-            });
+            TrackSuccessTelemetry("AdminActionLifted", nameof(Lift), new Dictionary<string, string>
+        {
+ { "AdminActionId", id.ToString() },
+ { nameof(playerId), playerId.ToString() },
+ { "AdminActionType", adminActionData.Type.ToString() }
+        });
 
             this.AddAlertSuccess(CreateActionOperationMessage(adminActionData.Type, playerData.Username, "lifted"));
 
-            return RedirectToAction("Details", "Players", new { id = playerId });
-        }, "LiftAdminAction");
+            return RedirectToAction(nameof(PlayersController.Details), "Players", new { id = playerId });
+        }, nameof(Lift));
     }
 
     /// <summary>
-    /// Displays the claim confirmation page for an admin action
+    /// Displays the confirmation form for claiming ownership of an unclaimed admin action
     /// </summary>
-    /// <param name="id">The admin action ID to display claim confirmation for</param>
+    /// <param name="id">The admin action ID to claim</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The claim confirmation view with admin action details, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to claim admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>claim confirmation view, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionclaim admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Claim(Guid id, CancellationToken cancellationToken = default)
     {
@@ -376,15 +365,15 @@ public class AdminActionsController(
             var playerData = adminActionData.Player;
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                playerData.GameType,
-                AuthPolicies.ClaimAdminAction,
-                "Claim",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{id}",
-                adminActionData);
+     authorizationService,
+     playerData.GameType,
+     AuthPolicies.ClaimAdminAction,
+     "Claim",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{id}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             return View(adminActionData);
         }, "ClaimAdminActionForm");
@@ -397,10 +386,9 @@ public class AdminActionsController(
     /// <param name="playerId">The player ID associated with the admin action</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
     /// <returns>Redirects to player details page with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to claim admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissionclaim admin actions</exception>
     [HttpPost]
-    [ActionName("Claim")]
+    [ActionName(nameof(Claim))]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ClaimConfirmed(Guid id, Guid playerId, CancellationToken cancellationToken = default)
     {
@@ -418,15 +406,15 @@ public class AdminActionsController(
             var playerData = adminActionData.Player;
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                playerData.GameType,
-                AuthPolicies.ClaimAdminAction,
-                "Claim",
-                "AdminAction",
-                $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
-                adminActionData);
+     authorizationService,
+     playerData.GameType,
+     AuthPolicies.ClaimAdminAction,
+     "Claim",
+     "AdminAction",
+     $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var adminId = User.XtremeIdiotsId();
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
@@ -439,37 +427,36 @@ public class AdminActionsController(
             if (adminActionData.ForumTopicId.HasValue && adminActionData.ForumTopicId != 0)
             {
                 await adminActionTopics.UpdateTopicForAdminAction(
-                    adminActionData.ForumTopicId.Value,
-                    adminActionData.Type,
-                    playerData.GameType,
-                    playerData.PlayerId,
-                    playerData.Username,
-                    adminActionData.Created,
-                    adminActionData.Text,
-                    adminId);
+         adminActionData.ForumTopicId.Value,
+         adminActionData.Type,
+         playerData.GameType,
+         playerData.PlayerId,
+         playerData.Username,
+         adminActionData.Created,
+         adminActionData.Text,
+         adminId);
             }
 
-            TrackSuccessTelemetry("AdminActionClaimed", "ClaimAdminAction", new Dictionary<string, string>
-            {
-                    { "AdminActionId", id.ToString() },
-                    { "PlayerId", playerId.ToString() },
-                    { "AdminActionType", adminActionData.Type.ToString() }
-            });
+            TrackSuccessTelemetry("AdminActionClaimed", nameof(Claim), new Dictionary<string, string>
+        {
+ { "AdminActionId", id.ToString() },
+ { nameof(playerId), playerId.ToString() },
+ { "AdminActionType", adminActionData.Type.ToString() }
+        });
 
             this.AddAlertSuccess($"The {adminActionData.Type} has been successfully claimed for {playerData.Username}");
 
-            return RedirectToAction("Details", "Players", new { id = playerId });
-        }, "ClaimAdminAction");
+            return RedirectToAction(nameof(PlayersController.Details), "Players", new { id = playerId });
+        }, nameof(Claim));
     }
 
     /// <summary>
-    /// Creates a discussion topic for an admin action in the forums
+    /// Creates a forum discussion topic for an existing admin action that doesn't have one
     /// </summary>
     /// <param name="id">The admin action ID to create a discussion topic for</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create discussion topics</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>Redirects to player details with success message and forum link, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate admin action topics</exception>
     [HttpGet]
     public async Task<IActionResult> CreateDiscussionTopic(Guid id, CancellationToken cancellationToken = default)
     {
@@ -487,24 +474,24 @@ public class AdminActionsController(
             var playerData = adminActionData.Player;
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                playerData.GameType,
-                AuthPolicies.CreateAdminActionTopic,
-                "CreateDiscussionTopic",
-                "AdminActionTopic",
-                $"GameType:{playerData.GameType},AdminActionId:{id}",
-                adminActionData);
+     authorizationService,
+     playerData.GameType,
+     AuthPolicies.CreateAdminActionTopic,
+     "CreateDiscussionTopic",
+     "AdminActionTopic",
+     $"GameType:{playerData.GameType},AdminActionId:{id}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             var forumTopicId = await adminActionTopics.CreateTopicForAdminAction(
-                adminActionData.Type,
-                playerData.GameType,
-                playerData.PlayerId,
-                playerData.Username,
-                DateTime.UtcNow,
-                adminActionData.Text,
-                adminActionData.UserProfile?.XtremeIdiotsForumId);
+     adminActionData.Type,
+     playerData.GameType,
+     playerData.PlayerId,
+     playerData.Username,
+     DateTime.UtcNow,
+     adminActionData.Text,
+     adminActionData.UserProfile?.XtremeIdiotsForumId);
 
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
             {
@@ -513,28 +500,27 @@ public class AdminActionsController(
 
             await repositoryApiClient.AdminActions.V1.UpdateAdminAction(editAdminActionDto, cancellationToken);
 
-            TrackSuccessTelemetry("AdminActionTopicCreated", "CreateDiscussionTopic", new Dictionary<string, string>
-            {
-                    { "AdminActionId", id.ToString() },
-                    { "ForumTopicId", forumTopicId.ToString() },
-                    { "PlayerId", adminActionData.PlayerId.ToString() }
-            });
+            TrackSuccessTelemetry("AdminActionTopicCreated", nameof(CreateDiscussionTopic), new Dictionary<string, string>
+        {
+ { "AdminActionId", id.ToString() },
+ { "ForumTopicId", forumTopicId.ToString() },
+ { nameof(adminActionData.PlayerId), adminActionData.PlayerId.ToString() }
+        });
 
             var forumBaseUrl = GetForumBaseUrl();
             this.AddAlertSuccess($"The discussion topic has been successfully created <a target=\"_blank\" href=\"{forumBaseUrl}{forumTopicId}-topic/\" class=\"alert-link\">here</a>");
 
-            return RedirectToAction("Details", "Players", new { id = adminActionData.PlayerId });
-        }, "CreateDiscussionTopic");
+            return RedirectToAction(nameof(PlayersController.Details), "Players", new { id = adminActionData.PlayerId });
+        }, nameof(CreateDiscussionTopic));
     }
 
     /// <summary>
-    /// Displays the delete confirmation page for an admin action
+    /// Displays the confirmation form for deleting an admin action
     /// </summary>
-    /// <param name="id">The admin action ID to display deletion confirmation for</param>
+    /// <param name="id">The admin action ID to delete</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The delete confirmation view with admin action details, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to delete admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>delete confirmation view, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete admin actions</exception>
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
@@ -551,31 +537,30 @@ public class AdminActionsController(
             var adminActionData = getAdminActionResult.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                adminActionData,
-                AuthPolicies.DeleteAdminAction,
-                "Delete",
-                "AdminAction",
-                $"AdminActionId:{id}",
-                adminActionData);
+     authorizationService,
+     adminActionData,
+     AuthPolicies.DeleteAdminAction,
+     "Delete",
+     "AdminAction",
+     $"AdminActionId:{id}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             return View(adminActionData);
         }, "DeleteAdminActionForm");
     }
 
     /// <summary>
-    /// Permanently deletes an admin action from the system after confirmation
+    /// Processes the deletion of an admin action after confirmation
     /// </summary>
     /// <param name="id">The admin action ID to delete</param>
     /// <param name="playerId">The player ID associated with the admin action</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Redirects to player details page with success message, or appropriate error response</returns>
-    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to delete admin actions</exception>
-    /// <exception cref="KeyNotFoundException">Thrown when admin action is not found</exception>
+    /// <returns>Redirects to player details with success message, or appropriate error response</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete admin actions</exception>
     [HttpPost]
-    [ActionName("Delete")]
+    [ActionName(nameof(Delete))]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(Guid id, Guid playerId, CancellationToken cancellationToken = default)
     {
@@ -593,56 +578,50 @@ public class AdminActionsController(
             var playerData = adminActionData.Player;
 
             var authResult = await CheckAuthorizationAsync(
-                authorizationService,
-                adminActionData,
-                AuthPolicies.DeleteAdminAction,
-                "Delete",
-                "AdminAction",
-                $"AdminActionId:{id},PlayerId:{playerId}",
-                adminActionData);
+     authorizationService,
+     adminActionData,
+     AuthPolicies.DeleteAdminAction,
+     "Delete",
+     "AdminAction",
+     $"AdminActionId:{id},PlayerId:{playerId}",
+     adminActionData);
 
-            if (authResult != null) return authResult;
+            if (authResult is not null) return authResult;
 
             await repositoryApiClient.AdminActions.V1.DeleteAdminAction(id, cancellationToken);
 
-            TrackSuccessTelemetry("AdminActionDeleted", "DeleteAdminAction", new Dictionary<string, string>
-            {
-                    { "AdminActionId", id.ToString() },
-                    { "PlayerId", playerId.ToString() },
-                    { "AdminActionType", adminActionData.Type.ToString() }
-            });
+            TrackSuccessTelemetry("AdminActionDeleted", nameof(Delete), new Dictionary<string, string>
+        {
+ { "AdminActionId", id.ToString() },
+ { nameof(playerId), playerId.ToString() },
+ { "AdminActionType", adminActionData.Type.ToString() }
+        });
 
             this.AddAlertSuccess($"The {adminActionData.Type} has been successfully deleted from {playerData.Username}");
 
-            return RedirectToAction("Details", "Players", new { id = playerId });
-        }, "DeleteAdminAction");
+            return RedirectToAction(nameof(PlayersController.Details), "Players", new { id = playerId });
+        }, nameof(Delete));
     }
 
     /// <summary>
-    /// Gets the forum base URL from configuration with fallback
+    /// Gets the configured forum base URL or default
     /// </summary>
-    /// <returns>The forum base URL</returns>
-    private string GetForumBaseUrl()
-    {
-        return GetConfigurationValue("AdminActions:ForumBaseUrl", DefaultForumBaseUrl);
-    }
+    /// <returns>The forum base URL for creating links to admin action topics</returns>
+    private string GetForumBaseUrl() => GetConfigurationValue("AdminActions:ForumBaseUrl", DefaultForumBaseUrl);
 
     /// <summary>
-    /// Gets the fallback admin ID from configuration
+    /// Gets the configured fallback admin ID or default
     /// </summary>
-    /// <returns>The fallback admin ID</returns>
-    private string GetFallbackAdminId()
-    {
-        return GetConfigurationValue("AdminActions:FallbackAdminId", DefaultFallbackAdminId);
-    }
+    /// <returns>The fallback admin ID to use when no admin is specified</returns>
+    private string GetFallbackAdminId() => GetConfigurationValue("AdminActions:FallbackAdminId", DefaultFallbackAdminId);
 
     /// <summary>
-    /// Retrieves player data with standardized error handling and logging
+    /// Retrieves player data by ID with error handling and validation
     /// </summary>
     /// <param name="playerId">The player ID to retrieve</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Player data if found, null if not found</returns>
-    /// <exception cref="InvalidOperationException">Thrown when API call fails unexpectedly</exception>
+    /// <returns>The player data if found, null if not found</returns>
+    /// <exception cref="InvalidOperationException">Thrown when player data retrieval fails unexpectedly</exception>
     private async Task<PlayerDto?> GetPlayerDataAsync(Guid playerId, CancellationToken cancellationToken = default)
     {
         var getPlayerResult = await repositoryApiClient.Players.V1.GetPlayer(playerId, PlayerEntityOptions.None);
@@ -663,12 +642,11 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Retrieves admin action data with standardized error handling and logging
+    /// Retrieves admin action data by ID with error handling and validation
     /// </summary>
     /// <param name="adminActionId">The admin action ID to retrieve</param>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>Admin action data if found, null if not found</returns>
-    /// <exception cref="InvalidOperationException">Thrown when API call fails unexpectedly</exception>
+    /// <returns>The admin action data if found, null if not found or has no associated player</returns>
     private async Task<AdminActionDto?> GetAdminActionDataAsync(Guid adminActionId, CancellationToken cancellationToken = default)
     {
         var getAdminActionResult = await repositoryApiClient.AdminActions.V1.GetAdminAction(adminActionId, cancellationToken);
@@ -683,35 +661,34 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Updates forum topic for an admin action if it exists
+    /// Updates the forum topic for an admin action if it exists
     /// </summary>
-    /// <param name="adminActionData">The admin action data</param>
-    /// <param name="text">The updated text content</param>
-    /// <param name="adminForumId">The admin forum ID to use</param>
-    /// <returns>Task representing the async operation</returns>
+    /// <param name="adminActionData">The admin action data containing forum topic information</param>
+    /// <param name="text">The updated text for the admin action</param>
+    /// <param name="adminForumId">The admin forum ID to associate with the action</param>
     private async Task UpdateForumTopicIfExistsAsync(AdminActionDto adminActionData, string text, string? adminForumId)
     {
         if (adminActionData.ForumTopicId.HasValue && adminActionData.ForumTopicId != 0 && adminActionData.Player is not null)
         {
             await adminActionTopics.UpdateTopicForAdminAction(
-                adminActionData.ForumTopicId.Value,
-                adminActionData.Type,
-                adminActionData.Player.GameType,
-                adminActionData.Player.PlayerId,
-                adminActionData.Player.Username,
-                adminActionData.Created,
-                text,
-                adminForumId);
+            adminActionData.ForumTopicId.Value,
+            adminActionData.Type,
+            adminActionData.Player.GameType,
+            adminActionData.Player.PlayerId,
+            adminActionData.Player.Username,
+            adminActionData.Created,
+            text,
+            adminForumId);
         }
     }
 
     /// <summary>
-    /// Creates a success message for admin action creation with forum topic link
+    /// Creates a success message for when an admin action is applied with forum topic link
     /// </summary>
     /// <param name="actionType">The type of admin action</param>
-    /// <param name="username">The username the action was applied to</param>
-    /// <param name="forumTopicId">The forum topic ID</param>
-    /// <returns>The formatted success message</returns>
+    /// <param name="username">The username of the affected player</param>
+    /// <param name="forumTopicId">The forum topic ID for the admin action</param>
+    /// <returns>A formatted HTML message with forum topic link</returns>
     private string CreateActionAppliedMessage(AdminActionType actionType, string username, int? forumTopicId)
     {
         var forumBaseUrl = GetForumBaseUrl();
@@ -719,22 +696,20 @@ public class AdminActionsController(
     }
 
     /// <summary>
-    /// Creates a success message for admin action updates
+    /// Creates a success message for admin action operations (updated, lifted, etc.)
     /// </summary>
     /// <param name="actionType">The type of admin action</param>
-    /// <param name="username">The username the action was applied to</param>
-    /// <param name="operation">The operation performed (updated, lifted, claimed, etc.)</param>
-    /// <returns>The formatted success message</returns>
-    private static string CreateActionOperationMessage(AdminActionType actionType, string username, string operation)
-    {
-        return $"The {actionType} has been successfully {operation} for {username}";
-    }
+    /// <param name="username">The username of the affected player</param>
+    /// <param name="operation">The operation performed (updated, lifted, etc.)</param>
+    /// <returns>A formatted success message</returns>
+    private static string CreateActionOperationMessage(AdminActionType actionType, string username, string operation) =>
+    $"The {actionType} has been successfully {operation} for {username}";
 
     /// <summary>
     /// Displays admin actions created by the current user
     /// </summary>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>View with the user's admin actions</returns>
+    /// <returns>A view with the user's admin actions, or error page on failure</returns>
     [HttpGet]
     public async Task<IActionResult> MyActions(CancellationToken cancellationToken = default)
     {
@@ -749,17 +724,17 @@ public class AdminActionsController(
             }
 
             Logger.LogInformation("Successfully retrieved {Count} admin actions for user {UserId}",
-                adminActionsApiResponse.Result.Data.Items.Count(), User.XtremeIdiotsId());
+     adminActionsApiResponse.Result.Data.Items.Count(), User.XtremeIdiotsId());
 
             return View(adminActionsApiResponse.Result.Data.Items);
-        }, "MyActions");
+        }, nameof(MyActions));
     }
 
     /// <summary>
-    /// Displays unclaimed ban admin actions that can be claimed by moderators
+    /// Displays unclaimed admin actions (typically bans) that need to be assigned to administrators
     /// </summary>
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>The unclaimed admin actions view</returns>
+    /// <returns>A view with unclaimed admin actions, or error page on failure</returns>
     [HttpGet]
     public async Task<IActionResult> Unclaimed(CancellationToken cancellationToken = default)
     {
@@ -774,9 +749,9 @@ public class AdminActionsController(
             }
 
             Logger.LogInformation("Successfully retrieved {Count} unclaimed admin actions for user {UserId}",
-                adminActionsApiResponse.Result.Data.Items.Count(), User.XtremeIdiotsId());
+     adminActionsApiResponse.Result.Data.Items.Count(), User.XtremeIdiotsId());
 
             return View(adminActionsApiResponse.Result.Data.Items);
-        }, "Unclaimed");
+        }, nameof(Unclaimed));
     }
 }

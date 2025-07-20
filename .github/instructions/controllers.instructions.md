@@ -578,20 +578,10 @@ catch (Exception ex)
 
 ### XML Documentation
 
-**All public methods must have comprehensive XML documentation:**
+**All public controller methods MUST have XML documentation:**
+- Include `<summary>` describing the action's purpose
+- Document all `<param>` including their business meaning
+- Describe `<returns>` including redirect scenarios and error conditions  
+- List `<exception>` types that can be thrown for authorization or validation failures
 
-```csharp
-/// <summary>
-/// Creates a new ban file monitor for a specified game server
-/// </summary>
-/// <param name="model">The create ban file monitor view model containing form data</param>
-/// <param name="cancellationToken">Cancellation token for the async operation</param>
-/// <returns>Redirects to index on success, returns view with validation errors on failure</returns>
-/// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to create ban file monitors</exception>
-/// <exception cref="KeyNotFoundException">Thrown when game server is not found</exception>
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create(CreateBanFileMonitorViewModel model, CancellationToken cancellationToken = default)
-```
-
-This comprehensive guide ensures consistency across all controllers in the XtremeIdiots Portal while maintaining the specific gaming community management requirements and patterns.
+**Private helper methods should have XML docs only if they contain complex business logic.**

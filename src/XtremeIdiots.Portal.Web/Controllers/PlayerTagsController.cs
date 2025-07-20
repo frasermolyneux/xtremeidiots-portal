@@ -1,3 +1,8 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
@@ -5,389 +10,434 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-using XtremeIdiots.Portal.Web.Auth.Constants;
-using XtremeIdiots.Portal.Web.Extensions;
-using XtremeIdiots.Portal.Web.ViewModels;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Web.Auth.Constants;
+using XtremeIdiots.Portal.Web.Extensions;
+using XtremeIdiots.Portal.Web.ViewModels;
 
-namespace XtremeIdiots.Portal.Web.Controllers
+namespace XtremeIdiots.Portal.Web.Controllers;
+/// <summary>
+/// Controller for managing player tag assignments .
+/// Handles adding and removing user-defined tags to/from players with proper authorization.
+/// </summary>
+/// <remarks>
+/// This controller provides functionality for:
+/// - Adding user-defined tags to players with proper validation
+/// - Removing user-defined tags from players with authorization checks
+/// - Tracking telemetry for tag management operations
+/// - Maintaining audit trails for tag assignments and removals
+/// All operations require appropriate authorization policies for player access and tag management.
+/// </remarks>
+[Authorize(Policy = AuthPolicies.AccessPlayers)]
+public class PlayerTagsController : BaseController
 {
-    /// <summary>
-    /// Controller for managing player tag assignments
-    /// </summary>
-    [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public class PlayerTagsController : BaseController
-    {
-        private readonly IAuthorizationService authorizationService;
-        private readonly IRepositoryApiClient repositoryApiClient;
+ private readonly IAuthorizationService authorizationService;
+ private readonly IRepositoryApiClient repositoryApiClient;
 
-        public PlayerTagsController(
-            IAuthorizationService authorizationService,
-            IRepositoryApiClient repositoryApiClient,
-            TelemetryClient telemetryClient,
-            ILogger<PlayerTagsController> logger,
-            IConfiguration configuration)
-            : base(telemetryClient, logger, configuration)
-        {
-            this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-            this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        }
+ /// <summary>
+ /// Initializes a new instance of the <see cref="PlayerTagsController"/> class.
+ /// </summary>
+ /// <param name="authorizationService">Service for handling authorization policy evaluation</param>
+ /// <param name="repositoryApiClient">Client for accessing the repository API for player and tag operations</param>
+ /// <param name="telemetryClient">Client for tracking application telemetry and analytics</param>
+ /// <param name="logger">Logger instance for recording controller operations and errors</param>
+ /// <param name="configuration">Application configuration settings</param>
+ /// <exception cref="ArgumentNullException">Thrown when any required service dependency is null</exception>
+ public PlayerTagsController(
+ IAuthorizationService authorizationService,
+ IRepositoryApiClient repositoryApiClient,
+ TelemetryClient telemetryClient,
+ ILogger<PlayerTagsController> logger,
+ IConfiguration configuration)
+ : base(telemetryClient, logger, configuration)
+ {
+ this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+ this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+ }
 
-        /// <summary>
-        /// Displays the form to add a tag to a specific player
-        /// </summary>
-        /// <param name="id">The player ID to add a tag to</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>The add player tag view or error response</returns>
-        [HttpGet]
-        public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} accessing add player tag form for player {PlayerId}",
-                    User.XtremeIdiotsId(), id);
+ /// <summary>
+ /// Displays the form to add a user-defined tag to a specific player.
+ /// </summary>
+ /// <param name="id">The unique identifier of the player to add a tag to</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation</param>
+ /// <returns>
+ /// add player tag view with available user-defined tags on success.
+ /// Returns <see cref="UnauthorizedResult"/> if the user lacks CreatePlayerTag permissions.
+ /// Returns <see cref="NotFoundResult"/> if the player is not found.
+ /// Returns error page redirect if API calls fail.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate player tags</exception>
+ /// <exception cref="InvalidOperationException">Thrown when player or tags data cannot be retrieved</exception>
+ [HttpGet]
+ public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ Logger.LogInformation("User {UserId} accessing add player tag form for player {PlayerId}",
+ User.XtremeIdiotsId(), id);
 
-                var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
-                if (!canCreatePlayerTag.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to create player tag for player {PlayerId}",
-                        User.XtremeIdiotsId(), id);
+ var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
+ if (!canCreatePlayerTag.Succeeded)
+ {
+ Logger.LogWarning("User {UserId} denied access to create player tag for player {PlayerId}",
+ User.XtremeIdiotsId(), id);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "PlayerTags");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Add");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
+ .Enrich(User);
+ unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
+ unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Add));
+ unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
+ unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id}");
+ TelemetryClient.TrackEvent(unauthorizedTelemetry); return Unauthorized();
+ }
 
-                    return Unauthorized();
-                }
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
-                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+ if (playerResponse.IsNotFound)
+ {
+ Logger.LogWarning("Player {PlayerId} not found when adding player tag", id);
+ return NotFound();
+ }
 
-                if (playerResponse.IsNotFound)
-                {
-                    Logger.LogWarning("Player {PlayerId} not found when adding player tag", id);
-                    return NotFound();
-                }
+ if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Failed to retrieve player {PlayerId} for player tag", id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
+ }
 
-                if (!playerResponse.IsSuccess || playerResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Failed to retrieve player {PlayerId} for player tag", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
 
-                var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
+ if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
+ {
+ Logger.LogWarning("Failed to retrieve tags for player tag assignment");
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
+ }
 
-                if (!tagsResponse.IsSuccess || tagsResponse.Result?.Data?.Items is null)
-                {
-                    Logger.LogWarning("Failed to retrieve tags for player tag assignment");
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var model = new AddPlayerTagViewModel
+ {
+ PlayerId = id,
+ Player = playerResponse.Result.Data,
+ AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList()
+ };
 
-                var model = new AddPlayerTagViewModel
-                {
-                    PlayerId = id,
-                    Player = playerResponse.Result.Data,
-                    AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList()
-                };
+ Logger.LogInformation("Successfully loaded add player tag form for user {UserId} and player {PlayerId} with {TagCount} available tags",
+ User.XtremeIdiotsId(), id, model.AvailableTags.Count);
 
-                Logger.LogInformation("Successfully loaded add player tag form for user {UserId} and player {PlayerId} with {TagCount} available tags",
-                    User.XtremeIdiotsId(), id, model.AvailableTags.Count);
+ var eventTelemetry = new EventTelemetry("PlayerTagAddPageViewed")
+ .Enrich(User)
+ .Enrich(playerResponse.Result.Data);
+ eventTelemetry.Properties.TryAdd("AvailableTagCount", model.AvailableTags.Count.ToString());
+ TelemetryClient.TrackEvent(eventTelemetry);
 
-                var eventTelemetry = new EventTelemetry("PlayerTagAddPageViewed")
-                    .Enrich(User)
-                    .Enrich(playerResponse.Result.Data);
-                eventTelemetry.Properties.TryAdd("AvailableTagCount", model.AvailableTags.Count.ToString());
-                TelemetryClient.TrackEvent(eventTelemetry);
+ return View(model);
+ }, nameof(Add), $"id: {id}");
+ } /// <summary>
+ /// Creates a new player tag assignment based on the submitted form data.
+ /// Validates that the tag is user-defined and assigns it to the specified player.
+ /// </summary>
+ /// <param name="model">The add player tag view model containing the tag assignment details including player ID and tag ID</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation</param>
+ /// <returns>
+ /// Returns redirect to player details page on successful tag assignment.
+ /// Returns <see cref="UnauthorizedResult"/> if the user lacks CreatePlayerTag permissions.
+ /// view with validation errors if the model state is invalid or tag constraints are violated.
+ /// Returns error page redirect if API calls fail or player/tag are not found.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissioncreate player tags</exception>
+ /// <exception cref="InvalidOperationException">Thrown when player, tag data cannot be retrieved or tag assignment fails</exception>
+ /// <exception cref="ArgumentException">Thrown when attempting to assign a non-user-defined tag</exception>
+ [HttpPost]
+ [ValidateAntiForgeryToken]
+ public async Task<IActionResult> Add(AddPlayerTagViewModel model, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ Logger.LogInformation("User {UserId} attempting to add tag {TagId} to player {PlayerId}",
+ User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
-                return View(model);
-            }, "Add", $"id: {id}");
-        }
+ var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
+ if (!canCreatePlayerTag.Succeeded)
+ {
+ Logger.LogWarning("User {UserId} denied access to add tag {TagId} to player {PlayerId}",
+ User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
-        /// <summary>
-        /// Creates a new player tag assignment based on the submitted form data
-        /// </summary>
-        /// <param name="model">The add player tag view model containing the tag assignment details</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>Redirects to player details page on success, or returns the view with validation errors</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Add(AddPlayerTagViewModel model, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} attempting to add tag {TagId} to player {PlayerId}",
-                    User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+ var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
+ .Enrich(User);
+ unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
+ unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Add));
+ unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
+ unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{model.PlayerId},TagId:{model.TagId}");
+ TelemetryClient.TrackEvent(unauthorizedTelemetry); return Unauthorized();
+ }
 
-                var canCreatePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.CreatePlayerTag);
-                if (!canCreatePlayerTag.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to add tag {TagId} to player {PlayerId}",
-                        User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+ if (!ModelState.IsValid)
+ {
+ Logger.LogWarning("Invalid model state for adding tag to player {PlayerId}", model.PlayerId);
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "PlayerTags");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Add");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{model.PlayerId},TagId:{model.TagId}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+ if (playerResponse.IsSuccess && playerResponse.Result?.Data != null)
+ {
+ model.Player = playerResponse.Result.Data;
+ }
+ var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
+ if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
+ {
+ model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
+ }
+ return View(model);
+ }
 
-                    return Unauthorized();
-                }
+ var tagResponse = await repositoryApiClient.Tags.V1.GetTag(model.TagId);
+ if (!tagResponse.IsSuccess || tagResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Tag {TagId} not found when adding to player {PlayerId}", model.TagId, model.PlayerId);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 404 });
+ }
 
-                if (!ModelState.IsValid)
-                {
-                    Logger.LogWarning("Invalid model state for adding tag to player {PlayerId}", model.PlayerId);
+ if (!tagResponse.Result.Data.UserDefined)
+ {
+ Logger.LogWarning("User {UserId} attempted to assign non-user-defined tag {TagId} to player {PlayerId}",
+ User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
-                    var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
-                    if (playerResponse.IsSuccess && playerResponse.Result?.Data != null)
-                    {
-                        model.Player = playerResponse.Result.Data;
-                    }
-                    var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
-                    if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
-                    {
-                        model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
-                    }
-                    return View(model);
-                }
+ this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
 
-                var tagResponse = await repositoryApiClient.Tags.V1.GetTag(model.TagId);
-                if (!tagResponse.IsSuccess || tagResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Tag {TagId} not found when adding to player {PlayerId}", model.TagId, model.PlayerId);
-                    return RedirectToAction("Display", "Errors", new { id = 404 });
-                }
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+ if (playerResponse.IsSuccess && playerResponse.Result?.Data != null)
+ {
+ model.Player = playerResponse.Result.Data;
+ }
 
-                if (!tagResponse.Result.Data.UserDefined)
-                {
-                    Logger.LogWarning("User {UserId} attempted to assign non-user-defined tag {TagId} to player {PlayerId}",
-                        User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+ var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
+ if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
+ {
+ model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
+ }
 
-                    this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
+ return View(model);
+ }
 
-                    var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
-                    if (playerResponse.IsSuccess && playerResponse.Result?.Data != null)
-                    {
-                        model.Player = playerResponse.Result.Data;
-                    }
+ var userProfileIdString = User.UserProfileId();
+ if (string.IsNullOrWhiteSpace(userProfileIdString) || !Guid.TryParse(userProfileIdString, out var userProfileId))
+ {
+ Logger.LogWarning("Invalid user profile ID for user {UserId} when adding player tag", User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 400 });
+ }
 
-                    var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
-                    if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
-                    {
-                        model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
-                    }
+ var playerTagDto = new PlayerTagDto
+ {
+ PlayerId = model.PlayerId,
+ TagId = model.TagId,
+ UserProfileId = userProfileId,
+ Assigned = DateTime.UtcNow
+ };
 
-                    return View(model);
-                }
+ var response = await repositoryApiClient.Players.V1.AddPlayerTag(model.PlayerId, playerTagDto);
 
-                var userProfileIdString = User.UserProfileId();
-                if (string.IsNullOrWhiteSpace(userProfileIdString) || !Guid.TryParse(userProfileIdString, out var userProfileId))
-                {
-                    Logger.LogWarning("Invalid user profile ID for user {UserId} when adding player tag", User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 400 });
-                }
+ if (!response.IsSuccess)
+ {
+ Logger.LogWarning("Failed to add tag {TagId} to player {PlayerId} for user {UserId}",
+ model.TagId, model.PlayerId, User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
+ }
 
-                var playerTagDto = new PlayerTagDto
-                {
-                    PlayerId = model.PlayerId,
-                    TagId = model.TagId,
-                    UserProfileId = userProfileId,
-                    Assigned = DateTime.UtcNow
-                };
+ Logger.LogInformation("Successfully added tag '{TagName}' ({TagId}) to player {PlayerId} by user {UserId}",
+ tagResponse.Result.Data.Name, model.TagId, model.PlayerId, User.XtremeIdiotsId());
 
-                var response = await repositoryApiClient.Players.V1.AddPlayerTag(model.PlayerId, playerTagDto);
+ var playerDataResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
+ var playerData = playerDataResponse.IsSuccess ? playerDataResponse.Result?.Data : null;
 
-                if (!response.IsSuccess)
-                {
-                    Logger.LogWarning("Failed to add tag {TagId} to player {PlayerId} for user {UserId}",
-                        model.TagId, model.PlayerId, User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var eventTelemetry = new EventTelemetry("PlayerTagAdded")
+ .Enrich(User);
+ if (playerData != null)
+ eventTelemetry.Enrich(playerData);
+ eventTelemetry.Properties.TryAdd("TagId", model.TagId.ToString());
+ eventTelemetry.Properties.TryAdd("TagName", tagResponse.Result.Data.Name);
+ TelemetryClient.TrackEvent(eventTelemetry);
 
-                Logger.LogInformation("Successfully added tag '{TagName}' ({TagId}) to player {PlayerId} by user {UserId}",
-                    tagResponse.Result.Data.Name, model.TagId, model.PlayerId, User.XtremeIdiotsId());
+ this.AddAlertSuccess($"The tag '{tagResponse.Result.Data.Name}' has been successfully added to the player");
 
-                var playerDataResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
-                var playerData = playerDataResponse.IsSuccess ? playerDataResponse.Result?.Data : null;
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController)[..^10], new { id = model.PlayerId });
+ }, nameof(Add), $"PlayerId: {model.PlayerId}, TagId: {model.TagId}");
+ }
 
-                var eventTelemetry = new EventTelemetry("PlayerTagAdded")
-                    .Enrich(User);
-                if (playerData != null)
-                    eventTelemetry.Enrich(playerData);
-                eventTelemetry.Properties.TryAdd("TagId", model.TagId.ToString());
-                eventTelemetry.Properties.TryAdd("TagName", tagResponse.Result.Data.Name);
-                TelemetryClient.TrackEvent(eventTelemetry);
+ /// <summary>
+ /// Displays the confirmation page for removing a user-defined player tag assignment.
+ /// Validates that the tag exists, belongs to the player and is user-defined before showing confirmation.
+ /// </summary>
+ /// <param name="id">The unique identifier of the player to remove the tag from</param>
+ /// <param name="playerTagId">The unique identifier of the player tag assignment to remove</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation</param>
+ /// <returns>
+ /// remove player tag confirmation view with player and tag details on success.
+ /// Returns <see cref="UnauthorizedResult"/> if the user lacks DeletePlayerTag permissions.
+ /// Returns <see cref="NotFoundResult"/> if the player or player tag is not found.
+ /// Returns redirect to player details with alert if attempting to remove non-user-defined tag.
+ /// Returns error page redirect if API calls fail.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete player tags</exception>
+ /// <exception cref="InvalidOperationException">Thrown when player or player tag data cannot be retrieved</exception>
+ /// <exception cref="ArgumentException">Thrown when attempting to remove a non-user-defined tag</exception>
+ [HttpGet]
+ public async Task<IActionResult> Remove(Guid id, Guid playerTagId, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ Logger.LogInformation("User {UserId} accessing remove player tag confirmation for player {PlayerId} and tag {PlayerTagId}",
+ User.XtremeIdiotsId(), id, playerTagId);
 
-                this.AddAlertSuccess($"The tag '{tagResponse.Result.Data.Name}' has been successfully added to the player");
+ var canDeletePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.DeletePlayerTag);
+ if (!canDeletePlayerTag.Succeeded)
+ {
+ Logger.LogWarning("User {UserId} denied access to remove player tag {PlayerTagId} from player {PlayerId}",
+ User.XtremeIdiotsId(), playerTagId, id);
 
-                return RedirectToAction("Details", "Players", new { id = model.PlayerId });
-            }, "Add", $"PlayerId: {model.PlayerId}, TagId: {model.TagId}");
-        }
+ var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
+ .Enrich(User);
+ unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
+ unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Remove));
+ unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
+ unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id},PlayerTagId:{playerTagId}");
+ TelemetryClient.TrackEvent(unauthorizedTelemetry);
 
-        /// <summary>
-        /// Displays the confirmation page for removing a player tag
-        /// </summary>
-        /// <param name="id">The player ID to remove the tag from</param>
-        /// <param name="playerTagId">The player tag ID to remove</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>The remove player tag confirmation view or appropriate error response</returns>
-        [HttpGet]
-        public async Task<IActionResult> Remove(Guid id, Guid playerTagId, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} accessing remove player tag confirmation for player {PlayerId} and tag {PlayerTagId}",
-                    User.XtremeIdiotsId(), id, playerTagId);
+ return Unauthorized();
+ }
 
-                var canDeletePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.DeletePlayerTag);
-                if (!canDeletePlayerTag.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to remove player tag {PlayerTagId} from player {PlayerId}",
-                        User.XtremeIdiotsId(), playerTagId, id);
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+ if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
+ return NotFound();
+ }
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "PlayerTags");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Remove");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id},PlayerTagId:{playerTagId}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
+ if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
+ {
+ Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
+ return RedirectToAction("Display", "Errors", new { id = 500 });
+ }
 
-                    return Unauthorized();
-                }
+ var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+ if (playerTag is null)
+ {
+ Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 404 });
+ }
 
-                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
-                if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
-                    return NotFound();
-                }
+ if (playerTag.Tag is not null && !playerTag.Tag.UserDefined)
+ {
+ Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",
+ User.XtremeIdiotsId(), playerTagId, id);
 
-                var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
-                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
-                {
-                    Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController)[..^10], new { id = id });
+ }
 
-                var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
-                if (playerTag is null)
-                {
-                    Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
-                    return RedirectToAction("Display", "Errors", new { id = 404 });
-                }
+ ViewBag.Player = playerResponse.Result.Data;
 
-                if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
-                {
-                    Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",
-                        User.XtremeIdiotsId(), playerTagId, id);
+ Logger.LogInformation("Successfully loaded remove player tag confirmation for user {UserId}, player {PlayerId} and tag {PlayerTagId}",
+ User.XtremeIdiotsId(), id, playerTagId);
 
-                    this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
-                    return RedirectToAction("Details", "Players", new { id = id });
-                }
+ return View(playerTag);
+ }, nameof(Remove), $"id: {id}, playerTagId: {playerTagId}");
+ }
 
-                ViewBag.Player = playerResponse.Result.Data;
+ /// <summary>
+ /// Confirms and executes the removal of a user-defined player tag assignment.
+ /// Performs final validation before permanently removing the tag assignment from the player.
+ /// </summary>
+ /// <param name="id">The unique identifier of the player to remove the tag from</param>
+ /// <param name="playerTagId">The unique identifier of the player tag assignment to remove</param>
+ /// <param name="cancellationToken">Cancellation token for the async operation</param>
+ /// <returns>
+ /// Returns redirect to player details page with success message on successful removal.
+ /// Returns <see cref="UnauthorizedResult"/> if the user lacks DeletePlayerTag permissions.
+ /// Returns <see cref="NotFoundResult"/> if the player or player tag is not found.
+ /// Returns redirect to player details with alert if attempting to remove non-user-defined tag.
+ /// Returns error page redirect if API calls fail.
+ /// </returns>
+ /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permissiondelete player tags</exception>
+ /// <exception cref="InvalidOperationException">Thrown when player, player tag data cannot be retrieved or tag removal fails</exception>
+ /// <exception cref="ArgumentException">Thrown when attempting to remove a non-user-defined tag</exception>
+ [HttpPost]
+ [ActionName(nameof(Remove))]
+ [ValidateAntiForgeryToken]
+ public async Task<IActionResult> RemoveConfirmed(Guid id, Guid playerTagId, CancellationToken cancellationToken = default)
+ {
+ return await ExecuteWithErrorHandlingAsync(async () =>
+ {
+ Logger.LogInformation("User {UserId} attempting to remove player tag {PlayerTagId} from player {PlayerId}",
+ User.XtremeIdiotsId(), playerTagId, id);
 
-                Logger.LogInformation("Successfully loaded remove player tag confirmation for user {UserId}, player {PlayerId}, and tag {PlayerTagId}",
-                    User.XtremeIdiotsId(), id, playerTagId);
+ var canDeletePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.DeletePlayerTag);
+ if (!canDeletePlayerTag.Succeeded)
+ {
+ Logger.LogWarning("User {UserId} denied access to remove player tag {PlayerTagId} from player {PlayerId}",
+ User.XtremeIdiotsId(), playerTagId, id);
 
-                return View(playerTag);
-            }, "Remove", $"id: {id}, playerTagId: {playerTagId}");
-        }
+ var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
+ .Enrich(User);
+ unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
+ unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Remove));
+ unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
+ unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id},PlayerTagId:{playerTagId}");
+ TelemetryClient.TrackEvent(unauthorizedTelemetry);
 
-        /// <summary>
-        /// Confirms the removal of a player tag assignment
-        /// </summary>
-        /// <param name="id">The player ID to remove the tag from</param>
-        /// <param name="playerTagId">The player tag ID to remove</param>
-        /// <param name="cancellationToken">Cancellation token for the async operation</param>
-        /// <returns>Redirects to player details page on success, or appropriate error response</returns>
-        [HttpPost]
-        [ActionName("Remove")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveConfirmed(Guid id, Guid playerTagId, CancellationToken cancellationToken = default)
-        {
-            return await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                Logger.LogInformation("User {UserId} attempting to remove player tag {PlayerTagId} from player {PlayerId}",
-                    User.XtremeIdiotsId(), playerTagId, id);
+ return Unauthorized();
+ }
+ var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
+ if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
+ {
+ Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
+ return NotFound();
+ }
 
-                var canDeletePlayerTag = await authorizationService.AuthorizeAsync(User, null, AuthPolicies.DeletePlayerTag);
-                if (!canDeletePlayerTag.Succeeded)
-                {
-                    Logger.LogWarning("User {UserId} denied access to remove player tag {PlayerTagId} from player {PlayerId}",
-                        User.XtremeIdiotsId(), playerTagId, id);
+ var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
+ if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
+ {
+ Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
+ }
 
-                    var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-                        .Enrich(User);
-                    unauthorizedTelemetry.Properties.TryAdd("Controller", "PlayerTags");
-                    unauthorizedTelemetry.Properties.TryAdd("Action", "Remove");
-                    unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
-                    unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{id},PlayerTagId:{playerTagId}");
-                    TelemetryClient.TrackEvent(unauthorizedTelemetry);
+ var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
+ if (playerTag is null)
+ {
+ Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 404 });
+ }
 
-                    return Unauthorized();
-                }
+ if (playerTag.Tag is not null && !playerTag.Tag.UserDefined)
+ {
+ Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",
+ User.XtremeIdiotsId(), playerTagId, id);
 
-                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
-                if (playerResponse.IsNotFound || playerResponse.Result?.Data is null)
-                {
-                    Logger.LogWarning("Player {PlayerId} not found when removing player tag {PlayerTagId}", id, playerTagId);
-                    return NotFound();
-                }
+ this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController)[..^10], new { id = id });
+ }
 
-                var playerTagsResponse = await repositoryApiClient.Players.V1.GetPlayerTags(id);
-                if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
-                {
-                    Logger.LogWarning("Failed to retrieve player tags for player {PlayerId}", id);
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
+ var response = await repositoryApiClient.Players.V1.RemovePlayerTag(id, playerTagId);
 
-                var playerTag = playerTagsResponse.Result.Data.Items.FirstOrDefault(pt => pt.PlayerTagId == playerTagId);
-                if (playerTag is null)
-                {
-                    Logger.LogWarning("Player tag {PlayerTagId} not found for player {PlayerId}", playerTagId, id);
-                    return RedirectToAction("Display", "Errors", new { id = 404 });
-                }
+ if (!response.IsSuccess)
+ {
+ Logger.LogWarning("Failed to remove player tag {PlayerTagId} from player {PlayerId} for user {UserId}",
+ playerTagId, id, User.XtremeIdiotsId());
+ return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
+ }
 
-                if (playerTag.Tag != null && !playerTag.Tag.UserDefined)
-                {
-                    Logger.LogWarning("User {UserId} attempted to remove non-user-defined player tag {PlayerTagId} from player {PlayerId}",
-                        User.XtremeIdiotsId(), playerTagId, id);
+ Logger.LogInformation("Successfully removed player tag '{TagName}' ({PlayerTagId}) from player {PlayerId} by user {UserId}",
+ playerTag.Tag?.Name ?? "Unknown", playerTagId, id, User.XtremeIdiotsId());
 
-                    this.AddAlertDanger("This tag cannot be removed as it is not marked as User Defined.");
-                    return RedirectToAction("Details", "Players", new { id = id });
-                }
+ var eventTelemetry = new EventTelemetry("PlayerTagRemoved")
+ .Enrich(User)
+ .Enrich(playerResponse.Result.Data);
+ eventTelemetry.Properties.TryAdd("PlayerTagId", playerTagId.ToString());
+ eventTelemetry.Properties.TryAdd("TagName", playerTag.Tag?.Name ?? "Unknown");
+ TelemetryClient.TrackEvent(eventTelemetry);
 
-                var response = await repositoryApiClient.Players.V1.RemovePlayerTag(id, playerTagId);
+ this.AddAlertSuccess($"The tag '{playerTag.Tag?.Name ?? "Unknown"}' has been successfully removed from the player");
 
-                if (!response.IsSuccess)
-                {
-                    Logger.LogWarning("Failed to remove player tag {PlayerTagId} from player {PlayerId} for user {UserId}",
-                        playerTagId, id, User.XtremeIdiotsId());
-                    return RedirectToAction("Display", "Errors", new { id = 500 });
-                }
-
-                Logger.LogInformation("Successfully removed player tag '{TagName}' ({PlayerTagId}) from player {PlayerId} by user {UserId}",
-                    playerTag.Tag?.Name ?? "Unknown", playerTagId, id, User.XtremeIdiotsId());
-
-                var eventTelemetry = new EventTelemetry("PlayerTagRemoved")
-                    .Enrich(User)
-                    .Enrich(playerResponse.Result.Data);
-                eventTelemetry.Properties.TryAdd("PlayerTagId", playerTagId.ToString());
-                eventTelemetry.Properties.TryAdd("TagName", playerTag.Tag?.Name ?? "Unknown");
-                TelemetryClient.TrackEvent(eventTelemetry);
-
-                this.AddAlertSuccess($"The tag '{playerTag.Tag?.Name ?? "Unknown"}' has been successfully removed from the player");
-
-                return RedirectToAction("Details", "Players", new { id = id });
-            }, "RemoveConfirmed", $"id: {id}, playerTagId: {playerTagId}");
-        }
-    }
+ return RedirectToAction(nameof(PlayersController.Details), nameof(PlayersController)[..^10], new { id = id });
+ }, nameof(RemoveConfirmed), $"id: {id}, playerTagId: {playerTagId}");
+ }
 }

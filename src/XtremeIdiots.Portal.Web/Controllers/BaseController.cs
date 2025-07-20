@@ -1,56 +1,46 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-
 using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
 /// <summary>
-/// Base controller providing common functionality for telemetry, authorization, and error handling.
-/// Centralizes these cross-cutting concerns to ensure consistent behavior across all controllers
-/// and reduce code duplication while providing comprehensive auditing capabilities.
+/// Base controller providing common functionality for telemetry, authorization and error handling
 /// </summary>
 public abstract class BaseController(
-    TelemetryClient telemetryClient,
-    ILogger logger,
-    IConfiguration configuration) : Controller
+ TelemetryClient telemetryClient,
+ ILogger logger,
+ IConfiguration configuration) : Controller
 {
     protected readonly TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
     protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>
-    /// Tracks unauthorized access attempts to enable security monitoring and audit trails.
-    /// This is critical for identifying potential security threats and ensuring compliance
-    /// with security policies across the gaming community portal.
+    /// Tracks unauthorized access attempts for security monitoring
     /// </summary>
-    /// <param name="action">The action being attempted</param>
-    /// <param name="resource">The resource type being accessed</param>
+    /// <param name="action">The action that was attempted</param>
+    /// <param name="resource">The resource that was being accessed</param>
     /// <param name="context">Additional context information</param>
-    /// <param name="additionalData">Additional data to enrich the telemetry</param>
+    /// <param name="additionalData">Additional data for telemetry</param>
     protected void TrackUnauthorizedAccessAttempt(string action, string resource, string? context = null, object? additionalData = null)
     {
         Logger.LogWarning("User {UserId} denied access to {Action} on {Resource}",
-            User.XtremeIdiotsId(), action, resource);
+        User.XtremeIdiotsId(), action, resource);
 
         var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-            .Enrich(User);
+        .Enrich(User);
 
         if (additionalData is not null)
         {
-            unauthorizedTelemetry.Properties.TryAdd("AdditionalData", additionalData.ToString() ?? "");
+            unauthorizedTelemetry.Properties.TryAdd("AdditionalData", additionalData.ToString() ?? string.Empty);
         }
 
-        var controllerName = GetType().Name.Replace("Controller", "");
+        var controllerName = GetType().Name.Replace("Controller", string.Empty);
         unauthorizedTelemetry.Properties.TryAdd("Controller", controllerName);
         unauthorizedTelemetry.Properties.TryAdd("Action", action);
         unauthorizedTelemetry.Properties.TryAdd("Resource", resource);
@@ -64,13 +54,11 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Centralizes error telemetry tracking to ensure consistent error reporting across all controllers.
-    /// This enables proactive monitoring of system health and helps identify patterns in application failures
-    /// that could impact the gaming community experience.
+    /// Tracks error telemetry for consistent error reporting
     /// </summary>
     /// <param name="exception">The exception that occurred</param>
-    /// <param name="action">The action that was being performed</param>
-    /// <param name="additionalProperties">Additional properties to include in telemetry</param>
+    /// <param name="action">The action where the error occurred</param>
+    /// <param name="additionalProperties">Additional properties for telemetry context</param>
     protected void TrackErrorTelemetry(Exception exception, string action, Dictionary<string, string>? additionalProperties = null)
     {
         var errorTelemetry = new ExceptionTelemetry(exception)
@@ -81,14 +69,14 @@ public abstract class BaseController(
         errorTelemetry.Enrich(User);
         errorTelemetry.Properties.TryAdd("Action", action);
 
-        var controllerName = GetType().Name.Replace("Controller", "");
+        var controllerName = GetType().Name.Replace("Controller", string.Empty);
         errorTelemetry.Properties.TryAdd("Controller", controllerName);
 
         if (additionalProperties is not null)
         {
-            foreach (var kvp in additionalProperties)
+            foreach (var (key, value) in additionalProperties)
             {
-                errorTelemetry.Properties.TryAdd(kvp.Key, kvp.Value);
+                errorTelemetry.Properties.TryAdd(key, value);
             }
         }
 
@@ -96,27 +84,24 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Provides a consistent authorization check pattern across all controllers to ensure
-    /// game-specific permissions are properly enforced. This is critical for maintaining
-    /// security boundaries in a multi-game community environment where users have different
-    /// permission levels across different games.
+    /// Checks authorization with consistent error handling and telemetry
     /// </summary>
     /// <param name="authorizationService">The authorization service</param>
-    /// <param name="resource">The resource to authorize against</param>
-    /// <param name="policy">The authorization policy</param>
+    /// <param name="resource">The resource being accessed</param>
+    /// <param name="policy">The authorization policy to evaluate</param>
     /// <param name="action">The action being performed</param>
-    /// <param name="resourceType">The type of resource</param>
-    /// <param name="context">Additional context for unauthorized access tracking</param>
-    /// <param name="additionalData">Additional data for telemetry</param>
-    /// <returns>ActionResult if unauthorized, null if authorized</returns>
+    /// <param name="resourceType">The type of resource for telemetry</param>
+    /// <param name="context">Additional context information</param>
+    /// <param name="additionalData">Additional data for unauthorized access tracking</param>
+    /// <returns>Unauthorized result if authorization fails, null if authorized</returns>
     protected async Task<IActionResult?> CheckAuthorizationAsync(
-        IAuthorizationService authorizationService,
-        object resource,
-        string policy,
-        string action,
-        string resourceType,
-        string? context = null,
-        object? additionalData = null)
+    IAuthorizationService authorizationService,
+    object resource,
+    string policy,
+    string action,
+    string resourceType,
+    string? context = null,
+    object? additionalData = null)
     {
         var authorizationResult = await authorizationService.AuthorizeAsync(User, resource, policy);
 
@@ -130,25 +115,25 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Standardized success telemetry tracking
+    /// Tracks successful operations for telemetry and monitoring
     /// </summary>
-    /// <param name="eventName">The name of the successful event</param>
-    /// <param name="action">The action that was performed</param>
-    /// <param name="additionalProperties">Additional properties to include</param>
+    /// <param name="eventName">The name of the telemetry event</param>
+    /// <param name="action">The action that was successful</param>
+    /// <param name="additionalProperties">Additional properties for telemetry context</param>
     protected void TrackSuccessTelemetry(string eventName, string action, Dictionary<string, string>? additionalProperties = null)
     {
         var successTelemetry = new EventTelemetry(eventName)
-            .Enrich(User);
+        .Enrich(User);
 
-        var controllerName = GetType().Name.Replace("Controller", "");
+        var controllerName = GetType().Name.Replace("Controller", string.Empty);
         successTelemetry.Properties.TryAdd("Controller", controllerName);
         successTelemetry.Properties.TryAdd("Action", action);
 
-        if (additionalProperties != null)
+        if (additionalProperties is not null)
         {
-            foreach (var kvp in additionalProperties)
+            foreach (var (key, value) in additionalProperties)
             {
-                successTelemetry.Properties.TryAdd(kvp.Key, kvp.Value);
+                successTelemetry.Properties.TryAdd(key, value);
             }
         }
 
@@ -156,16 +141,17 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Standardized model validation check
+    /// Validates model state and returns view with errors if invalid
     /// </summary>
-    /// <param name="model">The model to return if validation fails</param>
-    /// <param name="additionalSetup">Optional additional setup for the model on validation failure</param>
-    /// <returns>ActionResult if validation failed, null if valid</returns>
+    /// <typeparam name="T">The type of the model being validated</typeparam>
+    /// <param name="model">The model to validate</param>
+    /// <param name="additionalSetup">Setup action to run if model state is invalid</param>
+    /// <returns>View with validation errors if invalid, null if valid</returns>
     protected IActionResult? CheckModelState<T>(T model, Action<T>? additionalSetup = null)
     {
         if (!ModelState.IsValid)
         {
-            Logger.LogWarning("Invalid model state in {Controller}", GetType().Name);
+            Logger.LogWarning("Invalid model state in {Controller}", nameof(GetType));
             additionalSetup?.Invoke(model);
             return View(model);
         }
@@ -174,17 +160,18 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Standardized model validation check with async setup
+    /// Validates model state with async setup and returns view with errors if invalid
     /// </summary>
-    /// <param name="model">The model to return if validation fails</param>
-    /// <param name="additionalSetupAsync">Optional async additional setup for the model on validation failure</param>
-    /// <returns>ActionResult if validation failed, null if valid</returns>
+    /// <typeparam name="T">The type of the model being validated</typeparam>
+    /// <param name="model">The model to validate</param>
+    /// <param name="additionalSetupAsync">Async setup function to run if model state is invalid</param>
+    /// <returns>View with validation errors if invalid, null if valid</returns>
     protected async Task<IActionResult?> CheckModelStateAsync<T>(T model, Func<T, Task>? additionalSetupAsync = null)
     {
         if (!ModelState.IsValid)
         {
-            Logger.LogWarning("Invalid model state in {Controller}", GetType().Name);
-            if (additionalSetupAsync != null)
+            Logger.LogWarning("Invalid model state in {Controller}", nameof(GetType));
+            if (additionalSetupAsync is not null)
             {
                 await additionalSetupAsync(model);
             }
@@ -195,29 +182,28 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Wraps controller actions with comprehensive error handling, logging, and telemetry.
-    /// This pattern ensures consistent behavior across all controller actions while providing
-    /// detailed audit trails for troubleshooting and monitoring system health in production.
+    /// Wraps controller actions with error handling, logging and telemetry
     /// </summary>
     /// <param name="action">The async action to execute</param>
-    /// <param name="actionName">Name of the action for logging</param>
-    /// <param name="userId">Optional user ID for context</param>
-    /// <returns>The result of the action</returns>
+    /// <param name="actionName">The name of the action for logging</param>
+    /// <param name="userId">Specific user ID to use for logging instead of current user</param>
+    /// <returns>The result of the action execution</returns>
+    /// <exception cref="Exception">Re-throws any exceptions after logging</exception>
     protected async Task<IActionResult> ExecuteWithErrorHandlingAsync(
-        Func<Task<IActionResult>> action,
-        string actionName,
-        string? userId = null)
+    Func<Task<IActionResult>> action,
+    string actionName,
+    string? userId = null)
     {
         try
         {
             var userIdToLog = userId ?? User.XtremeIdiotsId()?.ToString() ?? "Unknown";
             Logger.LogInformation("User {UserId} executing {ActionName} in {Controller}",
-                userIdToLog, actionName, GetType().Name.Replace("Controller", ""));
+            userIdToLog, actionName, GetType().Name.Replace("Controller", string.Empty));
 
             var result = await action();
 
             Logger.LogInformation("User {UserId} successfully completed {ActionName} in {Controller}",
-                userIdToLog, actionName, GetType().Name.Replace("Controller", ""));
+            userIdToLog, actionName, GetType().Name.Replace("Controller", string.Empty));
 
             return result;
         }
@@ -230,11 +216,11 @@ public abstract class BaseController(
     }
 
     /// <summary>
-    /// Gets a configuration value with an optional fallback
+    /// Gets configuration value with fallback
     /// </summary>
-    /// <param name="key">The configuration key</param>
+    /// <param name="key">The configuration key to retrieve</param>
     /// <param name="fallback">The fallback value if the key is not found</param>
-    /// <returns>The configuration value or fallback</returns>
+    /// <returns>The configuration value or fallback if not found</returns>
     protected string GetConfigurationValue(string key, string fallback = "")
     {
         return Configuration[key] ?? fallback;

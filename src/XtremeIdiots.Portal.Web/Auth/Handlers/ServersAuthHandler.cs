@@ -3,9 +3,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Authorization handler for servers-related authorization requirements
+/// </summary>
 public class ServersAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization requirements for servers functionality
+    /// </summary>
+    /// <param name="context">The authorization context containing user claims and pending requirements</param>
+    /// <returns>A completed task indicating the authorization evaluation is complete</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
@@ -29,7 +36,6 @@ public class ServersAuthHandler : IAuthorizationHandler
 
     private static void HandleAccessServers(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
-
         context.Succeed(requirement);
     }
 

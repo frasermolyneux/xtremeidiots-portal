@@ -85,12 +85,12 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServerAdminAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServersAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServersAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/StatusAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/UsersAuthHandler.cs`
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/IXtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuth.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs` ✅ **COMPLETED**
 
 ### Models and ViewModels
 - [x] `src/XtremeIdiots.Portal.Web/Models/Alert.cs` ✅ **COMPLETED**
@@ -115,12 +115,12 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNameReportViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNameReportViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNamesViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PushMapToRemote.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ServerAdminGameServerViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/ServerAdminGameServerViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ServersGameServerViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/TagsViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/TagsViewModel.cs` ✅ **COMPLETED**
 
 ### Extensions and Helpers
 - [x] `src/XtremeIdiots.Portal.Web/Extensions/AlertExtensions.cs` ✅ **COMPLETED**

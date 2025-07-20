@@ -40,7 +40,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/PlayerTagsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ProfileController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ProtectedNamesController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServerAdminController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ServersController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/StatusController.cs`
@@ -48,7 +48,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/UserController.cs`
 
 ### API Controllers
-- [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/BaseApiController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BaseApiController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/BannersController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/DataController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs`
@@ -58,7 +58,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Authorization System
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Constants/AuthPolicies.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs`
@@ -95,7 +95,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Models and ViewModels
 - [x] `src/XtremeIdiots.Portal.Web/Models/Alert.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/MapTimelineDataPoint.cs`
@@ -131,7 +131,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### ViewComponents
 - [x] `src/XtremeIdiots.Portal.Web/ViewComponents/AdminActionsViewComponent.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewComponents/GameServerListViewComponent.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewComponents/GameServerListViewComponent.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewComponents/PlayerTagsViewComponent.cs`
 
 ### Constants

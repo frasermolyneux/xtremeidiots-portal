@@ -11,36 +11,52 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages protected names for players in the XtremeIdiots Portal
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
 public class ProtectedNamesController : BaseController
 {
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the ProtectedNamesController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization checks</param>
+    /// <param name="repositoryApiClient">Client for repository API operations</param>
+    /// <param name="telemetryClient">Application Insights telemetry client</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public ProtectedNamesController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<ProtectedNamesController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<ProtectedNamesController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays the list of all protected names
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>View with protected names list</returns>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     new object(),
-     AuthPolicies.ViewProtectedName,
-     nameof(Index),
-     "ProtectedName",
-     "ViewAll");
+                authorizationService,
+                new object(),
+                AuthPolicies.ViewProtectedName,
+                nameof(Index),
+                "ProtectedName",
+                "ViewAll");
 
             if (authResult is not null) return authResult;
 
@@ -58,26 +74,32 @@ public class ProtectedNamesController : BaseController
             };
 
             TrackSuccessTelemetry("ProtectedNamesViewed", nameof(Index), new Dictionary<string, string>
-        {
- { "ProtectedNamesCount", model.ProtectedNames.Count.ToString() }
-        });
+            {
+                { "ProtectedNamesCount", model.ProtectedNames.Count.ToString() }
+            });
 
             return View(model);
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Displays the form to add a protected name for a specific player
+    /// </summary>
+    /// <param name="id">The player ID to add protected name for</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>View with form to add protected name</returns>
     [HttpGet]
     public async Task<IActionResult> Add(Guid id, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     new object(),
-     AuthPolicies.CreateProtectedName,
-     nameof(Add),
-     "ProtectedName",
-     $"PlayerId:{id}");
+                authorizationService,
+                new object(),
+                AuthPolicies.CreateProtectedName,
+                nameof(Add),
+                "ProtectedName",
+                $"PlayerId:{id}");
 
             if (authResult is not null) return authResult;
 
@@ -104,13 +126,18 @@ public class ProtectedNamesController : BaseController
         }, nameof(Add), $"id: {id}");
     }
 
+    /// <summary>
+    /// Processes the form submission to create a new protected name
+    /// </summary>
+    /// <param name="model">The create protected name view model</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>Redirects to player details on success, returns view with errors on failure</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Add(CreateProtectedNameViewModel model, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-
             var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(model.PlayerId, PlayerEntityOptions.None);
             if (playerResponse.IsNotFound)
             {
@@ -127,13 +154,13 @@ public class ProtectedNamesController : BaseController
             var playerData = playerResponse.Result.Data;
 
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     new object(),
-     AuthPolicies.CreateProtectedName,
-     nameof(Add),
-     "ProtectedName",
-     $"PlayerId:{model.PlayerId}",
-     playerData);
+                authorizationService,
+                new object(),
+                AuthPolicies.CreateProtectedName,
+                nameof(Add),
+                "ProtectedName",
+                $"PlayerId:{model.PlayerId}",
+                playerData);
 
             if (authResult is not null) return authResult;
 
@@ -141,9 +168,9 @@ public class ProtectedNamesController : BaseController
             if (modelValidationResult is not null) return modelValidationResult;
 
             var createProtectedNameDto = new CreateProtectedNameDto(
-     model.PlayerId,
-     model.Name,
-     User.XtremeIdiotsId() ?? throw new InvalidOperationException("User XtremeIdiotsId is required"));
+                model.PlayerId,
+                model.Name,
+                User.XtremeIdiotsId() ?? throw new InvalidOperationException("User XtremeIdiotsId is required"));
 
             var response = await repositoryApiClient.Players.V1.CreateProtectedName(createProtectedNameDto);
 
@@ -152,7 +179,7 @@ public class ProtectedNamesController : BaseController
                 if (response.IsConflict)
                 {
                     Logger.LogWarning("Protected name '{ProtectedName}' already exists for another player when user {UserId} attempted to protect it for player {PlayerId}",
-             model.Name, User.XtremeIdiotsId(), model.PlayerId);
+                        model.Name, User.XtremeIdiotsId(), model.PlayerId);
 
                     ModelState.AddModelError(nameof(model.Name), "This name is already protected by another player");
                     model.Player = playerData;
@@ -160,15 +187,15 @@ public class ProtectedNamesController : BaseController
                 }
 
                 Logger.LogWarning("Failed to create protected name for player {PlayerId} by user {UserId}",
-         model.PlayerId, User.XtremeIdiotsId());
+                    model.PlayerId, User.XtremeIdiotsId());
                 return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
             }
 
             TrackSuccessTelemetry("ProtectedNameCreated", nameof(Add), new Dictionary<string, string>
-        {
- { "PlayerId", model.PlayerId.ToString() },
- { "ProtectedName", model.Name }
-        });
+            {
+                { "PlayerId", model.PlayerId.ToString() },
+                { "ProtectedName", model.Name }
+            });
 
             this.AddAlertSuccess($"Protected name '{model.Name}' has been successfully added");
 
@@ -176,18 +203,24 @@ public class ProtectedNamesController : BaseController
         }, nameof(Add), $"PlayerId: {model.PlayerId}");
     }
 
+    /// <summary>
+    /// Deletes a protected name by ID
+    /// </summary>
+    /// <param name="id">The protected name ID to delete</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>Redirects to player details on success</returns>
     [HttpGet]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     new object(),
-     AuthPolicies.DeleteProtectedName,
-     nameof(Delete),
-     "ProtectedName",
-     $"ProtectedNameId:{id}");
+                authorizationService,
+                new object(),
+                AuthPolicies.DeleteProtectedName,
+                nameof(Delete),
+                "ProtectedName",
+                $"ProtectedNameId:{id}");
 
             if (authResult is not null) return authResult;
 
@@ -212,15 +245,15 @@ public class ProtectedNamesController : BaseController
             if (!response.IsSuccess)
             {
                 Logger.LogWarning("Failed to delete protected name {ProtectedNameId} for user {UserId}",
-         id, User.XtremeIdiotsId());
+                    id, User.XtremeIdiotsId());
                 return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController), new { id = 500 });
             }
 
             TrackSuccessTelemetry("ProtectedNameDeleted", nameof(Delete), new Dictionary<string, string>
-        {
- { "ProtectedNameId", id.ToString() },
- { "PlayerId", playerId.ToString() }
-        });
+            {
+                { "ProtectedNameId", id.ToString() },
+                { "PlayerId", playerId.ToString() }
+            });
 
             this.AddAlertSuccess("Protected name has been successfully deleted");
 
@@ -228,6 +261,12 @@ public class ProtectedNamesController : BaseController
         }, nameof(Delete), $"id: {id}");
     }
 
+    /// <summary>
+    /// Displays a usage report for a protected name
+    /// </summary>
+    /// <param name="id">The protected name ID to generate report for</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>View with protected name usage report</returns>
     [HttpGet]
     public async Task<IActionResult> Report(Guid id, CancellationToken cancellationToken = default)
     {
@@ -253,9 +292,9 @@ public class ProtectedNamesController : BaseController
             };
 
             TrackSuccessTelemetry("ProtectedNameReportViewed", nameof(Report), new Dictionary<string, string>
-        {
- { "ProtectedNameId", id.ToString() }
-        });
+            {
+                { "ProtectedNameId", id.ToString() }
+            });
 
             return View(model);
         }, nameof(Report), $"id: {id}");

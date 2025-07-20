@@ -52,7 +52,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BannersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/DataController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/HealthCheckController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ApiControllers/HealthCheckController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/PlayerAnalyticsController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ServerAdminController.cs`
 
@@ -61,7 +61,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/GameServersAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/HomeAuthRequirements.cs`
@@ -97,7 +97,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableAjaxPostModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableColumn.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Models/MapTimelineDataPoint.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Models/PlayerDtoExtensions.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/AddPlayerTagViewModel.cs`

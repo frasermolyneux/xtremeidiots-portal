@@ -7,21 +7,36 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
+/// <summary>
+/// API controller providing external endpoints for integration with forum widgets and other external services
+/// </summary>
 [Route("External")]
 public class ExternalController : BaseApiController
 {
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the ExternalController
+    /// </summary>
+    /// <param name="repositoryApiClient">Client for accessing the repository API</param>
+    /// <param name="telemetryClient">Application Insights telemetry client</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public ExternalController(
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<ExternalController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<ExternalController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Retrieves the latest admin actions for display in external forum widgets
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON array of recent admin actions with formatted display data</returns>
     [HttpGet("GetLatestAdminActions")]
     [EnableCors("CorsPolicy")]
     public async Task<IActionResult> GetLatestAdminActions(CancellationToken cancellationToken = default)
@@ -31,7 +46,7 @@ public class ExternalController : BaseApiController
             Logger.LogInformation("External API request for latest admin actions JSON data");
 
             var adminActionsApiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
-     null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
+                null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
 
             if (!adminActionsApiResponse.IsSuccess || adminActionsApiResponse.Result?.Data?.Items is null)
             {
@@ -42,9 +57,10 @@ public class ExternalController : BaseApiController
             var results = new List<dynamic>();
             foreach (var adminActionDto in adminActionsApiResponse.Result.Data.Items)
             {
+                // Determine action text based on admin action type and expiration status
                 string actionText;
                 if (adminActionDto.Expires <= DateTime.UtcNow &&
-         (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
+                    (adminActionDto.Type == AdminActionType.Ban || adminActionDto.Type == AdminActionType.TempBan))
                     actionText = $"lifted a {adminActionDto.Type} on";
                 else
                     actionText = $"added a {adminActionDto.Type} to";
@@ -67,11 +83,11 @@ public class ExternalController : BaseApiController
             Logger.LogInformation("Successfully processed {Count} admin actions for external API response", results.Count);
 
             TrackSuccessTelemetry(nameof(GetLatestAdminActions), nameof(GetLatestAdminActions), new Dictionary<string, string>
-        {
- { nameof(ExternalController), nameof(ExternalController) },
- { "Resource", "AdminActionsAPI" },
- { "Count", results.Count.ToString() }
-        });
+            {
+                { nameof(ExternalController), nameof(ExternalController) },
+                { "Resource", "AdminActionsAPI" },
+                { "Count", results.Count.ToString() }
+            });
 
             return Ok(results);
         }, nameof(GetLatestAdminActions));

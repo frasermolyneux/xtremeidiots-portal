@@ -45,13 +45,13 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ServersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/StatusController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/TagsController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/UserController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/UserController.cs` ✅ **COMPLETED**
 
 ### API Controllers
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BaseApiController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/BannersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ApiControllers/DataController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ApiControllers/ExternalController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/HealthCheckController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/PlayerAnalyticsController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ServerAdminController.cs`
@@ -60,7 +60,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Constants/AuthPolicies.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/CredentialsAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/DemosAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/GameServersAuthRequirements.cs`

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XtremeIdiots.Portal.Web.Auth.Requirements
-{
+namespace XtremeIdiots.Portal.Web.Auth.Requirements;
 
-    public class AccessChangeLog : IAuthorizationRequirement
-    {
-    }
+/// <summary>
+/// Authorization requirement for accessing the change log functionality
+/// </summary>
+public class AccessChangeLog : IAuthorizationRequirement
+{
 }

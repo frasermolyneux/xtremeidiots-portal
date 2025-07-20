@@ -24,9 +24,9 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BanFileMonitorsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BannersController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ChangeLogController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/CredentialsController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/DemosController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ErrorsController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/CredentialsController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/DemosController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ErrorsController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ExternalController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/GameServersController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/HealthCheckController.cs`

@@ -15,6 +15,13 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages demo file operations including viewing, deletion, and authentication key management
+/// </summary>
+/// <remarks>
+/// This controller handles game demo files with role-based access control. Users can manage their own demos
+/// or access all demos based on their authorization level. Integrates with forums for demo client management.
+/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessDemos)]
 public class DemosController : BaseController
 {
@@ -24,16 +31,27 @@ public class DemosController : BaseController
     private readonly IDemoManager demosForumsClient;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the DemosController
+    /// </summary>
+    /// <param name="authorizationService">Service for handling authorization checks</param>
+    /// <param name="userManager">ASP.NET Identity user manager</param>
+    /// <param name="signInManager">ASP.NET Identity sign-in manager</param>
+    /// <param name="demosForumsClient">Client for forums integration demo management</param>
+    /// <param name="repositoryApiClient">Client for repository API operations</param>
+    /// <param name="telemetryClient">Application insights telemetry client</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public DemosController(
-    IAuthorizationService authorizationService,
-    UserManager<IdentityUser> userManager,
-    SignInManager<IdentityUser> signInManager,
-    IDemoManager demosForumsClient,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<DemosController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        UserManager<IdentityUser> userManager,
+        SignInManager<IdentityUser> signInManager,
+        IDemoManager demosForumsClient,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<DemosController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -42,6 +60,11 @@ public class DemosController : BaseController
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays the demo client configuration page with authentication key information
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with demo client configuration and user authentication key</returns>
     [HttpGet]
     public async Task<IActionResult> DemoClient(CancellationToken cancellationToken = default)
     {
@@ -66,17 +89,23 @@ public class DemosController : BaseController
             var demoManagerClientDto = await this.demosForumsClient.GetDemoManagerClient();
 
             TrackSuccessTelemetry(nameof(DemoClient), nameof(DemoClient), new Dictionary<string, string>
-        {
- { nameof(DemosController), nameof(DemosController) },
- { "Resource", nameof(DemoClient) },
- { "Context", "DemoClientAccess" },
- { "HasAuthKey", hasAuthKey.ToString() }
-        });
+            {
+                { nameof(DemosController), nameof(DemosController) },
+                { "Resource", nameof(DemoClient) },
+                { "Context", "DemoClientAccess" },
+                { "HasAuthKey", hasAuthKey.ToString() }
+            });
 
             return View(demoManagerClientDto);
         }, $"Display {nameof(DemoClient)} configuration page with authentication key");
     }
 
+    /// <summary>
+    /// Regenerates the demo authentication key for the current user
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Redirects to demo client page with success message on completion</returns>
+    /// <exception cref="ArgumentException">Thrown when user profile is not found</exception>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> RegenerateAuthKey(CancellationToken cancellationToken = default)
@@ -110,17 +139,21 @@ public class DemosController : BaseController
             this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
 
             TrackSuccessTelemetry(nameof(RegenerateAuthKey), nameof(RegenerateAuthKey), new Dictionary<string, string>
-        {
- { nameof(DemosController), nameof(DemosController) },
- { "Resource", "DemoAuthKey" },
- { "Context", nameof(RegenerateAuthKey) },
- { "UserProfileId", userProfileApiResponse.Result.Data.UserProfileId.ToString() }
-        });
+            {
+                { nameof(DemosController), nameof(DemosController) },
+                { "Resource", "DemoAuthKey" },
+                { "Context", nameof(RegenerateAuthKey) },
+                { "UserProfileId", userProfileApiResponse.Result.Data.UserProfileId.ToString() }
+            });
 
             return RedirectToAction(nameof(DemoClient));
         }, $"Regenerate demo authentication key for user");
     }
 
+    /// <summary>
+    /// Displays the main demos index page
+    /// </summary>
+    /// <returns>View for browsing all available demo files</returns>
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -129,15 +162,20 @@ public class DemosController : BaseController
             await Task.CompletedTask;
 
             TrackSuccessTelemetry(nameof(Index), nameof(Index), new Dictionary<string, string>
-        {
- { nameof(DemosController), nameof(DemosController) },
- { "Resource", nameof(Index) }
-        });
+            {
+                { nameof(DemosController), nameof(DemosController) },
+                { "Resource", nameof(Index) }
+            });
 
             return View();
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Displays demos filtered by specific game type
+    /// </summary>
+    /// <param name="id">The game type to filter demos by</param>
+    /// <returns>View with demos filtered by the specified game type</returns>
     [HttpGet]
     public async Task<IActionResult> GameIndex(GameType? id)
     {
@@ -148,16 +186,22 @@ public class DemosController : BaseController
             ViewData["GameType"] = id;
 
             TrackSuccessTelemetry(nameof(GameIndex), nameof(GameIndex), new Dictionary<string, string>
-        {
- { nameof(DemosController), nameof(DemosController) },
- { "Resource", nameof(GameIndex) },
- { "GameType", id?.ToString() ?? "null" }
-        });
+            {
+                { nameof(DemosController), nameof(DemosController) },
+                { "Resource", nameof(GameIndex) },
+                { "GameType", id?.ToString() ?? "null" }
+            });
 
             return View(nameof(Index));
         }, nameof(GameIndex));
     }
 
+    /// <summary>
+    /// Handles AJAX requests for demo list data with pagination and filtering
+    /// </summary>
+    /// <param name="id">Optional game type filter for demos</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON response with paginated demo data for DataTables</returns>
     [HttpPost]
     public async Task<IActionResult> GetDemoListAjax(GameType? id, CancellationToken cancellationToken = default)
     {
@@ -219,11 +263,11 @@ public class DemosController : BaseController
             }
 
             TrackSuccessTelemetry(nameof(GetDemoListAjax), nameof(GetDemoListAjax), new Dictionary<string, string>
-        {
- { "GameType", id?.ToString() ?? "All" },
- { "ResultCount", portalDemoEntries.Count.ToString() },
- { "TotalCount", demosApiResponse.Result.Data.TotalCount.ToString() }
-        });
+            {
+                { "GameType", id?.ToString() ?? "All" },
+                { "ResultCount", portalDemoEntries.Count.ToString() },
+                { "TotalCount", demosApiResponse.Result.Data.TotalCount.ToString() }
+            });
 
             return Json(new
             {

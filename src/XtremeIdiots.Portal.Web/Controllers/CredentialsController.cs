@@ -10,17 +10,30 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages the display and authorization of game server credentials for authenticated users
+/// </summary>
+/// <remarks>
+/// This controller handles FTP and RCON credentials for game servers based on user authorization levels.
+/// Users can view credentials only for servers they have explicit permission to access.
+/// </remarks>
 [Authorize(Policy = AuthPolicies.AccessCredentials)]
 public class CredentialsController(
- IAuthorizationService authorizationService,
- IRepositoryApiClient repositoryApiClient,
- TelemetryClient telemetryClient,
- ILogger<CredentialsController> logger,
- IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<CredentialsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
     private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
+    /// <summary>
+    /// Displays the credentials index page with game server credentials for authorized users
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with list of game servers and their accessible credentials</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when user lacks permission to view specific credentials</exception>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
@@ -30,7 +43,7 @@ public class CredentialsController(
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
             Logger.LogInformation("User {UserId} querying game servers for credentials with {GameTypeCount} game types and {GameServerIdCount} specific servers",
-     User.XtremeIdiotsId(), gameTypes?.Length ?? 0, gameServerIds?.Length ?? 0);
+                User.XtremeIdiotsId(), gameTypes?.Length ?? 0, gameServerIds?.Length ?? 0);
 
             var gameServersList = await GetAuthorizedGameServersAsync(gameTypes, gameServerIds, cancellationToken);
             if (gameServersList is null)
@@ -41,15 +54,15 @@ public class CredentialsController(
             await ApplyCredentialAuthorizationAsync(gameServersList, cancellationToken);
 
             TrackSuccessTelemetry(nameof(Index), nameof(CredentialsController), new Dictionary<string, string>
-        {
- { nameof(CredentialsController), nameof(CredentialsController) },
- { "Resource", "GameServerCredentials" },
- { "Context", "CredentialsDisplay" },
- { "GameServerCount", gameServersList.Count.ToString() }
-        });
+            {
+                { nameof(CredentialsController), nameof(CredentialsController) },
+                { "Resource", "GameServerCredentials" },
+                { "Context", "CredentialsDisplay" },
+                { "GameServerCount", gameServersList.Count.ToString() }
+            });
 
             Logger.LogInformation("User {UserId} successfully viewed credentials for {GameServerCount} game servers",
-     User.XtremeIdiotsId(), gameServersList.Count);
+                User.XtremeIdiotsId(), gameServersList.Count);
 
             return View(gameServersList);
         }, "Display credentials index page with game server credentials");
@@ -58,20 +71,20 @@ public class CredentialsController(
     private async Task<List<GameServerDto>?> GetAuthorizedGameServersAsync(GameType[]? gameTypes, Guid[]? gameServerIds, CancellationToken cancellationToken)
     {
         var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
-        gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
+            gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
 
         if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
         {
             Logger.LogWarning("Failed to retrieve game servers for credentials view for user {UserId} - API response status: {IsSuccess}",
-            User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
+                User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
 
             TelemetryClient.TrackEvent("CredentialsApiFailure", new Dictionary<string, string>
- {
- { "ApiSuccess", gameServersApiResponse.IsSuccess.ToString() },
- { nameof(CredentialsController), nameof(CredentialsController) },
- { "Action", nameof(GetAuthorizedGameServersAsync) },
- { "UserId", User.XtremeIdiotsId()?.ToString() ?? "Unknown" }
- });
+            {
+                { "ApiSuccess", gameServersApiResponse.IsSuccess.ToString() },
+                { nameof(CredentialsController), nameof(CredentialsController) },
+                { "Action", nameof(GetAuthorizedGameServersAsync) },
+                { "UserId", User.XtremeIdiotsId()?.ToString() ?? "Unknown" }
+            });
 
             return null;
         }
@@ -89,7 +102,7 @@ public class CredentialsController(
             if (!canViewFtpCredential.Succeeded)
             {
                 TrackUnauthorizedAccessAttempt(nameof(AuthPolicies.ViewFtpCredential), "FtpCredential",
-                $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
+                    $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
                 gameServerDto.ClearFtpCredentials();
             }
 
@@ -98,7 +111,7 @@ public class CredentialsController(
             if (!canViewRconCredential.Succeeded)
             {
                 TrackUnauthorizedAccessAttempt(nameof(AuthPolicies.ViewRconCredential), "RconCredential",
-                $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
+                    $"GameType:{gameServerDto.GameType},GameServerId:{gameServerDto.GameServerId}", gameServerDto);
                 gameServerDto.ClearRconCredentials();
             }
         }

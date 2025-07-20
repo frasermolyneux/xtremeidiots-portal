@@ -79,7 +79,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/CredentialsAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/DemosAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/GameServersAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs`
@@ -99,7 +99,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableOrder.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/DataTableSearch.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Models/MapTimelineDataPoint.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Models/PlayerDtoExtensions.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Models/PlayerDtoExtensions.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/AddPlayerTagViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateAdminActionViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/CreateBanFileMonitorViewModel.cs` ✅ **COMPLETED**
@@ -109,8 +109,8 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/DeleteMapFromHostModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditAdminActionViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditBanFileMonitorViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/EditTagViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/GameServerViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditTagViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/GameServerViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs`
@@ -135,7 +135,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewComponents/PlayerTagsViewComponent.cs` ✅ **COMPLETED**
 
 ### Constants
-- [ ] `src/XtremeIdiots.Portal.Web/Constants/ChatLogSupportedGames.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Constants/ChatLogSupportedGames.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Constants/DemosSupportedGames.cs`
 
 ### Configuration Files

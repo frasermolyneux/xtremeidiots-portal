@@ -3,35 +3,36 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization requirements for home page access
+/// </summary>
+/// <remarks>
+/// Currently allows unrestricted access to the home page as it's publicly accessible
+/// </remarks>
 public class HomeAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Processes authorization requirements for home page access
+    /// </summary>
+    /// <param name="context">The authorization context containing user information and requirements</param>
+    /// <returns>A completed task</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
 
         foreach (var requirement in pendingRequirements)
         {
-            switch (requirement)
+            if (requirement is AccessHome)
             {
-                case AccessHome:
-                    HandleAccessHome(context, requirement);
-                    break;
-                default:
-                    break;
+                HandleAccessHome(context, requirement);
             }
         }
 
         return Task.CompletedTask;
     }
 
-    #region Authorization Handlers
-
     private static void HandleAccessHome(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
-
         context.Succeed(requirement);
     }
-
-    #endregion
 }

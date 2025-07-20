@@ -3,9 +3,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Authorization handler for map-related operations including map access, management, and map pack operations
+/// </summary>
 public class MapsAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization requirements for map-related operations
+    /// </summary>
+    /// <param name="context">The authorization context containing user information and requirements</param>
+    /// <returns>A completed task after processing all pending requirements</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();

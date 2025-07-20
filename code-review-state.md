@@ -14,9 +14,9 @@ This file tracks the progress of our systematic code review and refactoring proc
 ## Files to Review
 
 ### Core Application Files
-- [ ] `src/XtremeIdiots.Portal.Web/Program.cs`
+- [ ] `src/XtremeIdiots.Portal.Web/Program.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Startup.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/TelemetryInitializer.cs`
+- [ ] `src/XtremeIdiots.Portal.Web/TelemetryInitializer.cs` ✅ **COMPLETED**
 
 ### Controllers (Priority - Follow specific controller patterns)
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BaseController.cs` ✅ **COMPLETED**
@@ -80,7 +80,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/DemosAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/GameServersAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/HomeAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/MapsAuthHandler.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayersAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/PlayerTagsAuthHandler.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs`
@@ -111,7 +111,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditBanFileMonitorViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/EditTagViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/GameServerViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/IPAddressDetailsViewModel.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ManageMapsViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs`
@@ -136,7 +136,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Constants
 - [x] `src/XtremeIdiots.Portal.Web/Constants/ChatLogSupportedGames.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Constants/DemosSupportedGames.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Constants/DemosSupportedGames.cs` ✅ **COMPLETED**
 
 ### Configuration Files
 - [ ] `src/XtremeIdiots.Portal.Web/appsettings.json`

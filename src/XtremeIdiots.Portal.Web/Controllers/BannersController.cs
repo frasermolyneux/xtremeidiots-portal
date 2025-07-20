@@ -15,14 +15,17 @@ using XtremeIdiots.Portal.Web.Extensions;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Controller for managing and serving game server banners and GameTracker integration
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessHome)]
 public class BannersController(
- IAuthorizationService authorizationService,
- IRepositoryApiClient repositoryApiClient,
- IMemoryCache memoryCache,
- TelemetryClient telemetryClient,
- ILogger<BannersController> logger,
- IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IMemoryCache memoryCache,
+    TelemetryClient telemetryClient,
+    ILogger<BannersController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
     private const string GameServersListCacheKey = nameof(GameServersListCacheKey);
 
@@ -30,6 +33,11 @@ public class BannersController(
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     private readonly IMemoryCache memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
+    /// <summary>
+    /// Displays the game servers list view for banner management
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View for displaying game servers list</returns>
     [HttpGet]
     public async Task<IActionResult> GameServersList(CancellationToken cancellationToken = default)
     {
@@ -43,16 +51,21 @@ public class BannersController(
             }
 
             TrackSuccessTelemetry("GameServersListAccessed", nameof(GameServersList), new Dictionary<string, string>
-        {
- { "Controller", nameof(BannersController) },
- { "Resource", nameof(GameServersList) },
- { "Context", "BannerManagement" }
-        });
+            {
+                { "Controller", nameof(BannersController) },
+                { "Resource", nameof(GameServersList) },
+                { "Context", "BannerManagement" }
+            });
 
             return View();
         }, "Display game servers list view for banner management");
     }
 
+    /// <summary>
+    /// Retrieves game servers banner data as JSON for external consumption
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON array of HTML banners from enabled game servers</returns>
     [HttpGet]
     [EnableCors("CorsPolicy")]
     public async Task<IActionResult> GetGameServers(CancellationToken cancellationToken = default)
@@ -77,8 +90,8 @@ public class BannersController(
                 Logger.LogDebug("Fetching game servers data from API for user {UserId}", User.XtremeIdiotsId());
 
                 gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
-         null, null, GameServerFilter.BannerServerListEnabled, 0, 50,
-         GameServerOrder.BannerServerListPosition, cancellationToken);
+                    null, null, GameServerFilter.BannerServerListEnabled, 0, 50,
+                    GameServerOrder.BannerServerListPosition, cancellationToken);
 
                 if (gameServersApiResponse is not null)
                 {
@@ -94,22 +107,30 @@ public class BannersController(
             }
 
             var htmlBanners = gameServersApiResponse.Result.Data.Items
-     .Where(gs => !string.IsNullOrEmpty(gs.HtmlBanner))
-     .Select(gs => gs.HtmlBanner)
-     .ToList();
+                .Where(gs => !string.IsNullOrEmpty(gs.HtmlBanner))
+                .Select(gs => gs.HtmlBanner)
+                .ToList();
 
             TrackSuccessTelemetry("GameServersBannersRetrieved", nameof(GetGameServers), new Dictionary<string, string>
-        {
- { "Controller", nameof(BannersController) },
- { "Resource", "GameServersBanners" },
- { "Context", "BannerData" },
- { "BannerCount", htmlBanners.Count.ToString() }
-        });
+            {
+                { "Controller", nameof(BannersController) },
+                { "Resource", "GameServersBanners" },
+                { "Context", "BannerData" },
+                { "BannerCount", htmlBanners.Count.ToString() }
+            });
 
             return Json(htmlBanners);
         }, "Retrieve game servers banners data");
     }
 
+    /// <summary>
+    /// Retrieves GameTracker banner for a specific game server by redirecting to the banner URL
+    /// </summary>
+    /// <param name="ipAddress">Server IP address</param>
+    /// <param name="queryPort">Server query port</param>
+    /// <param name="imageName">Banner image name/type</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Redirect to GameTracker banner URL or fallback URL</returns>
     [HttpGet]
     [Route("gametracker/{ipAddress}:{queryPort}/{imageName}")]
     public async Task<IActionResult> GetGameTrackerBanner(string ipAddress, string queryPort, string imageName, CancellationToken cancellationToken = default)
@@ -119,7 +140,7 @@ public class BannersController(
             if (string.IsNullOrWhiteSpace(ipAddress) || string.IsNullOrWhiteSpace(queryPort) || string.IsNullOrWhiteSpace(imageName))
             {
                 Logger.LogWarning("User {UserId} provided invalid parameters for GameTracker banner request: IP={IpAddress}, Port={QueryPort}, Image={ImageName}",
-         User.XtremeIdiotsId(), ipAddress, queryPort, imageName);
+                    User.XtremeIdiotsId(), ipAddress, queryPort, imageName);
 
                 return BadRequest("Invalid parameters provided");
             }
@@ -137,21 +158,21 @@ public class BannersController(
             if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse is not null)
             {
                 Logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
-         ipAddress, queryPort, imageName);
+                    ipAddress, queryPort, imageName);
             }
             else
             {
                 Logger.LogDebug("Fetching GameTracker banner data from API for {IpAddress}:{QueryPort}/{ImageName}",
-         ipAddress, queryPort, imageName);
+                    ipAddress, queryPort, imageName);
 
                 repositoryApiResponse = await repositoryApiClient.GameTrackerBanner.V1.GetGameTrackerBanner(
-         ipAddress, queryPort, imageName, cancellationToken);
+                    ipAddress, queryPort, imageName, cancellationToken);
 
                 if (repositoryApiResponse is not null)
                 {
                     memoryCache.Set(cacheKey, repositoryApiResponse, DateTime.UtcNow.AddMinutes(30));
                     Logger.LogDebug("Cached GameTracker banner data for {IpAddress}:{QueryPort}/{ImageName}",
-             ipAddress, queryPort, imageName);
+                        ipAddress, queryPort, imageName);
                 }
             }
 
@@ -160,7 +181,7 @@ public class BannersController(
                 var fallbackUrl = $"https://cache.gametracker.com/server_info/{ipAddress}:{queryPort}/{imageName}";
 
                 Logger.LogWarning("GameTracker banner API failed or returned null data for {IpAddress}:{QueryPort}/{ImageName}, redirecting to fallback: {FallbackUrl}",
-         ipAddress, queryPort, imageName, fallbackUrl);
+                    ipAddress, queryPort, imageName, fallbackUrl);
 
                 return Redirect(fallbackUrl);
             }
@@ -168,14 +189,14 @@ public class BannersController(
             var bannerUrl = repositoryApiResponse.Result.Data.BannerUrl;
 
             TrackSuccessTelemetry("GameTrackerBannerRetrieved", nameof(GetGameTrackerBanner), new Dictionary<string, string>
-        {
- { "Controller", nameof(BannersController) },
- { "Resource", "GameTrackerBanner" },
- { "IpAddress", ipAddress },
- { "QueryPort", queryPort },
- { "ImageName", imageName },
- { "BannerUrl", bannerUrl }
-        });
+            {
+                { "Controller", nameof(BannersController) },
+                { "Resource", "GameTrackerBanner" },
+                { "IpAddress", ipAddress },
+                { "QueryPort", queryPort },
+                { "ImageName", imageName },
+                { "BannerUrl", bannerUrl }
+            });
 
             return Redirect(bannerUrl);
         }, $"Retrieve GameTracker banner for {ipAddress}:{queryPort}/{imageName}");

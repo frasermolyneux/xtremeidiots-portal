@@ -9,8 +9,8 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-<div id="server-list">
-    <div>Loading Servers..</div>
+<div id="server-list" data-testid="banner-server-list">
+    <div data-testid="banner-loading-indicator">Loading Servers..</div>
 </div>
 
 @*@await Component.InvokeAsync("GameServerList")*@

@@ -143,36 +143,36 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/appsettings.Development.json` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/libman.json` ✅ **COMPLETED**
 
-### Razor Views (Follow razor-views.instructions.md - **REQUIRES RE-REVIEW FOR AUTOMATION IDs**)
+### Razor Views (Follow razor-views.instructions.md)
 
 #### Core Layout and Shared Views
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
+- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml`
 
 #### Controller Views - AdminAction
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Create.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Edit.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Delete.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Claim.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Lift.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
+- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Create.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Edit.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Delete.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Claim.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Lift.cshtml`
 
 #### Controller Views - BanFileMonitors
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Index.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Create.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Edit.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Details.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Delete.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Index.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Create.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Edit.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Details.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/BanFileMonitors/Delete.cshtml` ✅ **COMPLETED**
 
 #### Controller Views - Banners
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Banners/GameServersList.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/Banners/GameServersList.cshtml` ✅ **COMPLETED**
 
 #### Controller Views - ChangeLog
-- [ ] `src/XtremeIdiots.Portal.Web/Views/ChangeLog/Index.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/ChangeLog/Index.cshtml` ✅ **COMPLETED**
 
 #### Controller Views - Credentials
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Credentials/Index.cshtml`
@@ -257,13 +257,13 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Views/User/Permissions.cshtml`
 
 #### ViewComponents Templates
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/AdminActions/Default.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/GameServerList/Default.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/PlayerTags/Default.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/AdminActions/Default.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/GameServerList/Default.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/Components/PlayerTags/Default.cshtml`
 
 #### Identity Area Views
-- [ ] `src/XtremeIdiots.Portal.Web/Areas/Identity/Pages/_ViewStart.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
-- [ ] `src/XtremeIdiots.Portal.Web/Areas/Identity/Pages/_ValidationScriptsPartial.cshtml` 🔄 **NEEDS RE-REVIEW** (Add automation IDs)
+- [ ] `src/XtremeIdiots.Portal.Web/Areas/Identity/Pages/_ViewStart.cshtml`
+- [ ] `src/XtremeIdiots.Portal.Web/Areas/Identity/Pages/_ValidationScriptsPartial.cshtml`
 
 ### Forums Integration Project
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/AdminActionTopics.cs` ✅ **COMPLETED**

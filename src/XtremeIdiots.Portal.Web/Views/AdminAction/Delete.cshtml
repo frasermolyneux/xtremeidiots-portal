@@ -2,7 +2,7 @@
 @model AdminActionDto
 
 @{
-    ViewData["Title"] = $"Delete {Model?.Type ?? "Admin Action"}";
+    ViewData["Title"] = $"Delete {Model?.Type.ToString() ?? "Admin Action"}";
     ViewData["Description"] = "Delete admin action confirmation page";
 }
 

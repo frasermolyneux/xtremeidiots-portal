@@ -9,11 +9,12 @@
 <div class="wrapper wrapper-content animated fadeInRight">
 
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> If you are changing a mod on the server then you can update the existing
+        <i class="fa fa-info-circle" aria-hidden="true"></i> If you are changing a mod on the server then you can update
+        the existing
         monitor rather than deleting.
     </div>
 
-    <row class="row">
+    <div class="row">
         <div class="col-12">
 
             <div class="container-fluid">
@@ -27,13 +28,13 @@
                             <dt class="col-sm-2">
                                 Game Server
                             </dt>
-                            <dd class="col-sm-10">
+                            <dd class="col-sm-10" data-testid="ban-file-monitor-delete-gameserver">
                                 @Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.FilePath)
                             </dt>
-                            <dd class="col-sm-10">
+                            <dd class="col-sm-10" data-testid="ban-file-monitor-delete-filepath">
                                 @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort ?? 0,
                                 Model.FilePath)
                             </dd>
@@ -44,12 +45,15 @@
                             <input type="hidden" asp-for="BanFileMonitorId" />
 
                             <div class="btn-group btn-group-sm" role="group">
-                                <button class="btn btn-danger" type="submit">
-                                    <i class="fa fa-trash"></i> Delete
+                                <button class="btn btn-danger" type="submit"
+                                    data-testid="ban-file-monitor-delete-confirm">
+                                    <i class="fa fa-trash" aria-hidden="true"></i> Delete
                                 </button>
 
-                                <a type="button" class="btn btn-primary" asp-action="Index"><i
-                                        class="fa fa-arrow-left"></i> Back to List</a>
+                                <a class="btn btn-primary" asp-action="Index"
+                                    data-testid="ban-file-monitor-delete-back">
+                                    <i class="fa fa-arrow-left" aria-hidden="true"></i> Back to List
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -57,7 +61,7 @@
             </div>
 
         </div>
-    </row>
+    </div>
 
 </div>
 

@@ -23,7 +23,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/AdminActionsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BanFileMonitorsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BannersController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ChangeLogController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ChangeLogController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/CredentialsController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/DemosController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/ErrorsController.cs`
@@ -57,7 +57,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/ApiControllers/ServerAdminController.cs`
 
 ### Authorization System
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Constants/AuthPolicies.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Constants/AuthPolicies.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/AdminActionsAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/BanFileMonitorsAuthRequirements.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Auth/Requirements/ChangeLogAuthRequirements.cs`

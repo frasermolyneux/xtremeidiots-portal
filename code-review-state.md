@@ -86,8 +86,8 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ProfileAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServerAdminAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/ServersAuthHandler.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/StatusAuthHandler.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Auth/Handlers/UsersAuthHandler.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/StatusAuthHandler.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Auth/Handlers/UsersAuthHandler.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/IXtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuth.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Auth/XtremeIdiots/XtremeIdiotsAuthResult.cs` ✅ **COMPLETED**
@@ -116,10 +116,10 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerDetailsViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/PlayerIpAddressViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNameReportViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNamesViewModel.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/PushMapToRemote.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/ProtectedNamesViewModel.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/PushMapToRemote.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/ServerAdminGameServerViewModel.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/ViewModels/ServersGameServerViewModel.cs`
+- [x] `src/XtremeIdiots.Portal.Web/ViewModels/ServersGameServerViewModel.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/ViewModels/TagsViewModel.cs` ✅ **COMPLETED**
 
 ### Extensions and Helpers

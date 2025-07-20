@@ -3,22 +3,25 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization for status-related operations in the portal
+/// </summary>
 public class StatusAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization requirements for status operations
+    /// </summary>
+    /// <param name="context">The authorization handler context</param>
+    /// <returns>A task representing the asynchronous operation</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
 
         foreach (var requirement in pendingRequirements)
         {
-            switch (requirement)
+            if (requirement is AccessStatus)
             {
-                case AccessStatus:
-                    HandleAccessStatus(context, requirement);
-                    break;
-                default:
-                    break;
+                HandleAccessStatus(context, requirement);
             }
         }
 

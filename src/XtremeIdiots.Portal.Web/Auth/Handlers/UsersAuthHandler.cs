@@ -4,9 +4,16 @@ using XtremeIdiots.Portal.Web.Auth.Requirements;
 
 namespace XtremeIdiots.Portal.Web.Auth.Handlers;
 
+/// <summary>
+/// Handles authorization for user management operations in the portal
+/// </summary>
 public class UsersAuthHandler : IAuthorizationHandler
 {
-
+    /// <summary>
+    /// Handles authorization requirements for user management operations
+    /// </summary>
+    /// <param name="context">The authorization handler context</param>
+    /// <returns>A task representing the asynchronous operation</returns>
     public Task HandleAsync(AuthorizationHandlerContext context)
     {
         var pendingRequirements = context.PendingRequirements.ToList();
@@ -15,14 +22,14 @@ public class UsersAuthHandler : IAuthorizationHandler
         {
             switch (requirement)
             {
-                case AccessUsers:
-                    HandleAccessUsers(context, requirement);
+                case AccessUsers accessUsers:
+                    HandleAccessUsers(context, accessUsers);
                     break;
-                case CreateUserClaim:
-                    HandleCreateUserClaim(context, requirement);
+                case CreateUserClaim createUserClaim:
+                    HandleCreateUserClaim(context, createUserClaim);
                     break;
-                case DeleteUserClaim:
-                    HandleDeleteUserClaim(context, requirement);
+                case DeleteUserClaim deleteUserClaim:
+                    HandleDeleteUserClaim(context, deleteUserClaim);
                     break;
                 default:
                     break;

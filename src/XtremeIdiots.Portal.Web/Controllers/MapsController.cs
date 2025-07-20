@@ -10,24 +10,40 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Provides map browsing, search, and image retrieval functionality
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessMaps)]
 public class MapsController : BaseController
 {
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the MapsController
+    /// </summary>
+    /// <param name="authorizationService">Service for checking user authorization</param>
+    /// <param name="repositoryApiClient">Client for accessing repository data</param>
+    /// <param name="telemetryClient">Client for tracking telemetry data</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public MapsController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<MapsController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<MapsController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays the main maps index page
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Maps index view</returns>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
@@ -37,6 +53,12 @@ public class MapsController : BaseController
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Displays the maps index page filtered by game type
+    /// </summary>
+    /// <param name="id">Game type to filter by</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Maps index view with game type filter applied</returns>
     [HttpGet]
     public async Task<IActionResult> GameIndex(GameType? id, CancellationToken cancellationToken = default)
     {
@@ -47,6 +69,12 @@ public class MapsController : BaseController
         }, nameof(GameIndex));
     }
 
+    /// <summary>
+    /// Provides paginated, searchable map data for DataTables Ajax requests
+    /// </summary>
+    /// <param name="id">Optional game type to filter maps</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>JSON data formatted for DataTables consumption</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GetMapListAjax(GameType? id, CancellationToken cancellationToken = default)
@@ -87,15 +115,15 @@ public class MapsController : BaseController
             if (!mapsApiResponse.IsSuccess || mapsApiResponse.Result?.Data is null)
             {
                 Logger.LogWarning("Failed to retrieve maps data for user {UserId} and game type {GameType}",
-         User.XtremeIdiotsId(), id);
+                    User.XtremeIdiotsId(), id);
                 return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
             }
 
             TrackSuccessTelemetry("MapsListRetrieved", nameof(GetMapListAjax), new Dictionary<string, string>
-        {
- { "GameType", id?.ToString() ?? "All" },
- { "ResultCount", mapsApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
-        });
+            {
+                { "GameType", id?.ToString() ?? "All" },
+                { "ResultCount", mapsApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
+            });
 
             return Json(new
             {
@@ -107,6 +135,13 @@ public class MapsController : BaseController
         }, nameof(GetMapListAjax));
     }
 
+    /// <summary>
+    /// Retrieves and redirects to a map image or returns a default image if not found
+    /// </summary>
+    /// <param name="gameType">Game type of the map</param>
+    /// <param name="mapName">Name of the map</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Redirect to map image URI or default no-image placeholder</returns>
     [HttpGet]
     public async Task<IActionResult> MapImage(GameType gameType, string mapName, CancellationToken cancellationToken = default)
     {
@@ -115,7 +150,7 @@ public class MapsController : BaseController
             if (gameType == GameType.Unknown || string.IsNullOrWhiteSpace(mapName))
             {
                 Logger.LogWarning("Invalid map image request with game type {GameType} and map name {MapName} from user {UserId}",
-         gameType, mapName ?? "null", User.XtremeIdiotsId());
+                    gameType, mapName ?? "null", User.XtremeIdiotsId());
                 return BadRequest();
             }
 
@@ -124,15 +159,15 @@ public class MapsController : BaseController
             if (!mapApiResponse.IsSuccess || mapApiResponse.Result?.Data is null || string.IsNullOrWhiteSpace(mapApiResponse.Result.Data.MapImageUri))
             {
                 Logger.LogWarning("Map image not found for {GameType} map {MapName} requested by user {UserId}",
-         gameType, mapName, User.XtremeIdiotsId());
+                    gameType, mapName, User.XtremeIdiotsId());
                 return Redirect("/images/noimage.jpg");
             }
 
             TrackSuccessTelemetry("MapImageRetrieved", "MapImage", new Dictionary<string, string>
-        {
- { "GameType", gameType.ToString() },
- { "MapName", mapName }
-        });
+            {
+                { "GameType", gameType.ToString() },
+                { "MapName", mapName }
+            });
 
             return Redirect(mapApiResponse.Result.Data.MapImageUri);
         }, nameof(MapImage));

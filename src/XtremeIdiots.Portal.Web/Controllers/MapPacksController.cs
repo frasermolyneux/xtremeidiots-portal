@@ -12,6 +12,9 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages map pack creation and organization for game servers
+/// </summary>
 [Authorize(Policy = AuthPolicies.ManageMaps)]
 public class MapPacksController : BaseController
 {
@@ -19,30 +22,45 @@ public class MapPacksController : BaseController
     private readonly IRepositoryApiClient repositoryApiClient;
     private readonly IServersApiClient serversApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the MapPacksController
+    /// </summary>
+    /// <param name="authorizationService">Service for checking user authorization</param>
+    /// <param name="repositoryApiClient">Client for accessing repository data</param>
+    /// <param name="serversApiClient">Client for server integration operations</param>
+    /// <param name="telemetryClient">Client for tracking telemetry data</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public MapPacksController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    IServersApiClient serversApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<MapPacksController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        IServersApiClient serversApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<MapPacksController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
         this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
     }
 
+    /// <summary>
+    /// Displays the create map pack form for a specific game server
+    /// </summary>
+    /// <param name="gameServerId">Game server identifier</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with create map pack form or NotFound if server doesn't exist</returns>
     [HttpGet]
     public async Task<IActionResult> Create(Guid gameServerId, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
-     gameServerId,
-     AuthPolicies.CreateMapPack,
-     nameof(Create),
-     cancellationToken);
+                gameServerId,
+                AuthPolicies.CreateMapPack,
+                nameof(Create),
+                cancellationToken);
 
             if (actionResult != null) return actionResult;
 
@@ -58,6 +76,12 @@ public class MapPacksController : BaseController
         }, nameof(Create));
     }
 
+    /// <summary>
+    /// Creates a new map pack for the specified game server
+    /// </summary>
+    /// <param name="model">Map pack creation model with title, description, and game mode</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>Redirect to MapManager on success or view with validation errors</returns>
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateMapPackViewModel model, CancellationToken cancellationToken = default)
@@ -65,17 +89,17 @@ public class MapPacksController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
-     model.GameServerId,
-     AuthPolicies.CreateMapPack,
-     nameof(Create),
-     cancellationToken);
+                model.GameServerId,
+                AuthPolicies.CreateMapPack,
+                nameof(Create),
+                cancellationToken);
 
             if (actionResult != null) return actionResult;
 
             var modelValidationResult = CheckModelState(model, m =>
-     {
-            ViewData["GameServer"] = gameServerData;
-        });
+            {
+                ViewData["GameServer"] = gameServerData;
+            });
             if (modelValidationResult != null) return modelValidationResult;
 
             var createMapPackDto = new CreateMapPackDto(model.GameServerId, model.Title, model.Description)
@@ -105,11 +129,11 @@ public class MapPacksController : BaseController
             }
 
             TrackSuccessTelemetry(nameof(Create), "MapPackCreated", new Dictionary<string, string>
-        {
- { nameof(model.GameServerId), model.GameServerId.ToString() },
- { nameof(model.Title), model.Title },
- { "GameType", gameServerData!.GameType.ToString() }
-        });
+            {
+                { nameof(model.GameServerId), model.GameServerId.ToString() },
+                { nameof(model.Title), model.Title },
+                { "GameType", gameServerData!.GameType.ToString() }
+            });
 
             this.AddAlertSuccess($"Map pack '{model.Title}' has been created successfully for {gameServerData.Title}.");
 
@@ -118,10 +142,10 @@ public class MapPacksController : BaseController
     }
 
     private async Task<(IActionResult? ActionResult, GameServerDto? GameServerData)> GetAuthorizedGameServerAsync(
-    Guid gameServerId,
-    string policy,
-    string action,
-    CancellationToken cancellationToken = default)
+        Guid gameServerId,
+        string policy,
+        string action,
+        CancellationToken cancellationToken = default)
     {
         var gameServerApiResponse = await repositoryApiClient.GameServers.V1.GetGameServer(gameServerId, cancellationToken);
 
@@ -133,13 +157,13 @@ public class MapPacksController : BaseController
 
         var gameServerData = gameServerApiResponse.Result.Data;
         var authResult = await CheckAuthorizationAsync(
-        authorizationService,
-        gameServerData.GameType,
-        policy,
-        action,
-        "MapPack",
-        $"GameType:{gameServerData.GameType},GameServerId:{gameServerId}",
-        gameServerData);
+            authorizationService,
+            gameServerData.GameType,
+            policy,
+            action,
+            "MapPack",
+            $"GameType:{gameServerData.GameType},GameServerId:{gameServerId}",
+            gameServerData);
 
         return authResult is not null ? (authResult, null) : (null, gameServerData);
     }

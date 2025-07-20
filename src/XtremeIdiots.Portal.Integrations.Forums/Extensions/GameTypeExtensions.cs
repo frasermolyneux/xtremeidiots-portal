@@ -1,132 +1,156 @@
 ﻿using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 
-namespace XtremeIdiots.Portal.Integrations.Forums.Extensions
+namespace XtremeIdiots.Portal.Integrations.Forums.Extensions;
+
+public static class GameTypeExtensions
 {
-    public static class GameTypeExtensions
+    public static int ForumIdForObservations(this GameType gameType)
     {
-        public static int ForumIdForObservations(this GameType gameType)
+        return gameType switch
         {
-            switch (gameType)
-            {
-                case GameType.CallOfDuty2:
-                    return 58;
-                case GameType.CallOfDuty4:
-                    return 59;
-                case GameType.CallOfDuty5:
-                    return 60;
-                case GameType.Insurgency:
-                    return 264;
-                case GameType.Minecraft:
-                    return 265;
-                case GameType.Rust:
-                    return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
-                    return 252;
-                default:
-                    return 28;
-            }
-        }
+            GameType.CallOfDuty2 => 58,
+            GameType.CallOfDuty4 => 59,
+            GameType.CallOfDuty5 => 60,
+            GameType.Insurgency => 264,
+            GameType.Minecraft => 265,
+            GameType.Rust => 256,
+            GameType.Arma or GameType.Arma2 or GameType.Arma3 => 252,
+            GameType.Unknown => throw new NotImplementedException(),
+            GameType.ArkSurvivalEvolved => throw new NotImplementedException(),
+            GameType.Battlefield1 => throw new NotImplementedException(),
+            GameType.Battlefield3 => throw new NotImplementedException(),
+            GameType.Battlefield4 => throw new NotImplementedException(),
+            GameType.Battlefield5 => throw new NotImplementedException(),
+            GameType.BattlefieldBadCompany2 => throw new NotImplementedException(),
+            GameType.CrysisWars => throw new NotImplementedException(),
+            GameType.Left4Dead2 => throw new NotImplementedException(),
+            GameType.PlayerUnknownsBattleground => throw new NotImplementedException(),
+            GameType.RisingStormVietnam => throw new NotImplementedException(),
+            GameType.WarThunder => throw new NotImplementedException(),
+            GameType.WorldOfWarships => throw new NotImplementedException(),
+            GameType.WorldWar3 => throw new NotImplementedException(),
+            GameType.UnrealTournament2004 => throw new NotImplementedException(),
+            _ => 28,
+        };
+    }
 
-        public static int ForumIdForKicks(this GameType gameType)
+    public static int ForumIdForKicks(this GameType gameType)
+    {
+        return gameType switch
         {
-            switch (gameType)
-            {
-                case GameType.CallOfDuty2:
-                    return 58;
-                case GameType.CallOfDuty4:
-                    return 59;
-                case GameType.CallOfDuty5:
-                    return 60;
-                case GameType.Insurgency:
-                    return 264;
-                case GameType.Minecraft:
-                    return 265;
-                case GameType.Rust:
-                    return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
-                    return 252;
-                default:
-                    return 28;
-            }
-        }
+            GameType.CallOfDuty2 => 58,
+            GameType.CallOfDuty4 => 59,
+            GameType.CallOfDuty5 => 60,
+            GameType.Insurgency => 264,
+            GameType.Minecraft => 265,
+            GameType.Rust => 256,
+            GameType.Arma or GameType.Arma2 or GameType.Arma3 => 252,
+            GameType.Unknown => throw new NotImplementedException(),
+            GameType.ArkSurvivalEvolved => throw new NotImplementedException(),
+            GameType.Battlefield1 => throw new NotImplementedException(),
+            GameType.Battlefield3 => throw new NotImplementedException(),
+            GameType.Battlefield4 => throw new NotImplementedException(),
+            GameType.Battlefield5 => throw new NotImplementedException(),
+            GameType.BattlefieldBadCompany2 => throw new NotImplementedException(),
+            GameType.CrysisWars => throw new NotImplementedException(),
+            GameType.Left4Dead2 => throw new NotImplementedException(),
+            GameType.PlayerUnknownsBattleground => throw new NotImplementedException(),
+            GameType.RisingStormVietnam => throw new NotImplementedException(),
+            GameType.WarThunder => throw new NotImplementedException(),
+            GameType.WorldOfWarships => throw new NotImplementedException(),
+            GameType.WorldWar3 => throw new NotImplementedException(),
+            GameType.UnrealTournament2004 => throw new NotImplementedException(),
+            _ => 28,
+        };
+    }
 
-        public static int ForumIdForWarnings(this GameType gameType)
+    public static int ForumIdForWarnings(this GameType gameType)
+    {
+        return gameType switch
         {
-            switch (gameType)
-            {
-                case GameType.CallOfDuty2:
-                    return 58;
-                case GameType.CallOfDuty4:
-                    return 59;
-                case GameType.CallOfDuty5:
-                    return 60;
-                case GameType.Insurgency:
-                    return 264;
-                case GameType.Minecraft:
-                    return 265;
-                case GameType.Rust:
-                    return 256;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
-                    return 252;
-                default:
-                    return 28;
-            }
-        }
+            GameType.CallOfDuty2 => 58,
+            GameType.CallOfDuty4 => 59,
+            GameType.CallOfDuty5 => 60,
+            GameType.Insurgency => 264,
+            GameType.Minecraft => 265,
+            GameType.Rust => 256,
+            GameType.Arma or GameType.Arma2 or GameType.Arma3 => 252,
+            GameType.Unknown => throw new NotImplementedException(),
+            GameType.ArkSurvivalEvolved => throw new NotImplementedException(),
+            GameType.Battlefield1 => throw new NotImplementedException(),
+            GameType.Battlefield3 => throw new NotImplementedException(),
+            GameType.Battlefield4 => throw new NotImplementedException(),
+            GameType.Battlefield5 => throw new NotImplementedException(),
+            GameType.BattlefieldBadCompany2 => throw new NotImplementedException(),
+            GameType.CrysisWars => throw new NotImplementedException(),
+            GameType.Left4Dead2 => throw new NotImplementedException(),
+            GameType.PlayerUnknownsBattleground => throw new NotImplementedException(),
+            GameType.RisingStormVietnam => throw new NotImplementedException(),
+            GameType.WarThunder => throw new NotImplementedException(),
+            GameType.WorldOfWarships => throw new NotImplementedException(),
+            GameType.WorldWar3 => throw new NotImplementedException(),
+            GameType.UnrealTournament2004 => throw new NotImplementedException(),
+            _ => 28,
+        };
+    }
 
-        public static int ForumIdForTempBans(this GameType gameType)
+    public static int ForumIdForTempBans(this GameType gameType)
+    {
+        return gameType switch
         {
-            switch (gameType)
-            {
-                case GameType.CallOfDuty2:
-                    return 68;
-                case GameType.CallOfDuty4:
-                    return 69;
-                case GameType.CallOfDuty5:
-                    return 70;
-                case GameType.Insurgency:
-                    return 169;
-                case GameType.Minecraft:
-                    return 144;
-                case GameType.Rust:
-                    return 260;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
-                    return 259;
-                default:
-                    return 28;
-            }
-        }
+            GameType.CallOfDuty2 => 68,
+            GameType.CallOfDuty4 => 69,
+            GameType.CallOfDuty5 => 70,
+            GameType.Insurgency => 169,
+            GameType.Minecraft => 144,
+            GameType.Rust => 260,
+            GameType.Arma or GameType.Arma2 or GameType.Arma3 => 259,
+            GameType.Unknown => throw new NotImplementedException(),
+            GameType.ArkSurvivalEvolved => throw new NotImplementedException(),
+            GameType.Battlefield1 => throw new NotImplementedException(),
+            GameType.Battlefield3 => throw new NotImplementedException(),
+            GameType.Battlefield4 => throw new NotImplementedException(),
+            GameType.Battlefield5 => throw new NotImplementedException(),
+            GameType.BattlefieldBadCompany2 => throw new NotImplementedException(),
+            GameType.CrysisWars => throw new NotImplementedException(),
+            GameType.Left4Dead2 => throw new NotImplementedException(),
+            GameType.PlayerUnknownsBattleground => throw new NotImplementedException(),
+            GameType.RisingStormVietnam => throw new NotImplementedException(),
+            GameType.WarThunder => throw new NotImplementedException(),
+            GameType.WorldOfWarships => throw new NotImplementedException(),
+            GameType.WorldWar3 => throw new NotImplementedException(),
+            GameType.UnrealTournament2004 => throw new NotImplementedException(),
+            _ => 28,
+        };
+    }
 
-        public static int ForumIdForBans(this GameType gameType)
+    public static int ForumIdForBans(this GameType gameType)
+    {
+        return gameType switch
         {
-            switch (gameType)
-            {
-                case GameType.CallOfDuty2:
-                    return 68;
-                case GameType.CallOfDuty4:
-                    return 69;
-                case GameType.CallOfDuty5:
-                    return 70;
-                case GameType.Insurgency:
-                    return 169;
-                case GameType.Minecraft:
-                    return 144;
-                case GameType.Rust:
-                    return 260;
-                case GameType.Arma:
-                case GameType.Arma2:
-                case GameType.Arma3:
-                    return 259;
-                default:
-                    return 28;
-            }
-        }
+            GameType.CallOfDuty2 => 68,
+            GameType.CallOfDuty4 => 69,
+            GameType.CallOfDuty5 => 70,
+            GameType.Insurgency => 169,
+            GameType.Minecraft => 144,
+            GameType.Rust => 260,
+            GameType.Arma or GameType.Arma2 or GameType.Arma3 => 259,
+            GameType.Unknown => throw new NotImplementedException(),
+            GameType.ArkSurvivalEvolved => throw new NotImplementedException(),
+            GameType.Battlefield1 => throw new NotImplementedException(),
+            GameType.Battlefield3 => throw new NotImplementedException(),
+            GameType.Battlefield4 => throw new NotImplementedException(),
+            GameType.Battlefield5 => throw new NotImplementedException(),
+            GameType.BattlefieldBadCompany2 => throw new NotImplementedException(),
+            GameType.CrysisWars => throw new NotImplementedException(),
+            GameType.Left4Dead2 => throw new NotImplementedException(),
+            GameType.PlayerUnknownsBattleground => throw new NotImplementedException(),
+            GameType.RisingStormVietnam => throw new NotImplementedException(),
+            GameType.WarThunder => throw new NotImplementedException(),
+            GameType.WorldOfWarships => throw new NotImplementedException(),
+            GameType.WorldWar3 => throw new NotImplementedException(),
+            GameType.UnrealTournament2004 => throw new NotImplementedException(),
+            _ => 28,
+        };
     }
 }

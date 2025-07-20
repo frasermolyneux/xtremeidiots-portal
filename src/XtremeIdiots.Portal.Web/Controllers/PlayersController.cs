@@ -19,38 +19,30 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages player-related operations including viewing, searching, and analyzing player data
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the PlayersController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="geoLocationClient">Client for geolocation lookups</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="telemetryClient">Client for tracking telemetry events</param>
+/// <param name="proxyCheckService">Service for checking proxy/VPN status of IP addresses</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class PlayersController : BaseController
+public class PlayersController(
+    IAuthorizationService authorizationService,
+    IGeoLocationApiClient geoLocationClient,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    IProxyCheckService proxyCheckService,
+    ILogger<PlayersController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IGeoLocationApiClient geoLocationClient;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IProxyCheckService proxyCheckService;
-
-    /// <summary>
-    /// Initializes a new instance of the PlayersController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="geoLocationClient">Client for geolocation lookups</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="telemetryClient">Client for tracking telemetry events</param>
-    /// <param name="proxyCheckService">Service for checking proxy/VPN status of IP addresses</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public PlayersController(
-        IAuthorizationService authorizationService,
-        IGeoLocationApiClient geoLocationClient,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        IProxyCheckService proxyCheckService,
-        ILogger<PlayersController> logger,
-        IConfiguration configuration) : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IGeoLocationApiClient geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IProxyCheckService proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
 
     /// <summary>
     /// Displays the main players index page
@@ -59,10 +51,7 @@ public class PlayersController : BaseController
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        return await ExecuteWithErrorHandlingAsync(() =>
-        {
-            return Task.FromResult(View() as IActionResult);
-        }, nameof(Index));
+        return await ExecuteWithErrorHandlingAsync(() => Task.FromResult(View() as IActionResult), nameof(Index));
     }
 
     /// <summary>
@@ -87,10 +76,7 @@ public class PlayersController : BaseController
     [HttpGet]
     public async Task<IActionResult> IpIndex()
     {
-        return await ExecuteWithErrorHandlingAsync(() =>
-        {
-            return Task.FromResult(View() as IActionResult);
-        }, nameof(IpIndex));
+        return await ExecuteWithErrorHandlingAsync(() => Task.FromResult(View() as IActionResult), nameof(IpIndex));
     }
 
     /// <summary>
@@ -176,7 +162,7 @@ public class PlayersController : BaseController
     {
         var order = PlayersOrder.LastSeenDesc;
 
-        if (model.Order is not null && model.Order.Any())
+        if (model.Order is not null && model.Order.Count != 0)
         {
             var orderColumn = model.Columns[model.Order.First().Column].Name;
             var searchOrder = model.Order.First().Dir;
@@ -206,7 +192,8 @@ public class PlayersController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, playerData) = await GetAuthorizedPlayerAsync(id, "view", cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             var playerDetailsViewModel = new PlayerDetailsViewModel
             {
@@ -215,7 +202,7 @@ public class PlayersController : BaseController
 
             await EnrichCurrentPlayerGeoLocationAsync(playerDetailsViewModel, playerData!, id);
 
-            if (playerData!.PlayerIpAddresses is not null && playerData.PlayerIpAddresses.Any())
+            if (playerData!.PlayerIpAddresses is not null && playerData.PlayerIpAddresses.Count != 0)
             {
                 await EnrichPlayerIpAddressesAsync(playerDetailsViewModel, playerData, id);
             }
@@ -263,14 +250,16 @@ public class PlayersController : BaseController
             $"GameType:{playerData.GameType}",
             playerData);
 
-        if (authResult is not null) return (authResult, null);
+        if (authResult is not null)
+            return (authResult, null);
 
         return (null, playerData);
     }
 
     private async Task EnrichCurrentPlayerGeoLocationAsync(PlayerDetailsViewModel viewModel, PlayerDto playerData, Guid playerId)
     {
-        if (string.IsNullOrWhiteSpace(playerData.IpAddress)) return;
+        if (string.IsNullOrWhiteSpace(playerData.IpAddress))
+            return;
 
         try
         {

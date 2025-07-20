@@ -16,35 +16,27 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Controller for managing user accounts, profiles, and permissions within the XtremeIdiots Portal
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the UserController
+/// </remarks>
+/// <param name="authorizationService">Service for checking user authorization policies</param>
+/// <param name="repositoryApiClient">Client for accessing the repository API</param>
+/// <param name="userManager">ASP.NET Identity user manager for user operations</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessUsers)]
-public class UserController : BaseController
+public class UserController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    UserManager<IdentityUser> userManager,
+    TelemetryClient telemetryClient,
+    ILogger<UserController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly UserManager<IdentityUser> userManager;
-
-    /// <summary>
-    /// Initializes a new instance of the UserController
-    /// </summary>
-    /// <param name="authorizationService">Service for checking user authorization policies</param>
-    /// <param name="repositoryApiClient">Client for accessing the repository API</param>
-    /// <param name="userManager">ASP.NET Identity user manager for user operations</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public UserController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        UserManager<IdentityUser> userManager,
-        TelemetryClient telemetryClient,
-        ILogger<UserController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly UserManager<IdentityUser> userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     /// <summary>
     /// Displays the user management index page
@@ -241,14 +233,15 @@ public class UserController : BaseController
                 "UserClaim",
                 $"ProfileId:{id},GameType:{gameServerData.GameType},ClaimType:{claimType}");
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             if (!userProfileData.UserProfileClaims.Any(claim => claim.ClaimType == claimType && claim.ClaimValue == claimValue))
             {
                 var createUserProfileClaimDto = new CreateUserProfileClaimDto(userProfileData.UserProfileId, claimType, claimValue, false);
 
                 await repositoryApiClient.UserProfiles.V1.CreateUserProfileClaim(
-                    userProfileData.UserProfileId, new List<CreateUserProfileClaimDto> { createUserProfileClaimDto }, cancellationToken);
+                    userProfileData.UserProfileId, [createUserProfileClaimDto], cancellationToken);
 
                 var user = !string.IsNullOrEmpty(userProfileData.XtremeIdiotsForumId)
                     ? await userManager.FindByIdAsync(userProfileData.XtremeIdiotsForumId)
@@ -331,7 +324,8 @@ public class UserController : BaseController
                     "UserClaim",
                     $"ProfileId:{id},ClaimId:{claimId},ClaimType:{claim.ClaimType}");
 
-                if (authResult is not null) return authResult;
+                if (authResult is not null)
+                    return authResult;
                 canDeleteUserClaim = true;
             }
 

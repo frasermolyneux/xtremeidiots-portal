@@ -94,7 +94,8 @@ public class BanFileMonitorsController(
                 await AddGameServersViewData(model.GameServerId, cancellationToken);
                 m.GameServer = gameServerData;
             });
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var authorizationResource = new Tuple<GameType, Guid>(gameServerData.GameType, gameServerData.GameServerId);
             var authResult = await CheckAuthorizationAsync(
@@ -106,7 +107,8 @@ public class BanFileMonitorsController(
                 $"GameType:{gameServerData.GameType},GameServerId:{gameServerData.GameServerId}",
                 gameServerData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var createBanFileMonitorDto = new CreateBanFileMonitorDto(model.GameServerId, model.FilePath, gameServerData.GameType);
             await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto, cancellationToken);
@@ -138,9 +140,7 @@ public class BanFileMonitorsController(
             var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
                 id, AuthPolicies.ViewBanFileMonitor, nameof(Details), cancellationToken);
 
-            if (actionResult is not null) return actionResult;
-
-            return View(banFileMonitorData);
+            return actionResult is not null ? actionResult : View(banFileMonitorData);
         }, nameof(Details));
     }
 
@@ -158,7 +158,8 @@ public class BanFileMonitorsController(
             var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
                 id, AuthPolicies.EditBanFileMonitor, nameof(Edit), cancellationToken);
 
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             await AddGameServersViewData(banFileMonitorData!.GameServerId, cancellationToken);
 
@@ -191,14 +192,16 @@ public class BanFileMonitorsController(
             var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
                 model.BanFileMonitorId, AuthPolicies.EditBanFileMonitor, nameof(Edit), cancellationToken);
 
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             var modelValidationResult = await CheckModelStateAsync(model, async m =>
             {
                 await AddGameServersViewData(model.GameServerId, cancellationToken);
                 model.GameServer = banFileMonitorData!.GameServer;
             });
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorData!.BanFileMonitorId, model.FilePath);
             await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto, cancellationToken);
@@ -230,7 +233,8 @@ public class BanFileMonitorsController(
             var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
                 id, AuthPolicies.DeleteBanFileMonitor, nameof(Delete), cancellationToken);
 
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             await AddGameServersViewData(banFileMonitorData!.GameServerId, cancellationToken);
 
@@ -254,7 +258,8 @@ public class BanFileMonitorsController(
             var (actionResult, banFileMonitorData) = await GetAuthorizedBanFileMonitorAsync(
                 id, AuthPolicies.DeleteBanFileMonitor, nameof(DeleteConfirmed), cancellationToken);
 
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             await repositoryApiClient.BanFileMonitors.V1.DeleteBanFileMonitor(id, cancellationToken);
 

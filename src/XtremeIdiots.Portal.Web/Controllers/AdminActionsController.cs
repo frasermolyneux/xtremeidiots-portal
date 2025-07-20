@@ -60,7 +60,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionType:{adminActionType}",
                 playerData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var createAdminActionViewModel = new CreateAdminActionViewModel
             {
@@ -91,7 +92,8 @@ public class AdminActionsController(
                 return NotFound();
 
             var modelValidationResult = CheckModelState(model, m => m.PlayerDto = playerData);
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var authorizationResource = (playerData.GameType, model.Type);
             var authResult = await CheckAuthorizationAsync(
@@ -103,23 +105,23 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionType:{model.Type}",
                 playerData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var adminId = User.XtremeIdiotsId();
             var createAdminActionDto = new CreateAdminActionDto(playerData.PlayerId, model.Type, model.Text)
             {
                 AdminId = adminId,
                 Expires = model.Expires,
+                ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(
+                    model.Type,
+                    playerData.GameType,
+                    playerData.PlayerId,
+                    playerData.Username,
+                    DateTime.UtcNow,
+                    model.Text,
+                    adminId)
             };
-
-            createAdminActionDto.ForumTopicId = await adminActionTopics.CreateTopicForAdminAction(
-                model.Type,
-                playerData.GameType,
-                playerData.PlayerId,
-                playerData.Username,
-                DateTime.UtcNow,
-                model.Text,
-                adminId);
 
             await repositoryApiClient.AdminActions.V1.CreateAdminAction(createAdminActionDto, cancellationToken);
 
@@ -163,7 +165,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var viewModel = new EditAdminActionViewModel
             {
@@ -199,7 +202,8 @@ public class AdminActionsController(
             var playerData = adminActionData.Player!;
 
             var modelValidationResult = CheckModelState(model, m => m.PlayerDto = playerData);
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var authorizationResource = (playerData.GameType, adminActionData.Type, adminActionData.UserProfile?.XtremeIdiotsForumId);
             var authResult = await CheckAuthorizationAsync(
@@ -211,7 +215,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{model.AdminActionId}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
             {
@@ -276,9 +281,7 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
-
-            return View(adminActionData);
+            return authResult is not null ? authResult : View(adminActionData);
         }, "LiftAdminActionForm");
     }
 
@@ -312,7 +315,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
             {
@@ -367,9 +371,7 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
-
-            return View(adminActionData);
+            return authResult is not null ? authResult : View(adminActionData);
         }, "ClaimAdminActionForm");
     }
 
@@ -407,7 +409,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var adminId = User.XtremeIdiotsId();
             var editAdminActionDto = new EditAdminActionDto(adminActionData.AdminActionId)
@@ -474,7 +477,8 @@ public class AdminActionsController(
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var forumTopicId = await adminActionTopics.CreateTopicForAdminAction(
                 adminActionData.Type,
@@ -536,9 +540,7 @@ public class AdminActionsController(
                 $"AdminActionId:{id}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
-
-            return View(adminActionData);
+            return authResult is not null ? authResult : View(adminActionData);
         }, "DeleteAdminActionForm");
     }
 
@@ -576,7 +578,8 @@ public class AdminActionsController(
                 $"AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             await repositoryApiClient.AdminActions.V1.DeleteAdminAction(id, cancellationToken);
 
@@ -593,9 +596,15 @@ public class AdminActionsController(
         }, nameof(Delete));
     }
 
-    private string GetForumBaseUrl() => GetConfigurationValue("AdminActions:ForumBaseUrl", DefaultForumBaseUrl);
+    private string GetForumBaseUrl()
+    {
+        return GetConfigurationValue("AdminActions:ForumBaseUrl", DefaultForumBaseUrl);
+    }
 
-    private string GetFallbackAdminId() => GetConfigurationValue("AdminActions:FallbackAdminId", DefaultFallbackAdminId);
+    private string GetFallbackAdminId()
+    {
+        return GetConfigurationValue("AdminActions:FallbackAdminId", DefaultFallbackAdminId);
+    }
 
     private async Task<PlayerDto?> GetPlayerDataAsync(Guid playerId, CancellationToken cancellationToken = default)
     {
@@ -651,8 +660,10 @@ public class AdminActionsController(
         return $"The {actionType} has been successfully applied against {username} with a <a target=\"_blank\" href=\"{forumBaseUrl}{forumTopicId}-topic/\" class=\"alert-link\">topic</a>";
     }
 
-    private static string CreateActionOperationMessage(AdminActionType actionType, string username, string operation) =>
-    $"The {actionType} has been successfully {operation} for {username}";
+    private static string CreateActionOperationMessage(AdminActionType actionType, string username, string operation)
+    {
+        return $"The {actionType} has been successfully {operation} for {username}";
+    }
 
     /// <summary>
     /// Displays admin actions created by the current user

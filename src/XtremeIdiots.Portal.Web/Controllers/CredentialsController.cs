@@ -89,7 +89,7 @@ public class CredentialsController(
             return null;
         }
 
-        return gameServersApiResponse.Result.Data.Items.ToList();
+        return [.. gameServersApiResponse.Result.Data.Items];
     }
 
     private async Task ApplyCredentialAuthorizationAsync(List<GameServerDto> gameServersList, CancellationToken cancellationToken)

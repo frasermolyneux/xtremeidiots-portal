@@ -15,143 +15,122 @@ using MX.GeoLocation.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web;
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
+    public IConfiguration Configuration { get; } = configuration;
 
- public Startup(IConfiguration configuration)
- {
- Configuration = configuration;
- }
+    public void ConfigureServices(IServiceCollection services)
+    {
 
- public IConfiguration Configuration { get; }
+        services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
+        services.AddLogging();
 
- public void ConfigureServices(IServiceCollection services)
- {
+        services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
+        {
+            var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
+            telemetryProcessorChainBuilder.UseAdaptiveSampling(excludedTypes: "Exception");
+            telemetryProcessorChainBuilder.Build();
+        });
 
- services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
- services.AddLogging();
+        services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            EnableAdaptiveSampling = false,
+        });
 
- services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
- {
- var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
- telemetryProcessorChainBuilder.UseAdaptiveSampling(excludedTypes: "Exception");
- telemetryProcessorChainBuilder.Build();
- });
+        services.AddServiceProfiler();
 
- services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
- {
- EnableAdaptiveSampling = false,
- });
+        services.AddInvisionApiClient(options =>
+        {
+            options.BaseUrl = Configuration["xtremeidiots_forums_base_url"] ?? throw new InvalidOperationException("xtremeidiots_forums_base_url configuration is required");
+            options.ApiKey = Configuration["xtremeidiots_forums_api_key"] ?? throw new InvalidOperationException("xtremeidiots_forums_api_key configuration is required");
+        });
 
- services.AddServiceProfiler();
+        services.AddAdminActionTopics();
+        services.AddScoped<IDemoManager, DemoManager>();
 
- services.AddInvisionApiClient(options =>
- {
- options.BaseUrl = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException(nameof(Configuration), "xtremeidiots_forums_base_url configuration is required");
- options.ApiKey = Configuration["xtremeidiots_forums_api_key"] ?? throw new ArgumentNullException(nameof(Configuration), "xtremeidiots_forums_api_key configuration is required");
- });
+        services.AddRepositoryApiClient(options => options.WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
+     .WithApiKeyAuthentication(Configuration["RepositoryApi:ApiKey"] ?? throw new InvalidOperationException("RepositoryApi:ApiKey configuration is required"))
+     .WithEntraIdAuthentication(Configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required")));
 
- services.AddAdminActionTopics();
- services.AddScoped<IDemoManager, DemoManager>();
+        services.AddServersApiClient(options => options.WithBaseUrl(Configuration["ServersIntegrationApi:BaseUrl"] ?? throw new InvalidOperationException("ServersIntegrationApi:BaseUrl configuration is required"))
+     .WithApiKeyAuthentication(Configuration["ServersIntegrationApi:ApiKey"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApiKey configuration is required"))
+     .WithEntraIdAuthentication(Configuration["ServersIntegrationApi:ApplicationAudience"] ?? throw new InvalidOperationException("ServersIntegrationApi:ApplicationAudience configuration is required")));
 
- services.AddRepositoryApiClient(options =>
- {
- options.WithBaseUrl(Configuration["RepositoryApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(Configuration), "RepositoryApi:BaseUrl configuration is required"))
- .WithApiKeyAuthentication(Configuration["RepositoryApi:ApiKey"] ?? throw new ArgumentNullException(nameof(Configuration), "RepositoryApi:ApiKey configuration is required"))
- .WithEntraIdAuthentication(Configuration["RepositoryApi:ApplicationAudience"] ?? throw new ArgumentNullException(nameof(Configuration), "RepositoryApi:ApplicationAudience configuration is required"));
- });
+        services.AddGeoLocationApiClient(options => options.WithBaseUrl(Configuration["GeoLocationApi:BaseUrl"] ?? throw new InvalidOperationException("GeoLocationApi:BaseUrl configuration is required"))
+     .WithApiKeyAuthentication(Configuration["GeoLocationApi:ApiKey"] ?? throw new InvalidOperationException("GeoLocationApi:ApiKey configuration is required"))
+     .WithEntraIdAuthentication(Configuration["GeoLocationApi:ApplicationAudience"] ?? throw new InvalidOperationException("GeoLocationApi:ApplicationAudience configuration is required")));
 
- services.AddServersApiClient(options =>
- {
- options.WithBaseUrl(Configuration["ServersIntegrationApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(Configuration), "ServersIntegrationApi:BaseUrl configuration is required"))
- .WithApiKeyAuthentication(Configuration["ServersIntegrationApi:ApiKey"] ?? throw new ArgumentNullException(nameof(Configuration), "ServersIntegrationApi:ApiKey configuration is required"))
- .WithEntraIdAuthentication(Configuration["ServersIntegrationApi:ApplicationAudience"] ?? throw new ArgumentNullException(nameof(Configuration), "ServersIntegrationApi:ApplicationAudience configuration is required"));
- });
+        services.AddXtremeIdiotsAuth();
+        services.AddAuthorization(options => options.AddXtremeIdiotsPolicies());
 
- services.AddGeoLocationApiClient(options =>
- {
- options.WithBaseUrl(Configuration["GeoLocationApi:BaseUrl"] ?? throw new ArgumentNullException(nameof(Configuration), "GeoLocationApi:BaseUrl configuration is required"))
- .WithApiKeyAuthentication(Configuration["GeoLocationApi:ApiKey"] ?? throw new ArgumentNullException(nameof(Configuration), "GeoLocationApi:ApiKey configuration is required"))
- .WithEntraIdAuthentication(Configuration["GeoLocationApi:ApplicationAudience"] ?? throw new ArgumentNullException(nameof(Configuration), "GeoLocationApi:ApplicationAudience configuration is required"));
- });
+        services.AddCors(options =>
+        {
+            var corsOrigin = Configuration["xtremeidiots_forums_base_url"] ?? throw new InvalidOperationException("xtremeidiots_forums_base_url configuration is required");
+            options.AddPolicy("CorsPolicy",
+     builder => builder.WithOrigins(corsOrigin)
+     .AllowAnyMethod()
+     .AllowAnyHeader()
+     .AllowCredentials());
+        });
 
- services.AddXtremeIdiotsAuth();
- services.AddAuthorization(options =>
- {
- options.AddXtremeIdiotsPolicies();
- });
+        services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
- services.AddCors(options =>
- {
- var corsOrigin = Configuration["xtremeidiots_forums_base_url"] ?? throw new ArgumentNullException(nameof(Configuration), "xtremeidiots_forums_base_url configuration is required");
- options.AddPolicy("CorsPolicy",
- builder => builder.WithOrigins(corsOrigin)
- .AllowAnyMethod()
- .AllowAnyHeader()
- .AllowCredentials());
- });
+        services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.IsEssential = true);
 
- services.AddControllersWithViews().AddRazorRuntimeCompilation();
+        services.AddHttpClient();
+        services.AddMemoryCache();
+        services.AddScoped<Services.IProxyCheckService, Services.ProxyCheckService>();
 
- services.Configure<CookieTempDataProviderOptions>(options =>
- {
- options.Cookie.IsEssential = true;
- });
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
- services.AddHttpClient();
- services.AddMemoryCache();
- services.AddScoped<Services.IProxyCheckService, Services.ProxyCheckService>();
+        services.AddHealthChecks();
+    }
 
- services.Configure<ForwardedHeadersOptions>(options =>
- {
- options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost;
- options.KnownNetworks.Clear();
- options.KnownProxies.Clear();
- });
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
 
- services.AddHealthChecks();
- }
+        app.UseForwardedHeaders();
 
- public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
- {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler("/Errors/Display/500");
+            app.UseHsts();
+        }
 
- app.UseForwardedHeaders();
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseCookiePolicy();
+        app.UseRouting();
 
- if (env.IsDevelopment())
- {
- app.UseDeveloperExceptionPage();
- }
- else
- {
- app.UseExceptionHandler("/Errors/Display/500");
- app.UseHsts();
- }
+        app.UseCors();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
- app.UseHttpsRedirection();
- app.UseStaticFiles();
- app.UseCookiePolicy();
- app.UseRouting();
+        app.UseStatusCodePagesWithRedirects("/Errors/Display/{0}");
 
- app.UseCors();
- app.UseAuthentication();
- app.UseAuthorization();
+        app.UseEndpoints(endpoints =>
+        {
 
- app.UseStatusCodePagesWithRedirects("/Errors/Display/{0}");
+            endpoints.MapControllers();
 
- app.UseEndpoints(endpoints =>
- {
+            endpoints.MapControllerRoute(
+     name: "default",
+     pattern: "{controller=Home}/{action=Index}/{id?}");
+        });
 
- endpoints.MapControllers();
+        app.UseHealthChecks(new PathString("/api/health"));
 
- endpoints.MapControllerRoute(
- name: "default",
- pattern: "{controller=Home}/{action=Index}/{id?}");
- });
-
- app.UseHealthChecks(new PathString("/api/health"));
-
- using var scope = app.ApplicationServices.CreateScope();
- var identityDataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
- identityDataContext.Database.Migrate();
- }
+        using var scope = app.ApplicationServices.CreateScope();
+        var identityDataContext = scope.ServiceProvider.GetRequiredService<IdentityDataContext>();
+        identityDataContext.Database.Migrate();
+    }
 }

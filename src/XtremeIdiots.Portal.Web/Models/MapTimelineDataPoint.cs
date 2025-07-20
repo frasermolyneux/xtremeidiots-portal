@@ -1,16 +1,8 @@
-﻿namespace XtremeIdiots.Portal.Web.Models
-{
-    public class MapTimelineDataPoint
-    {
-        public MapTimelineDataPoint(string mapName, DateTime start, DateTime end)
-        {
-            MapName = mapName;
-            Start = start;
-            End = end;
-        }
+﻿namespace XtremeIdiots.Portal.Web.Models;
 
-        public string MapName { get; set; }
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
-    }
+public class MapTimelineDataPoint(string mapName, DateTime start, DateTime end)
+{
+    public string MapName { get; set; } = mapName;
+    public DateTime Start { get; set; } = start;
+    public DateTime End { get; set; } = end;
 }

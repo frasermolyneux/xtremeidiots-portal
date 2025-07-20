@@ -2,68 +2,68 @@
 
 using XtremeIdiots.Portal.Web.Auth.Requirements;
 
-namespace XtremeIdiots.Portal.Web.Auth.Handlers
+namespace XtremeIdiots.Portal.Web.Auth.Handlers;
+
+public class BanFileMonitorsAuthHandler : IAuthorizationHandler
 {
 
-    public class BanFileMonitorsAuthHandler : IAuthorizationHandler
+    public Task HandleAsync(AuthorizationHandlerContext context)
     {
+        var pendingRequirements = context.PendingRequirements.ToList();
 
-        public Task HandleAsync(AuthorizationHandlerContext context)
+        foreach (var requirement in pendingRequirements)
         {
-            var pendingRequirements = context.PendingRequirements.ToList();
-
-            foreach (var requirement in pendingRequirements)
+            switch (requirement)
             {
-                switch (requirement)
-                {
-                    case ViewBanFileMonitor viewReq:
-                        HandleViewBanFileMonitor(context, viewReq);
-                        break;
-                    case EditBanFileMonitor editReq:
-                        HandleEditBanFileMonitor(context, editReq);
-                        break;
-                    case DeleteBanFileMonitor deleteReq:
-                        HandleDeleteBanFileMonitor(context, deleteReq);
-                        break;
-                    case CreateBanFileMonitor createReq:
-                        HandleCreateBanFileMonitor(context, createReq);
-                        break;
-                    case AccessBanFileMonitors accessReq:
-                        HandleAccessBanFileMonitors(context, accessReq);
-                        break;
-                }
+                case ViewBanFileMonitor viewReq:
+                    HandleViewBanFileMonitor(context, viewReq);
+                    break;
+                case EditBanFileMonitor editReq:
+                    HandleEditBanFileMonitor(context, editReq);
+                    break;
+                case DeleteBanFileMonitor deleteReq:
+                    HandleDeleteBanFileMonitor(context, deleteReq);
+                    break;
+                case CreateBanFileMonitor createReq:
+                    HandleCreateBanFileMonitor(context, createReq);
+                    break;
+                case AccessBanFileMonitors accessReq:
+                    HandleAccessBanFileMonitors(context, accessReq);
+                    break;
+                default:
+                    break;
             }
-
-            return Task.CompletedTask;
         }
 
-        #region Authorization Handlers
-
-        private static void HandleAccessBanFileMonitors(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-            BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.BanFileMonitorLevels);
-        }
-
-        private static void HandleCreateBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-            BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
-        }
-
-        private static void HandleDeleteBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-            BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
-        }
-
-        private static void HandleEditBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-            BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
-        }
-
-        private static void HandleViewBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-            BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
-        }
-
-        #endregion
+        return Task.CompletedTask;
     }
+
+    #region Authorization Handlers
+
+    private static void HandleAccessBanFileMonitors(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.BanFileMonitorLevels);
+    }
+
+    private static void HandleCreateBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
+    }
+
+    private static void HandleDeleteBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
+    }
+
+    private static void HandleEditBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
+    }
+
+    private static void HandleViewBanFileMonitor(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        BaseAuthorizationHelper.CheckSeniorOrGameTypeServerAccessWithResource(context, requirement);
+    }
+
+    #endregion
 }

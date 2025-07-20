@@ -1,19 +1,18 @@
-﻿namespace XtremeIdiots.Portal.Web.ViewModels
+﻿namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class DeleteMapFromHostModel
 {
-    public class DeleteMapFromHostModel
+    public DeleteMapFromHostModel()
     {
-        public DeleteMapFromHostModel()
-        {
 
-        }
-
-        public DeleteMapFromHostModel(Guid gameServerId, string mapName)
-        {
-            GameServerId = gameServerId;
-            MapName = mapName;
-        }
-
-        public Guid GameServerId { get; set; }
-        public string? MapName { get; set; }
     }
+
+    public DeleteMapFromHostModel(Guid gameServerId, string mapName)
+    {
+        GameServerId = gameServerId;
+        MapName = mapName;
+    }
+
+    public Guid GameServerId { get; set; }
+    public string? MapName { get; set; }
 }

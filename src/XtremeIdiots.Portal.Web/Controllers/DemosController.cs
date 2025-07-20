@@ -22,43 +22,33 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// This controller handles game demo files with role-based access control. Users can manage their own demos
 /// or access all demos based on their authorization level. Integrates with forums for demo client management.
 /// </remarks>
+/// <remarks>
+/// Initializes a new instance of the DemosController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="userManager">ASP.NET Identity user manager</param>
+/// <param name="signInManager">ASP.NET Identity sign-in manager</param>
+/// <param name="demosForumsClient">Client for forums integration demo management</param>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Application insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessDemos)]
-public class DemosController : BaseController
+public class DemosController(
+    IAuthorizationService authorizationService,
+    UserManager<IdentityUser> userManager,
+    SignInManager<IdentityUser> signInManager,
+    IDemoManager demosForumsClient,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<DemosController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly UserManager<IdentityUser> userManager;
-    private readonly SignInManager<IdentityUser> signInManager;
-    private readonly IDemoManager demosForumsClient;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the DemosController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="userManager">ASP.NET Identity user manager</param>
-    /// <param name="signInManager">ASP.NET Identity sign-in manager</param>
-    /// <param name="demosForumsClient">Client for forums integration demo management</param>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Application insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public DemosController(
-        IAuthorizationService authorizationService,
-        UserManager<IdentityUser> userManager,
-        SignInManager<IdentityUser> signInManager,
-        IDemoManager demosForumsClient,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<DemosController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        this.demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly UserManager<IdentityUser> userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly SignInManager<IdentityUser> signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+    private readonly IDemoManager demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the demo client configuration page with authentication key information
@@ -77,7 +67,7 @@ public class DemosController : BaseController
 
             if (!string.IsNullOrEmpty(userId))
             {
-                var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
+                var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
                 if (!userProfileApiResponse.IsNotFound && userProfileApiResponse.Result?.Data is not null)
                 {
@@ -86,7 +76,7 @@ public class DemosController : BaseController
                 }
             }
 
-            var demoManagerClientDto = await this.demosForumsClient.GetDemoManagerClient();
+            var demoManagerClientDto = await demosForumsClient.GetDemoManagerClient();
 
             TrackSuccessTelemetry(nameof(DemoClient), nameof(DemoClient), new Dictionary<string, string>
             {
@@ -121,7 +111,7 @@ public class DemosController : BaseController
                 return NotFound();
             }
 
-            var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByXtremeIdiotsId(userId);
 
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
             {
@@ -134,7 +124,7 @@ public class DemosController : BaseController
                 DemoAuthKey = Guid.NewGuid().ToString()
             };
 
-            await this.repositoryApiClient.UserProfiles.V1.UpdateUserProfile(editUserProfileDto);
+            await repositoryApiClient.UserProfiles.V1.UpdateUserProfile(editUserProfileDto);
 
             this.AddAlertSuccess("Your demo auth key has been regenerated, you will need to reconfigure your client desktop application");
 
@@ -225,15 +215,16 @@ public class DemosController : BaseController
             GameType[]? filterGameTypes;
             if (id is not null)
             {
-                filterGameTypes = new[] { (GameType)id };
+                filterGameTypes = [(GameType)id];
 
                 filterUserId = gameTypes.Contains((GameType)id) ? null : User.XtremeIdiotsId();
             }
             else
             {
-                filterGameTypes = gameTypes.ToArray();
+                filterGameTypes = [.. gameTypes];
 
-                if (!gameTypes.Any()) filterUserId = User.XtremeIdiotsId();
+                if (gameTypes.Count == 0)
+                    filterUserId = User.XtremeIdiotsId();
             }
 
             var order = GetDemoOrderFromDataTable(model);
@@ -283,7 +274,7 @@ public class DemosController : BaseController
     {
         var order = DemoOrder.CreatedDesc;
 
-        if (model.Order is not null && model.Order.Any())
+        if (model.Order is not null && model.Order.Count != 0)
         {
             var orderColumn = model.Columns[model.Order.First().Column].Name;
             var searchOrder = model.Order.First().Dir;
@@ -342,7 +333,8 @@ public class DemosController : BaseController
 
             var authorizationResource = new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId);
             var authorizationResult = await CheckAuthorizationAsync(authorizationService, authorizationResource, AuthPolicies.DeleteDemo, nameof(Delete), "Demo", $"GameType:{demoApiResult.Result.Data.GameType}");
-            if (authorizationResult != null) return authorizationResult;
+            if (authorizationResult != null)
+                return authorizationResult;
 
             ViewData["FilterGame"] = filterGame;
 
@@ -373,7 +365,8 @@ public class DemosController : BaseController
 
             var authorizationResource = new Tuple<GameType, Guid>(demoApiResult.Result.Data.GameType, demoApiResult.Result.Data.UserProfileId);
             var authorizationResult = await CheckAuthorizationAsync(authorizationService, authorizationResource, AuthPolicies.DeleteDemo, nameof(DeleteConfirmed), "Demo", $"GameType:{demoApiResult.Result.Data.GameType}");
-            if (authorizationResult != null) return authorizationResult;
+            if (authorizationResult != null)
+                return authorizationResult;
 
             await repositoryApiClient.Demos.V1.DeleteDemo(id, cancellationToken);
 
@@ -386,9 +379,9 @@ public class DemosController : BaseController
  { "GameType", demoApiResult.Result.Data.GameType.ToString() }
         });
 
-            if (filterGame)
-                return RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Data.GameType });
-            return RedirectToAction(nameof(Index));
+            return filterGame
+                ? RedirectToAction(nameof(GameIndex), new { id = demoApiResult.Result.Data.GameType })
+                : RedirectToAction(nameof(Index));
         }, nameof(DeleteConfirmed));
     }
 
@@ -397,13 +390,13 @@ public class DemosController : BaseController
     {
         try
         {
-            if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
+            if (!Request.Headers.TryGetValue("demo-manager-auth-key", out var value))
             {
                 Logger.LogDebug("ClientDemoList - No auth key provided in request headers");
                 return Content("AuthError: No auth key provided in the request. This should be set in the client.");
             }
 
-            var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
+            var authKey = value.FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
@@ -411,11 +404,11 @@ public class DemosController : BaseController
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey, cancellationToken);
 
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
             {
-                Logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                Logger.LogWarning("ClientDemoList - Invalid auth key provided: {AuthKeyPrefix}", authKey[..Math.Min(4, authKey.Length)]);
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
             }
 
@@ -426,23 +419,24 @@ public class DemosController : BaseController
                 return Content("AuthError: An internal auth error occurred processing your request - missing user ID.");
             }
 
-            var user = await this.userManager.FindByIdAsync(userIdFromProfile);
+            var user = await userManager.FindByIdAsync(userIdFromProfile);
             if (user is null)
             {
                 Logger.LogWarning("ClientDemoList - User not found for ID {UserId}", userIdFromProfile);
                 return Content($"AuthError: An internal auth error occurred processing your request for userId: {userIdFromProfile}");
             }
 
-            var claimsPrincipal = await this.signInManager.ClaimsFactory.CreateAsync(user);
+            var claimsPrincipal = await signInManager.ClaimsFactory.CreateAsync(user);
 
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.Moderator };
             var gameTypes = claimsPrincipal.ClaimedGameTypes(requiredClaims);
 
             string? filterUserId = null;
-            GameType[]? filterGameTypes = gameTypes.ToArray();
-            if (!gameTypes.Any()) filterUserId = userIdFromProfile;
+            GameType[]? filterGameTypes = [.. gameTypes];
+            if (gameTypes.Count == 0)
+                filterUserId = userIdFromProfile;
 
-            var demosApiResponse = await this.repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.CreatedDesc);
+            var demosApiResponse = await repositoryApiClient.Demos.V1.GetDemos(filterGameTypes, filterUserId, null, 0, 500, DemoOrder.CreatedDesc, cancellationToken);
 
             if (!demosApiResponse.IsSuccess || demosApiResponse.Result?.Data?.Items is null)
             {
@@ -494,13 +488,13 @@ public class DemosController : BaseController
     {
         try
         {
-            if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
+            if (!Request.Headers.TryGetValue("demo-manager-auth-key", out var value))
             {
                 Logger.LogDebug("ClientUploadDemo - No auth key provided in request headers");
                 return Content("AuthError: No auth key provided in the request. This should be set in the client.");
             }
 
-            var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
+            var authKey = value.FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
@@ -508,11 +502,11 @@ public class DemosController : BaseController
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey, cancellationToken);
 
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
             {
-                Logger.LogWarning("ClientUploadDemo - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                Logger.LogWarning("ClientUploadDemo - Invalid auth key provided: {AuthKeyPrefix}", authKey[..Math.Min(4, authKey.Length)]);
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
             }
 
@@ -538,7 +532,7 @@ public class DemosController : BaseController
 
             var whitelistedExtensions = new List<string> { ".dm_1", ".dm_6" };
 
-            if (!whitelistedExtensions.Any(ext => file.FileName.EndsWith(ext)))
+            if (!whitelistedExtensions.Any(file.FileName.EndsWith))
             {
                 Logger.LogWarning("ClientUploadDemo - Invalid file extension {FileName} by user {UserId}", file.FileName, userIdFromProfile);
                 return Content("Invalid file type extension");
@@ -550,10 +544,10 @@ public class DemosController : BaseController
 
             var demoDto = new CreateDemoDto(gameType, userProfileApiResponse.Result.Data.UserProfileId);
 
-            var createDemoApiResponse = await this.repositoryApiClient.Demos.V1.CreateDemo(demoDto);
+            var createDemoApiResponse = await repositoryApiClient.Demos.V1.CreateDemo(demoDto, cancellationToken);
             if (createDemoApiResponse.IsSuccess && createDemoApiResponse.Result?.Data != null)
             {
-                await this.repositoryApiClient.Demos.V1.SetDemoFile(createDemoApiResponse.Result.Data.DemoId, file.FileName, filePath);
+                await repositoryApiClient.Demos.V1.SetDemoFile(createDemoApiResponse.Result.Data.DemoId, file.FileName, filePath, cancellationToken);
             }
 
             Logger.LogInformation("User {UserId} successfully uploaded demo {FileName} for game type {GameType}",
@@ -593,13 +587,13 @@ public class DemosController : BaseController
     {
         try
         {
-            if (!Request.Headers.ContainsKey("demo-manager-auth-key"))
+            if (!Request.Headers.TryGetValue("demo-manager-auth-key", out var value))
             {
                 Logger.LogDebug("ClientDownload - No auth key provided in request headers");
                 return Content("AuthError: No auth key provided in the request. This should be set in the client.");
             }
 
-            var authKey = Request.Headers["demo-manager-auth-key"].FirstOrDefault();
+            var authKey = value.FirstOrDefault();
 
             if (string.IsNullOrWhiteSpace(authKey))
             {
@@ -607,11 +601,11 @@ public class DemosController : BaseController
                 return Content("AuthError: The auth key supplied was empty. This should be set in the client.");
             }
 
-            var userProfileApiResponse = await this.repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey);
+            var userProfileApiResponse = await repositoryApiClient.UserProfiles.V1.GetUserProfileByDemoAuthKey(authKey, cancellationToken);
 
             if (userProfileApiResponse.IsNotFound || userProfileApiResponse.Result?.Data is null)
             {
-                Logger.LogWarning("ClientDownload - Invalid auth key provided: {AuthKeyPrefix}", authKey.Substring(0, Math.Min(4, authKey.Length)));
+                Logger.LogWarning("ClientDownload - Invalid auth key provided: {AuthKeyPrefix}", authKey[..Math.Min(4, authKey.Length)]);
                 return Content("AuthError: Your auth key is incorrect, check the portal for the correct one and re-enter it on your client.");
             }
 
@@ -622,7 +616,7 @@ public class DemosController : BaseController
                 return Content("AuthError: An internal auth error occurred processing your request - missing user ID.");
             }
 
-            var demoApiResponse = await this.repositoryApiClient.Demos.V1.GetDemo(id);
+            var demoApiResponse = await repositoryApiClient.Demos.V1.GetDemo(id, cancellationToken);
 
             if (demoApiResponse.IsNotFound || demoApiResponse.Result?.Data is null)
             {
@@ -655,37 +649,20 @@ public class DemosController : BaseController
         }
     }
 
-    public class PortalDemoDto
+    public class PortalDemoDto(DemoDto demo)
     {
-
-        public PortalDemoDto(DemoDto demo)
-        {
-            DemoId = demo.DemoId;
-            Game = demo.GameType.ToString();
-            Name = demo.Title;
-            FileName = demo.FileName;
-            Date = demo.Created;
-            Map = demo.Map;
-            Mod = demo.Mod;
-            GameType = demo.GameMode;
-            Server = demo.ServerName;
-            Size = demo.FileSize;
-            UserId = demo.UserProfile?.XtremeIdiotsForumId ?? "21145";
-            UploadedBy = demo.UserProfile?.DisplayName ?? "Admin";
-        }
-
-        public Guid DemoId { get; set; }
-        public string Game { get; set; }
-        public string Name { get; set; }
-        public string FileName { get; set; }
-        public DateTime? Date { get; set; }
-        public string Map { get; set; }
-        public string Mod { get; set; }
-        public string GameType { get; set; }
-        public string Server { get; set; }
-        public long Size { get; set; }
-        public string UserId { get; set; }
-        public string UploadedBy { get; set; }
+        public Guid DemoId { get; set; } = demo.DemoId;
+        public string Game { get; set; } = demo.GameType.ToString();
+        public string Name { get; set; } = demo.Title;
+        public string FileName { get; set; } = demo.FileName;
+        public DateTime? Date { get; set; } = demo.Created;
+        public string Map { get; set; } = demo.Map;
+        public string Mod { get; set; } = demo.Mod;
+        public string GameType { get; set; } = demo.GameMode;
+        public string Server { get; set; } = demo.ServerName;
+        public long Size { get; set; } = demo.FileSize;
+        public string UserId { get; set; } = demo.UserProfile?.XtremeIdiotsForumId ?? "21145";
+        public string UploadedBy { get; set; } = demo.UserProfile?.DisplayName ?? "Admin";
 
         public bool ShowDeleteLink { get; set; }
     }

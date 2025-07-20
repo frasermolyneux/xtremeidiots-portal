@@ -19,34 +19,27 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Controller for server administration functionality including RCON commands and chat log management
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the ServerAdminController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization policies</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="serversApiClient">Client for server RCON operations</param>
+/// <param name="telemetryClient">Client for tracking telemetry events</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
-public class ServerAdminController : BaseController
+public class ServerAdminController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IServersApiClient serversApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ServerAdminController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IServersApiClient serversApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the ServerAdminController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization policies</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="serversApiClient">Client for server RCON operations</param>
-    /// <param name="telemetryClient">Client for tracking telemetry events</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public ServerAdminController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        IServersApiClient serversApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ServerAdminController> logger,
-        IConfiguration configuration) : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IServersApiClient serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
 
     /// <summary>
     /// Displays the main server administration dashboard with available game servers
@@ -130,9 +123,7 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(ViewRcon), cancellationToken);
-            if (actionResult is not null) return actionResult;
-
-            return View(gameServerData);
+            return actionResult is not null ? actionResult : View(gameServerData);
         }, nameof(ViewRcon));
     }
 
@@ -142,7 +133,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(GetRconPlayers), cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(id);
 
@@ -162,7 +154,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(RestartServer), cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             TrackSuccessTelemetry("ServerRestarted", nameof(RestartServer), new Dictionary<string, string>
             {
@@ -184,7 +177,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "RestartMap", cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             TrackSuccessTelemetry("MapRestarted", "RestartMap", new Dictionary<string, string>
             {
@@ -206,7 +200,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "FastRestartMap", cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             TrackSuccessTelemetry("MapFastRestarted", "FastRestartMap", new Dictionary<string, string>
             {
@@ -228,7 +223,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, "NextMap", cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             TrackSuccessTelemetry("NextMapTriggered", "NextMap", new Dictionary<string, string>
             {
@@ -249,7 +245,8 @@ public class ServerAdminController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(id, nameof(KickPlayer), cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             if (string.IsNullOrWhiteSpace(num))
             {
@@ -275,10 +272,7 @@ public class ServerAdminController : BaseController
     [Authorize(Policy = AuthPolicies.ViewGlobalChatLog)]
     public IActionResult ChatLogIndex()
     {
-        return ExecuteWithErrorHandlingAsync(async () =>
-        {
-            return await Task.FromResult(View());
-        }, nameof(ChatLogIndex)).Result;
+        return ExecuteWithErrorHandlingAsync(async () => await Task.FromResult(View()), nameof(ChatLogIndex)).Result;
     }
 
     [HttpPost]
@@ -286,10 +280,7 @@ public class ServerAdminController : BaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GetChatLogAjax(bool? lockedOnly = null, CancellationToken cancellationToken = default)
     {
-        return await ExecuteWithErrorHandlingAsync(async () =>
-        {
-            return await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken);
-        }, "GetChatLogAjax");
+        return await ExecuteWithErrorHandlingAsync(async () => await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken), "GetChatLogAjax");
     }
 
     [HttpGet]
@@ -306,7 +297,8 @@ public class ServerAdminController : BaseController
                 $"GameType:{id}",
                 id);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             ViewData["GameType"] = id;
             return View(nameof(ChatLogIndex));
@@ -328,9 +320,7 @@ public class ServerAdminController : BaseController
                 $"GameType:{id}",
                 id);
 
-            if (authResult != null) return authResult;
-
-            return await GetChatLogPrivate(id, null, null, lockedOnly, cancellationToken);
+            return authResult ?? await GetChatLogPrivate(id, null, null, lockedOnly, cancellationToken);
         }, "GetGameChatLogAjax");
     }
 
@@ -358,7 +348,8 @@ public class ServerAdminController : BaseController
                 $"ServerId:{id},GameType:{gameServerData.GameType}",
                 gameServerData);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             ViewData["GameServerId"] = id;
             return View(nameof(ChatLogIndex));
@@ -390,9 +381,7 @@ public class ServerAdminController : BaseController
                 $"ServerId:{id},GameType:{gameServerData.GameType}",
                 gameServerData);
 
-            if (authResult != null) return authResult;
-
-            return await GetChatLogPrivate(null, id, null, lockedOnly, cancellationToken);
+            return authResult ?? await GetChatLogPrivate(null, id, null, lockedOnly, cancellationToken);
         }, nameof(GetServerChatLogAjax));
     }
 
@@ -421,9 +410,9 @@ public class ServerAdminController : BaseController
                 $"PlayerId:{id},GameType:{playerData.GameType}",
                 playerData);
 
-            if (authResult is not null) return authResult;
-
-            return await GetChatLogPrivate(playerData.GameType, null, playerData.PlayerId, lockedOnly, cancellationToken);
+            return authResult is not null
+                ? authResult
+                : await GetChatLogPrivate(playerData.GameType, null, playerData.PlayerId, lockedOnly, cancellationToken);
         }, nameof(GetPlayerChatLog));
     }
 
@@ -470,7 +459,8 @@ public class ServerAdminController : BaseController
                 $"MessageId:{id},GameType:{chatMessageData.GameServer.GameType}",
                 chatMessageData);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
 
@@ -506,7 +496,7 @@ public class ServerAdminController : BaseController
         }
 
         var order = ChatMessageOrder.TimestampDesc;
-        if (model.Order is not null && model.Order.Any())
+        if (model.Order is not null && model.Order.Count != 0)
         {
             var orderColumn = model.Columns[model.Order.First().Column].Name;
             var searchOrder = model.Order.First().Dir;
@@ -516,13 +506,15 @@ public class ServerAdminController : BaseController
                 case "timestamp":
                     order = searchOrder == "asc" ? ChatMessageOrder.TimestampAsc : ChatMessageOrder.TimestampDesc;
                     break;
+                default:
+                    break;
             }
         }
 
         if (model.Search?.Value?.StartsWith("locked:", StringComparison.OrdinalIgnoreCase) == true)
         {
             lockedOnly = true;
-            model.Search.Value = model.Search.Value.Substring(7).Trim();
+            model.Search.Value = model.Search.Value[7..].Trim();
         }
 
         var chatMessagesApiResponse = await repositoryApiClient.ChatMessages.V1.GetChatMessages(

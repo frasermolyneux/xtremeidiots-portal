@@ -15,31 +15,24 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages player tag assignments and removals for player categorization
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the PlayerTagsController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="telemetryClient">Client for tracking telemetry events</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class PlayerTagsController : BaseController
+public class PlayerTagsController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<PlayerTagsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the PlayerTagsController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="telemetryClient">Client for tracking telemetry events</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public PlayerTagsController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<PlayerTagsController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the form for adding a tag to a player
@@ -91,7 +84,7 @@ public class PlayerTagsController : BaseController
             {
                 PlayerId = id,
                 Player = playerResponse.Result.Data,
-                AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList()
+                AvailableTags = [.. tagsResponse.Result.Data.Items.Where(t => t.UserDefined)]
             };
 
             Logger.LogInformation("Successfully loaded add player tag form for user {UserId} and player {PlayerId} with {TagCount} available tags",
@@ -126,15 +119,18 @@ public class PlayerTagsController : BaseController
             if (!canCreatePlayerTag.Succeeded)
             {
                 Logger.LogWarning("User {UserId} denied access to add tag {TagId} to player {PlayerId}",
-         User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+                    User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
                 var unauthorizedTelemetry = new EventTelemetry("UnauthorizedUserAccessAttempt")
-         .Enrich(User);
+                    .Enrich(User);
+
                 unauthorizedTelemetry.Properties.TryAdd("Controller", nameof(PlayerTagsController));
                 unauthorizedTelemetry.Properties.TryAdd("Action", nameof(Add));
                 unauthorizedTelemetry.Properties.TryAdd("Resource", "PlayerTag");
                 unauthorizedTelemetry.Properties.TryAdd("Context", $"PlayerId:{model.PlayerId},TagId:{model.TagId}");
-                TelemetryClient.TrackEvent(unauthorizedTelemetry); return Unauthorized();
+                TelemetryClient.TrackEvent(unauthorizedTelemetry);
+
+                return Unauthorized();
             }
 
             if (!ModelState.IsValid)
@@ -149,7 +145,7 @@ public class PlayerTagsController : BaseController
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
                 {
-                    model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
+                    model.AvailableTags = [.. tagsResponse.Result.Data.Items.Where(t => t.UserDefined)];
                 }
                 return View(model);
             }
@@ -164,7 +160,7 @@ public class PlayerTagsController : BaseController
             if (!tagResponse.Result.Data.UserDefined)
             {
                 Logger.LogWarning("User {UserId} attempted to assign non-user-defined tag {TagId} to player {PlayerId}",
-         User.XtremeIdiotsId(), model.TagId, model.PlayerId);
+                    User.XtremeIdiotsId(), model.TagId, model.PlayerId);
 
                 this.AddAlertDanger("This tag cannot be assigned to players as it is not marked as User Defined.");
 
@@ -177,7 +173,7 @@ public class PlayerTagsController : BaseController
                 var tagsResponse = await repositoryApiClient.Tags.V1.GetTags(0, 100);
                 if (tagsResponse.IsSuccess && tagsResponse.Result?.Data?.Items != null)
                 {
-                    model.AvailableTags = tagsResponse.Result.Data.Items.Where(t => t.UserDefined).ToList();
+                    model.AvailableTags = [.. tagsResponse.Result.Data.Items.Where(t => t.UserDefined)];
                 }
 
                 return View(model);

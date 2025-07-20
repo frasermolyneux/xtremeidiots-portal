@@ -2,37 +2,37 @@
 
 using XtremeIdiots.Portal.Web.Auth.Requirements;
 
-namespace XtremeIdiots.Portal.Web.Auth.Handlers
+namespace XtremeIdiots.Portal.Web.Auth.Handlers;
+
+public class ChangeLogAuthHandler : IAuthorizationHandler
 {
 
-    public class ChangeLogAuthHandler : IAuthorizationHandler
+    public Task HandleAsync(AuthorizationHandlerContext context)
+    {
+        var pendingRequirements = context.PendingRequirements.ToList();
+
+        foreach (var requirement in pendingRequirements)
+        {
+            switch (requirement)
+            {
+                case AccessChangeLog accessReq:
+                    HandleAccessChangeLog(context, accessReq);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    #region Authorization Handlers
+
+    private static void HandleAccessChangeLog(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
 
-        public Task HandleAsync(AuthorizationHandlerContext context)
-        {
-            var pendingRequirements = context.PendingRequirements.ToList();
-
-            foreach (var requirement in pendingRequirements)
-            {
-                switch (requirement)
-                {
-                    case AccessChangeLog accessReq:
-                        HandleAccessChangeLog(context, accessReq);
-                        break;
-                }
-            }
-
-            return Task.CompletedTask;
-        }
-
-        #region Authorization Handlers
-
-        private static void HandleAccessChangeLog(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
-        {
-
-            context.Succeed(requirement);
-        }
-
-        #endregion
+        context.Succeed(requirement);
     }
+
+    #endregion
 }

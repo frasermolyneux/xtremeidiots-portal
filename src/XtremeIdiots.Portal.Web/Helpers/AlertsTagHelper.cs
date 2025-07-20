@@ -4,39 +4,37 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using Newtonsoft.Json;
 using XtremeIdiots.Portal.Web.Models;
 
-namespace XtremeIdiots.Portal.Web.Helpers
+namespace XtremeIdiots.Portal.Web.Helpers;
+
+public class AlertsTagHelper : TagHelper
 {
+    private const string AlertKey = "Alerts";
 
-    public class AlertsTagHelper : TagHelper
+    [ViewContext]
+    public required ViewContext ViewContext { get; set; }
+
+    protected ITempDataDictionary TempData => ViewContext.TempData;
+
+    public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        private const string AlertKey = "Alerts";
+        output.TagName = "div";
 
-        [ViewContext]
-        public required ViewContext ViewContext { get; set; }
+        if (TempData[AlertKey] is null)
+            TempData[AlertKey] = JsonConvert.SerializeObject(new HashSet<Alert>());
 
-        protected ITempDataDictionary TempData => ViewContext.TempData;
+        var alertsJson = TempData[AlertKey]?.ToString() ?? throw new InvalidOperationException("TempData alert key is unexpectedly null");
+        var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsJson) ?? [];
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
-        {
-            output.TagName = "div";
+        var html = string.Empty;
 
-            if (TempData[AlertKey] is null)
-                TempData[AlertKey] = JsonConvert.SerializeObject(new HashSet<Alert>());
+        foreach (var alert in alerts)
+            html += $"<div class='alert {alert.Type}' id='inner-alert' role='alert' style='padding-top:10px'>" +
+                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
+                    "<span aria-hidden='true'>&times;</span>" +
+                    "</button>" +
+                    $"{alert.Message}" +
+                    "</div>";
 
-            var alertsJson = TempData[AlertKey]?.ToString() ?? throw new InvalidOperationException("TempData alert key is unexpectedly null");
-            var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsJson) ?? new HashSet<Alert>();
-
-            var html = string.Empty;
-
-            foreach (var alert in alerts)
-                html += $"<div class='alert {alert.Type}' id='inner-alert' role='alert' style='padding-top:10px'>" +
-                        "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
-                        "<span aria-hidden='true'>&times;</span>" +
-                        "</button>" +
-                        $"{alert.Message}" +
-                        "</div>";
-
-            output.Content.SetHtmlContent(html);
-        }
+        output.Content.SetHtmlContent(html);
     }
 }

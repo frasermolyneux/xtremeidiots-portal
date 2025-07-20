@@ -13,31 +13,24 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Provides map browsing, search, and image retrieval functionality
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the MapsController
+/// </remarks>
+/// <param name="authorizationService">Service for checking user authorization</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="telemetryClient">Client for tracking telemetry data</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessMaps)]
-public class MapsController : BaseController
+public class MapsController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<MapsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the MapsController
-    /// </summary>
-    /// <param name="authorizationService">Service for checking user authorization</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="telemetryClient">Client for tracking telemetry data</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public MapsController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<MapsController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the main maps index page
@@ -47,10 +40,7 @@ public class MapsController : BaseController
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
-        return await ExecuteWithErrorHandlingAsync(() =>
-        {
-            return Task.FromResult<IActionResult>(View());
-        }, nameof(Index));
+        return await ExecuteWithErrorHandlingAsync(() => Task.FromResult<IActionResult>(View()), nameof(Index));
     }
 
     /// <summary>
@@ -107,6 +97,8 @@ public class MapsController : BaseController
                     break;
                 case "gameType":
                     order = searchOrder == "asc" ? MapsOrder.GameTypeAsc : MapsOrder.GameTypeDesc;
+                    break;
+                default:
                     break;
             }
 

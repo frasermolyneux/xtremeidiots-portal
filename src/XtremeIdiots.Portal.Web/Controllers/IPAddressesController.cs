@@ -16,39 +16,30 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Handles IP address details and analytics for the XtremeIdiots Portal
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the IPAddressesController
+/// </remarks>
+/// <param name="authorizationService">Service for checking user authorization</param>
+/// <param name="geoLocationClient">Client for retrieving geolocation data</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="proxyCheckService">Service for checking IP proxy/VPN status</param>
+/// <param name="telemetryClient">Client for tracking telemetry data</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class IPAddressesController : BaseController
+public class IPAddressesController(
+    IAuthorizationService authorizationService,
+    IGeoLocationApiClient geoLocationClient,
+    IRepositoryApiClient repositoryApiClient,
+    IProxyCheckService proxyCheckService,
+    TelemetryClient telemetryClient,
+    ILogger<IPAddressesController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IGeoLocationApiClient geoLocationClient;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IProxyCheckService proxyCheckService;
-
-    /// <summary>
-    /// Initializes a new instance of the IPAddressesController
-    /// </summary>
-    /// <param name="authorizationService">Service for checking user authorization</param>
-    /// <param name="geoLocationClient">Client for retrieving geolocation data</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="proxyCheckService">Service for checking IP proxy/VPN status</param>
-    /// <param name="telemetryClient">Client for tracking telemetry data</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public IPAddressesController(
-        IAuthorizationService authorizationService,
-        IGeoLocationApiClient geoLocationClient,
-        IRepositoryApiClient repositoryApiClient,
-        IProxyCheckService proxyCheckService,
-        TelemetryClient telemetryClient,
-        ILogger<IPAddressesController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IGeoLocationApiClient geoLocationClient = geoLocationClient ?? throw new ArgumentNullException(nameof(geoLocationClient));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IProxyCheckService proxyCheckService = proxyCheckService ?? throw new ArgumentNullException(nameof(proxyCheckService));
 
     /// <summary>
     /// Displays detailed information about an IP address including geolocation, proxy status, and associated players
@@ -77,7 +68,8 @@ public class IPAddressesController : BaseController
                 $"IpAddress:{ipAddress}",
                 ipAddress);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             var viewModel = await BuildIPAddressDetailsViewModelAsync(ipAddress, cancellationToken);
 
@@ -102,7 +94,7 @@ public class IPAddressesController : BaseController
 
         try
         {
-            var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(ipAddress);
+            var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(ipAddress, cancellationToken);
             if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data is not null)
             {
                 viewModel.GeoLocation = getGeoLocationResult.Result.Data;
@@ -120,7 +112,7 @@ public class IPAddressesController : BaseController
 
         try
         {
-            var proxyCheckResult = await proxyCheckService.GetIpRiskDataAsync(ipAddress);
+            var proxyCheckResult = await proxyCheckService.GetIpRiskDataAsync(ipAddress, cancellationToken);
             viewModel.ProxyCheck = proxyCheckResult;
 
             if (proxyCheckResult is not null)
@@ -142,7 +134,7 @@ public class IPAddressesController : BaseController
 
         if (playersResponse.IsSuccess && playersResponse.Result?.Data is not null)
         {
-            viewModel.Players = playersResponse.Result.Data.Items ?? new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
+            viewModel.Players = playersResponse.Result.Data.Items ?? [];
             viewModel.TotalPlayersCount = playersResponse.Result.Data.TotalCount;
             Logger.LogDebug("Successfully retrieved {PlayerCount} players associated with IP address {IpAddress}",
                 viewModel.TotalPlayersCount, ipAddress);
@@ -150,7 +142,7 @@ public class IPAddressesController : BaseController
         else
         {
             Logger.LogWarning("Failed to retrieve players for IP address {IpAddress}", ipAddress);
-            viewModel.Players = new List<XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players.PlayerDto>();
+            viewModel.Players = [];
             viewModel.TotalPlayersCount = 0;
         }
 

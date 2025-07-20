@@ -14,31 +14,24 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages game server administration and configuration
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the GameServersController
+/// </remarks>
+/// <param name="authorizationService">Authorization service for policy-based access control</param>
+/// <param name="repositoryApiClient">Repository API client for data access</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessGameServers)]
-public class GameServersController : BaseController
+public class GameServersController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<GameServersController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the GameServersController
-    /// </summary>
-    /// <param name="authorizationService">Authorization service for policy-based access control</param>
-    /// <param name="repositoryApiClient">Repository API client for data access</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public GameServersController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<GameServersController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays a list of game servers accessible to the current user
@@ -92,7 +85,8 @@ public class GameServersController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
 #pragma warning disable CS8604
             var createGameServerDto = new CreateGameServerDto(model.Title, model.GameType, model.Hostname, model.QueryPort);
@@ -106,7 +100,8 @@ public class GameServersController : BaseController
                 "GameServer",
                 $"GameType:{createGameServerDto.GameType}");
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             createGameServerDto.Title = model.Title;
             createGameServerDto.Hostname = model.Hostname;
@@ -187,7 +182,8 @@ public class GameServersController : BaseController
                 $"GameType:{gameServerData.GameType},GameServerId:{id}",
                 gameServerData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var requiredClaims = new[] { UserProfileClaimType.SeniorAdmin, UserProfileClaimType.HeadAdmin, UserProfileClaimType.GameAdmin, UserProfileClaimType.BanFileMonitor };
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
@@ -229,7 +225,8 @@ public class GameServersController : BaseController
                 $"GameType:{gameServerData.GameType},GameServerId:{id}",
                 gameServerData);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             var canEditGameServerFtp = await authorizationService.AuthorizeAsync(User, gameServerData.GameType, AuthPolicies.EditGameServerFtp);
             if (!canEditGameServerFtp.Succeeded)
@@ -266,7 +263,8 @@ public class GameServersController : BaseController
             var gameServerData = gameServerApiResponse.Result.Data;
 
             var modelValidationResult = CheckModelState(model, m => AddGameTypeViewData(m.GameType));
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var authResult = await CheckAuthorizationAsync(
                 authorizationService,
@@ -277,7 +275,8 @@ public class GameServersController : BaseController
                 $"GameType:{gameServerData.GameType},GameServerId:{model.GameServerId}",
                 gameServerData);
 
-            if (authResult != null) return authResult;
+            if (authResult != null)
+                return authResult;
 
             var editGameServerDto = new EditGameServerDto(gameServerData.GameServerId)
             {
@@ -424,14 +423,13 @@ public class GameServersController : BaseController
     {
         try
         {
-            if (selected is null)
-                selected = GameType.Unknown;
+            selected ??= GameType.Unknown;
 
             var gameTypes = User.GetGameTypesForGameServers();
             ViewData[nameof(GameType)] = new SelectList(gameTypes, selected);
 
             Logger.LogDebug("Added {GameTypeCount} game types to ViewData with {SelectedGameType} selected",
-                gameTypes.Count(), selected);
+                gameTypes.Count, selected);
         }
         catch (Exception ex)
         {

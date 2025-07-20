@@ -1,13 +1,11 @@
-﻿namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
+﻿namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots;
+
+public enum XtremeIdiotsAuthResult
 {
 
-    public enum XtremeIdiotsAuthResult
-    {
+    Success = 0,
 
-        Success = 0,
+    Locked = 1,
 
-        Locked = 1,
-
-        Failed = 2
-    }
+    Failed = 2
 }

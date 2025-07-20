@@ -4,14 +4,9 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Web.ViewComponents;
 
-public class PlayerTagsViewComponent : ViewComponent
+public class PlayerTagsViewComponent(IRepositoryApiClient repositoryApiClient) : ViewComponent
 {
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    public PlayerTagsViewComponent(IRepositoryApiClient repositoryApiClient)
-    {
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     public async Task<IViewComponentResult> InvokeAsync(Guid playerId)
     {
@@ -21,7 +16,7 @@ public class PlayerTagsViewComponent : ViewComponent
 
             if (!playerTagsResponse.IsSuccess || playerTagsResponse.Result?.Data?.Items is null)
             {
-                if (playerTagsResponse.Result?.Errors is not null && playerTagsResponse.Result.Errors.Any())
+                if (playerTagsResponse.Result?.Errors is not null && playerTagsResponse.Result.Errors.Length != 0)
                 {
                     Console.WriteLine($"Error retrieving player tags for playerId {playerId}: {string.Join(", ", playerTagsResponse.Result.Errors.Select(e => e.Message))}");
                 }

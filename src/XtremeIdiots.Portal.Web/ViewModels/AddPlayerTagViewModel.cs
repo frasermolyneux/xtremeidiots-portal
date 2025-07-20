@@ -3,19 +3,18 @@
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
 
-namespace XtremeIdiots.Portal.Web.ViewModels
+namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class AddPlayerTagViewModel
 {
-    public class AddPlayerTagViewModel
-    {
-        [Required]
-        public Guid PlayerId { get; set; }
+    [Required]
+    public Guid PlayerId { get; set; }
 
-        [Required]
-        [Display(Name = "Tag")]
-        public Guid TagId { get; set; }
+    [Required]
+    [Display(Name = "Tag")]
+    public Guid TagId { get; set; }
 
-        public PlayerDto? Player { get; set; }
+    public PlayerDto? Player { get; set; }
 
-        public List<TagDto> AvailableTags { get; set; } = new List<TagDto>();
-    }
+    public List<TagDto> AvailableTags { get; set; } = [];
 }

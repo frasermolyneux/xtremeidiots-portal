@@ -16,9 +16,9 @@ public abstract class BaseApiController(
     ILogger logger,
     IConfiguration configuration) : ControllerBase
 {
-    protected readonly TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-    protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    readonly protected TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+    readonly protected ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    readonly protected IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>
     /// Validates the model state and returns a BadRequest result if invalid
@@ -46,7 +46,7 @@ public abstract class BaseApiController(
     /// <param name="context">Additional context for the operation</param>
     /// <param name="additionalData">Additional data for authorization</param>
     /// <returns>Unauthorized or Forbidden result if authorization fails, null otherwise</returns>
-    protected async Task<IActionResult?> CheckAuthorizationAsync(
+    async protected Task<IActionResult?> CheckAuthorizationAsync(
         IAuthorizationService authorizationService,
         object resource,
         string policy,
@@ -76,7 +76,7 @@ public abstract class BaseApiController(
     /// <param name="actionName">Name of the action for logging</param>
     /// <param name="userId">Optional user ID for logging</param>
     /// <returns>The result of the action or an appropriate error response</returns>
-    protected async Task<IActionResult> ExecuteWithErrorHandlingAsync(
+    async protected Task<IActionResult> ExecuteWithErrorHandlingAsync(
         Func<Task<IActionResult>> action,
         string actionName,
         string? userId = null)
@@ -196,28 +196,28 @@ public abstract class BaseApiController(
         return Configuration[key] ?? fallback;
     }
 
-    private IActionResult HandleUnauthorizedException(UnauthorizedAccessException ex, string actionName, string controllerName)
+    private UnauthorizedResult HandleUnauthorizedException(UnauthorizedAccessException ex, string actionName, string controllerName)
     {
         Logger.LogWarning(ex, "Unauthorized access in API {ActionName} in {Controller}", actionName, controllerName);
         TrackErrorTelemetry(ex, actionName);
         return Unauthorized();
     }
 
-    private IActionResult HandleBadRequestException(ArgumentException ex, string actionName, string controllerName)
+    private BadRequestObjectResult HandleBadRequestException(ArgumentException ex, string actionName, string controllerName)
     {
         Logger.LogWarning(ex, "Bad request in API {ActionName} in {Controller}", actionName, controllerName);
         TrackErrorTelemetry(ex, actionName);
         return BadRequest(ex.Message);
     }
 
-    private IActionResult HandleNotFoundException(KeyNotFoundException ex, string actionName, string controllerName)
+    private NotFoundResult HandleNotFoundException(KeyNotFoundException ex, string actionName, string controllerName)
     {
         Logger.LogWarning(ex, "Resource not found in API {ActionName} in {Controller}", actionName, controllerName);
         TrackErrorTelemetry(ex, actionName);
         return NotFound();
     }
 
-    private IActionResult HandleGenericException(Exception ex, string actionName, string controllerName)
+    private ObjectResult HandleGenericException(Exception ex, string actionName, string controllerName)
     {
         Logger.LogError(ex, "Unhandled error in API {ActionName} in {Controller}", actionName, controllerName);
         TrackErrorTelemetry(ex, actionName);

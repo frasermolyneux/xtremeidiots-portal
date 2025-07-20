@@ -2,28 +2,19 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using System.Security.Claims;
 
-namespace XtremeIdiots.Portal.Web.Helpers
+namespace XtremeIdiots.Portal.Web.Helpers;
+
+[HtmlTargetElement(Attributes = "policy")]
+public class PolicyTagHelper(IAuthorizationService authService, IHttpContextAccessor httpContextAccessor) : TagHelper
 {
+    private readonly IAuthorizationService authService = authService;
+    private readonly ClaimsPrincipal principal = httpContextAccessor.HttpContext?.User ?? throw new InvalidOperationException("HttpContext is not available");
 
-    [HtmlTargetElement(Attributes = "policy")]
-    public class PolicyTagHelper : TagHelper
+    public required string Policy { get; set; }
+
+    public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        private readonly IAuthorizationService _authService;
-        private readonly ClaimsPrincipal _principal;
-
-        public PolicyTagHelper(IAuthorizationService authService, IHttpContextAccessor httpContextAccessor)
-        {
-            _authService = authService;
-
-            _principal = httpContextAccessor.HttpContext?.User ?? throw new InvalidOperationException("HttpContext is not available");
-        }
-
-        public required string Policy { get; set; }
-
-        public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
-        {
-            if (!(await _authService.AuthorizeAsync(_principal, Policy)).Succeeded)
-                output.SuppressOutput();
-        }
+        if (!(await authService.AuthorizeAsync(principal, Policy)).Succeeded)
+            output.SuppressOutput();
     }
 }

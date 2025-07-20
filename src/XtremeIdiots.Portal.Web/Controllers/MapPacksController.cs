@@ -15,35 +15,27 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages map pack creation and organization for game servers
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the MapPacksController
+/// </remarks>
+/// <param name="authorizationService">Service for checking user authorization</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="serversApiClient">Client for server integration operations</param>
+/// <param name="telemetryClient">Client for tracking telemetry data</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.ManageMaps)]
-public class MapPacksController : BaseController
+public class MapPacksController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IServersApiClient serversApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<MapPacksController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IServersApiClient serversApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the MapPacksController
-    /// </summary>
-    /// <param name="authorizationService">Service for checking user authorization</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="serversApiClient">Client for server integration operations</param>
-    /// <param name="telemetryClient">Client for tracking telemetry data</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public MapPacksController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        IServersApiClient serversApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<MapPacksController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IServersApiClient serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
 
     /// <summary>
     /// Displays the create map pack form for a specific game server
@@ -62,7 +54,8 @@ public class MapPacksController : BaseController
                 nameof(Create),
                 cancellationToken);
 
-            if (actionResult != null) return actionResult;
+            if (actionResult != null)
+                return actionResult;
 
             ViewData["GameServer"] = gameServerData;
 
@@ -94,13 +87,12 @@ public class MapPacksController : BaseController
                 nameof(Create),
                 cancellationToken);
 
-            if (actionResult != null) return actionResult;
+            if (actionResult != null)
+                return actionResult;
 
-            var modelValidationResult = CheckModelState(model, m =>
-            {
-                ViewData["GameServer"] = gameServerData;
-            });
-            if (modelValidationResult != null) return modelValidationResult;
+            var modelValidationResult = CheckModelState(model, m => ViewData["GameServer"] = gameServerData);
+            if (modelValidationResult != null)
+                return modelValidationResult;
 
             var createMapPackDto = new CreateMapPackDto(model.GameServerId, model.Title, model.Description)
             {

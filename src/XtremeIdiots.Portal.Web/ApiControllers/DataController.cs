@@ -19,28 +19,22 @@ namespace XtremeIdiots.Portal.Web.ApiControllers;
 /// This controller handles DataTables AJAX requests for various entities including players, maps, and users.
 /// All endpoints require appropriate authorization and return data in DataTables-compatible format.
 /// </remarks>
+/// <remarks>
+/// Initializes a new instance of the DataController
+/// </remarks>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Client for application telemetry</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
+/// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
 [Route("api/[controller]")]
-public class DataController : BaseApiController
+public class DataController(
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<DataController> logger,
+    IConfiguration configuration) : BaseApiController(telemetryClient, logger, configuration)
 {
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the DataController
-    /// </summary>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Client for application telemetry</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
-    public DataController(
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<DataController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Retrieves players data for DataTables AJAX requests with username and GUID filtering
@@ -105,6 +99,8 @@ public class DataController : BaseApiController
                     break;
                 case "gameType":
                     order = searchOrder == "asc" ? MapsOrder.GameTypeAsc : MapsOrder.GameTypeDesc;
+                    break;
+                default:
                     break;
             }
 
@@ -198,7 +194,7 @@ public class DataController : BaseApiController
 
             var order = PlayersOrder.LastSeenDesc;
 
-            if (model.Order?.Any() == true)
+            if (model.Order?.Count > 0)
             {
                 var orderColumn = model.Columns[model.Order.First().Column].Name;
                 var searchOrder = model.Order.First().Dir;
@@ -216,6 +212,8 @@ public class DataController : BaseApiController
                         break;
                     case "lastSeen":
                         order = searchOrder == "asc" ? PlayersOrder.LastSeenAsc : PlayersOrder.LastSeenDesc;
+                        break;
+                    default:
                         break;
                 }
             }

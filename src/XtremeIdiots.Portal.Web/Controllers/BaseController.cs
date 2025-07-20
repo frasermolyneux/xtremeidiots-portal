@@ -18,9 +18,9 @@ public abstract class BaseController(
  ILogger logger,
  IConfiguration configuration) : Controller
 {
-    protected readonly TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
-    protected readonly ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    protected readonly IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    readonly protected TelemetryClient TelemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
+    readonly protected ILogger Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    readonly protected IConfiguration Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
     /// <summary>
     /// Tracks unauthorized access attempts with telemetry and logging
@@ -96,7 +96,7 @@ public abstract class BaseController(
     /// <param name="context">Optional additional context information</param>
     /// <param name="additionalData">Optional additional data to include in telemetry</param>
     /// <returns>Unauthorized result if access denied, null if access allowed</returns>
-    protected async Task<IActionResult?> CheckAuthorizationAsync(
+    async protected Task<IActionResult?> CheckAuthorizationAsync(
     IAuthorizationService authorizationService,
     object resource,
     string policy,
@@ -168,7 +168,7 @@ public abstract class BaseController(
     /// <param name="model">The model to validate</param>
     /// <param name="additionalSetupAsync">Optional asynchronous additional setup to perform on the model if invalid</param>
     /// <returns>View result with model if invalid, null if valid</returns>
-    protected async Task<IActionResult?> CheckModelStateAsync<T>(T model, Func<T, Task>? additionalSetupAsync = null)
+    async protected Task<IActionResult?> CheckModelStateAsync<T>(T model, Func<T, Task>? additionalSetupAsync = null)
     {
         if (!ModelState.IsValid)
         {
@@ -191,7 +191,7 @@ public abstract class BaseController(
     /// <param name="userId">Optional specific user ID to use in logging</param>
     /// <returns>The result of the action execution</returns>
     /// <exception cref="Exception">Re-throws any exception that occurs during action execution after logging</exception>
-    protected async Task<IActionResult> ExecuteWithErrorHandlingAsync(
+    async protected Task<IActionResult> ExecuteWithErrorHandlingAsync(
     Func<Task<IActionResult>> action,
     string actionName,
     string? userId = null)

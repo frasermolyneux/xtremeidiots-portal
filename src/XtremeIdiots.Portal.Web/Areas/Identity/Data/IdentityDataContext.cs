@@ -5,14 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace XtremeIdiots.Portal.Web.Areas.Identity.Data;
 
-public class IdentityDataContext : IdentityDbContext<IdentityUser>, IDataProtectionKeyContext
+public class IdentityDataContext(DbContextOptions<IdentityDataContext> options) : IdentityDbContext<IdentityUser>(options), IDataProtectionKeyContext
 {
-
-    public IdentityDataContext(DbContextOptions<IdentityDataContext> options)
-        : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -14,32 +14,25 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Controller for managing player tags and tag operations
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the TagsController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Client for application telemetry</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
+/// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
 [Authorize(Policy = AuthPolicies.AccessPlayerTags)]
-public class TagsController : BaseController
+public class TagsController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<TagsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the TagsController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Client for application telemetry</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
-    public TagsController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<TagsController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Retrieves an authorized tag by ID and validates permissions
@@ -102,7 +95,7 @@ public class TagsController : BaseController
 
             var model = new TagsViewModel
             {
-                Tags = tagsResponse.Result.Data.Items.ToList(),
+                Tags = [.. tagsResponse.Result.Data.Items],
             };
 
             return View(model);
@@ -146,7 +139,8 @@ public class TagsController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var modelValidationResult = CheckModelState(model);
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var canCreateTag = await authorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag);
 
@@ -200,7 +194,8 @@ public class TagsController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
-            if (actionResult is not null) return actionResult;
+            if (actionResult is not null)
+                return actionResult;
 
             var model = new EditTagViewModel
             {
@@ -229,7 +224,8 @@ public class TagsController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var modelValidationResult = CheckModelState(model);
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var (actionResult, originalTagData) = await GetAuthorizedTagAsync(model.TagId, AuthPolicies.EditPlayerTag, nameof(Edit), cancellationToken);
             if (actionResult is not null)
@@ -287,9 +283,7 @@ public class TagsController : BaseController
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
             var (actionResult, tagData) = await GetAuthorizedTagAsync(id, AuthPolicies.DeletePlayerTag, nameof(Delete), cancellationToken);
-            if (actionResult is not null) return actionResult;
-
-            return View(tagData);
+            return actionResult is not null ? actionResult : View(tagData);
         }, nameof(Delete));
     }
 

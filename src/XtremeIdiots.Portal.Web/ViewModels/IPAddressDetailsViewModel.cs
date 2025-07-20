@@ -2,19 +2,18 @@
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using MX.GeoLocation.Abstractions.Models.V1;
 
-namespace XtremeIdiots.Portal.Web.ViewModels
+namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class IPAddressDetailsViewModel
 {
-    public class IPAddressDetailsViewModel
-    {
 
-        public string IpAddress { get; set; } = string.Empty;
+    public string IpAddress { get; set; } = string.Empty;
 
-        public GeoLocationDto? GeoLocation { get; set; }
+    public GeoLocationDto? GeoLocation { get; set; }
 
-        public ProxyCheckResult? ProxyCheck { get; set; }
+    public ProxyCheckResult? ProxyCheck { get; set; }
 
-        public int TotalPlayersCount { get; set; }
+    public int TotalPlayersCount { get; set; }
 
-        public IEnumerable<PlayerDto> Players { get; set; } = Enumerable.Empty<PlayerDto>();
-    }
+    public IEnumerable<PlayerDto> Players { get; set; } = [];
 }

@@ -63,7 +63,7 @@ public static class AlertExtensions
     private static ICollection<Alert> GetAlerts(Controller controller)
     {
         var alertsTemp = controller.TempData[AlertKey] ?? JsonConvert.SerializeObject(new HashSet<Alert>());
-        var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsTemp.ToString() ?? string.Empty) ?? new HashSet<Alert>();
+        var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsTemp.ToString() ?? string.Empty) ?? [];
         return alerts;
     }
 }

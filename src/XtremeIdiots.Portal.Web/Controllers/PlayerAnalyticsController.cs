@@ -10,27 +10,21 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Provides player analytics and statistics views, with API endpoints redirected to API controllers
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the PlayerAnalyticsController
+/// </remarks>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="telemetryClient">Client for tracking telemetry data</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class PlayerAnalyticsController : BaseController
+public class PlayerAnalyticsController(
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<PlayerAnalyticsController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the PlayerAnalyticsController
-    /// </summary>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="telemetryClient">Client for tracking telemetry data</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public PlayerAnalyticsController(
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<PlayerAnalyticsController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the main player analytics dashboard with charting capabilities

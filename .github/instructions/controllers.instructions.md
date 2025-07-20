@@ -5,6 +5,8 @@ applyTo: '**/Controllers/**/*.cs'
 
 # XtremeIdiots Portal Controller Development Guidelines
 
+> **IMPORTANT**: All formatting and style decisions must follow the project's `.editorconfig` file as the authoritative source of truth.
+
 ## Overview
 
 This document outlines the specific patterns, conventions, and approaches used in the XtremeIdiots Portal for building MVC controllers. The portal is a gaming community management system for Call of Duty servers with complex authorization, telemetry, and integration requirements.
@@ -149,8 +151,6 @@ var (gameTypes, itemIds) = User.ClaimedGamesAndItems(requiredClaims);
 **ALL data access MUST go through the Repository API Client:**
 
 ```csharp
-private readonly IRepositoryApiClient repositoryApiClient;
-
 // Example usage
 var apiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitor(id, cancellationToken);
 
@@ -303,7 +303,7 @@ public class CreateBanFileMonitorViewModel
 {
     [Required]
     [DisplayName("File Path")]
-    public string FilePath { get; set; }
+    public string FilePath { get; set; } = string.Empty;
 
     [DisplayName("Server")]
     public Guid GameServerId { get; set; }

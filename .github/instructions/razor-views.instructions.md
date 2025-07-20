@@ -5,6 +5,8 @@ applyTo: '**/*.cshtml'
 
 # Razor Views (.cshtml) Guidelines
 
+> **IMPORTANT**: All C# formatting and style decisions within Razor views must follow the project's `.editorconfig` file as the authoritative source of truth.
+
 ## Core Principles
 
 **Build accessible, responsive, and maintainable Razor views following ASP.NET Core MVC best practices with gaming community-specific patterns.**

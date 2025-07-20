@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace XtremeIdiots.Portal.Web.Auth.Requirements
-{
+namespace XtremeIdiots.Portal.Web.Auth.Requirements;
 
-    public class AccessCredentials : IAuthorizationRequirement
-    {
-    }
+public class AccessCredentials : IAuthorizationRequirement
+{
 }

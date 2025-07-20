@@ -10,27 +10,21 @@ namespace XtremeIdiots.Portal.Web.ApiControllers;
 /// <summary>
 /// API controller providing external endpoints for integration with forum widgets and other external services
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the ExternalController
+/// </remarks>
+/// <param name="repositoryApiClient">Client for accessing the repository API</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Route("External")]
-public class ExternalController : BaseApiController
+public class ExternalController(
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ExternalController> logger,
+    IConfiguration configuration) : BaseApiController(telemetryClient, logger, configuration)
 {
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the ExternalController
-    /// </summary>
-    /// <param name="repositoryApiClient">Client for accessing the repository API</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public ExternalController(
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ExternalController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Retrieves the latest admin actions for display in external forum widgets

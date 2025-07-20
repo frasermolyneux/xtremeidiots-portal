@@ -14,32 +14,25 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Controller for managing system status and monitoring operations
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the StatusController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Client for application telemetry</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
+/// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
 [Authorize(Policy = AuthPolicies.AccessStatus)]
-public class StatusController : BaseController
+public class StatusController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<StatusController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the StatusController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Client for application telemetry</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
-    public StatusController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<StatusController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the ban file monitor status page showing synchronization status and file information
@@ -55,7 +48,7 @@ public class StatusController : BaseController
             var (gameTypes, banFileMonitorIds) = User.ClaimedGamesAndItems(requiredClaims);
 
             Logger.LogInformation("User {UserId} has access to {GameTypeCount} game types and {MonitorCount} ban file monitors",
-                User.XtremeIdiotsId(), gameTypes.Count(), banFileMonitorIds.Count());
+                User.XtremeIdiotsId(), gameTypes.Length, banFileMonitorIds.Length);
 
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(
                 gameTypes, banFileMonitorIds, null, 0, 50, BanFileMonitorOrder.BannerServerListPosition, cancellationToken);
@@ -94,7 +87,7 @@ public class StatusController : BaseController
             TrackSuccessTelemetry("BanFileStatusRetrieved", nameof(BanFileStatus), new Dictionary<string, string>
             {
                 { "MonitorCount", models.Count.ToString() },
-                { "GameTypeCount", gameTypes.Count().ToString() }
+                { "GameTypeCount", gameTypes.Length.ToString() }
             });
 
             Logger.LogInformation("User {UserId} successfully retrieved {MonitorCount} ban file monitor statuses",

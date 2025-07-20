@@ -18,37 +18,29 @@ namespace XtremeIdiots.Portal.Web.ApiControllers;
 /// <summary>
 /// API controller for managing server banners and GameTracker integration
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the BannersController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization policies</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="memoryCache">Memory cache for storing temporary data</param>
+/// <param name="telemetryClient">Client for tracking telemetry events</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessHome)]
 [Route("Banners")]
-public class BannersController : BaseApiController
+public class BannersController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IMemoryCache memoryCache,
+    TelemetryClient telemetryClient,
+    ILogger<BannersController> logger,
+    IConfiguration configuration) : BaseApiController(telemetryClient, logger, configuration)
 {
     private const string GameServersListCacheKey = nameof(GameServersListCacheKey);
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IMemoryCache memoryCache;
-
-    /// <summary>
-    /// Initializes a new instance of the BannersController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization policies</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="memoryCache">Memory cache for storing temporary data</param>
-    /// <param name="telemetryClient">Client for tracking telemetry events</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public BannersController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        IMemoryCache memoryCache,
-        TelemetryClient telemetryClient,
-        ILogger<BannersController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IMemoryCache memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
 
     /// <summary>
     /// Gets HTML banners for game servers that are enabled for banner display
@@ -68,9 +60,8 @@ public class BannersController : BaseApiController
                 return Unauthorized();
             }
 
-            ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse;
-
-            if (memoryCache.TryGetValue(GameServersListCacheKey, out gameServersApiResponse) && gameServersApiResponse != null)
+            if (memoryCache.TryGetValue(GameServersListCacheKey, out
+            ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse) && gameServersApiResponse != null)
             {
                 Logger.LogDebug("Retrieved game servers data from cache for user {UserId}", User.XtremeIdiotsId());
             }
@@ -141,9 +132,8 @@ public class BannersController : BaseApiController
             }
 
             var cacheKey = $"{ipAddress}_{queryPort}_{imageName}";
-            ApiResult<GameTrackerBannerDto>? repositoryApiResponse;
 
-            if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse != null)
+            if (memoryCache.TryGetValue(cacheKey, out ApiResult<GameTrackerBannerDto>? repositoryApiResponse) && repositoryApiResponse != null)
             {
                 Logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
                     ipAddress, queryPort, imageName);

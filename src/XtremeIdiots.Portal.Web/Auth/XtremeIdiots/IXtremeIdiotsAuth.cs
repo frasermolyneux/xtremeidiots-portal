@@ -1,18 +1,16 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots
+namespace XtremeIdiots.Portal.Web.Auth.XtremeIdiots;
+
+public interface IXtremeIdiotsAuth
 {
 
-    public interface IXtremeIdiotsAuth
-    {
+    AuthenticationProperties ConfigureExternalAuthenticationProperties(string? redirectUrl);
 
-        AuthenticationProperties ConfigureExternalAuthenticationProperties(string? redirectUrl);
+    Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(CancellationToken cancellationToken = default);
 
-        Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(CancellationToken cancellationToken = default);
+    Task<XtremeIdiotsAuthResult> ProcessExternalLogin(ExternalLoginInfo info, CancellationToken cancellationToken = default);
 
-        Task<XtremeIdiotsAuthResult> ProcessExternalLogin(ExternalLoginInfo info, CancellationToken cancellationToken = default);
-
-        Task SignOutAsync(CancellationToken cancellationToken = default);
-    }
+    Task SignOutAsync(CancellationToken cancellationToken = default);
 }

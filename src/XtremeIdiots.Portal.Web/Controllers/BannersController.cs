@@ -79,9 +79,8 @@ public class BannersController(
                 return Unauthorized();
             }
 
-            ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse;
-
-            if (memoryCache.TryGetValue(GameServersListCacheKey, out gameServersApiResponse) && gameServersApiResponse is not null)
+            if (memoryCache.TryGetValue(GameServersListCacheKey, out
+            ApiResult<CollectionModel<GameServerDto>>? gameServersApiResponse) && gameServersApiResponse is not null)
             {
                 Logger.LogDebug("Retrieved game servers data from cache for user {UserId}", User.XtremeIdiotsId());
             }
@@ -153,9 +152,8 @@ public class BannersController(
             }
 
             var cacheKey = $"{ipAddress}_{queryPort}_{imageName}";
-            ApiResult<GameTrackerBannerDto>? repositoryApiResponse;
 
-            if (memoryCache.TryGetValue(cacheKey, out repositoryApiResponse) && repositoryApiResponse is not null)
+            if (memoryCache.TryGetValue(cacheKey, out ApiResult<GameTrackerBannerDto>? repositoryApiResponse) && repositoryApiResponse is not null)
             {
                 Logger.LogDebug("Retrieved GameTracker banner data from cache for {IpAddress}:{QueryPort}/{ImageName}",
                     ipAddress, queryPort, imageName);

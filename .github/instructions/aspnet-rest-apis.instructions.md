@@ -5,6 +5,8 @@ applyTo: '**/*.cs, **/*.json'
 
 # ASP.NET REST API Development
 
+> **IMPORTANT**: All formatting and style decisions must follow the project's `.editorconfig` file as the authoritative source of truth.
+
 ## Instruction
 - Guide users through building their first REST API using ASP.NET Core 9.
 - Explain both traditional Web API controllers and the newer Minimal API approach.

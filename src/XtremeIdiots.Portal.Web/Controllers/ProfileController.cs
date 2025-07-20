@@ -10,31 +10,24 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Handles user profile management operations
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the ProfileController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for accessing repository API</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessProfile)]
-public class ProfileController : BaseController
+public class ProfileController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ProfileController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the ProfileController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for accessing repository API</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public ProfileController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ProfileController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the user profile management page
@@ -44,9 +37,6 @@ public class ProfileController : BaseController
     [HttpGet]
     public async Task<IActionResult> Manage(CancellationToken cancellationToken = default)
     {
-        return await ExecuteWithErrorHandlingAsync(() =>
-        {
-            return Task.FromResult<IActionResult>(View());
-        }, nameof(Manage));
+        return await ExecuteWithErrorHandlingAsync(() => Task.FromResult<IActionResult>(View()), nameof(Manage));
     }
 }

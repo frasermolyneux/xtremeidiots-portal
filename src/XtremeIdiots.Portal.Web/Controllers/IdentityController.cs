@@ -9,26 +9,20 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Handles user authentication and identity management using XtremeIdiots OAuth provider
 /// </summary>
-public class IdentityController : BaseController
+/// <remarks>
+/// Initializes a new instance of the IdentityController
+/// </remarks>
+/// <param name="xtremeIdiotsAuth">XtremeIdiots authentication service</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
+public class IdentityController(
+    IXtremeIdiotsAuth xtremeIdiotsAuth,
+    TelemetryClient telemetryClient,
+    ILogger<IdentityController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IXtremeIdiotsAuth xtremeIdiotsAuth;
-
-    /// <summary>
-    /// Initializes a new instance of the IdentityController
-    /// </summary>
-    /// <param name="xtremeIdiotsAuth">XtremeIdiots authentication service</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public IdentityController(
-        IXtremeIdiotsAuth xtremeIdiotsAuth,
-        TelemetryClient telemetryClient,
-        ILogger<IdentityController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
-    }
+    private readonly IXtremeIdiotsAuth xtremeIdiotsAuth = xtremeIdiotsAuth ?? throw new ArgumentNullException(nameof(xtremeIdiotsAuth));
 
     /// <summary>
     /// Displays the login page for anonymous users
@@ -108,7 +102,8 @@ public class IdentityController : BaseController
                     });
 
                     return await IdentityError("Your account is currently locked");
-
+                case XtremeIdiotsAuthResult.Failed:
+                    return await IdentityError("There has been an issue logging you in with the XtremeIdiots provider");
                 default:
                     Logger.LogWarning("User {Username} authentication failed with result: {Result}", username, result);
 
@@ -158,11 +153,8 @@ public class IdentityController : BaseController
 
     private IActionResult RedirectToLocal(string? returnUrl)
     {
-        if (!string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl))
-        {
-            return Redirect(returnUrl);
-        }
-
-        return RedirectToAction(nameof(HomeController.Index), nameof(HomeController));
+        return !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? Redirect(returnUrl)
+            : RedirectToAction(nameof(HomeController.Index), nameof(HomeController));
     }
 }

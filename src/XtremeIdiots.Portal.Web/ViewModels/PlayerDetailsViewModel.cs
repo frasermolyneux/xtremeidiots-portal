@@ -3,18 +3,17 @@ using MX.GeoLocation.Abstractions.Models.V1;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 
-namespace XtremeIdiots.Portal.Web.ViewModels
+namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class PlayerDetailsViewModel
 {
-    public class PlayerDetailsViewModel
+    public PlayerDetailsViewModel()
     {
-        public PlayerDetailsViewModel()
-        {
-            EnrichedIpAddresses = new List<PlayerIpAddressViewModel>();
-        }
-
-        public PlayerDto? Player { get; set; }
-        public GeoLocationDto? GeoLocation { get; set; }
-
-        public List<PlayerIpAddressViewModel> EnrichedIpAddresses { get; set; }
+        EnrichedIpAddresses = [];
     }
+
+    public PlayerDto? Player { get; set; }
+    public GeoLocationDto? GeoLocation { get; set; }
+
+    public List<PlayerIpAddressViewModel> EnrichedIpAddresses { get; set; }
 }

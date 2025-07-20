@@ -5,15 +5,18 @@ applyTo: '**/*.cs'
 
 # C# Development
 
+> **IMPORTANT**: All formatting and style decisions must follow the project's `.editorconfig` file as the authoritative source of truth.
+
 ## C# Instructions
-- Always use the latest version C#, currently C# 13 features.
-- Write clear and concise comments for each function.
+- Always use the latest C# language features available (C# 12+ features like primary constructors, collection expressions).
+- Follow the project's editorconfig settings as the source of truth for all formatting and style decisions.
+- Write XML documentation comments for public APIs only. Avoid inline comments unless explaining complex business logic.
 
 ## General Instructions
 - Make only high confidence suggestions when reviewing code changes.
-- Write code with good maintainability practices, including comments on why certain design decisions were made.
+- Write code with good maintainability practices.
 - Handle edge cases and write clear exception handling.
-- For libraries or external dependencies, mention their usage and purpose in comments.
+- For libraries or external dependencies, mention their usage and purpose in XML documentation.
 
 ## Naming Conventions
 
@@ -21,15 +24,28 @@ applyTo: '**/*.cs'
 - Use camelCase for private fields and local variables.
 - Prefix interface names with "I" (e.g., IUserService).
 
-## Formatting
+## Formatting and Style (Per EditorConfig)
 
-- Apply code-formatting style defined in `.editorconfig`.
-- Prefer file-scoped namespace declarations and single-line using directives.
-- Insert a newline before the opening curly brace of any code block (e.g., after `if`, `for`, `while`, `foreach`, `using`, `try`, etc.).
-- Ensure that the final return statement of a method is on its own line.
-- Use pattern matching and switch expressions wherever possible.
-- Use `nameof` instead of string literals when referring to member names.
-- Ensure that XML doc comments are created for any public APIs. When applicable, include `<example>` and `<code>` documentation in the comments.
+- **Namespaces**: Use file-scoped namespace declarations (`namespace MyNamespace;`)
+- **Braces**: Omit braces for single-statement blocks when safe (`csharp_prefer_braces = false`)
+- **var Usage**: Use `var` everywhere - for built-in types, when type is apparent, and elsewhere
+- **Expression Bodies**: 
+  - Use for properties, indexers, and accessors
+  - Do NOT use for methods, constructors, or operators
+- **Top-level Statements**: Prefer for Program.cs files
+- **Primary Constructors**: Use for C# 12+ when appropriate
+- **Collection Expressions**: Use when types match exactly (`[]` instead of `new List<T>()`)
+- **Null Checks**: Always use `is null` and `is not null` instead of `== null` or `!= null`
+- **Pattern Matching**: Prefer switch expressions and pattern matching over traditional constructs
+- **Using Directives**: Place outside namespace, don't sort System directives first
+
+## Documentation Standards
+
+- **XML Documentation**: REQUIRED for all public APIs (methods, properties, classes)
+  - Include `<summary>`, `<param>`, `<returns>`, `<exception>` tags
+  - Add `<example>` and `<code>` for complex APIs
+- **Inline Comments**: AVOID unless explaining WHY (business logic, algorithms, constraints)
+- **Self-Documenting Code**: Prefer clear variable/method names over explanatory comments
 
 ## Project Setup and Structure
 
@@ -41,9 +57,21 @@ applyTo: '**/*.cs'
 
 ## Nullable Reference Types
 
-- Declare variables non-nullable, and check for `null` at entry points.
+- Enable and enforce nullable reference types throughout the codebase.
+- Declare variables non-nullable by default, check for `null` only at entry points.
 - Always use `is null` or `is not null` instead of `== null` or `!= null`.
-- Trust the C# null annotations and don't add null checks when the type system says a value cannot be null.
+- Trust the C# null annotations - don't add redundant null checks when the type system guarantees non-null.
+- Use nullable annotations (`?`) explicitly when null values are expected.
+
+## Modern C# Features (Per EditorConfig)
+
+- **Pattern Matching**: Use `is` patterns, switch expressions, and extended property patterns
+- **Index/Range Operators**: Use `^` and `..` operators when appropriate
+- **Target-Typed New**: Use `new()` when type is apparent from context
+- **Record Types**: Use for immutable data structures
+- **Init-Only Properties**: Use `init` accessors for immutable properties after construction
+- **Raw String Literals**: Use `"""` for multi-line strings with embedded quotes
+- **Collection Expressions**: Use `[]` syntax when types exactly match
 
 ## Data Access Patterns
 

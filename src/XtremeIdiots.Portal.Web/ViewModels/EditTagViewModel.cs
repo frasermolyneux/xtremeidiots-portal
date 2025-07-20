@@ -1,23 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace XtremeIdiots.Portal.Web.ViewModels
+namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class EditTagViewModel
 {
-    public class EditTagViewModel
-    {
-        [Required]
-        public Guid TagId { get; set; }
+    [Required]
+    public Guid TagId { get; set; }
 
-        [Required]
-        [Display(Name = "Name")]
-        public string Name { get; set; } = string.Empty;
+    [Required]
+    [Display(Name = "Name")]
+    public string Name { get; set; } = string.Empty;
 
-        [Display(Name = "Description")]
-        public string? Description { get; set; }
+    [Display(Name = "Description")]
+    public string? Description { get; set; }
 
-        [Display(Name = "HTML Markup")]
-        public string? TagHtml { get; set; }
+    [Display(Name = "HTML Markup")]
+    public string? TagHtml { get; set; }
 
-        [Display(Name = "User Defined")]
-        public bool UserDefined { get; set; }
-    }
+    [Display(Name = "User Defined")]
+    public bool UserDefined { get; set; }
 }

@@ -1,9 +1,8 @@
 ﻿using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Tags;
 
-namespace XtremeIdiots.Portal.Web.ViewModels
+namespace XtremeIdiots.Portal.Web.ViewModels;
+
+public class TagsViewModel
 {
-    public class TagsViewModel
-    {
-        public List<TagDto> Tags { get; set; } = new List<TagDto>();
-    }
+    public List<TagDto> Tags { get; set; } = [];
 }

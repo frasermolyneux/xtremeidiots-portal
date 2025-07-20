@@ -14,35 +14,27 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages server map operations including uploading, deleting, and organizing maps for game servers
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the MapManagerController
+/// </remarks>
+/// <param name="authorizationService">Service for checking user authorization</param>
+/// <param name="repositoryApiClient">Client for accessing repository data</param>
+/// <param name="serversApiClient">Client for server integration operations</param>
+/// <param name="telemetryClient">Client for tracking telemetry data</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessMapManagerController)]
-public class MapManagerController : BaseController
+public class MapManagerController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    IServersApiClient serversApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<MapManagerController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-    private readonly IServersApiClient serversApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the MapManagerController
-    /// </summary>
-    /// <param name="authorizationService">Service for checking user authorization</param>
-    /// <param name="repositoryApiClient">Client for accessing repository data</param>
-    /// <param name="serversApiClient">Client for server integration operations</param>
-    /// <param name="telemetryClient">Client for tracking telemetry data</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public MapManagerController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        IServersApiClient serversApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<MapManagerController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-        this.serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IServersApiClient serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
 
     /// <summary>
     /// Displays the map management interface for a specific game server
@@ -57,7 +49,8 @@ public class MapManagerController : BaseController
         {
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
                 id, AuthPolicies.ManageMaps, nameof(Manage), "Maps", cancellationToken);
-            if (actionResult != null) return actionResult;
+            if (actionResult != null)
+                return actionResult;
 
             var getServerMapsResult = await serversApiClient.Rcon.V1.GetServerMaps(id);
             var getLoadedServerMapsFromHostResult = await serversApiClient.Maps.V1.GetLoadedServerMapsFromHost(id);
@@ -70,10 +63,10 @@ public class MapManagerController : BaseController
 
             var viewModel = new ManageMapsViewModel(gameServerData)
             {
-                Maps = mapsCollectionApiResponse.Result?.Data?.Items?.ToList() ?? new(),
-                ServerMaps = getLoadedServerMapsFromHostResult.Result?.Data?.Items?.ToList() ?? new(),
-                RconMaps = getServerMapsResult.Result?.Data?.Items?.ToList() ?? new(),
-                MapPacks = mapPacks.Result?.Data?.Items?.ToList() ?? new()
+                Maps = mapsCollectionApiResponse.Result?.Data?.Items?.ToList() ?? [],
+                ServerMaps = getLoadedServerMapsFromHostResult.Result?.Data?.Items?.ToList() ?? [],
+                RconMaps = getServerMapsResult.Result?.Data?.Items?.ToList() ?? [],
+                MapPacks = mapPacks.Result?.Data?.Items?.ToList() ?? []
             };
 
             return View(viewModel);
@@ -101,7 +94,8 @@ public class MapManagerController : BaseController
 
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
                 viewModel.GameServerId, AuthPolicies.PushMapToRemote, nameof(PushMapToRemote), "Map", cancellationToken);
-            if (actionResult != null) return actionResult;
+            if (actionResult != null)
+                return actionResult;
 
             await serversApiClient.Maps.V1.PushServerMapToHost(viewModel.GameServerId, viewModel.MapName!);
 
@@ -137,7 +131,8 @@ public class MapManagerController : BaseController
 
             var (actionResult, gameServerData) = await GetAuthorizedGameServerAsync(
                 model.GameServerId, AuthPolicies.DeleteMapFromHost, nameof(DeleteMapFromHost), "Map", cancellationToken);
-            if (actionResult != null) return actionResult;
+            if (actionResult != null)
+                return actionResult;
 
             await serversApiClient.Maps.V1.DeleteServerMapFromHost(model.GameServerId, model.MapName!);
 

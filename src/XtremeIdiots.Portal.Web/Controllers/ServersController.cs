@@ -16,32 +16,25 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Controller for managing server information and functionality
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the ServersController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Client for application telemetry</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
+/// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
 [Authorize(Policy = AuthPolicies.AccessServers)]
-public class ServersController : BaseController
+public class ServersController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ServersController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the ServersController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Client for application telemetry</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
-    public ServersController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ServersController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the main servers listing page
@@ -150,7 +143,7 @@ public class ServersController : BaseController
 
             if (gameServerStatsResponseDto.IsSuccess && gameServerStatsResponseDto.Result?.Data?.Items is not null)
             {
-                gameServerStatDtos = gameServerStatsResponseDto.Result.Data.Items.ToList();
+                gameServerStatDtos = [.. gameServerStatsResponseDto.Result.Data.Items];
 
                 GameServerStatDto? current = null;
                 var orderedStats = gameServerStatsResponseDto.Result.Data.Items.OrderBy(gss => gss.Timestamp).ToList();
@@ -188,7 +181,7 @@ public class ServersController : BaseController
                         MapsOrder.MapNameAsc, cancellationToken);
 
                     if (mapsCollectionApiResponse.Result?.Data?.Items is not null)
-                        maps = mapsCollectionApiResponse.Result.Data.Items.ToList();
+                        maps = [.. mapsCollectionApiResponse.Result.Data.Items];
                 }
                 catch (Exception ex)
                 {

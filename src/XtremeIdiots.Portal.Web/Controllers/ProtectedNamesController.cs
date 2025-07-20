@@ -14,31 +14,24 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <summary>
 /// Manages protected names for players in the XtremeIdiots Portal
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the ProtectedNamesController
+/// </remarks>
+/// <param name="authorizationService">Service for handling authorization checks</param>
+/// <param name="repositoryApiClient">Client for repository API operations</param>
+/// <param name="telemetryClient">Application Insights telemetry client</param>
+/// <param name="logger">Logger instance for this controller</param>
+/// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessPlayers)]
-public class ProtectedNamesController : BaseController
+public class ProtectedNamesController(
+    IAuthorizationService authorizationService,
+    IRepositoryApiClient repositoryApiClient,
+    TelemetryClient telemetryClient,
+    ILogger<ProtectedNamesController> logger,
+    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService;
-    private readonly IRepositoryApiClient repositoryApiClient;
-
-    /// <summary>
-    /// Initializes a new instance of the ProtectedNamesController
-    /// </summary>
-    /// <param name="authorizationService">Service for handling authorization checks</param>
-    /// <param name="repositoryApiClient">Client for repository API operations</param>
-    /// <param name="telemetryClient">Application Insights telemetry client</param>
-    /// <param name="logger">Logger instance for this controller</param>
-    /// <param name="configuration">Application configuration</param>
-    public ProtectedNamesController(
-        IAuthorizationService authorizationService,
-        IRepositoryApiClient repositoryApiClient,
-        TelemetryClient telemetryClient,
-        ILogger<ProtectedNamesController> logger,
-        IConfiguration configuration)
-        : base(telemetryClient, logger, configuration)
-    {
-        this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-        this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    }
+    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>
     /// Displays the list of all protected names
@@ -58,7 +51,8 @@ public class ProtectedNamesController : BaseController
                 "ProtectedName",
                 "ViewAll");
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
 
@@ -70,7 +64,7 @@ public class ProtectedNamesController : BaseController
 
             var model = new ProtectedNamesViewModel
             {
-                ProtectedNames = protectedNamesResponse.Result.Data.Items.ToList()
+                ProtectedNames = [.. protectedNamesResponse.Result.Data.Items]
             };
 
             TrackSuccessTelemetry("ProtectedNamesViewed", nameof(Index), new Dictionary<string, string>
@@ -101,7 +95,8 @@ public class ProtectedNamesController : BaseController
                 "ProtectedName",
                 $"PlayerId:{id}");
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(id, PlayerEntityOptions.None);
 
@@ -162,10 +157,12 @@ public class ProtectedNamesController : BaseController
                 $"PlayerId:{model.PlayerId}",
                 playerData);
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var modelValidationResult = CheckModelState(model, m => m.Player = playerData);
-            if (modelValidationResult is not null) return modelValidationResult;
+            if (modelValidationResult is not null)
+                return modelValidationResult;
 
             var createProtectedNameDto = new CreateProtectedNameDto(
                 model.PlayerId,
@@ -222,7 +219,8 @@ public class ProtectedNamesController : BaseController
                 "ProtectedName",
                 $"ProtectedNameId:{id}");
 
-            if (authResult is not null) return authResult;
+            if (authResult is not null)
+                return authResult;
 
             var protectedNameResponse = await repositoryApiClient.Players.V1.GetProtectedName(id);
 

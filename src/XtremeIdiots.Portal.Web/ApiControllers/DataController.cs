@@ -12,21 +12,42 @@ using XtremeIdiots.Portal.Web.Models;
 
 namespace XtremeIdiots.Portal.Web.ApiControllers;
 
+/// <summary>
+/// API controller providing data endpoints for AJAX requests from the portal interface
+/// </summary>
+/// <remarks>
+/// This controller handles DataTables AJAX requests for various entities including players, maps, and users.
+/// All endpoints require appropriate authorization and return data in DataTables-compatible format.
+/// </remarks>
 [Route("api/[controller]")]
 public class DataController : BaseApiController
 {
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the DataController
+    /// </summary>
+    /// <param name="repositoryApiClient">Client for repository API operations</param>
+    /// <param name="telemetryClient">Client for application telemetry</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
+    /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
     public DataController(
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<DataController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<DataController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Retrieves players data for DataTables AJAX requests with username and GUID filtering
+    /// </summary>
+    /// <param name="id">Optional game type to filter players by</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>DataTables-compatible JSON response with player data</returns>
     [HttpPost("Players/GetPlayersAjax")]
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
     public async Task<IActionResult> GetPlayersAjax(GameType? id, CancellationToken cancellationToken = default)
@@ -34,6 +55,11 @@ public class DataController : BaseApiController
         return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves players data for IP address search functionality
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>DataTables-compatible JSON response with player IP data</returns>
     [HttpPost("Players/GetIpSearchListAjax")]
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
     public async Task<IActionResult> GetIpSearchListAjax(CancellationToken cancellationToken = default)
@@ -41,6 +67,12 @@ public class DataController : BaseApiController
         return await GetPlayersAjaxPrivate(PlayersFilter.IpAddress, null, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves maps data for DataTables AJAX requests with sorting and filtering support
+    /// </summary>
+    /// <param name="id">Optional game type to filter maps by</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>DataTables-compatible JSON response with map data</returns>
     [HttpPost("Maps/GetMapListAjax")]
     [Authorize(Policy = AuthPolicies.AccessMaps)]
     public async Task<IActionResult> GetMapListAjax(GameType? id, CancellationToken cancellationToken = default)
@@ -81,15 +113,15 @@ public class DataController : BaseApiController
             if (!mapsApiResponse.IsSuccess || mapsApiResponse.Result?.Data is null)
             {
                 Logger.LogWarning("Failed to retrieve maps data for user {UserId} and game type {GameType}",
-         User.XtremeIdiotsId(), id);
+                    User.XtremeIdiotsId(), id);
                 return StatusCode(500, "Failed to retrieve maps data");
             }
 
             TrackSuccessTelemetry("MapsListRetrieved", nameof(GetMapListAjax), new Dictionary<string, string>
-        {
- { "GameType", id?.ToString() ?? "All" },
- { "ResultCount", mapsApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
-        });
+            {
+                { "GameType", id?.ToString() ?? "All" },
+                { "ResultCount", mapsApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
+            });
 
             return Ok(new
             {
@@ -101,6 +133,11 @@ public class DataController : BaseApiController
         }, nameof(GetMapListAjax));
     }
 
+    /// <summary>
+    /// Retrieves user profiles data for DataTables AJAX requests
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>DataTables-compatible JSON response with user profile data</returns>
     [HttpPost("Users/GetUsersAjax")]
     [Authorize(Policy = AuthPolicies.AccessUsers)]
     public async Task<IActionResult> GetUsersAjax(CancellationToken cancellationToken = default)
@@ -119,7 +156,7 @@ public class DataController : BaseApiController
             }
 
             var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(
-     model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
+                model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
 
             if (userProfileResponseDto.Result?.Data is null)
             {
@@ -137,6 +174,13 @@ public class DataController : BaseApiController
         }, nameof(GetUsersAjax));
     }
 
+    /// <summary>
+    /// Private helper method to handle different types of player AJAX requests with filtering and sorting
+    /// </summary>
+    /// <param name="filter">The filter type to apply to player queries</param>
+    /// <param name="gameType">Optional game type to filter players by</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>DataTables-compatible JSON response with filtered player data</returns>
     private async Task<IActionResult> GetPlayersAjaxPrivate(PlayersFilter filter, GameType? gameType, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
@@ -177,21 +221,21 @@ public class DataController : BaseApiController
             }
 
             var playersApiResponse = await repositoryApiClient.Players.V1.GetPlayers(
-     gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
+                gameType, filter, model.Search?.Value, model.Start, model.Length, order, PlayerEntityOptions.None);
 
             if (!playersApiResponse.IsSuccess || playersApiResponse.Result?.Data is null)
             {
                 Logger.LogError("Failed to retrieve players for user {UserId} with filter {Filter}",
-         User.XtremeIdiotsId(), filter);
+                    User.XtremeIdiotsId(), filter);
                 return StatusCode(500, "Failed to retrieve players data");
             }
 
             TrackSuccessTelemetry("PlayersListLoaded", nameof(GetPlayersAjax), new Dictionary<string, string>
-        {
- { "Filter", filter.ToString() },
- { "GameType", gameType?.ToString() ?? "All" },
- { "ResultCount", playersApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
-        });
+            {
+                { "Filter", filter.ToString() },
+                { "GameType", gameType?.ToString() ?? "All" },
+                { "ResultCount", playersApiResponse.Result.Data.Items?.Count().ToString() ?? "0" }
+            });
 
             return Ok(new
             {

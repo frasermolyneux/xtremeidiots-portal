@@ -11,24 +11,40 @@ using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
+/// <summary>
+/// Manages game server administration and configuration
+/// </summary>
 [Authorize(Policy = AuthPolicies.AccessGameServers)]
 public class GameServersController : BaseController
 {
     private readonly IAuthorizationService authorizationService;
     private readonly IRepositoryApiClient repositoryApiClient;
 
+    /// <summary>
+    /// Initializes a new instance of the GameServersController
+    /// </summary>
+    /// <param name="authorizationService">Authorization service for policy-based access control</param>
+    /// <param name="repositoryApiClient">Repository API client for data access</param>
+    /// <param name="telemetryClient">Application Insights telemetry client</param>
+    /// <param name="logger">Logger instance for this controller</param>
+    /// <param name="configuration">Application configuration</param>
     public GameServersController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
-    TelemetryClient telemetryClient,
-    ILogger<GameServersController> logger,
-    IConfiguration configuration)
-    : base(telemetryClient, logger, configuration)
+        IAuthorizationService authorizationService,
+        IRepositoryApiClient repositoryApiClient,
+        TelemetryClient telemetryClient,
+        ILogger<GameServersController> logger,
+        IConfiguration configuration)
+        : base(telemetryClient, logger, configuration)
     {
         this.authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
         this.repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
     }
 
+    /// <summary>
+    /// Displays a list of game servers accessible to the current user
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with list of game servers</returns>
     [HttpGet]
     public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
     {
@@ -38,7 +54,7 @@ public class GameServersController : BaseController
             var (gameTypes, gameServerIds) = User.ClaimedGamesAndItems(requiredClaims);
 
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
-     gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
+                gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
             {
@@ -48,12 +64,17 @@ public class GameServersController : BaseController
 
             var gameServerCount = gameServersApiResponse.Result.Data.Items.Count();
             Logger.LogInformation("User {UserId} successfully accessed {GameServerCount} game servers",
-     User.XtremeIdiotsId(), gameServerCount);
+                User.XtremeIdiotsId(), gameServerCount);
 
             return View(gameServersApiResponse.Result.Data.Items);
         }, nameof(Index));
     }
 
+    /// <summary>
+    /// Displays the create game server form
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View with create game server form</returns>
     [HttpGet]
     public async Task<IActionResult> Create(CancellationToken cancellationToken = default)
     {
@@ -78,12 +99,12 @@ public class GameServersController : BaseController
 #pragma warning restore CS8604
 
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     createGameServerDto.GameType,
-     AuthPolicies.CreateGameServer,
-     nameof(Create),
-     "GameServer",
-     $"GameType:{createGameServerDto.GameType}");
+                authorizationService,
+                createGameServerDto.GameType,
+                AuthPolicies.CreateGameServer,
+                nameof(Create),
+                "GameServer",
+                $"GameType:{createGameServerDto.GameType}");
 
             if (authResult is not null) return authResult;
 
@@ -117,10 +138,10 @@ public class GameServersController : BaseController
             if (createResult.IsSuccess)
             {
                 TrackSuccessTelemetry("GameServerCreated", nameof(Create), new Dictionary<string, string>
-        {
- { nameof(GameType), createGameServerDto.GameType.ToString() },
- { nameof(CreateGameServerDto.Title), createGameServerDto.Title ?? "Unknown" }
-        });
+                {
+                    { nameof(GameType), createGameServerDto.GameType.ToString() },
+                    { nameof(CreateGameServerDto.Title), createGameServerDto.Title ?? "Unknown" }
+                });
 
                 this.AddAlertSuccess($"The game server has been successfully created for {model.GameType}");
                 return RedirectToAction(nameof(Index));
@@ -128,7 +149,7 @@ public class GameServersController : BaseController
             else
             {
                 Logger.LogWarning("Failed to create game server for user {UserId} and game type {GameType}",
-         User.XtremeIdiotsId(), model.GameType);
+                    User.XtremeIdiotsId(), model.GameType);
 
                 this.AddAlertDanger("Failed to create the game server. Please try again.");
                 AddGameTypeViewData(model.GameType);
@@ -158,13 +179,13 @@ public class GameServersController : BaseController
 
             var gameServerData = gameServerApiResponse.Result.Data;
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     gameServerData.GameType,
-     AuthPolicies.ViewGameServer,
-     nameof(Details),
-     "GameServer",
-     $"GameType:{gameServerData.GameType},GameServerId:{id}",
-     gameServerData);
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.ViewGameServer,
+                nameof(Details),
+                "GameServer",
+                $"GameType:{gameServerData.GameType},GameServerId:{id}",
+                gameServerData);
 
             if (authResult is not null) return authResult;
 
@@ -200,13 +221,13 @@ public class GameServersController : BaseController
             AddGameTypeViewData(gameServerData.GameType);
 
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     gameServerData.GameType,
-     AuthPolicies.EditGameServer,
-     nameof(Edit),
-     "GameServer",
-     $"GameType:{gameServerData.GameType},GameServerId:{id}",
-     gameServerData);
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.EditGameServer,
+                nameof(Edit),
+                "GameServer",
+                $"GameType:{gameServerData.GameType},GameServerId:{id}",
+                gameServerData);
 
             if (authResult != null) return authResult;
 
@@ -248,13 +269,13 @@ public class GameServersController : BaseController
             if (modelValidationResult is not null) return modelValidationResult;
 
             var authResult = await CheckAuthorizationAsync(
-     authorizationService,
-     gameServerData.GameType,
-     AuthPolicies.EditGameServer,
-     nameof(Edit),
-     "GameServer",
-     $"GameType:{gameServerData.GameType},GameServerId:{model.GameServerId}",
-     gameServerData);
+                authorizationService,
+                gameServerData.GameType,
+                AuthPolicies.EditGameServer,
+                nameof(Edit),
+                "GameServer",
+                $"GameType:{gameServerData.GameType},GameServerId:{model.GameServerId}",
+                gameServerData);
 
             if (authResult != null) return authResult;
 
@@ -291,11 +312,11 @@ public class GameServersController : BaseController
             if (updateResult.IsSuccess)
             {
                 TrackSuccessTelemetry("GameServerUpdated", nameof(Edit), new Dictionary<string, string>
-        {
- { nameof(GameServerDto.GameServerId), gameServerData.GameServerId.ToString() },
- { nameof(GameType), gameServerData.GameType.ToString() },
- { nameof(GameServerDto.Title), gameServerData.Title ?? "Unknown" }
-        });
+                {
+                    { nameof(GameServerDto.GameServerId), gameServerData.GameServerId.ToString() },
+                    { nameof(GameType), gameServerData.GameType.ToString() },
+                    { nameof(GameServerDto.Title), gameServerData.Title ?? "Unknown" }
+                });
 
                 this.AddAlertSuccess($"The game server {gameServerData.Title} has been updated for {gameServerData.GameType}");
                 return RedirectToAction(nameof(Index));
@@ -303,7 +324,7 @@ public class GameServersController : BaseController
             else
             {
                 Logger.LogWarning("Failed to update game server {GameServerId} for user {UserId}",
-         model.GameServerId, User.XtremeIdiotsId());
+                    model.GameServerId, User.XtremeIdiotsId());
 
                 this.AddAlertDanger("Failed to update the game server. Please try again.");
                 AddGameTypeViewData(model.GameType);
@@ -379,11 +400,11 @@ public class GameServersController : BaseController
             if (deleteResult.IsSuccess)
             {
                 TrackSuccessTelemetry("GameServerDeleted", nameof(Delete), new Dictionary<string, string>
-        {
- { nameof(GameServerDto.GameServerId), gameServerData.GameServerId.ToString() },
- { nameof(GameType), gameServerData.GameType.ToString() },
- { nameof(GameServerDto.Title), gameServerData.Title ?? "Unknown" }
-        });
+                {
+                    { nameof(GameServerDto.GameServerId), gameServerData.GameServerId.ToString() },
+                    { nameof(GameType), gameServerData.GameType.ToString() },
+                    { nameof(GameServerDto.Title), gameServerData.Title ?? "Unknown" }
+                });
 
                 this.AddAlertSuccess($"The game server {gameServerData.Title} has been deleted for {gameServerData.GameType}");
                 return RedirectToAction(nameof(Index));
@@ -391,7 +412,7 @@ public class GameServersController : BaseController
             else
             {
                 Logger.LogWarning("Failed to delete game server {GameServerId} for user {UserId}",
-         id, User.XtremeIdiotsId());
+                    id, User.XtremeIdiotsId());
 
                 this.AddAlertDanger("Failed to delete the game server. Please try again.");
                 return RedirectToAction(nameof(Index));
@@ -410,7 +431,7 @@ public class GameServersController : BaseController
             ViewData[nameof(GameType)] = new SelectList(gameTypes, selected);
 
             Logger.LogDebug("Added {GameTypeCount} game types to ViewData with {SelectedGameType} selected",
-            gameTypes.Count(), selected);
+                gameTypes.Count(), selected);
         }
         catch (Exception ex)
         {

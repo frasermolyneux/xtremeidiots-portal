@@ -27,11 +27,11 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/CredentialsController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/DemosController.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/ErrorsController.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/ExternalController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/GameServersController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/HealthCheckController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/HomeController.cs`
-- [ ] `src/XtremeIdiots.Portal.Web/Controllers/IdentityController.cs`
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/ExternalController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/GameServersController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/HealthCheckController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/HomeController.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Controllers/IdentityController.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/IPAddressesController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/MapManagerController.cs`
 - [ ] `src/XtremeIdiots.Portal.Web/Controllers/MapPacksController.cs`

@@ -139,14 +139,14 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Constants/DemosSupportedGames.cs` ✅ **COMPLETED**
 
 ### Configuration Files
-- [ ] `src/XtremeIdiots.Portal.Web/appsettings.json`
+- [x] `src/XtremeIdiots.Portal.Web/appsettings.json` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/appsettings.Development.json`
 - [ ] `src/XtremeIdiots.Portal.Web/libman.json`
 
 ### Razor Views (Follow razor-views.instructions.md)
 
 #### Core Layout and Shared Views
-- [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml`
@@ -266,11 +266,11 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Areas/Identity/Pages/_ValidationScriptsPartial.cshtml`
 
 ### Forums Integration Project
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/AdminActionTopics.cs`
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/DemoManager.cs`
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/AdminActionTopics.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/DemoManager.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Integrations.Forums/IAdminActionTopics.cs`
 - [ ] `src/XtremeIdiots.Portal.Integrations.Forums/IDemoManager.cs`
 - [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/GameTypeExtensions.cs`
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/ServiceCollectionExtensions.cs`
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/ServiceCollectionExtensions.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Models/DemoManagerClientDto.cs`
 

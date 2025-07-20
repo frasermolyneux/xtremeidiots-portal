@@ -16,7 +16,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Core Application Files
 - [ ] `src/XtremeIdiots.Portal.Web/Program.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Startup.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/TelemetryInitializer.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/TelemetryInitializer.cs` ✅ **COMPLETED**
 
 ### Controllers (Priority - Follow specific controller patterns)
 - [x] `src/XtremeIdiots.Portal.Web/Controllers/BaseController.cs` ✅ **COMPLETED**
@@ -140,7 +140,7 @@ This file tracks the progress of our systematic code review and refactoring proc
 
 ### Configuration Files
 - [x] `src/XtremeIdiots.Portal.Web/appsettings.json` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/appsettings.Development.json`
+- [x] `src/XtremeIdiots.Portal.Web/appsettings.Development.json` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/libman.json`
 
 ### Razor Views (Follow razor-views.instructions.md)
@@ -268,9 +268,9 @@ This file tracks the progress of our systematic code review and refactoring proc
 ### Forums Integration Project
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/AdminActionTopics.cs` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/DemoManager.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/IAdminActionTopics.cs`
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/IDemoManager.cs`
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/IAdminActionTopics.cs` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/IDemoManager.cs` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/GameTypeExtensions.cs`
 - [x] `src/XtremeIdiots.Portal.Integrations.Forums/Extensions/ServiceCollectionExtensions.cs` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Integrations.Forums/Models/DemoManagerClientDto.cs`
+- [x] `src/XtremeIdiots.Portal.Integrations.Forums/Models/DemoManagerClientDto.cs` ✅ **COMPLETED**
 

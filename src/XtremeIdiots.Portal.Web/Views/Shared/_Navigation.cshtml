@@ -7,33 +7,35 @@
 @using XtremeIdiots.Portal.Repository.Abstractions.Extensions.V1
 @inject IAuthorizationService AuthorizationService
 @inject SignInManager<IdentityUser> SignInManager
-<nav class="navbar-default navbar-static-side" role="navigation">
+
+<nav class="navbar-default navbar-static-side" role="navigation" aria-label="Main navigation">
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
             <li class="nav-header">
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <div class="dropdown profile-element">
-                        <img src="@(User.PhotoUrl())" alt="User Avatar" class="img-fluid rounded-circle shadow-sm"
+                        <img src="@(User.PhotoUrl())" alt="@(User.Identity?.Name ?? "User") Avatar" class="img-fluid rounded-circle shadow-sm"
                             style="max-height: 80px; max-width: 80px; margin: 0 auto 10px; display: block">
                         <a data-toggle="dropdown" class="dropdown-toggle d-flex align-items-center justify-content-center"
-                            href="#" aria-expanded="false">
+                            href="#" aria-expanded="false" aria-label="User menu for @(User.Identity?.Name)">
                             <span class="block m-t-xs font-bold text-center">
-                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b
-                                    class="caret"></b>
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b class="caret"></b>
                             </span>
                         </a>
                         <ul class="dropdown-menu animated fadeInDown m-t-xs"
                             style="left: 0; position: absolute; top: 91px; will-change: top, left;">
                             <li>
-                                <a asp-controller="Profile" asp-action="Manage" class="dropdown-item">
+                                <a asp-controller="Profile" asp-action="Manage" class="dropdown-item"
+                                    data-testid="nav-profile-manage">
                                     <i class="fa fa-id-card fa-fw" aria-hidden="true"></i> Manage Profile
                                 </a>
                             </li>
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
-                                    <button class="dropdown-item" type="submit">
+                                    <button class="dropdown-item" type="submit" aria-label="Sign out of your account"
+                                        data-testid="nav-logout-button">
                                         <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i> Logout
                                     </button>
                                 </form>
@@ -47,9 +49,9 @@
                         <div class="placeholder-avatar mb-3">
                             <i class="fa fa-user-circle fa-4x text-muted" aria-hidden="true"></i>
                         </div>
-                        <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots"
-                            method="post">
-                            <button type="submit" class="btn btn-primary btn-block">
+                        <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots" method="post">
+                            <button type="submit" class="btn btn-primary btn-block" aria-label="Sign in with your XtremeIdiots account"
+                                data-testid="nav-login-button">
                                 <i class="fa fa-sign-in fa-fw" aria-hidden="true"></i> XtremeIdiots Login
                             </button>
                         </form>
@@ -61,128 +63,45 @@
                 </div>
             </li>
             <li policy="@AuthPolicies.AccessHome" class="@Html.IsSelected("Home", "Index")">
-                <a asp-controller="Home" asp-action="Index">
+                <a asp-controller="Home" asp-action="Index" data-testid="nav-home">
                     <i class="fa fa-home fa-fw" aria-hidden="true"></i> <span class="nav-label">Home</span>
                 </a>
             </li>
             <li policy="@AuthPolicies.AccessServers" class="@Html.IsSelected("Servers", "Index") nav-item">
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link" data-testid="nav-servers-toggle">
                     <i class="fa fa-server fa-fw" aria-hidden="true"></i> <span class="nav-label">Servers</span> <span
                         class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level collapse @Html.IsSelected("Servers", cssClass: "show")">
                     <li class="@Html.IsSelected("Servers", "Index")">
-                        <a asp-controller="Servers" asp-action="Index"><i class="fa fa-list fa-fw"
-                                aria-hidden="true"></i> Game Servers</a>
+                        <a asp-controller="Servers" asp-action="Index" data-testid="nav-servers-gameservers">
+                            <i class="fa fa-list fa-fw" aria-hidden="true"></i> Game Servers
+                        </a>
                     </li>
 
                     <li class="@Html.IsSelected("Servers", "Map")">
-                        <a asp-controller="Servers" asp-action="Map"><i class="fa fa-map-marker fa-fw"
-                                aria-hidden="true"></i> Player
-                            Map</a>
+                        <a asp-controller="Servers" asp-action="Map" data-testid="nav-servers-playermap">
+                            <i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> Player Map
+                        </a>
                     </li>
                 </ul>
             </li>
 
             <li policy="@AuthPolicies.AccessCredentials" class="@Html.IsSelected("Credentials", "Index")">
-                <a asp-controller="Credentials" asp-action="Index">
+                <a asp-controller="Credentials" asp-action="Index" data-testid="nav-credentials">
                     <i class="fa fa-key fa-fw" aria-hidden="true"></i> <span class="nav-label">Credentials</span>
                 </a>
             </li>
-            <li policy="@AuthPolicies.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin", "Index") nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa fa-terminal fa-fw" aria-hidden="true"></i> <span class="nav-label">Server Admin</span>
-                    <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("ServerAdmin", cssClass: "show")">
-                    <li class="@Html.IsSelected("ServerAdmin", "Index")">
-                        <a asp-controller="ServerAdmin" asp-action="Index"><i class="fa fa-server fa-fw"
-                                aria-hidden="true"></i>
-                            Servers</a>
-                    </li>
-
-                    <li policy="@AuthPolicies.ViewGlobalChatLog"
-                        class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
-                        <a asp-controller="ServerAdmin" asp-action="ChatLogIndex"><i class="fa fa-comments fa-fw"
-                                aria-hidden="true"></i>
-                            Global ChatLog</a>
-                    </li>
-
-                    @foreach (var game in ChatLogSupportedGames.Games)
-                    {
-                        @if ((await AuthorizationService.AuthorizeAsync(User, game,
-                                            AuthPolicies.ViewGameChatLog)).Succeeded)
-                        {
-                            <li class="@Html.IsSelected("ServerAdmin", "GameChatLog", id: game.ToString())">
-                                <a asp-controller="ServerAdmin" asp-action="GameChatLog"
-                                    asp-route-id="@game">@Html.GameTypeIcon(game) @game.ShortDisplayName() ChatLog</a>
-                            </li>
-                        }
-                    }
-                </ul>
-            </li>
-            <li policy="@AuthPolicies.AccessDemos" class="@Html.IsSelected("Demos", "Index") nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa fa-video-camera fa-fw"></i> <span class="nav-label">Demo Manager</span> <span
-                        class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Demos", cssClass: "show")">
-                    <li class="@Html.IsSelected("Demos", "DemoClient")">
-                        <a asp-controller="Demos" asp-action="DemoClient"><i class="fa fa-download fa-fw"></i> Demo
-                            Client</a>
-                    </li>
-
-                    <li class="@Html.IsSelected("Demos", "Index")">
-                        <a asp-controller="Demos" asp-action="Index"><i class="fa fa-list fa-fw"></i> Demos Index</a>
-                    </li>
-
-                    @foreach (var game in DemosSupportedGames.Games)
-                    {
-                        <li class="@Html.IsSelected("Demos", "GameIndex", id: game.ToString())">
-                            <a asp-controller="Demos" asp-action="GameIndex" asp-route-id="@game">@Html.GameTypeIcon(game)
-                                @game.DisplayName()</a>
-                        </li>
-                    }
-
-                </ul>
-            </li>
-            <li policy="@AuthPolicies.AccessMaps" class="@Html.IsSelected("Maps", "Index") nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa fa-map fa-fw"></i> <span class="nav-label">Maps</span> <span class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("Maps", cssClass: "show")">
-                    <li class="@Html.IsSelected("Maps", "Index")">
-                        <a asp-controller="Maps" asp-action="Index"><i class="fa fa-list fa-fw"></i> Maps Index</a>
-                    </li>
-
-                    <li class="@Html.IsSelected("Maps", "GameIndex", id: GameType.CallOfDuty2.ToString())">
-                        <a asp-controller="Maps" asp-action="GameIndex"
-                            asp-route-id="@GameType.CallOfDuty2">@Html.GameTypeIcon(GameType.CallOfDuty2)
-                            @GameType.CallOfDuty2.DisplayName()</a>
-                    </li>
-
-                    <li class="@Html.IsSelected("Maps", "GameIndex", id: GameType.CallOfDuty4.ToString())">
-                        <a asp-controller="Maps" asp-action="GameIndex"
-                            asp-route-id="@GameType.CallOfDuty4">@Html.GameTypeIcon(GameType.CallOfDuty4)
-                            @GameType.CallOfDuty4.DisplayName()</a>
-                    </li>
-
-                    <li class="@Html.IsSelected("Maps", "GameIndex", id: GameType.CallOfDuty5.ToString())">
-                        <a asp-controller="Maps" asp-action="GameIndex"
-                            asp-route-id="@GameType.CallOfDuty5">@Html.GameTypeIcon(GameType.CallOfDuty5)
-                            @GameType.CallOfDuty5.DisplayName()</a>
-                    </li>
-                </ul>
-            </li>
             <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players", "Index") nav-item">
-                <a href="#" class="nav-link">
+                <a href="#" class="nav-link" data-testid="nav-players-toggle">
                     <i class="fa fa-users fa-fw"></i> <span class="nav-label">Players</span> <span
                         class="fa arrow"></span>
                 </a>
                 <ul class="nav nav-second-level collapse @Html.IsSelected("Players", cssClass: "show")">
                     <li class="@Html.IsSelected("Players", "Index")">
-                        <a asp-controller="Players" asp-action="Index"><i class="fa fa-list fa-fw"></i> Global Player
-                            Index</a>
+                        <a asp-controller="Players" asp-action="Index" data-testid="nav-players-index">
+                            <i class="fa fa-list fa-fw"></i> Global Player Index
+                        </a>
                     </li>
                     <li class="@Html.IsSelected("Players", "ProtectedNames")">
                         <a asp-controller="Players" asp-action="ProtectedNames"><i class="fa fa-shield fa-fw"></i>

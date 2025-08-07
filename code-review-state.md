@@ -149,14 +149,14 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [x] `src/XtremeIdiots.Portal.Web/Views/_ViewImports.cshtml` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Views/_ViewStart.cshtml` ✅ **COMPLETED**
 - [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Layout.cshtml` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Footer.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_Navigation.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_TopNavbar.cshtml` ✅ **COMPLETED**
+- [x] `src/XtremeIdiots.Portal.Web/Views/Shared/_ValidationScriptsPartial.cshtml` ✅ **COMPLETED**
 
 #### Controller Views - AdminAction
 - [x] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Create.cshtml` ✅ **COMPLETED**
-- [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Edit.cshtml`
+- [x] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Edit.cshtml` ✅ **COMPLETED**
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Delete.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Claim.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/AdminAction/Lift.cshtml`

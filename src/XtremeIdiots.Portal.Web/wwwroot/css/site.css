@@ -132,3 +132,8 @@ body {
     padding-right: 15px;
     width: 80%;
 }
+
+/* Ensure Bootstrap dropdown menus display when toggled */
+.dropdown-menu.show {
+    display: block;
+}

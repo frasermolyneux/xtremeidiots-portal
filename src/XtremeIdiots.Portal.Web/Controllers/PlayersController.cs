@@ -274,7 +274,7 @@ public class PlayersController(
 
     private async Task EnrichPlayerIpAddressesAsync(PlayerDetailsViewModel viewModel, PlayerDto playerData, Guid playerId)
     {
-        foreach (var ipAddress in playerData.PlayerIpAddresses!)
+        foreach (var ipAddress in playerData.PlayerIpAddresses!.OrderByDescending(x => x.LastUsed).Take(10))
         {
             var enrichedIp = new PlayerIpAddressViewModel
             {

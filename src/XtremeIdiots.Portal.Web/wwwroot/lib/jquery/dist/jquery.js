@@ -5198,7 +5198,7 @@
 				special.postDispatch.call(this, event);
 			}
 
-			return event.Result.Data;
+			return event.result;
 		},
 
 		handlers: function (event, handlers) {
@@ -5341,7 +5341,7 @@
 					// Support: Firefox 20+
 					// Firefox doesn't alert if the returnValue field is not set.
 					if (event.result !== undefined && event.originalEvent) {
-						event.originalEvent.returnValue = event.Result.Data;
+						event.originalEvent.returnValue = event.result;
 					}
 				}
 			}
@@ -8301,7 +8301,7 @@
 				}
 			}
 
-			return event.Result.Data;
+			return event.result;
 		},
 
 		// Piggyback on a donor event to simulate a different one

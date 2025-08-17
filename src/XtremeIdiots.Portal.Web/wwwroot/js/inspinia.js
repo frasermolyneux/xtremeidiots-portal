@@ -13,10 +13,14 @@
 
 $(document).ready(function () {
 
-    // Fast fix bor position issue with Popper.js
+    // Fast fix for position issue with Popper.js (only if Popper is present)
     // Will be fixed in Bootstrap 4.1 - https://github.com/twbs/bootstrap/pull/24092
-
-    Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
+    if (window.Popper &&
+        Popper.Defaults &&
+        Popper.Defaults.modifiers &&
+        Popper.Defaults.modifiers.computeStyle) {
+        Popper.Defaults.modifiers.computeStyle.gpuAcceleration = false;
+    }
 
     // Add body-small class if window less than 768px
     if (window.innerWidth < 769) {

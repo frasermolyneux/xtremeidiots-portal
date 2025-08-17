@@ -430,6 +430,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
     <script type="text/javascript">
 
         $(document).ready(function() {
@@ -449,6 +450,13 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
+                    beforeSend: function (xhr) {
+                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        var antiForgeryToken = tokenInput ? tokenInput.value : '';
+                        if (antiForgeryToken) {
+                            xhr.setRequestHeader('RequestVerificationToken', antiForgeryToken);
+                        }
+                    },
                     "data": function(d) {
                         return JSON.stringify(d);
                     }
@@ -464,7 +472,7 @@
                         name: 'username',
                         sortable: false,
                         render: function(data, type, row) {
-                            return renderPlayerName(row['player']['gameType'], row['username'], row['playerId']);
+                            return renderPlayerName(row['gameServer'] && row['gameServer']['gameType'], row['username'], row['playerId']);
                         }
                     },
                     {
@@ -482,7 +490,7 @@
                         name: 'serverName',
                         sortable: false,
                         render: function(data, type, row) {
-                            return row['gameServer']['liveTitle'];
+                            return (row['gameServer'] && row['gameServer']['liveTitle']) || '';
                         }   
                     },
                     {

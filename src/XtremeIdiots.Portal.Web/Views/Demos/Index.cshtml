@@ -55,7 +55,7 @@
 @* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
-
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -70,6 +70,13 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
+                    beforeSend: function (xhr) {
+                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        var antiForgeryToken = tokenInput ? tokenInput.value : '';
+                        if (antiForgeryToken) {
+                            xhr.setRequestHeader('RequestVerificationToken', antiForgeryToken);
+                        }
+                    },
                     "data": function (d) {
                         return JSON.stringify(d);
                     }
@@ -137,11 +144,11 @@
                                     else
                                     {
                                         <text>
-                // ReSharper disable once JsUnreachableCode
+                                // ReSharper disable once JsUnreachableCode
                                             return deleteDemoLink(row['demoId']);
                                         </text>
                                 }
-                                    }
+                                            }
                             return "";
                         }
                     }

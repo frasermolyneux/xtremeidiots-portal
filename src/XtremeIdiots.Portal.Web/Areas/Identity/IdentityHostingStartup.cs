@@ -95,6 +95,7 @@ public class IdentityHostingStartup : IHostingStartup
             options.AccessDeniedPath = "/Errors/Display/401";
             options.Cookie.Name = CookieName;
             options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
             options.ExpireTimeSpan = TimeSpan.FromDays(CookieExpirationDays);
             options.LoginPath = "/Identity/Login";
             options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;

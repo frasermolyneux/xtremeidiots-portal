@@ -54,7 +54,7 @@ public class IdentityController(
     {
         return await ExecuteWithErrorHandlingAsync(async () =>
         {
-            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), nameof(IdentityController), new { ReturnUrl = returnUrl });
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Identity", new { returnUrl });
             var properties = xtremeIdiotsAuth.ConfigureExternalAuthenticationProperties(redirectUrl);
 
             return await Task.FromResult(new ChallengeResult("XtremeIdiots", properties));

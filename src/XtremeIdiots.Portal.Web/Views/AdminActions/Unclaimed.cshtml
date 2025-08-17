@@ -1,0 +1,26 @@
+@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
+@model List<AdminActionDto>
+
+@{
+    ViewData["Title"] = "Unclaimed Bans";
+}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    @if (!Model.Any())
+    {
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <h1 style="text-align: center">No unclaimed bans found</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+
+    @await Component.InvokeAsync("AdminActions", new { adminActions = Model, linkToPlayer = true })
+
+</div>

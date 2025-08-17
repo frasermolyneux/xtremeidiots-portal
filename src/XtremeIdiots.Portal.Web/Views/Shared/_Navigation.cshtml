@@ -15,12 +15,14 @@
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <div class="dropdown profile-element">
-                        <img src="@(User.PhotoUrl())" alt="@(User.Identity?.Name ?? "User") Avatar" class="img-fluid rounded-circle shadow-sm"
+                        <img src="@(User.PhotoUrl())" alt="@(User.Identity?.Name ?? "User") Avatar"
+                            class="img-fluid rounded-circle shadow-sm"
                             style="max-height: 80px; max-width: 80px; margin: 0 auto 10px; display: block">
                         <a data-toggle="dropdown" class="dropdown-toggle d-flex align-items-center justify-content-center"
                             href="#" aria-expanded="false" aria-label="User menu for @(User.Identity?.Name)">
                             <span class="block m-t-xs font-bold text-center">
-                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b class="caret"></b>
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b
+                                    class="caret"></b>
                             </span>
                         </a>
                         <ul class="dropdown-menu animated fadeInDown m-t-xs"
@@ -34,6 +36,7 @@
                             <li class="dropdown-divider"></li>
                             <li>
                                 <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
                                     <button class="dropdown-item" type="submit" aria-label="Sign out of your account"
                                         data-testid="nav-logout-button">
                                         <i class="fa fa-sign-out fa-fw" aria-hidden="true"></i> Logout
@@ -49,9 +52,11 @@
                         <div class="placeholder-avatar mb-3">
                             <i class="fa fa-user-circle fa-4x text-muted" aria-hidden="true"></i>
                         </div>
-                        <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots" method="post">
-                            <button type="submit" class="btn btn-primary btn-block" aria-label="Sign in with your XtremeIdiots account"
-                                data-testid="nav-login-button">
+                        <form class="form-inline" asp-controller="Identity" asp-action="LoginWithXtremeIdiots"
+                            method="post">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary btn-block"
+                                aria-label="Sign in with your XtremeIdiots account" data-testid="nav-login-button">
                                 <i class="fa fa-sign-in fa-fw" aria-hidden="true"></i> XtremeIdiots Login
                             </button>
                         </form>
@@ -103,12 +108,13 @@
                             <i class="fa fa-list fa-fw"></i> Global Player Index
                         </a>
                     </li>
-                    <li class="@Html.IsSelected("Players", "ProtectedNames")">
-                        <a asp-controller="Players" asp-action="ProtectedNames"><i class="fa fa-shield fa-fw"></i>
+                    <li class="@Html.IsSelected("ProtectedNames", "Index")">
+                        <a asp-controller="ProtectedNames" asp-action="Index"><i class="fa fa-shield fa-fw"></i>
                             Protected Names</a>
                     </li>
-                    <li class="@Html.IsSelected("Players", "Analytics")">
-                        <a asp-controller="Players" asp-action="Analytics"><i class="fa fa-area-chart fa-fw"></i>
+                    <li class="@Html.IsSelected("PlayerAnalytics", "Analytics")">
+                        <a asp-controller="PlayerAnalytics" asp-action="Analytics"><i
+                                class="fa fa-area-chart fa-fw"></i>
                             Analytics</a>
                     </li>
 
@@ -117,13 +123,14 @@
                             Search</a>
                     </li>
 
-                    <li class="@Html.IsSelected("Players", "MyActions")">
-                        <a asp-controller="Players" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i> My
+                    <li class="@Html.IsSelected("AdminActions", "MyActions")">
+                        <a asp-controller="AdminActions" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i>
+                            My
                             Actions</a>
                     </li>
 
-                    <li class="@Html.IsSelected("Players", "Unclaimed")">
-                        <a asp-controller="Players" asp-action="Unclaimed"><i
+                    <li class="@Html.IsSelected("AdminActions", "Unclaimed")">
+                        <a asp-controller="AdminActions" asp-action="Unclaimed"><i
                                 class="fa fa-exclamation-circle fa-fw"></i> Unclaimed Bans</a>
                     </li>
 

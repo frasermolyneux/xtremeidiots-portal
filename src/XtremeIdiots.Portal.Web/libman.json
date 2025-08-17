@@ -1,5 +1,15 @@
 {
   "version": "1.0",
   "defaultProvider": "cdnjs",
-  "libraries": []
+  "libraries": [
+    {
+      "library": "chart.js@4.4.3",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/chart.js",
+      "files": [
+        "dist/chart.umd.js",
+        "dist/chart.umd.min.js"
+      ]
+    }
+  ]
 }

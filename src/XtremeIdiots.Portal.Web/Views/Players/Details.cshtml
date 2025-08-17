@@ -95,7 +95,7 @@
                                                     </a>
                                                 }
 
-                                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-outline-success btn-sm">
+                                                <a asp-controller="ProtectedNames" asp-action="Add" asp-route-id="@player.PlayerId" class="btn btn-outline-success btn-sm">
                                                     <i class="fa fa-shield"></i> Protected Name
                                                 </a>
                                                 @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.CreatePlayerTag)).Succeeded)
@@ -322,10 +322,10 @@
                                                 <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm d-flex flex-column flex-sm-row" role="group">
-                                                        <a asp-controller="Players" asp-action="ProtectedNameReport" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm mb-1 mb-sm-0">
+                                                        <a asp-controller="ProtectedNames" asp-action="Report" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-info btn-sm mb-1 mb-sm-0">
                                                             <i class="fa fa-file-text"></i> <span class="d-none d-sm-inline">Usage Report</span>
                                                         </a>
-                                                        <a asp-controller="Players" asp-action="DeleteProtectedName" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
+                                                        <a asp-controller="ProtectedNames" asp-action="Delete" asp-route-id="@protectedName.ProtectedNameId" class="btn btn-danger btn-sm"
                                                            onclick="return confirm('Are you sure you want to delete this protected name?');">
                                                             <i class="fa fa-trash"></i> <span class="d-none d-sm-inline">Delete</span>
                                                         </a>
@@ -337,7 +337,7 @@
                                 </table>
                             </div>
                               <p>
-                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-primary">
+                                <a asp-controller="ProtectedNames" asp-action="Add" asp-route-id="@player.PlayerId" class="btn btn-primary">
                                     <i class="fa fa-plus"></i> Add Another Protected Name
                                 </a>
                             </p>
@@ -348,7 +348,7 @@
                                 This player has no protected names.
                             </div>
                               <p>
-                                <a asp-controller="Players" asp-action="AddProtectedName" asp-route-id="@player.PlayerId" class="btn btn-primary">
+                                <a asp-controller="ProtectedNames" asp-action="Add" asp-route-id="@player.PlayerId" class="btn btn-primary">
                                     <i class="fa fa-plus"></i> Add Protected Name
                                 </a>
                             </p>                        }

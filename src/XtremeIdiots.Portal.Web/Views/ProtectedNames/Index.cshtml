@@ -1,4 +1,5 @@
 @model XtremeIdiots.Portal.Web.ViewModels.ProtectedNamesViewModel
+@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players
 
 @{
     ViewData["Title"] = "Protected Names";
@@ -10,7 +11,7 @@
     <hr />
     <div class="mb-3">
         <i class="fa fa-shield"></i>
-        <span class="ml-1">Total Protected Names: @Model.ProtectedNames?.Count</span>
+        <span class="ml-1">Total Protected Names: @(Model?.ProtectedNames?.Count ?? 0)</span>
     </div>
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -28,7 +29,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var protectedName in Model.ProtectedNames)
+                    @{
+                        var names = Model?.ProtectedNames ?? new List<ProtectedNameDto>();
+                    }
+                    @foreach (var protectedName in names)
                     {
                         <tr>
                             <td>@protectedName.Name</td>
@@ -56,4 +60,3 @@
             </table>
         </div>
     </div>
-    }

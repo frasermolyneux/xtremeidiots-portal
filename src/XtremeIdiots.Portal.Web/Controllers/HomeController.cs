@@ -10,12 +10,11 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// </summary>
 [Authorize(Policy = AuthPolicies.AccessHome)]
 public class HomeController(
-    IAuthorizationService authorizationService,
     TelemetryClient telemetryClient,
     ILogger<HomeController> logger,
     IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
+    // No additional dependencies required for current actions
 
     /// <summary>
     /// Displays the main dashboard for authenticated users

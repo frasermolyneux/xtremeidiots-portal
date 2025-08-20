@@ -17,7 +17,6 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <remarks>
 /// Initializes a new instance of the StatusController
 /// </remarks>
-/// <param name="authorizationService">Service for handling authorization checks</param>
 /// <param name="repositoryApiClient">Client for repository API operations</param>
 /// <param name="telemetryClient">Client for application telemetry</param>
 /// <param name="logger">Logger instance for this controller</param>
@@ -25,13 +24,11 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <exception cref="ArgumentNullException">Thrown when required dependencies are null</exception>
 [Authorize(Policy = AuthPolicies.AccessStatus)]
 public class StatusController(
-    IAuthorizationService authorizationService,
     IRepositoryApiClient repositoryApiClient,
     TelemetryClient telemetryClient,
     ILogger<StatusController> logger,
     IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
 
     /// <summary>

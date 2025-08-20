@@ -13,21 +13,16 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// <remarks>
 /// Initializes a new instance of the ProfileController
 /// </remarks>
-/// <param name="authorizationService">Service for handling authorization checks</param>
-/// <param name="repositoryApiClient">Client for accessing repository API</param>
 /// <param name="telemetryClient">Application Insights telemetry client</param>
 /// <param name="logger">Logger instance for this controller</param>
 /// <param name="configuration">Application configuration</param>
 [Authorize(Policy = AuthPolicies.AccessProfile)]
 public class ProfileController(
-    IAuthorizationService authorizationService,
-    IRepositoryApiClient repositoryApiClient,
     TelemetryClient telemetryClient,
     ILogger<ProfileController> logger,
     IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
-    private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    // No additional dependencies required for current actions
 
     /// <summary>
     /// Displays the user profile management page

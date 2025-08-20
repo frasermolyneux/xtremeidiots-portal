@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.MapPacks;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
@@ -20,7 +19,6 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 /// </remarks>
 /// <param name="authorizationService">Service for checking user authorization</param>
 /// <param name="repositoryApiClient">Client for accessing repository data</param>
-/// <param name="serversApiClient">Client for server integration operations</param>
 /// <param name="telemetryClient">Client for tracking telemetry data</param>
 /// <param name="logger">Logger instance for this controller</param>
 /// <param name="configuration">Application configuration</param>
@@ -28,14 +26,11 @@ namespace XtremeIdiots.Portal.Web.Controllers;
 public class MapPacksController(
     IAuthorizationService authorizationService,
     IRepositoryApiClient repositoryApiClient,
-    IServersApiClient serversApiClient,
     TelemetryClient telemetryClient,
     ILogger<MapPacksController> logger,
     IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
 {
-    private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
-    private readonly IServersApiClient serversApiClient = serversApiClient ?? throw new ArgumentNullException(nameof(serversApiClient));
 
     /// <summary>
     /// Displays the create map pack form for a specific game server

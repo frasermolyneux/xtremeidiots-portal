@@ -77,7 +77,7 @@ public class IdentityController(
             if (info is null)
             {
                 Logger.LogWarning("External login info was null, redirecting to home");
-                return RedirectToAction(nameof(HomeController.Index), nameof(HomeController));
+                return RedirectToAction(nameof(HomeController.Index), "Home");
             }
 
             var username = info.Principal.FindFirstValue(ClaimTypes.Name);
@@ -155,6 +155,6 @@ public class IdentityController(
     {
         return !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
             ? Redirect(returnUrl)
-            : RedirectToAction(nameof(HomeController.Index), nameof(HomeController));
+            : RedirectToAction(nameof(HomeController.Index), "Home");
     }
 }

@@ -22,12 +22,8 @@ public class HomeController(
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
     /// <returns>Dashboard view with user-specific content</returns>
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
+    public IActionResult Index(CancellationToken cancellationToken = default)
     {
-        return await ExecuteWithErrorHandlingAsync(async () =>
-        {
-            await Task.CompletedTask;
-            return View();
-        }, nameof(Index));
+        return View();
     }
 }

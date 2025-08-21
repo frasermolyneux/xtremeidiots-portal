@@ -89,6 +89,12 @@
                             <i class="fa fa-map-marker fa-fw" aria-hidden="true"></i> Player Map
                         </a>
                     </li>
+
+                    <li policy="@AuthPolicies.AccessMaps" class="@Html.IsSelected("Maps", "Index")">
+                        <a asp-controller="Maps" asp-action="Index" data-testid="nav-servers-maps">
+                            <i class="fa fa-map fa-fw" aria-hidden="true"></i> Maps
+                        </a>
+                    </li>
                 </ul>
             </li>
 

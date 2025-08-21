@@ -41,6 +41,8 @@
 
 @section Scripts {
 
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
+
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -55,6 +57,13 @@
                     dataSrc: 'data',
                     contentType: "application/json",
                     type: "POST",
+                    beforeSend: function (xhr) {
+                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        var antiForgeryToken = tokenInput ? tokenInput.value : '';
+                        if (antiForgeryToken) {
+                            xhr.setRequestHeader('RequestVerificationToken', antiForgeryToken);
+                        }
+                    },
                     "data": function (d) {
                         return JSON.stringify(d);
                     }
@@ -75,67 +84,67 @@
                     },
                     {
                         data: 'mapFiles',
+                        name: 'mapFiles',
                         sortable: false,
                         render: function (data) {
-                            if (data === undefined || data = is null || data.length === 0) {
-                return "No Map Files";
-            }
-
-            var outputText = "";
-            for (var key in data) {
-                if (Object.prototype.hasOwnProperty.call(data, key)) {
-                    outputText += "<li><a href='" + data[key]["url"] + "'>" + data[key]["fileName"] + "</a></li>";
-                }
-            }
-
-            return outputText;
-        }
-                        },
-            {
-                name: 'popularity',
-                sortable: true,
-                render: function (data, type, row) {
-                    return "<div class=\"progress\" id=\"progress-" +
-                        row['mapName'] +
-                        "\"> <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: " +
-                        row['likePercentage'] +
-                        "%\" aria-valuenow=\"" +
-                        row['totalLikes'] +
-                        "\" aria-valuemin=\"0\" aria-valuemax=\"" +
-                        row['totalVotes'] +
-                        "\"></div>" +
-                        "<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: " +
-                        row['dislikePercentage'] +
-                        "%\" aria-valuenow=\"" +
-                        row['totalDislikes'] +
-                        "\" aria-valuemin=\"0\" aria-valuemax=\"" +
-                        row['totalVotes'] +
-                        "\"></div>" +
-                        "</div>" +
-                        "<div class=\"m-t-sm\">" +
-                        row['totalLikes'] +
-                        " likes and " +
-                        row['totalDislikes'] +
-                        " dislikes out of " +
-                        row['totalVotes'] +
-                        "</div>";
-                }
-            },
-            {
-                sortable: false,
-                render: function (data, type, row) {
-                    if (row['mapImageUri'] is null) {
-            return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"/images/noimage.jpg\" />";
-        }
-                                else
-        {
-            return "<img style=\"border: 5px solid #021a40; display: block; margin: auto;\" src=\"" + row['mapImageUri'] + "\" />";
-        }
+                            if (data === undefined || data == null || data.length === 0) {
+                                return "No Map Files";
                             }
+                            var outputText = "<ul class=\"list-unstyled mb-0\">";
+                            for (var key in data) {
+                                if (Object.prototype.hasOwnProperty.call(data, key)) {
+                                    var file = data[key];
+                                    if (file && file['url'] && file['fileName']) {
+                                        outputText += "<li><a href='" + file['url'] + "'>" + file['fileName'] + "</a></li>";
+                                    }
+                                }
+                            }
+                            outputText += "</ul>";
+                            return outputText;
                         }
-                    ]
-                });
+                    },
+                    {
+                        name: 'popularity',
+                        sortable: true,
+                        render: function (data, type, row) {
+                            return "<div class=\"progress\" id=\"progress-" +
+                                row['mapName'] +
+                                "\"> <div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: " +
+                                row['likePercentage'] +
+                                "%\" aria-valuenow=\"" +
+                                row['totalLikes'] +
+                                "\" aria-valuemin=\"0\" aria-valuemax=\"" +
+                                row['totalVotes'] +
+                                "\"></div>" +
+                                "<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: " +
+                                row['dislikePercentage'] +
+                                "%\" aria-valuenow=\"" +
+                                row['totalDislikes'] +
+                                "\" aria-valuemin=\"0\" aria-valuemax=\"" +
+                                row['totalVotes'] +
+                                "\"></div>" +
+                                "</div>" +
+                                "<div class=\"m-t-sm\">" +
+                                row['totalLikes'] +
+                                " likes and " +
+                                row['totalDislikes'] +
+                                " dislikes out of " +
+                                row['totalVotes'] +
+                                "</div>";
+                        }
+                    },
+                    {
+                        sortable: false,
+                        render: function (data, type, row) {
+                            if (!row['mapImageUri']) {
+                                return "<img alt=\"No map image available\" style=\"border: 5px solid #021a40; display: block; margin: auto; max-width:200px;\" src=\"/images/noimage.jpg\" />";
+                            }
+                            return "<img alt=\"Map image for " + row['mapName'] + "\" style=\"border: 5px solid #021a40; display: block; margin: auto; max-width:200px;\" src=\"" + row['mapImageUri'] + "\" />";
+                        }
+                    }
+                ]
             });
+        });
 
     </script>
 }

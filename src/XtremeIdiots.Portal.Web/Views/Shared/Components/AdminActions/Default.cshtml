@@ -217,7 +217,7 @@
                                                                     Tuple<GameType, AdminActionType, string?>(gameType.Value, item.Type, userForumId),
                                                                     AuthPolicies.EditAdminAction)).Succeeded)
                                     {
-                                        <a asp-controller="AdminAction" asp-action="Edit" asp-route-id="@item.AdminActionId"
+                                        <a asp-controller="AdminActions" asp-action="Edit" asp-route-id="@item.AdminActionId"
                                             class="btn btn-outline-@cardStyle btn-sm">
                                             <i class="fa fa-edit me-1"></i> Edit @item.Type
                                         </a>
@@ -230,7 +230,7 @@
                                                                         Tuple<GameType, string?>(gameType.Value, userForumId),
                                                                         AuthPolicies.LiftAdminAction)).Succeeded)
                                         {
-                                            <a asp-controller="AdminAction" asp-action="Lift" asp-route-id="@item.AdminActionId"
+                                            <a asp-controller="AdminActions" asp-action="Lift" asp-route-id="@item.AdminActionId"
                                                 class="btn btn-outline-warning btn-sm">
                                                 <i class="fa fa-unlock me-1"></i> Lift Ban
                                             </a>
@@ -242,7 +242,7 @@
                                         @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User,
                                                                         gameType.Value, AuthPolicies.ClaimAdminAction)).Succeeded)
                                         {
-                                            <a asp-controller="AdminAction" asp-action="Claim" asp-route-id="@item.AdminActionId"
+                                            <a asp-controller="AdminActions" asp-action="Claim" asp-route-id="@item.AdminActionId"
                                                 class="btn btn-outline-info btn-sm">
                                                 <i class="fa fa-user me-1"></i> Claim Ban
                                             </a>
@@ -254,7 +254,7 @@
                                         @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User,
                                                                         gameType.Value, AuthPolicies.CreateAdminActionTopic)).Succeeded)
                                         {
-                                            <a asp-controller="AdminAction" asp-action="CreateDiscussionTopic"
+                                            <a asp-controller="AdminActions" asp-action="CreateDiscussionTopic"
                                                 asp-route-id="@item.AdminActionId" class="btn btn-outline-success btn-sm">
                                                 <i class="fa fa-plus me-1"></i> Create Discussion Topic
                                             </a>
@@ -264,7 +264,7 @@
                                     @if ((await AuthorizationService.AuthorizeAsync(User,
                                                                     AuthPolicies.DeleteAdminAction)).Succeeded)
                                     {
-                                        <a asp-controller="AdminAction" asp-action="Delete" asp-route-id="@item.AdminActionId"
+                                        <a asp-controller="AdminActions" asp-action="Delete" asp-route-id="@item.AdminActionId"
                                             class="btn btn-outline-danger btn-sm">
                                             <i class="fa fa-trash me-1"></i> Delete @item.Type
                                         </a>

@@ -55,7 +55,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.CreateAdminAction,
                 "Create",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionType:{adminActionType}",
                 playerData);
 
@@ -100,7 +100,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.CreateAdminAction,
                 "Create",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionType:{model.Type}",
                 playerData);
 
@@ -160,7 +160,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.EditAdminAction,
                 "Edit",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
@@ -210,7 +210,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.EditAdminAction,
                 "Edit",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{model.AdminActionId}",
                 adminActionData);
 
@@ -276,7 +276,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.LiftAdminAction,
                 "Lift",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
@@ -310,7 +310,7 @@ public class AdminActionsController(
                 authorizationResource,
                 AuthPolicies.LiftAdminAction,
                 "Lift",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 
@@ -366,7 +366,7 @@ public class AdminActionsController(
                 playerData.GameType,
                 AuthPolicies.ClaimAdminAction,
                 "Claim",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{id}",
                 adminActionData);
 
@@ -404,7 +404,7 @@ public class AdminActionsController(
                 playerData.GameType,
                 AuthPolicies.ClaimAdminAction,
                 "Claim",
-                "AdminAction",
+                "AdminActions",
                 $"GameType:{playerData.GameType},AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 
@@ -535,7 +535,7 @@ public class AdminActionsController(
                 adminActionData,
                 AuthPolicies.DeleteAdminAction,
                 "Delete",
-                "AdminAction",
+                "AdminActions",
                 $"AdminActionId:{id}",
                 adminActionData);
 
@@ -573,7 +573,7 @@ public class AdminActionsController(
                 adminActionData,
                 AuthPolicies.DeleteAdminAction,
                 "Delete",
-                "AdminAction",
+                "AdminActions",
                 $"AdminActionId:{id},PlayerId:{playerId}",
                 adminActionData);
 

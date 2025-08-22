@@ -1,11 +1,11 @@
 trigger:
   branches:
     include:
-      - "*"
+      - feature/*
+      - hotfix/* # optional additional pattern for urgent fixes
     exclude:
-      - "main"
-      - "integration/*"
-      - "dependabot/*"
+      - dependabot/*
+      - integration/*
 
 pr: none
 

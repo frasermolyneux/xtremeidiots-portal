@@ -1,10 +1,10 @@
 trigger: none
 
 pr:
-  autoCancel: false
+  autoCancel: true # Cancel superseded runs for efficiency
   branches:
     include:
-      - "main"
+      - main
 
 pool:
   vmImage: 'windows-latest'

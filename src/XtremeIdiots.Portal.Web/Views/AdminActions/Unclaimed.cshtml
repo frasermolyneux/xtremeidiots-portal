@@ -1,26 +1,52 @@
-@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
-@model List<AdminActionDto>
-
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
 @{
     ViewData["Title"] = "Unclaimed Bans";
 }
-
 <div class="wrapper wrapper-content animated fadeInRight">
-
-    @if (!Model.Any())
-    {
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-content">
-                        <h1 style="text-align: center">No unclaimed bans found</h1>
-                    </div>
-                </div>
-            </div>
+    <div class="admin-actions-filters">
+        <div class="filter-group">
+            <label for="filterGameType" class="form-label">Game Type</label>
+            <select id="filterGameType" class="form-select">
+                <option value="">All Games</option>
+                @foreach (var gt in Enum.GetValues<GameType>())
+                {
+                    <option value="@gt">@gt</option>
+                }
+            </select>
         </div>
-    }
-
-
-    @await Component.InvokeAsync("AdminActions", new { adminActions = Model, linkToPlayer = true })
-
+        <div class="filter-group">
+            <label class="form-label" for="resetFilters">Reset</label>
+            <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear Filters</button>
+        </div>
+    </div>
+    <div class="ibox">
+        <div class="ibox-title">Unclaimed Bans</div>
+        <div class="ibox-content">
+            <table id="dataTable" class="table table-striped table-hover w-100" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Created</th>
+                        <th class="hide-sm"><span class="header-text">Game</span></th>
+                        <th class="hide-sm"><span class="header-text">Type</span></th>
+                        <th>Player</th>
+                        <th class="hide-sm expires-header"><span class="header-text">Expires</span></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
+    <script src="~/js/admin-actions-unclaimed.js"></script>
+}
+
+@section Styles {
+    <style>
+        .claim-btn {
+            white-space: nowrap;
+        }
+    </style>
+}

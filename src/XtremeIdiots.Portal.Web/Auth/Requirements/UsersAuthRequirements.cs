@@ -22,3 +22,10 @@ public class CreateUserClaim : IAuthorizationRequirement
 public class DeleteUserClaim : IAuthorizationRequirement
 {
 }
+
+/// <summary>
+/// Authorization requirement for performing lightweight user search (autocomplete)
+/// </summary>
+public class PerformUserSearch : IAuthorizationRequirement
+{
+}

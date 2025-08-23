@@ -26,6 +26,12 @@
             </select>
         </div>
         <div class="filter-group">
+            <label for="filterAdminUser" class="form-label">Admin</label>
+            <input id="filterAdminUser" type="text" class="form-control" placeholder="Search admin..."
+                autocomplete="off" />
+            <input type="hidden" id="filterAdminUserId" />
+        </div>
+        <div class="filter-group">
             <label class="form-label" for="resetFilters">Reset</label>
             <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear Filters</button>
         </div>
@@ -51,5 +57,9 @@
 
 @section Scripts {
     <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
+    <script src="~/js/user-search.js"></script>
     <script src="~/js/admin-actions-global.js"></script>
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-search.css" />
 }

@@ -33,6 +33,7 @@
     flex-direction: column;
     gap: .25rem;
     min-width: 0;
+    position: relative;
 }
 
 .admin-actions-filters label.form-label {
@@ -74,6 +75,23 @@
 }
 
 /* Stack full width on very small screens */
+/* Autocomplete suggestion styling */
+.admin-suggestions {
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.admin-suggestions .list-group-item {
+    cursor: pointer;
+}
+
+.admin-suggestions .list-group-item.active,
+.admin-suggestions .list-group-item:focus {
+    background: #1ab394;
+    color: #fff;
+}
+
 @media (max-width: 500px) {
     .admin-actions-filters {
         gap: .55rem .7rem;

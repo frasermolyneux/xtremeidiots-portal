@@ -27,10 +27,12 @@ $(document).ready(function () {
                 xhr.setRequestHeader('RequestVerificationToken', token);
                 const gt = $('#filterGameType').val();
                 const adminActionFilter = $('#filterAdminActionFilter').val();
+                const adminId = $('#filterAdminUserId').val();
                 const baseUrl = '/AdminActions/GetAdminActionsAjax';
                 let qs = [];
                 if (gt) qs.push('gameType=' + encodeURIComponent(gt));
                 if (adminActionFilter) qs.push('adminActionFilter=' + encodeURIComponent(adminActionFilter));
+                if (adminId) qs.push('adminId=' + encodeURIComponent(adminId));
                 this.url = baseUrl + (qs.length ? ('?' + qs.join('&')) : '');
             }
         },
@@ -60,9 +62,11 @@ $(document).ready(function () {
     });
 
     $('#resetFilters').on('click', function () {
-        const changed = $('#filterGameType').val() !== '' || $('#filterAdminActionFilter').val() !== '';
+        const changed = $('#filterGameType').val() !== '' || $('#filterAdminActionFilter').val() !== '' || $('#filterAdminUserId').val() !== '';
         $('#filterGameType').val('');
         $('#filterAdminActionFilter').val('');
+        $('#filterAdminUser').val('');
+        $('#filterAdminUserId').val('');
         applyGameColumnVisibility();
         if (changed) {
             table.page('first').draw('page');
@@ -70,4 +74,15 @@ $(document).ready(function () {
             table.ajax.reload(null, false);
         }
     });
+
+    // Initialize reusable user search autocomplete
+    if (window.initUserSearchAutocomplete) {
+        window.initUserSearchAutocomplete({
+            inputSelector: '#filterAdminUser',
+            hiddenSelector: '#filterAdminUserId',
+            searchUrl: '/UserSearch/Users',
+            minLength: 2,
+            onSelect: function () { table.page('first').draw('page'); }
+        });
+    }
 });

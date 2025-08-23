@@ -1,0 +1,16 @@
+/* Reusable user search autocomplete styling */
+.user-suggestions {
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.user-suggestions .list-group-item {
+    cursor: pointer;
+}
+
+.user-suggestions .list-group-item.active,
+.user-suggestions .list-group-item:focus {
+    background: #1ab394;
+    color: #fff;
+}

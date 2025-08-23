@@ -754,10 +754,13 @@ public class AdminActionsController(
             // Extract optional custom filters passed via additional POST data (DataTables 'ajax.data' lambda)
             GameType? gameType = null;
             AdminActionFilter? apiFilter = null;
+            string? adminId = null;
             if (Request.Query.TryGetValue("gameType", out var gameTypeValues) && Enum.TryParse<GameType>(gameTypeValues.FirstOrDefault(), out var gt))
                 gameType = gt;
             if (Request.Query.TryGetValue("adminActionFilter", out var filterValues) && Enum.TryParse<AdminActionFilter>(filterValues.FirstOrDefault(), out var f))
                 apiFilter = f;
+            if (Request.Query.TryGetValue("adminId", out var adminIdValues))
+                adminId = adminIdValues.FirstOrDefault();
 
             var order = AdminActionOrder.CreatedDesc;
             if (model.Order?.Count > 0)
@@ -778,7 +781,7 @@ public class AdminActionsController(
             }
             // API currently does not expose admin action type filtering; fetch raw page
             var apiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
-                gameType, null, null, apiFilter, model.Start, model.Length, order, cancellationToken);
+                gameType, null, adminId, apiFilter, model.Start, model.Length, order, cancellationToken);
 
             if (!apiResponse.IsSuccess || apiResponse.Result?.Data?.Items is null)
             {
@@ -807,6 +810,7 @@ public class AdminActionsController(
             });
         }, nameof(GetAdminActionsAjax));
     }
+
 
     /// <summary>
     /// Displays the most recent admin actions in a block layout with a toggle for My Games vs All Games.

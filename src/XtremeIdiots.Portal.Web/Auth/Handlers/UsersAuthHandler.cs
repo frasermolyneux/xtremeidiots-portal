@@ -31,6 +31,9 @@ public class UsersAuthHandler : IAuthorizationHandler
                 case DeleteUserClaim deleteUserClaim:
                     HandleDeleteUserClaim(context, deleteUserClaim);
                     break;
+                case PerformUserSearch performUserSearch:
+                    HandlePerformUserSearch(context, performUserSearch);
+                    break;
                 default:
                     break;
             }
@@ -64,6 +67,12 @@ public class UsersAuthHandler : IAuthorizationHandler
         {
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
         }
+    }
+
+    private static void HandlePerformUserSearch(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
+    {
+        // Any admin level (including moderators) can perform user search for autocomplete scenarios
+        BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AllAdminLevels);
     }
 
     #endregion

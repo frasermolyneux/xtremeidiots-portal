@@ -720,17 +720,11 @@ public class AdminActionsController(
     /// <summary>
     /// Displays a global list of admin actions with client-side filtering and sorting capabilities.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
     /// <returns>View containing a table of recent admin actions</returns>
     [HttpGet]
-    public async Task<IActionResult> Global(CancellationToken cancellationToken = default)
+    public IActionResult Global()
     {
-        return await ExecuteWithErrorHandlingAsync(async () =>
-        {
-            // Fetch a larger page to allow client-side filtering/search (pagination can be added later if required)
-            // Now using server-side pagination via AJAX (DataTables); initial page does not need data.
-            return View();
-        }, nameof(Global));
+        return View();
     }
 
     /// <summary>

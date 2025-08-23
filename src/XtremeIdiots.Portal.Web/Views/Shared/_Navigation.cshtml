@@ -129,17 +129,6 @@
                             Search</a>
                     </li>
 
-                    <li class="@Html.IsSelected("AdminActions", "MyActions")">
-                        <a asp-controller="AdminActions" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i>
-                            My
-                            Actions</a>
-                    </li>
-
-                    <li class="@Html.IsSelected("AdminActions", "Unclaimed")">
-                        <a asp-controller="AdminActions" asp-action="Unclaimed"><i
-                                class="fa fa-exclamation-circle fa-fw"></i> Unclaimed Bans</a>
-                    </li>
-
                     @foreach (var game in new[]{ GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5,
                                         GameType.Insurgency})
                     {
@@ -205,6 +194,32 @@
                 <a asp-controller="Tags" asp-action="Index">
                     <i class="fa fa-tags"></i> <span class="nav-label">Player Tags</span>
                 </a>
+            </li>
+
+            <li policy="@AuthPolicies.AccessAdminActionsController"
+                class="@Html.IsSelected("AdminActions", "Global") nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fa fa-shield fa-fw"></i> <span class="nav-label">Admin Actions</span><span
+                        class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected("AdminActions", cssClass: "show")">
+                    <li class="@Html.IsSelected("AdminActions", "MyActions")">
+                        <a asp-controller="AdminActions" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i>
+                            My Actions</a>
+                    </li>
+                    <li class="@Html.IsSelected("AdminActions", "Global")">
+                        <a asp-controller="AdminActions" asp-action="Global"><i class="fa fa-globe fa-fw"></i> Global
+                            Action List</a>
+                    </li>
+                    <li class="@Html.IsSelected("AdminActions", "Recent")">
+                        <a asp-controller="AdminActions" asp-action="Recent"><i class="fa fa-clock-o fa-fw"></i> Recent
+                            Actions</a>
+                    </li>
+                    <li class="@Html.IsSelected("AdminActions", "Unclaimed")">
+                        <a asp-controller="AdminActions" asp-action="Unclaimed"><i
+                                class="fa fa-exclamation-circle fa-fw"></i> Unclaimed Bans</a>
+                    </li>
+                </ul>
             </li>
 
         </ul>

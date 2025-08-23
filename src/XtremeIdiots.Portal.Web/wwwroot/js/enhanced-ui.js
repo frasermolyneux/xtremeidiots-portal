@@ -13,8 +13,13 @@ $(document).ready(function () {
         }
     });
 
-    // Make tables responsive
-    $('.table').addClass('table-responsive');
+    // Make non-DataTables tables responsive (avoid interfering with DataTables width calculations)
+    $('.table').not('.dataTable').not('#dataTable').each(function () {
+        var $t = $(this);
+        if (!$t.parent().hasClass('table-responsive')) {
+            $t.wrap('<div class="table-responsive"></div>');
+        }
+    });
 
     // Enhance DataTables if they exist
     if ($.fn.dataTable) {

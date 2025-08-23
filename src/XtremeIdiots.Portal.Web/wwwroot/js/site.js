@@ -55,6 +55,31 @@ function gameTypeIconEnum(gameType) {
         "' width='16' height='16' />";
 }
 
+// Returns a font-awesome icon followed by the admin action type text.
+// Mirrors mappings used in server-side views (AdminActions ViewComponent).
+function adminActionTypeIcon(actionType) {
+    if (!actionType) return '';
+    var iconClass = 'fa fa-question-circle';
+    switch (actionType) {
+        case 'Observation':
+            iconClass = 'fa fa-eye';
+            break;
+        case 'Warning':
+            iconClass = 'fa fa-exclamation-triangle';
+            break;
+        case 'Kick':
+            iconClass = 'fa fa-user-times';
+            break;
+        case 'TempBan':
+            iconClass = 'fa fa-clock-o';
+            break;
+        case 'Ban':
+            iconClass = 'fa fa-ban';
+            break;
+    }
+    return "<i class='" + iconClass + "' aria-hidden='true'></i> <span class='action-text'>" + actionType + "</span>";
+}
+
 function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }
@@ -159,4 +184,48 @@ function logOutUserLink(id, antiForgeryToken) {
         '<button class="btn btn-primary" type="submit">Logout User</button>' +
         antiForgeryToken +
         '</form>';
+}
+
+// Formats a UTC date string (YYYY-MM-DD HH:mm) to a relative "time ago" string using moment.js.
+// Falls back to original string if moment isn't available.
+function timeAgo(utcYmdHm) {
+    if (!utcYmdHm) return '';
+    if (typeof moment !== 'undefined') {
+        // Expecting server sends "YYYY-MM-DD HH:mm" (UTC)
+        var m = moment.utc(utcYmdHm, 'YYYY-MM-DD HH:mm');
+        if (!m.isValid()) return utcYmdHm;
+        return m.fromNow();
+    }
+    return utcYmdHm; // fallback
+}
+
+// Formats an expiry datetime (YYYY-MM-DD HH:mm) as a date string in the user's locale (day month year).
+// Falls back to 'Never' if value indicates no expiry or original string if parsing fails.
+function formatExpiryDate(utcYmdHm) {
+    if (!utcYmdHm) return '';
+    if (utcYmdHm === 'Never') return 'Never';
+    var locale = document.querySelector('meta[name="user-locale"]')?.content || 'en';
+    var tz = document.querySelector('meta[name="user-timezone"]')?.content; // e.g., Europe/London
+    if (typeof moment !== 'undefined') {
+        var m = moment.utc(utcYmdHm, 'YYYY-MM-DD HH:mm');
+        if (!m.isValid()) return utcYmdHm;
+        if (moment.locale) moment.locale(locale);
+        var display = (tz && moment.tz) ? m.tz(tz) : m.local();
+        var dateStr = display.format('LL');
+        var expired = m.isBefore(moment.utc());
+        if (expired) {
+            // Badge style for expired
+            return "<span title='Expired on " + dateStr + "'>" + dateStr + " <span class='badge text-bg-danger ms-1'>Expired</span></span>";
+        }
+        // Active (not yet expired)
+        return "<span title='Expires on " + dateStr + "'>" + dateStr + " <span class='badge text-bg-success ms-1'>Active</span></span>";
+    }
+    try {
+        var d = new Date(utcYmdHm.replace(' ', 'T') + 'Z');
+        var opts = { year: 'numeric', month: 'long', day: '2-digit' };
+        if (tz && Intl && Intl.DateTimeFormat) opts.timeZone = tz;
+        var ds = d.toLocaleDateString(locale, opts);
+        var expiredJs = Date.now() > d.getTime();
+        return expiredJs ? ("<span title='Expired on " + ds + "'>" + ds + " <span class='badge text-bg-danger ms-1'>Expired</span></span>") : ("<span title='Expires on " + ds + "'>" + ds + " <span class='badge text-bg-success ms-1'>Active</span></span>");
+    } catch { return utcYmdHm; }
 }

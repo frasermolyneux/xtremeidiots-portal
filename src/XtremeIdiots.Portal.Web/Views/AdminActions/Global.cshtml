@@ -1,0 +1,191 @@
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@{
+    ViewData["Title"] = "Global Admin Actions";
+}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="admin-actions-filters">
+        <div class="filter-group">
+            <label for="filterGameType" class="form-label">Game Type</label>
+            <select id="filterGameType" class="form-select">
+                <option value="">All Games</option>
+                @foreach (var gt in Enum.GetValues<GameType>())
+                {
+                    <option value="@gt">@gt</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filterAdminActionFilter" class="form-label">Action Filter</label>
+            <select id="filterAdminActionFilter" class="form-select">
+                <option value="">All</option>
+                @foreach (var f in
+                                Enum.GetValues<XtremeIdiots.Portal.Repository.Abstractions.Constants.V1.AdminActionFilter>())
+                {
+                    <option value="@f">@f</option>
+                }
+            </select>
+        </div>
+    </div>
+    <div class="ibox">
+        <div class="ibox-title">Admin Actions</div>
+        <div class="ibox-content">
+            <style>
+                /* Without Bootstrap .table-responsive wrapper DataTables can correctly stretch columns */
+                #dataTable.dataTable {
+                    width: 100% !important;
+                }
+
+                /* Allow cell wrapping to avoid horizontal scroll on small devices */
+                #dataTable.dataTable td,
+                #dataTable.dataTable th {
+                    white-space: normal;
+                }
+
+                #dataTable.dataTable td small {
+                    display: block;
+                    word-break: break-all;
+                }
+
+                /* On very narrow screens hide GUID (small tag) to reduce clutter */
+                @@media (max-width: 480px) {
+                    #dataTable.dataTable td small {
+                        display: none;
+                    }
+                }
+
+                /* Hide Game & Type header text and action text (keep icon) on small screens */
+                @@media (max-width: 576px) {
+                    #dataTable thead th.hide-sm .header-text {
+                        display: none;
+                    }
+
+                    #dataTable td .action-text {
+                        display: none;
+                    }
+
+                    #dataTable thead th.expires-header .header-text {
+                        display: none;
+                    }
+
+                    #dataTable td.expires-cell {
+                        display: none;
+                    }
+                }
+            </style>
+            <table id="dataTable" class="table table-striped table-hover w-100" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Created</th>
+                        <th class="hide-sm"><span class="header-text">Game</span></th>
+                        <th class="hide-sm"><span class="header-text">Type</span></th>
+                        <th>Player</th>
+                        <th>Admin</th>
+                        <th class="hide-sm expires-header"><span class="header-text">Expires</span></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            const table = $('#dataTable').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: false,
+                responsive: true,
+                responsive: {
+                    details: {
+                        type: 'inline',
+                        target: 'tr'
+                    }
+                },
+                autoWidth: true, // allow DataTables to assign initial widths
+                order: [[0, 'desc']],
+                columnDefs: [
+                    { targets: 0, width: '14%', responsivePriority: 1 }, // Created
+                    { targets: 1, width: '10%', responsivePriority: 5 }, // Game (icon)
+                    { targets: 2, width: '14%', responsivePriority: 2 }, // Type
+                    { targets: 3, width: '32%', responsivePriority: 3 }, // Player
+                    { targets: 4, width: '15%', responsivePriority: 6 }, // Admin (hide earlier on very small)
+                    { targets: 5, width: '15%', responsivePriority: 4 }  // Expires
+                ],
+                ajax: {
+                    url: '/AdminActions/GetAdminActionsAjax',
+                    dataSrc: 'data',
+                    contentType: 'application/json',
+                    type: 'POST',
+                    data: function (d) {
+                        // DataTables only supports one global search; admin action API doesn't support text search currently
+                        return JSON.stringify(d);
+                    },
+                    beforeSend: function (xhr) {
+                        const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                        xhr.setRequestHeader('RequestVerificationToken', token);
+                        // Append filters as query params (handled server side for gameType; actionType filtered in-memory)
+                        const gt = $('#filterGameType').val();
+                        const adminActionFilter = $('#filterAdminActionFilter').val();
+                        const baseUrl = '/AdminActions/GetAdminActionsAjax';
+                        let qs = [];
+                        if (gt) qs.push('gameType=' + encodeURIComponent(gt));
+                        if (adminActionFilter) qs.push('adminActionFilter=' + encodeURIComponent(adminActionFilter));
+                        this.url = baseUrl + (qs.length ? ('?' + qs.join('&')) : '');
+                    }
+                },
+                columns: [
+                    { data: 'created', name: 'created', sortable: true, render: function (data) { return '<span title="' + data + '">' + timeAgo(data) + '</span>'; } },
+                    {
+                        data: 'gameType',
+                        name: 'gameType',
+                        sortable: false,
+                        render: function (data, type, row) {
+                            // Use shared helper to render game icon based on enum string (e.g. "CallOfDuty4")
+                            return gameTypeIcon(data);
+                        }
+                    },
+                    {
+                        data: 'type',
+                        name: 'type',
+                        sortable: false,
+                        render: function (data) {
+                            return adminActionTypeIcon(data);
+                        }
+                    },
+                    {
+                        data: 'player', name: 'player', sortable: false,
+                        render: function (data, type, row) {
+                            return '<a href="/Players/Details/' + row.playerId + '">' + data + '</a><br/><small class="text-muted">' + (row.guid || '') + '</small>';
+                        }
+                    },
+                    { data: 'admin', name: 'admin', sortable: false },
+                    { data: 'expires', name: 'expires', sortable: false, className: 'expires-cell', render: function (data) { return formatExpiryDate(data); } }
+                ]
+            });
+
+            // Adjust columns after data load (helps when container animates in)
+            table.on('xhr.dt', function () { table.columns.adjust(); });
+
+            // Initial adjust after animation (fadeInRight) to recalc widths once container has final width
+            $('#dataTable').on('init.dt', function () {
+                setTimeout(function () { table.columns.adjust().draw(false); }, 350);
+            });
+
+            function applyGameColumnVisibility() {
+                const hasSpecificGame = $('#filterGameType').val() !== '';
+                // Show game column only when "All Games" selected
+                table.column(1).visible(!hasSpecificGame, false); // defer draw
+            }
+
+            // Initial visibility
+            applyGameColumnVisibility();
+
+            $('#filterGameType,#filterAdminActionFilter').on('change', function () {
+                applyGameColumnVisibility();
+                table.ajax.reload(null, false); // keep on same page if possible
+            });
+        });
+    </script>
+}

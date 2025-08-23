@@ -17,6 +17,82 @@
     /* Ensure minimum height to push footer down */
 }
 
+/* Filter bar - consistent vertical alignment & anti-overlap layout */
+.admin-actions-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem 1.1rem;
+    align-items: stretch;
+    margin-bottom: .85rem;
+}
+
+.admin-actions-filters .filter-group {
+    flex: 0 1 240px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-width: 0;
+}
+
+.admin-actions-filters label.form-label {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 600;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.admin-actions-filters select.form-select {
+    width: 100%;
+    border-radius: .5rem;
+    padding: .5rem .75rem;
+    font-size: .9rem;
+    border: 1px solid #d1d5db;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.admin-actions-filters select.form-select:focus {
+    border-color: #1ab394;
+    box-shadow: 0 0 0 .15rem rgba(26, 179, 148, .25);
+}
+
+/* Slightly earlier breakpoint than 900 to reduce sudden wrap */
+@media (max-width: 880px) {
+    .admin-actions-filters .filter-group {
+        flex: 0 1 220px;
+    }
+}
+
+/* Two-column wrap when space tighter */
+@media (max-width: 720px) {
+    .admin-actions-filters .filter-group {
+        flex: 1 1 48%;
+    }
+}
+
+/* Stack full width on very small screens */
+@media (max-width: 500px) {
+    .admin-actions-filters {
+        gap: .55rem .7rem;
+    }
+
+    .admin-actions-filters .filter-group {
+        flex: 1 1 100%;
+    }
+
+    .admin-actions-filters select.form-select {
+        padding: .45rem .65rem;
+        font-size: .85rem;
+    }
+
+    .admin-actions-filters label.form-label {
+        font-size: .6rem;
+    }
+}
+
 /* Add extra bottom margin to wrapper when admin actions are present */
 .wrapper.wrapper-content:has(.admin-actions-container) {
     margin-bottom: 120px !important;

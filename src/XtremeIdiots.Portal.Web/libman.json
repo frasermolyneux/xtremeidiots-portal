@@ -10,6 +10,13 @@
         "dist/chart.umd.js",
         "dist/chart.umd.min.js"
       ]
+    },
+    {
+      "library": "moment.js@2.30.1",
+      "destination": "wwwroot/lib/moment",
+      "files": [
+        "min/moment.min.js"
+      ]
     }
   ]
 }

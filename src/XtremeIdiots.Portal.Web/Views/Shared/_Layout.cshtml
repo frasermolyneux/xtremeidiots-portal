@@ -20,6 +20,21 @@
     <meta name="description"
         content="@(ViewData["Description"] ?? "XtremeIdiots Portal - Game servers management and administration")">
     <meta name="theme-color" content="#1ab394">
+    @* Expose user locale & timezone claims for client-side formatting *@
+    @{
+        var localeClaim = User?.Claims?.FirstOrDefault(c => c.Type == "locale" || c.Type == "culture" || c.Type ==
+        "ui_locale");
+        var tzClaim = User?.Claims?.FirstOrDefault(c => c.Type == "TimeZone" || c.Type == "timezone" || c.Type ==
+        "time_zone");
+        if (localeClaim != null)
+        {
+            <meta name="user-locale" content="@localeClaim.Value" />
+        }
+        if (tzClaim != null)
+        {
+            <meta name="user-timezone" content="@tzClaim.Value" />
+        }
+    }
 
     @if (IsSectionDefined("Styles"))
     {
@@ -87,6 +102,7 @@
         <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
         <script src="~/lib/pace/pace.js"></script>
         <script src="~/lib/datatables/js/jquery.dataTables.js"></script>
+        <script src="~/lib/moment/min/moment.min.js"></script>
         <script src="~/js/inspinia.js" asp-append-version="true"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
@@ -98,6 +114,7 @@
         <script src="~/lib/pace/pace.min.js"></script>
         <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
         <script src="~/lib/datatables/js/jquery.dataTables.min.js"></script>
+        <script src="~/lib/moment/min/moment.min.js"></script>
         <script src="~/js/inspinia.js" asp-append-version="true"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
         <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>

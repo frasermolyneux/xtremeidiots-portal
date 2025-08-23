@@ -713,4 +713,147 @@ public class AdminActionsController(
             return View(adminActionsApiResponse.Result.Data.Items);
         }, nameof(Unclaimed));
     }
+
+    /// <summary>
+    /// Displays a global list of admin actions with client-side filtering and sorting capabilities.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View containing a table of recent admin actions</returns>
+    [HttpGet]
+    public async Task<IActionResult> Global(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            // Fetch a larger page to allow client-side filtering/search (pagination can be added later if required)
+            // Now using server-side pagination via AJAX (DataTables); initial page does not need data.
+            return View();
+        }, nameof(Global));
+    }
+
+    /// <summary>
+    /// Provides server-side paginated admin actions for DataTables AJAX endpoint.
+    /// Supports filtering by game type and admin action type. Ordering currently by Created only.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>JSON result for DataTables</returns>
+    [HttpPost]
+    public async Task<IActionResult> GetAdminActionsAjax(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            using var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync(cancellationToken);
+
+            var model = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.DataTableAjaxPostModel>(requestBody);
+            if (model is null)
+            {
+                Logger.LogWarning("Invalid DataTable model for admin actions by user {UserId}", User.XtremeIdiotsId());
+                return BadRequest();
+            }
+
+            // Extract optional custom filters passed via additional POST data (DataTables 'ajax.data' lambda)
+            GameType? gameType = null;
+            AdminActionFilter? apiFilter = null;
+            if (Request.Query.TryGetValue("gameType", out var gameTypeValues) && Enum.TryParse<GameType>(gameTypeValues.FirstOrDefault(), out var gt))
+                gameType = gt;
+            if (Request.Query.TryGetValue("adminActionFilter", out var filterValues) && Enum.TryParse<AdminActionFilter>(filterValues.FirstOrDefault(), out var f))
+                apiFilter = f;
+
+            var order = AdminActionOrder.CreatedDesc;
+            if (model.Order?.Count > 0)
+            {
+                var dir = model.Order.First().Dir;
+                // Attempt to use CreatedAsc if available when user sorts ascending on Created column (index 0)
+                if (model.Order.First().Column == 0 && dir == "asc")
+                {
+                    try
+                    {
+                        order = AdminActionOrder.CreatedAsc;
+                    }
+                    catch
+                    {
+                        order = AdminActionOrder.CreatedDesc;
+                    }
+                }
+            }
+            // API currently does not expose admin action type filtering; fetch raw page
+            var apiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
+                gameType, null, null, apiFilter, model.Start, model.Length, order, cancellationToken);
+
+            if (!apiResponse.IsSuccess || apiResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve admin actions list for user {UserId}", User.XtremeIdiotsId());
+                return StatusCode(500);
+            }
+
+            var items = apiResponse.Result.Data.Items.ToList();
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal = apiResponse.Result.Pagination?.TotalCount,
+                recordsFiltered = apiResponse.Result.Pagination?.FilteredCount,
+                data = items.Select(a => new
+                {
+                    created = a.Created.ToString("yyyy-MM-dd HH:mm"),
+                    gameType = a.Player?.GameType.ToString(),
+                    type = a.Type.ToString(),
+                    player = a.Player?.Username,
+                    playerId = a.PlayerId,
+                    guid = a.Player?.Guid,
+                    admin = a.UserProfile?.DisplayName ?? "Unclaimed",
+                    expires = a.Expires?.ToString("yyyy-MM-dd HH:mm") ?? (a.Type == AdminActionType.Ban ? "Never" : string.Empty)
+                })
+            });
+        }, nameof(GetAdminActionsAjax));
+    }
+
+    /// <summary>
+    /// Displays the most recent admin actions in a block layout with a toggle for My Games vs All Games.
+    /// </summary>
+    /// <param name="scope">Scope filter: 'my' (default) or 'all'</param>
+    /// <param name="cancellationToken">Cancellation token for the async operation</param>
+    /// <returns>View showing the latest admin actions</returns>
+    [HttpGet]
+    public async Task<IActionResult> Recent(string? scope = "my", CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var useMyGames = string.Equals(scope, "my", StringComparison.OrdinalIgnoreCase);
+
+            List<AdminActionDto> actions;
+
+            if (useMyGames)
+            {
+                // Determine game types the user administers (Senior/Head/Game Admin claims)
+                var requiredClaims = new[]
+                {
+                    UserProfileClaimType.SeniorAdmin,
+                    UserProfileClaimType.HeadAdmin,
+                    UserProfileClaimType.GameAdmin
+                };
+                var gameTypes = User.ClaimedGameTypes(requiredClaims);
+
+                var aggregated = new List<AdminActionDto>();
+                foreach (var gameType in gameTypes)
+                {
+                    var response = await repositoryApiClient.AdminActions.V1.GetAdminActions(gameType, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
+                    if (response.IsSuccess && response.Result?.Data?.Items is not null)
+                        aggregated.AddRange(response.Result.Data.Items);
+                }
+
+                actions = [.. aggregated.OrderByDescending(a => a.Created).Take(15)];
+            }
+            else
+            {
+                var response = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
+                actions = response.IsSuccess && response.Result?.Data?.Items is not null
+                    ? response.Result.Data.Items.ToList()
+                    : [];
+            }
+
+            ViewData["Scope"] = useMyGames ? "my" : "all";
+            return View(actions);
+        }, nameof(Recent));
+    }
 }

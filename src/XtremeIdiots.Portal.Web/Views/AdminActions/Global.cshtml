@@ -25,6 +25,10 @@
                 }
             </select>
         </div>
+        <div class="filter-group">
+            <label class="form-label" for="resetFilters">Reset</label>
+            <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear Filters</button>
+        </div>
     </div>
     <div class="ibox">
         <div class="ibox-title">Admin Actions</div>
@@ -185,6 +189,19 @@
             $('#filterGameType,#filterAdminActionFilter').on('change', function () {
                 applyGameColumnVisibility();
                 table.ajax.reload(null, false); // keep on same page if possible
+            });
+
+            // Reset filters button: clears selects, restores game column, reloads first page
+            $('#resetFilters').on('click', function () {
+                const changed = $('#filterGameType').val() !== '' || $('#filterAdminActionFilter').val() !== '';
+                $('#filterGameType').val('');
+                $('#filterAdminActionFilter').val('');
+                applyGameColumnVisibility();
+                if (changed) {
+                    table.page('first').draw('page');
+                } else {
+                    table.ajax.reload(null, false);
+                }
             });
         });
     </script>

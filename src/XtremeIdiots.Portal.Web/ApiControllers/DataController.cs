@@ -152,7 +152,7 @@ public class DataController(
             }
 
             var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(
-                model.Search?.Value, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
+                model.Search?.Value, null, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
 
             if (userProfileResponseDto.Result?.Data is null)
             {

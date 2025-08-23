@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 
@@ -27,7 +28,7 @@ public class UserSearchController(IRepositoryApiClient repositoryApiClient, ILog
         if (search is null || search.Length < 2)
             return Json(Array.Empty<object>());
 
-        var response = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(search, 0, 15, Repository.Abstractions.Constants.V1.UserProfilesOrder.DisplayNameAsc, cancellationToken);
+        var response = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(search, 0, 15, (int)UserProfileFilter.AnyAdmin, UserProfilesOrder.DisplayNameAsc, cancellationToken);
         if (!response.IsSuccess || response.Result?.Data?.Items is null)
         {
             logger.LogWarning("UserSearch.Users failed for term {Term}", term);

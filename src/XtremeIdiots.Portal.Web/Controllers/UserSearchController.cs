@@ -28,7 +28,7 @@ public class UserSearchController(IRepositoryApiClient repositoryApiClient, ILog
         if (search is null || search.Length < 2)
             return Json(Array.Empty<object>());
 
-        var response = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(search, 0, 15, (int)UserProfileFilter.AnyAdmin, UserProfilesOrder.DisplayNameAsc, cancellationToken);
+        var response = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(search, UserProfileFilter.AnyAdmin, 0, 15, UserProfilesOrder.DisplayNameAsc, cancellationToken);
         if (!response.IsSuccess || response.Result?.Data?.Items is null)
         {
             logger.LogWarning("UserSearch.Users failed for term {Term}", term);

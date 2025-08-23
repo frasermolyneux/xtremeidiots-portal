@@ -243,3 +243,42 @@
         padding: 0.25rem 0.5rem;
     }
 }
+
+/* Global Admin Actions table responsive rules */
+#dataTable.dataTable {
+    width: 100% !important;
+}
+
+#dataTable.dataTable td,
+#dataTable.dataTable th {
+    white-space: normal;
+}
+
+#dataTable.dataTable td small {
+    display: block;
+    word-break: break-all;
+}
+
+@media (max-width:480px) {
+    #dataTable.dataTable td small {
+        display: none;
+    }
+}
+
+@media (max-width:576px) {
+    #dataTable thead th.hide-sm .header-text {
+        display: none;
+    }
+
+    #dataTable td .action-text {
+        display: none;
+    }
+
+    #dataTable thead th.expires-header .header-text {
+        display: none;
+    }
+
+    #dataTable td.expires-cell {
+        display: none;
+    }
+}

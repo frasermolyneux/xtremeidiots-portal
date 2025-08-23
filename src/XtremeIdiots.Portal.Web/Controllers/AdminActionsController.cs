@@ -934,52 +934,5 @@ public class AdminActionsController(
         }, nameof(GetMyAdminActionDetails));
     }
 
-    /// <summary>
-    /// Displays the most recent admin actions in a block layout with a toggle for My Games vs All Games.
-    /// </summary>
-    /// <param name="scope">Scope filter: 'my' (default) or 'all'</param>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>View showing the latest admin actions</returns>
-    [HttpGet]
-    public async Task<IActionResult> Recent(string? scope = "my", CancellationToken cancellationToken = default)
-    {
-        return await ExecuteWithErrorHandlingAsync(async () =>
-        {
-            var useMyGames = string.Equals(scope, "my", StringComparison.OrdinalIgnoreCase);
-
-            List<AdminActionDto> actions;
-
-            if (useMyGames)
-            {
-                // Determine game types the user administers (Senior/Head/Game Admin claims)
-                var requiredClaims = new[]
-                {
-                    UserProfileClaimType.SeniorAdmin,
-                    UserProfileClaimType.HeadAdmin,
-                    UserProfileClaimType.GameAdmin
-                };
-                var gameTypes = User.ClaimedGameTypes(requiredClaims);
-
-                var aggregated = new List<AdminActionDto>();
-                foreach (var gameType in gameTypes)
-                {
-                    var response = await repositoryApiClient.AdminActions.V1.GetAdminActions(gameType, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
-                    if (response.IsSuccess && response.Result?.Data?.Items is not null)
-                        aggregated.AddRange(response.Result.Data.Items);
-                }
-
-                actions = [.. aggregated.OrderByDescending(a => a.Created).Take(15)];
-            }
-            else
-            {
-                var response = await repositoryApiClient.AdminActions.V1.GetAdminActions(null, null, null, null, 0, 15, AdminActionOrder.CreatedDesc, cancellationToken);
-                actions = response.IsSuccess && response.Result?.Data?.Items is not null
-                    ? response.Result.Data.Items.ToList()
-                    : [];
-            }
-
-            ViewData["Scope"] = useMyGames ? "my" : "all";
-            return View(actions);
-        }, nameof(Recent));
-    }
+    // Recent admin actions feature removed (was action: Recent) as per maintenance decision.
 }

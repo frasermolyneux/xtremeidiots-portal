@@ -67,11 +67,13 @@
                     &gt;XI&lt;
                 </div>
             </li>
+
             <li policy="@AuthPolicies.AccessHome" class="@Html.IsSelected("Home", "Index")">
                 <a asp-controller="Home" asp-action="Index" data-testid="nav-home">
                     <i class="fa fa-home fa-fw" aria-hidden="true"></i> <span class="nav-label">Home</span>
                 </a>
             </li>
+
             <li policy="@AuthPolicies.AccessServers" class="@Html.IsSelected("Servers", "Index") nav-item">
                 <a href="#" class="nav-link" data-testid="nav-servers-toggle">
                     <i class="fa fa-server fa-fw" aria-hidden="true"></i> <span class="nav-label">Servers</span> <span
@@ -103,6 +105,7 @@
                     <i class="fa fa-key fa-fw" aria-hidden="true"></i> <span class="nav-label">Credentials</span>
                 </a>
             </li>
+
             <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players", "Index") nav-item">
                 <a href="#" class="nav-link" data-testid="nav-players-toggle">
                     <i class="fa fa-users fa-fw"></i> <span class="nav-label">Players</span> <span
@@ -142,6 +145,29 @@
                     }
                 </ul>
             </li>
+
+            <li policy="@AuthPolicies.AccessAdminActionsController"
+                class="@Html.IsSelected("AdminActions", "Global") nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fa fa-shield fa-fw"></i> <span class="nav-label">Admin Actions</span><span
+                        class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected("AdminActions", cssClass: "show")">
+                    <li class="@Html.IsSelected("AdminActions", "MyActions")">
+                        <a asp-controller="AdminActions" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i>
+                            My Actions</a>
+                    </li>
+                    <li class="@Html.IsSelected("AdminActions", "Global")">
+                        <a asp-controller="AdminActions" asp-action="Global"><i class="fa fa-globe fa-fw"></i> Global
+                            Action List</a>
+                    </li>
+                    <li class="@Html.IsSelected("AdminActions", "Unclaimed")">
+                        <a asp-controller="AdminActions" asp-action="Unclaimed"><i
+                                class="fa fa-exclamation-circle fa-fw"></i> Unclaimed Bans</a>
+                    </li>
+                </ul>
+            </li>
+
             <li policy="@AuthPolicies.AccessStatus" class="@Html.IsSelected("Status", "BanFileStatus") nav-item">
                 <a href="#" class="nav-link">
                     <i class="fa fa-heartbeat fa-fw"></i> <span class="nav-label">Status</span><span
@@ -196,31 +222,6 @@
                 </a>
             </li>
 
-            <li policy="@AuthPolicies.AccessAdminActionsController"
-                class="@Html.IsSelected("AdminActions", "Global") nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fa fa-shield fa-fw"></i> <span class="nav-label">Admin Actions</span><span
-                        class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse @Html.IsSelected("AdminActions", cssClass: "show")">
-                    <li class="@Html.IsSelected("AdminActions", "MyActions")">
-                        <a asp-controller="AdminActions" asp-action="MyActions"><i class="fa fa-check-square fa-fw"></i>
-                            My Actions</a>
-                    </li>
-                    <li class="@Html.IsSelected("AdminActions", "Global")">
-                        <a asp-controller="AdminActions" asp-action="Global"><i class="fa fa-globe fa-fw"></i> Global
-                            Action List</a>
-                    </li>
-                    <li class="@Html.IsSelected("AdminActions", "Recent")">
-                        <a asp-controller="AdminActions" asp-action="Recent"><i class="fa fa-clock-o fa-fw"></i> Recent
-                            Actions</a>
-                    </li>
-                    <li class="@Html.IsSelected("AdminActions", "Unclaimed")">
-                        <a asp-controller="AdminActions" asp-action="Unclaimed"><i
-                                class="fa fa-exclamation-circle fa-fw"></i> Unclaimed Bans</a>
-                    </li>
-                </ul>
-            </li>
 
         </ul>
     </div>

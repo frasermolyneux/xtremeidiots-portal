@@ -300,3 +300,205 @@
         display: none;
     }
 }
+
+/* My Admin Actions master-detail layout */
+.wrapper.wrapper-content.my-admin-actions-layout {
+    --my-actions-left-width: 480px;
+    --my-actions-left-min: 320px;
+    --my-actions-left-max: 900px;
+    display: grid !important;
+    grid-template-columns: var(--my-actions-left-width) 6px 1fr;
+    gap: 1rem;
+    align-items: stretch;
+    height: calc(100vh - 140px);
+}
+
+.my-actions-left {
+    width: var(--my-actions-left-width);
+    max-width: var(--my-actions-left-max);
+    min-width: var(--my-actions-left-min);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.my-actions-resizer {
+    cursor: col-resize;
+    background: linear-gradient(180deg, #e7eaec 0%, #d5d9dc 100%);
+    border-radius: 4px;
+    position: relative;
+    transition: background .15s ease;
+}
+
+.my-actions-resizer:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 40px;
+    background: #b4b9bd;
+    border-radius: 2px;
+}
+
+.my-actions-resizer:hover,
+.my-actions-resizer:focus {
+    background: #cfd3d6;
+    outline: none;
+}
+
+.my-actions-resizer.dragging {
+    background: #1ab394;
+}
+
+.my-actions-right {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.my-actions-right #myActionDetailsPanel {
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+/* Stretch table area inside left pane */
+.my-actions-left .ibox {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.my-actions-left .ibox-title {
+    flex: 0 0 auto;
+}
+
+.my-actions-left .ibox-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.my-actions-left .dataTables_wrapper {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.my-actions-left .dataTables_scrollBody {
+    flex: 1 1 auto !important;
+}
+
+.my-action-details-placeholder {
+    background: #fff;
+    border: 1px solid #e7eaec;
+    border-radius: 4px;
+    min-height: 300px;
+}
+
+#myActionDetailsPanel {
+    background: #fff;
+    border: 1px solid #e7eaec;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+.my-action-selected {
+    background: #f0f8ff !important;
+}
+
+.my-action-details-inner .admin-action-text {
+    white-space: pre-wrap;
+}
+
+/* Removed responsive stacking to keep panels side-by-side */
+
+/* Full-height layout for My Actions page */
+.my-actions-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 140px);
+    gap: .75rem;
+}
+
+/* adjust 140px if header/footer heights differ */
+.my-actions-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.my-actions-table-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    /* allow child (DataTable) to scroll */
+}
+
+#myActionsTable.dataTable {
+    width: 100% !important;
+}
+
+.dataTables_wrapper .dataTables_scrollBody {
+    border: 1px solid #e7eaec;
+}
+
+/* Improve left padding for the info summary line under My Actions table */
+.my-actions-left .dataTables_info {
+    padding-left: 0.75rem;
+}
+
+/* My Admin Action details panel typography adjustments */
+.my-action-details-inner {
+    font-size: 0.97rem;
+    /* slightly larger than default for readability */
+    line-height: 1.55;
+}
+
+.my-action-details-inner h5 {
+    font-size: 1.20rem;
+    line-height: 1.3;
+}
+
+.my-action-details-inner .fw-semibold.small,
+.my-action-details-inner .small.text-muted,
+.my-action-details-inner .small {
+    font-size: 0.82rem;
+    /* keep supporting meta text modest but still larger */
+}
+
+.my-action-details-inner .admin-action-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.my-action-details-inner .btn.btn-sm {
+    font-size: 0.8rem;
+}
+
+/* Responsive: stack My Actions panels on medium and below */
+@media (max-width: 991.98px) {
+    .wrapper.wrapper-content.my-admin-actions-layout {
+        grid-template-columns: 1fr !important;
+        height: auto;
+    }
+
+    .my-actions-left {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+    }
+
+    .my-actions-resizer {
+        display: none !important;
+    }
+
+    .my-actions-right {
+        margin-top: 1rem;
+    }
+
+    #myActionDetailsPanel {
+        max-height: none;
+    }
+}

@@ -352,14 +352,26 @@ public class AdminActionsController(
         {
             var getAdminActionResult = await repositoryApiClient.AdminActions.V1.GetAdminAction(id, cancellationToken);
 
-            if (getAdminActionResult.IsNotFound || getAdminActionResult.Result?.Data?.Player is null)
+            if (getAdminActionResult.IsNotFound || getAdminActionResult.Result?.Data is null)
             {
                 Logger.LogWarning("Admin action {AdminActionId} not found for claim operation", id);
                 return NotFound();
             }
 
             var adminActionData = getAdminActionResult.Result.Data;
+
+            // Ensure player data is available (some API responses may omit nested player details)
             var playerData = adminActionData.Player;
+            if (playerData is null)
+            {
+                var playerResult = await repositoryApiClient.Players.V1.GetPlayer(adminActionData.PlayerId, PlayerEntityOptions.None);
+                if (playerResult.IsNotFound || playerResult.Result?.Data is null)
+                {
+                    Logger.LogWarning("Player {PlayerId} not found when enriching admin action {AdminActionId} for claim operation", adminActionData.PlayerId, id);
+                    return NotFound();
+                }
+                playerData = playerResult.Result.Data;
+            }
 
             var authResult = await CheckAuthorizationAsync(
                 authorizationService,
@@ -811,6 +823,116 @@ public class AdminActionsController(
         }, nameof(GetAdminActionsAjax));
     }
 
+    /// <summary>
+    /// Provides server-side paginated admin actions for the currently logged in admin ("My Actions")
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>JSON result for DataTables</returns>
+    [HttpPost]
+    public async Task<IActionResult> GetMyAdminActionsAjax(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            using var reader = new StreamReader(Request.Body);
+            var requestBody = await reader.ReadToEndAsync(cancellationToken);
+
+            var model = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.DataTableAjaxPostModel>(requestBody);
+            if (model is null)
+            {
+                Logger.LogWarning("Invalid DataTable model for my admin actions by user {UserId}", User.XtremeIdiotsId());
+                return BadRequest();
+            }
+
+            GameType? gameType = null;
+            AdminActionFilter? apiFilter = null;
+            if (Request.Query.TryGetValue("gameType", out var gameTypeValues) && Enum.TryParse<GameType>(gameTypeValues.FirstOrDefault(), out var gt))
+                gameType = gt;
+            if (Request.Query.TryGetValue("adminActionFilter", out var filterValues) && Enum.TryParse<AdminActionFilter>(filterValues.FirstOrDefault(), out var f))
+                apiFilter = f;
+
+            // Always constrain to current user
+            var adminId = User.XtremeIdiotsId();
+
+            var order = AdminActionOrder.CreatedDesc;
+            if (model.Order?.Count > 0)
+            {
+                var dir = model.Order.First().Dir;
+                if (model.Order.First().Column == 0 && dir == "asc")
+                {
+                    try
+                    {
+                        order = AdminActionOrder.CreatedAsc;
+                    }
+                    catch
+                    {
+                        order = AdminActionOrder.CreatedDesc;
+                    }
+                }
+            }
+
+            var apiResponse = await repositoryApiClient.AdminActions.V1.GetAdminActions(
+                gameType, null, adminId, apiFilter, model.Start, model.Length, order, cancellationToken);
+
+            if (!apiResponse.IsSuccess || apiResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve my admin actions list for user {UserId}", User.XtremeIdiotsId());
+                return StatusCode(500);
+            }
+
+            var items = apiResponse.Result.Data.Items.ToList();
+
+            return Json(new
+            {
+                model.Draw,
+                recordsTotal = apiResponse.Result.Pagination?.TotalCount,
+                recordsFiltered = apiResponse.Result.Pagination?.FilteredCount,
+                data = items.Select(a => new
+                {
+                    created = a.Created.ToString("yyyy-MM-dd HH:mm"),
+                    gameType = a.Player?.GameType.ToString(),
+                    type = a.Type.ToString(),
+                    player = a.Player?.Username,
+                    playerId = a.PlayerId,
+                    guid = a.Player?.Guid,
+                    expires = a.Expires?.ToString("yyyy-MM-dd HH:mm") ?? (a.Type == AdminActionType.Ban ? "Never" : string.Empty),
+                    id = a.AdminActionId,
+                    text = a.Text
+                })
+            });
+        }, nameof(GetMyAdminActionsAjax));
+    }
+
+    /// <summary>
+    /// Returns a partial view with full details for an admin action (used in My Actions details panel)
+    /// </summary>
+    /// <param name="id">Admin action id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Partial HTML</returns>
+    [HttpGet]
+    public async Task<IActionResult> GetMyAdminActionDetails(Guid id, CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            var getAdminActionResult = await repositoryApiClient.AdminActions.V1.GetAdminAction(id, cancellationToken);
+            if (getAdminActionResult.IsNotFound || getAdminActionResult.Result?.Data is null)
+            {
+                Logger.LogWarning("Admin action {AdminActionId} not found for my details panel", id);
+                return NotFound();
+            }
+
+            var adminAction = getAdminActionResult.Result.Data;
+            PlayerDto? player = null;
+
+            var playerResult = await repositoryApiClient.Players.V1.GetPlayer(adminAction.PlayerId, PlayerEntityOptions.None);
+            if (!playerResult.IsNotFound && playerResult.Result?.Data is not null)
+            {
+                player = playerResult.Result.Data;
+            }
+
+            var vm = new MyAdminActionDetailsViewModel(adminAction, player);
+            return PartialView("_MyAdminActionDetailsPanelMy", vm);
+        }, nameof(GetMyAdminActionDetails));
+    }
 
     /// <summary>
     /// Displays the most recent admin actions in a block layout with a toggle for My Games vs All Games.

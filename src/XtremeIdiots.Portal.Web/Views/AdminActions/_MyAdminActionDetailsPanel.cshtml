@@ -1,0 +1,129 @@
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
+@model AdminActionDto
+
+@if (Model is null)
+{
+    <div class="alert alert-warning">Admin action not found.</div>
+    return;
+}
+@{
+    var cardStyle = Model.Type switch
+    {
+        AdminActionType.Ban => "danger",
+        AdminActionType.TempBan => "warning",
+        AdminActionType.Kick => "info",
+        _ => "primary"
+    };
+    var iconClass = Model.Type switch
+    {
+        AdminActionType.Ban => "fa fa-ban",
+        AdminActionType.TempBan => "fa fa-clock",
+        AdminActionType.Kick => "fa fa-sign-out",
+        _ => "fa fa-gavel"
+    };
+    var gameType = Model.Player?.GameType;
+    var userForumId = Model.UserProfile?.XtremeIdiotsForumId;
+}
+<div class="my-action-details-inner">
+    <div class="d-flex align-items-center mb-3">
+        <div class="me-2"><i class="@iconClass text-@cardStyle" style="font-size:1.5rem;"></i></div>
+        <div>
+            <h5 class="mb-0">
+                @Model.Type on
+                @if (Model.Player is not null)
+                {
+                    <a asp-controller="Players" asp-action="Details"
+                        asp-route-id="@Model.PlayerId">@Model.Player.Username</a>
+                }
+                else
+                {
+                    <span>@Model.PlayerId</span>
+                }
+            </h5>
+            <small class="text-muted">@Model.Created.ToString("yyyy-MM-dd HH:mm") UTC @if(Model.Player?.GameType is not
+                null){
+                <text>• @Model.Player.GameType</text>
+            }
+</small>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <strong>Admin:</strong> @(!string.IsNullOrWhiteSpace(Model.UserProfile?.DisplayName) ?
+                Model.UserProfile.DisplayName : "Unclaimed")<br />
+        @if (Model.Type == AdminActionType.TempBan)
+        {
+            if (Model.Expires.HasValue)
+            {
+                <span><strong>Expires:</strong> @Model.Expires.Value.ToString("yyyy-MM-dd HH:mm") UTC</span>
+            }
+            else
+            {
+                <span class="text-danger"><strong>Expires:</strong> Never</span>
+            }
+        }
+    </div>
+
+    <div class="mb-3">
+        <h6 class="fw-bold">Reason / Details</h6>
+        <div class="admin-action-text">@Html.Raw(Model.Text)</div>
+    </div>
+
+    @if (Model.ForumTopicId != 0)
+    {
+        <div class="mb-3">
+            <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                href="https://www.xtremeidiots.com/forums/topic/@Model.ForumTopicId-topic/">
+                <i class="fa fa-external-link me-1"></i> View Discussion Topic
+            </a>
+        </div>
+    }
+
+    <div class="d-flex flex-wrap gap-2 mb-2">
+        @* Edit *@
+        @if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, AdminActionType,
+                string?>(gameType.Value, Model.Type, userForumId), AuthPolicies.EditAdminAction)).Succeeded)
+        {
+            <a asp-controller="AdminActions" asp-action="Edit" asp-route-id="@Model.AdminActionId"
+                class="btn btn-outline-primary btn-sm"><i class="fa fa-edit me-1"></i> Edit</a>
+        }
+        @* Lift *@
+        @if ((Model.Type == AdminActionType.Ban && Model.Expires is null) || (Model.Type == AdminActionType.TempBan &&
+                Model.Expires > DateTime.UtcNow))
+        {
+            if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType,
+            string?>(gameType.Value, userForumId), AuthPolicies.LiftAdminAction)).Succeeded)
+            {
+                <a asp-controller="AdminActions" asp-action="Lift" asp-route-id="@Model.AdminActionId"
+                    class="btn btn-outline-warning btn-sm"><i class="fa fa-unlock me-1"></i> Lift</a>
+            }
+        }
+        @* Claim *@
+        @if (Model.Type == AdminActionType.Ban && Model.UserProfile is null)
+        {
+            if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, gameType.Value,
+            AuthPolicies.ClaimAdminAction)).Succeeded)
+            {
+                <a asp-controller="AdminActions" asp-action="Claim" asp-route-id="@Model.AdminActionId"
+                    class="btn btn-outline-info btn-sm"><i class="fa fa-user me-1"></i> Claim</a>
+            }
+        }
+        @* Create Discussion Topic *@
+        @if (Model.ForumTopicId == 0)
+        {
+            if (gameType != null && (await AuthorizationService.AuthorizeAsync(User, gameType.Value,
+            AuthPolicies.CreateAdminActionTopic)).Succeeded)
+            {
+                <a asp-controller="AdminActions" asp-action="CreateDiscussionTopic" asp-route-id="@Model.AdminActionId"
+                    class="btn btn-outline-success btn-sm"><i class="fa fa-plus me-1"></i> Create Topic</a>
+            }
+        }
+        @* Delete *@
+        @if ((await AuthorizationService.AuthorizeAsync(User, AuthPolicies.DeleteAdminAction)).Succeeded)
+        {
+            <a asp-controller="AdminActions" asp-action="Delete" asp-route-id="@Model.AdminActionId"
+                class="btn btn-outline-danger btn-sm"><i class="fa fa-trash me-1"></i> Delete</a>
+        }
+    </div>
+</div>

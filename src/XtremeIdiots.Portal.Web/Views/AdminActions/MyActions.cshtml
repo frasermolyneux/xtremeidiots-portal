@@ -1,25 +1,67 @@
-@using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions
-@model List<AdminActionDto>
-
+@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
 @{
     ViewData["Title"] = "My Admin Actions";
 }
-
-<div class="wrapper wrapper-content animated fadeInRight">
-
-    @if (!Model.Any())
-    {
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-content">
-                        <h1 style="text-align: center">You have not performed any admin actions</h1>
-                    </div>
-                </div>
+<div class="wrapper wrapper-content animated fadeInRight my-actions-page-wrapper my-admin-actions-layout layout-grid"
+    id="myActionsLayoutRoot">
+    <div class="my-actions-left">
+        <div class="admin-actions-filters">
+            <div class="filter-group">
+                <label for="filterMyGameType" class="form-label">Game Type</label>
+                <select id="filterMyGameType" class="form-select">
+                    <option value="">All Games</option>
+                    @foreach (var gt in Enum.GetValues<GameType>())
+                    {
+                        <option value="@gt">@gt</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filterMyAdminActionFilter" class="form-label">Action Filter</label>
+                <select id="filterMyAdminActionFilter" class="form-select">
+                    <option value="">All</option>
+                    @foreach (var f in
+                                        Enum.GetValues<XtremeIdiots.Portal.Repository.Abstractions.Constants.V1.AdminActionFilter>())
+                    {
+                        <option value="@f">@f</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label" for="resetMyFilters">Reset</label>
+                <button type="button" id="resetMyFilters" class="btn btn-outline-secondary btn-sm">Clear</button>
             </div>
         </div>
-    }
-
-    @await Component.InvokeAsync("AdminActions", new { adminActions = Model, linkToPlayer = true })
-
+        <div class="ibox mb-0 my-actions-table-wrapper">
+            <div class="ibox-title">My Admin Actions</div>
+            <div class="ibox-content p-0 h-100">
+                <table id="myActionsTable" class="table table-striped table-hover w-100 mb-0" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Created</th>
+                            <th class="hide-sm"><span class="header-text">Game</span></th>
+                            <th><span class="header-text">Type</span></th>
+                            <th>Player</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="my-actions-resizer" id="myActionsResizer" role="separator" aria-orientation="vertical"
+        aria-label="Resize panels" tabindex="0"></div>
+    <div class="my-actions-right">
+        <div id="myActionDetailsPanel" class="my-action-details-placeholder">
+            <div class="text-center text-muted p-4">
+                <i class="fa fa-info-circle fa-2x mb-3" aria-hidden="true"></i>
+                <p class="mb-0">Select an admin action on the left to view full details and available operations.</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
+    <script src="~/js/admin-actions-my.js"></script>
+}
+@* Styles moved to admin-actions.css *@

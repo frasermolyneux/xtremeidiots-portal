@@ -149,10 +149,6 @@
                             Analytics</a>
                     </li>
 
-                    <li class="@Html.IsSelected("Players", "IpIndex")">
-                        <a asp-controller="Players" asp-action="IpIndex"><i class="fa fa-search fa-fw"></i> IP
-                            Search</a>
-                    </li>
 
                     @foreach (var game in new[]{ GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5,
                                         GameType.Insurgency})

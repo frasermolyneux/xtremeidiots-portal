@@ -51,18 +51,6 @@ public class DataController(
     }
 
     /// <summary>
-    /// Retrieves players data for IP address search functionality
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>DataTables-compatible JSON response with player IP data</returns>
-    [HttpPost("Players/GetIpSearchListAjax")]
-    [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public async Task<IActionResult> GetIpSearchListAjax(CancellationToken cancellationToken = default)
-    {
-        return await GetPlayersAjaxPrivate(PlayersFilter.IpAddress, null, cancellationToken);
-    }
-
-    /// <summary>
     /// Retrieves maps data for DataTables AJAX requests with sorting and filtering support
     /// </summary>
     /// <param name="id">Optional game type to filter maps by</param>

@@ -60,11 +60,10 @@ For local development, add the ProxyCheck API key to your `appsettings.Developme
 
 ## Usage
 
-The ProxyCheck integration will automatically enhance IP address displays throughout the XtremeIdiots.Portal.Web. The following views have been updated to display ProxyCheck data:
+The ProxyCheck integration will automatically enhance IP address displays throughout the XtremeIdiots.Portal.Web. The following views display ProxyCheck data:
 
-1. IP Search view (`/Players/IpIndex`)
-2. RCON view (`/ServerAdmin/ViewRcon`)
-3. Player Details view (`/Players/Details/{id}`) - All IP addresses now display ProxyCheck information
+1. RCON view (`/ServerAdmin/ViewRcon`)
+2. Player Details view (`/Players/Details/{id}`) - All IP addresses now display ProxyCheck information
 
 Each IP address display includes:
 

@@ -219,7 +219,6 @@ This file tracks the progress of our systematic code review and refactoring proc
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/Index.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/Details.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/Analytics.cshtml`
-- [ ] `src/XtremeIdiots.Portal.Web/Views/Players/IpIndex.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/MyActions.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/Unclaimed.cshtml`
 - [ ] `src/XtremeIdiots.Portal.Web/Views/Players/AddPlayerTag.cshtml`

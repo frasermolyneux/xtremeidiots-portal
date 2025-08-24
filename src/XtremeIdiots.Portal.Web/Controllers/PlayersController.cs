@@ -70,16 +70,6 @@ public class PlayersController(
     }
 
     /// <summary>
-    /// Displays the IP address search page for players
-    /// </summary>
-    /// <returns>The IP address search view</returns>
-    [HttpGet]
-    public async Task<IActionResult> IpIndex()
-    {
-        return await ExecuteWithErrorHandlingAsync(() => Task.FromResult(View() as IActionResult), nameof(IpIndex));
-    }
-
-    /// <summary>
     /// Gets players data for DataTable AJAX requests with username/GUID filter
     /// </summary>
     /// <param name="id">Optional game type filter</param>
@@ -91,17 +81,6 @@ public class PlayersController(
         // Default to UsernameAndGuid when not provided (UI defaults this way too)
         var filter = playersFilter ?? PlayersFilter.UsernameAndGuid;
         return await GetPlayersAjaxPrivate(filter, id, cancellationToken);
-    }
-
-    /// <summary>
-    /// Gets players data for DataTable AJAX requests with IP address filter
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for the async operation</param>
-    /// <returns>JSON data for DataTable display</returns>
-    [HttpPost]
-    public async Task<IActionResult> GetIpSearchListAjax(CancellationToken cancellationToken = default)
-    {
-        return await GetPlayersAjaxPrivate(PlayersFilter.IpAddress, null, cancellationToken);
     }
 
     private async Task<IActionResult> GetPlayersAjaxPrivate(PlayersFilter filter, GameType? gameType, CancellationToken cancellationToken = default)

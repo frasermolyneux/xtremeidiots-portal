@@ -154,9 +154,9 @@ public class ServerAdminController(
         return Ok(new
         {
             model.Draw,
-            recordsTotal = chatMessagesApiResponse.Result.Pagination.TotalCount,
-            recordsFiltered = chatMessagesApiResponse.Result.Pagination.FilteredCount,
-            data = chatMessagesApiResponse.Result.Data.Items
+            recordsTotal = chatMessagesApiResponse.Result?.Pagination?.TotalCount,
+            recordsFiltered = chatMessagesApiResponse.Result?.Pagination?.FilteredCount,
+            data = chatMessagesApiResponse?.Result?.Data?.Items
         });
     }
 }

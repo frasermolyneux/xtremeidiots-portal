@@ -95,14 +95,14 @@ public class DemosController(
             {
                     { "GameType", id?.ToString() ?? "All" },
                     { "ResultCount", portalDemoEntries.Count.ToString(CultureInfo.InvariantCulture) },
-                    { "TotalCount", demosApiResponse.Result.Pagination.TotalCount.ToString(CultureInfo.InvariantCulture) }
+                    { "TotalCount", demosApiResponse.Result?.Pagination?.TotalCount.ToString(CultureInfo.InvariantCulture) ?? "0"}
             });
 
             return Ok(new
             {
                 model.Draw,
-                recordsTotal = demosApiResponse.Result.Pagination.TotalCount,
-                recordsFiltered = demosApiResponse.Result.Pagination.FilteredCount,
+                recordsTotal = demosApiResponse.Result?.Pagination?.TotalCount,
+                recordsFiltered = demosApiResponse.Result?.Pagination?.FilteredCount,
                 data = portalDemoEntries
             });
         }, nameof(GetDemoListAjax));

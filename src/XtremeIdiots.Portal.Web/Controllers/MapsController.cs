@@ -120,9 +120,9 @@ public class MapsController(
             return Json(new
             {
                 model.Draw,
-                recordsTotal = mapsApiResponse.Result.Pagination.TotalCount,
-                recordsFiltered = mapsApiResponse.Result.Pagination.FilteredCount,
-                data = mapsApiResponse.Result.Data.Items
+                recordsTotal = mapsApiResponse.Result?.Pagination?.TotalCount,
+                recordsFiltered = mapsApiResponse.Result?.Pagination?.FilteredCount,
+                data = mapsApiResponse?.Result?.Data?.Items
             });
         }, nameof(GetMapListAjax));
     }

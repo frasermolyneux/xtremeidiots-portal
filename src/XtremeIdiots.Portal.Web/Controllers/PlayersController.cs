@@ -136,8 +136,8 @@ public class PlayersController(
             return Json(new
             {
                 model.Draw,
-                recordsTotal = playerCollectionApiResponse.Result.Pagination.TotalCount,
-                recordsFiltered = playerCollectionApiResponse.Result.Pagination.FilteredCount,
+                recordsTotal = playerCollectionApiResponse.Result?.Pagination?.TotalCount,
+                recordsFiltered = playerCollectionApiResponse.Result?.Pagination?.FilteredCount,
                 data = playerData
             });
         }, nameof(GetPlayersAjaxPrivate));

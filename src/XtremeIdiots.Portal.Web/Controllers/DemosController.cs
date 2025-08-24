@@ -257,14 +257,14 @@ public class DemosController(
             {
                 { "GameType", id?.ToString() ?? "All" },
                 { "ResultCount", portalDemoEntries.Count.ToString() },
-                { "TotalCount", demosApiResponse.Result.Pagination.TotalCount.ToString() }
+                { "TotalCount", demosApiResponse.Result?.Pagination?.TotalCount.ToString() ?? "0" }
             });
 
             return Json(new
             {
                 model.Draw,
-                recordsTotal = demosApiResponse.Result.Pagination.TotalCount,
-                recordsFiltered = demosApiResponse.Result.Pagination.FilteredCount,
+                recordsTotal = demosApiResponse.Result?.Pagination?.TotalCount,
+                recordsFiltered = demosApiResponse.Result?.Pagination?.FilteredCount,
                 data = portalDemoEntries
             });
         }, nameof(GetDemoListAjax));

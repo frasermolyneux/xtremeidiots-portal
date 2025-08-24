@@ -135,7 +135,7 @@ public class IPAddressesController(
         if (playersResponse.IsSuccess && playersResponse.Result?.Data is not null)
         {
             viewModel.Players = playersResponse.Result.Data.Items ?? [];
-            viewModel.TotalPlayersCount = playersResponse.Result.Pagination.TotalCount;
+            viewModel.TotalPlayersCount = playersResponse.Result?.Pagination?.TotalCount ?? 0;
             Logger.LogDebug("Successfully retrieved {PlayerCount} players associated with IP address {IpAddress}",
                 viewModel.TotalPlayersCount, ipAddress);
         }

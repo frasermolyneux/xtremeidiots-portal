@@ -128,6 +128,60 @@
                 </ul>
             </li>
 
+            <li policy="@AuthPolicies.AccessServerAdmin" class="@Html.IsSelected("ServerAdmin", "Index") nav-item">
+                <a href="#" class="nav-link" data-testid="nav-serveradmin-toggle" aria-expanded="false">
+                    <i class="fa fa-terminal fa-fw"></i> <span class="nav-label">Server Admin</span> <span
+                        class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li class="@Html.IsSelected("ServerAdmin", "Index")">
+                        <a asp-controller="ServerAdmin" asp-action="Index" data-testid="nav-serveradmin-dashboard">
+                            <i class="fa fa-dashboard fa-fw"></i> Dashboard
+                        </a>
+                    </li>
+                    <li policy="@AuthPolicies.AccessStatus" class="@Html.IsSelected("Status", "BanFileStatus")">
+                        <a asp-controller="Status" asp-action="BanFileStatus"
+                            data-testid="nav-serveradmin-banfilestatus">
+                            <i class="fa fa-heartbeat fa-fw"></i> Ban File Status
+                        </a>
+                    </li>
+                    <li policy="@AuthPolicies.AccessBanFileMonitors"
+                        class="@Html.IsSelected("BanFileMonitors", "Index")">
+                        <a asp-controller="BanFileMonitors" asp-action="Index"
+                            data-testid="nav-serveradmin-banfilemonitors">
+                            <i class="fa fa-ban fa-fw"></i> Ban File Monitors
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li policy="@AuthPolicies.ViewGlobalChatLog"
+                class="@Html.IsSelected("ServerAdmin", "ChatLogIndex") nav-item">
+                <a href="#" class="nav-link" data-testid="nav-chatlog-toggle" aria-expanded="false">
+                    <i class="fa fa-commenting fa-fw"></i> <span class="nav-label">Chat Log</span> <span
+                        class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
+                        <a asp-controller="ServerAdmin" asp-action="ChatLogIndex" data-testid="nav-chatlog-global">
+                            <i class="fa fa-globe fa-fw"></i> Global Chat Log
+                        </a>
+                    </li>
+                    @foreach (var game in ChatLogSupportedGames.Games)
+                    {
+                        if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
+                        {
+                            <li class="@Html.IsSelected("ServerAdmin", "GameChatLog", id: game.ToString())">
+                                <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game"
+                                    data-testid="nav-chatlog-@game.ToString().ToLower()">
+                                    <game-type-icon game="@game"></game-type-icon> @game.DisplayName() Chat
+                                </a>
+                            </li>
+                        }
+                    }
+                </ul>
+            </li>
+
             <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players", "Index") nav-item">
                 <a href="#" class="nav-link" data-testid="nav-players-toggle" aria-expanded="false">
                     <i class="fa fa-users fa-fw"></i> <span class="nav-label">Players</span> <span
@@ -165,18 +219,6 @@
                 </ul>
             </li>
 
-            <li policy="@AuthPolicies.AccessStatus" class="@Html.IsSelected("Status", "BanFileStatus") nav-item">
-                <a href="#" class="nav-link" aria-expanded="false">
-                    <i class="fa fa-heartbeat fa-fw"></i> <span class="nav-label">Status</span><span
-                        class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse">
-                    <li class="@Html.IsSelected("Status", "BanFileStatus")">
-                        <a asp-controller="Status" asp-action="BanFileStatus"><i class="fa fa-ban fa-fw"></i> Ban File
-                            Status</a>
-                    </li>
-                </ul>
-            </li>
             <li policy="@AuthPolicies.AccessUsers" class="@Html.IsSelected("User", "Index") nav-item">
                 <a href="#" class="nav-link" aria-expanded="false">
                     <i class="fa fa-user fa-fw"></i> <span class="nav-label">Users</span><span class="fa arrow"></span>
@@ -207,11 +249,6 @@
                 </a>
             </li>
 
-            <li policy="@AuthPolicies.AccessBanFileMonitors" class="@Html.IsSelected("BanFileMonitors", "Index")">
-                <a asp-controller="BanFileMonitors" asp-action="Index">
-                    <i class="fa fa-ban fa-fw"></i> <span class="nav-label">Ban File Monitors</span>
-                </a>
-            </li>
 
             <li policy="@AuthPolicies.AccessPlayerTags" class="@Html.IsSelected("Tags", "Index")">
                 <a asp-controller="Tags" asp-action="Index">

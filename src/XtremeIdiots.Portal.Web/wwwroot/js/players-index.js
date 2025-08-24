@@ -63,36 +63,40 @@ $(document).ready(function () {
         ]
     });
 
-    // Move search box into filters bar (original approach, executed immediately after init)
-    (function relocateSearch() {
-        const filters = document.getElementById('playersFilters');
-        const dtFilter = document.getElementById('dataTable_filter');
-        if (!filters || !dtFilter || !dtFilter.querySelector) return; // guard
-        if (dtFilter.classList) dtFilter.classList.add('filter-group');
-        const label = dtFilter.querySelector('label');
-        if (label) {
-            const input = label.querySelector('input');
-            if (input) {
-                input.classList.add('form-control');
-                input.placeholder = 'Search players...';
-                label.textContent = '';
-                const newLabel = document.createElement('label');
-                newLabel.className = 'form-label';
-                newLabel.setAttribute('for', input.id || 'globalPlayersSearch');
-                if (!input.id) input.id = 'globalPlayersSearch';
-                newLabel.textContent = 'Search';
-                dtFilter.appendChild(newLabel);
-                dtFilter.appendChild(input);
+    function relocateSearch() {
+        try {
+            const filters = document.getElementById('playersFilters');
+            const dtFilter = document.getElementById('dataTable_filter');
+            if (!filters || !dtFilter) return;
+            if (dtFilter.classList) dtFilter.classList.add('filter-group');
+            const label = dtFilter.querySelector('label');
+            if (label) {
+                const input = label.querySelector('input');
+                if (input) {
+                    if (input.classList) input.classList.add('form-control');
+                    input.placeholder = 'Search players...';
+                    label.textContent = '';
+                    const newLabel = document.createElement('label');
+                    newLabel.className = 'form-label';
+                    newLabel.setAttribute('for', input.id || 'globalPlayersSearch');
+                    if (!input.id) input.id = 'globalPlayersSearch';
+                    newLabel.textContent = 'Search';
+                    dtFilter.appendChild(newLabel);
+                    dtFilter.appendChild(input);
+                }
             }
-        }
-        const resetBtn = document.getElementById('resetFilters');
-        const resetGroup = resetBtn ? resetBtn.closest('.filter-group') : null;
-        if (resetGroup && resetGroup.parentElement === filters) {
-            filters.insertBefore(dtFilter, resetGroup);
-        } else {
-            filters.appendChild(dtFilter);
-        }
-    })();
+            const resetBtn = document.getElementById('resetFilters');
+            const resetGroup = resetBtn ? resetBtn.closest('.filter-group') : null;
+            if (resetGroup && resetGroup.parentElement === filters) {
+                filters.insertBefore(dtFilter, resetGroup);
+            } else {
+                filters.appendChild(dtFilter);
+            }
+        } catch { /* swallow */ }
+    }
+
+    table.on('init.dt', function(){ relocateSearch(); });
+    setTimeout(relocateSearch, 1000);
 
     function reloadTable() { table.ajax.reload(null, false); }
 
@@ -109,6 +113,6 @@ $(document).ready(function () {
         table.draw(false);
     });
 
-    const iboxContent = tableEl.closest('.ibox-content');
-    if (iboxContent) iboxContent.classList.add('datatable-tight');
+    const iboxContent = tableEl.closest('.ibox-content')[0];
+    if (iboxContent && iboxContent.classList) iboxContent.classList.add('datatable-tight');
 });

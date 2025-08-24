@@ -24,16 +24,25 @@
         <div class="col-12">
             <div class="admin-actions-filters mb-2" id="chatLogFilters">
                 @* Game Type filter only visible on global (no specific GameType or Server) *@
-                @if (ViewData["GameType"] == null && ViewData["GameServerId"] == null)
+                @if (ViewData["GameServerId"] == null)
                 {
+                    if (ViewData["GameType"] == null)
+                    {
+                        <div class="filter-group">
+                            <label for="filterGameType" class="form-label">Game Type</label>
+                            <select id="filterGameType" class="form-select">
+                                <option value="">All Games</option>
+                                @foreach (var gt in Enum.GetValues<GameType>())
+                                {
+                                    <option value="@gt">@gt.DisplayName()</option>
+                                }
+                            </select>
+                        </div>
+                    }
                     <div class="filter-group">
-                        <label for="filterGameType" class="form-label">Game Type</label>
-                        <select id="filterGameType" class="form-select">
-                            <option value="">All Games</option>
-                            @foreach (var gt in Enum.GetValues<GameType>())
-                            {
-                                <option value="@gt">@gt.DisplayName()</option>
-                            }
+                        <label for="filterGameServer" class="form-label">Server</label>
+                        <select id="filterGameServer" class="form-select">
+                            <option value="">All Servers</option>
                         </select>
                     </div>
                 }

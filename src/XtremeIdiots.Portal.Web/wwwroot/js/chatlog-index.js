@@ -5,8 +5,24 @@ $(document).ready(function () {
     const showServer = tableEl.data('show-server') === true || tableEl.data('show-server') === 'True' || tableEl.data('show-server') === 'true';
     const lockedSel = document.getElementById('filterLocked');
     const gameTypeSel = document.getElementById('filterGameType');
+    // Determine fixed game type (when no selector rendered)
+    let fixedGameType = '';
+    if (!gameTypeSel) {
+        try {
+            var m = (dataUrl || '').match(/GetGameChatLogAjax\/(\w+)/);
+            if (m) fixedGameType = m[1];
+        } catch { /* ignore */ }
+    }
+    let serverSel = document.getElementById('filterGameServer');
+    let allServers = []; // cached server list
+    let selectedServerId = '';
+    // (Optional) meta tag override
+    if (!gameTypeSel && !fixedGameType) {
+        const gtMeta = document.querySelector('meta[name="page-game-type"]');
+        if (gtMeta) fixedGameType = gtMeta.getAttribute('content') || '';
+    }
 
-    const structureVersion = 4; // bumped after switching locked filter to select
+    const structureVersion = 5; // bumped after adding server filter
 
     const columns = [
         { data: 'timestamp', name: 'timestamp', sortable: true, render: function (data) { return data ? ('<span title="' + data + '">' + formatDateTime(data, { showRelative: true }) + '</span>') : ''; } },
@@ -18,7 +34,7 @@ $(document).ready(function () {
                     ? row['player']['gameType']
                     : (row['gameServer'] && row['gameServer']['gameType'] !== undefined)
                         ? row['gameServer']['gameType']
-                        : row['gameType'];
+                        : (row['gameType'] !== undefined ? row['gameType'] : fixedGameType);
 
                 var safeUsername = escapeHtml(row['username'] || '');
                 var playerId = row['playerId'];
@@ -72,11 +88,13 @@ $(document).ready(function () {
             data._chatlogStructureVersion = structureVersion;
             if (lockedSel) data.lockedOnly = (lockedSel.value === 'true') ? 1 : 0;
             if (gameTypeSel) data.gameType = gameTypeSel.value || '';
+            if (serverSel) data.serverId = selectedServerId || '';
         },
         stateLoadParams: function (settings, data) {
             if (data._chatlogStructureVersion !== structureVersion) return false;
             if (lockedSel && typeof data.lockedOnly !== 'undefined') lockedSel.value = data.lockedOnly ? 'true' : '';
-            if (gameTypeSel && typeof data.gameType !== 'undefined') gameTypeSel.value = data.gameType;
+            if (gameTypeSel) data.gameType = gameTypeSel.value || '';
+            if (serverSel && typeof data.serverId !== 'undefined') selectedServerId = data.serverId;
         },
         columnDefs: [
             { targets: 0, responsivePriority: 1 }, // timestamp
@@ -95,8 +113,12 @@ $(document).ready(function () {
                 if (tokenInput) xhr.setRequestHeader('RequestVerificationToken', tokenInput.value);
                 // Compute base endpoint depending on game type selection
                 let base = dataUrl;
-                if (gameTypeSel && gameTypeSel.value) {
+                if (selectedServerId) {
+                    base = '/ServerAdmin/GetServerChatLogAjax/' + selectedServerId;
+                } else if (gameTypeSel && gameTypeSel.value) {
                     base = dataUrl.replace(/\/ServerAdmin\/GetChatLogAjax.*/, '/ServerAdmin/GetGameChatLogAjax/' + encodeURIComponent(gameTypeSel.value));
+                } else if (!gameTypeSel && fixedGameType) {
+                    base = '/ServerAdmin/GetGameChatLogAjax/' + encodeURIComponent(fixedGameType);
                 }
                 // Append lockedOnly flag (true only when checked)
                 const urlObj = new URL(base, window.location.origin);
@@ -107,50 +129,157 @@ $(document).ready(function () {
         columns: columns
     });
 
-    // Integrate search box into filters bar
-    (function relocateSearch() {
-        const filters = document.getElementById('chatLogFilters');
-        const dtFilter = document.getElementById('dataTable_filter');
-        if (!filters || !dtFilter) return;
-        dtFilter.classList.add('filter-group');
-        const label = dtFilter.querySelector('label');
-        if (label) {
-            const input = label.querySelector('input');
-            if (input) {
-                input.classList.add('form-control');
-                input.placeholder = 'Search chat...';
-                label.textContent = '';
-                const newLabel = document.createElement('label');
-                newLabel.className = 'form-label';
-                newLabel.setAttribute('for', input.id || 'globalChatSearch');
-                if (!input.id) input.id = 'globalChatSearch';
-                newLabel.textContent = 'Search';
-                dtFilter.appendChild(newLabel);
-                dtFilter.appendChild(input);
+    function relocateSearch() {
+        try {
+            const filters = document.getElementById('chatLogFilters');
+            const dtFilter = document.getElementById('dataTable_filter');
+            if (!filters || !dtFilter) {
+                console.warn('[ChatLog] relocateSearch: filter elements not ready');
+                return;
             }
+            if (dtFilter.classList) dtFilter.classList.add('filter-group');
+            const label = dtFilter.querySelector('label');
+            if (label) {
+                const input = label.querySelector('input');
+                if (input) {
+                    if (input.classList) input.classList.add('form-control');
+                    input.placeholder = 'Search chat...';
+                    label.textContent = '';
+                    const newLabel = document.createElement('label');
+                    newLabel.className = 'form-label';
+                    newLabel.setAttribute('for', input.id || 'globalChatSearch');
+                    if (!input.id) input.id = 'globalChatSearch';
+                    newLabel.textContent = 'Search';
+                    dtFilter.appendChild(newLabel);
+                    dtFilter.appendChild(input);
+                }
+            }
+            const resetBtn = document.getElementById('resetFilters');
+            const resetGroup = resetBtn ? resetBtn.closest('.filter-group') : null;
+            if (resetGroup && resetGroup.parentElement === filters) {
+                filters.insertBefore(dtFilter, resetGroup);
+            } else {
+                filters.appendChild(dtFilter);
+            }
+            console.log('[ChatLog] relocateSearch complete');
+        } catch (e) {
+            console.warn('[ChatLog] relocateSearch error', e);
         }
-        const resetBtn = document.getElementById('resetFilters');
-        const resetGroup = resetBtn ? resetBtn.closest('.filter-group') : null;
-        // Place search filter before reset group (same pattern as players index)
-        if (resetGroup && resetGroup.parentElement === filters) {
-            filters.insertBefore(dtFilter, resetGroup);
-        } else {
-            filters.appendChild(dtFilter);
-        }
-    })();
+    }
 
-    lockedSel?.addEventListener('change', function () { table.ajax.reload(null, false); });
-    gameTypeSel?.addEventListener('change', function () { table.ajax.reload(null, false); });
+    // Run after DataTables initialization to avoid timing issues
+    table.on('init.dt', function () { relocateSearch(); });
+    // Fallback in case init event missed (safety timeout)
+    setTimeout(relocateSearch, 1200);
+
+    if (lockedSel) lockedSel.addEventListener('change', function () { table.ajax.reload(null, false); });
+    if (gameTypeSel) gameTypeSel.addEventListener('change', function () {
+        filterServersByGame();
+        table.ajax.reload(null, false);
+    });
+    if (serverSel) serverSel.addEventListener('change', function () {
+        selectedServerId = serverSel.value;
+        handleServerColumnVisibility();
+        table.ajax.reload(null, false);
+    });
 
     document.getElementById('resetFilters')?.addEventListener('click', function () {
         let changed = false;
         if (lockedSel && lockedSel.value !== '') { lockedSel.value = ''; changed = true; }
         if (gameTypeSel && gameTypeSel.value !== '') { gameTypeSel.value = ''; changed = true; }
+        if (serverSel && serverSel.value !== '') { serverSel.value = ''; selectedServerId = ''; changed = true; handleServerColumnVisibility(); }
         if (table.search()) { table.search(''); changed = true; }
         if (changed) table.page('first');
         table.ajax.reload(null, false);
     });
 
-    const iboxContent = tableEl.closest('.ibox-content');
-    if (iboxContent) iboxContent.classList.add('datatable-tight');
+    const iboxContent = tableEl && tableEl.length ? tableEl[0].closest('.ibox-content') : null;
+    if (iboxContent && iboxContent.classList) {
+        iboxContent.classList.add('datatable-tight');
+    } else {
+        console.warn('[ChatLog] ibox-content not found or lacks classList');
+    }
+
+    // ----- Server Filter Population & Behavior -----
+    function populateServers() {
+        if (!serverSel) return;
+        const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        const headers = {};
+        if (tokenInput) headers['RequestVerificationToken'] = tokenInput.value;
+        fetch('/ServerAdmin/GetChatLogServers', { credentials: 'same-origin', headers: headers })
+            .then(r => {
+                if (!r.ok) {
+                    return [];
+                }
+                return r.json().catch(() => []);
+            })
+            .then(list => {
+                if (!Array.isArray(list)) return;
+                allServers = list;
+                rebuildServerOptions();
+                if (allServers.length === 0) {
+                    var opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'No servers available';
+                    serverSel.appendChild(opt);
+                }
+                // restore selection if came from state
+                if (selectedServerId) {
+                    serverSel.value = selectedServerId;
+                    handleServerColumnVisibility();
+                }
+            })
+            .catch(() => { /* swallow */ });
+    }
+
+    function rebuildServerOptions() {
+        if (!serverSel) return;
+        var current = serverSel.value;
+        serverSel.innerHTML = '<option value="">All Servers</option>';
+        var gtFilter = gameTypeSel && gameTypeSel.value ? gameTypeSel.value : fixedGameType;
+        allServers
+            .filter(s => !gtFilter || s.gameType == gtFilter || s.gameType === parseInt(gtFilter))
+            .forEach(s => {
+                var opt = document.createElement('option');
+                opt.value = s.id;
+                opt.textContent = s.title;
+                opt.setAttribute('data-gametype', s.gameType);
+                serverSel.appendChild(opt);
+            });
+        if (current && [...serverSel.options].some(o => o.value === current)) serverSel.value = current; else if (current) selectedServerId = '';
+    }
+
+    function filterServersByGame() {
+        rebuildServerOptions();
+    }
+
+    function handleServerColumnVisibility() {
+        if (!showServer) return; // original table suppressed server column
+        var serverColumnIndex = columns.length - 2; // before locked + link? depends on showServer true
+        if (showServer) {
+            // Recompute index: timestamp(0), username(1), type(2), message(3), server(4), locked(5), link(6)
+            serverColumnIndex = 4;
+        }
+        if (selectedServerId) {
+            table.column(serverColumnIndex).visible(false);
+        } else {
+            table.column(serverColumnIndex).visible(true);
+        }
+    }
+
+    function initServerDropdownIfReady(reason) {
+        if (!serverSel) serverSel = document.getElementById('filterGameServer');
+        if (!serverSel) return false;
+        console.log('[ChatLog] Server select detected (' + reason + '), initiating server list fetch');
+        populateServers('initial');
+        setTimeout(function () { if (allServers.length === 0) { console.log('[ChatLog] Retrying server list fetch (initial list empty)'); populateServers('retry-1'); } }, 1500);
+        setTimeout(function () { if (allServers.length === 0) { console.log('[ChatLog] Second retry server list fetch (still empty)'); populateServers('retry-2'); } }, 4000);
+        return true;
+    }
+
+    // Simplified initialization: if select present populate immediately
+    if (serverSel) populateServers();
+
+    // Initial adjust if state loaded a server
+    if (selectedServerId) handleServerColumnVisibility();
 });

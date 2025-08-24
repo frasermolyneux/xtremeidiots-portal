@@ -283,6 +283,42 @@ public class ServerAdminController(
         return await ExecuteWithErrorHandlingAsync(async () => await GetChatLogPrivate(null, null, null, lockedOnly, cancellationToken), "GetChatLogAjax");
     }
 
+    /// <summary>
+    /// Returns list of game servers the user can access for chat log filtering (id, title, game type)
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>JSON array of servers</returns>
+    [HttpGet]
+    [Authorize(Policy = AuthPolicies.AccessServerAdmin)]
+    public async Task<IActionResult> GetChatLogServers(CancellationToken cancellationToken = default)
+    {
+        return await ExecuteWithErrorHandlingAsync(async () =>
+        {
+            // Return broad list (no per-user claim filtering) relying on policy authorization already performed.
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                null, null, null, 0, 300, GameServerOrder.BannerServerListPosition, cancellationToken);
+
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
+            {
+                Logger.LogWarning("Failed to retrieve chat log server list for user {UserId}", User.XtremeIdiotsId());
+                return Json(Array.Empty<object>());
+            }
+
+            var results = gameServersApiResponse.Result.Data.Items
+                    .Select(gs => new
+                    {
+                        id = gs.GameServerId,
+                        title = string.IsNullOrWhiteSpace(gs.LiveTitle) ? gs.Title : gs.LiveTitle,
+                        gameType = gs.GameType.ToString()
+                    })
+                .OrderBy(r => r.gameType)
+                .ThenBy(r => r.title)
+                .ToList();
+
+            return Json(results);
+        }, nameof(GetChatLogServers));
+    }
+
     [HttpGet]
     public async Task<IActionResult> GameChatLog(GameType id, CancellationToken cancellationToken = default)
     {

@@ -6,7 +6,7 @@
     ViewData["Title"] = "Server Info";
 }
 
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight @(Model.Maps.Any() ? "with-datatable" : string.Empty)">
 
     <div class="row">
         <div class="col-sm-3">

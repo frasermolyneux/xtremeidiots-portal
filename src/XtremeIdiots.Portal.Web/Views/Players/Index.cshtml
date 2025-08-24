@@ -1,9 +1,8 @@
 ﻿@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
 @using XtremeIdiots.Portal.Repository.Abstractions.Extensions.V1
 @{
-    ViewData["Title"] = "Global Players Index";
+    ViewData["Title"] = "Players Index";
     var dataUrl = "/Players/GetPlayersAjax";
-
     if (ViewData["GameType"] is GameType gameType)
     {
         ViewData["Title"] = gameType.DisplayName() + " Players Index";
@@ -12,93 +11,57 @@
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
-
-    <row class="row">
+    <div class="row">
         <div class="col-12">
-
-            <div class="container-fluid">
-                <div class="ibox">
-                    <div class="ibox-title">
-                        @ViewData["Title"]
-                    </div>
-                    <div class="ibox-content">
-                        <table id="dataTable">
+            <div class="admin-actions-filters mb-2" id="playersFilters">
+                <div class="filter-group">
+                    <label for="filterGameType" class="form-label">Game Type</label>
+                    <select id="filterGameType" class="form-select">
+                        <option value="">All Games</option>
+                        @foreach (var gt in Enum.GetValues<GameType>())
+                        {
+                            var isSelected = ViewData["GameType"] != null && ViewData["GameType"]!.ToString() ==
+                            gt.ToString();
+                            <option value="@gt" selected="@(isSelected ? "selected" : null)">@gt</option>
+                        }
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="form-label" for="resetFilters">Reset</label>
+                    <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear
+                        Filters</button>
+                </div>
+            </div>
+            <div class="ibox players-table-wrapper">
+                <div class="ibox-title">
+                    <h5>@ViewData["Title"]</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table table-striped table-hover w-100" data-source="@dataUrl">
                             <thead>
                                 <tr>
-                                    <td>Name</td>
-                                    <td>Guid</td>
-                                    <td>First Seen</td>
-                                    <td>Last Seen</td>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Player IP</th>
+                                    <th scope="col">Guid</th>
+                                    <th scope="col">First Seen</th>
+                                    <th scope="col">Last Seen</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
             </div>
-
         </div>
-    </row>
-
+    </div>
 </div>
-
-@* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
     <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
-    <script type="text/javascript">
+    <script src="~/js/players-index.js" asp-append-version="true"></script>
+}
 
-        $(document).ready(function () {
-
-            $('#dataTable').DataTable({
-                processing: true,
-                serverSide: true,
-                searchDelay: 1000,
-                stateSave: true,
-                order: [[3, "desc"]],
-                ajax: {
-                    url: '@dataUrl',
-                    dataSrc: 'data',
-                    contentType: "application/json",
-                    type: "POST",
-                    beforeSend: function (xhr) {
-                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-                        var antiForgeryToken = tokenInput ? tokenInput.value : '';
-                        if (antiForgeryToken) {
-                            xhr.setRequestHeader('RequestVerificationToken', antiForgeryToken);
-                        }
-                    },
-                    "data": function (d) {
-                        return JSON.stringify(d);
-                    }
-                },
-                columns: [
-                    {
-                        data: 'username',
-                        name: 'username',
-                        sortable: true,
-                        render: function (data, type, row) {
-                            return renderPlayerName(row['gameType'], row['username'], row['playerId']);
-                        }
-                    },
-                    {
-                        data: 'guid',
-                        name: 'guid',
-                        sortable: false
-                    },
-                    {
-                        data: 'firstSeen',
-                        name: 'firstSeen',
-                        sortable: true
-                    },
-                    {
-                        data: 'lastSeen',
-                        name: 'lastSeen',
-                        sortable: true
-                    }
-                ]
-            });
-
-        });
-
-    </script>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-actions.css" />
+    <link rel="stylesheet" href="~/css/players-index.css" />
 }

@@ -129,7 +129,9 @@ public class PlayersController(
                 return RedirectToAction(nameof(ErrorsController.Display), nameof(ErrorsController)[..^10], new { id = 500 });
             }
 
-            var enrichedPlayers = await playerCollectionApiResponse.Result.Data.Items.EnrichWithProxyCheckDataAsync(proxyCheckService, Logger);
+            // Enrich players with proxy check then geolocation (for country code / flags)
+            var enrichedPlayers = await playerCollectionApiResponse.Result.Data.Items
+                .EnrichWithPlayerDataAsync(proxyCheckService, geoLocationClient, Logger, cancellationToken);
 
             var playerData = enrichedPlayers.Select(player => new
             {
@@ -142,7 +144,9 @@ public class PlayersController(
                 player.LastSeen,
                 ProxyCheckRiskScore = player.ProxyCheckRiskScore(),
                 IsProxy = player.IsProxy(),
-                IsVpn = player.IsVpn()
+                IsVpn = player.IsVpn(),
+                ProxyType = player.ProxyType(),
+                CountryCode = player.CountryCode()
             }).ToList();
 
             Logger.LogInformation("Successfully retrieved {Count} players for user {UserId} with filter {Filter}",

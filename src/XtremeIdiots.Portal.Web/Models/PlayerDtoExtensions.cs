@@ -16,6 +16,7 @@ public static class PlayerDtoExtensions
     private readonly static ConcurrentDictionary<Guid, bool> isProxyFlags = [];
     private readonly static ConcurrentDictionary<Guid, bool> isVpnFlags = [];
     private readonly static ConcurrentDictionary<Guid, string> proxyTypes = [];
+    private readonly static ConcurrentDictionary<Guid, string> countryCodes = [];
 
     /// <summary>
     /// Gets the proxy check risk score for a player
@@ -107,5 +108,28 @@ public static class PlayerDtoExtensions
             return;
 
         proxyTypes.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
+    }
+
+    /// <summary>
+    /// Gets the ISO country code associated with the player's current IP address
+    /// </summary>
+    /// <param name="playerDto">The player DTO</param>
+    /// <returns>Two-letter country code, or empty string if not available</returns>
+    public static string CountryCode(this PlayerDto playerDto)
+    {
+        return playerDto is null ? string.Empty : countryCodes.TryGetValue(playerDto.PlayerId, out var code) ? code : string.Empty;
+    }
+
+    /// <summary>
+    /// Sets the ISO country code for the player's current IP address
+    /// </summary>
+    /// <param name="playerDto">The player DTO</param>
+    /// <param name="value">Two-letter country code</param>
+    public static void SetCountryCode(this PlayerDto playerDto, string value)
+    {
+        if (playerDto is null || string.IsNullOrWhiteSpace(value))
+            return;
+
+        countryCodes.AddOrUpdate(playerDto.PlayerId, value, (_, _) => value);
     }
 }

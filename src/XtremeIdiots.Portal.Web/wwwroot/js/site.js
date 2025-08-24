@@ -155,14 +155,11 @@ function geoLocationIpLink(ipAddress) {
  */
 function formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type = '', countryCode = '', linkToDetails = true) {
     if (!ipAddress) return '';
-
     let result = '';
 
-    // 1. Country Flag
+    // 1. Country Flag (skip if unknown to avoid broken image)
     if (countryCode && countryCode !== '') {
-        result += "<img src='/images/flags/" + countryCode.toLowerCase() + ".png' /> ";
-    } else {
-        result += "<img src='/images/flags/unknown.png' /> ";
+        result += "<img src='/images/flags/" + countryCode.toLowerCase() + ".png' alt='" + countryCode + " flag' /> ";
     }
 
     // 2. IP Address (with or without link)
@@ -173,7 +170,7 @@ function formatIPAddress(ipAddress, riskScore, isProxy, isVpn, type = '', countr
     }
 
     // 3. Risk Score Pill
-    if (riskScore !== null && riskScore !== undefined) {
+    if (riskScore !== null && riskScore !== undefined && riskScore > 0) {
         let riskClass = 'text-bg-success';
         if (riskScore >= 80) {
             riskClass = 'text-bg-danger';

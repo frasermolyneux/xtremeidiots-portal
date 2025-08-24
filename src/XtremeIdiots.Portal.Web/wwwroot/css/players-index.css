@@ -1,0 +1,55 @@
+/* Players Index specific tweaks. Leverages shared filter bar styling in admin-actions.css */
+.players-table-wrapper .dataTables_wrapper .dataTables_filter {
+    display: none;
+}
+
+/* Slightly reduce horizontal padding in filters for compactness */
+#playersFilters {
+    margin-top: .35rem;
+}
+
+#playersFilters .filter-group {
+    flex: 0 1 260px;
+}
+
+/* Vertically center game icons */
+#dataTable td:first-child img {
+    vertical-align: middle;
+    margin-right: 2px;
+}
+
+/* Provide slightly narrower guid column on wide screens */
+@media (min-width: 992px) {
+
+    #dataTable td:nth-child(2),
+    #dataTable th:nth-child(2) {
+        /* Player IP */
+        width: 240px;
+    }
+
+    #dataTable td:nth-child(3),
+    #dataTable th:nth-child(3) {
+        /* Guid */
+        width: 280px;
+        /* widened per request */
+        word-break: break-all;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Liberation Mono", Consolas, monospace;
+        font-size: .85rem;
+    }
+}
+
+/* Reduce vertical spacing inside the ibox when DataTable present */
+.ibox.players-table-wrapper .ibox-content.datatable-tight {
+    padding-top: .5rem;
+}
+
+/* Tighter row height */
+#dataTable tbody td {
+    padding-top: .4rem;
+    padding-bottom: .35rem;
+}
+
+/* Align header label weight */
+#dataTable thead th {
+    font-weight: 600;
+}

@@ -1,0 +1,57 @@
+/* Chat Log Index specific styling */
+.chatlog-table-wrapper .dataTables_wrapper .dataTables_filter {
+    display: none;
+}
+
+#chatLogFilters {
+    margin-top: .35rem;
+}
+
+#chatLogFilters .filter-group {
+    flex: 0 1 240px;
+}
+
+#dataTable_filter.filter-group {
+    flex: 0 1 240px;
+}
+
+#chatLogFilters .filter-group.locked-filter-group .form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+@media (max-width: 600px) {
+    #chatLogFilters .filter-group.locked-filter-group {
+        padding-top: .4rem;
+    }
+}
+
+/* Narrower status & link columns on large screens */
+@media (min-width: 992px) {
+
+    #dataTable th:last-child,
+    #dataTable td:last-child {
+        width: 90px;
+    }
+
+    #dataTable th:nth-last-child(2),
+    #dataTable td:nth-last-child(2) {
+        width: 80px;
+    }
+}
+
+/* Tighter row height */
+#dataTable tbody td {
+    padding-top: .4rem;
+    padding-bottom: .35rem;
+}
+
+#dataTable thead th {
+    font-weight: 600;
+}
+
+/* Wrap long chat messages gracefully */
+#dataTable td:nth-child(4) {
+    white-space: normal;
+    word-break: break-word;
+}

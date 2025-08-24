@@ -357,7 +357,7 @@
                     {
                         <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers" role="tabpanel" aria-labelledby="relatedPlayers-tab">
                             <div class="table-responsive">
-                                <table class="table table-borderless" style="width: 100%;">
+                                <table class="table table-borderless" style="width: 100%;" id="relatedPlayersTable">
                                     <thead>
                                         <tr>
                                             <th>
@@ -369,14 +369,27 @@
                                         </tr>
                                     </thead>                                
                                     <tbody>
-                                        @if (player.RelatedPlayers != null)
+                                        @if (Model.EnrichedRelatedPlayers != null && Model.EnrichedRelatedPlayers.Count != 0)
                                         {
-                                            @foreach(var relatedPlayerDto in player.RelatedPlayers)
+                                            foreach (var related in Model.EnrichedRelatedPlayers)
                                             {
-                                            <tr>
-                                                <td><game-type-icon game="@relatedPlayerDto.GameType"></game-type-icon> @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
-                                                <td>@relatedPlayerDto.IpAddress</td>
-                                            </tr> 
+                                                <tr>
+                                                    <td>
+                                                        <span class="player-name"
+                                                              data-game-type="@related.GameType"
+                                                              data-username="@related.Username"
+                                                              data-player-id="@related.PlayerId"></span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="ip-address-container"
+                                                              data-ip="@related.IpAddress"
+                                                              data-risk="@related.RiskScore"
+                                                              data-is-proxy="@((related.IsProxy ?? false).ToString().ToLower())"
+                                                              data-is-vpn="@((related.IsVpn ?? false).ToString().ToLower())"
+                                                              data-type="@related.ProxyType"
+                                                              data-country-code="@related.CountryCode"></span>
+                                                    </td>
+                                                </tr>
                                             }
                                         }
                                     </tbody>
@@ -546,6 +559,20 @@
                 // If we don't have a country code but have an IP address,
                 // just display with the unknown flag for now
                 container.html(formatIPAddress(ip, risk, isProxy, isVpn, type, countryCode));
+            });
+
+            // Render related players using global helper (renderPlayerName) for consistency
+            $('#relatedPlayersTable .player-name').each(function() {
+                var el = $(this);
+                var gameType = parseInt(el.data('game-type'));
+                var username = el.data('username');
+                var playerId = el.data('player-id');
+                // renderPlayerName(gameTypeEnum, username, playerId)
+                try {
+                    el.html(renderPlayerName(gameType, username, playerId));
+                } catch (e) {
+                    el.text(username);
+                }
             });
         });
     </script>

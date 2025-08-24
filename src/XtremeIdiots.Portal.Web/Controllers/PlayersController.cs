@@ -192,6 +192,46 @@ public class PlayersController(
                 await EnrichPlayerIpAddressesAsync(playerDetailsViewModel, playerData, id);
             }
 
+            // Enrich related players (proxy + geo) so UI can use data attributes / helper formatting
+            if (playerData.RelatedPlayers is not null && playerData.RelatedPlayers.Count != 0)
+            {
+                foreach (var rp in playerData.RelatedPlayers)
+                {
+                    if (rp is null)
+                    {
+                        continue;
+                    }
+
+                    var vm = RelatedPlayerEnrichedViewModel.FromRelatedPlayerDto(rp);
+                    try
+                    {
+                        // Geo
+                        if (!string.IsNullOrWhiteSpace(vm.IpAddress))
+                        {
+                            var geo = await geoLocationClient.GeoLookup.V1.GetGeoLocation(vm.IpAddress, cancellationToken);
+                            if (geo.IsSuccess && geo.Result?.Data is not null && !string.IsNullOrWhiteSpace(geo.Result.Data.CountryCode))
+                            {
+                                vm.CountryCode = geo.Result.Data.CountryCode;
+                            }
+                            var proxy = await proxyCheckService.GetIpRiskDataAsync(vm.IpAddress, cancellationToken);
+                            if (!proxy.IsError)
+                            {
+                                vm.RiskScore = proxy.RiskScore;
+                                vm.IsProxy = proxy.IsProxy;
+                                vm.IsVpn = proxy.IsVpn;
+                                vm.ProxyType = proxy.Type;
+                            }
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning(ex, "Failed to enrich related player {RelatedPlayerId} for {PlayerId}", vm.PlayerId, id);
+                    }
+                    playerDetailsViewModel.EnrichedRelatedPlayers.Add(vm);
+                }
+            }
+
             TrackSuccessTelemetry("PlayerDetailsViewed", "ViewPlayerDetails", new Dictionary<string, string>
             {
                 { "PlayerId", id.ToString() },

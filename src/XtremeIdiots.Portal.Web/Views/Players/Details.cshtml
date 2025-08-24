@@ -188,32 +188,32 @@
         <div class="ibox ">
             <div class="ibox-content">
 
-                <ul class="nav nav-tabs nav-tabs-responsive">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-toggle="tab" href="#aliases">Aliases</a>
+                <ul class="nav nav-tabs nav-tabs-responsive" id="playerDetailsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active" id="aliases-tab" data-bs-toggle="tab" href="#aliases" role="tab" aria-controls="aliases" aria-selected="true">Aliases</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#ipAddresses">IP Addresses</a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="ipAddresses-tab" data-bs-toggle="tab" href="#ipAddresses" role="tab" aria-controls="ipAddresses" aria-selected="false">IP Addresses</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#protectedNames">Protected Names</a>
-                    </li>                    
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#playerTags">Tags</a>
-                    </li>                    
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="protectedNames-tab" data-bs-toggle="tab" href="#protectedNames" role="tab" aria-controls="protectedNames" aria-selected="false">Protected Names</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="playerTags-tab" data-bs-toggle="tab" href="#playerTags" role="tab" aria-controls="playerTags" aria-selected="false">Tags</a>
+                    </li>
                     @if (!string.IsNullOrWhiteSpace(player.IpAddress))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#relatedPlayers">Related Players</a>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="relatedPlayers-tab" data-bs-toggle="tab" href="#relatedPlayers" role="tab" aria-controls="relatedPlayers" aria-selected="false">Related Players</a>
                         </li>
                     }
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#chatLog">ChatLog</a>
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link" id="chatLog-tab" data-bs-toggle="tab" href="#chatLog" role="tab" aria-controls="chatLog" aria-selected="false">ChatLog</a>
                     </li>
                 </ul>
 
                 <div class="tab-content">
-                    <div class="ibox-content tab-pane container active" style="height: 100%" id="aliases">
+                    <div class="ibox-content tab-pane container fade show active" style="height: 100%" id="aliases" role="tabpanel" aria-labelledby="aliases-tab">
                         <div class="table-responsive">
                             <table class="table table-borderless" style="width: 100%;">
                                 <thead>
@@ -227,7 +227,7 @@
                                         <th>
                                             Last Used
                                         </th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the Alias has been linked to the GUID">
+                                        <th data-bs-toggle="tooltip" data-bs-placement="bottom" title="Confidence is determined by the amount of times that the Alias has been linked to the GUID">
                                             Confidence
                                         </th>
                                     </tr>
@@ -250,7 +250,7 @@
                         </div>
                     </div>
                     
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses">
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="ipAddresses" role="tabpanel" aria-labelledby="ipAddresses-tab">
                         <div class="table-responsive">
                             <table class="table table-borderless" style="width: 100%;">
                                 <thead>
@@ -264,7 +264,7 @@
                                         <th>
                                             Last Used
                                         </th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
+                                            <th data-bs-toggle="tooltip" data-bs-placement="bottom" title="Confidence is determined by the amount of times that the IP Address has been linked to the GUID">
                                             Confidence
                                         </th>
                                     </tr>
@@ -296,7 +296,7 @@
                         </div>
                     </div>
                     
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames">
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="protectedNames" role="tabpanel" aria-labelledby="protectedNames-tab">
                         @if (player.ProtectedNames != null && player.ProtectedNames.Any())
                         {
                             <div class="table-responsive">
@@ -349,13 +349,13 @@
                                 </a>
                             </p>                        }
                     </div>
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags">
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="playerTags" role="tabpanel" aria-labelledby="playerTags-tab">
                         @await Component.InvokeAsync("PlayerTags", new { playerId = player.PlayerId })
                     </div>
                     
                     @if (!string.IsNullOrWhiteSpace(Model.Player?.IpAddress))
                     {
-                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers">
+                        <div class="ibox-content tab-pane container fade" style="height: 100%" id="relatedPlayers" role="tabpanel" aria-labelledby="relatedPlayers-tab">
                             <div class="table-responsive">
                                 <table class="table table-borderless" style="width: 100%;">
                                     <thead>
@@ -385,7 +385,7 @@
                         </div>
                     }
 
-                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="chatLog">
+                    <div class="ibox-content tab-pane container fade" style="height: 100%" id="chatLog" role="tabpanel" aria-labelledby="chatLog-tab">
                         <table id="chatLogTable" style="width: 100%;">
                             <thead>
                             <tr>
@@ -425,15 +425,16 @@
 
 @* ReSharper disable once Razor.SectionNotResolved *@
 
-@section Scripts {
+@section scripts {
     <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
     <script type="text/javascript">
 
         $(document).ready(function() {
-
-            $(function () {
-                $('[data-toggle="tooltip"]').tooltip()
-            })            
+            // Initialize Bootstrap 5 tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
             
             $('#chatLogTable').DataTable({
                 processing: true,
@@ -498,6 +499,16 @@
                         }
                     }
                 ]
+            });
+
+            // Recalculate DataTable columns when its tab becomes visible
+            document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(function (el) {
+                el.addEventListener('shown.bs.tab', function (e) {
+                    if (e.target && e.target.id === 'chatLog-tab') {
+                        var tbl = $('#chatLogTable').DataTable();
+                        tbl.columns.adjust().responsive && tbl.responsive.recalc();
+                    }
+                });
             });
 
         });        

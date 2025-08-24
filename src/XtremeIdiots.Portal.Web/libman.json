@@ -106,6 +106,14 @@
         "pace.js",
         "pace.min.js"
       ]
+    },
+    {
+      "library": "toastr.js@2.1.4",
+      "destination": "wwwroot/lib/toastr",
+      "files": [
+        "toastr.min.js",
+        "toastr.min.css"
+      ]
     }
   ]
 }

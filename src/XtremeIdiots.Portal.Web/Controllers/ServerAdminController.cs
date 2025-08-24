@@ -481,7 +481,7 @@ public class ServerAdminController(
             if (chatMessageApiResponse.IsNotFound || chatMessageApiResponse.Result?.Data?.GameServer is null)
             {
                 Logger.LogWarning("Chat message {MessageId} not found when toggling lock status", id);
-                return NotFound();
+                return JsonOrStatus(NotFound(), new { success = false, error = "NotFound", chatMessageId = id });
             }
 
             var chatMessageData = chatMessageApiResponse.Result.Data;
@@ -496,7 +496,7 @@ public class ServerAdminController(
                 chatMessageData);
 
             if (authResult != null)
-                return authResult;
+                return JsonOrStatus(authResult, new { success = false, error = "Unauthorized", chatMessageId = id });
 
             var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
 
@@ -504,7 +504,7 @@ public class ServerAdminController(
             {
                 Logger.LogError("Failed to toggle lock status for chat message {MessageId} by user {UserId}", id, User.XtremeIdiotsId());
                 this.AddAlertDanger("An error occurred while updating the chat message lock status.");
-                return RedirectToAction(nameof(ChatLogPermaLink), new { id });
+                return JsonOrStatus(RedirectToAction(nameof(ChatLogPermaLink), new { id }), new { success = false, error = "ToggleFailed", chatMessageId = id });
             }
 
             TrackSuccessTelemetry("ChatMessageLockToggled", nameof(ToggleChatMessageLock), new Dictionary<string, string>
@@ -513,9 +513,32 @@ public class ServerAdminController(
                 { "GameType", chatMessageData.GameServer.GameType.ToString() }
             });
 
+            // If AJAX / fetch request (DataTables inline toggle), return JSON payload instead of redirect
+            if (IsJsonRequest())
+                return Json(new { success = true, chatMessageId = id, locked = !chatMessageData.Locked });
+
             this.AddAlertSuccess("Chat message lock status has been updated successfully.");
             return RedirectToAction(nameof(ChatLogPermaLink), new { id });
         }, nameof(ToggleChatMessageLock));
+    }
+
+    private bool IsJsonRequest()
+    {
+        var xrw = Request.Headers.XRequestedWith.ToString();
+        if (!string.IsNullOrEmpty(xrw) && xrw.Equals("XMLHttpRequest", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+        return Request.Headers.Accept.Any(h => !string.IsNullOrEmpty(h) && h.Contains("application/json", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IActionResult JsonOrStatus(IActionResult nonJsonResult, object jsonPayload)
+    {
+        if (IsJsonRequest())
+        {
+            return Json(jsonPayload);
+        }
+        return nonJsonResult;
     }
 
     private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)

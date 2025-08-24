@@ -9,86 +9,147 @@
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
-
     <div class="row">
         <div class="col-12">
-
-            <div class="ibox">
-                <div class="ibox-title">
-                    <h5>Chat Log Entry - @Model.ChatMessageId</h5>
-                    @if (Model.Locked)
-                    {
-                        <span class="label label-warning"><i class="fa fa-lock"></i> Locked</span>
-                    }
+            <div class="ibox chatlog-permalink">
+                <div class="ibox-title d-flex align-items-center justify-content-between flex-wrap py-2 px-3">
+                    <div class="d-flex align-items-center mb-2 mb-sm-0 pr-sm-3">
+                        <i class="fa fa-commenting fa-lg text-info mr-2" aria-hidden="true"></i>
+                        <h5 class="mb-0">Chat Log Entry <small class="text-muted">#@Model.ChatMessageId</small></h5>
+                    </div>
+                    <div class="d-flex align-items-center badges-wrapper">
+                        <span class="badge badge-@(Model.Locked ? "warning" : "secondary") mr-2" title="@(Model.Locked ? "Locked" : "Unlocked")">
+                            <i class="fa fa-@(Model.Locked ? "lock" : "unlock")" aria-hidden="true"></i>
+                            @(Model.Locked ? "Locked" : "Unlocked")
+                        </span>
+                        <span class="badge badge-primary" title="Chat Type"><i class="fa fa-tag"></i> @Model.ChatType</span>
+                    </div>
                 </div>
 
                 <div class="ibox-content">
-                    <ul class="list-group clear-list">
-                        <li class="list-group-item fist-item">
-                            <span class="pull-right"> @Model.PlayerId</span>
-                            Player ID
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right"> @Model.Username</span>
-                            Username
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right"> @Model.ChatType</span>
-                            Type
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right"> @Model.Message</span>
-                            Chat Message
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right"> @Model.GameServer?.LiveTitle</span>
-                            Server
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right">
-                                <i class="fa fa-clock-o"></i> @Model.Timestamp
-                            </span>
-                            Timestamp
-                        </li>
-                        <li class="list-group-item">
-                            <span class="pull-right">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <dl class="row mb-4 chat-details">
+                                <dt class="col-sm-4">Player ID</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fa fa-user text-muted" aria-hidden="true"></i>
+                                    <span class="ml-1">@Model.PlayerId</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Username</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fa fa-user-circle text-muted" aria-hidden="true"></i>
+                                    <span class="ml-1">@Model.Username</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Server</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fa fa-server text-muted" aria-hidden="true"></i>
+                                    <span class="ml-1">@(Model.GameServer?.LiveTitle ?? "Unknown Server")</span>
+                                </dd>
+
+                                <dt class="col-sm-4">Timestamp</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fa fa-clock-o text-muted" aria-hidden="true"></i>
+                                    <time class="ml-1" datetime="@Model.Timestamp.ToString("O")" title="@Model.Timestamp.ToString("u")">
+                                        @Model.Timestamp
+                                    </time>
+                                </dd>
+
+                                <dt class="col-sm-4">Locked</dt>
+                                <dd class="col-sm-8">
+                                    <i class="fa fa-@(Model.Locked ? "lock text-warning" : "unlock text-success")" aria-hidden="true"></i>
+                                    <span class="ml-1">@(Model.Locked ? "Yes" : "No")</span>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="chat-message-wrapper h-100 d-flex flex-column pl-md-3">
+                                <div class="chat-message-box border rounded bg-light d-flex flex-column flex-grow-1">
+                                    <div class="chat-message-box-header d-flex align-items-center justify-content-between border-bottom bg-white rounded-top">
+                                        <span class="font-weight-bold small text-uppercase text-muted mb-0">Chat Message</span>
+                                        <button type="button" class="btn btn-outline-secondary copy-btn" title="Copy message" data-copy-target="chatMessageContent">
+                                            <i class="fa fa-copy" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-auto">
+                                        <pre id="chatMessageContent" class="mb-0 p-3 small" style="white-space:pre-wrap;word-break:break-word;">@Model.Message</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if (Model.GameServer is not null && (await AuthorizationService.AuthorizeAsync(User, Model.GameServer.GameType, AuthPolicies.LockChatMessages)).Succeeded)
+                {
+                    <div class="ibox-footer d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                        <div class="text-muted info-note d-flex align-items-center mb-2 mb-sm-0">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            <span class="font-weight-500">Toggle lock to prevent editing or removal.</span>
+                        </div>
+                        <form asp-controller="ServerAdmin" asp-action="ToggleChatMessageLock" asp-route-id="@Model.ChatMessageId" method="post" class="m-0 p-0">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm @(Model.Locked ? "btn-success" : "btn-warning")">
                                 @if (Model.Locked)
                                 {
-                                    <i class="fa fa-lock"></i> <text>Yes</text>
+                                    <i class="fa fa-unlock"></i> <span class="ml-1">Unlock Message</span>
                                 }
                                 else
                                 {
-                                    <i class="fa fa-unlock"></i> <text>No</text>
+                                    <i class="fa fa-lock"></i> <span class="ml-1">Lock Message</span>
                                 }
-                            </span>
-                            Locked
-                        </li>
-                    </ul>
-                </div>
-
-                @if (Model.GameServer is not null && (await AuthorizationService.AuthorizeAsync(User, Model.GameServer.GameType,
-                                AuthPolicies.LockChatMessages)).Succeeded)
-                {
-                    <div class="ibox-footer">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <form asp-controller="ServerAdmin" asp-action="ToggleChatMessageLock"
-                                asp-route-id="@Model.ChatMessageId" method="post">
-                                <button type="submit" class="btn @(Model.Locked ? "btn-success" : "btn-warning")">
-                                    @if (Model.Locked)
-                                    {
-                                        <i class="fa fa-unlock"></i> <text>Unlock Message</text>
-                                    }
-                                    else
-                                    {
-                                        <i class="fa fa-lock"></i> <text>Lock Message</text>
-                                    }
-                                </button>
-                            </form>
-                        </div>
+                            </button>
+                        </form>
                     </div>
                 }
             </div>
         </div>
     </div>
 </div>
-method="post">
+
+@section Scripts {
+    <script>
+        (function () {
+            const btn = document.querySelector('[data-copy-target]');
+            if (!btn) return;
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-copy-target');
+                const pre = document.getElementById(targetId);
+                if (!pre) return;
+                const text = pre.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.classList.remove('btn-outline-secondary');
+                    btn.classList.add('btn-success');
+                    btn.innerHTML = '<i class="fa fa-check" aria-hidden="true"></i>';
+                    setTimeout(() => {
+                        btn.classList.add('btn-outline-secondary');
+                        btn.classList.remove('btn-success');
+                        btn.innerHTML = '<i class="fa fa-copy" aria-hidden="true"></i>';
+                    }, 1500);
+                });
+            });
+        })();
+    </script>
+}
+
+@section Styles {
+    <style>
+        .chatlog-permalink .ibox-title { border-bottom: 1px solid #e7eaec; }
+        .chatlog-permalink .chat-message-box { min-height: 170px; }
+    .chatlog-permalink .chat-message-box-header { font-size: .75rem; letter-spacing: .5px; padding: .55rem .75rem; }
+    .chatlog-permalink .chat-message-box-header button { line-height: 1; }
+    .chatlog-permalink .chat-message-box-header .copy-btn { height: 32px; width: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .chatlog-permalink .chat-message-box pre { background: transparent; }
+        .chatlog-permalink .info-note { font-size: 1.05rem; }
+        .chatlog-permalink dl.chat-details dt, .chatlog-permalink dl.chat-details dd { padding-top: .35rem; padding-bottom: .35rem; }
+        .chatlog-permalink dl.chat-details dt { font-weight: 600; }
+    .chatlog-permalink .ibox-footer { border-top: 1px solid #e7eaec; }
+    .chatlog-permalink .badges-wrapper .badge { font-weight: 500; }
+    .chatlog-permalink .badges-wrapper .badge + .badge { margin-left: .75rem; }
+        @@media (max-width: 767.98px) {
+            .chatlog-permalink .chat-message-wrapper { padding-left: 0; }
+            .chatlog-permalink .chat-message-box { margin-top: 1rem; }
+        }
+    </style>
+}

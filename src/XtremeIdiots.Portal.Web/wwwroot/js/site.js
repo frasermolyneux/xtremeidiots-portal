@@ -116,6 +116,61 @@ function adminActionTypeIcon(actionType) {
     }
 })();
 
+// Global toastr configuration (only if library loaded)
+(function () {
+    if (typeof toastr === 'undefined') return;
+    toastr.options = Object.assign({
+        closeButton: true,
+        progressBar: true,
+        newestOnTop: true,
+        preventDuplicates: true,
+        timeOut: 3000,
+        extendedTimeOut: 1500,
+        positionClass: 'toast-top-right'
+    }, toastr.options || {});
+
+    // Unified helper for showing toast messages; type can be success|info|warning|error
+    window.showToast = function (type, message, title, opts) {
+        if (!message) return;
+        var fn = (toastr[type] || toastr.info).bind(toastr);
+        fn(message, title || '', opts || {});
+    };
+})();
+
+// Process server-sent alerts (TempData) and convert to toastr notifications.
+(function () {
+    var container = document.getElementById('server-alerts-data');
+    if (!container) return;
+    var json = container.getAttribute('data-alerts');
+    if (!json) return;
+    var alerts;
+    try { alerts = JSON.parse(json); } catch { return; }
+    if (!alerts || !alerts.length) return;
+
+    var mapBootstrapToToastr = function (bootstrapType) {
+        if (!bootstrapType) return 'info';
+        if (bootstrapType.indexOf('success') !== -1) return 'success';
+        if (bootstrapType.indexOf('danger') !== -1) return 'error';
+        if (bootstrapType.indexOf('warning') !== -1) return 'warning';
+        return 'info';
+    };
+
+    alerts.forEach(function (a) {
+        var toastType = mapBootstrapToToastr(a.type || a.Type);
+        var msg = a.message || a.Message;
+        if (typeof toastr !== 'undefined') {
+            showToast(toastType, msg);
+        } else {
+            // Fallback: inject a bootstrap alert dynamically (JS enabled but toastr not loaded)
+            var fallback = document.createElement('div');
+            fallback.className = 'alert ' + (a.type || a.Type) + ' mt-2';
+            fallback.setAttribute('role', 'alert');
+            fallback.textContent = msg;
+            container.appendChild(fallback);
+        }
+    });
+})();
+
 function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }

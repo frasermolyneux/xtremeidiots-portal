@@ -67,10 +67,12 @@ $(document).ready(function () {
             name: 'locked',
             sortable: false,
             render: function (data, type, row) {
+                var id = row['chatMessageId'];
+                if (!id) return '';
                 if (row['locked']) {
-                    return '<i class="fa fa-lock text-warning" title="Locked"></i>';
+                    return '<button type="button" class="btn btn-link p-0 lock-toggle" data-id="' + id + '" data-locked="true" title="Click to unlock"><i class="fa fa-lock text-warning"></i></button>';
                 }
-                return '<i class="fa fa-unlock text-muted" title="Unlocked"></i>';
+                return '<button type="button" class="btn btn-link p-0 lock-toggle" data-id="' + id + '" data-locked="false" title="Click to lock"><i class="fa fa-unlock text-muted"></i></button>';
             }
         },
         { data: 'chatMessageId', name: 'chatMessageId', sortable: false, render: function (data, type, row) { return chatLogUrl(row['chatMessageId']); } }
@@ -282,4 +284,47 @@ $(document).ready(function () {
 
     // Initial adjust if state loaded a server
     if (selectedServerId) handleServerColumnVisibility();
+
+    // Inline lock/unlock handling
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.lock-toggle');
+        if (!btn) return;
+        var id = btn.getAttribute('data-id');
+        if (!id) return;
+        // Optimistic: swap icon immediately
+        var currentlyLocked = btn.getAttribute('data-locked') === 'true';
+        var newLocked = !currentlyLocked;
+        btn.setAttribute('data-locked', newLocked ? 'true' : 'false');
+        btn.innerHTML = newLocked
+            ? '<i class="fa fa-lock text-warning"></i>'
+            : '<i class="fa fa-unlock text-muted"></i>';
+        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+        var headers = { 'X-Requested-With': 'XMLHttpRequest' };
+        if (tokenInput) headers['RequestVerificationToken'] = tokenInput.value;
+        fetch('/ServerAdmin/ToggleChatMessageLock/' + id, {
+            method: 'POST',
+            headers: headers,
+            credentials: 'same-origin'
+        }).then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : {}; })
+            .then(function (resp) {
+                if (!resp || resp.success !== true) {
+                    // revert optimistic change if failed
+                    btn.setAttribute('data-locked', currentlyLocked ? 'true' : 'false');
+                    btn.innerHTML = currentlyLocked
+                        ? '<i class="fa fa-lock text-warning"></i>'
+                        : '<i class="fa fa-unlock text-muted"></i>';
+                    if (typeof toastr !== 'undefined') toastr.error('Failed to toggle lock ' + (resp && resp.error ? '(' + resp.error + ')' : ''));
+                } else {
+                    if (typeof toastr !== 'undefined') toastr.success('Chat message ' + (resp.locked ? 'locked' : 'unlocked'));
+                }
+                table.ajax.reload(null, false);
+            })
+            .catch(function () {
+                btn.setAttribute('data-locked', currentlyLocked ? 'true' : 'false');
+                btn.innerHTML = currentlyLocked
+                    ? '<i class="fa fa-lock text-warning"></i>'
+                    : '<i class="fa fa-unlock text-muted"></i>';
+                if (typeof toastr !== 'undefined') toastr.error('Failed to toggle lock');
+            });
+    });
 });

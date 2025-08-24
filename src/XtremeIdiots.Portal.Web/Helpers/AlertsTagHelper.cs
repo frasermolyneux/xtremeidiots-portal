@@ -17,24 +17,38 @@ public class AlertsTagHelper : TagHelper
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
+        // We emit a lightweight container div with a data attribute containing serialized alerts.
+        // site.js will detect this and raise standardized toastr notifications (with graceful fallback
+        // to inline Bootstrap alerts if toastr is unavailable).
         output.TagName = "div";
+        output.Attributes.SetAttribute("id", "server-alerts-data");
 
         if (TempData[AlertKey] is null)
             TempData[AlertKey] = JsonConvert.SerializeObject(new HashSet<Alert>());
 
-        var alertsJson = TempData[AlertKey]?.ToString() ?? throw new InvalidOperationException("TempData alert key is unexpectedly null");
+        var alertsJson = TempData[AlertKey]?.ToString() ?? "[]";
         var alerts = JsonConvert.DeserializeObject<ICollection<Alert>>(alertsJson) ?? [];
 
-        var html = string.Empty;
+        // Store as data attribute for client script to process.
+        var safeJson = JsonConvert.SerializeObject(alerts); // ensures proper escaping
+        output.Attributes.SetAttribute("data-alerts", safeJson);
 
-        foreach (var alert in alerts)
-            html += $"<div class='alert {alert.Type}' id='inner-alert' role='alert' style='padding-top:10px'>" +
-                    "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>" +
-                    "<span aria-hidden='true'>&times;</span>" +
-                    "</button>" +
-                    $"{alert.Message}" +
-                    "</div>";
+        // Provide a <noscript> fallback with traditional Bootstrap alerts for users without JS.
+        if (alerts.Count > 0)
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.Append("<noscript>");
+            foreach (var alert in alerts)
+            {
+                sb.Append($"<div class='alert {alert.Type}' role='alert'>{System.Net.WebUtility.HtmlEncode(alert.Message)}</div>");
+            }
 
-        output.Content.SetHtmlContent(html);
+            sb.Append("</noscript>");
+            output.Content.SetHtmlContent(sb.ToString());
+        }
+        else
+        {
+            output.Content.SetHtmlContent(string.Empty);
+        }
     }
 }

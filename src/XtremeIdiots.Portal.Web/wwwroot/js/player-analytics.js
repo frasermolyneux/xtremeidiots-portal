@@ -1,0 +1,166 @@
+// Player Analytics page logic (extracted from Razor view for consistency)
+(function () {
+    if (!window.Chart) {
+        console.error('Chart.js not loaded');
+        return;
+    }
+    function qs(sel) { return document.querySelector(sel); }
+    function byId(id) { return document.getElementById(id); }
+    function cutoffIso() {
+        const v = qs('#cutoff').value;
+        return v ? (v + 'T00:00:00') : '';
+    }
+    function looksLikeDate(x) { return typeof x === 'string' && /\d{4}-\d{2}-\d{2}/.test(x); }
+    function toLabel(val) {
+        if (!val) return '';
+        const s = String(val);
+        return looksLikeDate(s) ? s.substring(0, 10) : s;
+    }
+
+    let charts = { cumulative: null, newPerGame: null, dropoff: null };
+    function destroyCharts() { Object.keys(charts).forEach(k => { if (charts[k]) { charts[k].destroy(); charts[k] = null; } }); }
+
+    function chartOptions() {
+        return {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: {
+                x: {
+                    type: 'category',
+                    ticks: {
+                        maxRotation: 45,
+                        autoSkip: true,
+                        callback: (value) => String(value).substring(0, 10)
+                    }
+                }
+            }
+        };
+    }
+
+    function renderLineChart(ctx, labels, data, label, color) {
+        return new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '33', tension: 0.2, fill: true, pointRadius: 0 }] },
+            options: chartOptions()
+        });
+    }
+
+    function palette() {
+        return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+    }
+
+    function normalizeSeriesObject(obj) {
+        const allDates = new Set();
+        const series = {};
+        for (const [name, arr] of Object.entries(obj || {})) {
+            const points = Array.isArray(arr) ? arr : [];
+            series[name] = points.map(p => {
+                const keys = Object.keys(p);
+                const dateKey = keys.find(k => ['date', 'day', 'timestamp', 'created', 'createdon', 'createdat'].includes(k.toLowerCase())) || keys.find(k => looksLikeDate(p[k]));
+                const valueKey = keys.find(k => ['value', 'count', 'total', 'players'].includes(k.toLowerCase())) || keys.find(k => typeof p[k] === 'number');
+                const d = dateKey ? p[dateKey] : '';
+                if (d) allDates.add(String(d).substring(0, 10));
+                return { d: String(d).substring(0, 10), v: valueKey ? Number(p[valueKey]) : 0 };
+            });
+        }
+        const labels = Array.from(allDates).sort();
+        const datasets = Object.entries(series).map(([name, pts], i) => {
+            const map = new Map(pts.map(p => [p.d, p.v]));
+            return { name, data: labels.map(l => map.get(l) ?? 0), color: palette()[i % 10] };
+        });
+        return { labels, datasets };
+    }
+
+    function normalizeArrayWithGameCounts(arr) {
+        const items = Array.isArray(arr) ? arr : [];
+        if (items.length === 0) return { labels: [], datasets: [] };
+        const first = items[0] || {};
+        const labelKey = Object.keys(first).find(k => k.toLowerCase() === 'created')
+            || Object.keys(first).find(k => looksLikeDate(first[k]))
+            || 'created';
+        const labels = items.map(it => toLabel(it[labelKey] ?? ''));
+        const gc = first.gameCounts || {};
+        const keys = Object.keys(gc);
+        const colors = palette();
+        const datasets = keys.map((key, i) => ({
+            label: key,
+            data: items.map(it => Number((it.gameCounts || {})[key] ?? 0)),
+            borderColor: colors[i % colors.length],
+            backgroundColor: colors[i % colors.length] + '33',
+            tension: 0.2,
+            fill: false,
+            pointRadius: 0
+        }));
+        return { labels, datasets };
+    }
+
+    function normalizeArray(arr) {
+        const labels = [];
+        const data = [];
+        for (const p of (Array.isArray(arr) ? arr : [])) {
+            const keys = Object.keys(p);
+            const dateKey = keys.find(k => ['date', 'day', 'timestamp', 'created', 'createdon', 'createdat'].includes(k.toLowerCase())) || keys.find(k => looksLikeDate(p[k]));
+            const valueKey = keys.find(k => ['value', 'count', 'total', 'players'].includes(k.toLowerCase())) || keys.find(k => typeof p[k] === 'number');
+            labels.push(toLabel(dateKey ? p[dateKey] : ''));
+            data.push(valueKey ? Number(p[valueKey]) : 0);
+        }
+        return { labels, data };
+    }
+
+    function unwrap(x) {
+        if (!x) return x;
+        if (Array.isArray(x)) return x;
+        if (Array.isArray(x.items)) return x.items;
+        if (Array.isArray(x.data)) return x.data;
+        if (x.result && Array.isArray(x.result.data)) return x.result.data;
+        return x;
+    }
+
+    async function load() {
+        const cutoff = cutoffIso();
+        const urls = {
+            cumulative: `/PlayerAnalytics/GetCumulativeDailyPlayersJson?cutoff=${encodeURIComponent(cutoff)}`,
+            newPerGame: `/PlayerAnalytics/GetNewDailyPlayersPerGameJson?cutoff=${encodeURIComponent(cutoff)}`,
+            dropoffPerGame: `/PlayerAnalytics/GetPlayersDropOffPerGameJson?cutoff=${encodeURIComponent(cutoff)}`
+        };
+        const opts = { headers: { 'Accept': 'application/json' } };
+        try {
+            const [cum, newg, drop] = await Promise.all([
+                fetch(urls.cumulative, opts).then(r => r.ok ? r.json() : Promise.reject(r)).then(unwrap),
+                fetch(urls.newPerGame, opts).then(r => r.ok ? r.json() : Promise.reject(r)).then(unwrap),
+                fetch(urls.dropoffPerGame, opts).then(r => r.ok ? r.json() : Promise.reject(r)).then(unwrap)
+            ]);
+            ['cumulativeFallback', 'newPerGameFallback', 'dropoffPerGameFallback'].forEach(id => qs('#' + id).style.display = 'none');
+            destroyCharts();
+            const cumNorm = Array.isArray(cum) ? normalizeArray(cum) : normalizeArray([]);
+            charts.cumulative = renderLineChart(byId('cumulativeChart'), cumNorm.labels, cumNorm.data, 'Cumulative Players', '#1f77b4');
+            const newNorm = Array.isArray(newg)
+                ? normalizeArrayWithGameCounts(newg)
+                : (newg && typeof newg === 'object' ? normalizeSeriesObject(newg) : { labels: [], datasets: [] });
+            charts.newPerGame = new Chart(byId('newPerGameChart'), {
+                type: 'line',
+                data: { labels: newNorm.labels, datasets: (newNorm.datasets || []).map(ds => ds.name ? ({ label: ds.name, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '33', tension: 0.2, fill: false, pointRadius: 0 }) : ds) },
+                options: chartOptions()
+            });
+            const dropNorm = Array.isArray(drop)
+                ? normalizeArrayWithGameCounts(drop)
+                : (drop && typeof drop === 'object' ? normalizeSeriesObject(drop) : { labels: [], datasets: [] });
+            charts.dropoff = new Chart(byId('dropoffPerGameChart'), {
+                type: 'line',
+                data: { labels: dropNorm.labels, datasets: (dropNorm.datasets || []).map(ds => ds.name ? ({ label: ds.name, data: ds.data, borderColor: ds.color, backgroundColor: ds.color + '33', tension: 0.2, fill: false, pointRadius: 0 }) : ds) },
+                options: chartOptions()
+            });
+        } catch (e) {
+            ['cumulativeFallback', 'newPerGameFallback', 'dropoffPerGameFallback'].forEach(id => qs('#' + id).style.display = 'block');
+            try { qs('#cumulativeFallback').textContent = await (await fetch(urls.cumulative, opts)).text(); } catch { }
+            try { qs('#newPerGameFallback').textContent = await (await fetch(urls.newPerGame, opts)).text(); } catch { }
+            try { qs('#dropoffPerGameFallback').textContent = await (await fetch(urls.dropoffPerGame, opts)).text(); } catch { }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const refresh = qs('#refresh');
+        if (refresh) refresh.addEventListener('click', load);
+        load();
+    });
+})();

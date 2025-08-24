@@ -67,28 +67,9 @@
 </div>
 
 @section Scripts {
-    <script>
-        // Load Chart.js from multiple CDNs to avoid 404s; no local fallback to prevent noisy requests
-        (function loadChartJs(cb) {
-            if (window.Chart) { cb(); return; }
-            const sources = [
-                'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js',
-                'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js',
-                'https://unpkg.com/chart.js@4.4.3/dist/chart.umd.min.js'
-            ];
-            let index = 0;
-            (function next() {
-                if (window.Chart) { cb(); return; }
-                const src = sources[index++];
-                if (!src) { console.error('Chart.js failed to load from all sources'); cb(); return; }
-                const s = document.createElement('script');
-                s.src = src; s.async = true;
-                s.onload = () => cb();
-                s.onerror = () => next();
-                document.head.appendChild(s);
-            })();
-        })(function () {
-            (function () {
+    <script src="~/lib/chart.js/dist/chart.umd.js" asp-append-version="true"></script>
+    <script src="~/js/player-analytics.js" asp-append-version="true"></script>
+}
                 function qs(sel) { return document.querySelector(sel); }
                 function byId(id) { return document.getElementById(id); }
                 function cutoffIso() {

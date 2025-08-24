@@ -44,6 +44,68 @@
       "files": [
         "dataTables.responsive.min.js"
       ]
-    }
+    },
+    {
+      "library": "jquery@3.7.1",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/jquery",
+      "files": [
+        "dist/jquery.js",
+        "dist/jquery.min.js"
+      ]
+    },
+    {
+      "library": "bootstrap@5.3.3",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/bootstrap",
+      "files": [
+        "dist/css/bootstrap.css",
+        "dist/css/bootstrap.min.css",
+        "dist/js/bootstrap.bundle.js",
+        "dist/js/bootstrap.bundle.min.js"
+      ]
+    },
+    {
+      "library": "font-awesome@4.7.0",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/font-awesome",
+      "files": [
+        "css/font-awesome.css",
+        "css/font-awesome.min.css",
+        "fonts/fontawesome-webfont.eot",
+        "fonts/fontawesome-webfont.svg",
+        "fonts/fontawesome-webfont.ttf",
+        "fonts/fontawesome-webfont.woff",
+        "fonts/fontawesome-webfont.woff2",
+        "fonts/FontAwesome.otf"
+      ]
+    },
+    {
+      "library": "metismenu@3.0.7",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/metisMenu",
+      "files": [
+        "dist/metisMenu.js",
+        "dist/metisMenu.min.js"
+      ]
+    },
+    {
+      "library": "jquery-slimscroll@1.3.8",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/slimScroll",
+      "files": [
+        "jquery.slimscroll.js",
+        "jquery.slimscroll.min.js"
+      ]
+    },
+    {
+      "library": "pace-js@1.2.4",
+      "provider": "unpkg",
+      "destination": "wwwroot/lib/pace",
+      "files": [
+        "pace.js",
+        "pace.min.js"
+      ]
+  }
   ]
 }

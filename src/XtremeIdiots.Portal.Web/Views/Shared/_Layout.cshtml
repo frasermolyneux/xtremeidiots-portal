@@ -100,29 +100,22 @@
     <environment names="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
-        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
-        <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
         <script src="~/lib/pace/pace.js"></script>
-        <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
-        <script src="~/lib/datatables-responsive/dataTables.responsive.min.js"></script>
-        <script src="~/lib/moment/moment.min.js"></script>
-        <script src="~/js/inspinia.js" asp-append-version="true"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
+        <script src="~/lib/slimScroll/jquery.slimscroll.js"></script>
     </environment>
     <environment names="Staging,Production">
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
         <script src="~/lib/pace/pace.min.js"></script>
         <script src="~/lib/slimScroll/jquery.slimscroll.min.js"></script>
-        <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
-        <script src="~/lib/datatables-responsive/dataTables.responsive.min.js"></script>
-        <script src="~/lib/moment/moment.min.js"></script>
-        <script src="~/js/inspinia.js" asp-append-version="true"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
     </environment>
+    <script src="~/lib/metisMenu/dist/jquery.metisMenu.js"></script>
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-responsive/dataTables.responsive.min.js"></script>
+    <script src="~/lib/moment/moment.min.js"></script>
+    <script src="~/js/inspinia.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/enhanced-ui.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("scripts", false)
 </body>

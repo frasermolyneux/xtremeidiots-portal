@@ -111,8 +111,8 @@ public class DataController(
             return Ok(new
             {
                 model.Draw,
-                recordsTotal = mapsApiResponse.Result.Data.TotalCount,
-                recordsFiltered = mapsApiResponse.Result.Data.FilteredCount,
+                recordsTotal = mapsApiResponse.Result.Pagination.TotalCount,
+                recordsFiltered = mapsApiResponse.Result.Pagination.FilteredCount,
                 data = mapsApiResponse.Result.Data.Items
             });
         }, nameof(GetMapListAjax));
@@ -152,8 +152,8 @@ public class DataController(
             return Ok(new
             {
                 model.Draw,
-                recordsTotal = userProfileResponseDto.Result.Data.TotalCount,
-                recordsFiltered = userProfileResponseDto.Result.Data.FilteredCount,
+                recordsTotal = userProfileResponseDto.Result.Pagination.TotalCount,
+                recordsFiltered = userProfileResponseDto.Result.Pagination.FilteredCount,
                 data = userProfileResponseDto.Result.Data.Items
             });
         }, nameof(GetUsersAjax));
@@ -227,8 +227,8 @@ public class DataController(
             return Ok(new
             {
                 model.Draw,
-                recordsTotal = playersApiResponse.Result.Data.TotalCount,
-                recordsFiltered = playersApiResponse.Result.Data.FilteredCount,
+                recordsTotal = playersApiResponse.Result.Pagination.TotalCount,
+                recordsFiltered = playersApiResponse.Result.Pagination.FilteredCount,
                 data = playersApiResponse.Result.Data.Items
             });
         }, nameof(GetPlayersAjax), $"filter: {filter}, gameType: {gameType}");

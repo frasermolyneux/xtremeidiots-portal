@@ -120,8 +120,8 @@ public class MapsController(
             return Json(new
             {
                 model.Draw,
-                recordsTotal = mapsApiResponse.Result.Data.TotalCount,
-                recordsFiltered = mapsApiResponse.Result.Data.FilteredCount,
+                recordsTotal = mapsApiResponse.Result.Pagination.TotalCount,
+                recordsFiltered = mapsApiResponse.Result.Pagination.FilteredCount,
                 data = mapsApiResponse.Result.Data.Items
             });
         }, nameof(GetMapListAjax));

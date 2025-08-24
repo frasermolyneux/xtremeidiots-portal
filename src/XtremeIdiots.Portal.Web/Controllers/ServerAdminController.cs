@@ -498,7 +498,7 @@ public class ServerAdminController(
             if (authResult != null)
                 return JsonOrStatus(authResult, new { success = false, error = "Unauthorized", chatMessageId = id });
 
-            var toggleResponse = await repositoryApiClient.ChatMessages.V1.ToggleLockedStatus(id, cancellationToken);
+            var toggleResponse = await repositoryApiClient.ChatMessages.V1.SetLock(id, !chatMessageData.Locked, cancellationToken);
 
             if (!toggleResponse.IsSuccess)
             {
@@ -589,8 +589,8 @@ public class ServerAdminController(
         return Json(new
         {
             model.Draw,
-            recordsTotal = chatMessagesApiResponse.Result.Data.TotalCount,
-            recordsFiltered = chatMessagesApiResponse.Result.Data.FilteredCount,
+            recordsTotal = chatMessagesApiResponse.Result.Pagination.TotalCount,
+            recordsFiltered = chatMessagesApiResponse.Result.Pagination.FilteredCount,
             data = chatMessagesApiResponse.Result.Data.Items
         });
     }

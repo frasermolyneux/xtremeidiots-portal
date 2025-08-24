@@ -137,8 +137,8 @@ public class UserController(
             return Json(new
             {
                 model.Draw,
-                recordsTotal = userProfileResponseDto.Result.Data.TotalCount,
-                recordsFiltered = userProfileResponseDto.Result.Data.FilteredCount,
+                recordsTotal = userProfileResponseDto.Result.Pagination.TotalCount,
+                recordsFiltered = userProfileResponseDto.Result.Pagination.FilteredCount,
                 data = userProfileResponseDto.Result.Data.Items
             });
         }, nameof(GetUsersAjax));

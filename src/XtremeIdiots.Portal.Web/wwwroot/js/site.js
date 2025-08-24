@@ -262,3 +262,58 @@ function formatExpiryDate(utcYmdHm) {
         return expiredJs ? ("<span title='Expired on " + ds + "'>" + ds + " <span class='badge text-bg-danger ms-1'>Expired</span></span>") : ("<span title='Expires on " + ds + "'>" + ds + " <span class='badge text-bg-success ms-1'>Active</span></span>");
     } catch { return utcYmdHm; }
 }
+
+// Generic formatter for any UTC date-time string (YYYY-MM-DD HH:mm) into the user's locale & timezone.
+// Uses moment.js + moment-timezone if available, else falls back to Intl APIs.
+// Optional options.showRelative adds a muted relative time (e.g., 5 days ago).
+function formatDateTime(utcYmdHm, options) {
+    if (!utcYmdHm) return '';
+    var locale = document.querySelector('meta[name="user-locale"]')?.content || 'en';
+    var tz = document.querySelector('meta[name="user-timezone"]')?.content; // e.g. Europe/London
+    var fmtOptions = options || {}; // allow caller overrides (e.g., { showRelative: true })
+
+    // Prefer moment if present for consistent formatting and timezone support
+    if (typeof moment !== 'undefined') {
+        var m = moment.utc(utcYmdHm, 'YYYY-MM-DD HH:mm');
+        if (!m.isValid()) return utcYmdHm;
+        if (moment.locale) moment.locale(locale);
+        var displayMoment = (tz && moment.tz) ? m.tz(tz) : m.local();
+        var formatted = displayMoment.format('LLL'); // e.g., August 24, 2025 13:45
+        if (fmtOptions.showRelative && m.fromNow) {
+            formatted += " <span class='text-muted'>(" + m.fromNow() + ")</span>";
+        }
+        return formatted;
+    }
+
+    // Fallback: native Date & Intl
+    try {
+        var d = new Date(utcYmdHm.replace(' ', 'T') + 'Z');
+        if (isNaN(d.getTime())) return utcYmdHm;
+        var intlOpts = {
+            year: 'numeric', month: 'long', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        };
+        if (tz && Intl && Intl.DateTimeFormat) intlOpts.timeZone = tz;
+        var formattedNative = d.toLocaleString(locale, intlOpts);
+        // Relative time (very lightweight estimation if requested and Intl.RelativeTimeFormat available)
+        if (fmtOptions.showRelative && typeof Intl !== 'undefined' && Intl.RelativeTimeFormat) {
+            try {
+                var diffMs = Date.now() - d.getTime();
+                var rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+                var minutes = Math.round(diffMs / 60000);
+                var relValue, relUnit;
+                if (Math.abs(minutes) < 60) { relValue = minutes; relUnit = 'minute'; }
+                else {
+                    var hours = Math.round(minutes / 60);
+                    if (Math.abs(hours) < 24) { relValue = hours; relUnit = 'hour'; }
+                    else {
+                        var days = Math.round(hours / 24);
+                        relValue = days; relUnit = 'day';
+                    }
+                }
+                formattedNative += " <span class='text-muted'>(" + rtf.format(-relValue, relUnit) + ")</span>"; // negative because past times
+            } catch { /* ignore relative fallback errors */ }
+        }
+        return formattedNative;
+    } catch { return utcYmdHm; }
+}

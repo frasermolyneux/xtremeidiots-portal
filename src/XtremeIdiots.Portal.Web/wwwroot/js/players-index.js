@@ -15,8 +15,8 @@ $(document).ready(function () {
         stateLoadParams: function (settings, data) { if (data._playersStructureVersion !== 2) return false; },
         columnDefs: [
             { targets: 0, responsivePriority: 1, visible: true }, // Name (force visible)
-            { targets: 1, responsivePriority: 3 }, // Player IP
-            { targets: 2, responsivePriority: 5, width: 260 }, // Guid
+            { targets: 1, responsivePriority: 5 }, // Player IP
+            { targets: 2, responsivePriority: 3 }, // Guid
             { targets: 3, responsivePriority: 4 }, // First Seen
             { targets: 4, responsivePriority: 2 }  // Last Seen
         ],
@@ -43,7 +43,7 @@ $(document).ready(function () {
                 }
             },
             { data: 'guid', name: 'guid', sortable: false, defaultContent: '' },
-            { data: 'firstSeen', name: 'firstSeen', sortable: true },
+            { data: 'firstSeen', name: 'firstSeen', sortable: true, render: function (data) { return data ? ('<span title="' + data + '">' + formatDateTime(data, { showRelative: true }) + '</span>') : ''; } },
             { data: 'lastSeen', name: 'lastSeen', sortable: true, render: function (data) { return data ? ('<span title="' + data + '">' + timeAgo(data) + '</span>') : ''; } }
         ]
     });

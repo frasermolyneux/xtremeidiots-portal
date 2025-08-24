@@ -19,13 +19,13 @@ Legend:
 Rows included are only the roles/claims influencing this page. (Moderator, GameServer, etc. are excluded because they don't affect credential visibility here.)
 
 | Role / Claim (minimal case) | Access Credentials Page (`AccessCredentials`) | See Server Listed | View RCON Password (`ViewRconCredential`) | View FTP Hostname (`ViewFtpCredential`) | View FTP Username | View FTP Password |
-|-----------------------------|----------------------------------------------|-------------------|-------------------------------------------|-----------------------------------------|-------------------|-------------------|
-| SeniorAdmin                 | ✓ (all)                                      | ✓ (all)           | ✓ (all)                                   | ✓ (all)                                 | ✓ (all)           | ✓ (all)           |
-| HeadAdmin (game type)       | ✓                                            | ✓ (g)             | ✗ (handler doesn’t allow)                 | ✓ (g)                                   | ✓ (g)             | ✓ (g)             |
-| GameAdmin (game type)       | ✓                                            | ✓ (g)             | ✓ (g)                                     | ✗                                       | ✗                 | ✗                 |
-| FtpCredentials (server)     | ✓                                            | ✓ (s)             | ✗                                         | ✓ (s)                                   | ✓ (s)             | ✓ (s)             |
-| RconCredentials (server)    | ✓                                            | ✓ (s)             | ✗ (claim not checked in handler)          | ✗                                       | ✗                 | ✗                 |
-| LiveRcon (game type)        | ✗ (not in `CredentialsAccessLevels`)         | —                 | (Would be ✓ (g) if page accessible)       | ✗                                       | ✗                 | ✗                 |
+| --------------------------- | --------------------------------------------- | ----------------- | ----------------------------------------- | --------------------------------------- | ----------------- | ----------------- |
+| SeniorAdmin                 | ✓ (all)                                       | ✓ (all)           | ✓ (all)                                   | ✓ (all)                                 | ✓ (all)           | ✓ (all)           |
+| HeadAdmin (game type)       | ✓                                             | ✓ (g)             | ✗ (handler doesn’t allow)                 | ✓ (g)                                   | ✓ (g)             | ✓ (g)             |
+| GameAdmin (game type)       | ✓                                             | ✓ (g)             | ✓ (g)                                     | ✗                                       | ✗                 | ✗                 |
+| FtpCredentials (server)     | ✓                                             | ✓ (s)             | ✗                                         | ✓ (s)                                   | ✓ (s)             | ✓ (s)             |
+| RconCredentials (server)    | ✓                                             | ✓ (s)             | ✗ (claim not checked in handler)          | ✗                                       | ✗                 | ✗                 |
+| LiveRcon (game type)        | ✗ (not in `CredentialsAccessLevels`)          | —                 | (Would be ✓ (g) if page accessible)       | ✗                                       | ✗                 | ✗                 |
 
 ## Notes / Nuances
 

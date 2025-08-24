@@ -116,6 +116,24 @@ public class GameServersAuthHandler : IAuthorizationHandler
 
     private static void HandleViewRconCredential(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
-        BaseAuthorizationHelper.CheckSeniorOrLiveRconAccessWithResource(context, requirement);
+        // Support both GameType and (GameType, GameServerId) resources.
+        // SeniorAdmin short-circuit
+        BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
+
+        if (context.Resource is Tuple<GameType, Guid> tupleResource)
+        {
+            var (gameType, gameServerId) = tupleResource;
+            // Existing behaviour: GameAdmin or LiveRcon at game scope
+            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
+            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
+            // New: allow per-server RconCredentials claim holder
+            BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+        }
+        else if (context.Resource is GameType gameType)
+        {
+            // Original behaviour path when only a game type is supplied
+            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
+            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
+        }
     }
 }

@@ -15,17 +15,17 @@ Roles / Claims:
 - GameAdmin (game) (included where handler allows via composite checks)
 - LiveRcon (game) (for RCON view; already covered in credentials but listed here for completeness)
 
-| Capability / Policy | SeniorAdmin | HeadAdmin (game) | GameServer (game) | GameAdmin (game) | LiveRcon (game) | Notes |
-|---------------------|------------|------------------|-------------------|------------------|-----------------|-------|
-| Access Game Servers (`AccessGameServers`) | ✓ | ✓ g | ✓ g | ✗ | ✗ | Access group excludes GameAdmin |
-| Create Game Server (`CreateGameServer`) | ✓ | ✓ g | ✗ | ✗ | ✗ | Senior or HeadAdmin |
-| Delete Game Server (`DeleteGameServer`) | ✓ | ✗ | ✗ | ✗ | ✗ | Senior only |
-| Edit Game Server (General) (`EditGameServer`) | ✓ | ✓ g | ✓ g | ✗ | ✗ | HeadAdmin & GameServer claim via combined access |
-| Edit Game Server FTP (`EditGameServerFtp`) | ✓ | ✓ g | ✗ | ✗ | ✗ | Senior or HeadAdmin |
-| Edit Game Server RCON (`EditGameServerRcon`) | ✓ | ✓ g | ✗ | ✗ | ✗ | Senior or HeadAdmin |
-| View Game Server (`ViewGameServer`) | ✓ | ✓ g | ✓ g | ✗ | ✗ | Combined access (HeadAdmin or GameServer) |
-| View FTP Credential (`ViewFtpCredential`) | ✓ | ✓ g | ✗ | ✗ | ✗ | See credentials matrix for per-server claim nuance |
-| View RCON Credential (`ViewRconCredential`) | ✓ | ✗ | ✗ | ✓ g | ✓ g | HeadAdmin missing; GameAdmin or LiveRcon allowed |
+| Capability / Policy                           | SeniorAdmin | HeadAdmin (game) | GameServer (game) | GameAdmin (game) | LiveRcon (game) | Notes                                              |
+| --------------------------------------------- | ----------- | ---------------- | ----------------- | ---------------- | --------------- | -------------------------------------------------- |
+| Access Game Servers (`AccessGameServers`)     | ✓           | ✓ g              | ✓ g               | ✗                | ✗               | Access group excludes GameAdmin                    |
+| Create Game Server (`CreateGameServer`)       | ✓           | ✓ g              | ✗                 | ✗                | ✗               | Senior or HeadAdmin                                |
+| Delete Game Server (`DeleteGameServer`)       | ✓           | ✗                | ✗                 | ✗                | ✗               | Senior only                                        |
+| Edit Game Server (General) (`EditGameServer`) | ✓           | ✓ g              | ✓ g               | ✗                | ✗               | HeadAdmin & GameServer claim via combined access   |
+| Edit Game Server FTP (`EditGameServerFtp`)    | ✓           | ✓ g              | ✗                 | ✗                | ✗               | Senior or HeadAdmin                                |
+| Edit Game Server RCON (`EditGameServerRcon`)  | ✓           | ✓ g              | ✗                 | ✗                | ✗               | Senior or HeadAdmin                                |
+| View Game Server (`ViewGameServer`)           | ✓           | ✓ g              | ✓ g               | ✗                | ✗               | Combined access (HeadAdmin or GameServer)          |
+| View FTP Credential (`ViewFtpCredential`)     | ✓           | ✓ g              | ✗                 | ✗                | ✗               | See credentials matrix for per-server claim nuance |
+| View RCON Credential (`ViewRconCredential`)   | ✓           | ✗                | ✗                 | ✓ g              | ✓ g             | HeadAdmin missing; GameAdmin or LiveRcon allowed   |
 
 ## Observations
 - GameAdmin cannot access the Game Servers list unless also HeadAdmin or GameServer claim holder.

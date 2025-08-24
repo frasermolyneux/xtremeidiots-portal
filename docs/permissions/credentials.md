@@ -17,20 +17,20 @@ Roles / Claims considered (minimal single-claim scenarios):
 - RconCredentials (server)
 - LiveRcon (game) (included due to RCON credential view logic)
 
-| Capability / Policy | SeniorAdmin | HeadAdmin (game) | GameAdmin (game) | FtpCredentials (server) | RconCredentials (server) | LiveRcon (game) | Notes |
-|---------------------|------------|------------------|------------------|-------------------------|--------------------------|-----------------|-------|
-| Access Credentials Page (`AccessCredentials`) | ✓ (all) | ✓ g | ✓ g | ✓ s | ✓ s | ✗ | LiveRcon NOT in access claim group |
-| View FTP Hostname (`ViewFtpCredential`) | ✓ (all) | ✓ g | ✗ | ✓ s | ✗ | ✗ | HeadAdmin or per-server FTP claim |
-| View FTP Username (`ViewFtpCredential`) | ✓ (all) | ✓ g | ✗ | ✓ s | ✗ | ✗ | Same rule |
-| View FTP Password (`ViewFtpCredential`) | ✓ (all) | ✓ g | ✗ | ✓ s | ✗ | ✗ | Same rule |
-| View RCON Password (`ViewRconCredential`) | ✓ (all) | ✗ | ✓ g | ✗ | ✗ | ✓ g | Handler: Senior OR (GameAdmin/LiveRcon) — HeadAdmin missing |
+| Capability / Policy                           | SeniorAdmin | HeadAdmin (game) | GameAdmin (game) | FtpCredentials (server) | RconCredentials (server) | LiveRcon (game) | Notes                                       |
+| --------------------------------------------- | ----------- | ---------------- | ---------------- | ----------------------- | ------------------------ | --------------- | ------------------------------------------- |
+| Access Credentials Page (`AccessCredentials`) | ✓ (all)     | ✓ g              | ✓ g              | ✓ s                     | ✓ s                      | ✗               | LiveRcon NOT in access claim group          |
+| View FTP Hostname (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | HeadAdmin or per-server FTP claim           |
+| View FTP Username (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | Same rule                                   |
+| View FTP Password (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | Same rule                                   |
+| View RCON Password (`ViewRconCredential`)     | ✓ (all)     | ✗                | ✓ g              | ✗                       | ✓ s                      | ✓ g             | Now allows per-server RconCredentials claim |
 
 ## Nuances
-- HeadAdmin omission in `ViewRconCredential` likely unintentional asymmetry vs FTP.
-- `RconCredentials` claim not checked in handler (has page access only).
+- HeadAdmin still omitted in `ViewRconCredential` (as implemented) creating asymmetry vs FTP.
+- `RconCredentials` claim now grants per-server RCON password visibility.
 - `LiveRcon` cannot reach page alone (not in AccessCredentials claim set) though it enables viewing RCON.
 
 ## Potential Alignments
-- Add HeadAdmin + per-server RconCredentials to `ViewRconCredential` logic.
-- Include LiveRcon in `AccessCredentials` claim set if appropriate.
+- Decide whether to include HeadAdmin in RCON credential visibility for parity with FTP.
+- Optionally include LiveRcon in `AccessCredentials` claim set if those users should access the page directly.
 

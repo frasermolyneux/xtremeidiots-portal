@@ -27,6 +27,13 @@
                     </select>
                 </div>
                 <div class="filter-group">
+                    <label for="filterPlayersFilter" class="form-label">Filter Type</label>
+                    <select id="filterPlayersFilter" class="form-select">
+                        <option value="UsernameAndGuid" selected>Username &amp; Guid</option>
+                        <option value="IpAddress">IP Address</option>
+                    </select>
+                </div>
+                <div class="filter-group">
                     <label class="form-label" for="resetFilters">Reset</label>
                     <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear
                         Filters</button>

@@ -86,9 +86,11 @@ public class PlayersController(
     /// <param name="cancellationToken">Cancellation token for the async operation</param>
     /// <returns>JSON data for DataTable display</returns>
     [HttpPost]
-    public async Task<IActionResult> GetPlayersAjax(GameType? id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetPlayersAjax(GameType? id, [FromQuery] PlayersFilter? playersFilter, CancellationToken cancellationToken = default)
     {
-        return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id, cancellationToken);
+        // Default to UsernameAndGuid when not provided (UI defaults this way too)
+        var filter = playersFilter ?? PlayersFilter.UsernameAndGuid;
+        return await GetPlayersAjaxPrivate(filter, id, cancellationToken);
     }
 
     /// <summary>

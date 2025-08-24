@@ -44,9 +44,10 @@ public class DataController(
     /// <returns>DataTables-compatible JSON response with player data</returns>
     [HttpPost("Players/GetPlayersAjax")]
     [Authorize(Policy = AuthPolicies.AccessPlayers)]
-    public async Task<IActionResult> GetPlayersAjax(GameType? id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> GetPlayersAjax(GameType? id, [FromQuery] PlayersFilter? playersFilter, CancellationToken cancellationToken = default)
     {
-        return await GetPlayersAjaxPrivate(PlayersFilter.UsernameAndGuid, id, cancellationToken);
+        var filter = playersFilter ?? PlayersFilter.UsernameAndGuid;
+        return await GetPlayersAjaxPrivate(filter, id, cancellationToken);
     }
 
     /// <summary>

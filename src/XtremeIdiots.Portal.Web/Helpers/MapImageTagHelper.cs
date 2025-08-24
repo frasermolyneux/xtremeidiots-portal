@@ -13,13 +13,19 @@ public class MapImageTagHelper : TagHelper
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
         output.TagName = "img";
-        var src = !string.IsNullOrEmpty(Uri)
+        // Prefer an explicit URI if supplied, otherwise construct the map image endpoint when we have enough context.
+        var src = !string.IsNullOrWhiteSpace(Uri)
             ? Uri
-            : $"/Maps/MapImage?gameType={GameType}&mapName={Map}";
-        if (string.IsNullOrEmpty(src))
+            : (!string.IsNullOrWhiteSpace(GameType) && !string.IsNullOrWhiteSpace(Map)
+                ? $"/Maps/MapImage?gameType={GameType}&mapName={Map}"
+                : "/images/noimage.jpg");
+
+        // Guard against accidental empty query parameters which would yield a 404 and broken image icon.
+        if (src.Contains("/Maps/MapImage") && (string.IsNullOrWhiteSpace(GameType) || string.IsNullOrWhiteSpace(Map)))
         {
             src = "/images/noimage.jpg";
         }
+
         output.Attributes.SetAttribute("src", src);
         output.Attributes.SetAttribute("alt", Map ?? "map");
         var style = "border: 5px solid #021a40; display: block; margin: auto;";
@@ -28,30 +34,8 @@ public class MapImageTagHelper : TagHelper
         {
             output.Attributes.SetAttribute("class", CssClass);
         }
+        // Add client-side fallback in case the resolved image 404s at runtime.
+        output.Attributes.SetAttribute("onerror", "this.onerror=null;this.src='/images/noimage.jpg';");
         output.TagMode = TagMode.SelfClosing;
-    }
-}
-
-[HtmlTargetElement("map-popularity")]
-public class MapPopularityTagHelper : TagHelper
-{
-    [HtmlAttributeName("name")] public string Name { get; set; } = string.Empty;
-    [HtmlAttributeName("like-percentage")] public double LikePercentage { get; set; }
-    [HtmlAttributeName("dislike-percentage")] public double DislikePercentage { get; set; }
-    [HtmlAttributeName("total-likes")] public double TotalLikes { get; set; }
-    [HtmlAttributeName("total-dislikes")] public double TotalDislikes { get; set; }
-    [HtmlAttributeName("votes")] public int TotalVotes { get; set; }
-
-    public override void Process(TagHelperContext context, TagHelperOutput output)
-    {
-        output.TagName = "div";
-        output.TagMode = TagMode.StartTagAndEndTag;
-        var html =
-            $"<div class=\"progress\" id=\"progress-{Name}\">" +
-            $"<div class=\"progress-bar bg-info\" role=\"progressbar\" style=\"width: {LikePercentage}%\" aria-valuenow=\"{TotalLikes}\" aria-valuemin=\"0\" aria-valuemax=\"{TotalVotes}\"></div>" +
-            $"<div class=\"progress-bar bg-danger\" role=\"progressbar\" style=\"width: {DislikePercentage}%\" aria-valuenow=\"{TotalDislikes}\" aria-valuemin=\"0\" aria-valuemax=\"{TotalVotes}\"></div>" +
-            "</div>" +
-            $"<div class=\"m-t-sm\">{TotalLikes} likes and {TotalDislikes} dislikes out of {TotalVotes}</div>";
-        output.Content.SetHtmlContent(html);
     }
 }

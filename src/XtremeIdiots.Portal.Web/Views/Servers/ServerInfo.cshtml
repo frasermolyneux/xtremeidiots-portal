@@ -21,7 +21,8 @@
 
                     @if (Model.Map != null)
                     {
-                        <map-image uri="@Model.Map.MapImageUri"></map-image>
+                        <map-image uri="@Model.Map.MapImageUri" game-type="@Model.GameServer.GameType"
+                            map="@Model.Map.MapName"></map-image>
                         <br />
                     }
 
@@ -90,14 +91,21 @@
                         <hr />
 
                         <h5>@Model.Map.MapName Files:</h5>
-                        <ul>
-                            @foreach (var mapFile in Model.Map.MapFiles)
-                            {
-                                <li>
-                                    <a href="@mapFile.Url">@mapFile.FileName</a>
-                                </li>
-                            }
-                        </ul>
+                        @if (Model.Map.MapFiles != null && Model.Map.MapFiles.Any())
+                        {
+                            <ul>
+                                @foreach (var mapFile in Model.Map.MapFiles)
+                                {
+                                    <li>
+                                        <a href="@mapFile.Url">@mapFile.FileName</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <div><em>No map files found.</em></div>
+                        }
                     }
 
                     <hr />
@@ -234,20 +242,37 @@
                                         @Html.DisplayFor(modelItem => item.MapName)
                                     </td>
                                     <td>
-                                        @foreach (var mapFile in item.MapFiles)
+                                        @if (item.MapFiles != null && item.MapFiles.Any())
                                         {
-                                            <li>
-                                                <a href="@mapFile.Url">@mapFile.FileName</a>
-                                            </li>
+                                            <ul class="list-unstyled m-0">
+                                                @foreach (var mapFile in item.MapFiles)
+                                                {
+                                                    <li>
+                                                        <a href="@mapFile.Url">@mapFile.FileName</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <em>No files</em>
                                         }
                                     </td>
                                     <td>
-                                        <map-popularity name="@item.MapName" like-percentage="@item.LikePercentage"
-                                            dislike-percentage="@item.DislikePercentage" total-likes="@item.TotalLikes"
-                                            total-dislikes="@item.TotalDislikes" votes="@item.TotalVotes"></map-popularity>
+                                        @if (item.TotalVotes > 0)
+                                        {
+                                            <map-popularity name="@item.MapName" like-percentage="@item.LikePercentage"
+                                                dislike-percentage="@item.DislikePercentage" total-likes="@item.TotalLikes"
+                                                total-dislikes="@item.TotalDislikes" votes="@item.TotalVotes"></map-popularity>
+                                        }
+                                        else
+                                        {
+                                            <em>No votes yet</em>
+                                        }
                                     </td>
                                     <td>
-                                        <map-image uri="@item.MapImageUri"></map-image>
+                                        <map-image uri="@item.MapImageUri" game-type="@Model.GameServer.GameType"
+                                            map="@item.MapName"></map-image>
                                     </td>
                                 </tr>
                             }
@@ -280,7 +305,7 @@
                     });
 
                 var locations = [
-                                                    @foreach (var player in Model.GameServer.LivePlayers)
+                                                            @foreach (var player in Model.GameServer.LivePlayers)
                     {
                         if (player.Lat is null && player.Long is null)
                         {
@@ -290,8 +315,8 @@
                         <text>
                             ['Player', @player.Lat, @player.Long],
                         </text>
-                                                    }
-                                                ];
+                                                            }
+                                                        ];
 
                 for (var count = 0; count < locations.length; count++) {
                     new google.maps.Marker({
@@ -318,13 +343,13 @@
             playerCountData.addColumn('number', 'Player Count');
 
             playerCountData.addRows([
-                                @foreach (var item in Model.GameServerStats)
+                                    @foreach (var item in Model.GameServerStats)
                 {
                     <text>
                         [new Date(@item.Timestamp.Year, @item.Timestamp.Month-1, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second, @item.Timestamp.Millisecond), @item.PlayerCount],
                     </text>
-                                }
-                            ]);
+                                    }
+                                ]);
 
             var playerCountOptions = {
                 title: 'Player Count (Last 48 hours)',
@@ -353,7 +378,7 @@
                 dataTable.addColumn({ type: 'datetime', id: 'End' });
                 dataTable.addRows([
 
-                                                    @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
+                                                            @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
                     {
                         <text>
                             [
@@ -362,8 +387,8 @@
                             new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month-1, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second, @mapTimelineDataPoints.End.Millisecond)
                             ],
                         </text>
-                                                    }
-                                                ]);
+                                                            }
+                                                        ]);
 
                 chart.draw(dataTable);
             }

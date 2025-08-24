@@ -49,7 +49,7 @@
                 }
  @if (player?.GameType is not null)
 {
-                        <span class="ms-1">| @Html.GameTypeIcon(player.GameType) </span>
+                        <span class="ms-1">| <game-type-icon game="@player.GameType"></game-type-icon> </span>
                     }
 </div>
             @if (adminAction.ForumTopicId.HasValue && adminAction.ForumTopicId.Value != 0)

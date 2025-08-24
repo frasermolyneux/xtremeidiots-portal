@@ -35,9 +35,9 @@
                                         <td>
                                             @if (item.GameServer?.GameType != null)
                                             {
-                                                @Html.GameTypeIcon(item.GameServer.GameType)
+                                                <game-type-icon game="@item.GameServer.GameType"></game-type-icon>
                                             }
-                                            @Html.ServerName(item.GameServer?.Title, item.GameServer?.LiveTitle)
+                                            <server-name title="@item.GameServer?.Title" live-title="@item.GameServer?.LiveTitle"></server-name>
                                         </td>
                                         <td>
                                             @if (item.GameServer?.GameType != null && item.GameServer?.GameServerId != null)

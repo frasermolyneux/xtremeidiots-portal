@@ -23,7 +23,7 @@
                                 @Html.DisplayNameFor(model => model.Title)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.ServerName(Model.Title, null)
+                                <server-name title="@Model.Title"></server-name>
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.GameType)
@@ -35,7 +35,7 @@
                                 @Html.DisplayNameFor(model => model.Hostname)
                             </dt>
                             <dd class="col-sm-10">
-                                @Html.ServerHostAndPort(Model.Hostname, Model.QueryPort)
+                                <server-host host="@Model.Hostname" port="@Model.QueryPort"></server-host>
                             </dd>
                         </dl>
                     </div>

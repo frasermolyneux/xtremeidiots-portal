@@ -85,7 +85,7 @@
                             <span>
                                 @if (item.GameServer is not null)
                                 {
-                                    @Html.GameTypeIcon(item.GameServer.GameType) @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                    <game-type-icon game="@item.GameServer.GameType"></game-type-icon> <server-name title="@item.GameServer.Title" live-title="@item.GameServer.LiveTitle"></server-name>
                                 }
                                 else
                                 {
@@ -102,16 +102,14 @@
                                                                 AuthPolicies.ViewFtpCredential)).Succeeded)
                                     {
                                         <strong>File Path: </strong>
-                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
-                                        item.FilePath, item.GameServer.FtpUsername, item.GameServer.FtpPassword)
+                                        <ftp-path host="@item.GameServer.FtpHostname" port="@(item.GameServer.FtpPort ?? 0)" path="@item.FilePath" user="@item.GameServer.FtpUsername" password="@item.GameServer.FtpPassword"></ftp-path>
 
                                 <br />
                                                             }
                                     else
                                     {
                                         <strong>File Path: </strong>
-                                        @Html.MonitorFtpPath(item.GameServer.FtpHostname, item.GameServer.FtpPort ?? 0,
-                                        item.FilePath)
+                                        <ftp-path host="@item.GameServer.FtpHostname" port="@(item.GameServer.FtpPort ?? 0)" path="@item.FilePath" show-credentials="false"></ftp-path>
 
                                 <br />
                                                             }

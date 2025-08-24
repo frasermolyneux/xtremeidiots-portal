@@ -44,11 +44,13 @@
                                 {
                                     <tr>
                                         <td>
-                                            @Html.GameTypeIcon(item.GameServer.GameType)
-                                            @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                            <game-type-icon game="@item.GameServer.GameType"></game-type-icon>
+                                            <server-name title="@item.GameServer.Title"
+                                                live-title="@item.GameServer.LiveTitle"></server-name>
                                         </td>
                                         <td>
-                                            @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
+                                            <server-host host="@item.GameServer.Hostname"
+                                                port="@item.GameServer.QueryPort"></server-host>
                                         </td>
                                         <td>
                                             @{

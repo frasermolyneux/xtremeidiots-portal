@@ -13,14 +13,15 @@
 
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)</h5>
+                    <h5><server-name title="@Model.GameServer.Title"
+                            live-title="@Model.GameServer.LiveTitle"></server-name></h5>
                 </div>
 
                 <div class="ibox-content">
 
                     @if (Model.Map != null)
                     {
-                        @Html.MapImage(Model.Map.MapImageUri)
+                        <map-image uri="@Model.Map.MapImageUri"></map-image>
                         <br />
                     }
 
@@ -30,7 +31,8 @@
                                 <td>
                                     <strong>Hostname</strong>
                                 </td>
-                                <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
+                                <td><server-host host="@Model.GameServer.Hostname"
+                                        port="@Model.GameServer.QueryPort"></server-host></td>
                             </tr>
 
                             @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMod))
@@ -68,11 +70,14 @@
                                     <strong>Connect</strong>
                                 </td>
                                 <td>
-                                    @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
-                                    @Html.SteamIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
-                                    Model.GameServer.QueryPort)
-                                    @Html.HlswIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
-                                                                        Model.GameServer.QueryPort)
+                                    <server-link type="gametracker" host="@Model.GameServer.Hostname"
+                                        port="@Model.GameServer.QueryPort"></server-link>
+                                    <server-link type="steam" game="@Model.GameServer.GameType"
+                                        host="@Model.GameServer.Hostname"
+                                        port="@Model.GameServer.QueryPort"></server-link>
+                                    <server-link type="hlsw" game="@Model.GameServer.GameType"
+                                        host="@Model.GameServer.Hostname"
+                                        port="@Model.GameServer.QueryPort"></server-link>
                                 </td>
                             </tr>
 
@@ -150,7 +155,7 @@
                                             </td>
                                             <td>
                                                 @item.CountryCode.FlagImage()
-                                                @Html.PlayerName(item.Name)
+                                                <player-name value="@item.Name"></player-name>
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(model => item.Score)
@@ -237,14 +242,15 @@
                                         }
                                     </td>
                                     <td>
-                                        @Html.MapPopularity(item.MapName, item.LikePercentage, item.DislikePercentage,
-                                        item.TotalLikes, item.TotalDislikes, item.TotalVotes)
-                            </td>
-                            <td>
-                                @Html.MapImage(item.MapImageUri)
-                            </td>
-                        </tr>
-                                                }
+                                        <map-popularity name="@item.MapName" like-percentage="@item.LikePercentage"
+                                            dislike-percentage="@item.DislikePercentage" total-likes="@item.TotalLikes"
+                                            total-dislikes="@item.TotalDislikes" votes="@item.TotalVotes"></map-popularity>
+                                    </td>
+                                    <td>
+                                        <map-image uri="@item.MapImageUri"></map-image>
+                                    </td>
+                                </tr>
+                            }
 
                         </table>
 
@@ -274,7 +280,7 @@
                     });
 
                 var locations = [
-                                    @foreach (var player in Model.GameServer.LivePlayers)
+                                            @foreach (var player in Model.GameServer.LivePlayers)
                     {
                         if (player.Lat is null && player.Long is null)
                         {
@@ -284,8 +290,8 @@
                         <text>
                             ['Player', @player.Lat, @player.Long],
                         </text>
-                                    }
-                                ];
+                                            }
+                                        ];
 
                 for (var count = 0; count < locations.length; count++) {
                     new google.maps.Marker({
@@ -312,13 +318,13 @@
             playerCountData.addColumn('number', 'Player Count');
 
             playerCountData.addRows([
-                        @foreach (var item in Model.GameServerStats)
+                            @foreach (var item in Model.GameServerStats)
                 {
                     <text>
                         [new Date(@item.Timestamp.Year, @item.Timestamp.Month-1, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second, @item.Timestamp.Millisecond), @item.PlayerCount],
                     </text>
-                        }
-                    ]);
+                            }
+                        ]);
 
             var playerCountOptions = {
                 title: 'Player Count (Last 48 hours)',
@@ -347,7 +353,7 @@
                 dataTable.addColumn({ type: 'datetime', id: 'End' });
                 dataTable.addRows([
 
-                                    @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
+                                            @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
                     {
                         <text>
                             [
@@ -356,8 +362,8 @@
                             new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month-1, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second, @mapTimelineDataPoints.End.Millisecond)
                             ],
                         </text>
-                                    }
-                                ]);
+                                            }
+                                        ]);
 
                 chart.draw(dataTable);
             }

@@ -4,7 +4,7 @@
 @model GameServerDto
 
 @{
-    ViewData["Title"] = "Rcon - " + Html.ServerName(Model.Title, Model.LiveTitle);
+    ViewData["Title"] = "Rcon - " + Model.Title;
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
@@ -231,8 +231,8 @@
                         sortable: false,
                         render: function (data, type, row) {
                             return "";
-                                                                @*return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';*@
-                                                            }
+                                                                    @*return '<a href="/ServerAdmin/KickPlayer/@Model.ServerId?num=' + row['num'] + '">Kick Player</a> | <a href="/ServerAdmin/BanPlayer/' + row['num'] + '">Ban Player</a>';*@
+                                                                }
                     }
                 ]
             });

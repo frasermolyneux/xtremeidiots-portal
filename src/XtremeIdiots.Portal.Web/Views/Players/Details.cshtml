@@ -245,7 +245,7 @@
                                             <td>@aliasDto.Name</td>
                                             <td><time user-time utc="@aliasDto.Added"></time></td>
                                             <td><time user-time utc="@aliasDto.LastUsed"></time></td>
-                                            <td>@Html.ToConfidenceLabel(aliasDto.ConfidenceScore, aliasDto.LastUsed)</td>
+                                            <td><confidence-label score="@aliasDto.ConfidenceScore" last-used="@aliasDto.LastUsed"></confidence-label></td>
                                         </tr> 
                                         }
                                     }
@@ -291,7 +291,7 @@
                                             </td>
                                             <td><time user-time utc="@ipAddress.IpAddressDto.Added"></time></td>
                                             <td><time user-time utc="@ipAddress.IpAddressDto.LastUsed"></time></td>
-                                            <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
+                                            <td><confidence-label score="@ipAddress.IpAddressDto.ConfidenceScore" last-used="@ipAddress.IpAddressDto.LastUsed"></confidence-label></td>
                                         </tr> 
                                         }
                                     }

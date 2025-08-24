@@ -13,7 +13,7 @@
 
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5>@Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)</h5>
+                    <h5><server-name title="@Model.GameServer.Title" live-title="@Model.GameServer.LiveTitle"></server-name></h5>
                 </div>
 
                 <div class="ibox-content">
@@ -24,7 +24,7 @@
                                 <td>
                                     <strong>Hostname</strong>
                                 </td>
-                                <td>@Html.ServerHostAndPort(Model.GameServer.Hostname, Model.GameServer.QueryPort)</td>
+                                <td><server-host host="@Model.GameServer.Hostname" port="@Model.GameServer.QueryPort"></server-host></td>
                             </tr>
 
                             @if (!string.IsNullOrWhiteSpace(Model.GameServer.LiveMod))
@@ -62,11 +62,9 @@
                                     <strong>Connect</strong>
                                 </td>
                                 <td>
-                                    @Html.GameTrackerIcon(Model.GameServer.Hostname, Model.GameServer.QueryPort)
-                                    @Html.SteamIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
-                                             Model.GameServer.QueryPort)
-                                    @Html.HlswIcon(Model.GameServer.GameType.ToString(), Model.GameServer.Hostname,
-                                             Model.GameServer.QueryPort)
+                                    <server-link type="gametracker" host="@Model.GameServer.Hostname" port="@Model.GameServer.QueryPort"></server-link>
+                                    <server-link type="steam" game="@Model.GameServer.GameType" host="@Model.GameServer.Hostname" port="@Model.GameServer.QueryPort"></server-link>
+                                    <server-link type="hlsw" game="@Model.GameServer.GameType" host="@Model.GameServer.Hostname" port="@Model.GameServer.QueryPort"></server-link>
                                 </td>
                             </tr>
 
@@ -207,8 +205,7 @@
                             <td>
                                 @if (map != null)
     {
-                                @Html.MapPopularity(item.MapName, map.LikePercentage, map.DislikePercentage,
-                                     map.TotalLikes, map.TotalDislikes, map.TotalVotes)
+                                <map-popularity name="@item.MapName" like-percentage="@map.LikePercentage" dislike-percentage="@map.DislikePercentage" total-likes="@map.TotalLikes" total-dislikes="@map.TotalDislikes" votes="@map.TotalVotes"></map-popularity>
     }
     else
     {
@@ -218,7 +215,7 @@
                             <td>
                                 @if (map != null)
     {
-                                @Html.MapImage(map.MapImageUri)
+                                <map-image uri="@map.MapImageUri"></map-image>
     }
                             </td>
                         </tr>

@@ -267,7 +267,7 @@
                                         <td>
                                             @{
                                                 var ipAddress = player.PlayerIpAddresses.FirstOrDefault(p => p.Address == Model.IpAddress);
-                                                @Html.ToConfidenceLabel(ipAddress?.ConfidenceScore ?? 0, ipAddress?.LastUsed ?? DateTime.UtcNow)
+                                                <confidence-label score="@(ipAddress?.ConfidenceScore ?? 0)" last-used="@(ipAddress?.LastUsed ?? DateTime.UtcNow)"></confidence-label>
                                             }
                                         </td>
                                         <td>

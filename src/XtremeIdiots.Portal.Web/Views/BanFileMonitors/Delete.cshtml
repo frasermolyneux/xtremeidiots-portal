@@ -29,7 +29,8 @@
                                 Game Server
                             </dt>
                             <dd class="col-sm-10" data-testid="ban-file-monitor-delete-gameserver">
-                                @Html.ServerName(Model.GameServer.Title, Model.GameServer.LiveTitle)
+                                <server-name title="@Model.GameServer.Title"
+                                    live-title="@Model.GameServer.LiveTitle"></server-name>
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.FilePath)

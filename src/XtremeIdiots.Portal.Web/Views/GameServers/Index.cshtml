@@ -65,7 +65,7 @@
                                             @Html.DisplayFor(modelItem => item.Title)
                                         </td>
                                         <td>
-                                            @Html.ServerHostAndPort(item.Hostname, item.QueryPort)
+                                            <server-host host="@item.Hostname" port="@item.QueryPort"></server-host>
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.LiveTrackingEnabled)

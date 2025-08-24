@@ -43,24 +43,29 @@
                                 {
                                     <tr>
                                         <td>
-                                            @Html.GameTypeIcon(item.GameServer.GameType)
+                                            <game-type-icon game="@item.GameServer.GameType"></game-type-icon>
                                         </td>
                                         <td>
-                                            @Html.ServerName(item.GameServer.Title, item.GameServer.LiveTitle)
+                                            <server-name title="@item.GameServer.Title"
+                                                live-title="@item.GameServer.LiveTitle"></server-name>
                                         </td>
                                         <td>
-                                            @Html.ServerHostAndPort(item.GameServer.Hostname, item.GameServer.QueryPort)
+                                            <server-host host="@item.GameServer.Hostname"
+                                                port="@item.GameServer.QueryPort"></server-host>
 
                                         </td>
                                         <td>
-                                            @Html.GameTrackerIcon(item.GameServer.Hostname, item.GameServer.QueryPort)
-                                            @Html.SteamIcon(item.GameServer.GameType.ToString(), item.GameServer.Hostname,
-                                            item.GameServer.QueryPort)
-                                        @Html.HlswIcon(item.GameServer.GameType.ToString(), item.GameServer.Hostname,
-                                                                                item.GameServer.QueryPort)
-                                    </td>
-                                    <td>
-                                        @{
+                                            <server-link type="gametracker" host="@item.GameServer.Hostname"
+                                                port="@item.GameServer.QueryPort"></server-link>
+                                            <server-link type="steam" game="@item.GameServer.GameType"
+                                                host="@item.GameServer.Hostname"
+                                                port="@item.GameServer.QueryPort"></server-link>
+                                            <server-link type="hlsw" game="@item.GameServer.GameType"
+                                                host="@item.GameServer.Hostname"
+                                                port="@item.GameServer.QueryPort"></server-link>
+                                        </td>
+                                        <td>
+                                            @{
                                                 double percentage = 0;
                                                 if (item.GameServer.LiveCurrentPlayers != null &&
                                                 item.GameServer.LiveCurrentPlayers != 0 && item.GameServer.LiveMaxPlayers !=

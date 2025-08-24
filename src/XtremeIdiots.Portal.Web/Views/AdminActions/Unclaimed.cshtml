@@ -26,10 +26,10 @@
                 <thead>
                     <tr>
                         <th>Created</th>
-                        <th class="hide-sm"><span class="header-text">Game</span></th>
-                        <th class="hide-sm"><span class="header-text">Type</span></th>
+                        <th><span class="header-text">Game</span></th>
+                        <th><span class="header-text">Type</span></th>
                         <th>Player</th>
-                        <th class="hide-sm expires-header"><span class="header-text">Expires</span></th>
+                        <th class="expires-header"><span class="header-text">Expires</span></th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -40,7 +40,7 @@
 
 @section Scripts {
     <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
-    <script src="~/js/admin-actions-unclaimed.js"></script>
+    <script src="~/js/admin-actions-unclaimed.js" asp-append-version="true"></script>
 }
 
 @section Styles {

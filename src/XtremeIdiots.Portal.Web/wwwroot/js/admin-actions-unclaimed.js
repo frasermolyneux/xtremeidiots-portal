@@ -4,17 +4,17 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         searching: false,
-        responsive: true,
         responsive: { details: { type: 'inline', target: 'tr' } },
-        autoWidth: true,
+        autoWidth: false,
         order: [[0, 'desc']],
         columnDefs: [
-            { targets: 0, width: '16%', responsivePriority: 1 }, // Created
-            { targets: 1, width: '10%', responsivePriority: 5 }, // Game
-            { targets: 2, width: '12%', responsivePriority: 2 }, // Type
-            { targets: 3, width: '32%', responsivePriority: 3 }, // Player
-            { targets: 4, width: '15%', responsivePriority: 4 }, // Expires
-            { targets: 5, width: '15%', orderable: false, responsivePriority: 1 } // Action
+            // Priority (keep lower numbers visible longest)
+            { targets: 1, responsivePriority: 1 }, // Game
+            { targets: 2, responsivePriority: 2 }, // Type
+            { targets: 3, responsivePriority: 3 }, // Player
+            { targets: 5, orderable: false, responsivePriority: 4 }, // Action
+            { targets: 4, responsivePriority: 5 }, // Expires
+            { targets: 0, responsivePriority: 6 } // Created
         ],
         ajax: {
             url: '/AdminActions/GetUnclaimedAdminActionsAjax',
@@ -48,27 +48,29 @@ $(document).ready(function () {
     });
 
     table.on('xhr.dt', function () { table.columns.adjust(); });
-    $('#dataTable').on('init.dt', function () { setTimeout(function () { table.columns.adjust().draw(false); }, 350); });
+    $('#dataTable').on('init.dt', function () { setTimeout(function () { table.columns.adjust().draw(false); }, 250); });
 
-    function applyGameColumnVisibility() {
+    function applyGameFilterVisibility() {
         const hasSpecificGame = $('#filterGameType').val() !== '';
+        // Only hide Game column when a specific game is selected; Created handled by responsive priorities only
         table.column(1).visible(!hasSpecificGame, false);
     }
-    applyGameColumnVisibility();
+    applyGameFilterVisibility();
 
     $('#filterGameType').on('change', function () {
-        applyGameColumnVisibility();
+        applyGameFilterVisibility();
         table.ajax.reload(null, false);
     });
 
     $('#resetFilters').on('click', function () {
         const changed = $('#filterGameType').val() !== '';
         $('#filterGameType').val('');
-        applyGameColumnVisibility();
+        applyGameFilterVisibility();
         if (changed) {
             table.page('first').draw('page');
         } else {
             table.ajax.reload(null, false);
         }
     });
+    // No manual resize handler – rely fully on DataTables Responsive
 });

@@ -283,23 +283,7 @@
     }
 }
 
-@media (max-width:576px) {
-    #dataTable thead th.hide-sm .header-text {
-        display: none;
-    }
-
-    #dataTable td .action-text {
-        display: none;
-    }
-
-    #dataTable thead th.expires-header .header-text {
-        display: none;
-    }
-
-    #dataTable td.expires-cell {
-        display: none;
-    }
-}
+/* Removed manual column hiding at <576px; rely on DataTables responsive priorities */
 
 /* My Admin Actions master-detail layout */
 .wrapper.wrapper-content.my-admin-actions-layout {

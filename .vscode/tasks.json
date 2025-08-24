@@ -2,6 +2,31 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "libman restore",
+            "type": "process",
+            "command": "libman",
+            "args": [
+                "restore"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/XtremeIdiots.Portal.Web"
+            },
+            "problemMatcher": [],
+            "dependsOn": "libman tool"
+        },
+        {
+            "label": "libman tool",
+            "type": "process",
+            "command": "dotnet",
+            "args": [
+                "tool",
+                "update",
+                "-g",
+                "Microsoft.Web.LibraryManager.Cli"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "clean",
             "command": "dotnet",
             "type": "process",
@@ -23,7 +48,10 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "dependsOn": "clean",
+            "dependsOn": [
+                "libman restore",
+                "clean"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -42,6 +70,7 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
+            "dependsOn": "libman restore",
             "group": {
                 "kind": "test",
                 "isDefault": true
@@ -74,7 +103,10 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "dependsOn": "clean release",
+            "dependsOn": [
+                "libman restore",
+                "clean release"
+            ],
             "problemMatcher": "$msCompile"
         },
         {
@@ -90,6 +122,7 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
+            "dependsOn": "libman restore",
             "problemMatcher": "$msCompile"
         }
     ]

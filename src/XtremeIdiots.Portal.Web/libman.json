@@ -7,15 +7,42 @@
       "provider": "unpkg",
       "destination": "wwwroot/lib/chart.js",
       "files": [
-        "dist/chart.umd.js",
-        "dist/chart.umd.min.js"
+        "dist/chart.umd.js"
       ]
     },
     {
       "library": "moment.js@2.30.1",
       "destination": "wwwroot/lib/moment",
       "files": [
-        "min/moment.min.js"
+        "moment.min.js"
+      ]
+    },
+    {
+      "library": "datatables.net-dt@1.13.8",
+      "destination": "wwwroot/lib/datatables",
+      "files": [
+        "css/jquery.dataTables.min.css"
+      ]
+    },
+    {
+      "library": "datatables.net@1.13.8",
+      "destination": "wwwroot/lib/datatables",
+      "files": [
+        "jquery.dataTables.min.js"
+      ]
+    },
+    {
+      "library": "datatables.net-responsive-dt@2.5.0",
+      "destination": "wwwroot/lib/datatables-responsive",
+      "files": [
+        "responsive.dataTables.min.css"
+      ]
+    },
+    {
+      "library": "datatables.net-responsive@2.5.0",
+      "destination": "wwwroot/lib/datatables-responsive",
+      "files": [
+        "dataTables.responsive.min.js"
       ]
     }
   ]

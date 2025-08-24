@@ -1004,7 +1004,7 @@ public class AdminActionsController(
             }
 
             var vm = new MyAdminActionDetailsViewModel(adminAction, player);
-            return PartialView("_MyAdminActionDetailsPanelMy", vm);
+            return PartialView("_MyAdminActionDetailsPanel", vm);
         }, nameof(GetMyAdminActionDetails));
     }
 

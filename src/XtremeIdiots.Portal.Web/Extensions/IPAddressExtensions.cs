@@ -90,24 +90,6 @@ public static class IPAddressExtensions
             linkToDetails);
     }
 
-    public static HtmlString FormatIPAddress(
-        this string ipAddress,
-        ProxyCheckResult proxyCheckResult,
-        GeoLocationDto? geoLocation = null,
-        bool linkToDetails = true)
-    {
-        return string.IsNullOrEmpty(ipAddress) || proxyCheckResult is null || proxyCheckResult.IsError
-            ? FormatIPAddress(ipAddress, geoLocation, null, null, null, null, linkToDetails)
-            : FormatIPAddress(
-            ipAddress,
-            geoLocation,
-            proxyCheckResult.RiskScore,
-            proxyCheckResult.IsProxy,
-            proxyCheckResult.IsVpn,
-            proxyCheckResult.Type,
-            linkToDetails);
-    }
-
     private static string GetRiskClass(int riskScore)
     {
         return riskScore switch

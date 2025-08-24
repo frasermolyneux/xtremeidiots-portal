@@ -154,7 +154,7 @@
                                                 @Html.DisplayFor(model => item.Num)
                                             </td>
                                             <td>
-                                                @item.CountryCode.FlagImage()
+                                                <flag-image country-code="@item.CountryCode"></flag-image>
                                                 <player-name value="@item.Name"></player-name>
                                             </td>
                                             <td>
@@ -280,7 +280,7 @@
                     });
 
                 var locations = [
-                                            @foreach (var player in Model.GameServer.LivePlayers)
+                                                    @foreach (var player in Model.GameServer.LivePlayers)
                     {
                         if (player.Lat is null && player.Long is null)
                         {
@@ -290,8 +290,8 @@
                         <text>
                             ['Player', @player.Lat, @player.Long],
                         </text>
-                                            }
-                                        ];
+                                                    }
+                                                ];
 
                 for (var count = 0; count < locations.length; count++) {
                     new google.maps.Marker({
@@ -318,13 +318,13 @@
             playerCountData.addColumn('number', 'Player Count');
 
             playerCountData.addRows([
-                            @foreach (var item in Model.GameServerStats)
+                                @foreach (var item in Model.GameServerStats)
                 {
                     <text>
                         [new Date(@item.Timestamp.Year, @item.Timestamp.Month-1, @item.Timestamp.Day, @item.Timestamp.Hour, @item.Timestamp.Minute, @item.Timestamp.Second, @item.Timestamp.Millisecond), @item.PlayerCount],
                     </text>
-                            }
-                        ]);
+                                }
+                            ]);
 
             var playerCountOptions = {
                 title: 'Player Count (Last 48 hours)',
@@ -353,7 +353,7 @@
                 dataTable.addColumn({ type: 'datetime', id: 'End' });
                 dataTable.addRows([
 
-                                            @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
+                                                    @foreach (var mapTimelineDataPoints in Model.MapTimelineDataPoints)
                     {
                         <text>
                             [
@@ -362,8 +362,8 @@
                             new Date(@mapTimelineDataPoints.End.Year, @mapTimelineDataPoints.End.Month-1, @mapTimelineDataPoints.End.Day, @mapTimelineDataPoints.End.Hour, @mapTimelineDataPoints.End.Minute, @mapTimelineDataPoints.End.Second, @mapTimelineDataPoints.End.Millisecond)
                             ],
                         </text>
-                                            }
-                                        ]);
+                                                    }
+                                                ]);
 
                 chart.draw(dataTable);
             }

@@ -29,8 +29,9 @@
                                 @Html.DisplayNameFor(model => model.FilePath)
                             </dt>
                             <dd class="col-sm-10" data-testid="ban-file-monitor-details-filepath">
-                                @Html.MonitorFtpPath(Model.GameServer.FtpHostname, Model.GameServer.FtpPort ?? 0,
-                                Model.FilePath)
+                                <ftp-path host="@Model.GameServer.FtpHostname" port="@(Model.GameServer.FtpPort ?? 0)"
+                                    path="@Model.FilePath" user="@Model.GameServer.FtpUsername"
+                                    password="@Model.GameServer.FtpPassword"></ftp-path>
                             </dd>
                             <dt class="col-sm-2">
                                 @Html.DisplayNameFor(model => model.RemoteFileSize)

@@ -44,11 +44,11 @@
                                             {
                                                 @if ((await AuthorizationService.AuthorizeAsync(User, new Tuple<GameType, Guid>(item.GameServer.GameType, item.GameServer.GameServerId), AuthPolicies.ViewFtpCredential)).Succeeded)
                                                 {
-                                                    @Html.MonitorFtpPath(item.GameServer?.FtpHostname, item.GameServer?.FtpPort ?? 0, item.FilePath, item.GameServer?.FtpUsername, item.GameServer?.FtpPassword)
+                                                    <ftp-path host="@item.GameServer?.FtpHostname" port="@(item.GameServer?.FtpPort ?? 0)" path="@item.FilePath" user="@item.GameServer?.FtpUsername" password="@item.GameServer?.FtpPassword"></ftp-path>
                                                 }
                                                 else
                                                 {
-                                                    @Html.MonitorFtpPath(item.GameServer?.FtpHostname, item.GameServer?.FtpPort ?? 0, item.FilePath)
+                                                    <ftp-path host="@item.GameServer?.FtpHostname" port="@(item.GameServer?.FtpPort ?? 0)" path="@item.FilePath" show-credentials="false"></ftp-path>
                                                 }
                                             }
                                             else

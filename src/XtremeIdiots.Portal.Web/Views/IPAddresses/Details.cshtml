@@ -17,7 +17,7 @@
                 </div>
                 <div class="ibox-content">
                     <div class="text-center m-b-md">
-                        <h2>@Model.IpAddress.FormatIPAddress(Model.GeoLocation, Model.ProxyCheck?.RiskScore, Model.ProxyCheck?.IsProxy, Model.ProxyCheck?.IsVpn, Model.ProxyCheck?.Type, false)</h2>
+                        <h2><ip-address ip="@Model.IpAddress" geo="@Model.GeoLocation" risk="@Model.ProxyCheck?.RiskScore" is-proxy="@Model.ProxyCheck?.IsProxy" is-vpn="@Model.ProxyCheck?.IsVpn" proxy-type="@Model.ProxyCheck?.Type" link-to-details="false"></ip-address></h2>
                     </div>
                     <div class="stats-container">
                         <div class="stat-item">
@@ -73,7 +73,7 @@
                     {
                         <div class="m-b-md">
                             <div>
-                                <h4>@Html.Raw(Model.GeoLocation.FlagImage().Value) @Model.GeoLocation.LocationSummary()</h4>
+                                <h4><flag-image country-code="@Model.GeoLocation.CountryCode"></flag-image> <location-summary geo-model="@Model.GeoLocation"></location-summary></h4>
                             </div>
 
                             <table class="table table-bordered">
@@ -255,13 +255,13 @@
                                 @foreach (var player in Model.Players)
                                 {
                                     <tr>
-                                        <td>@Html.GameTypeIcon(player.GameType)</td>
+                                        <td><game-type-icon game="@player.GameType"></game-type-icon></td>
                                         <td>
                                             <a asp-controller="Players" asp-action="Details" asp-route-id="@player.PlayerId">
                                                 @player.Username
                                             </a>
                                         </td>
-                                        <td>@Html.GuidLink(player.Guid, player.GameType.ToString())</td>
+                                        <td><guid-link guid="@player.Guid" game="@player.GameType.ToString()"></guid-link></td>
                                         <td><time user-time utc="@player.FirstSeen"></time></td>
                                         <td><time user-time utc="@player.LastSeen"></time></td>
                                         <td>

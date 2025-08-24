@@ -26,7 +26,7 @@
                     <div class="col-12">                        
                         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center">                            
                             <div class="mr-0 mr-md-3 mb-2 mb-md-0 text-center text-md-left">                                
-                                @Html.GameTypeIcon(player.GameType)
+                                <game-type-icon game="@player.GameType"></game-type-icon>
                             </div>
                             <div class="flex-grow-1">
                                 <h2 class="mb-2 text-center text-md-left">@(player.Username ?? "Unknown Player")</h2>                                
@@ -40,7 +40,7 @@
                                             </span>
                                             <span class="d-flex align-items-center justify-content-center justify-content-md-start">
                                                 <i class="fa fa-key mr-1"></i> GUID: 
-                                                <span id="playerGuid" class="mx-1 font-weight-bold text-truncate"> @Html.GuidLink(player.Guid, player.GameType.ToString())</span>
+                                                <span id="playerGuid" class="mx-1 font-weight-bold text-truncate"><guid-link guid="@player.Guid" game="@player.GameType.ToString()"></guid-link></span>
                                                 <i class="fa fa-copy cursor-pointer" onclick="copyToClipboard('playerGuid')" title="Copy GUID"></i>
                                             </span>
                                             @if (player.Tags != null && player.Tags.Any())
@@ -140,17 +140,13 @@
                                           data-is-proxy="@player.IsProxy().ToString().ToLower()" 
                                           data-is-vpn="@player.IsVpn().ToString().ToLower()"
                                           data-type="@player.ProxyType()"
-                                          data-country-code="@(Model.GeoLocation.CountryCode ?? "")">                                        @player.IpAddress.FormatIPAddress(
-                                            Model.GeoLocation,
-                                            player.ProxyCheckRiskScore(),
-                                            player.IsProxy(),
-                                            player.IsVpn(),
-                                            player.ProxyType())
+                                                                                    data-country-code="@(Model.GeoLocation.CountryCode ?? "")">
+                                                                                <ip-address ip="@player.IpAddress" geo="@Model.GeoLocation" risk="@player.ProxyCheckRiskScore()" is-proxy="@player.IsProxy()" is-vpn="@player.IsVpn()" proxy-type="@player.ProxyType()"></ip-address>
                                     </span>
                                     IP Address
                                 </li>
                                 <li class="list-group-item">
-                                    <span class="float-right text-right"> @Model.GeoLocation.LocationSummary()</span>
+                                    <span class="float-right text-right"> <location-summary geo-model="@Model.GeoLocation"></location-summary></span>
                                     Country/City
                                 </li>
                             }        
@@ -378,7 +374,7 @@
                                             @foreach(var relatedPlayerDto in player.RelatedPlayers)
                                             {
                                             <tr>
-                                                <td>@Html.GameTypeIcon(relatedPlayerDto.GameType) @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
+                                                <td><game-type-icon game="@relatedPlayerDto.GameType"></game-type-icon> @Html.ActionLink(relatedPlayerDto.Username, "Details", "Players", new {id = relatedPlayerDto.PlayerId})</td>
                                                 <td>@relatedPlayerDto.IpAddress</td>
                                             </tr> 
                                             }

@@ -59,7 +59,7 @@
                                             @Html.DisplayFor(modelItem => item.ServerListPosition)
                                         </td>
                                         <td>
-                                            @Html.GameTypeIcon(item.GameType)
+                                            <game-type-icon game="@item.GameType"></game-type-icon>
                                         </td>
                                         <td>
                                             @Html.DisplayFor(modelItem => item.Title)

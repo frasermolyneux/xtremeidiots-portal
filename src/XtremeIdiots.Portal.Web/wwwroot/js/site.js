@@ -80,6 +80,42 @@ function adminActionTypeIcon(actionType) {
     return "<i class='" + iconClass + "' aria-hidden='true'></i> <span class='action-text'>" + actionType + "</span>";
 }
 
+// Global DataTables footer spacing helper: ensures wrapper gets padding to avoid footer overlap.
+(function () {
+    function applyDataTableSpacing() {
+        var wrapper = document.querySelector('.wrapper.wrapper-content');
+        if (!wrapper) return;
+        if (document.querySelector('.dataTables_wrapper')) {
+            wrapper.classList.add('with-datatable');
+        }
+    }
+
+    // Run after DOM ready with slight delay (allow DataTables init).
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(applyDataTableSpacing, 400); });
+    } else {
+        setTimeout(applyDataTableSpacing, 400);
+    }
+
+    // Observe for late-injected tables (AJAX navigation or deferred init).
+    var observer = new MutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+            if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
+                if (document.querySelector('.dataTables_wrapper')) {
+                    applyDataTableSpacing();
+                    observer.disconnect();
+                    break;
+                }
+            }
+        }
+    });
+    try {
+        observer.observe(document.body, { childList: true, subtree: true });
+    } catch (e) {
+        // Silently ignore if observe fails (very old browsers)
+    }
+})();
+
 function downloadDemoLink(demoName, demoId) {
     return "<a href='/Demos/Download/" + demoId + "'>" + demoName + "</a>";
 }

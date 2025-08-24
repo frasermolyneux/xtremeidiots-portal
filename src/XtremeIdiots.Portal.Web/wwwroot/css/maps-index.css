@@ -1,0 +1,46 @@
+/* Maps Index specific styles */
+.map-files li {
+    line-height: 1.2;
+}
+
+.map-popularity {
+    height: 14px;
+    margin-bottom: 4px;
+}
+
+.map-image {
+    border: 5px solid #021a40;
+    display: block;
+    margin: 0 auto;
+    max-width: 200px;
+}
+
+.vote-stats {
+    font-size: 11px;
+}
+
+/* Extra bottom spacing so table does not touch footer */
+/* Provide generous bottom spacing so table area does not collide with footer */
+.maps-table-wrapper {
+    padding-bottom: 1.5rem; /* rely on global table margin for footer separation */
+    margin-bottom: 1.5rem;
+}
+
+/* Apply extra spacing to entire page wrapper when maps table present (modern browsers) */
+/* Removed large wrapper spacing; global DataTable spacing now handles footer gap */
+
+/* Fallback for browsers without :has support */
+/* Legacy fallback removed */
+
+@media (max-width: 576px) {
+    .maps-table-wrapper {
+        padding-bottom: 2.25rem;
+        margin-bottom: 2.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .map-image {
+        max-width: 140px;
+    }
+}

@@ -153,3 +153,46 @@ body {
 .dropdown-menu.show {
     display: block;
 }
+
+/* Global DataTables bottom spacing to keep footer separation without large per-page hacks */
+table.dataTable:last-of-type {
+    margin-bottom: 2.5rem !important;
+}
+
+.datatable-footer-spacer { /* utility if manual spacer ever needed */
+    height: 2.5rem;
+}
+
+/* More reliable global spacing: DataTables wraps tables in .dataTables_wrapper */
+/* Reset DataTables wrapper bottom spacing (handled by wrapper padding instead) */
+.dataTables_wrapper {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important; /* remove default ~30px plugin padding if present */
+}
+
+/* Remove any extra margin when last child */
+.wrapper.wrapper-content .dataTables_wrapper:last-child { margin-bottom: 0 !important; }
+
+@media (max-width: 768px) {
+    .dataTables_wrapper { margin-bottom: 0 !important; }
+    .wrapper.wrapper-content .dataTables_wrapper:last-child { margin-bottom: 0 !important; }
+}
+
+/* Real space between end of content (not table footer) and page footer */
+.wrapper.wrapper-content.with-datatable {
+    padding-bottom: 95px; /* must be > site footer height (60px) for visual gap */
+}
+
+@media (max-width: 768px) {
+    .wrapper.wrapper-content.with-datatable { padding-bottom: 110px; }
+}
+
+/* Tighter bottom padding inside ibox when DataTable is the last content element */
+.ibox-content.datatable-tight {
+    padding-bottom: 12px !important; /* reduce large empty area */
+}
+
+/* If :has supported, auto-apply tighter padding when DT wrapper is last child */
+.ibox-content:has(.dataTables_wrapper:last-child) {
+    padding-bottom: 14px;
+}

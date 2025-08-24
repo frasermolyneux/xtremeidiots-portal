@@ -4,17 +4,17 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         searching: false,
-        responsive: true,
         responsive: { details: { type: 'inline', target: 'tr' } },
-        autoWidth: true,
+        autoWidth: false,
         order: [[0, 'desc']],
         columnDefs: [
-            { targets: 0, width: '14%', responsivePriority: 1 }, // Created
-            { targets: 1, width: '10%', responsivePriority: 5 }, // Game (icon)
-            { targets: 2, width: '14%', responsivePriority: 2 }, // Type
-            { targets: 3, width: '32%', responsivePriority: 3 }, // Player
-            { targets: 4, width: '15%', responsivePriority: 6 }, // Admin
-            { targets: 5, width: '15%', responsivePriority: 4 }  // Expires
+            // Match unclaimed pattern: lower number = keep longer
+            { targets: 1, responsivePriority: 1 }, // Game
+            { targets: 2, responsivePriority: 2 }, // Type
+            { targets: 3, responsivePriority: 3 }, // Player
+            { targets: 5, responsivePriority: 4 }, // Expires
+            { targets: 4, responsivePriority: 5 }, // Admin
+            { targets: 0, responsivePriority: 6 }  // Created
         ],
         ajax: {
             url: '/AdminActions/GetAdminActionsAjax',

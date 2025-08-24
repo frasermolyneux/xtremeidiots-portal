@@ -139,16 +139,6 @@
                             <i class="fa fa-list fa-fw"></i> Global Player Index
                         </a>
                     </li>
-                    <li class="@Html.IsSelected("ProtectedNames", "Index")">
-                        <a asp-controller="ProtectedNames" asp-action="Index"><i class="fa fa-shield fa-fw"></i>
-                            Protected Names</a>
-                    </li>
-                    <li class="@Html.IsSelected("PlayerAnalytics", "Analytics")">
-                        <a asp-controller="PlayerAnalytics" asp-action="Analytics"><i
-                                class="fa fa-area-chart fa-fw"></i>
-                            Analytics</a>
-                    </li>
-
 
                     @foreach (var game in new[]{ GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5,
                                         GameType.Insurgency})
@@ -162,6 +152,16 @@
                             </li>
                         }
                     }
+
+                    <li class="@Html.IsSelected("ProtectedNames", "Index")">
+                        <a asp-controller="ProtectedNames" asp-action="Index"><i class="fa fa-shield fa-fw"></i>
+                            Protected Names</a>
+                    </li>
+                    <li class="@Html.IsSelected("PlayerAnalytics", "Analytics")">
+                        <a asp-controller="PlayerAnalytics" asp-action="Analytics"><i
+                                class="fa fa-area-chart fa-fw"></i>
+                            Analytics</a>
+                    </li>
                 </ul>
             </li>
 

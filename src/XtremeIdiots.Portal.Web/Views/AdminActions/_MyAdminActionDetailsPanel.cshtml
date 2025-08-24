@@ -41,11 +41,11 @@
                     <span>@Model.PlayerId</span>
                 }
             </h5>
-            <small class="text-muted">@Model.Created.ToString("yyyy-MM-dd HH:mm") UTC @if(Model.Player?.GameType is not
+            <small class="text-muted"><time time-ago utc="@Model.Created"></time> @if(Model.Player?.GameType is not
                 null){
-                <text>• @Model.Player.GameType</text>
-            }
-</small>
+                    <text>• @Model.Player.GameType</text>
+                }
+            </small>
         </div>
     </div>
 
@@ -56,7 +56,7 @@
         {
             if (Model.Expires.HasValue)
             {
-                <span><strong>Expires:</strong> @Model.Expires.Value.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                <span><strong>Expires:</strong> <expiry-badge expires-utc="@Model.Expires" user="@User"></expiry-badge></span>
             }
             else
             {

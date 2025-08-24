@@ -21,7 +21,7 @@
                         <dt>Name:</dt>
                         <dd>@Model.Report.ProtectedName.Name</dd>
                         <dt>Created:</dt>
-                        <dd>@Model.Report.ProtectedName.CreatedOn.ToString("yyyy-MM-dd")</dd>
+                        <dd><time time-ago utc="@Model.Report.ProtectedName.CreatedOn" show-absolute="false"></time></dd>
                         <dt>Created By:</dt>
                         <dd>@Model.Report.ProtectedName.CreatedByUserProfile?.DisplayName</dd>
                         <dt>Owner:</dt>
@@ -63,7 +63,7 @@
                                     @usage.Username
                                 </a>
                             </td>
-                            <td>@usage.LastUsed.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td><time time-ago utc="@usage.LastUsed" show-absolute="false"></time></td>
                             <td>@usage.UsageCount</td>
                             <td>
                                 @if (usage.IsOwner)

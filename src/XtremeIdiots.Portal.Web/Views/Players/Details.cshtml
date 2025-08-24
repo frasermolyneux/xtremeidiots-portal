@@ -156,13 +156,13 @@
                             }        
                             <li class="list-group-item">
                                 <span class="float-right text-right">
-                                    <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, player.FirstSeen)
+                                    <i class="fa fa-clock-o"></i> <time user-time utc="@player.FirstSeen"></time>
                                 </span>
                                 First Seen
                             </li>                    
                             <li class="list-group-item">
                                 <span class="float-right text-right">
-                                    <i class="fa fa-clock-o"></i> @Html.ToUserTime(User, player.LastSeen)
+                                    <i class="fa fa-clock-o"></i> <time user-time utc="@player.LastSeen"></time>
                                 </span>
                                 Last Seen
                             </li>
@@ -243,8 +243,8 @@
                                         {
                                         <tr>
                                             <td>@aliasDto.Name</td>
-                                            <td>@Html.ToUserTime(User, aliasDto.Added)</td>
-                                            <td>@Html.ToUserTime(User, aliasDto.LastUsed)</td>
+                                            <td><time user-time utc="@aliasDto.Added"></time></td>
+                                            <td><time user-time utc="@aliasDto.LastUsed"></time></td>
                                             <td>@Html.ToConfidenceLabel(aliasDto.ConfidenceScore, aliasDto.LastUsed)</td>
                                         </tr> 
                                         }
@@ -289,8 +289,8 @@
                                                 <!-- This initial rendering will be replaced by JavaScript -->
                                                 <img src="/images/flags/@(ipAddress.GeoLocation != null && !string.IsNullOrEmpty(ipAddress.GeoLocation.CountryCode) ? ipAddress.GeoLocation.CountryCode.ToLower() : "unknown").png" /> @ipAddress.Address
                                             </td>
-                                            <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.Added)</td>
-                                            <td>@Html.ToUserTime(User, ipAddress.IpAddressDto.LastUsed)</td>
+                                            <td><time user-time utc="@ipAddress.IpAddressDto.Added"></time></td>
+                                            <td><time user-time utc="@ipAddress.IpAddressDto.LastUsed"></time></td>
                                             <td>@Html.ToConfidenceLabel(ipAddress.IpAddressDto.ConfidenceScore, ipAddress.IpAddressDto.LastUsed)</td>
                                         </tr> 
                                         }
@@ -318,7 +318,7 @@
                                         {
                                             <tr>
                                                 <td>@protectedName.Name</td>
-                                                <td>@Html.ToUserTime(User, protectedName.CreatedOn)</td>
+                                                <td><time user-time utc="@protectedName.CreatedOn"></time></td>
                                                 <td>@protectedName.CreatedByUserProfile?.DisplayName</td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm d-flex flex-column flex-sm-row" role="group">

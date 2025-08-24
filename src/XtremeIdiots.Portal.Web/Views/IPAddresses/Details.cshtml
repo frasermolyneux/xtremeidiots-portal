@@ -262,8 +262,8 @@
                                             </a>
                                         </td>
                                         <td>@Html.GuidLink(player.Guid, player.GameType.ToString())</td>
-                                        <td>@Html.ToUserTime(User, player.FirstSeen)</td>
-                                        <td>@Html.ToUserTime(User, player.LastSeen)</td>
+                                        <td><time user-time utc="@player.FirstSeen"></time></td>
+                                        <td><time user-time utc="@player.LastSeen"></time></td>
                                         <td>
                                             @{
                                                 var ipAddress = player.PlayerIpAddresses.FirstOrDefault(p => p.Address == Model.IpAddress);

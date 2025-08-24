@@ -42,15 +42,14 @@
                         <span>@adminAction.PlayerId</span>
                     }
 </h5>
-            <div class="small text-muted">Created @adminAction.Created.ToString("yyyy-MM-dd HH:mm") UTC
+            <div class="small text-muted">Created <time time-ago utc="@adminAction.Created"></time>
                 @if (adminAction.Expires.HasValue)
                 {
-                    <text>| Expires @adminAction.Expires.Value.ToString("yyyy-MM-dd HH:mm")
-                        UTC</text>
+                    <span>| <expiry-badge expires-utc="@adminAction.Expires" user="@User"></expiry-badge></span>
                 }
  @if (player?.GameType is not null)
 {
-                        <text>| Game @player.GameType</text>
+                        <span class="ms-1">| @Html.GameTypeIcon(player.GameType) </span>
                     }
 </div>
             @if (adminAction.ForumTopicId.HasValue && adminAction.ForumTopicId.Value != 0)

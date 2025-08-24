@@ -25,7 +25,7 @@
                                 <dd>@Model.UserProfile?.DisplayName</dd>
 
                                 <dt>Assigned On:</dt>
-                                <dd>@Model.Assigned.ToString("yyyy-MM-dd HH:mm")</dd>
+                                <dd><time time-ago utc="@Model.Assigned"></time></dd>
                             </dl>
                         </div>
                     </div>

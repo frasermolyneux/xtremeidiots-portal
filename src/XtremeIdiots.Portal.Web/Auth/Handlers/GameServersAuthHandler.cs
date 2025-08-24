@@ -123,6 +123,8 @@ public class GameServersAuthHandler : IAuthorizationHandler
         if (context.Resource is Tuple<GameType, Guid> tupleResource)
         {
             var (gameType, gameServerId) = tupleResource;
+            // Allow HeadAdmin at game scope
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
             // Existing behaviour: GameAdmin or LiveRcon at game scope
             BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
@@ -132,6 +134,7 @@ public class GameServersAuthHandler : IAuthorizationHandler
         else if (context.Resource is GameType gameType)
         {
             // Original behaviour path when only a game type is supplied
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
         }

@@ -21,7 +21,7 @@ Rows included are only the roles/claims influencing this page. (Moderator, GameS
 | Role / Claim (minimal case) | Access Credentials Page (`AccessCredentials`) | See Server Listed | View RCON Password (`ViewRconCredential`) | View FTP Hostname (`ViewFtpCredential`) | View FTP Username | View FTP Password |
 | --------------------------- | --------------------------------------------- | ----------------- | ----------------------------------------- | --------------------------------------- | ----------------- | ----------------- |
 | SeniorAdmin                 | ✓ (all)                                       | ✓ (all)           | ✓ (all)                                   | ✓ (all)                                 | ✓ (all)           | ✓ (all)           |
-| HeadAdmin (game type)       | ✓                                             | ✓ (g)             | ✗ (handler doesn’t allow)                 | ✓ (g)                                   | ✓ (g)             | ✓ (g)             |
+| HeadAdmin (game type)       | ✓                                             | ✓ (g)             | ✓ (g)                                     | ✓ (g)                                   | ✓ (g)             | ✓ (g)             |
 | GameAdmin (game type)       | ✓                                             | ✓ (g)             | ✓ (g)                                     | ✗                                       | ✗                 | ✗                 |
 | FtpCredentials (server)     | ✓                                             | ✓ (s)             | ✗                                         | ✓ (s)                                   | ✓ (s)             | ✓ (s)             |
 | RconCredentials (server)    | ✓                                             | ✓ (s)             | ✗ (claim not checked in handler)          | ✗                                       | ✗                 | ✗                 |
@@ -29,7 +29,7 @@ Rows included are only the roles/claims influencing this page. (Moderator, GameS
 
 ## Notes / Nuances
 
-1. HeadAdmin cannot view RCON credentials under current implementation (likely unintended asymmetry vs FTP access).
+1. HeadAdmin now can view RCON credentials (parity with FTP access).
 2. `RconCredentials` claim allows page access and server row visibility but NOT RCON password (handler ignores per‑server claim).
 3. `LiveRcon` claim enables RCON viewing logic in its handler, but the user cannot reach the page with only that claim (it isn’t part of `AccessCredentials` policy claim set).
 4. GameAdmin can view RCON but not FTP credentials (by design in handler logic).
@@ -40,7 +40,7 @@ Rows included are only the roles/claims influencing this page. (Moderator, GameS
 
 If alignment with likely intent / documentation is desired:
 
-* Add HeadAdmin (and optionally per‑server `RconCredentials`) to the `ViewRconCredential` handler.
+* (Done) Added HeadAdmin (and optionally per‑server `RconCredentials`) to the `ViewRconCredential` handler.
 * Add `LiveRcon` to the `CredentialsAccessLevels` collection if those users should access the page at all.
 * Consider symmetric handling: HeadAdmin → both FTP & RCON; GameAdmin → possibly RCON only (as today) or neither; document clearly.
 * Update the user-facing permissions documentation to reflect current asymmetry if code is left unchanged.

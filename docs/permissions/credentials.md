@@ -23,14 +23,13 @@ Roles / Claims considered (minimal single-claim scenarios):
 | View FTP Hostname (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | HeadAdmin or per-server FTP claim           |
 | View FTP Username (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | Same rule                                   |
 | View FTP Password (`ViewFtpCredential`)       | ✓ (all)     | ✓ g              | ✗                | ✓ s                     | ✗                        | ✗               | Same rule                                   |
-| View RCON Password (`ViewRconCredential`)     | ✓ (all)     | ✗                | ✓ g              | ✗                       | ✓ s                      | ✓ g             | Now allows per-server RconCredentials claim |
+| View RCON Password (`ViewRconCredential`)     | ✓ (all)     | ✓ g              | ✓ g              | ✗                       | ✓ s                      | ✓ g             | HeadAdmin added; per-server claim supported |
 
 ## Nuances
-- HeadAdmin still omitted in `ViewRconCredential` (as implemented) creating asymmetry vs FTP.
-- `RconCredentials` claim now grants per-server RCON password visibility.
+- HeadAdmin now included in `ViewRconCredential` for parity with FTP credential access.
+- `RconCredentials` claim grants per-server RCON password visibility.
 - `LiveRcon` cannot reach page alone (not in AccessCredentials claim set) though it enables viewing RCON.
 
 ## Potential Alignments
-- Decide whether to include HeadAdmin in RCON credential visibility for parity with FTP.
 - Optionally include LiveRcon in `AccessCredentials` claim set if those users should access the page directly.
 

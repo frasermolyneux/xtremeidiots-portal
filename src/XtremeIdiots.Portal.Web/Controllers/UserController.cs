@@ -10,6 +10,7 @@ using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
 using XtremeIdiots.Portal.Web.Models;
+using XtremeIdiots.Portal.Web.ViewModels;
 
 namespace XtremeIdiots.Portal.Web.Controllers;
 
@@ -100,7 +101,36 @@ public class UserController(
             ViewData["GameServers"] = gameServersApiResponse.Result.Data.Items;
             ViewData["GameServersSelect"] = new SelectList(gameServersApiResponse.Result.Data.Items, "GameServerId", "Title");
 
-            return View(userProfileDtoApiResponse.Result.Data);
+            // Identity user ID in this system corresponds to the forum id (string). Fallback to profile guid if needed.
+            var profileData = userProfileDtoApiResponse.Result.Data;
+            IdentityUser? identityUser = null;
+            if (profileData.XtremeIdiotsForumId is not null)
+            {
+                identityUser = await userManager.FindByIdAsync(profileData.XtremeIdiotsForumId.ToString()!);
+            }
+            if (identityUser is null)
+            {
+                identityUser = await userManager.FindByIdAsync(profileData.UserProfileId.ToString());
+            }
+            var identitySummary = identityUser is null ? null : new IdentityUserSummary
+            {
+                Id = identityUser.Id,
+                EmailConfirmed = identityUser.EmailConfirmed,
+                LockoutEnabled = identityUser.LockoutEnabled,
+                LockoutEnd = identityUser.LockoutEnd,
+                AccessFailedCount = identityUser.AccessFailedCount,
+                TwoFactorEnabled = identityUser.TwoFactorEnabled,
+                PhoneNumber = identityUser.PhoneNumber,
+                PhoneNumberConfirmed = identityUser.PhoneNumberConfirmed
+            };
+
+            var vm = new ManageUserProfileViewModel
+            {
+                Profile = userProfileDtoApiResponse.Result.Data,
+                Identity = identitySummary
+            };
+
+            return View(vm);
         }, nameof(ManageProfile));
     }
 
@@ -156,12 +186,41 @@ public class UserController(
                 return BadRequest();
             }
 
+            // Batch load identity data for enrichment
+            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? new List<UserProfileDto>();
+            var idStrings = profileItems.Select(p => p.UserProfileId.ToString()).ToList();
+            var identityUsers = userManager.Users
+                .Where(u => idStrings.Contains(u.Id))
+                .Select(u => new IdentityUserSummary
+                {
+                    Id = u.Id,
+                    EmailConfirmed = u.EmailConfirmed,
+                    LockoutEnabled = u.LockoutEnabled,
+                    LockoutEnd = u.LockoutEnd,
+                    AccessFailedCount = u.AccessFailedCount,
+                    TwoFactorEnabled = u.TwoFactorEnabled,
+                    PhoneNumber = u.PhoneNumber,
+                    PhoneNumberConfirmed = u.PhoneNumberConfirmed
+                })
+                .ToList();
+            var identityLookup = identityUsers.ToDictionary(i => i.Id, i => i, StringComparer.OrdinalIgnoreCase);
+
+            var enriched = profileItems.Select(p => new
+            {
+                p.UserProfileId,
+                p.XtremeIdiotsForumId,
+                p.DisplayName,
+                p.Email,
+                p.UserProfileClaims,
+                identity = identityLookup.GetValueOrDefault(p.UserProfileId.ToString())
+            });
+
             return Json(new
             {
                 model.Draw,
                 recordsTotal = userProfileResponseDto.Result?.Pagination?.TotalCount,
                 recordsFiltered = userProfileResponseDto.Result?.Pagination?.FilteredCount,
-                data = userProfileResponseDto?.Result?.Data?.Items
+                data = enriched
             });
         }, nameof(GetUsersAjax));
     }

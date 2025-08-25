@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Web.Auth.Constants;
 using XtremeIdiots.Portal.Web.Extensions;
@@ -170,12 +171,15 @@ public class DataController(
                 return BadRequest();
             }
 
+            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? new List<UserProfileDto>();
+            var idStrings = profileItems.Select(p => p.UserProfileId.ToString()).ToList();
+            // NOTE: API controller does not have UserManager; enrichment limited unless injected. Keeping original response.
             return Ok(new
             {
                 model.Draw,
                 recordsTotal = userProfileResponseDto.Result?.Pagination?.TotalCount,
                 recordsFiltered = userProfileResponseDto.Result?.Pagination?.FilteredCount,
-                data = userProfileResponseDto?.Result?.Data?.Items
+                data = profileItems
             });
         }, nameof(GetUsersAjax));
     }

@@ -2,10 +2,10 @@
 @using XtremeIdiots.Portal.Repository.Abstractions.Models.V1;
 @using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers
 @using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles
-@model UserProfileDto
+@model XtremeIdiots.Portal.Web.ViewModels.ManageUserProfileViewModel
 
 @{
-    ViewData["Title"] = "Manage User Profile - " + Model.DisplayName;
+    ViewData["Title"] = "Manage User Profile - " + Model.Profile.DisplayName;
 
     var gameServers = (List<GameServerDto>?)ViewData["GameServers"] ?? new List<GameServerDto>();
 }
@@ -27,18 +27,14 @@
                     </div>
                     <div class="ibox-content">
                         <dl class="row">
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.DisplayName)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.DisplayName)
-                            </dd>
-                            <dt class="col-sm-2">
-                                @Html.DisplayNameFor(model => model.Email)
-                            </dt>
-                            <dd class="col-sm-10">
-                                @Html.DisplayFor(model => model.Email)
-                            </dd>
+                            <dt class="col-sm-3">Display Name</dt>
+                            <dd class="col-sm-9">@Model.Profile.DisplayName</dd>
+                            <dt class="col-sm-3">Email</dt>
+                            <dd class="col-sm-9">@Model.Profile.Email</dd>
+                            <dt class="col-sm-3">Forum Id</dt>
+                            <dd class="col-sm-9">@Model.Profile.XtremeIdiotsForumId</dd>
+                            <dt class="col-sm-3">Profile Id</dt>
+                            <dd class="col-sm-9">@Model.Profile.UserProfileId</dd>
                         </dl>
                     </div>
                 </div>
@@ -50,13 +46,48 @@
 
             <div class="container-fluid">
                 <div class="ibox">
-                    <div class="ibox-title">
-                        Add Additional Portal Permission
+                    <div class="ibox-title">Identity Details</div>
+                    <div class="ibox-content">
+                        @if (Model.Identity is null)
+                        {
+                            <div class="alert alert-warning mb-0">No linked Identity user found.</div>
+                        }
+                        else
+                        {
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Email Confirmed</dt>
+                                <dd class="col-sm-8">@(Model.Identity.EmailConfirmed ? "Yes" : "No")</dd>
+                                <dt class="col-sm-4">Two Factor</dt>
+                                <dd class="col-sm-8">@(Model.Identity.TwoFactorEnabled ? "Enabled" : "Disabled")</dd>
+                                <dt class="col-sm-4">Lockout Enabled</dt>
+                                <dd class="col-sm-8">@(Model.Identity.LockoutEnabled ? "Yes" : "No")</dd>
+                                <dt class="col-sm-4">Lockout End</dt>
+                                <dd class="col-sm-8">@(Model.Identity.LockoutEnd?.UtcDateTime.ToString("u") ?? "-")</dd>
+                                <dt class="col-sm-4">Access Failed Count</dt>
+                                <dd class="col-sm-8">@Model.Identity.AccessFailedCount</dd>
+                                <dt class="col-sm-4">Phone</dt>
+                                <dd class="col-sm-8">@Model.Identity.PhoneNumber</dd>
+                                <dt class="col-sm-4">Phone Confirmed</dt>
+                                <dd class="col-sm-8">@(Model.Identity.PhoneNumberConfirmed ? "Yes" : "No")</dd>
+                            </dl>
+                        }
                     </div>
+                </div>
+            </div>
+
+        </div>
+
+    </row>
+
+    <row class="row">
+        <div class="col-12">
+
+            <div class="container-fluid">
+                <div class="ibox">
+                    <div class="ibox-title">Add Additional Portal Permission</div>
                     <div class="ibox-content">
                         <form asp-action="CreateUserClaim">
-                            <input id="id" name="id" type="hidden" value="@Model.UserProfileId" />
-
+                            <input id="id" name="id" type="hidden" value="@Model.Profile.UserProfileId" />
                             <div class="form-group">
                                 <label class="control-label">Permission Type</label>
                                 <select name="claimType" id="claimType" class="form-control">
@@ -69,7 +100,6 @@
                                     <option value="LiveRcon">LiveRcon</option>
                                 </select>
                             </div>
-
                             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                             <div class="form-group">
                                 <label class="control-label">Game Server</label>
@@ -78,7 +108,7 @@
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fa fa-plus"> Add Additional Permission</i>
+                                    <i class="fa fa-plus"></i> Add Additional Permission
                                 </button>
                             </div>
                         </form>
@@ -87,7 +117,6 @@
             </div>
 
         </div>
-
     </row>
 
     <row class="row">
@@ -108,7 +137,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var claim in Model.UserProfileClaims)
+                                @foreach (var claim in Model.Profile.UserProfileClaims)
                                 {
                                     <tr>
                                         @{
@@ -135,7 +164,8 @@
                                                 {
                                                     <form class="form-inline" asp-controller="User" asp-action="RemoveUserClaim"
                                                         method="post">
-                                                        <input id="id" name="id" type="hidden" value="@Model.UserProfileId" />
+                                                        <input id="id" name="id" type="hidden"
+                                                            value="@Model.Profile.UserProfileId" />
                                                         <input id="claimId" name="claimId" type="hidden"
                                                             value="@claim.UserProfileClaimId" />
 

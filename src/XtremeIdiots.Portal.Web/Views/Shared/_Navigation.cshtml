@@ -17,23 +17,27 @@
                     <div class="dropdown profile-element">
                         <img src="@(User.PhotoUrl())" alt="@(User.Identity?.Name ?? "User") Avatar"
                             class="img-fluid rounded-circle shadow-sm"
-                            style="max-height: 80px; max-width: 80px; margin: 0 auto 10px; display: block">
-                        <a data-toggle="dropdown" class="dropdown-toggle d-flex align-items-center justify-content-center"
-                            href="#" aria-expanded="false" aria-label="User menu for @(User.Identity?.Name)">
-                            <span class="block m-t-xs font-bold text-center">
-                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i> @(User.Identity?.Name) <b
-                                    class="caret"></b>
+                            style="max-height: 80px; max-width: 80px; margin: 0 auto 10px; display: block" />
+                        <a class="dropdown-toggle d-flex align-items-center justify-content-center profile-dropdown-toggle"
+                            href="#" role="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false"
+                            aria-label="User menu for @(User.Identity?.Name)">
+                            <span class="block m-t-xs font-bold text-center d-flex align-items-center gap-1">
+                                <i class="fa fa-user-circle fa-fw" aria-hidden="true"></i>
+                                <span class="d-none d-md-inline username-text">@(User.Identity?.Name)</span>
+                                <b class="caret d-none d-md-inline"></b>
                             </span>
                         </a>
-                        <ul class="dropdown-menu animated fadeInDown m-t-xs"
-                            style="left: 0; position: absolute; top: 91px; will-change: top, left;">
+                        <ul class="dropdown-menu dropdown-menu-end animated fadeInDown m-t-xs"
+                            data-testid="nav-profile-dropdown">
                             <li>
                                 <a asp-controller="Profile" asp-action="Manage" class="dropdown-item"
                                     data-testid="nav-profile-manage">
                                     <i class="fa fa-id-card fa-fw" aria-hidden="true"></i> Manage Profile
                                 </a>
                             </li>
-                            <li class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
                             <li>
                                 <form class="form-inline" asp-controller="Identity" asp-action="Logout" method="post">
                                     @Html.AntiForgeryToken()

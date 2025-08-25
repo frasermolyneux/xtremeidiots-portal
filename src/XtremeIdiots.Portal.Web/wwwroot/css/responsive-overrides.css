@@ -138,6 +138,55 @@ select:focus {
     outline-offset: 2px;
 }
 
+/* Ensure user profile dropdown remains accessible in mini-navbar / small screens */
+@media (max-width: 768px) {
+    body.mini-navbar .navbar-static-side .nav-header .profile-element {
+        display: block !important;
+    }
+
+    body.mini-navbar .navbar-static-side .nav-header .profile-element .dropdown-menu {
+        position: static;
+        float: none;
+    }
+}
+
+/* Profile dropdown improvements */
+.profile-element .username-text {
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .profile-element .dropdown-menu {
+        margin-top: 4px;
+    }
+
+    .profile-element .dropdown-toggle {
+        padding: 4px 8px;
+    }
+}
+
+/* Prevent avatar overlap in compact / small screen layouts */
+@media (max-width: 768px) {
+    body.mini-navbar .navbar-static-side .nav-header {
+        padding: 12px 10px 8px;
+    }
+
+    body.mini-navbar .navbar-static-side .nav-header .profile-element img {
+        max-width: 48px !important;
+        max-height: 48px !important;
+        width: 48px;
+        height: 48px;
+        object-fit: cover;
+        margin: 0 auto 6px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    body.mini-navbar .navbar-static-side .nav-header .profile-element {
+        position: relative;
+        z-index: 1;
+    }
+}
+
 /* Table row hover effect */
 .table-hover tbody tr:hover {
     background-color: #f8fafb;

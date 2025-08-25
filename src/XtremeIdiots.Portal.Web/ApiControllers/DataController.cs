@@ -171,7 +171,7 @@ public class DataController(
                 return BadRequest();
             }
 
-            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? new List<UserProfileDto>();
+            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? [];
             var idStrings = profileItems.Select(p => p.UserProfileId.ToString()).ToList();
             // NOTE: API controller does not have UserManager; enrichment limited unless injected. Keeping original response.
             return Ok(new

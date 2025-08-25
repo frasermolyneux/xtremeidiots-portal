@@ -108,10 +108,9 @@ public class UserController(
             {
                 identityUser = await userManager.FindByIdAsync(profileData.XtremeIdiotsForumId.ToString()!);
             }
-            if (identityUser is null)
-            {
-                identityUser = await userManager.FindByIdAsync(profileData.UserProfileId.ToString());
-            }
+
+            identityUser ??= await userManager.FindByIdAsync(profileData.UserProfileId.ToString());
+
             var identitySummary = identityUser is null ? null : new IdentityUserSummary
             {
                 Id = identityUser.Id,
@@ -187,7 +186,7 @@ public class UserController(
             }
 
             // Batch load identity data for enrichment
-            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? new List<UserProfileDto>();
+            var profileItems = userProfileResponseDto.Result.Data.Items?.ToList() ?? [];
             var idStrings = profileItems.Select(p => p.UserProfileId.ToString()).ToList();
             var identityUsers = userManager.Users
                 .Where(u => idStrings.Contains(u.Id))

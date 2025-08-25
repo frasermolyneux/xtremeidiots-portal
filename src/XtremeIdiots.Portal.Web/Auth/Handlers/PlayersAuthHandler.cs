@@ -82,6 +82,7 @@ public class PlayersAuthHandler : IAuthorizationHandler
 
     private static void HandleCreatePlayerTag(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
+        // Align with AccessPlayerTags (SeniorAdmin + HeadAdmin (game) + GameAdmin (game))
         BaseAuthorizationHelper.CheckClaimTypes(context, requirement, BaseAuthorizationHelper.ClaimGroups.AdminLevelsExcludingModerators);
     }
 

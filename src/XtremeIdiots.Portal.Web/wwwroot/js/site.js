@@ -269,7 +269,7 @@ function logOutUserLink(id, antiForgeryToken) {
         '<input id="id" name="id" type="hidden" value="' +
         id +
         '\"/>' +
-        '<button class="btn btn-primary" type="submit">Logout User</button>' +
+        '<button class="btn btn-primary" type="submit"><i class="fa fa-sign-out"></i> Logout User</button>' +
         antiForgeryToken +
         '</form>';
 }

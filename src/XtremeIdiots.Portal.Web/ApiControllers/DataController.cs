@@ -140,8 +140,29 @@ public class DataController(
                 return BadRequest();
             }
 
+            UserProfileFilter? userProfileFilter = null;
+            var rawFlag = HttpContext.Request.Query["userFlag"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(rawFlag) && Enum.TryParse<UserProfileFilter>(rawFlag, true, out var parsedFlag))
+            {
+                userProfileFilter = parsedFlag;
+            }
+
+            // Map ordering (API supports DisplayName only at present)
+            var order = UserProfilesOrder.DisplayNameAsc;
+            if (model.Order?.Count > 0)
+            {
+                var orderColumn = model.Columns[model.Order.First().Column].Name;
+                var dir = model.Order.First().Dir;
+                if (string.Equals(orderColumn, "displayName", StringComparison.OrdinalIgnoreCase))
+                {
+                    order = string.Equals(dir, "asc", StringComparison.OrdinalIgnoreCase)
+                        ? UserProfilesOrder.DisplayNameAsc
+                        : UserProfilesOrder.DisplayNameDesc;
+                }
+            }
+
             var userProfileResponseDto = await repositoryApiClient.UserProfiles.V1.GetUserProfiles(
-                model.Search?.Value, null, model.Start, model.Length, UserProfilesOrder.DisplayNameAsc, cancellationToken);
+                model.Search?.Value, userProfileFilter, model.Start, model.Length, order, cancellationToken);
 
             if (userProfileResponseDto.Result?.Data is null)
             {

@@ -1,0 +1,90 @@
+/* Users index filters styling aligned with admin actions */
+.users-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem 1.1rem;
+    align-items: stretch;
+    margin-bottom: .85rem;
+}
+
+.users-filters .filter-group {
+    flex: 0 1 240px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-width: 0;
+    position: relative;
+}
+
+.users-filters label.form-label {
+    font-size: .68rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 600;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.users-filters select.form-select,
+.users-filters input.form-control {
+    width: 100%;
+    border-radius: .5rem;
+    padding: .5rem .75rem;
+    font-size: .9rem;
+    border: 1px solid #d1d5db;
+    transition: box-shadow .15s ease, border-color .15s ease;
+}
+
+.users-filters select.form-select:focus,
+.users-filters input.form-control:focus {
+    border-color: #1ab394;
+    box-shadow: 0 0 0 .15rem rgba(26, 179, 148, .25);
+}
+
+/* Reset button group narrower */
+.users-filters .filter-group.reset-group {
+    flex: 0 0 auto;
+    width: 120px;
+}
+
+.users-filters .reset-group button {
+    margin-top: auto;
+}
+
+@media (max-width: 880px) {
+    .users-filters .filter-group {
+        flex: 0 1 220px;
+    }
+}
+
+@media (max-width: 720px) {
+    .users-filters .filter-group {
+        flex: 1 1 48%;
+    }
+
+    .users-filters .filter-group.reset-group {
+        flex: 1 1 100%;
+    }
+}
+
+@media (max-width: 500px) {
+    .users-filters {
+        gap: .55rem .7rem;
+    }
+
+    .users-filters .filter-group {
+        flex: 1 1 100%;
+    }
+
+    .users-filters label.form-label {
+        font-size: .6rem;
+    }
+
+    .users-filters select.form-select,
+    .users-filters input.form-control {
+        padding: .45rem .65rem;
+        font-size: .85rem;
+    }
+}

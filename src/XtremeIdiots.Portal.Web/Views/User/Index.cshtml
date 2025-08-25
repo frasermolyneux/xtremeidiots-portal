@@ -1,109 +1,61 @@
-﻿@{
+﻿@using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1
+@{
     ViewData["Title"] = "Users";
 }
 
 <div class="wrapper wrapper-content animated fadeInRight">
-
     <div class="alert alert-primary" role="alert">
-        <i class="fa fa-info-circle"></i> To understand how the permissions work and what the additional permissions
-        mean please see the <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
+        <i class="fa fa-info-circle"></i>
+        To understand how the permissions work and what the additional permissions mean please see the
+        <a href="@Url.ActionLink("Permissions", "User")">Permissions Overview</a>
     </div>
 
-    <row class="row">
-        <div class="col-12">
-
-            <div class="container-fluid">
-                <div class="ibox">
-                    <div class="ibox-title">
-                        @ViewData["Title"]
-                    </div>
-                    <div class="ibox-content">
-                        <table id="dataTable">
-                            <thead>
-                                <tr>
-                                    <td>XtremeIdiots Forum Id</td>
-                                    <td>User Profile Id</td>
-                                    <td>Username</td>
-                                    <td>Email</td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
+    <div class="users-filters mb-3">
+        <div class="filter-group">
+            <label for="filterSearch" class="form-label">Search</label>
+            <input id="filterSearch" type="text" class="form-control" placeholder="Search users..."
+                autocomplete="off" />
         </div>
-    </row>
+        <div class="filter-group">
+            <label for="filterUserFlag" class="form-label">User Flag</label>
+            <select id="filterUserFlag" class="form-select">
+                <option value="">All</option>
+                @foreach (var f in Enum.GetValues<UserProfileFilter>())
+                {
+                    <option value="@f">@f</option>
+                }
+            </select>
+        </div>
+        <div class="filter-group reset-group">
+            <label class="form-label" for="resetFilters">Reset</label>
+            <button type="button" id="resetFilters" class="btn btn-outline-secondary btn-sm">Clear Filters</button>
+        </div>
+    </div>
 
+    <div class="ibox">
+        <div class="ibox-title">@ViewData["Title"]</div>
+        <div class="ibox-content">
+            <table id="dataTable" class="table table-striped table-hover w-100" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Forum Id</th>
+                        <th>Profile Id</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
 </div>
-
-@* ReSharper disable once Razor.SectionNotResolved *@
 
 @section Scripts {
     <form id="__af" method="post" style="display:none">@Html.AntiForgeryToken()</form>
-    <script type="text/javascript">
+    <script src="~/js/user-index.js" asp-append-version="true"></script>
+}
 
-        $(document).ready(function () {
-            $('#dataTable').DataTable({
-                processing: true,
-                serverSide: true,
-                searchDelay: 1000,
-                stateSave: true,
-                order: [[1, "asc"]],
-                ajax: {
-                    url: '/User/GetUsersAjax',
-                    dataSrc: 'data',
-                    contentType: "application/json",
-                    type: "POST",
-                    beforeSend: function (xhr) {
-                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-                        var antiForgeryToken = tokenInput ? tokenInput.value : '';
-                        if (antiForgeryToken) {
-                            xhr.setRequestHeader('RequestVerificationToken', antiForgeryToken);
-                        }
-                    },
-                    "data": function (d) {
-                        return JSON.stringify(d);
-                    }
-                },
-                columns: [
-                    {
-                        data: 'xtremeIdiotsForumId',
-                        name: 'xtremeIdiotsForumId',
-                        sortable: true
-                    },
-                    {
-                        data: 'userProfileId',
-                        name: 'userProfileId',
-                        sortable: true
-                    },
-                    {
-                        data: 'displayName',
-                        name: 'displayName',
-                        sortable: true
-                    },
-                    {
-                        data: 'email',
-                        name: 'email',
-                        sortable: true
-                    },
-                    {
-                        sortable: false,
-                        render: function (data, type, row) {
-                            return logOutUserLink(row['xtremeIdiotsForumId'], '@Html.AntiForgeryToken()');
-                        }
-                    },
-                    {
-                        sortable: false,
-                        render: function (data, type, row) {
-                            return manageClaimsLink(row['userProfileId']);
-                        }
-                    }
-                ]
-            });
-        });
-
-    </script>
+@section Styles {
+    <link rel="stylesheet" href="~/css/user-index.css" />
 }

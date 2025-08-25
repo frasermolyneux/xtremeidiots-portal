@@ -95,30 +95,38 @@ public class AdminActionsAuthHandler : IAuthorizationHandler
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
 
-        if (context.Resource is Tuple<GameType, string> resource)
+        // Support both reference Tuple<,> and value tuple (,) resources
+        if (context.Resource is Tuple<GameType, string> refTuple)
         {
-            var (gameType, adminId) = resource;
-
+            var gameType = refTuple.Item1;
+            var adminId = refTuple.Item2;
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-
-            if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()) &&
-                IsAdminActionOwner(context, adminId))
-            {
+            if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()) && IsAdminActionOwner(context, adminId))
                 context.Succeed(requirement);
-            }
+        }
+        else if (context.Resource is (GameType gameType, string adminId))
+        {
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            if (context.User.HasClaim(UserProfileClaimType.GameAdmin, gameType.ToString()) && IsAdminActionOwner(context, adminId))
+                context.Succeed(requirement);
         }
     }
 
     private static void HandleCreateAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-
-        if (context.Resource is Tuple<GameType, AdminActionType> resource)
+        // Support both reference and value tuples for (GameType, AdminActionType)
+        if (context.Resource is Tuple<GameType, AdminActionType> refTuple)
         {
-            var (gameType, adminActionType) = resource;
-
+            var gameType = refTuple.Item1;
+            var adminActionType = refTuple.Item2;
             BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
-
+            if (IsModeratorLevelAction(adminActionType))
+                BaseAuthorizationHelper.CheckModeratorAccess(context, requirement, gameType);
+        }
+        else if (context.Resource is (GameType gameType, AdminActionType adminActionType))
+        {
+            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
             if (IsModeratorLevelAction(adminActionType))
                 BaseAuthorizationHelper.CheckModeratorAccess(context, requirement, gameType);
         }
@@ -127,11 +135,19 @@ public class AdminActionsAuthHandler : IAuthorizationHandler
     private static void HandleEditAdminAction(AuthorizationHandlerContext context, IAuthorizationRequirement requirement)
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
-
-        if (context.Resource is Tuple<GameType, AdminActionType, string?> resource)
+        // Support both reference and value tuples for (GameType, AdminActionType, string?)
+        if (context.Resource is Tuple<GameType, AdminActionType, string?> refTuple)
         {
-            var (gameType, adminActionType, adminId) = resource;
-
+            var gameType = refTuple.Item1;
+            var adminActionType = refTuple.Item2;
+            var adminId = refTuple.Item3;
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            CheckActionSpecificEditPermissions(context, requirement, gameType, adminActionType, adminId);
+        }
+        else if (context.Resource is (GameType gameType, AdminActionType adminActionType, string adminIdValue))
+        {
+            // adminIdValue may represent a nullable original; treat empty string as null
+            var adminId = string.IsNullOrWhiteSpace(adminIdValue) ? null : adminIdValue;
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
             CheckActionSpecificEditPermissions(context, requirement, gameType, adminActionType, adminId);
         }

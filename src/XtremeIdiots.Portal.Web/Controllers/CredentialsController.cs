@@ -70,26 +70,72 @@ public class CredentialsController(
 
     private async Task<List<GameServerDto>?> GetAuthorizedGameServersAsync(GameType[]? gameTypes, Guid[]? gameServerIds, CancellationToken cancellationToken)
     {
-        var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
-            gameTypes, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
+        var aggregate = new Dictionary<Guid, GameServerDto>();
+        var anySuccess = false;
 
-        if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items is null)
+        // Query by game types (HeadAdmin / GameAdmin breadth)
+        if (gameTypes is not null && gameTypes.Length > 0)
         {
-            Logger.LogWarning("Failed to retrieve game servers for credentials view for user {UserId} - API response status: {IsSuccess}",
-                User.XtremeIdiotsId(), gameServersApiResponse.IsSuccess);
+            var byGameTypesResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                gameTypes, null, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
 
-            TelemetryClient.TrackEvent("CredentialsApiFailure", new Dictionary<string, string>
+            if (byGameTypesResponse.IsSuccess && byGameTypesResponse.Result?.Data?.Items is not null)
             {
-                { "ApiSuccess", gameServersApiResponse.IsSuccess.ToString() },
-                { nameof(CredentialsController), nameof(CredentialsController) },
-                { "Action", nameof(GetAuthorizedGameServersAsync) },
-                { "UserId", User.XtremeIdiotsId()?.ToString() ?? "Unknown" }
-            });
+                foreach (var item in byGameTypesResponse.Result.Data.Items)
+                {
+                    if (!aggregate.ContainsKey(item.GameServerId))
+                        aggregate[item.GameServerId] = item;
+                }
 
-            return null;
+                anySuccess = true;
+            }
+            else
+            {
+                Logger.LogWarning("Failed game type credential query for user {UserId}", User.XtremeIdiotsId());
+                TelemetryClient.TrackEvent("CredentialsApiFailure", new Dictionary<string, string>
+                {
+                    { "Scope", "GameTypes" },
+                    { nameof(CredentialsController), nameof(CredentialsController) },
+                    { "Action", nameof(GetAuthorizedGameServersAsync) },
+                    { "UserId", User.XtremeIdiotsId() ?? "Unknown" }
+                });
+            }
         }
 
-        return [.. gameServersApiResponse.Result.Data.Items];
+        // Query by explicit server IDs (per-server credential claims)
+        if (gameServerIds is not null && gameServerIds.Length > 0)
+        {
+            var byServerIdsResponse = await repositoryApiClient.GameServers.V1.GetGameServers(
+                null, gameServerIds, null, 0, 50, GameServerOrder.BannerServerListPosition, cancellationToken);
+
+            if (byServerIdsResponse.IsSuccess && byServerIdsResponse.Result?.Data?.Items is not null)
+            {
+                foreach (var item in byServerIdsResponse.Result.Data.Items)
+                {
+                    if (!aggregate.ContainsKey(item.GameServerId))
+                        aggregate[item.GameServerId] = item;
+                }
+
+                anySuccess = true;
+            }
+            else
+            {
+                Logger.LogWarning("Failed server id credential query for user {UserId}", User.XtremeIdiotsId());
+                TelemetryClient.TrackEvent("CredentialsApiFailure", new Dictionary<string, string>
+                {
+                    { "Scope", "ServerIds" },
+                    { nameof(CredentialsController), nameof(CredentialsController) },
+                    { "Action", nameof(GetAuthorizedGameServersAsync) },
+                    { "UserId", User.XtremeIdiotsId() ?? "Unknown" }
+                });
+            }
+        }
+
+        if (!anySuccess)
+            return null;
+
+        // Preserve insertion order (game types first, then server IDs) by iterating dictionary values
+        return [.. aggregate.Values];
     }
 
     private async Task ApplyCredentialAuthorizationAsync(List<GameServerDto> gameServersList, CancellationToken cancellationToken)

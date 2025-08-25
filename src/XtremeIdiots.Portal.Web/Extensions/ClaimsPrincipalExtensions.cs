@@ -77,9 +77,14 @@ public static class ClaimsPrincipalExtensions
 
         foreach (var claim in claims)
         {
-            if (Enum.TryParse(claim.Type, out GameType gameType))
-                gameTypes.Add(Enum.Parse<GameType>(claim.Value));
+            // For game-scoped claims the value holds the GameType name (e.g. COD2, COD4)
+            // The previous implementation incorrectly attempted to parse claim.Type
+            // (e.g. HeadAdmin, GameAdmin) as a GameType which always failed, meaning
+            // HeadAdmins/GameAdmins did not get their game types populated unless they were SeniorAdmin.
+            if (Enum.TryParse(claim.Value, out GameType gameTypeValue))
+                gameTypes.Add(gameTypeValue);
 
+            // For credential / server scoped claims the value is a GameServerId (GUID)
             if (Guid.TryParse(claim.Value, out var guid))
                 servers.Add(guid);
         }

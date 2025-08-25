@@ -100,13 +100,22 @@ public class GameServersAuthHandler : IAuthorizationHandler
         {
             var gameType = refTuple.Item1;
             var gameServerId = refTuple.Item2;
+            // Head admins should be able to view all FTP credentials for their game type without needing
+            // individual per-server FtpCredentials claims. Previously they also needed a server scoped claim
+            // which caused missing credentials on the credentials page.
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
+            if (!context.HasSucceeded)
+            {
+                BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
+            }
         }
         else if (context.Resource is (GameType gameType, Guid gameServerId))
         {
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
+            if (!context.HasSucceeded)
+            {
+                BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
+            }
         }
     }
 
@@ -130,24 +139,34 @@ public class GameServersAuthHandler : IAuthorizationHandler
         {
             var gameType = tupleResource.Item1;
             var gameServerId = tupleResource.Item2;
+            // Allow head admin game-level access without needing per-server RCON credential claim
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+            if (!context.HasSucceeded)
+            {
+                BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
+                BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
+                BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+            }
         }
         else if (context.Resource is (GameType gameType, Guid gameServerId))
         {
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
-            BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+            if (!context.HasSucceeded)
+            {
+                BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
+                BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
+                BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+            }
         }
         else if (context.Resource is GameType singleGameType)
         {
             // Original behaviour path when only a game type is supplied
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, singleGameType);
-            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, singleGameType);
-            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, singleGameType);
+            if (!context.HasSucceeded)
+            {
+                BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, singleGameType);
+                BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, singleGameType);
+            }
         }
     }
 }

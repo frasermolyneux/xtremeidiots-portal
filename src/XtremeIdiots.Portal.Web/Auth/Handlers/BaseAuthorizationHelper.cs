@@ -211,9 +211,14 @@ public static class BaseAuthorizationHelper
             return;
         }
 
-        if (context.Resource is Tuple<GameType, Guid> resource)
+        if (context.Resource is Tuple<GameType, Guid> refTuple)
         {
-            var (gameType, gameServerId) = resource;
+            var gameType = refTuple.Item1;
+            var gameServerId = refTuple.Item2;
+            CheckGameTypeAndServerAccess(context, requirement, gameType, gameServerId);
+        }
+        else if (context.Resource is (GameType gameType, Guid gameServerId))
+        {
             CheckGameTypeAndServerAccess(context, requirement, gameType, gameServerId);
         }
     }

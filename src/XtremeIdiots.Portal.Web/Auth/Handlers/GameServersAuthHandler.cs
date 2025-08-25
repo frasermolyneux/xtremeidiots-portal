@@ -96,9 +96,15 @@ public class GameServersAuthHandler : IAuthorizationHandler
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
 
-        if (context.Resource is Tuple<GameType, Guid> resource)
+        if (context.Resource is Tuple<GameType, Guid> refTuple)
         {
-            var (gameType, gameServerId) = resource;
+            var gameType = refTuple.Item1;
+            var gameServerId = refTuple.Item2;
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
+        }
+        else if (context.Resource is (GameType gameType, Guid gameServerId))
+        {
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckFtpCredentialsAccess(context, requirement, gameServerId);
         }
@@ -122,21 +128,26 @@ public class GameServersAuthHandler : IAuthorizationHandler
 
         if (context.Resource is Tuple<GameType, Guid> tupleResource)
         {
-            var (gameType, gameServerId) = tupleResource;
-            // Allow HeadAdmin at game scope
+            var gameType = tupleResource.Item1;
+            var gameServerId = tupleResource.Item2;
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-            // Existing behaviour: GameAdmin or LiveRcon at game scope
             BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
-            // New: allow per-server RconCredentials claim holder
             BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
         }
-        else if (context.Resource is GameType gameType)
+        else if (context.Resource is (GameType gameType, Guid gameServerId))
         {
-            // Original behaviour path when only a game type is supplied
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, gameType);
             BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, gameType);
+            BaseAuthorizationHelper.CheckRconCredentialsAccess(context, requirement, gameServerId);
+        }
+        else if (context.Resource is GameType singleGameType)
+        {
+            // Original behaviour path when only a game type is supplied
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, singleGameType);
+            BaseAuthorizationHelper.CheckGameAdminAccess(context, requirement, singleGameType);
+            BaseAuthorizationHelper.CheckLiveRconAccess(context, requirement, singleGameType);
         }
     }
 }

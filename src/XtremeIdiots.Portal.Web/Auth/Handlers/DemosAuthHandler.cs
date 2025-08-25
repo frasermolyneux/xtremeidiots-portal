@@ -43,16 +43,19 @@ public class DemosAuthHandler(IHttpContextAccessor httpContextAccessor) : IAutho
     {
         BaseAuthorizationHelper.CheckSeniorAdminAccess(context, requirement);
 
-        if (context.Resource is Tuple<GameType, Guid> resource)
+        if (context.Resource is Tuple<GameType, Guid> refTuple)
         {
-            var (gameType, userProfileId) = resource;
-
+            var gameType = refTuple.Item1;
+            var userProfileId = refTuple.Item2;
             BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
-
             if (BaseAuthorizationHelper.IsResourceOwner(context, userProfileId))
-            {
                 context.Succeed(requirement);
-            }
+        }
+        else if (context.Resource is (GameType gameType, Guid userProfileId))
+        {
+            BaseAuthorizationHelper.CheckHeadAdminAccess(context, requirement, gameType);
+            if (BaseAuthorizationHelper.IsResourceOwner(context, userProfileId))
+                context.Succeed(requirement);
         }
     }
 

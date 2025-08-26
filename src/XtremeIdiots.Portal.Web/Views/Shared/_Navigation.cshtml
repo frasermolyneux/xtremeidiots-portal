@@ -253,6 +253,24 @@
                 </a>
             </li>
 
+            <li policy="@AuthPolicies.AccessDemos" class="@Html.IsSelected("Demos", "Index") nav-item">
+                <a href="#" class="nav-link" data-testid="nav-demos-toggle" aria-expanded="false">
+                    <i class="fa fa-film fa-fw"></i> <span class="nav-label">Demo Manager</span> <span
+                        class="fa arrow"></span>
+                </a>
+                <ul class="nav nav-second-level collapse">
+                    <li class="@Html.IsSelected("Demos", "Index")">
+                        <a asp-controller="Demos" asp-action="Index" data-testid="nav-demos-index">
+                            <i class="fa fa-list fa-fw"></i> All Demos
+                        </a>
+                    </li>
+                    <li class="@Html.IsSelected("Demos", "DemoClient")">
+                        <a asp-controller="Demos" asp-action="DemoClient" data-testid="nav-demos-client">
+                            <i class="fa fa-key fa-fw"></i> Demo Client
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             <li policy="@AuthPolicies.AccessPlayerTags" class="@Html.IsSelected("Tags", "Index")">
                 <a asp-controller="Tags" asp-action="Index">

@@ -1,0 +1,29 @@
+/* Demos Index specific tweaks (patterned after players-index.css) */
+.demos-table-wrapper .dataTables_wrapper .dataTables_filter {
+    display: none;
+}
+
+#demosFilters {
+    margin-top: .35rem;
+}
+
+#demosFilters .filter-group {
+    flex: 0 1 260px;
+}
+
+@media (min-width: 992px) {
+    /* Width hints can be added here if necessary */
+}
+
+.ibox.demos-table-wrapper .ibox-content.datatable-tight {
+    padding-top: .5rem;
+}
+
+#dataTable tbody td {
+    padding-top: .4rem;
+    padding-bottom: .35rem;
+}
+
+#dataTable thead th {
+    font-weight: 600;
+}

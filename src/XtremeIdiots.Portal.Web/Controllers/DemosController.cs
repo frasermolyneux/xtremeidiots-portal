@@ -42,13 +42,15 @@ public class DemosController(
     IRepositoryApiClient repositoryApiClient,
     TelemetryClient telemetryClient,
     ILogger<DemosController> logger,
-    IConfiguration configuration) : BaseController(telemetryClient, logger, configuration)
+    IConfiguration configuration,
+    IHttpClientFactory httpClientFactory) : BaseController(telemetryClient, logger, configuration)
 {
     private readonly IAuthorizationService authorizationService = authorizationService ?? throw new ArgumentNullException(nameof(authorizationService));
     private readonly UserManager<IdentityUser> userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     private readonly SignInManager<IdentityUser> signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     private readonly IDemoManager demosForumsClient = demosForumsClient ?? throw new ArgumentNullException(nameof(demosForumsClient));
     private readonly IRepositoryApiClient repositoryApiClient = repositoryApiClient ?? throw new ArgumentNullException(nameof(repositoryApiClient));
+    private readonly IHttpClientFactory httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
 
     /// <summary>
     /// Displays the demo client configuration page with authentication key information
@@ -302,20 +304,34 @@ public class DemosController(
             if (demoApiResult.IsNotFound || demoApiResult.Result?.Data is null)
             {
                 Logger.LogWarning("Demo {DemoId} not found when user {UserId} attempted download", id, User.XtremeIdiotsId());
-
                 TrackUnauthorizedAccessAttempt(nameof(Download), "Demo", $"DemoId:{id},Reason:NotFound", new { DemoId = id });
-
                 return NotFound();
             }
 
-            TrackSuccessTelemetry(nameof(Download), nameof(Download), new Dictionary<string, string>
-        {
- { "DemoId", id.ToString() },
- { "DemoTitle", demoApiResult.Result.Data.Title },
- { "GameType", demoApiResult.Result.Data.GameType.ToString() }
-        });
+            var demo = demoApiResult.Result.Data;
 
-            return Redirect(demoApiResult.Result.Data.FileUri);
+            // Fetch the remote file so we can control the download filename instead of redirecting to a GUID blob
+            var client = httpClientFactory.CreateClient();
+            var response = await client.GetAsync(demo.FileUri, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                Logger.LogError("Failed to retrieve demo file content for {DemoId} - StatusCode {StatusCode}", id, (int)response.StatusCode);
+                return StatusCode((int)response.StatusCode);
+            }
+
+            var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            var contentType = response.Content.Headers.ContentType?.ToString() ?? "application/octet-stream";
+            var downloadFileName = string.IsNullOrWhiteSpace(demo.FileName) ? $"{demo.DemoId}.dm_1" : demo.FileName;
+
+            TrackSuccessTelemetry(nameof(Download), nameof(Download), new Dictionary<string, string>
+            {
+                { "DemoId", id.ToString() },
+                { "DemoTitle", demo.Title },
+                { "GameType", demo.GameType.ToString() },
+                { "DownloadFileName", downloadFileName }
+            });
+
+            return File(stream, contentType, downloadFileName);
         }, nameof(Download));
     }
 

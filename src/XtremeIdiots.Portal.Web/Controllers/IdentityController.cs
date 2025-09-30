@@ -129,7 +129,7 @@ public class IdentityController(
                 { "ErrorMessage", message ?? "Unknown" }
             });
 
-            return await Task.FromResult(View(message));
+            return await Task.FromResult(View("IdentityError", message));
         }, "IdentityError", "Anonymous");
     }
 

@@ -1,0 +1,57 @@
+@model string
+
+@{
+    ViewData["Title"] = "Login Error";
+    Layout = null;
+    var errorMessage = string.IsNullOrWhiteSpace(Model)
+        ? "There has been an issue logging you in."
+        : Model;
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - XI Portal</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="~/css/animate.css" />
+        <link rel="stylesheet" href="~/css/inspinia.css" asp-append-version="true" />
+    </environment>
+</head>
+
+<body class="gray-bg">
+    <div class="loginColumns animated fadeInDown">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h2 class="font-bold">XtremeIdiots Portal Login</h2>
+                <div class="alert alert-danger mt-4" role="alert">
+                    @errorMessage
+                </div>
+                <a class="btn btn-primary mt-3" asp-controller="Identity" asp-action="Login">Back to Login</a>
+            </div>
+        </div>
+        <hr />
+        <div class="row">
+            <div class="col-md-6">
+                Copyright - Fraser Molyneux
+            </div>
+            <div class="col-md-6 text-right">
+                <small>© @DateTime.UtcNow.Year</small>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

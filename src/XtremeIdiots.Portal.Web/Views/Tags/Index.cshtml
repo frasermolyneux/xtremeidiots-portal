@@ -22,6 +22,7 @@
                                     <th>Name</th>
                                     <th>Description</th>
                                     <th>Tag Preview</th>
+                                    <th class="text-center">Players</th>
                                     <th>User Defined</th>
                                     <th>Actions</th>
                                 </tr>
@@ -33,6 +34,9 @@
                                         <td>@tag.Name</td>
                                         <td>@tag.Description</td>
                                         <td>@Html.Raw(tag.TagHtml)</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-info">@tag.PlayerCount</span>
+                                        </td>
                                         <td>
                                             @if (tag.UserDefined)
                                             {

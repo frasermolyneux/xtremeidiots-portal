@@ -198,6 +198,7 @@ public class XtremeIdiotsAuth(
                     member.Name ?? UnknownUsername,
                     member.Email ?? UnknownEmail)
                 {
+                    IdentityOid = memberId,
                     Title = member.Title,
                     FormattedName = member.FormattedName,
                     PrimaryGroup = member.PrimaryGroup?.Name,

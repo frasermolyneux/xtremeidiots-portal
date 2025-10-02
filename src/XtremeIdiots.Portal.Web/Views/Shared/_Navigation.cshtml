@@ -159,21 +159,38 @@
                 </ul>
             </li>
 
-            <li policy="@AuthPolicies.ViewGlobalChatLog"
-                class="@Html.IsSelected("ServerAdmin", "ChatLogIndex") nav-item">
-                <a href="#" class="nav-link" data-testid="nav-chatlog-toggle" aria-expanded="false">
-                    <i class="fa fa-commenting fa-fw"></i> <span class="nav-label">Chat Log</span> <span
-                        class="fa arrow"></span>
-                </a>
-                <ul class="nav nav-second-level collapse">
-                    <li class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
-                        <a asp-controller="ServerAdmin" asp-action="ChatLogIndex" data-testid="nav-chatlog-global">
-                            <i class="fa fa-globe fa-fw"></i> Global Chat Log
-                        </a>
-                    </li>
-                    @foreach (var game in ChatLogSupportedGames.Games)
+            @{
+                var canViewGlobalChatLog = (await AuthorizationService.AuthorizeAsync(User,
+                AuthPolicies.ViewGlobalChatLog)).Succeeded;
+                var authorizedChatGames = new System.Collections.Generic.List<GameType>();
+
+                foreach (var game in ChatLogSupportedGames.Games)
+                {
+                    if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
                     {
-                        if ((await AuthorizationService.AuthorizeAsync(User, game, AuthPolicies.ViewGameChatLog)).Succeeded)
+                        authorizedChatGames.Add(game);
+                    }
+                }
+
+                var shouldShowChatLogMenu = canViewGlobalChatLog || authorizedChatGames.Count > 0;
+            }
+            @if (shouldShowChatLogMenu)
+            {
+                <li class="@Html.IsSelected("ServerAdmin", "ChatLogIndex") nav-item">
+                    <a href="#" class="nav-link" data-testid="nav-chatlog-toggle" aria-expanded="false">
+                        <i class="fa fa-commenting fa-fw"></i> <span class="nav-label">Chat Log</span> <span
+                            class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level collapse">
+                        @if (canViewGlobalChatLog)
+                        {
+                            <li class="@Html.IsSelected("ServerAdmin", "ChatLogIndex")">
+                                <a asp-controller="ServerAdmin" asp-action="ChatLogIndex" data-testid="nav-chatlog-global">
+                                    <i class="fa fa-globe fa-fw"></i> Global Chat Log
+                                </a>
+                            </li>
+                        }
+                        @foreach (var game in authorizedChatGames)
                         {
                             <li class="@Html.IsSelected("ServerAdmin", "GameChatLog", id: game.ToString())">
                                 <a asp-controller="ServerAdmin" asp-action="GameChatLog" asp-route-id="@game"
@@ -182,9 +199,9 @@
                                 </a>
                             </li>
                         }
-                    }
-                </ul>
-            </li>
+                    </ul>
+                </li>
+            }
 
             <li policy="@AuthPolicies.AccessPlayers" class="@Html.IsSelected("Players", "Index") nav-item">
                 <a href="#" class="nav-link" data-testid="nav-players-toggle" aria-expanded="false">

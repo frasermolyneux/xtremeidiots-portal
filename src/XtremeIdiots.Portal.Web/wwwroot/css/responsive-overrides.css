@@ -81,6 +81,16 @@ body.mini-navbar .metismenu>li:focus-within>.nav-second-level.collapse {
     display: block;
 }
 
+body.mini-navbar .metismenu>li.mini-open {
+    position: relative;
+}
+
+body.mini-navbar .metismenu>li.mini-open>.nav-second-level {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
 .metismenu .nav-second-level li a {
     padding-left: 40px;
 }

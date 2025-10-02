@@ -74,6 +74,7 @@ $(document).ready(function () {
 
     // Fix navigation menu functionality
     ensureExpandedParents();
+    enableMiniNavbarPopouts();
 
     // Add animation to alerts
     $('.alert').addClass('animated fadeIn');
@@ -93,6 +94,89 @@ $(document).ready(function () {
             const $parentItem = $submenu.parent('li');
             $parentItem.addClass('active');
             $parentItem.children('a').attr('aria-expanded', 'true');
+        });
+    }
+
+    function enableMiniNavbarPopouts() {
+        const $body = $('body');
+        const $menu = $('#side-menu');
+        if ($menu.length === 0) {
+            return;
+        }
+
+        const submenuSelector = '> li';
+
+        function showSubmenu($item) {
+            if (!$body.hasClass('mini-navbar')) {
+                return;
+            }
+
+            const $submenu = $item.children('ul.nav-second-level');
+            if ($submenu.length === 0) {
+                return;
+            }
+
+            const wasOpen = $submenu.hasClass('show');
+            $submenu.data('was-open', wasOpen);
+
+            $item.addClass('mini-open');
+            if (!wasOpen) {
+                $submenu.addClass('show');
+            }
+
+            $submenu
+                .addClass('mini-force-open')
+                .attr('aria-expanded', 'true')
+                .css('display', 'block');
+
+            $item.children('a').attr('aria-expanded', 'true');
+        }
+
+        function hideSubmenu($item) {
+            if (!$body.hasClass('mini-navbar')) {
+                return;
+            }
+
+            const $submenu = $item.children('ul.nav-second-level');
+            if ($submenu.length === 0) {
+                return;
+            }
+
+            const wasOpen = $submenu.data('was-open');
+
+            $item.removeClass('mini-open');
+            $submenu.removeClass('mini-force-open');
+            $submenu.removeAttr('style');
+
+            if (!wasOpen) {
+                $submenu.removeClass('show');
+            }
+
+            $submenu.attr('aria-expanded', wasOpen ? 'true' : 'false');
+            $item.children('a').attr('aria-expanded', wasOpen ? 'true' : 'false');
+            $submenu.removeData('was-open');
+        }
+
+        $menu.on('mouseenter', submenuSelector, function () {
+            showSubmenu($(this));
+        });
+
+        $menu.on('mouseleave', submenuSelector, function () {
+            hideSubmenu($(this));
+        });
+
+        $menu.on('focusin', submenuSelector, function () {
+            showSubmenu($(this));
+        });
+
+        $menu.on('focusout', submenuSelector, function () {
+            const $item = $(this);
+            setTimeout(function () {
+                if ($item.find(document.activeElement).length > 0) {
+                    return;
+                }
+                hideSubmenu($item);
+            }, 0);
         });
     }
 });

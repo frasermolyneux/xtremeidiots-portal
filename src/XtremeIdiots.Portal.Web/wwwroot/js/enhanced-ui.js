@@ -70,58 +70,31 @@ $(document).ready(function () {
     // Add form validation styling
     $('form').on('submit', function () {
         $(this).addClass('was-validated');
-    });    // Fix navigation menu functionality
-    fixNavigationMenu();
+    });
+
+    // Fix navigation menu functionality
+    ensureExpandedParents();
 
     // Add animation to alerts
-    $('.alert').addClass('animated fadeIn');    // Function to fix menu navigation issues
-    function fixNavigationMenu() {
-        // First, ensure all active items have their parent menus expanded
+    $('.alert').addClass('animated fadeIn');
+
+    // Ensure the current navigation hierarchy is expanded for active items
+    function ensureExpandedParents() {
         $('.nav-second-level li.active').each(function () {
-            // Find the parent menu container
-            var $parentMenu = $(this).closest('ul.nav-second-level');
-
-            // Make sure the submenu is shown
-            if ($parentMenu.hasClass('collapse') && !$parentMenu.hasClass('show')) {
-                $parentMenu.addClass('show');
+            const $submenu = $(this).closest('ul.nav-second-level');
+            if ($submenu.length === 0) {
+                return;
             }
-        });
 
-        // Ensure all menu items with submenu can be clicked to expand
-        $('.metismenu > li > a').each(function () {
-            var $link = $(this);
-            var $arrow = $link.find('.fa.arrow');
+            $submenu
+                .addClass('show')
+                .attr('aria-expanded', 'true');
 
-            if ($arrow.length) {
-                $link.off('click.menuToggle').on('click.menuToggle', function (e) {
-                    e.preventDefault();
-                    var $parentLi = $link.parent('li');
-                    var $submenu = $parentLi.find('> ul.nav-second-level');
-
-                    // Toggle the submenu
-                    if ($submenu.hasClass('show')) {
-                        // Close submenu
-                        $submenu.removeClass('show');
-                        // Don't remove active class as it should be controlled by the IsSelected method
-                    } else {
-                        // Open submenu
-                        $submenu.addClass('show');
-                        // Don't add active class as it should be controlled by the IsSelected method
-
-                        // Close other open submenus at the same level (optional)
-                        $parentLi.siblings().find('> ul.nav-second-level.show').removeClass('show');
-                    }
-                });
-            }
+            const $parentItem = $submenu.parent('li');
+            $parentItem.addClass('active');
+            $parentItem.children('a').attr('aria-expanded', 'true');
         });
     }
-
-    // Auto-dismiss alerts after 5 seconds
-    setTimeout(function () {
-        $('.alert:not(.alert-important)').fadeOut(500, function () {
-            $(this).remove();
-        });
-    }, 5000);
 });
 
 // Add ripple CSS style

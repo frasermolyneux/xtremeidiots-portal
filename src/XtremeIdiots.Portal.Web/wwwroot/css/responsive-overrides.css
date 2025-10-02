@@ -75,9 +75,9 @@ body:not(.mini-navbar) .metismenu .nav-second-level.collapse:not(.show) {
 }
 
 /* Keep icons-only (mini-navbar) menus open while interacting with the submenu */
-body.mini-navbar .metismenu > li.active > .nav-second-level.collapse,
-body.mini-navbar .metismenu > li:hover > .nav-second-level.collapse,
-body.mini-navbar .metismenu > li:focus-within > .nav-second-level.collapse {
+body.mini-navbar .metismenu>li.active>.nav-second-level.collapse,
+body.mini-navbar .metismenu>li:hover>.nav-second-level.collapse,
+body.mini-navbar .metismenu>li:focus-within>.nav-second-level.collapse {
     display: block;
 }
 

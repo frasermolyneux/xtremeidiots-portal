@@ -440,7 +440,7 @@ public class ServerAdminController(
             var authResult = await CheckAuthorizationAsync(
                 authorizationService,
                 playerData.GameType,
-                AuthPolicies.ViewGameChatLog,
+                AuthPolicies.ViewServerChatLog,
                 "GetPlayerChatLog",
                 "PlayerChatLog",
                 $"PlayerId:{id},GameType:{playerData.GameType}",
@@ -529,16 +529,13 @@ public class ServerAdminController(
         {
             return true;
         }
+
         return Request.Headers.Accept.Any(h => !string.IsNullOrEmpty(h) && h.Contains("application/json", StringComparison.OrdinalIgnoreCase));
     }
 
     private IActionResult JsonOrStatus(IActionResult nonJsonResult, object jsonPayload)
     {
-        if (IsJsonRequest())
-        {
-            return Json(jsonPayload);
-        }
-        return nonJsonResult;
+        return IsJsonRequest() ? Json(jsonPayload) : nonJsonResult;
     }
 
     private async Task<IActionResult> GetChatLogPrivate(GameType? gameType, Guid? gameServerId, Guid? playerId, bool? lockedOnly = null, CancellationToken cancellationToken = default)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.WindowsServer.Channel.Implementation;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,15 @@ public class Startup(IConfiguration configuration)
         services.Configure<TelemetryConfiguration>(telemetryConfiguration =>
         {
             var telemetryProcessorChainBuilder = telemetryConfiguration.DefaultTelemetrySink.TelemetryProcessorChainBuilder;
-            telemetryProcessorChainBuilder.UseAdaptiveSampling(excludedTypes: "Exception");
+            telemetryProcessorChainBuilder.UseAdaptiveSampling(
+                settings: new SamplingPercentageEstimatorSettings
+                {
+                    InitialSamplingPercentage = 5,
+                    MinSamplingPercentage = 5,
+                    MaxSamplingPercentage = 60
+                },
+                callback: null,
+                excludedTypes: "Exception");
             telemetryProcessorChainBuilder.Build();
         });
 

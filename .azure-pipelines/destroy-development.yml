@@ -1,6 +1,14 @@
 trigger: none
 pr: none
 
+schedules:
+  - cron: "10 2 * * *"
+    displayName: "Nightly Destroy Development (02:10 UTC)"
+    branches:
+      include:
+        - main
+    always: true
+
 pool:
   vmImage: 'windows-latest'
 
@@ -24,10 +32,18 @@ stages:
             deploy:
               steps:
                 - task: AzureCLI@2
-                  displayName: DestroyDevResources
+                  displayName: DestroyDevResourceGroup
                   inputs:
                     azureSubscription: spn-xtremeidiots-portal-development
                     scriptType: "pscore"
                     scriptLocation: "inlineScript"
                     inlineScript: |
-                      Write-Host "TODO"
+                      $params = Get-Content "$(System.DefaultWorkingDirectory)/params/dev.json" | ConvertFrom-Json
+                      $envName = $params.parameters.environment.value
+                      $location = $params.parameters.location.value
+                      $instance = $params.parameters.instance.value
+
+                      $resourceGroupName = "rg-portal-web-$envName-$location-$instance"
+
+                      Write-Host "Deleting resource group $resourceGroupName"
+                      az group delete --name $resourceGroupName --yes --no-wait
